@@ -33,9 +33,20 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# database — never commit the local SQLite file
+prisma/dev.db
+prisma/dev.db-journal
+prisma/*.db
+
+# dev-only scripts — not for production
+seed.js
+test-csv.js
+
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/src/generated/prisma

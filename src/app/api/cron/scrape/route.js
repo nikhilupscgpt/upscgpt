@@ -1,0 +1,173 @@
+import { NextResponse } from 'next/server'
+import { PrismaClient } from '@prisma/client'
+import { GoogleGenAI } from '@google/genai'
+
+const prisma = new PrismaClient()
+const delay = (ms) => new Promise(res => setTimeout(res, ms))
+
+// All 7 regions to scrape in a single daily run
+const ALL_REGIONS = {
+  asia:         `"South China Sea" OR "Indo-Pacific" OR "Taiwan" OR "Asia geopolitics"`,
+  middle_east:  `"Middle East conflict" OR "Gulf security" OR "Hormuz" OR "Suez Canal"`,
+  africa:       `"Horn of Africa" OR "Sahel conflict" OR "Africa geopolitics"`,
+  indian_ocean: `"Indian Ocean security" OR "maritime trade" OR "Malacca Strait"`,
+  europe:       `"NATO" OR "Ukraine conflict" OR "Arctic race" OR "European security"`,
+  americas:     `"Panama Canal" OR "US foreign policy" OR "Latin America geopolitics"`,
+  global:       `"geopolitics" OR "international relations" OR "global conflict" OR "UPSC current affairs India"`
+}
+
+async function scrapeAndEnrich() {
+  const gnewsKey = process.env.GNEWS_API_KEY
+  const geminiKey = process.env.GEMINI_API_KEY
+
+  const aiClient = geminiKey ? new GoogleGenAI({ apiKey: geminiKey }) : null
+  const mapEntries = await prisma.mapEntry.findMany()
+
+  let totalFetched = 0
+  let totalEnriched = 0
+  let totalCreated = 0
+
+  for (const [region, query] of Object.entries(ALL_REGIONS)) {
+    let articles = []
+
+    // Step 1: Fetch from GNews for this region
+    if (gnewsKey && gnewsKey.trim() !== '') {
+      try {
+        const res = await fetch(
+          `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&lang=en&max=10&sortby=publishedAt&apikey=${gnewsKey}`,
+          { cache: 'no-store' } // Always fetch fresh on cron runs
+        )
+        if (res.ok) {
+          const data = await res.json()
+          if (data?.articles?.length) articles = data.articles
+        }
+      } catch (e) {
+        console.error(`[Cron] GNews fetch failed for region "${region}":`, e.message)
+      }
+    }
+
+    totalFetched += articles.length
+    console.log(`[Cron] Region "${region}": fetched ${articles.length} articles.`)
+
+    // Step 2: AI Enrichment per article (with rate limiting)
+    for (const article of articles) {
+      if (!aiClient) continue
+
+      try {
+        await delay(4200) // Respect Gemini 15 RPM free tier
+
+        const articleText = `${article.title} ${article.description || ''}`
+        const promptText = `Analyze this breaking news: "${articleText}".
+Return a strictly valid JSON object. No markdown. No code fences. Raw JSON only:
+{
+  "isGeopolitical": true,
+  "locationName": "Primary geographic entity name",
+  "lat": latitude as float,
+  "lon": longitude as float,
+  "category": "conflict|strait|island|mineral|nature|general",
+  "mainsDetails": "1-2 paragraphs of UPSC Mains static background (e.g. historical context, India angle, international significance).",
+  "upscCrux": "2-3 concise bullet points on the geopolitical/strategic relevance for UPSC exam."
+}
+If the article is NOT geopolitical in nature, return: {"isGeopolitical": false}`
+
+        const response = await aiClient.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: promptText
+        })
+
+        let cleanText = response.text.trim()
+          .replace(/^```json\n?/, '').replace(/\n?```$/, '')
+          .replace(/^```\n?/, '').replace(/\n?```$/, '')
+
+        const parsed = JSON.parse(cleanText)
+        if (!parsed.isGeopolitical || !parsed.locationName) continue
+
+        const formattedDate = new Date(article.publishedAt).toISOString().split('T')[0]
+        const newMentionStr = `\n\n### [${article.title}](${article.url}) (${formattedDate})\n**UPSC Crux:**\n${parsed.upscCrux}\n---`
+
+        // Match against live DB
+        let matchedEntry = mapEntries.find(
+          e => e.name.toLowerCase() === parsed.locationName.toLowerCase()
+        )
+
+        if (matchedEntry) {
+          const existingMentions = matchedEntry.newsMentions || ''
+          if (!existingMentions.includes(article.url)) {
+            const updatedMains = (!matchedEntry.mains?.trim() && parsed.mainsDetails)
+              ? parsed.mainsDetails : matchedEntry.mains
+
+            await prisma.mapEntry.update({
+              where: { id: matchedEntry.id },
+              data: {
+                newsMentions: existingMentions + newMentionStr,
+                lastNewsDate: new Date(),
+                mains: updatedMains
+              }
+            })
+            matchedEntry.newsMentions = existingMentions + newMentionStr
+            totalEnriched++
+          }
+        } else {
+          // Auto-create a new map node
+          const newEntry = await prisma.mapEntry.create({
+            data: {
+              name: parsed.locationName,
+              lat: parsed.lat || 0,
+              lon: parsed.lon || 0,
+              category: parsed.category || 'general',
+              prelims: 'Auto-generated by UPSCGPT Daily Cron Intelligence.',
+              mains: parsed.mainsDetails || 'Context pending...',
+              india: 'Strategic relevance to India pending AI analysis.',
+              shape: 'marker',
+              year: new Date().getFullYear(),
+              newsMentions: newMentionStr,
+              lastNewsDate: new Date()
+            }
+          })
+          mapEntries.push(newEntry)
+          totalCreated++
+          console.log(`[Cron] 🆕 Auto-created map node: "${parsed.locationName}"`)
+        }
+      } catch (err) {
+        console.error(`[Cron] AI enrichment failed for: "${article.title}"`, err.message)
+      }
+    }
+  }
+
+  return { totalFetched, totalEnriched, totalCreated }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PROTECTED CRON ENDPOINT
+// Called by Vercel Cron (via Authorization header) or cron-job.org daily.
+// ─────────────────────────────────────────────────────────────────────────────
+export async function GET(req) {
+  // Security: only allow calls with the correct CRON_SECRET header
+  const authHeader = req.headers.get('authorization')
+  const cronSecret = process.env.CRON_SECRET
+
+  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    console.warn('[Cron] Unauthorized attempt blocked.')
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const startTime = Date.now()
+  console.log(`[Cron] 🚀 Daily scrape started at ${new Date().toISOString()}`)
+
+  try {
+    const stats = await scrapeAndEnrich()
+    const durationSeconds = ((Date.now() - startTime) / 1000).toFixed(1)
+
+    console.log(`[Cron] ✅ Done in ${durationSeconds}s — Fetched: ${stats.totalFetched}, Enriched: ${stats.totalEnriched}, Created: ${stats.totalCreated}`)
+
+    return NextResponse.json({
+      success: true,
+      timestamp: new Date().toISOString(),
+      durationSeconds,
+      stats
+    })
+  } catch (error) {
+    console.error('[Cron] ❌ Daily scrape failed:', error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+}

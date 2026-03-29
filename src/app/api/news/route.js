@@ -1,0 +1,179 @@
+import { NextResponse } from 'next/server'
+import { PrismaClient } from '@prisma/client'
+import { GoogleGenAI } from '@google/genai'
+
+const prisma = new PrismaClient()
+
+// Rate Limiter: protects Gemini Free Tier (max 15 RPM)
+const delay = (ms) => new Promise(res => setTimeout(res, ms))
+
+// Mock fallback articles shown when no GNEWS_API_KEY is configured
+const MOCK_NEWS = [
+  { title: "BREAKING: Shifts in South China Sea alliances raise strategic concerns.", url: "https://example.com/scs", description: "Alliance shifts in South China Sea.", publishedAt: new Date().toISOString() },
+  { title: "REPORT: Tensions rise near the Strait of Hormuz.", url: "https://example.com/hormuz", description: "Iran-US tensions near Strait of Hormuz.", publishedAt: new Date().toISOString() },
+  { title: "ANALYSIS: Energy security and maritime choke points in the Suez Canal.", url: "https://example.com/suez", description: "Suez Canal shipping disruption.", publishedAt: new Date().toISOString() }
+]
+
+const REGION_QUERIES = {
+  asia:         `"South China Sea" OR "Indo-Pacific" OR "Taiwan" OR "Asia geopolitics"`,
+  middle_east:  `"Middle East conflict" OR "Gulf security" OR "Hormuz" OR "Suez Canal"`,
+  africa:       `"Horn of Africa" OR "Sahel conflict" OR "Africa geopolitics"`,
+  indian_ocean: `"Indian Ocean security" OR "maritime trade" OR "Malacca Strait"`,
+  europe:       `"NATO" OR "Ukraine conflict" OR "Arctic race" OR "European security"`,
+  americas:     `"Panama Canal" OR "US foreign policy" OR "Latin America geopolitics"`,
+  global:       `"geopolitics" OR "international relations" OR "global conflict" OR "strategic trade"`
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BACKGROUND AI ENRICHMENT
+// Runs asynchronously AFTER the fast response is already sent to the browser.
+// Saves AI-generated UPSC Crux + Mains context into the SQLite database.
+// ─────────────────────────────────────────────────────────────────────────────
+async function runAiEnrichment(articles) {
+  const geminiKey = process.env.GEMINI_API_KEY
+  if (!geminiKey) return
+
+  const aiClient = new GoogleGenAI({ apiKey: geminiKey })
+  const mapEntries = await prisma.mapEntry.findMany()
+
+  for (const article of articles) {
+    try {
+      await delay(4200) // stay safely below 15 RPM free tier limit
+
+      const articleText = `${article.title} ${article.description || ''}`
+      const promptText = `Analyze this breaking news: "${articleText}".
+Return a strictly valid JSON object. No markdown. No code fences. Raw JSON only:
+{
+  "isGeopolitical": true,
+  "locationName": "Primary geographic entity name",
+  "lat": latitude as float,
+  "lon": longitude as float,
+  "category": "conflict|strait|island|mineral|nature|general",
+  "mainsDetails": "1-2 paragraphs of UPSC Mains static background (e.g. Nine-Dash line, historical context).",
+  "upscCrux": "2-3 bullet points on geopolitical/strategic relevance for UPSC exam."
+}
+If the article is NOT geopolitical, return: {"isGeopolitical": false}`
+
+      const response = await aiClient.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: promptText
+      })
+
+      let cleanText = response.text.trim()
+        .replace(/^```json\n?/, '').replace(/\n?```$/, '')
+        .replace(/^```\n?/, '').replace(/\n?```$/, '')
+
+      const parsed = JSON.parse(cleanText)
+      if (!parsed.isGeopolitical || !parsed.locationName) continue
+
+      const formattedDate = new Date(article.publishedAt).toISOString().split('T')[0]
+      const newMentionStr = `\n\n### [${article.title}](${article.url}) (${formattedDate})\n**UPSC Crux:**\n${parsed.upscCrux}\n---`
+
+      // Does this location already exist in the database?
+      let matchedEntry = mapEntries.find(
+        e => e.name.toLowerCase() === parsed.locationName.toLowerCase()
+      )
+
+      if (matchedEntry) {
+        // Location exists — update if this article URL hasn't been logged yet
+        const existingMentions = matchedEntry.newsMentions || ''
+        if (!existingMentions.includes(article.url)) {
+          const updatedMains = (!matchedEntry.mains?.trim() && parsed.mainsDetails)
+            ? parsed.mainsDetails
+            : matchedEntry.mains
+
+          await prisma.mapEntry.update({
+            where: { id: matchedEntry.id },
+            data: {
+              newsMentions: existingMentions + newMentionStr,
+              lastNewsDate: new Date(),
+              mains: updatedMains
+            }
+          })
+          // Update in-memory cache to prevent duplicates within same batch
+          matchedEntry.newsMentions = existingMentions + newMentionStr
+        }
+      } else {
+        // Location is NEW — auto-create a map node from scratch
+        const newEntry = await prisma.mapEntry.create({
+          data: {
+            name: parsed.locationName,
+            lat: parsed.lat || 0,
+            lon: parsed.lon || 0,
+            category: parsed.category || 'general',
+            prelims: 'Auto-generated by UPSCGPT News Intelligence.',
+            mains: parsed.mainsDetails || 'Context pending...',
+            india: 'Strategic relevance to India pending AI analysis.',
+            shape: 'marker',
+            year: new Date().getFullYear(),
+            newsMentions: newMentionStr,
+            lastNewsDate: new Date()
+          }
+        })
+        mapEntries.push(newEntry)
+      }
+    } catch (err) {
+      console.error(`[AI Enrichment] Failed for: "${article.title}"`, err.message)
+    }
+  }
+  console.log(`[AI Enrichment] Background processing complete for ${articles.length} articles.`)
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FAST GET ENDPOINT — responds in <1s, fires AI enrichment in background
+// ─────────────────────────────────────────────────────────────────────────────
+export async function GET(req) {
+  try {
+    const { searchParams } = new URL(req.url)
+    const region = searchParams.get('region') || 'global'
+    const query = REGION_QUERIES[region] || REGION_QUERIES.global
+    const gnewsKey = process.env.GNEWS_API_KEY
+
+    // Step 1: Fetch raw articles from GNews (or fall back to mock data)
+    let fetchedArticles = MOCK_NEWS
+    let usingMock = true
+
+    if (gnewsKey && gnewsKey !== 'dummy' && gnewsKey.trim() !== '') {
+      try {
+        const res = await fetch(
+          `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&lang=en&max=10&sortby=publishedAt&apikey=${gnewsKey}`,
+          { next: { revalidate: 3600 } }
+        )
+        if (res.ok) {
+          const data = await res.json()
+          if (data?.articles?.length) {
+            fetchedArticles = data.articles
+            usingMock = false
+          }
+        }
+      } catch (e) {
+        console.error('[GNews] Fetch error:', e.message)
+      }
+    }
+
+    // Step 2: Fast string-match to attach known coordinates for Ticker flyTo
+    const mapEntries = await prisma.mapEntry.findMany()
+    const enrichedArticles = fetchedArticles.map(article => {
+      const articleText = `${article.title} ${article.description || ''}`.toLowerCase()
+      const match = mapEntries.find(e => articleText.includes(e.name.toLowerCase()))
+      if (match) {
+        return { ...article, lat: match.lat, lon: match.lon, entryId: match.id, locationName: match.name }
+      }
+      return article
+    })
+
+    // Step 3: Fire-and-forget AI enrichment (non-blocking)
+    runAiEnrichment(fetchedArticles).catch(err =>
+      console.error('[AI Enrichment] Background run failed:', err.message)
+    )
+
+    // Step 4: Return immediately — ticker loads instantly, AI enriches in background
+    return NextResponse.json({
+      articles: enrichedArticles,
+      warning: usingMock ? 'Using Mock Data — add GNEWS_API_KEY to .env for live news' : null
+    })
+  } catch (error) {
+    console.error('[News API] Crash:', error)
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+}
