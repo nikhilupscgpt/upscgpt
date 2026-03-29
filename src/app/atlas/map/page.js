@@ -322,13 +322,13 @@ function MapPageInner() {
                   background: timeFilter === 'all' ? 'linear-gradient(135deg, #0ea5e9, #38bdf8)' : 'rgba(0,0,0,0.04)',
                   color: timeFilter === 'all' ? 'white' : '#475569', fontWeight: 700, fontSize: '0.82rem',
                   boxShadow: timeFilter === 'all' ? '0 4px 12px rgba(14,165,233,0.3)' : 'none', transition: 'all 0.2s'
-                }}>🌐 All Atlas Hubs</button>
+                }}>🌐 All Atlas Hubs <span style={{ float: 'right', opacity: 0.8 }}>{entries.length}</span></button>
                 <button onClick={() => setTimeFilter('today')} style={{
                   padding: '8px 12px', borderRadius: '10px', border: 'none', cursor: 'pointer', textAlign: 'left',
                   background: timeFilter === 'today' ? 'linear-gradient(135deg, #f59e0b, #ef4444)' : 'rgba(0,0,0,0.04)',
                   color: timeFilter === 'today' ? 'white' : '#475569', fontWeight: 700, fontSize: '0.82rem',
                   boxShadow: timeFilter === 'today' ? '0 4px 12px rgba(245,158,11,0.3)' : 'none', transition: 'all 0.2s'
-                }}>🔥 In The News (24h)</button>
+                }}>🔥 In The News (24h) <span style={{ float: 'right', opacity: 0.8 }}>{entries.filter(e => e.lastNewsDate && (new Date() - new Date(e.lastNewsDate)) / (1000*60*60*24) <= 1).length}</span></button>
                 {timeFilter === 'today' && (
                   <div style={{ padding: '10px', background: 'rgba(245,158,11,0.05)', borderRadius: '10px', border: '1px solid rgba(245,158,11,0.1)' }}>
                     <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#b45309', marginBottom: '8px', textTransform: 'uppercase' }}>Daily Map Anchors</div>
@@ -343,7 +343,15 @@ function MapPageInner() {
                            📌 {e.name}
                         </div>
                       ))}
-                      {filteredEntries.length === 0 && <span style={{fontSize: '0.75rem', color: '#94a3b8', fontStyle: 'italic', padding: '0 8px'}}>No updates today...</span>}
+                      {filteredEntries.length === 0 && (
+                        <div style={{ textAlign: 'center', padding: '12px 8px' }}>
+                          <div style={{ fontSize: '1.5rem', marginBottom: '6px' }}>📡</div>
+                          <span style={{fontSize: '0.78rem', color: '#92400e', fontWeight: 700, display: 'block'}}>No news intelligence for today yet</span>
+                          <span style={{fontSize: '0.72rem', color: '#94a3b8', display: 'block', marginTop: '4px'}}>
+                            The AI pipeline runs daily. Add a GNews API key in your environment variables for live intelligence.
+                          </span>
+                        </div>
+                      )}
                     </div>
                     {filteredEntries.length > 0 && (
                       <button onClick={exportDailySummary} style={{
@@ -357,7 +365,16 @@ function MapPageInner() {
                   background: timeFilter === 'month' ? 'linear-gradient(135deg, #8b5cf6, #d946ef)' : 'rgba(0,0,0,0.04)',
                   color: timeFilter === 'month' ? 'white' : '#475569', fontWeight: 700, fontSize: '0.82rem',
                   boxShadow: timeFilter === 'month' ? '0 4px 12px rgba(139,92,246,0.3)' : 'none', transition: 'all 0.2s'
-                }}>📅 In The News (30d)</button>
+                }}>📅 In The News (30d) <span style={{ float: 'right', opacity: 0.8 }}>{entries.filter(e => e.lastNewsDate && (new Date() - new Date(e.lastNewsDate)) / (1000*60*60*24) <= 30).length}</span></button>
+                {timeFilter === 'month' && filteredEntries.length === 0 && (
+                  <div style={{ padding: '10px', background: 'rgba(139,92,246,0.05)', borderRadius: '10px', border: '1px solid rgba(139,92,246,0.1)', textAlign: 'center' }}>
+                    <div style={{ fontSize: '1.5rem', marginBottom: '6px' }}>📡</div>
+                    <span style={{fontSize: '0.78rem', color: '#6d28d9', fontWeight: 700, display: 'block'}}>No news intelligence in the last 30 days</span>
+                    <span style={{fontSize: '0.72rem', color: '#94a3b8', display: 'block', marginTop: '4px'}}>
+                      Set up your GNews API key and run the daily cron job to populate intelligence data.
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 

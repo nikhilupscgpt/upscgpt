@@ -59,7 +59,6 @@ export default function Login() {
         <button type="submit" className="btn-primary" disabled={loading} style={{ width: '100%', padding: '14px', borderRadius: '12px', fontSize: '1rem' }}>
           {loading ? "Authenticating..." : "Access Dashboard"}
         </button>
-        <p style={{ marginTop: '24px', fontSize: '0.75rem', color: '#94a3b8', textAlign: 'center' }}>Tip: Use <strong style={{color:'#64748b'}}>admin</strong> / <strong style={{color:'#64748b'}}>UPSC2026</strong></p>
       </form>
     </div>
   )
