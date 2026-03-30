@@ -43,56 +43,35 @@ function EntryDrawer({ entry, onClose }) {
   const style = CATEGORIES.find(c => c.key === entry.category) || CATEGORIES[0]
 
   return (
-    <div style={{
-      position: 'absolute', top: 0, right: 0, bottom: 0,
-      width: '420px', maxWidth: '100%',
-      background: 'white',
-      boxShadow: '-8px 0 40px rgba(0,0,0,0.15)',
-      zIndex: 800,
-      animation: 'slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-    }}>
-      {/* Drawer Header — pinned at top */}
-      <div style={{
-        position: 'absolute', top: 0, left: 0, right: 0,
-        padding: '14px 16px', borderBottom: `3px solid ${style.color}`,
-        background: 'white', zIndex: 2,
-        display: 'flex', alignItems: 'flex-start', gap: '12px',
-      }}>
+    <div className="entry-drawer">
+      {/* Header */}
+      <div className="drawer-header" style={{ borderBottom: `3px solid ${style.color}` }}>
         <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
             <span style={{
-              fontSize: '0.62rem', padding: '2px 8px', borderRadius: '20px', fontWeight: 800, textTransform: 'uppercase',
+              fontSize: '0.62rem', padding: '3px 10px', borderRadius: '20px', fontWeight: 800, textTransform: 'uppercase',
               background: style.color + '22', color: style.color, border: `1px solid ${style.color}44`
             }}>{style.emoji} {entry.category}</span>
-            {entry.year && <span style={{ fontSize: '0.68rem', color: '#64748b', fontWeight: 600 }}>UPSC {entry.year}</span>}
+            {entry.year && <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>UPSC {entry.year}</span>}
           </div>
-          <h2 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', margin: 0, lineHeight: 1.2 }}>{entry.name}</h2>
-          {entry.lat && <p style={{ fontSize: '0.68rem', color: '#94a3b8', margin: '4px 0 0', fontFamily: 'monospace' }}>
+          <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a', margin: 0, lineHeight: 1.2 }}>{entry.name}</h2>
+          {entry.lat && <p style={{ fontSize: '0.72rem', color: '#94a3b8', margin: '4px 0 0', fontFamily: 'monospace' }}>
             📌 {Number(entry.lat).toFixed(4)}°, {Number(entry.lon).toFixed(4)}°
           </p>}
         </div>
         <button onClick={onClose} style={{
-          width: '28px', height: '28px', borderRadius: '8px', border: 'none',
-          background: '#f1f5f9', color: '#475569', fontSize: '0.9rem', cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          flexShrink: 0, fontWeight: 700,
+          width: '32px', height: '32px', borderRadius: '8px', border: 'none',
+          background: '#f1f5f9', color: '#475569', fontSize: '1rem', cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700
         }}>✕</button>
       </div>
 
-      {/* Scrollable Content — absolute positioning guarantees scroll */}
-      <div style={{
-        position: 'absolute',
-        top: entry.lat ? '95px' : '80px',
-        left: 0, right: 0, bottom: 0,
-        overflowY: 'auto',
-        padding: '12px',
-        display: 'flex', flexDirection: 'column', gap: '10px',
-      }}>
-        {/* Tags */}
+      {/* Scrollable Body */}
+      <div className="drawer-content">
         {entry.tags && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', paddingBottom: '8px', borderBottom: '1px solid #f1f5f9' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', paddingBottom: '10px' }}>
             {entry.tags.split(',').map(t => (
-              <span key={t} style={{ padding: '2px 8px', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 700, background: '#eff6ff', color: '#1d4ed8', border: '1px solid #dbeafe' }}>#{t.trim()}</span>
+              <span key={t} style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '0.7rem', fontWeight: 700, background: '#eff6ff', color: '#1d4ed8', border: '1px solid #dbeafe' }}>#{t.trim()}</span>
             ))}
           </div>
         )}
@@ -121,16 +100,11 @@ function EntryDrawer({ entry, onClose }) {
             <div className="drawer-markdown"><ReactMarkdown remarkPlugins={[remarkGfm]}>{entry.newsMentions}</ReactMarkdown></div>
           </div>
         )}
-        {!entry.prelims && !entry.mains && !entry.india && !entry.newsMentions && (
-          <div style={{ padding: '32px', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>
-            <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📭</div>
-            No study notes added yet for this location.
-          </div>
-        )}
       </div>
     </div>
   )
 }
+
 
 function MapPageInner() {
   const searchParams = useSearchParams()

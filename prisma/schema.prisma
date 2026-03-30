@@ -15,18 +15,21 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-
-  // Auth additions
-  role               String? @default("USER")
-  tier               String? @default("FREE")
   
-  // Time-based Tracking (Freemium)
-  dailyMapSeconds    Int?    @default(0)
-  lastMapAccessDate  String? 
-
-  // Legacy Admin Support
+  // Platform Access (Global for UPSCGPT)
+  role               String? @default("USER") // ADMIN, USER
+  tier               String? @default("FREE") // FREE, PRO
+  validUntil         DateTime? // Date for manual access expiry
+  
+  // Razorpay
+  razorpayCustomerId String? @unique
+  
+  favorites       FavoriteEntry[]
+  
+  // Admin Login Support
   username String? @unique
   password String?
+  createdAt DateTime @default(now())
 }
 
 model Account {
@@ -64,6 +67,27 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+model Subscription {
+  id                String   @id @default(cuid())
+  userId            String   @unique
+  razorpaySubId     String   @unique
+  razorpayPlanId    String
+  status            String   // active, halted, cancelled, completed
+  currentStart      DateTime
+  currentEnd        DateTime
+}
+
+model FavoriteEntry {
+  id      String   @id @default(cuid())
+  userId  String
+  entryId String
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  entry   MapEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, entryId])
+}
+
 model MapEntry {
   id        String   @id @default(cuid())
   lat       Float?
@@ -77,8 +101,23 @@ model MapEntry {
   mains          String
   india          String
   createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now()) @updatedAt
   
-  // Smart News Tracking
   lastNewsDate   DateTime?
   newsMentions   String?
+  
+  favoritedBy  FavoriteEntry[]
+
+  @@index([name])
+  @@index([category])
+  @@unique([name, lat, lon])
 }
+
+model ActionLog {
+  id        String   @id @default(cuid())
+  action    String   // SCRAPE_RUN, USER_MOD, CONTENT_EDIT
+  details   String?
+  userId    String?
+  createdAt DateTime @default(now())
+}
+
