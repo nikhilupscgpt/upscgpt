@@ -115,9 +115,30 @@ model MapEntry {
 
 model ActionLog {
   id        String   @id @default(cuid())
-  action    String   // SCRAPE_RUN, USER_MOD, CONTENT_EDIT
+  action    String   // SCRAPE_RUN, USER_MOD, CONTENT_EDIT, COMMS_SEND
   details   String?
   userId    String?
   createdAt DateTime @default(now())
+}
+
+model CommunicationLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  type      String   // OTP, MARKETING, SYSTEM, NEWS_ALERT
+  channel   String   // EMAIL, SMS, WHATSAPP
+  status    String   // SENT, FAILED, DELIVERED
+  content   String?
+  recipient String   // Email or Phone number
+  createdAt DateTime @default(now())
+}
+
+model PaymentLog {
+  id          String   @id @default(cuid())
+  userId      String
+  razorpayId  String   // Payment or Order ID
+  amount      Int
+  currency    String   @default("INR")
+  status      String
+  createdAt   DateTime @default(now())
 }
 
