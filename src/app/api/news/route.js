@@ -20,46 +20,46 @@ const TRUSTED_SOURCES = {
   global_strategic: 'nytimes.com,washingtonpost.com,bbc.com,aljazeera.com,thediplomat.com',
 }
 
-// UPSC-relevant search queries per region
+// UPSC-relevant queries — STRICTLY Economy + International Relations only
 const REGION_QUERIES = {
   asia: {
-    keywords: '"Indo-Pacific" OR "South China Sea" OR "ASEAN" OR "Taiwan" OR "Quad alliance" OR "Belt and Road"',
+    keywords: '"Indo-Pacific" OR "South China Sea" OR "ASEAN summit" OR "Taiwan strait" OR "Quad alliance" OR "Belt and Road Initiative"',
     sourceGroup: 'global_strategic',
   },
   middle_east: {
-    keywords: '"Middle East" OR "Strait of Hormuz" OR "Suez Canal" OR "OPEC" OR "Gulf cooperation" OR "Iran nuclear"',
+    keywords: '"Strait of Hormuz" OR "Suez Canal" OR "OPEC" OR "Gulf cooperation council" OR "Iran nuclear deal" OR "Abraham Accords"',
     sourceGroup: 'global_strategic',
   },
   africa: {
-    keywords: '"Africa Union" OR "Horn of Africa" OR "Sahel" OR "Congo" OR "Africa development" OR "BRICS Africa"',
+    keywords: '"African Union" OR "Horn of Africa" OR "Sahel crisis" OR "BRICS Africa" OR "India Africa summit"',
     sourceGroup: 'global_strategic',
   },
   indian_ocean: {
-    keywords: '"Indian Ocean" OR "maritime security" OR "Malacca Strait" OR "IORA" OR "String of Pearls" OR "naval exercise"',
+    keywords: '"Indian Ocean" OR "Malacca Strait" OR "IORA" OR "String of Pearls" OR "India navy" OR "maritime trade route"',
     sourceGroup: 'india_editorial',
   },
   europe: {
-    keywords: '"NATO" OR "Ukraine" OR "European Union" OR "Arctic" OR "Russia sanctions" OR "G7"',
+    keywords: '"NATO expansion" OR "Ukraine Russia" OR "European Union summit" OR "Arctic council" OR "Russia sanctions"',
     sourceGroup: 'global_strategic',
   },
   americas: {
-    keywords: '"Panama Canal" OR "US foreign policy" OR "Latin America" OR "BRICS" OR "G20" OR "climate summit"',
+    keywords: '"Panama Canal" OR "US India relations" OR "BRICS summit" OR "G20 summit" OR "climate agreement"',
     sourceGroup: 'global_strategic',
   },
   global: {
-    keywords: '"India foreign policy" OR "UPSC" OR "geopolitics" OR "UN Security Council" OR "international relations" OR "India bilateral" OR "trade agreement"',
+    keywords: '"India foreign policy" OR "bilateral relations" OR "UN Security Council" OR "international trade" OR "India economy" OR "geopolitical"',
     sourceGroup: 'india_editorial',
   },
 }
 
-// Additional India-focused queries (for economy/governance)
+// India Economy + IR focused queries
 const INDIA_FOCUS_QUERIES = [
   {
-    keywords: '"RBI" OR "fiscal policy" OR "GDP" OR "FDI" OR "trade deficit" OR "economic survey" OR "budget 2026"',
+    keywords: '"RBI policy" OR "fiscal deficit" OR "GDP growth" OR "FDI India" OR "trade deficit" OR "economic survey" OR "India budget"',
     sourceGroup: 'india_business',
   },
   {
-    keywords: '"India diplomacy" OR "India bilateral" OR "BRICS" OR "SCO" OR "India defence" OR "India space"',
+    keywords: '"India bilateral" OR "India diplomacy" OR "BRICS" OR "SCO summit" OR "India defence" OR "India nuclear" OR "India space ISRO"',
     sourceGroup: 'india_editorial',
   },
 ]
@@ -91,8 +91,8 @@ async function fetchFromGNews(keywords, sourceGroup, gnewsKey, max = 10) {
             return trustedDomains.some(d => host.includes(d))
           } catch { return false }
         })
-        // If trusted filter yields results, use them; otherwise use all (GNews may not have those sources)
-        return filtered.length > 0 ? filtered : data.articles.slice(0, 5)
+        // STRICT: Only return articles from trusted sources, never random ones
+        return filtered
       }
     }
   } catch (e) {

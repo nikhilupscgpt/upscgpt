@@ -14,52 +14,46 @@ const TRUSTED_SOURCES = {
   global_strategic: 'nytimes.com,washingtonpost.com,bbc.com,aljazeera.com,thediplomat.com',
 }
 
-// Lean scrape plan: 3 source groups × distinct UPSC-targeted queries = ~14 API calls
+// Lean scrape plan: STRICTLY Economy + International Relations for mapping
 const SCRAPE_PLAN = [
-  // Indian Editorial — Geopolitics + Governance
+  // Indian Editorial — International Relations
   {
-    label: 'India Editorial: Foreign Policy & Geopolitics',
-    keywords: '"India foreign policy" OR "Indo-Pacific" OR "bilateral" OR "BRICS" OR "SCO" OR "G20" OR "UN General Assembly"',
+    label: 'India Editorial: Foreign Policy & IR',
+    keywords: '"India foreign policy" OR "Indo-Pacific" OR "bilateral relations" OR "BRICS summit" OR "SCO summit" OR "G20 summit" OR "UN Security Council"',
     sourceGroup: 'india_editorial',
     max: 10,
   },
   {
-    label: 'India Editorial: Governance & Environment',
-    keywords: '"Supreme Court" OR "constitutional amendment" OR "India environment" OR "National Green Tribunal" OR "climate change India" OR "UPSC"',
+    label: 'India Editorial: Defence & Strategic',
+    keywords: '"India defence" OR "India navy" OR "India nuclear" OR "ISRO" OR "India border" OR "India China" OR "India Pakistan"',
     sourceGroup: 'india_editorial',
     max: 10,
   },
 
-  // Indian Business — Economy
+  // Indian Business — Economy Only
   {
     label: 'India Business: Macro Economy',
-    keywords: '"RBI" OR "GDP India" OR "fiscal deficit" OR "FDI India" OR "trade deficit" OR "economic survey" OR "budget 2026"',
+    keywords: '"RBI policy" OR "GDP growth" OR "fiscal deficit" OR "FDI India" OR "trade deficit" OR "economic survey" OR "India budget"',
     sourceGroup: 'india_business',
     max: 10,
   },
   {
-    label: 'India Business: Sectors & Policy',
-    keywords: '"Make in India" OR "PLI scheme" OR "renewable energy India" OR "semiconductor India" OR "digital India" OR "infrastructure"',
+    label: 'India Business: Trade & Investment',
+    keywords: '"India trade agreement" OR "WTO India" OR "rupee dollar" OR "India export" OR "India import" OR "foreign exchange reserves"',
     sourceGroup: 'india_business',
     max: 10,
   },
 
-  // Global Strategic — Conflicts & Alliances
+  // Global Strategic — Conflicts, Alliances & Geography
   {
-    label: 'Global: Conflicts & Security',
-    keywords: '"NATO" OR "Ukraine conflict" OR "South China Sea" OR "Taiwan" OR "Middle East conflict" OR "Iran nuclear"',
+    label: 'Global: Conflicts & Alliances',
+    keywords: '"NATO expansion" OR "Ukraine Russia" OR "South China Sea" OR "Taiwan strait" OR "Iran nuclear deal" OR "Abraham Accords"',
     sourceGroup: 'global_strategic',
     max: 10,
   },
   {
-    label: 'Global: International Organisations',
-    keywords: '"United Nations" OR "WHO" OR "WTO" OR "ICJ" OR "UNFCCC" OR "COP" OR "Paris Agreement" OR "nuclear treaty"',
-    sourceGroup: 'global_strategic',
-    max: 10,
-  },
-  {
-    label: 'Global: Strategic Geography',
-    keywords: '"Strait of Hormuz" OR "Suez Canal" OR "Arctic" OR "Indian Ocean" OR "Malacca" OR "maritime security" OR "Panama Canal"',
+    label: 'Global: Strategic Geography & Trade Routes',
+    keywords: '"Strait of Hormuz" OR "Suez Canal" OR "Arctic council" OR "Indian Ocean" OR "Malacca Strait" OR "maritime trade" OR "Panama Canal"',
     sourceGroup: 'global_strategic',
     max: 10,
   },
@@ -85,7 +79,8 @@ async function fetchFromGNews(keywords, sourceGroup, gnewsKey, max = 10) {
             return trustedDomains.some(d => host.includes(d))
           } catch { return false }
         })
-        return filtered.length > 0 ? filtered : data.articles.slice(0, 3)
+        // STRICT: Only return articles from trusted sources, never random ones
+        return filtered
       }
     }
   } catch (e) {
