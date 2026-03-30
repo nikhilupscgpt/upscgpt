@@ -97,9 +97,9 @@ model MapEntry {
   tags      String?
   year      Int?
   shape     String?
-  prelims        String
-  mains          String
-  india          String
+  prelims        String?
+  mains          String?
+  india          String?
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @default(now()) @updatedAt
   
