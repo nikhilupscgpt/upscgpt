@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client'
+import prisma from "./prisma"
 import { GoogleGenAI } from '@google/genai'
-
-const prisma = new PrismaClient()
 const delay = (ms) => new Promise(res => setTimeout(res, ms))
 
 export const TRUSTED_SOURCES = {

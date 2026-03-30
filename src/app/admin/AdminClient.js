@@ -28,13 +28,6 @@ export default function AdminClient({ session }) {
   // Comms State
   const [commsForm, setCommsForm] = useState({ channel: 'EMAIL', type: 'MARKETING', recipients: 'PRO', content: '', templateName: '', params: [] })
 
-  useEffect(() => {
-    fetchEntries()
-    if (session?.user?.role === 'ADMIN') {
-      fetchUsers()
-      fetchPaymentStats()
-    }
-  }, [session])
 
   const fetchEntries = async () => {
     const res = await fetch("/api/entries")
@@ -55,6 +48,14 @@ export default function AdminClient({ session }) {
       if (data.success) setPaymentStats(data)
     } catch (e) { console.error("Stats fail", e) }
   }
+
+  useEffect(() => {
+    fetchEntries()
+    if (session?.user?.role === 'ADMIN') {
+      fetchUsers()
+      fetchPaymentStats()
+    }
+  }, [session])
 
   // --- MAPPING ACTIONS ---
   const handleSubmit = async (e) => {
@@ -177,6 +178,7 @@ export default function AdminClient({ session }) {
   )
 
   const cardStyle = { background: 'white', padding: '32px', borderRadius: '28px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)' }
+  const btnPrimary = { background: 'linear-gradient(135deg, #3b82f6 0%, #6366f1 100%)', color: 'white', border: 'none', borderRadius: '16px', cursor: 'pointer', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', transition: 'all 0.2s' }
 
   return (
     <div style={{ background: '#f8fafc', minHeight: '100vh', display: 'flex' }}>
@@ -333,7 +335,7 @@ export default function AdminClient({ session }) {
                 <RefreshCw size={48} className={loading ? "animate-spin" : ""}/>
               </div>
               <h2 style={{ fontSize: '2rem', fontWeight: 900, color: '#0f172a', marginBottom: '20px' }}>Global Strategic Refresh</h2>
-              <p style={{ fontSize: '1.1rem', color: '#64748b', marginBottom: '48px', lineHeight: 1.6 }}>Launch the UPSCGPT engine to scan GNews for today's geopolitical and economic triggers. Our AI will filter for UPSC relevance and rank the top strategic developments for the map.</p>
+              <p style={{ fontSize: '1.1rem', color: '#64748b', marginBottom: '48px', lineHeight: 1.6 }}>Launch the UPSCGPT engine to scan GNews for today&apos;s geopolitical and economic triggers. Our AI will filter for UPSC relevance and rank the top strategic developments for the map.</p>
               <button disabled={loading} onClick={handleManualScrape} style={{ ...btnPrimary, width: '100%', fontSize: '1.25rem', padding: '24px', position: 'relative', overflow: 'hidden' }}>
                 {loading ? "AI Analyst is Ranking News..." : "Start World-Wide Sync Now"}
               </button>
