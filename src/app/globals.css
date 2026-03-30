@@ -125,13 +125,12 @@ button { font-family: 'Outfit', sans-serif; transition: all 0.25s cubic-bezier(0
 /* ===== ENTRY DRAWER ===== */
 .entry-drawer {
   position: absolute; top: 0; right: 0; bottom: 0;
-  width: 420px;
+  width: 420px; max-width: 100%;
   background: white;
   box-shadow: -8px 0 40px rgba(0,0,0,0.15);
   z-index: 800;
   display: flex; flex-direction: column;
   animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
 }
 @keyframes slideIn {
   from { transform: translateX(100%); opacity: 0; }

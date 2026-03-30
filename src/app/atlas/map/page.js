@@ -499,7 +499,7 @@ function MapPageInner() {
             selectedEntry={selectedEntry}
           />
           <EntryDrawer entry={selectedEntry} onClose={() => setSelectedEntry(null)} />
-          <NewsTicker regionKey={regionKey} onArticleSelect={(article) => {
+          <NewsTicker regionKey={regionKey} onCloseDrawer={() => setSelectedEntry(null)} onArticleSelect={(article) => {
             if (article.lat && article.lon && mapRef.current) {
               mapRef.current.flyTo([article.lat, article.lon], 6)
               const matchedEntry = entries.find(e => e.id === article.entryId)

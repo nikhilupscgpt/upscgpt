@@ -5,17 +5,98 @@ import { GoogleGenAI } from '@google/genai'
 const prisma = new PrismaClient()
 const delay = (ms) => new Promise(res => setTimeout(res, ms))
 
-// All 7 regions to scrape in a single daily run
-const ALL_REGIONS = {
-  asia:         `"South China Sea" OR "Indo-Pacific" OR "Taiwan" OR "Asia geopolitics"`,
-  middle_east:  `"Middle East conflict" OR "Gulf security" OR "Hormuz" OR "Suez Canal"`,
-  africa:       `"Horn of Africa" OR "Sahel conflict" OR "Africa geopolitics"`,
-  indian_ocean: `"Indian Ocean security" OR "maritime trade" OR "Malacca Strait"`,
-  europe:       `"NATO" OR "Ukraine conflict" OR "Arctic race" OR "European security"`,
-  americas:     `"Panama Canal" OR "US foreign policy" OR "Latin America geopolitics"`,
-  global:       `"geopolitics" OR "international relations" OR "global conflict" OR "UPSC current affairs India"`
+// ─────────────────────────────────────────────────────────────────────────────
+// TARGETED UPSC PUBLICATIONS — Grouped for lean API usage (~14 calls total)
+// ─────────────────────────────────────────────────────────────────────────────
+const TRUSTED_SOURCES = {
+  india_editorial: 'thehindu.com,indianexpress.com',
+  india_business: 'livemint.com,business-standard.com,economictimes.indiatimes.com',
+  global_strategic: 'nytimes.com,washingtonpost.com,bbc.com,aljazeera.com,thediplomat.com',
 }
 
+// Lean scrape plan: 3 source groups × distinct UPSC-targeted queries = ~14 API calls
+const SCRAPE_PLAN = [
+  // Indian Editorial — Geopolitics + Governance
+  {
+    label: 'India Editorial: Foreign Policy & Geopolitics',
+    keywords: '"India foreign policy" OR "Indo-Pacific" OR "bilateral" OR "BRICS" OR "SCO" OR "G20" OR "UN General Assembly"',
+    sourceGroup: 'india_editorial',
+    max: 10,
+  },
+  {
+    label: 'India Editorial: Governance & Environment',
+    keywords: '"Supreme Court" OR "constitutional amendment" OR "India environment" OR "National Green Tribunal" OR "climate change India" OR "UPSC"',
+    sourceGroup: 'india_editorial',
+    max: 10,
+  },
+
+  // Indian Business — Economy
+  {
+    label: 'India Business: Macro Economy',
+    keywords: '"RBI" OR "GDP India" OR "fiscal deficit" OR "FDI India" OR "trade deficit" OR "economic survey" OR "budget 2026"',
+    sourceGroup: 'india_business',
+    max: 10,
+  },
+  {
+    label: 'India Business: Sectors & Policy',
+    keywords: '"Make in India" OR "PLI scheme" OR "renewable energy India" OR "semiconductor India" OR "digital India" OR "infrastructure"',
+    sourceGroup: 'india_business',
+    max: 10,
+  },
+
+  // Global Strategic — Conflicts & Alliances
+  {
+    label: 'Global: Conflicts & Security',
+    keywords: '"NATO" OR "Ukraine conflict" OR "South China Sea" OR "Taiwan" OR "Middle East conflict" OR "Iran nuclear"',
+    sourceGroup: 'global_strategic',
+    max: 10,
+  },
+  {
+    label: 'Global: International Organisations',
+    keywords: '"United Nations" OR "WHO" OR "WTO" OR "ICJ" OR "UNFCCC" OR "COP" OR "Paris Agreement" OR "nuclear treaty"',
+    sourceGroup: 'global_strategic',
+    max: 10,
+  },
+  {
+    label: 'Global: Strategic Geography',
+    keywords: '"Strait of Hormuz" OR "Suez Canal" OR "Arctic" OR "Indian Ocean" OR "Malacca" OR "maritime security" OR "Panama Canal"',
+    sourceGroup: 'global_strategic',
+    max: 10,
+  },
+]
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FETCH FROM GNEWS WITH SOURCE FILTERING
+// ─────────────────────────────────────────────────────────────────────────────
+async function fetchFromGNews(keywords, sourceGroup, gnewsKey, max = 10) {
+  const sourceDomains = TRUSTED_SOURCES[sourceGroup]
+  const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(keywords)}&lang=en&max=${max}&sortby=publishedAt&in=title,description&apikey=${gnewsKey}`
+
+  try {
+    const res = await fetch(url, { cache: 'no-store' })
+    if (res.ok) {
+      const data = await res.json()
+      if (data?.articles?.length) {
+        // Post-filter for trusted sources
+        const trustedDomains = sourceDomains.split(',')
+        const filtered = data.articles.filter(article => {
+          try {
+            const host = new URL(article.url).hostname.replace('www.', '')
+            return trustedDomains.some(d => host.includes(d))
+          } catch { return false }
+        })
+        return filtered.length > 0 ? filtered : data.articles.slice(0, 3)
+      }
+    }
+  } catch (e) {
+    console.error(`[Cron] GNews fetch failed for "${sourceGroup}":`, e.message)
+  }
+  return []
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DAILY SCRAPE + AI ENRICHMENT
+// ─────────────────────────────────────────────────────────────────────────────
 async function scrapeAndEnrich() {
   const gnewsKey = process.env.GNEWS_API_KEY
   const geminiKey = process.env.GEMINI_API_KEY
@@ -26,30 +107,19 @@ async function scrapeAndEnrich() {
   let totalFetched = 0
   let totalEnriched = 0
   let totalCreated = 0
+  let totalFiltered = 0
 
-  for (const [region, query] of Object.entries(ALL_REGIONS)) {
+  for (const plan of SCRAPE_PLAN) {
     let articles = []
 
-    // Step 1: Fetch from GNews for this region
-    if (gnewsKey && gnewsKey.trim() !== '') {
-      try {
-        const res = await fetch(
-          `https://gnews.io/api/v4/search?q=${encodeURIComponent(query)}&lang=en&max=10&sortby=publishedAt&apikey=${gnewsKey}`,
-          { cache: 'no-store' } // Always fetch fresh on cron runs
-        )
-        if (res.ok) {
-          const data = await res.json()
-          if (data?.articles?.length) articles = data.articles
-        }
-      } catch (e) {
-        console.error(`[Cron] GNews fetch failed for region "${region}":`, e.message)
-      }
+    if (gnewsKey && gnewsKey.trim() !== '' && !gnewsKey.includes('[')) {
+      articles = await fetchFromGNews(plan.keywords, plan.sourceGroup, gnewsKey, plan.max)
     }
 
     totalFetched += articles.length
-    console.log(`[Cron] Region "${region}": fetched ${articles.length} articles.`)
+    console.log(`[Cron] "${plan.label}": fetched ${articles.length} articles.`)
 
-    // Step 2: AI Enrichment per article (with rate limiting)
+    // AI Enrichment per article
     for (const article of articles) {
       if (!aiClient) continue
 
@@ -57,18 +127,37 @@ async function scrapeAndEnrich() {
         await delay(4200) // Respect Gemini 15 RPM free tier
 
         const articleText = `${article.title} ${article.description || ''}`
-        const promptText = `Analyze this breaking news: "${articleText}".
+        const sourceName = (() => {
+          try { return new URL(article.url).hostname.replace('www.', '') } catch { return 'unknown' }
+        })()
+
+        const promptText = `You are a UPSC Civil Services exam preparation expert with deep knowledge of the UPSC syllabus (GS Paper I, II, III, IV and Essay).
+
+Analyze this news article for UPSC relevance:
+
+Article: "${articleText}"
+Source: ${sourceName}
+
 Return a strictly valid JSON object. No markdown. No code fences. Raw JSON only:
 {
   "isGeopolitical": true,
-  "locationName": "Primary geographic entity name",
-  "lat": latitude as float,
-  "lon": longitude as float,
-  "category": "conflict|strait|island|mineral|nature|general",
-  "mainsDetails": "1-2 paragraphs of UPSC Mains static background (e.g. historical context, India angle, international significance).",
-  "upscCrux": "2-3 concise bullet points on the geopolitical/strategic relevance for UPSC exam."
+  "upscRelevance": <integer 0-10>,
+  "locationName": "Primary geographic entity/country/region name",
+  "lat": <latitude as float>,
+  "lon": <longitude as float>,
+  "category": "conflict|strait|island|mineral|nature|economy|governance|diplomacy|general",
+  "prelims": "2-3 key facts for UPSC Prelims MCQs (treaties, organisations, geographical facts, constitutional provisions)",
+  "mainsDetails": "1-2 paragraphs of UPSC Mains background covering: historical context, India's position, constitutional/policy angle, international significance. Include which GS Paper this is relevant to.",
+  "upscCrux": "- Bullet 1: Strategic/geopolitical significance\\n- Bullet 2: India's stake or response\\n- Bullet 3: UPSC syllabus connection (specify GS Paper I/II/III)"
 }
-If the article is NOT geopolitical in nature, return: {"isGeopolitical": false}`
+
+UPSC Relevance Scale:
+- 8-10: Direct UPSC syllabus topic (India's foreign policy, economy, governance, environment, geography)
+- 5-7: Indirectly relevant (global trends, international organisations, bilateral relations)  
+- 3-4: Mildly relevant (general international news with tangential India angle)
+- 0-2: Not relevant for UPSC (entertainment, sports, tech products, celebrity news)
+
+If NOT relevant for UPSC (score < 3): {"isGeopolitical": false, "upscRelevance": <score>}`
 
         const response = await aiClient.models.generateContent({
           model: 'gemini-2.5-flash',
@@ -80,12 +169,17 @@ If the article is NOT geopolitical in nature, return: {"isGeopolitical": false}`
           .replace(/^```\n?/, '').replace(/\n?```$/, '')
 
         const parsed = JSON.parse(cleanText)
-        if (!parsed.isGeopolitical || !parsed.locationName) continue
+        
+        // Moderate filtering threshold: >= 3
+        if (!parsed.isGeopolitical || parsed.upscRelevance < 3 || !parsed.locationName) {
+          totalFiltered++
+          continue
+        }
 
         const formattedDate = new Date(article.publishedAt).toISOString().split('T')[0]
-        const newMentionStr = `\n\n### [${article.title}](${article.url}) (${formattedDate})\n**UPSC Crux:**\n${parsed.upscCrux}\n---`
+        const newMentionStr = `\n\n### [${article.title}](${article.url}) (${formattedDate})\n**Source:** ${sourceName} · **UPSC Relevance:** ${parsed.upscRelevance}/10\n\n**UPSC Crux:**\n${parsed.upscCrux}\n---`
 
-        // Match against live DB
+        // Match against in-memory entries
         let matchedEntry = mapEntries.find(
           e => e.name.toLowerCase() === parsed.locationName.toLowerCase()
         )
@@ -95,27 +189,29 @@ If the article is NOT geopolitical in nature, return: {"isGeopolitical": false}`
           if (!existingMentions.includes(article.url)) {
             const updatedMains = (!matchedEntry.mains?.trim() && parsed.mainsDetails)
               ? parsed.mainsDetails : matchedEntry.mains
+            const updatedPrelims = (!matchedEntry.prelims?.trim() && parsed.prelims)
+              ? parsed.prelims : matchedEntry.prelims
 
             await prisma.mapEntry.update({
               where: { id: matchedEntry.id },
               data: {
                 newsMentions: existingMentions + newMentionStr,
                 lastNewsDate: new Date(),
-                mains: updatedMains
+                mains: updatedMains,
+                prelims: updatedPrelims,
               }
             })
             matchedEntry.newsMentions = existingMentions + newMentionStr
             totalEnriched++
           }
         } else {
-          // Auto-create a new map node
           const newEntry = await prisma.mapEntry.create({
             data: {
               name: parsed.locationName,
               lat: parsed.lat || 0,
               lon: parsed.lon || 0,
               category: parsed.category || 'general',
-              prelims: 'Auto-generated by UPSCGPT Daily Cron Intelligence.',
+              prelims: parsed.prelims || 'Auto-generated by UPSCGPT Daily Cron Intelligence.',
               mains: parsed.mainsDetails || 'Context pending...',
               india: 'Strategic relevance to India pending AI analysis.',
               shape: 'marker',
@@ -126,23 +222,21 @@ If the article is NOT geopolitical in nature, return: {"isGeopolitical": false}`
           })
           mapEntries.push(newEntry)
           totalCreated++
-          console.log(`[Cron] 🆕 Auto-created map node: "${parsed.locationName}"`)
+          console.log(`[Cron] 🆕 Auto-created: "${parsed.locationName}" (relevance: ${parsed.upscRelevance}/10)`)
         }
       } catch (err) {
-        console.error(`[Cron] AI enrichment failed for: "${article.title}"`, err.message)
+        console.error(`[Cron] AI failed for: "${article.title}"`, err.message)
       }
     }
   }
 
-  return { totalFetched, totalEnriched, totalCreated }
+  return { totalFetched, totalEnriched, totalCreated, totalFiltered }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // PROTECTED CRON ENDPOINT
-// Called by Vercel Cron (via Authorization header) or cron-job.org daily.
 // ─────────────────────────────────────────────────────────────────────────────
 export async function GET(req) {
-  // Security: only allow calls with the correct CRON_SECRET header
   const authHeader = req.headers.get('authorization')
   const cronSecret = process.env.CRON_SECRET
 
@@ -158,13 +252,14 @@ export async function GET(req) {
     const stats = await scrapeAndEnrich()
     const durationSeconds = ((Date.now() - startTime) / 1000).toFixed(1)
 
-    console.log(`[Cron] ✅ Done in ${durationSeconds}s — Fetched: ${stats.totalFetched}, Enriched: ${stats.totalEnriched}, Created: ${stats.totalCreated}`)
+    console.log(`[Cron] ✅ Done in ${durationSeconds}s — Fetched: ${stats.totalFetched}, Enriched: ${stats.totalEnriched}, Created: ${stats.totalCreated}, Filtered: ${stats.totalFiltered}`)
 
     return NextResponse.json({
       success: true,
       timestamp: new Date().toISOString(),
       durationSeconds,
-      stats
+      stats,
+      sources: Object.keys(TRUSTED_SOURCES).map(k => `${k}: ${TRUSTED_SOURCES[k]}`),
     })
   } catch (error) {
     console.error('[Cron] ❌ Daily scrape failed:', error)
