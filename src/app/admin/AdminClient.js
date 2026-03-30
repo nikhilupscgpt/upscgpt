@@ -92,7 +92,52 @@ export default function AdminClient({ session }) {
     if (res.ok) fetchUsers()
   }
 
-  // Bulk Stuff
+  // Google Sheets Sync
+  const handleSheetSync = () => {
+    if (!sheetUrl) return;
+    setStatus("Downloading and parsing Google Sheet CSV...");
+    
+    Papa.parse(sheetUrl, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        const rows = results.data;
+        if (!rows || rows.length === 0) {
+          setStatus("Error: Google Sheet is empty or couldn't be read.");
+          return;
+        }
+
+        const processed = []
+        for (let i = 0; i < rows.length; i++) {
+          const row = Object.fromEntries(Object.entries(rows[i]).map(([k, v]) => [(k || "").replace(/^\uFEFF/,'').trim().toLowerCase(), v]));
+          let { lat, lon, name } = row;
+          
+          if ((!lat || !lon) && name) {
+            setStatus(`Row ${i + 1}/${rows.length}: Geocoding ${name}...`)
+            const geo = await geocodeLocation(name)
+            if (geo) { lat = geo.lat; lon = geo.lon; }
+            await new Promise(r => setTimeout(r, 1500))
+          }
+          processed.push({ ...row, lat, lon })
+        }
+
+        setStatus(`Saving ${processed.length} entries via Bulk API...`)
+        const res = await fetch("/api/entries/bulk", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ entries: processed })
+        })
+
+        if (res.ok) {
+          setStatus(`Successfully synced ${processed.length} map entries from Google Sheets!`)
+          setSheetUrl("")
+          fetchEntries()
+        } else setStatus("Sync failed.")
+      },
+      error: (err) => setStatus("Failed to download CSV: " + err.message)
+    });
+  }
+
   const handleBulkUpload = (e) => {
     const file = e.target.files[0]; if (!file) return;
     Papa.parse(file, {
@@ -178,8 +223,21 @@ export default function AdminClient({ session }) {
               </div>
 
               <div style={{ background: 'white', padding: '32px', borderRadius: '24px', border: '1px solid #e2e8f0' }}>
-                <h2 style={{ marginBottom: '16px', fontSize: '1.2rem', fontWeight: 800 }}>Bulk Imports</h2>
-                <input type="file" accept=".csv" onChange={handleBulkUpload} style={{ width: '100%', marginBottom: '16px' }} />
+                <h2 style={{ marginBottom: '16px', fontSize: '1.2rem', fontWeight: 800 }}>Bulk Actions</h2>
+                
+                <div style={{ marginBottom: '24px' }}>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#64748b', marginBottom: '8px' }}>Google Sheets Sync (CSV URL)</label>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <input placeholder="https://docs.google.com/..." value={sheetUrl} onChange={e=>setSheetUrl(e.target.value)} style={{ flex: 1, padding:'10px', borderRadius:'8px', border: '1px solid #cbd5e1' }} />
+                    <button onClick={handleSheetSync} style={{ padding: '10px 16px', background: '#10b981', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 700 }}>Sync Sheets</button>
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: '24px' }}>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 600, color: '#64748b', marginBottom: '8px' }}>Bulk CSV Upload</label>
+                  <input type="file" accept=".csv" onChange={handleBulkUpload} style={{ width: '100%', marginBottom: '16px' }} />
+                </div>
+
                 <button onClick={handleBulkDelete} style={{ width: '100%', padding: '12px', background: '#fef2f2', color: '#ef4444', borderRadius: '10px', border: 'none', fontWeight: 700, cursor: 'pointer' }}>Wipe All Entries</button>
               </div>
             </div>
