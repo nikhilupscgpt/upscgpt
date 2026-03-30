@@ -273,10 +273,15 @@ export default function UPSCGPTMasterPortal() {
       </main>
 
       {/* Footer */}
-      <footer style={{ position: 'relative', zIndex: 10, textAlign: 'center', padding: '32px 20px', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-        <p style={{ fontSize: '0.78rem', color: '#334155', fontWeight: 600 }}>
-          UPSCGPT · Built with ♠️ for serious aspirants · Powered by Gemini 2.5 Flash
+      <footer style={{ position: 'relative', zIndex: 10, textAlign: 'center', padding: '40px 20px', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+        <p style={{ fontSize: '0.82rem', color: '#64748b', fontWeight: 600, marginBottom: '16px' }}>
+          UPSCGPT · Built with ✨ for serious aspirants · Powered by Geopolitical Intelligence
         </p>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+          <Link href="/admin-login" style={{ color: '#1e293b', fontSize: '0.7rem', textDecoration: 'none', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Instructor Vault</Link>
+          <span style={{ color: '#1e293b' }}>•</span>
+          <span style={{ color: '#1e293b', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>Privacy Policy</span>
+        </div>
       </footer>
     </div>
   )
