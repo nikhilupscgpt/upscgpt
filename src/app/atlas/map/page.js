@@ -97,8 +97,8 @@ function EntryDrawer({ entry, onClose }) {
           </div>
         )}
         {entry.newsMentions && (
-          <div className="drawer-section" style={{ background: 'rgba(56, 189, 248, 0.05)', borderColor: 'rgba(56, 189, 248, 0.2)' }}>
-            <div className="drawer-section-label" style={{ color: '#0284c7' }}>📰 News Intelligence Log</div>
+          <div className="drawer-section news">
+            <div className="drawer-section-label">📰 News Intelligence Log</div>
             <div className="drawer-markdown"><ReactMarkdown remarkPlugins={[remarkGfm]}>{entry.newsMentions}</ReactMarkdown></div>
           </div>
         )}

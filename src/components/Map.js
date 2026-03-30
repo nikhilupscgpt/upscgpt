@@ -1,5 +1,5 @@
 "use client"
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { MapContainer, TileLayer, Marker, Tooltip, Polyline, ZoomControl, useMapEvents, useMap } from 'react-leaflet'
 import MarkerClusterGroup from 'react-leaflet-cluster'
 import L from 'leaflet'
@@ -58,10 +58,21 @@ function HeatmapLayer({ points }) {
 
 function MapFlyTo({ selectedEntry }) {
   const map = useMap()
+  const lastFlyId = useRef(null)
   useEffect(() => {
     if (selectedEntry && selectedEntry.lat != null && selectedEntry.lon != null) {
-      const targetZoom = Math.max(map.getZoom(), 6)
-      map.flyTo([selectedEntry.lat, selectedEntry.lon], targetZoom, { animate: true, duration: 1.0 })
+      // Only fly if this is a NEW entry selection (prevent snap-back from re-renders)
+      if (lastFlyId.current === selectedEntry.id) return
+      lastFlyId.current = selectedEntry.id
+      
+      // Small delay to let marker cluster animations settle first
+      const timer = setTimeout(() => {
+        const targetZoom = Math.max(map.getZoom(), 6)
+        map.flyTo([selectedEntry.lat, selectedEntry.lon], targetZoom, { animate: true, duration: 1.0 })
+      }, 100)
+      return () => clearTimeout(timer)
+    } else {
+      lastFlyId.current = null
     }
   }, [selectedEntry, map])
   return null
