@@ -131,7 +131,7 @@ Return a strictly valid JSON object. No markdown. No code fences. Raw JSON only:
   "category": "conflict|strait|island|mineral|nature|economy|governance|diplomacy|general",
   "prelims": "2-3 key facts useful for UPSC Prelims MCQs (treaties, organisations, geographical facts)",
   "mainsDetails": "1-2 paragraphs of UPSC Mains background: historical context, India's position, constitutional/policy angle, international significance",
-  "upscCrux": "- Bullet 1: Strategic/geopolitical significance\\n- Bullet 2: India's stake and response\\n- Bullet 3: Key UPSC syllabus connection (GS Paper I/II/III)"
+  "upscCrux": "• Strategic/geopolitical significance of this development\\n• India's stake, response, or diplomatic position\\n• UPSC syllabus link: specify GS Paper and exact topic"
 }
 
 UPSC Relevance Scoring Guide:
