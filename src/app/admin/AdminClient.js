@@ -240,19 +240,17 @@ export default function AdminClient({ session }) {
 
                 <button onClick={handleBulkDelete} style={{ width: '100%', padding: '12px', background: '#fef2f2', color: '#ef4444', borderRadius: '10px', border: 'none', fontWeight: 700, cursor: 'pointer' }}>Wipe All Entries</button>
               </div>
-            </div>
-
-            {/* Registry List */}
+            </div>            {/* Registry List */}
             <div style={{ background: 'white', padding: '32px', borderRadius: '24px', border: '1px solid #e2e8f0' }}>
               <h2 style={{ marginBottom: '24px', fontSize: '1.2rem', fontWeight: 800, display: 'flex', justifyContent: 'space-between' }}>
-                Live Registry <span>{entries.length} items</span>
+                Live Registry <span>{(entries || []).length} items</span>
               </h2>
               <div style={{ maxHeight: '800px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {entries.map(e => (
+                {(entries || []).map(e => (
                   <div key={e.id} style={{ padding: '16px', background: '#f8fafc', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <div style={{ fontWeight: 800, color: '#1e293b' }}>{e.name}</div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{e.category} | {e.lat.toFixed(2)}, {e.lon.toFixed(2)}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{e.category} | {e.lat?.toFixed(2) || '0'}, {e.lon?.toFixed(2) || '0'}</div>
                     </div>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <button onClick={() => handleEdit(e)} style={{ padding: '6px 12px', background: 'white', color: '#3b82f6', border: '1px solid #3b82f6', borderRadius: '6px', fontWeight: 700, cursor: 'pointer' }}>Edit</button>
@@ -284,22 +282,24 @@ export default function AdminClient({ session }) {
             <div style={{ background: 'white', padding: '32px', borderRadius: '24px', border: '1px solid #e2e8f0' }}>
               <h2 style={{ marginBottom: '24px', fontSize: '1.2rem', fontWeight: 800 }}>Platform Users</h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {users.map(user => (
-                  <div key={user.id} style={{ padding: '16px', background: '#f8fafc', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: user.tier === 'PRO' ? '1px solid #c7d2fe' : '1px solid transparent' }}>
-                    <div>
-                      <div style={{ fontWeight: 800, color: '#1e293b' }}>{user.name} <span style={{ fontSize: '0.7rem', color: '#64748b' }}>({user.email})</span></div>
-                      <div style={{ fontSize: '0.8rem', marginTop: '4px' }}>
-                        <span style={{ padding: '2px 8px', borderRadius: '6px', background: user.tier === 'PRO' ? '#e0e7ff' : '#f1f5f9', color: user.tier === 'PRO' ? '#4338ca' : '#64748b', fontWeight: 700 }}>{user.tier} Tier</span>
-                        <span style={{ marginLeft: '10px', color: '#94a3b8' }}>Joined: {new Date(user.createdAt).toLocaleDateString('en-IN')}</span>
+                {(users || []).map(user => (
+                  user && (
+                    <div key={user.id} style={{ padding: '16px', background: '#f8fafc', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: user.tier === 'PRO' ? '1px solid #c7d2fe' : '1px solid transparent' }}>
+                      <div>
+                        <div style={{ fontWeight: 800, color: '#1e293b' }}>{user.name} <span style={{ fontSize: '0.7rem', color: '#64748b' }}>({user.email})</span></div>
+                        <div style={{ fontSize: '0.8rem', marginTop: '4px' }}>
+                          <span style={{ padding: '2px 8px', borderRadius: '6px', background: user.tier === 'PRO' ? '#e0e7ff' : '#f1f5f9', color: user.tier === 'PRO' ? '#4338ca' : '#64748b', fontWeight: 700 }}>{user.tier} Tier</span>
+                          <span style={{ marginLeft: '10px', color: '#94a3b8' }}>Joined: {user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-IN') : 'N/A'}</span>
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button onClick={() => toggleUserTier(user)} style={{ padding: '6px 12px', background: 'white', color: '#3b82f6', border: '1px solid #3b82f6', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}>
+                          {user.tier === 'PRO' ? "Revoke Pro" : "Make Pro"}
+                        </button>
+                        <button onClick={() => deleteUser(user.id)} style={{ padding: '6px 12px', background: '#fef2f2', color: '#ef4444', border: 'none', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}>Delete</button>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                      <button onClick={() => toggleUserTier(user)} style={{ padding: '6px 12px', background: 'white', color: '#3b82f6', border: '1px solid #3b82f6', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}>
-                        {user.tier === 'PRO' ? "Revoke Pro" : "Make Pro"}
-                      </button>
-                      <button onClick={() => deleteUser(user.id)} style={{ padding: '6px 12px', background: '#fef2f2', color: '#ef4444', border: 'none', borderRadius: '6px', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}>Delete</button>
-                    </div>
-                  </div>
+                  )
                 ))}
               </div>
             </div>
