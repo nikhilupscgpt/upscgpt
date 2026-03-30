@@ -100,9 +100,37 @@ export default function AdminClient({ session }) {
     if (res.ok) { setUserFormData({ name: '', email: '', password: '', tier: 'FREE' }); fetchUsers(); setStatus("User Created Successfully."); }
   }
 
+  const grantPro = async (user, months) => {
+    const now = new Date();
+    // If user has an existing validUntil in the future, we could extend, but default is reset from today
+    const expiryDate = new Date();
+    expiryDate.setMonth(now.getMonth() + months);
+    
+    setLoading(true); setStatus(`Granting ${months}m PRO Access to ${user.email}...`);
+    const res = await fetch(`/api/admin/users/${user.id}`, { 
+      method: "PATCH", 
+      body: JSON.stringify({ 
+        tier: 'PRO', 
+        validUntil: expiryDate.toISOString() 
+      }), 
+      headers: { "Content-Type": "application/json" } 
+    });
+    
+    if (res.ok) {
+      setStatus(`PRO Access Granted: Valid until ${expiryDate.toLocaleDateString()}`);
+      fetchUsers();
+    } else {
+      setStatus("Error granting PRO access.");
+    }
+    setLoading(false);
+  }
+
   const toggleUserTier = async (user) => {
     const newTier = user.tier === 'PRO' ? 'FREE' : 'PRO';
-    await fetch(`/api/admin/users/${user.id}`, { method: "PATCH", body: JSON.stringify({ tier: newTier }), headers: { "Content-Type": "application/json" } });
+    const payload = { tier: newTier };
+    if (newTier === 'FREE') payload.validUntil = null;
+    
+    await fetch(`/api/admin/users/${user.id}`, { method: "PATCH", body: JSON.stringify(payload), headers: { "Content-Type": "application/json" } });
     fetchUsers();
   }
 
@@ -272,9 +300,25 @@ export default function AdminClient({ session }) {
                     <div style={{ fontWeight: 800, fontSize: '1.05rem' }}>{user.name}</div>
                     <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '4px' }}>{user.email} · <span style={{ color: user.tier === 'PRO' ? '#3b82f6' : '#64748b', fontWeight: 800 }}>{user.tier}</span></div>
                   </div>
-                  <div style={{ display: 'flex', gap: '12px' }}>
-                    <button onClick={() => toggleUserTier(user)} style={{ padding: '10px 16px', background: user.tier === 'PRO' ? '#f1f5f9' : '#3b82f6', color: user.tier === 'PRO' ? '#64748b' : 'white', border: 'none', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}>{user.tier === 'PRO' ? 'Revoke PRO' : 'Grant PRO'}</button>
-                    <button onClick={() => deleteUser(user.id)} style={{ padding: '10px 16px', background: '#fef2f2', color: '#ef4444', border: 'none', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}>Delete</button>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end' }}>
+                    {user.tier !== 'PRO' ? (
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        {[3, 6, 12].map(m => (
+                          <button key={m} onClick={() => grantPro(user, m)} style={{ padding: '8px 12px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer' }}>
+                            +{m}M
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ color: '#10b981', fontWeight: 800, fontSize: '0.7rem' }}>PRO ACTIVE</div>
+                          <div style={{ color: '#64748b', fontSize: '0.65rem' }}>Expires: {user.validUntil ? new Date(user.validUntil).toLocaleDateString() : 'Lifetime'}</div>
+                        </div>
+                        <button onClick={() => toggleUserTier(user)} style={{ padding: '8px 12px', background: '#f1f5f9', color: '#ef4444', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer' }}>Revoke</button>
+                      </div>
+                    )}
+                    <button onClick={() => deleteUser(user.id)} style={{ padding: '6px 12px', color: '#ef4444', border: 'none', background: 'transparent', fontWeight: 700, fontSize: '0.7rem', cursor: 'pointer', opacity: 0.6 }}>Delete Account</button>
                   </div>
                 </div>
               ))}
