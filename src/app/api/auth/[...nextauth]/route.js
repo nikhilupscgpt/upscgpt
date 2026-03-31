@@ -33,7 +33,7 @@ export const authOptions = {
         const isMatch = await bcrypt.compare(credentials.password, user.password);
         if (isMatch) {
           const role = credentials.username === 'admin' ? 'ADMIN' : (user.role || 'USER');
-          const tier = credentials.username === 'admin' ? 'PREMIUM' : (user.tier || 'FREE');
+          const tier = credentials.username === 'admin' ? 'PRO' : (user.tier || 'FREE');
           return { id: user.id, name: user.username, role, tier };
         }
         return null;

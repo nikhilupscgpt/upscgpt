@@ -29,6 +29,10 @@ model User {
   // Admin Login Support
   username String? @unique
   password String?
+  
+  examYear    Int?
+  preferences Json? @default("{}")
+  
   createdAt DateTime @default(now())
 }
 

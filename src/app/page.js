@@ -4,6 +4,8 @@ import Image from 'next/image'
 import { useSession, signIn, signOut } from 'next-auth/react'
 import { useState, useEffect } from 'react'
 
+import Navigation from '@/components/Navigation'
+
 export default function UPSCGPTMasterPortal() {
   const { data: session, status } = useSession()
   const loading = status === "loading"
@@ -97,51 +99,7 @@ export default function UPSCGPTMasterPortal() {
         .feature-tag:hover { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.8); }
       `}} />
 
-      {/* Navbar */}
-      <nav style={{ position: 'relative', zIndex: 10, padding: '20px 60px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div style={{
-            width: '48px', height: '48px', borderRadius: '14px',
-            background: 'linear-gradient(135deg, #38bdf8, #8b5cf6)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 8px 32px rgba(139,92,246,0.4)',
-            fontSize: '1.5rem', fontWeight: 900,
-            animation: 'pulseGlow 4s ease-in-out infinite'
-          }}>✨</div>
-          <div>
-            <h1 style={{ fontSize: '1.6rem', fontWeight: 900, margin: 0, letterSpacing: '-0.5px' }}>UPSCGPT</h1>
-            <p style={{ fontSize: '0.72rem', color: '#64748b', margin: 0, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1.5px' }}>Unified Pedagogy System</p>
-          </div>
-        </div>
-
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-          {!loading && !session ? (
-            <button onClick={() => signIn('google')} style={{
-              padding: '10px 24px', borderRadius: '12px', border: 'none',
-              background: 'white', color: '#0f172a', fontWeight: 700, fontSize: '0.9rem',
-              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
-              boxShadow: '0 4px 14px rgba(255,255,255,0.2)', transition: 'all 0.3s'
-            }}>
-              <Image src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="G" width={16} height={16} unoptimized />
-              Sign in with Google
-            </button>
-          ) : session ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>{session.user.name || session.user.email}</div>
-                <div style={{ fontSize: '0.7rem', color: session.user.tier === 'PREMIUM' ? '#f59e0b' : '#94a3b8', fontWeight: 800 }}>
-                  {session.user.tier} · {session.user.role}
-                </div>
-              </div>
-              <button onClick={() => signOut()} style={{
-                padding: '8px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)',
-                background: 'rgba(255,255,255,0.05)', color: 'white', fontWeight: 600, fontSize: '0.8rem',
-                cursor: 'pointer'
-              }}>Logout</button>
-            </div>
-          ) : null}
-        </div>
-      </nav>
+      <Navigation />
 
       {/* Hero Section */}
       <main style={{ position: 'relative', zIndex: 10, maxWidth: '1200px', margin: '0 auto', padding: '70px 20px 40px' }}>

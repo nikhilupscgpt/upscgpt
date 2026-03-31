@@ -171,7 +171,20 @@ export default function NewsTicker({ regionKey, onArticleSelect, drawerOpen, onC
                   🎯 UPSC Intelligence Log
                 </div>
                 <div className="news-md">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkGfm]}
+                    transformLinkUri={(uri) => {
+                      const protocols = ['http', 'https', 'mailto', 'tel'];
+                      try {
+                        const parsed = new URL(uri, typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
+                        if (protocols.includes(parsed.protocol.replace(':', ''))) return uri;
+                        return '#';
+                      } catch {
+                        return uri.startsWith('/') ? uri : '#';
+                      }
+                    }}
+                    disallowedElements={['script', 'iframe', 'object', 'embed']}
+                  >
                     {entryDetails.newsMentions}
                   </ReactMarkdown>
                 </div>

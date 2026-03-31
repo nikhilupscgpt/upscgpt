@@ -42,6 +42,17 @@ function EntryDrawer({ entry, onClose }) {
   if (!entry) return null
   const style = CATEGORIES.find(c => c.key === entry.category) || CATEGORIES[0]
 
+  const safeUri = (uri) => {
+    const protocols = ['http', 'https', 'mailto', 'tel'];
+    try {
+      const parsed = new URL(uri, window.location.origin);
+      if (protocols.includes(parsed.protocol.replace(':', ''))) return uri;
+      return '#';
+    } catch {
+      return uri.startsWith('/') ? uri : '#';
+    }
+  };
+
   return (
     <div className="entry-drawer">
       {/* Header */}
@@ -79,25 +90,57 @@ function EntryDrawer({ entry, onClose }) {
         {entry.prelims && (
           <div className="drawer-section prelims">
             <div className="drawer-section-label">📋 Prelims Facts</div>
-            <div className="drawer-markdown"><ReactMarkdown remarkPlugins={[remarkGfm]}>{entry.prelims}</ReactMarkdown></div>
+            <div className="drawer-markdown">
+              <ReactMarkdown 
+                remarkPlugins={[remarkGfm]} 
+                transformLinkUri={safeUri}
+                disallowedElements={['script', 'iframe', 'object', 'embed']}
+              >
+                {entry.prelims}
+              </ReactMarkdown>
+            </div>
           </div>
         )}
         {entry.mains && (
           <div className="drawer-section mains">
             <div className="drawer-section-label">📝 Mains Concept</div>
-            <div className="drawer-markdown"><ReactMarkdown remarkPlugins={[remarkGfm]}>{entry.mains}</ReactMarkdown></div>
+            <div className="drawer-markdown">
+              <ReactMarkdown 
+                remarkPlugins={[remarkGfm]} 
+                transformLinkUri={safeUri}
+                disallowedElements={['script', 'iframe', 'object', 'embed']}
+              >
+                {entry.mains}
+              </ReactMarkdown>
+            </div>
           </div>
         )}
         {entry.india && (
           <div className="drawer-section india">
             <div className="drawer-section-label">🇮🇳 India Focus</div>
-            <div className="drawer-markdown"><ReactMarkdown remarkPlugins={[remarkGfm]}>{entry.india}</ReactMarkdown></div>
+            <div className="drawer-markdown">
+              <ReactMarkdown 
+                remarkPlugins={[remarkGfm]} 
+                transformLinkUri={safeUri}
+                disallowedElements={['script', 'iframe', 'object', 'embed']}
+              >
+                {entry.india}
+              </ReactMarkdown>
+            </div>
           </div>
         )}
         {entry.newsMentions && (
           <div className="drawer-section news">
             <div className="drawer-section-label">📰 News Intelligence Log</div>
-            <div className="drawer-markdown"><ReactMarkdown remarkPlugins={[remarkGfm]}>{entry.newsMentions}</ReactMarkdown></div>
+            <div className="drawer-markdown">
+              <ReactMarkdown 
+                remarkPlugins={[remarkGfm]} 
+                transformLinkUri={safeUri}
+                disallowedElements={['script', 'iframe', 'object', 'embed']}
+              >
+                {entry.newsMentions}
+              </ReactMarkdown>
+            </div>
           </div>
         )}
       </div>
@@ -267,6 +310,15 @@ function MapPageInner() {
           }}>
             {isExporting ? '⏳ Exporting...' : '📄 Export PDF'}
           </button>
+          {session && (
+            <Link href="/profile" style={{ 
+              textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px',
+              padding: '8px 16px', borderRadius: '10px', background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.1)', color: '#fbbf24', fontSize: '0.85rem', fontWeight: 700
+            }}>
+              👤 Profile
+            </Link>
+          )}
           <Link href="/admin" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
             ⚙️ Control Center
           </Link>

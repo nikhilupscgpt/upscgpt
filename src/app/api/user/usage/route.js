@@ -22,7 +22,7 @@ export async function POST(req) {
   const user = await prisma.user.findUnique({ where: { id: session.user.id } })
   if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
 
-  if (user.tier === 'PREMIUM') {
+  if (user.tier === 'PRO') {
     return NextResponse.json({ premium: true, remaining: Infinity })
   }
 

@@ -11,7 +11,7 @@ function getTodayString() {
 
 export default function AtlasTimeTracker() {
   const { data: session, status } = useSession()
-  const isPremium = session?.user?.tier === 'PREMIUM' || session?.user?.role === 'ADMIN'
+  const isPremium = session?.user?.tier === 'PRO' || session?.user?.role === 'ADMIN'
   const [usedSeconds, setUsedSeconds] = useState(0)
   const [exhausted, setExhausted] = useState(false)
   const [initialized, setInitialized] = useState(false)
@@ -67,7 +67,7 @@ export default function AtlasTimeTracker() {
         <div style={{ fontSize: '4rem', marginBottom: '20px' }}>⏳</div>
         <h2 style={{ fontSize: '2.5rem', fontWeight: 800, margin: '0 0 10px', textAlign: 'center' }}>Daily Map Limit Reached</h2>
         <p style={{ fontSize: '1.1rem', color: '#94a3b8', maxWidth: '400px', textAlign: 'center', margin: '0 0 30px', lineHeight: 1.5 }}>
-          Your free daily allowance of 5 minutes mapped time has expired. Please upgrade to <span style={{ color: '#f59e0b', fontWeight: 800 }}>PREMIUM</span> for unlimited Atlas access.
+          Your free daily allowance of 5 minutes mapped time has expired. Please upgrade to <span style={{ color: '#f59e0b', fontWeight: 800 }}>PRO</span> for unlimited Atlas access.
         </p>
         
         <div style={{ display: 'flex', gap: '12px' }}>
@@ -85,7 +85,7 @@ export default function AtlasTimeTracker() {
             background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: 'white', 
             fontWeight: 800, fontSize: '1.1rem', cursor: 'pointer',
             boxShadow: '0 8px 30px rgba(245, 158, 11, 0.3)'
-          }}>Upgrade to Premium Now</button>
+          }}>Upgrade to PRO Now</button>
         </div>
       </div>
     )

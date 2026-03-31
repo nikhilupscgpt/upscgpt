@@ -23,7 +23,7 @@ export const adminUserSchema = z.object({
   email: z.string().email("Invalid email").optional().nullable(),
   username: z.string().min(3, "Username must be at least 3 characters").optional().nullable(),
   name: z.string().min(1, "Name is required").max(100),
-  tier: z.enum(["FREE", "PRO", "PREMIUM"]).default("FREE"),
+  tier: z.enum(["FREE", "PRO"]).default("FREE"),
   role: z.enum(["USER", "ADMIN"]).default("USER"),
   password: z.string().min(8, "Password must be at least 8 characters").optional().nullable(),
 });
@@ -44,4 +44,11 @@ export const commsSchema = z.object({
 // Usage Schema
 export const usageIncrementSchema = z.object({
   incrementSeconds: z.number().int().min(0).max(60),
+});
+
+// Profile Schema
+export const profileSchema = z.object({
+  name: z.string().min(1, "Name is required").max(100),
+  examYear: z.coerce.number().int().min(2024).max(2030).optional().nullable(),
+  preferences: z.record(z.any()).optional().nullable(),
 });
