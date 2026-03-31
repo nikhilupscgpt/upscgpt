@@ -13,13 +13,13 @@ import AtlasTimeTracker from '../../../components/AtlasTimeTracker'
 import NewsTicker from '../../../components/NewsTicker'
 
 const REGION_CONFIG = {
-  asia:         { label: 'Asia & Pacific',   emoji: '🌏', center: [34, 100], zoom: 4, minZoom: 3, bounds: [[-15, 55], [60, 180]] },
-  middle_east:  { label: 'Middle East',       emoji: '🕌', center: [27, 45],  zoom: 5, minZoom: 4, bounds: [[5, 20],  [45, 75]]  },
-  africa:       { label: 'Africa',            emoji: '🌍', center: [5, 20],   zoom: 4, minZoom: 3, bounds: [[-38, -20], [40, 55]] },
-  indian_ocean: { label: 'Indian Ocean',      emoji: '🌊', center: [10, 74],  zoom: 4, minZoom: 3, bounds: [[-45, 30], [30, 110]] },
-  europe:       { label: 'Europe',            emoji: '🗺️',  center: [52, 15],  zoom: 4, minZoom: 3, bounds: [[30, -30], [75, 50]]  },
-  americas:     { label: 'Americas',          emoji: '🌎', center: [15, -80], zoom: 3, minZoom: 2, bounds: [[-60, -170], [65, -25]] },
-  global:       { label: 'Global View',       emoji: '🌐', center: [20, 0],   zoom: 2, minZoom: 2, bounds: null },
+  asia:         { label: 'Asia & Pacific',   emoji: '🌏', center: [34, 100], zoom: 4, minZoom: 3, bounds: [[-25, 45], [70, 190]] },
+  middle_east:  { label: 'Middle East',       emoji: '🕌', center: [27, 45],  zoom: 5, minZoom: 4, bounds: [[-5, 10],  [55, 90]]  },
+  africa:       { label: 'Africa',            emoji: '🌍', center: [5, 20],   zoom: 4, minZoom: 3, bounds: [[-50, -35], [55, 70]] },
+  indian_ocean: { label: 'Indian Ocean',      emoji: '🌊', center: [10, 74],  zoom: 4, minZoom: 3, bounds: [[-55, 20], [45, 130]] },
+  europe:       { label: 'Europe',            emoji: '🗺️',  center: [52, 15],  zoom: 4, minZoom: 3, bounds: [[20, -45], [85, 70]]  },
+  americas:     { label: 'Americas',          emoji: '🌎', center: [15, -80], zoom: 3, minZoom: 2, bounds: [[-75, -180], [80, -10]] },
+  global:       { label: 'Global View',       emoji: '🌐', center: [20, 0],   zoom: 2, minZoom: 1, bounds: null },
 }
 
 const CATEGORIES = [

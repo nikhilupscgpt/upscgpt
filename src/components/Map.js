@@ -68,7 +68,11 @@ function MapFlyTo({ selectedEntry }) {
       // Small delay to let marker cluster animations settle first
       const timer = setTimeout(() => {
         const targetZoom = Math.max(map.getZoom(), 6)
-        map.flyTo([selectedEntry.lat, selectedEntry.lon], targetZoom, { animate: true, duration: 1.0 })
+        map.flyTo([selectedEntry.lat, selectedEntry.lon], targetZoom, { 
+          animate: true, 
+          duration: 1.5,
+          easeLinearity: 0.25
+        })
       }, 100)
       return () => clearTimeout(timer)
     } else {
@@ -112,10 +116,11 @@ export default function Map({ entries, layers, mapRef, initialCenter, initialZoo
         zoom={zoom}
         minZoom={minZoom}
         maxBounds={maxBounds || undefined}
-        maxBoundsViscosity={maxBounds ? 1.0 : 0}
+        maxBoundsViscosity={0.4}
         zoomControl={false}
         style={{ height:'100%', width:'100%', background:'#e2e8f0' }}
-        worldCopyJump={!maxBounds}
+        worldCopyJump={false}
+        preferCanvas={true}
       >
         <ZoomControl position="bottomright" />
         <MapClickHandler onMapClick={() => onEntrySelect && onEntrySelect(null)} />
