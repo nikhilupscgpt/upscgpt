@@ -1,6 +1,16 @@
 import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
+
+// Gmail/SMTP Transporter
+const smtpTransport = process.env.GMAIL_USER ? nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_PASS // Use an App Password for Gmail
+  }
+}) : null;
 
 /**
  * Universal Communication Service for UPSCGPT
@@ -9,25 +19,41 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
  */
 
 export async function sendEmail({ to, subject, html, text }) {
-  if (!resend) {
-    console.warn('[Comms] Resend API key missing. Email simulated to:', to);
-    return { success: true, simulated: true };
+  // 1. Try Gmail/SMTP first
+  if (smtpTransport) {
+    try {
+      await smtpTransport.sendMail({
+        from: `UPSCGPT <${process.env.GMAIL_USER}>`,
+        to,
+        subject,
+        text: text || "UPSCGPT Notification",
+        html: html || text
+      });
+      return { success: true, provider: 'GMAIL' };
+    } catch (err) {
+      console.error('[Comms] Gmail failed:', err.message);
+      // Fall through to Resend if Gmail fails
+    }
   }
 
-  try {
-    const { data, error } = await resend.emails.send({
-      from: 'UPSCGPT <notifications@upscgpt.com>', // Replace with your verified domain
-      to: [to],
-      subject,
-      html: html || text,
-    });
-
-    if (error) throw error;
-    return { success: true, id: data.id };
-  } catch (err) {
-    console.error('[Comms] Email failed:', err.message);
-    return { success: false, error: err.message };
+  // 2. Try Resend
+  if (resend) {
+    try {
+      const { data, error } = await resend.emails.send({
+        from: 'UPSCGPT <notifications@upscgpt.com>', // Replace with your verified domain
+        to: [to],
+        subject,
+        html: html || text,
+      });
+      if (error) throw error;
+      return { success: true, provider: 'RESEND', id: data.id };
+    } catch (err) {
+      console.error('[Comms] Resend failed:', err.message);
+    }
   }
+
+  console.warn('[Comms] No email provider configured (Gmail or Resend). Email simulated to:', to);
+  return { success: true, simulated: true };
 }
 
 /**
