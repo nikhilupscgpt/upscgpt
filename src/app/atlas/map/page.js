@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
+import { useSession } from 'next-auth/react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import html2canvas from 'html2canvas'
@@ -150,6 +151,7 @@ function EntryDrawer({ entry, onClose }) {
 
 
 function MapPageInner() {
+  const { data: session } = useSession()
   const searchParams = useSearchParams()
   const regionKey = searchParams.get('region') || 'global'
   const region = REGION_CONFIG[regionKey] || REGION_CONFIG.global
