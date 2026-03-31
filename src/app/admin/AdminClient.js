@@ -19,6 +19,7 @@ export default function AdminClient({ session }) {
   const [paymentStats, setPaymentStats] = useState(null)
   const [status, setStatus] = useState("")
   const [loading, setLoading] = useState(false)
+  const [lastSync, setLastSync] = useState(null)
 
   // Forms
   const [formData, setFormData] = useState({ lat: '', lon: '', name: '', category: 'strait', tags: '', year: '', prelims: '', mains: '', india: '' })
@@ -49,11 +50,20 @@ export default function AdminClient({ session }) {
     } catch (e) { console.error("Stats fail", e) }
   }
 
+  const fetchLastSync = async () => {
+    try {
+      const res = await fetch("/api/admin/news-sync")
+      const data = await res.json()
+      if (data && !data.error) setLastSync(data)
+    } catch (e) { console.error("Last sync fetch fail", e) }
+  }
+
   useEffect(() => {
     fetchEntries()
     if (session?.user?.role === 'ADMIN') {
       fetchUsers()
       fetchPaymentStats()
+      fetchLastSync()
     }
   }, [session])
 
@@ -150,6 +160,7 @@ export default function AdminClient({ session }) {
       if (data.success) {
         setStatus(`Sync Complete! Fetched: ${data.stats.totalFetched}, Enriched: ${data.stats.totalEnriched}`);
         fetchEntries();
+        fetchLastSync();
       }
     } catch (e) { setStatus("Sync Failed."); }
     setLoading(false);
@@ -339,6 +350,19 @@ export default function AdminClient({ session }) {
               <button disabled={loading} onClick={handleManualScrape} style={{ ...btnPrimary, width: '100%', fontSize: '1.25rem', padding: '24px', position: 'relative', overflow: 'hidden' }}>
                 {loading ? "AI Analyst is Ranking News..." : "Start World-Wide Sync Now"}
               </button>
+
+              {lastSync && (
+                <div style={{ marginTop: '32px', padding: '24px', background: '#f8fafc', borderRadius: '20px', border: '1px solid #e2e8f0', textAlign: 'left' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', marginBottom: '12px', letterSpacing: '0.05em' }}>Last Successful Sync</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontWeight: 800, color: '#0f172a' }}>{new Date(lastSync.createdAt).toLocaleString()}</div>
+                      <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '4px' }}>{lastSync.details}</div>
+                    </div>
+                    <div style={{ background: '#dcfce7', color: '#16a34a', padding: '6px 12px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 800 }}>ACTIVE</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
