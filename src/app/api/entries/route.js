@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+
+import { mapEntrySchema } from "@/lib/validations"
 
 export async function GET() {
   try {
@@ -20,24 +24,35 @@ export async function POST(req) {
 
   try {
     const body = await req.json()
-    const { lat, lon, name, category, prelims, mains, india } = body
+    const validation = mapEntrySchema.safeParse(body)
     
-    // Basic validation
-    if (!lat || !lon || !name) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error.format() }, { status: 400 })
     }
 
+    const { lat, lon, name, category, prelims, mains, india } = validation.data
+    
     const entry = await prisma.mapEntry.create({
       data: {
-        lat: parseFloat(lat),
-        lon: parseFloat(lon),
+        lat,
+        lon,
         name,
-        category: category || "strait",
-        prelims: prelims || "",
-        mains: mains || "",
-        india: india || ""
+        category,
+        prelims,
+        mains,
+        india
       }
     })
+
+    // Audit the action
+    await prisma.actionLog.create({
+      data: {
+        action: 'CONTENT_EDIT',
+        details: `Created map entry: ${name} (${category})`,
+        userId: session.user.id
+      }
+    })
+
     return NextResponse.json(entry)
   } catch (error) {
     console.error("POST Error:", error)

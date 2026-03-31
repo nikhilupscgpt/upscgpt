@@ -9,13 +9,23 @@ async function checkAdmin() {
   return session?.user?.role === 'ADMIN'
 }
 
+import { commsSchema } from "@/lib/validations"
+
 export async function POST(req) {
-  if (!(await checkAdmin())) {
+  const session = await getServerSession(authOptions)
+  if (!session || session.user.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   try {
-    const { channel, type, content, recipients, templateName, params } = await req.json()
+    const body = await req.json()
+    const validation = commsSchema.safeParse(body)
+    
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error.format() }, { status: 400 })
+    }
+
+    const { channel, type, content, recipients, templateName, params } = validation.data
     
     // Logic: If recipients is "ALL", "PRO", or "FREE", fetch the list.
     // Otherwise, assume it's an array of targeted emails/phones.
@@ -28,7 +38,7 @@ export async function POST(req) {
       targetUsers = await prisma.user.findMany({ where: { email: { not: null }, tier: 'FREE' } })
     } else if (Array.isArray(recipients)) {
       // Manual list
-      targetUsers = recipients.map(r => ({ email: r, name: r.split('@')[0] }))
+      targetUsers = recipients.map(r => ({ email: r, name: r.split('@')[0], id: null }))
     }
 
     const results = []
@@ -48,13 +58,22 @@ export async function POST(req) {
           userId: user.id || null,
           type: type || 'MARKETING',
           channel,
-          status: res.success ? 'SENT' : 'FAILED',
+          status: res?.success ? 'SENT' : 'FAILED',
           content: content || templateName,
           recipient: user.email || user.phone || 'unknown'
         }
       })
-      results.push({ email: user.email, success: res.success })
+      results.push({ email: user.email, success: res?.success })
     }
+
+    // Audit the action
+    await prisma.actionLog.create({
+      data: {
+        action: 'COMMS_SEND',
+        details: `Sent bulk messages via ${channel}. Recipients: ${recipients}, Count: ${results.length}`,
+        userId: session.user.id
+      }
+    })
 
     return NextResponse.json({ success: true, count: results.length, details: results })
   } catch (error) {

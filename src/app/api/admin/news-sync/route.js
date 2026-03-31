@@ -40,7 +40,7 @@ export async function POST() {
       data: {
         action: 'SCRAPE_RUN',
         details: `Manual scrape triggered. Fetched: ${stats.totalFetched}, Enriched: ${stats.totalEnriched}`,
-        userId: 'admin' // In a real app, use session.user.id
+        userId: session.user.id
       }
     })
 

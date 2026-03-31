@@ -1,46 +1,48 @@
 import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+
+import { bulkEntriesSchema } from "@/lib/validations"
 
 export async function POST(req) {
   const session = await getServerSession(authOptions)
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
   try {
-    const { entries } = await req.json()
-    if (!entries || !Array.isArray(entries)) {
-      return NextResponse.json({ error: "Invalid data format" }, { status: 400 })
+    const body = await req.json()
+    const validation = bulkEntriesSchema.safeParse(body)
+    
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error.format() }, { status: 400 })
     }
 
-    const payload = entries.map(e => {
-      const parsedLat = parseFloat(e.lat)
-      const parsedLon = parseFloat(e.lon)
-      const parsedYear = parseInt(e.year)
-      
-      return {
-        lat: isNaN(parsedLat) ? null : parsedLat,
-        lon: isNaN(parsedLon) ? null : parsedLon,
-        name: e.name || "Unnamed",
-        category: e.category || "strait",
-        tags: e.tags || null,
-        year: isNaN(parsedYear) ? null : parsedYear,
-        shape: e.shape || null,
-        prelims: e.prelims || "",
-        mains: e.mains || "",
-        india: e.india || "",
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }
-    })
+    const { entries } = validation.data
+    
+    const payload = entries.map(e => ({
+      ...e,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }))
 
     const result = await prisma.mapEntry.createMany({
       data: payload,
-      skipDuplicates: true // This is the fix for the 500 error on duplicates
+      skipDuplicates: true
+    })
+
+    // Audit the action
+    await prisma.actionLog.create({
+      data: {
+        action: 'CONTENT_EDIT',
+        details: `Bulk created map entries. Count: ${result.count}`,
+        userId: session.user.id
+      }
     })
 
     return NextResponse.json({ success: true, count: result.count })
   } catch (error) {
     console.error("Bulk POST Error:", error)
-    return NextResponse.json({ error: error.message || "Failed to insert bulk entries" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to insert bulk entries" }, { status: 500 })
   }
 }
 
@@ -50,6 +52,16 @@ export async function DELETE(req) {
 
   try {
     const result = await prisma.mapEntry.deleteMany({})
+    
+    // Audit the action
+    await prisma.actionLog.create({
+      data: {
+        action: 'CONTENT_EDIT',
+        details: `Deleted all map entries. Count: ${result.count}`,
+        userId: session.user.id
+      }
+    })
+    
     return NextResponse.json({ success: true, count: result.count })
   } catch (error) {
     console.error("Bulk DELETE Error:", error)

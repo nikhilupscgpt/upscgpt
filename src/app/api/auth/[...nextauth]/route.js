@@ -9,8 +9,8 @@ export const authOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || 'dummy',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || 'dummy',
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
     CredentialsProvider({
       name: 'Credentials',
@@ -25,13 +25,8 @@ export const authOptions = {
           where: { username: credentials.username }
         });
 
-        // For demo purposes: Auto-provision if 'admin' logs in for the first time
-        if (!user && credentials.username === 'admin') {
-          const hashedPassword = await bcrypt.hash('UPSC2026', 10);
-          user = await prisma.user.create({
-            data: { username: 'admin', password: hashedPassword, role: 'ADMIN', tier: 'PREMIUM' }
-          });
-        }
+        // For demo purposes: Admin auto-provision was removed for security.
+        // Ensure admin user exists in the database.
 
         if (!user) return null;
 
@@ -69,7 +64,13 @@ export const authOptions = {
   pages: {
     signIn: '/login',
   },
-  secret: process.env.NEXTAUTH_SECRET || "fallback_secret_for_local_dev_only",
+  secret: process.env.NEXTAUTH_SECRET,
+}
+
+if (process.env.NODE_ENV === 'production') {
+  if (!process.env.NEXTAUTH_SECRET) {
+    throw new Error("NEXTAUTH_SECRET is required in production!");
+  }
 }
 
 const handler = NextAuth(authOptions)
