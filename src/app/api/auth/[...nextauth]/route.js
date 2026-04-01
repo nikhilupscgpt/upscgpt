@@ -43,13 +43,19 @@ export const authOptions = {
   session: { strategy: "jwt" },
   callbacks: {
     async jwt({ token, user, trigger, session }) {
-      // the 'user' object is only present on initial login
       if (user) {
         token.id = user.id
         token.role = user.role || 'USER'
         token.tier = user.tier || 'FREE'
       }
-      // handle updates if needed when session changes
+      
+      // Update token if the session is updated on the client
+      if (trigger === "update" && session) {
+        token.name = session.name || token.name
+        token.role = session.role || token.role
+        token.tier = session.tier || token.tier
+      }
+
       return token
     },
     async session({ session, token }) {

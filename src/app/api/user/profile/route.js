@@ -46,16 +46,33 @@ export async function PATCH(request) {
     }
 
     const body = await request.json();
+    console.log("[Profile API] Body:", body);
+    
     const validatedData = profileSchema.parse(body);
+    console.log("[Profile API] Validated Data:", validatedData);
+
+    if (!session.user.id) {
+      console.error("[Profile API] Missing user id in session");
+      return NextResponse.json({ error: "Missing identity in session" }, { status: 401 });
+    }
+
+    const baseQuery = session.user.id 
+      ? { id: session.user.id } 
+      : { email: session.user.email };
+
+    console.log("[Profile API] Querying with:", baseQuery);
 
     const updatedUser = await prisma.user.update({
-      where: { id: session.user.id },
-      data: validatedData,
+      where: baseQuery,
+      data: {
+        name: validatedData.name,
+        examYear: validatedData.examYear,
+        preferences: validatedData.preferences || {}
+      },
       select: {
         id: true,
         name: true,
         email: true,
-        image: true,
         role: true,
         tier: true,
         examYear: true,
@@ -63,12 +80,14 @@ export async function PATCH(request) {
       },
     });
 
+    console.log("[Profile API] Update Success:", updatedUser.id);
     return NextResponse.json(updatedUser);
   } catch (error) {
     if (error.name === "ZodError") {
+      console.warn("[Profile API] Validation Errors:", error.errors);
       return NextResponse.json({ error: error.errors }, { status: 400 });
     }
-    console.error("Profile PATCH Error:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.error("[Profile API] Uncaught PATCH Error:", error);
+    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
   }
 }

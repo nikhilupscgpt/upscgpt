@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
 import { useSession } from 'next-auth/react'
+import Navigation from '@/components/Navigation'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import html2canvas from 'html2canvas'
@@ -278,54 +279,34 @@ function MapPageInner() {
     <div className="layout">
       <AtlasTimeTracker />
       {/* HEADER */}
-      <header className="header">
+      <Navigation>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <button
             onClick={() => setSidebarOpen(o => !o)}
             title={sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
             style={{
-              width: '34px', height: '34px', borderRadius: '8px', border: 'none',
+              width: '32px', height: '32px', borderRadius: '8px', border: 'none',
               background: 'rgba(255,255,255,0.1)', color: 'white', cursor: 'pointer',
-              fontSize: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}
           >{sidebarOpen ? '◀' : '▶'}</button>
-          <Link href="/atlas" style={{
-            display: 'inline-flex', alignItems: 'center', gap: '4px',
-            padding: '5px 11px', borderRadius: '8px',
-            background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)',
-            color: 'rgba(255,255,255,0.7)', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none',
-          }}>← Portal</Link>
-          <span style={{ color: 'rgba(255,255,255,0.15)' }}>|</span>
-          <div>
-            <h1>{region.emoji} {region.label}</h1>
-            <p style={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.4)', margin: 0, fontWeight: 500 }}>
-              {filteredEntries.length} entries · Global Strategic Atlas
-            </p>
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
           <button onClick={exportPDF} disabled={isExporting} style={{
-            padding: '8px 16px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.2)',
-            background: 'rgba(255,255,255,0.1)', color: 'white', fontWeight: 600, fontSize: '0.85rem',
+            padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)',
+            background: 'rgba(255,255,255,0.1)', color: 'white', fontWeight: 600, fontSize: '0.75rem',
             cursor: isExporting ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: '6px',
-            opacity: isExporting ? 0.7 : 1
+            opacity: isExporting ? '0.7' : 1
           }}>
-            {isExporting ? '⏳ Exporting...' : '📄 Export PDF'}
+            {isExporting ? '⏳' : '📄'} <span className="hidden sm:inline">Export</span>
           </button>
-          {session && (
-            <Link href="/profile" style={{ 
-              textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px',
-              padding: '8px 16px', borderRadius: '10px', background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.1)', color: '#fbbf24', fontSize: '0.85rem', fontWeight: 700
-            }}>
-              👤 Profile
-            </Link>
-          )}
-          <Link href="/admin" className="btn-primary" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-            ⚙️ Control Center
+          <Link href="/admin" style={{
+            textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px',
+            padding: '6px 12px', borderRadius: '8px', background: 'rgba(255,191,36,0.1)',
+            border: '1px solid rgba(255,191,36,0.2)', color: '#fbbf24', fontSize: '0.75rem', fontWeight: 700
+          }}>
+             ⚙️ <span className="hidden sm:inline">Admin</span>
           </Link>
         </div>
-      </header>
+      </Navigation>
 
       <main className="main-content">
         {/* SIDEBAR */}

@@ -1,6 +1,7 @@
 "use client"
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Navigation from '@/components/Navigation'
 
 const REGIONS = [
   {
@@ -104,34 +105,9 @@ export default function PortalHome() {
       minHeight: '100vh', fontFamily: "'Outfit', sans-serif",
       background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%)',
     }}>
+      <Navigation />
       {/* BG GLOW */}
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(99,102,241,0.15) 0%, transparent 60%)' }} />
-
-      {/* HEADER */}
-      <header style={{
-        position: 'relative', zIndex: 10, padding: '20px 48px',
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        borderBottom: '1px solid rgba(255,255,255,0.06)',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          <div style={{
-            width: '40px', height: '40px', borderRadius: '10px', fontSize: '20px',
-            background: 'linear-gradient(135deg, #3b82f6, #6366f1)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 4px 20px rgba(99,102,241,0.4)',
-          }}>🌍</div>
-          <div>
-            <h1 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'white', margin: 0, letterSpacing: '-0.3px' }}>Global Strategic Atlas</h1>
-            <p style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', margin: 0, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.5px' }}>UPSC Pedagogy Portal</p>
-          </div>
-        </div>
-        <Link href="/admin" style={{
-          padding: '8px 18px', borderRadius: '10px',
-          background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)',
-          color: 'rgba(255,255,255,0.8)', fontSize: '0.85rem', fontWeight: 600,
-          textDecoration: 'none',
-        }}>⚙️ Control Center</Link>
-      </header>
 
       {/* HERO */}
       <div style={{ position: 'relative', zIndex: 10, padding: '50px 48px 36px', textAlign: 'center' }}>

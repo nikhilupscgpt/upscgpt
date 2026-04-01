@@ -7,7 +7,7 @@ import Navigation from "@/components/Navigation";
 import toast, { Toaster } from "react-hot-toast";
 
 export default function ProfilePage() {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   const router = useRouter();
   const [profile, setProfile] = useState({
     name: "",
@@ -50,12 +50,32 @@ export default function ProfilePage() {
 
       if (res.ok) {
         toast.success("Profile updated successfully!");
+        await update({ name: profile.name });
       } else {
         const err = await res.json();
         toast.error(err.error || "Update failed");
       }
     } catch (error) {
       toast.error("Something went wrong");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleUpgrade = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch("/api/user/upgrade", { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success(data.message);
+        // Official next-auth session refresh
+        await update({ tier: 'PRO' });
+      } else {
+        toast.error(data.error || "Upgrade failed");
+      }
+    } catch (error) {
+      toast.error("Process interrupted");
     } finally {
       setSaving(false);
     }
@@ -153,8 +173,12 @@ export default function ProfilePage() {
               <div style={{ padding: '1.5rem', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)', borderRadius: '16px' }}>
                 <h3 style={{ color: '#fbbf24', fontSize: '0.95rem', fontWeight: '800', marginBottom: '0.5rem' }}>UPGRADE TO PRO</h3>
                 <p style={{ fontSize: '0.8rem', color: 'rgba(251, 191, 36, 0.8)', marginBottom: '1rem' }}>Get unlimited map exports, AI-evaluated mains answers, and daily high-priority geopolitical intel.</p>
-                <button style={{ width: '100%', padding: '10px', borderRadius: '10px', background: '#fbbf24', color: 'black', fontWeight: '900', border: 'none', cursor: 'pointer' }}>
-                  Go Pro Now
+                <button 
+                  onClick={handleUpgrade}
+                  disabled={saving}
+                  style={{ width: '100%', padding: '10px', borderRadius: '10px', background: '#fbbf24', color: 'black', fontWeight: '900', border: 'none', cursor: saving ? 'wait' : 'pointer', opacity: saving ? 0.7 : 1 }}
+                >
+                  {saving ? "Processing..." : "Go Pro Now"}
                 </button>
               </div>
             )}
