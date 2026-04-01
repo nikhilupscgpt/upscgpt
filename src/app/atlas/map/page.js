@@ -190,6 +190,7 @@ function FloatingMapBotPanel({
       <div
         className="mapbot-floating-header"
         onPointerDown={(event) => {
+          if (typeof window !== 'undefined' && window.innerWidth <= 768) return
           if (event.target.closest('button, input, textarea')) return
           const rect = event.currentTarget.parentElement?.getBoundingClientRect()
           dragStateRef.current = {
@@ -720,6 +721,11 @@ function MapPageInner() {
       </Navigation>
 
       <main className="main-content">
+        <div
+          className={`sidebar-backdrop ${sidebarOpen ? 'visible' : ''}`}
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden={!sidebarOpen}
+        />
         {/* SIDEBAR */}
         <aside className={`sidebar ${sidebarOpen ? '' : 'sidebar-collapsed'}`}>
           {/* SEARCH */}
