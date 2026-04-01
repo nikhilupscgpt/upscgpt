@@ -1,7 +1,6 @@
-import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import razorpay from '@/lib/razorpay';
+import { getRazorpay } from '@/lib/razorpay';
 
 export async function POST() {
   try {
@@ -20,6 +19,7 @@ export async function POST() {
     };
 
     console.log(`[Payment API] Creating order for user ${session.user.id}...`);
+    const razorpay = getRazorpay();
     const order = await razorpay.orders.create(options);
     console.log(`[Payment API] Order created: ${order.id}`);
 
