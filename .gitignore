@@ -50,3 +50,4 @@ test-csv.js
 next-env.d.ts
 
 /src/generated/prisma
+.env*.local

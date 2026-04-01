@@ -3,7 +3,6 @@ import { useState, useEffect, useRef, Suspense } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import dynamic from 'next/dynamic'
-import { useSession } from 'next-auth/react'
 import Navigation from '@/components/Navigation'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -40,9 +39,137 @@ const BASEMAPS = [
   { key: 'light',     label: '📄 Light',         sub: 'Academic Gray' },
 ]
 
-function EntryDrawer({ entry, onClose }) {
-  if (!entry) return null
-  const style = CATEGORIES.find(c => c.key === entry.category) || CATEGORIES[0]
+const MAPBOT_ACTIONS = [
+  { key: 'node_explainer', label: 'Node Explainer', requiresEntry: true },
+  { key: 'region_tutor', label: 'Region Tutor', requiresEntry: false },
+  { key: 'news_interpreter', label: 'News-to-Map', requiresEntry: false },
+  { key: 'prelims_generator', label: 'Prelims Generator', requiresEntry: false },
+]
+
+const MAPBOT_CHAT_SUGGESTIONS = [
+  'Why is this location important for India?',
+  'Turn this into a 150-word mains answer.',
+  'Give me 3 map-based prelims traps from here.',
+]
+
+async function requestMapBot(payload) {
+  const res = await fetch('/api/mapbot', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+
+  const data = await res.json()
+  if (!res.ok) {
+    const error = new Error(data?.error || 'MapBot could not respond.')
+    error.status = res.status
+    error.usage = data?.usage || null
+    throw error
+  }
+
+  return data
+}
+
+async function requestMapBotChatUsage() {
+  const res = await fetch('/api/mapbot?usage=chat')
+  const data = await res.json()
+
+  if (!res.ok) {
+    throw new Error(data?.error || 'MapBot usage could not be loaded.')
+  }
+
+  return data?.usage || null
+}
+
+function FloatingMapBotPanel({
+  entry,
+  region,
+  panelOpen,
+  setPanelOpen,
+  panelMinimized,
+  setPanelMinimized,
+  activeTab,
+  setActiveTab,
+  onMapBotAction,
+  mapbotMode,
+  mapbotLoading,
+  mapbotError,
+  mapbotResult,
+  chatMessages,
+  chatInput,
+  setChatInput,
+  chatLoading,
+  onChatSubmit,
+  chatUsage,
+}) {
+  const style = entry ? (CATEGORIES.find(c => c.key === entry.category) || CATEGORIES[0]) : null
+  const contextLabel = entry?.name || region.label
+  const [panelPosition, setPanelPosition] = useState({ x: 20, y: 20, hasMoved: false })
+  const dragStateRef = useRef(null)
+
+  const clampPosition = (x, y) => {
+    if (typeof window === 'undefined') return { x, y }
+    const panelWidth = panelMinimized ? 240 : Math.min(430, window.innerWidth - 40)
+    const panelHeight = panelMinimized ? 84 : Math.min(760, window.innerHeight - 40)
+    return {
+      x: Math.min(Math.max(12, x), Math.max(12, window.innerWidth - panelWidth - 12)),
+      y: Math.min(Math.max(12, y), Math.max(12, window.innerHeight - panelHeight - 12)),
+    }
+  }
+
+  useEffect(() => {
+    const handleResize = () => {
+      setPanelPosition((current) => {
+        if (!current.hasMoved) return current
+        const next = clampPosition(current.x, current.y)
+        return { ...current, ...next }
+      })
+    }
+
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [panelMinimized])
+
+  useEffect(() => {
+    if (!panelOpen) return undefined
+
+    const handlePointerMove = (event) => {
+      if (!dragStateRef.current) return
+      const next = clampPosition(
+        event.clientX - dragStateRef.current.offsetX,
+        event.clientY - dragStateRef.current.offsetY
+      )
+      setPanelPosition({ ...next, hasMoved: true })
+    }
+
+    const handlePointerUp = () => {
+      dragStateRef.current = null
+      document.body.style.userSelect = ''
+    }
+
+    window.addEventListener('pointermove', handlePointerMove)
+    window.addEventListener('pointerup', handlePointerUp)
+
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove)
+      window.removeEventListener('pointerup', handlePointerUp)
+    }
+  }, [panelOpen, panelMinimized])
+
+  if (!panelOpen) {
+    return (
+      <button
+        type="button"
+        className="mapbot-fab"
+        onClick={() => {
+          setPanelOpen(true)
+          setPanelMinimized(false)
+        }}
+      >
+        MapBot
+      </button>
+    )
+  }
 
   const safeUri = (uri) => {
     const protocols = ['http', 'https', 'mailto', 'tel'];
@@ -56,103 +183,227 @@ function EntryDrawer({ entry, onClose }) {
   };
 
   return (
-    <div className="entry-drawer">
-      {/* Header */}
-      <div className="drawer-header" style={{ borderBottom: `3px solid ${style.color}` }}>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-            <span style={{
-              fontSize: '0.62rem', padding: '3px 10px', borderRadius: '20px', fontWeight: 800, textTransform: 'uppercase',
-              background: style.color + '22', color: style.color, border: `1px solid ${style.color}44`
-            }}>{style.emoji} {entry.category}</span>
-            {entry.year && <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 600 }}>UPSC {entry.year}</span>}
+    <div
+      className={`mapbot-floating-panel ${panelMinimized ? 'minimized' : ''}`}
+      style={panelPosition.hasMoved ? { top: `${panelPosition.y}px`, left: `${panelPosition.x}px`, right: 'auto' } : undefined}
+    >
+      <div
+        className="mapbot-floating-header"
+        onPointerDown={(event) => {
+          if (event.target.closest('button, input, textarea')) return
+          const rect = event.currentTarget.parentElement?.getBoundingClientRect()
+          dragStateRef.current = {
+            offsetX: event.clientX - (rect?.left || 0),
+            offsetY: event.clientY - (rect?.top || 0),
+          }
+          document.body.style.userSelect = 'none'
+        }}
+      >
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <div className="mapbot-kicker">AI Atlas Guide</div>
+          <div className="mapbot-title-row">
+            <strong>{contextLabel}</strong>
+            {entry && style ? (
+              <span className="mapbot-context-badge" style={{ background: `${style.color}22`, color: style.color, borderColor: `${style.color}44` }}>
+                {style.emoji} {entry.category}
+              </span>
+            ) : null}
           </div>
-          <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a', margin: 0, lineHeight: 1.2 }}>{entry.name}</h2>
-          {entry.lat && <p style={{ fontSize: '0.72rem', color: '#94a3b8', margin: '4px 0 0', fontFamily: 'monospace' }}>
-            📌 {Number(entry.lat).toFixed(4)}°, {Number(entry.lon).toFixed(4)}°
-          </p>}
+          <div className="mapbot-subtle">
+            {entry
+              ? 'Node details, exam framing, and AI help now live in one floating panel.'
+              : 'Use MapBot as a floating tutor for this region, latest news, and quick AI chat.'}
+          </div>
         </div>
-        <button onClick={onClose} style={{
-          width: '32px', height: '32px', borderRadius: '8px', border: 'none',
-          background: '#f1f5f9', color: '#475569', fontSize: '1rem', cursor: 'pointer',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700
-        }}>✕</button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button type="button" className="mapbot-icon-btn" onClick={() => setPanelMinimized(!panelMinimized)}>
+            {panelMinimized ? '▢' : '—'}
+          </button>
+          <button
+            type="button"
+            className="mapbot-icon-btn"
+            onClick={() => {
+              setPanelOpen(false)
+              setPanelMinimized(false)
+            }}
+          >
+            ✕
+          </button>
+        </div>
       </div>
 
-      {/* Scrollable Body */}
-      <div className="drawer-content">
-        {entry.tags && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', paddingBottom: '10px' }}>
-            {entry.tags.split(',').map(t => (
-              <span key={t} style={{ padding: '3px 10px', borderRadius: '20px', fontSize: '0.7rem', fontWeight: 700, background: '#eff6ff', color: '#1d4ed8', border: '1px solid #dbeafe' }}>#{t.trim()}</span>
-            ))}
+      {!panelMinimized ? (
+        <>
+          <div className="mapbot-tabs">
+            <button type="button" className={`mapbot-tab ${activeTab === 'context' ? 'active' : ''}`} onClick={() => setActiveTab('context')}>
+              Context
+            </button>
+            <button type="button" className={`mapbot-tab ${activeTab === 'chat' ? 'active' : ''}`} onClick={() => setActiveTab('chat')}>
+              AI Chat
+            </button>
           </div>
-        )}
 
-        {entry.prelims && (
-          <div className="drawer-section prelims">
-            <div className="drawer-section-label">📋 Prelims Facts</div>
-            <div className="drawer-markdown">
-              <ReactMarkdown 
-                remarkPlugins={[remarkGfm]} 
-                transformLinkUri={safeUri}
-                disallowedElements={['script', 'iframe', 'object', 'embed']}
-              >
-                {entry.prelims}
-              </ReactMarkdown>
-            </div>
+          <div className="mapbot-floating-body">
+            {activeTab === 'context' ? (
+              <>
+                <div className="mapbot-quick-actions">
+                  {MAPBOT_ACTIONS.map((action) => (
+                    <button
+                      key={action.key}
+                      type="button"
+                      className={`mapbot-action-pill ${mapbotMode === action.key ? 'active' : ''}`}
+                      disabled={(action.requiresEntry && !entry) || mapbotLoading}
+                      onClick={() => onMapBotAction(action.key, entry)}
+                    >
+                      {action.label}
+                    </button>
+                  ))}
+                </div>
+
+                {entry ? (
+                  <div className="mapbot-entry-card">
+                    <div className="mapbot-entry-topline">
+                      <span>{entry.year ? `UPSC ${entry.year}` : 'Atlas node'}</span>
+                      {entry.lat != null && entry.lon != null ? (
+                        <span>{Number(entry.lat).toFixed(3)}, {Number(entry.lon).toFixed(3)}</span>
+                      ) : null}
+                    </div>
+                    {entry.tags ? (
+                      <div className="mapbot-tag-row">
+                        {entry.tags.split(',').map((tag) => (
+                          <span key={tag} className="mapbot-tag-chip">#{tag.trim()}</span>
+                        ))}
+                      </div>
+                    ) : null}
+                    <div className="mapbot-entry-grid">
+                      <div>
+                        <div className="mapbot-mini-label">Prelims</div>
+                        <p>{entry.prelims || 'No prelims notes yet for this node.'}</p>
+                      </div>
+                      <div>
+                        <div className="mapbot-mini-label">India Angle</div>
+                        <p>{entry.india || 'India-specific framing is still being expanded.'}</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mapbot-empty-state">
+                    Click a node on the map to bring its details here. Until then, MapBot can still tutor the region or interpret its mapped news.
+                  </div>
+                )}
+
+                {mapbotError ? <div className="mapbot-inline-error">{mapbotError}</div> : null}
+                {mapbotLoading ? <div className="mapbot-loading-card">MapBot is preparing an exam-ready response...</div> : null}
+
+                {mapbotResult && !mapbotLoading ? (
+                  <div className="mapbot-panel">
+                    <div style={{ marginBottom: '10px' }}>
+                      <div style={{ fontSize: '0.95rem', color: '#0f172a', fontWeight: 800 }}>{mapbotResult.title}</div>
+                      {mapbotResult.contextLabel ? (
+                        <div style={{ fontSize: '0.72rem', color: '#6366f1', fontWeight: 700, marginTop: '3px' }}>
+                          {mapbotResult.contextLabel}
+                        </div>
+                      ) : null}
+                    </div>
+                    <div className="mapbot-markdown">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        transformLinkUri={safeUri}
+                        disallowedElements={['script', 'iframe', 'object', 'embed']}
+                      >
+                        {mapbotResult.markdown || 'No response returned.'}
+                      </ReactMarkdown>
+                    </div>
+                    {Array.isArray(mapbotResult.suggestedFollowups) && mapbotResult.suggestedFollowups.length > 0 ? (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '12px' }}>
+                        {mapbotResult.suggestedFollowups.slice(0, 3).map((followup) => (
+                          <button
+                            key={followup}
+                            type="button"
+                            className="mapbot-followup"
+                            onClick={() => {
+                              setActiveTab('chat')
+                              setChatInput(followup)
+                            }}
+                          >
+                            {followup}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
+              </>
+            ) : (
+              <>
+                <div className="mapbot-chat-scroll">
+                  {chatMessages.length === 0 ? (
+                    <div className="mapbot-empty-state">
+                      Ask about the selected node, compare locations, request a mains answer, or turn the current context into prelims practice.
+                    </div>
+                  ) : (
+                    chatMessages.map((message, index) => (
+                      <div key={`${message.role}-${index}`} className={`mapbot-message ${message.role}`}>
+                        <div className="mapbot-message-role">{message.role === 'user' ? 'You' : 'MapBot'}</div>
+                        <div className="mapbot-markdown">
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            transformLinkUri={safeUri}
+                            disallowedElements={['script', 'iframe', 'object', 'embed']}
+                          >
+                            {message.content}
+                          </ReactMarkdown>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                <div className="mapbot-suggestion-row">
+                  {MAPBOT_CHAT_SUGGESTIONS.map((prompt) => (
+                    <button key={prompt} type="button" className="mapbot-suggestion" onClick={() => setChatInput(prompt)}>
+                      {prompt}
+                    </button>
+                  ))}
+                </div>
+
+                {chatUsage ? (
+                  <div className="mapbot-subtle" style={{ marginBottom: '0.6rem' }}>
+                    {chatUsage.limit == null
+                      ? 'Live AI chat is available without a daily cap on your current plan.'
+                      : `Live AI chat remaining today: ${chatUsage.remaining}/${chatUsage.limit}`}
+                  </div>
+                ) : null}
+
+                <form
+                  className="mapbot-chat-form"
+                  onSubmit={(event) => {
+                    event.preventDefault()
+                    onChatSubmit()
+                  }}
+                >
+                  <textarea
+                    rows={3}
+                    value={chatInput}
+                    onChange={(event) => setChatInput(event.target.value)}
+                    placeholder={entry ? `Ask MapBot about ${entry.name}...` : `Ask MapBot about ${region.label}...`}
+                    className="mapbot-chat-input"
+                  />
+                  <button type="submit" className="btn-primary" disabled={chatLoading || !chatInput.trim()} style={{ width: '100%', justifyContent: 'center' }}>
+                    {chatLoading ? 'Thinking…' : 'Send to MapBot'}
+                  </button>
+                </form>
+              </>
+            )}
           </div>
-        )}
-        {entry.mains && (
-          <div className="drawer-section mains">
-            <div className="drawer-section-label">📝 Mains Concept</div>
-            <div className="drawer-markdown">
-              <ReactMarkdown 
-                remarkPlugins={[remarkGfm]} 
-                transformLinkUri={safeUri}
-                disallowedElements={['script', 'iframe', 'object', 'embed']}
-              >
-                {entry.mains}
-              </ReactMarkdown>
-            </div>
-          </div>
-        )}
-        {entry.india && (
-          <div className="drawer-section india">
-            <div className="drawer-section-label">🇮🇳 India Focus</div>
-            <div className="drawer-markdown">
-              <ReactMarkdown 
-                remarkPlugins={[remarkGfm]} 
-                transformLinkUri={safeUri}
-                disallowedElements={['script', 'iframe', 'object', 'embed']}
-              >
-                {entry.india}
-              </ReactMarkdown>
-            </div>
-          </div>
-        )}
-        {entry.newsMentions && (
-          <div className="drawer-section news">
-            <div className="drawer-section-label">📰 News Intelligence Log</div>
-            <div className="drawer-markdown">
-              <ReactMarkdown 
-                remarkPlugins={[remarkGfm]} 
-                transformLinkUri={safeUri}
-                disallowedElements={['script', 'iframe', 'object', 'embed']}
-              >
-                {entry.newsMentions}
-              </ReactMarkdown>
-            </div>
-          </div>
-        )}
-      </div>
+        </>
+      ) : null}
     </div>
   )
 }
 
 
 function MapPageInner() {
-  const { data: session } = useSession()
   const searchParams = useSearchParams()
   const regionKey = searchParams.get('region') || 'global'
   const region = REGION_CONFIG[regionKey] || REGION_CONFIG.global
@@ -169,9 +420,39 @@ function MapPageInner() {
   const [heatmapMode, setHeatmapMode] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
   const [timeFilter, setTimeFilter] = useState('all') // 'all', 'today', 'month'
+  const [mapbotMode, setMapbotMode] = useState('region_tutor')
+  const [mapbotResult, setMapbotResult] = useState(null)
+  const [mapbotLoading, setMapbotLoading] = useState(false)
+  const [mapbotError, setMapbotError] = useState('')
+  const [mapbotPanelOpen, setMapbotPanelOpen] = useState(true)
+  const [mapbotPanelMinimized, setMapbotPanelMinimized] = useState(false)
+  const [mapbotActiveTab, setMapbotActiveTab] = useState('context')
+  const [chatMessages, setChatMessages] = useState([])
+  const [chatInput, setChatInput] = useState('')
+  const [chatLoading, setChatLoading] = useState(false)
+  const [chatUsage, setChatUsage] = useState(null)
   
   const mapRef = useRef(null)
   const exportRef = useRef(null)
+  const lastAutoExplainedEntryRef = useRef(null)
+
+  const allTags = [...new Set(entries.flatMap(e => e.tags ? e.tags.split(',').map(t => t.trim()) : []))].filter(Boolean).sort()
+  const allYears = [...new Set(entries.map(e => e.year).filter(Boolean))].sort((a, b) => b - a)
+
+  const filteredEntries = entries.filter(e => {
+    if (activeTag && (!e.tags || !e.tags.split(',').map(t => t.trim()).includes(activeTag))) return false
+    if (activeYear && e.year !== parseInt(activeYear)) return false
+    if (searchQuery && !e.name?.toLowerCase().includes(searchQuery.toLowerCase())) return false
+
+    if (timeFilter !== 'all') {
+      if (!e.lastNewsDate) return false
+      const diffDays = (new Date() - new Date(e.lastNewsDate)) / (1000 * 60 * 60 * 24)
+      if (timeFilter === 'today' && diffDays > 1) return false
+      if (timeFilter === 'month' && diffDays > 30) return false
+    }
+
+    return true
+  })
 
   const exportPDF = async () => {
     setIsExporting(true)
@@ -252,25 +533,155 @@ function MapPageInner() {
     fetch('/api/entries').then(r => r.json()).then(setEntries).catch(() => {})
   }, [])
 
-  const toggleLayer = (layer) => setLayers(prev => ({ ...prev, [layer]: !prev[layer] }))
+  const runMapBot = async (mode, entryOverride = null) => {
+    const entry = entryOverride || selectedEntry
+    const action = MAPBOT_ACTIONS.find(item => item.key === mode)
 
-  const allTags = [...new Set(entries.flatMap(e => e.tags ? e.tags.split(',').map(t => t.trim()) : []))].filter(Boolean).sort()
-  const allYears = [...new Set(entries.map(e => e.year).filter(Boolean))].sort((a, b) => b - a)
-
-  const filteredEntries = entries.filter(e => {
-    if (activeTag && (!e.tags || !e.tags.split(',').map(t => t.trim()).includes(activeTag))) return false
-    if (activeYear && e.year !== parseInt(activeYear)) return false
-    if (searchQuery && !e.name?.toLowerCase().includes(searchQuery.toLowerCase())) return false
-
-    if (timeFilter !== 'all') {
-      if (!e.lastNewsDate) return false
-      const diffDays = (new Date() - new Date(e.lastNewsDate)) / (1000 * 60 * 60 * 24)
-      if (timeFilter === 'today' && diffDays > 1) return false
-      if (timeFilter === 'month' && diffDays > 30) return false
+    if (action?.requiresEntry && !entry) {
+      setMapbotError('Select a map node first to run the node explainer.')
+      setMapbotMode(mode)
+      return
     }
 
-    return true
-  })
+    setMapbotLoading(true)
+    setMapbotError('')
+    setMapbotMode(mode)
+    setMapbotActiveTab('context')
+    setMapbotPanelOpen(true)
+    setMapbotPanelMinimized(false)
+
+    try {
+      const data = await requestMapBot({
+        mode,
+        regionKey,
+        entryId: entry?.id || null,
+        entriesSnapshot: filteredEntries.slice(0, 80),
+        selectedEntrySnapshot: entry || null,
+      })
+      setMapbotResult(data)
+    } catch (error) {
+      setMapbotError(error.message || 'MapBot could not respond.')
+    } finally {
+      setMapbotLoading(false)
+    }
+  }
+
+  const sendMapBotChat = async () => {
+    const prompt = chatInput.trim()
+    if (!prompt) return
+
+    const nextMessages = [...chatMessages, { role: 'user', content: prompt }]
+    setChatMessages(nextMessages)
+    setChatInput('')
+    setChatLoading(true)
+    setMapbotPanelOpen(true)
+    setMapbotPanelMinimized(false)
+    setMapbotActiveTab('chat')
+
+    try {
+      const data = await requestMapBot({
+        mode: 'chat',
+        regionKey,
+        entryId: selectedEntry?.id || null,
+        userPrompt: prompt,
+        chatHistory: nextMessages,
+        entriesSnapshot: filteredEntries.slice(0, 80),
+        selectedEntrySnapshot: selectedEntry || null,
+      })
+      if (data.usage) {
+        setChatUsage(data.usage)
+      }
+      setChatMessages([...nextMessages, { role: 'assistant', content: data.markdown || 'No response returned.' }])
+    } catch (error) {
+      if (error.usage) {
+        setChatUsage(error.usage)
+      }
+      setChatMessages([
+        ...nextMessages,
+        { role: 'assistant', content: error.message || 'MapBot could not respond.' },
+      ])
+    } finally {
+      setChatLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (!selectedEntry?.id) return
+    if (lastAutoExplainedEntryRef.current === selectedEntry.id) return
+
+    let active = true
+
+    const autoExplain = async () => {
+      lastAutoExplainedEntryRef.current = selectedEntry.id
+      setMapbotPanelOpen(true)
+      setMapbotPanelMinimized(false)
+      setMapbotActiveTab('context')
+      setMapbotLoading(true)
+      setMapbotError('')
+      setMapbotMode('node_explainer')
+
+      try {
+        const data = await requestMapBot({
+          mode: 'node_explainer',
+          regionKey,
+          entryId: selectedEntry.id,
+          entriesSnapshot: filteredEntries.slice(0, 80),
+          selectedEntrySnapshot: selectedEntry,
+        })
+        if (active) {
+          setMapbotResult(data)
+        }
+      } catch (error) {
+        if (active) {
+          setMapbotError(error.message || 'MapBot could not respond.')
+        }
+      } finally {
+        if (active) {
+          setMapbotLoading(false)
+        }
+      }
+    }
+
+    autoExplain()
+
+    return () => {
+      active = false
+    }
+  }, [filteredEntries, regionKey, selectedEntry])
+
+  useEffect(() => {
+    setMapbotError('')
+    setMapbotResult(null)
+    setMapbotMode('region_tutor')
+    setMapbotActiveTab('context')
+    setChatUsage(null)
+    lastAutoExplainedEntryRef.current = null
+  }, [regionKey])
+
+  useEffect(() => {
+    if (!mapbotPanelOpen || mapbotActiveTab !== 'chat' || chatUsage || chatLoading) return
+
+    let active = true
+
+    const loadChatUsage = async () => {
+      try {
+        const usage = await requestMapBotChatUsage()
+        if (active) {
+          setChatUsage(usage)
+        }
+      } catch {
+        // Quietly skip the quota hint if the usage fetch fails.
+      }
+    }
+
+    loadChatUsage()
+
+    return () => {
+      active = false
+    }
+  }, [chatLoading, chatUsage, mapbotActiveTab, mapbotPanelOpen])
+
+  const toggleLayer = (layer) => setLayers(prev => ({ ...prev, [layer]: !prev[layer] }))
 
   const filtersActive = activeTag || activeYear || searchQuery
   const categoryCount = (key) => entries.filter(e => e.category === key).length
@@ -526,7 +937,27 @@ function MapPageInner() {
             heatmapMode={heatmapMode}
             selectedEntry={selectedEntry}
           />
-          <EntryDrawer entry={selectedEntry} onClose={() => setSelectedEntry(null)} />
+          <FloatingMapBotPanel
+            entry={selectedEntry}
+            region={region}
+            panelOpen={mapbotPanelOpen}
+            setPanelOpen={setMapbotPanelOpen}
+            panelMinimized={mapbotPanelMinimized}
+            setPanelMinimized={setMapbotPanelMinimized}
+            activeTab={mapbotActiveTab}
+            setActiveTab={setMapbotActiveTab}
+            onMapBotAction={runMapBot}
+            mapbotMode={mapbotMode}
+            mapbotLoading={mapbotLoading}
+            mapbotError={mapbotError}
+            mapbotResult={mapbotResult}
+            chatMessages={chatMessages}
+            chatInput={chatInput}
+            setChatInput={setChatInput}
+            chatLoading={chatLoading}
+            onChatSubmit={sendMapBotChat}
+            chatUsage={chatUsage}
+          />
           <NewsTicker regionKey={regionKey} onCloseDrawer={() => setSelectedEntry(null)} onArticleSelect={(article) => {
             if (article.lat && article.lon && mapRef.current) {
               mapRef.current.flyTo([article.lat, article.lon], 6)

@@ -109,12 +109,57 @@ model MapEntry {
   
   lastNewsDate   DateTime?
   newsMentions   String?
+  aiNodeSummaryTitle      String?
+  aiNodeSummaryMarkdown   String?
+  aiNodeSummaryFollowups  String?
+  aiNodeSummarySourceHash String?
+  aiNodeSummaryUpdatedAt  DateTime?
+  aiNewsSummaryTitle      String?
+  aiNewsSummaryMarkdown   String?
+  aiNewsSummaryFollowups  String?
+  aiNewsSummarySourceHash String?
+  aiNewsSummaryUpdatedAt  DateTime?
   
   favoritedBy  FavoriteEntry[]
 
   @@index([name])
   @@index([category])
   @@unique([name, lat, lon])
+}
+
+model RegionInsightCache {
+  id                 String   @id @default(cuid())
+  regionKey          String
+  mode               String
+  title              String
+  contextLabel       String
+  markdown           String
+  suggestedFollowups String?
+  sourceHash         String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @default(now()) @updatedAt
+
+  @@unique([regionKey, mode])
+  @@index([regionKey])
+  @@index([mode])
+}
+
+model QuizPack {
+  id                 String   @id @default(cuid())
+  scopeType          String
+  scopeId            String
+  mode               String
+  title              String
+  contextLabel       String
+  markdown           String
+  suggestedFollowups String?
+  sourceHash         String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @default(now()) @updatedAt
+
+  @@unique([scopeType, scopeId, mode])
+  @@index([scopeType, scopeId])
+  @@index([mode])
 }
 
 model ActionLog {
@@ -145,4 +190,3 @@ model PaymentLog {
   status      String
   createdAt   DateTime @default(now())
 }
-
