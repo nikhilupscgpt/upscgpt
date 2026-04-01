@@ -270,6 +270,39 @@ button { font-family: 'Outfit', sans-serif; transition: all 0.25s cubic-bezier(0
 .sidebar-content::-webkit-scrollbar { width: 3px; }
 .sidebar-content::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
 
+.atlas-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.region-switcher-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.mobile-sheet-tabs {
+  display: none;
+}
+
+.mobile-sheet-tab {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: rgba(15,23,42,0.06);
+  color: #475569;
+  font-size: 0.74rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.mobile-sheet-tab.active {
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  color: white;
+  box-shadow: 0 8px 18px rgba(99,102,241,0.2);
+}
+
 /* ===== FILTERS ===== */
 .filter-label { display: block; font-size: 0.68rem; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
 .filter-select {
@@ -740,28 +773,34 @@ input, select, textarea { font-family: 'Outfit', sans-serif; }
     gap: 0.5rem;
   }
 
+  .atlas-nav-secondary {
+    display: none !important;
+  }
+
   .nav-desktop-text {
     display: none;
   }
 
   .sidebar {
     position: fixed;
-    top: 73px;
-    left: 0;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
     bottom: 0;
-    width: min(88vw, 340px);
-    min-width: min(88vw, 340px);
+    width: auto;
+    min-width: 0;
+    max-height: min(68vh, 680px);
     border-right: none;
-    border-radius: 0 22px 0 0;
-    box-shadow: 20px 0 50px rgba(15, 23, 42, 0.28);
+    border-radius: 26px 26px 18px 18px;
+    box-shadow: 0 -10px 40px rgba(15, 23, 42, 0.24);
     z-index: 900;
     transition: transform 0.28s ease, opacity 0.28s ease;
   }
 
   .sidebar-collapsed {
-    width: min(88vw, 340px) !important;
-    min-width: min(88vw, 340px) !important;
-    transform: translateX(-104%);
+    width: auto !important;
+    min-width: 0 !important;
+    transform: translateY(108%);
     opacity: 0;
     pointer-events: none;
   }
@@ -783,7 +822,7 @@ input, select, textarea { font-family: 'Outfit', sans-serif; }
     right: 10px;
     bottom: 14px;
     width: auto;
-    max-height: min(68vh, 620px);
+    max-height: min(52vh, 520px);
     border-radius: 22px;
   }
 
@@ -802,7 +841,39 @@ input, select, textarea { font-family: 'Outfit', sans-serif; }
   }
 
   .mapbot-chat-scroll {
-    max-height: 240px;
+    max-height: 180px;
+  }
+
+  .region-switcher-row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-right: -4px;
+    scrollbar-width: none;
+  }
+
+  .region-switcher-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .region-switcher-chip {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .mobile-sheet-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    background: rgba(248,250,252,0.82);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  .section-card:first-child {
+    margin-top: 8px;
   }
 }
 
@@ -821,6 +892,10 @@ input, select, textarea { font-family: 'Outfit', sans-serif; }
 
   .app-nav__brand-text {
     font-size: 0.98rem;
+    max-width: 128px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .app-nav__session > :not(.app-nav__go-pro):not(a[href="/profile"]) {
@@ -829,24 +904,37 @@ input, select, textarea { font-family: 'Outfit', sans-serif; }
 
   .sidebar {
     top: 69px;
-    width: calc(100vw - 40px);
-    min-width: calc(100vw - 40px);
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    width: auto;
+    min-width: 0;
+    max-height: min(64vh, 620px);
+    border-radius: 24px 24px 16px 16px;
   }
 
   .sidebar-collapsed {
-    width: calc(100vw - 40px) !important;
-    min-width: calc(100vw - 40px) !important;
+    width: auto !important;
+    min-width: 0 !important;
   }
 
   .section-card {
     margin: 8px 8px 0;
   }
 
+  .sidebar-content {
+    padding-bottom: 22px;
+  }
+
+  .atlas-nav-actions {
+    gap: 8px;
+  }
+
   .mapbot-floating-panel {
     left: 8px;
     right: 8px;
     bottom: 8px;
-    max-height: min(72vh, 640px);
+    max-height: min(46vh, 430px);
     border-radius: 18px;
   }
 
@@ -869,6 +957,24 @@ input, select, textarea { font-family: 'Outfit', sans-serif; }
   }
 
   .mapbot-chat-input {
-    min-height: 96px;
+    min-height: 82px;
+  }
+
+  .mapbot-subtle {
+    font-size: 0.7rem;
+  }
+
+  .mapbot-action-pill {
+    padding: 7px 10px;
+    font-size: 0.7rem;
+  }
+
+  .mapbot-chat-scroll {
+    max-height: 132px;
+  }
+
+  .mobile-sheet-tab {
+    padding: 7px 10px;
+    font-size: 0.7rem;
   }
 }

@@ -418,6 +418,8 @@ function MapPageInner() {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedEntry, setSelectedEntry] = useState(null)
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [isMobile, setIsMobile] = useState(false)
+  const [mobileSheetTab, setMobileSheetTab] = useState('explore')
   const [heatmapMode, setHeatmapMode] = useState(false)
   const [isExporting, setIsExporting] = useState(false)
   const [timeFilter, setTimeFilter] = useState('all') // 'all', 'today', 'month'
@@ -534,6 +536,34 @@ function MapPageInner() {
     fetch('/api/entries').then(r => r.json()).then(setEntries).catch(() => {})
   }, [])
 
+  useEffect(() => {
+    const syncViewport = () => {
+      const nextIsMobile = window.innerWidth <= 768
+      setIsMobile(nextIsMobile)
+    }
+
+    syncViewport()
+    window.addEventListener('resize', syncViewport)
+    return () => window.removeEventListener('resize', syncViewport)
+  }, [])
+
+  useEffect(() => {
+    if (!isMobile) return
+    setSidebarOpen(false)
+    setMapbotPanelOpen(true)
+    setMapbotPanelMinimized(true)
+  }, [isMobile])
+
+  useEffect(() => {
+    if (!isMobile || !sidebarOpen) return
+    setMapbotPanelMinimized(true)
+  }, [isMobile, sidebarOpen])
+
+  useEffect(() => {
+    if (!isMobile || !mapbotPanelOpen || mapbotPanelMinimized) return
+    setSidebarOpen(false)
+  }, [isMobile, mapbotPanelMinimized, mapbotPanelOpen])
+
   const runMapBot = async (mode, entryOverride = null) => {
     const entry = entryOverride || selectedEntry
     const action = MAPBOT_ACTIONS.find(item => item.key === mode)
@@ -550,6 +580,9 @@ function MapPageInner() {
     setMapbotActiveTab('context')
     setMapbotPanelOpen(true)
     setMapbotPanelMinimized(false)
+    if (isMobile) {
+      setSidebarOpen(false)
+    }
 
     try {
       const data = await requestMapBot({
@@ -578,6 +611,9 @@ function MapPageInner() {
     setMapbotPanelOpen(true)
     setMapbotPanelMinimized(false)
     setMapbotActiveTab('chat')
+    if (isMobile) {
+      setSidebarOpen(false)
+    }
 
     try {
       const data = await requestMapBot({
@@ -617,6 +653,9 @@ function MapPageInner() {
       setMapbotPanelOpen(true)
       setMapbotPanelMinimized(false)
       setMapbotActiveTab('context')
+      if (isMobile) {
+        setSidebarOpen(false)
+      }
       setMapbotLoading(true)
       setMapbotError('')
       setMapbotMode('node_explainer')
@@ -656,6 +695,7 @@ function MapPageInner() {
     setMapbotMode('region_tutor')
     setMapbotActiveTab('context')
     setChatUsage(null)
+    setMobileSheetTab('explore')
     lastAutoExplainedEntryRef.current = null
   }, [regionKey])
 
@@ -692,7 +732,7 @@ function MapPageInner() {
       <AtlasTimeTracker />
       {/* HEADER */}
       <Navigation>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div className="atlas-nav-actions">
           <button
             onClick={() => setSidebarOpen(o => !o)}
             title={sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
@@ -702,7 +742,7 @@ function MapPageInner() {
               fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}
           >{sidebarOpen ? '◀' : '▶'}</button>
-          <button onClick={exportPDF} disabled={isExporting} style={{
+          <button className="atlas-nav-secondary" onClick={exportPDF} disabled={isExporting} style={{
             padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)',
             background: 'rgba(255,255,255,0.1)', color: 'white', fontWeight: 600, fontSize: '0.75rem',
             cursor: isExporting ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: '6px',
@@ -710,7 +750,7 @@ function MapPageInner() {
           }}>
             {isExporting ? '⏳' : '📄'} <span className="hidden sm:inline">Export</span>
           </button>
-          <Link href="/admin" style={{
+          <Link className="atlas-nav-secondary" href="/admin" style={{
             textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px',
             padding: '6px 12px', borderRadius: '8px', background: 'rgba(255,191,36,0.1)',
             border: '1px solid rgba(255,191,36,0.2)', color: '#fbbf24', fontSize: '0.75rem', fontWeight: 700
@@ -743,9 +783,9 @@ function MapPageInner() {
           {/* REGION SWITCHER */}
           <div style={{ padding: '10px 12px', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
             <div className="quick-jump-title" style={{ marginBottom: '8px' }}>Switch Region</div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+            <div className="region-switcher-row">
               {Object.entries(REGION_CONFIG).map(([key, cfg]) => (
-                <Link key={key} href={`/atlas/map?region=${key}`} style={{
+                <Link key={key} className="region-switcher-chip" href={`/atlas/map?region=${key}`} style={{
                   padding: '4px 9px', borderRadius: '7px', fontSize: '0.72rem', fontWeight: 600,
                   textDecoration: 'none',
                   background: key === regionKey ? 'linear-gradient(135deg, #3b82f6, #6366f1)' : 'rgba(0,0,0,0.05)',
@@ -757,8 +797,28 @@ function MapPageInner() {
             </div>
           </div>
 
+          {isMobile ? (
+            <div className="mobile-sheet-tabs">
+              {[
+                ['explore', 'Explore'],
+                ['headlines', 'Headlines'],
+                ['filters', 'Filters'],
+              ].map(([key, label]) => (
+                <button
+                  key={key}
+                  type="button"
+                  className={`mobile-sheet-tab ${mobileSheetTab === key ? 'active' : ''}`}
+                  onClick={() => setMobileSheetTab(key)}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          ) : null}
+
           <div className="sidebar-content">
             {/* HEADLINES FILTER */}
+            {(!isMobile || mobileSheetTab === 'headlines') ? (
             <div className="section-card">
               <div className="section-title">Global Headlines</div>
               <div style={{ padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -822,8 +882,10 @@ function MapPageInner() {
                 )}
               </div>
             </div>
+            ) : null}
 
             {/* FILTERS */}
+            {(!isMobile || mobileSheetTab === 'filters') ? (
             <div className="section-card">
               <div className="section-title">Intelligence Filters</div>
               {filtersActive && (
@@ -849,8 +911,11 @@ function MapPageInner() {
                 </div>
               </div>
             </div>
+            ) : null}
 
             {/* GEOGRAPHIC LAYERS */}
+            {(!isMobile || mobileSheetTab === 'explore') ? (
+            <>
             <div className="section-card">
               <div className="section-title">Geographic Layers</div>
               {CATEGORIES.map(cat => {
@@ -916,6 +981,8 @@ function MapPageInner() {
                 <div className={`toggle-switch ${layers.graticules ? 'on' : ''}`}><div className="toggle-knob" /></div>
               </div>
             </div>
+            </>
+            ) : null}
           </div>
         </aside>
 

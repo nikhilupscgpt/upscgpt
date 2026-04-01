@@ -9,6 +9,14 @@ export default function NewsTicker({ regionKey, onArticleSelect, drawerOpen, onC
   const [selectedArticle, setSelectedArticle] = useState(null)
   const [entryDetails, setEntryDetails] = useState(null)
   const [loadingDetails, setLoadingDetails] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const syncViewport = () => setIsMobile(window.innerWidth <= 768)
+    syncViewport()
+    window.addEventListener('resize', syncViewport)
+    return () => window.removeEventListener('resize', syncViewport)
+  }, [])
 
   useEffect(() => {
     let isMounted = true
@@ -84,12 +92,12 @@ export default function NewsTicker({ regionKey, onArticleSelect, drawerOpen, onC
       {/* ── NEWS DETAIL PANEL ─────────────────────────────────────────── */}
       {selectedArticle && (
         <div style={{
-          position: 'absolute', bottom: '80px', left: '20px',
-          width: 'calc(100% - 40px)', maxWidth: '680px', zIndex: 1000,
+          position: 'absolute', bottom: isMobile ? '72px' : '80px', left: isMobile ? '10px' : '20px',
+          width: isMobile ? 'calc(100% - 20px)' : 'calc(100% - 40px)', maxWidth: isMobile ? 'none' : '680px', zIndex: 1000,
           background: 'rgba(15, 23, 42, 0.97)', backdropFilter: 'blur(20px)',
           border: '1px solid rgba(56, 189, 248, 0.3)', borderRadius: '20px',
           boxShadow: '0 20px 60px rgba(0,0,0,0.5)', fontFamily: "'Outfit', sans-serif",
-          maxHeight: '50vh', overflow: 'hidden', display: 'flex', flexDirection: 'column',
+          maxHeight: isMobile ? '42vh' : '50vh', overflow: 'hidden', display: 'flex', flexDirection: 'column',
           animation: 'slideUp 0.3s ease'
         }}>
           <style dangerouslySetInnerHTML={{__html: `
@@ -215,8 +223,8 @@ export default function NewsTicker({ regionKey, onArticleSelect, drawerOpen, onC
 
       {/* ── TICKER BAR ────────────────────────────────────────────────── */}
       <div style={{
-        position: 'absolute', bottom: '20px', left: '50%', transform: 'translateX(-50%)',
-        width: '85%', maxWidth: '1100px', zIndex: 999,
+        position: 'absolute', bottom: isMobile ? '14px' : '20px', left: '50%', transform: 'translateX(-50%)',
+        width: isMobile ? 'calc(100% - 20px)' : '85%', maxWidth: '1100px', zIndex: 999,
         background: 'rgba(15, 23, 42, 0.88)', backdropFilter: 'blur(12px)',
         border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '14px',
         overflow: 'hidden', display: 'flex', alignItems: 'center',
@@ -224,12 +232,12 @@ export default function NewsTicker({ regionKey, onArticleSelect, drawerOpen, onC
       }}>
         {/* Badge */}
         <div style={{
-          padding: '10px 16px', background: 'linear-gradient(135deg, #38bdf8, #8b5cf6)',
-          color: 'white', fontWeight: 900, fontSize: '0.72rem', letterSpacing: '1px',
+          padding: isMobile ? '9px 12px' : '10px 16px', background: 'linear-gradient(135deg, #38bdf8, #8b5cf6)',
+          color: 'white', fontWeight: 900, fontSize: isMobile ? '0.64rem' : '0.72rem', letterSpacing: '1px',
           textTransform: 'uppercase', flexShrink: 0, zIndex: 10, position: 'relative',
           boxShadow: '4px 0 10px rgba(0,0,0,0.2)'
         }}>
-          LIVE INTEL
+          {isMobile ? 'LIVE' : 'LIVE INTEL'}
         </div>
 
         {/* Scrolling Track — SLOWER */}

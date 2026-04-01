@@ -15,6 +15,14 @@ export default function AtlasTimeTracker() {
   const [usedSeconds, setUsedSeconds] = useState(0)
   const [exhausted, setExhausted] = useState(false)
   const [initialized, setInitialized] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const syncViewport = () => setIsMobile(window.innerWidth <= 768)
+    syncViewport()
+    window.addEventListener('resize', syncViewport)
+    return () => window.removeEventListener('resize', syncViewport)
+  }, [])
 
   // Initialize and track locally
   useEffect(() => {
@@ -97,16 +105,28 @@ export default function AtlasTimeTracker() {
   
   return (
     <div style={{
-      position: 'fixed', top: '20px', left: '50%', transform: 'translateX(-50%)', zIndex: 9999,
-      background: 'rgba(255,255,255,0.95)', padding: '6px 14px', borderRadius: '20px',
-      boxShadow: '0 4px 15px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', gap: '8px',
-      fontFamily: "'Outfit', sans-serif", border: '1px solid rgba(0,0,0,0.05)', backdropFilter: 'blur(5px)'
+      position: 'fixed',
+      top: isMobile ? '76px' : '20px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      zIndex: 999,
+      maxWidth: isMobile ? 'calc(100vw - 32px)' : 'none',
+      background: 'rgba(255,255,255,0.95)',
+      padding: isMobile ? '6px 12px' : '6px 14px',
+      borderRadius: '20px',
+      boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
+      display: 'flex',
+      alignItems: 'center',
+      gap: isMobile ? '6px' : '8px',
+      fontFamily: "'Outfit', sans-serif",
+      border: '1px solid rgba(0,0,0,0.05)',
+      backdropFilter: 'blur(5px)'
     }}>
       <span style={{ fontSize: '14px' }}>⏱️</span>
-      <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0f172a' }}>
+      <span style={{ fontSize: isMobile ? '0.78rem' : '0.85rem', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap' }}>
         {Math.floor(remaining / 60)}m {remaining % 60}s left
       </span>
-      <span style={{ fontSize: '0.7rem', fontWeight: 700, background: '#f1f5f9', padding: '2px 8px', borderRadius: '10px', color: '#475569' }}>FREE TIER</span>
+      <span style={{ fontSize: isMobile ? '0.62rem' : '0.7rem', fontWeight: 700, background: '#f1f5f9', padding: '2px 8px', borderRadius: '10px', color: '#475569', whiteSpace: 'nowrap' }}>FREE TIER</span>
     </div>
   )
 }
