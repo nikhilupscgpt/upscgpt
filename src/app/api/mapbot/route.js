@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { GoogleGenAI } from '@google/genai'
+import { getGeminiModel } from '@/lib/gemini'
 import { createHash } from 'node:crypto'
 import { getServerSession } from 'next-auth/next'
 
@@ -936,11 +936,6 @@ export async function POST(req) {
       }
     }
 
-    const geminiKey = process.env.GEMINI_API_KEY
-    if (!geminiKey) {
-      return NextResponse.json(buildFallback(mode, regionKey, regionEntries, selectedEntry, userPrompt))
-    }
-
     const chatUsage = mode === 'chat' ? await getChatUsageState(chatIdentity) : null
     if (mode === 'chat' && chatUsage?.limit != null && chatUsage.used >= chatUsage.limit) {
       return NextResponse.json(
@@ -965,11 +960,12 @@ export async function POST(req) {
     })
 
     try {
-      const aiClient = new GoogleGenAI({ apiKey: geminiKey })
-      const response = await aiClient.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
-      })
+      const model = getGeminiModel(mode === 'chat' ? 'chat' : 'analysis')
+      if (!model) {
+        return NextResponse.json(buildFallback(mode, regionKey, regionEntries, selectedEntry, userPrompt))
+      }
+
+      const response = await model.generateContent(prompt)
 
       const rawText = response.text
         .trim()
