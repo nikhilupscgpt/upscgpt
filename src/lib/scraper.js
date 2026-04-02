@@ -1,5 +1,5 @@
 import prisma from "./prisma"
-import { GoogleGenAI } from '@google/genai'
+import { getGeminiModel } from "./gemini"
 const delay = (ms) => new Promise(res => setTimeout(res, ms))
 
 export const TRUSTED_SOURCES = {
@@ -74,9 +74,7 @@ async function fetchFromGNews(keywords, sourceGroup, gnewsKey, max = 10) {
 
 export async function scrapeAndEnrich() {
   const gnewsKey = process.env.GNEWS_API_KEY
-  const geminiKey = process.env.GEMINI_API_KEY
-
-  const aiClient = geminiKey ? new GoogleGenAI({ apiKey: geminiKey }) : null
+  const model = getGeminiModel('extraction')
   const mapEntries = await prisma.mapEntry.findMany()
 
   let totalFetched = 0
@@ -94,7 +92,7 @@ export async function scrapeAndEnrich() {
     totalFetched += articles.length
 
     for (const article of articles) {
-      if (!aiClient) continue
+      if (!model) continue
 
       try {
         await delay(4200) 
@@ -106,8 +104,8 @@ export async function scrapeAndEnrich() {
 
         const promptText = `You are a UPSC Civil Services exam preparation expert. Analyze this article for UPSC relevance: "${articleText}". Source: ${sourceName}. Return strictly valid JSON: { "isGeopolitical": true, "upscRelevance": 0-10, "locationName": "string", "lat": float, "lon": float, "category": "strait|conflict|island|mineral|nature|economy|governance|diplomacy|general", "prelims": "string", "mainsDetails": "string", "upscCrux": "string" }`
 
-        const response = await aiClient.getGenerativeModel({ model: 'gemini-1.5-flash' }).generateContent(promptText)
-        const responseText = response.response.text()
+        const response = await model.generateContent(promptText)
+        const responseText = response.text
 
         let cleanText = responseText.trim()
           .replace(/^```json\n?/, '').replace(/\n?```$/, '')
