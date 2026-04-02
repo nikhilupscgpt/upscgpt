@@ -248,6 +248,19 @@ function trimText(value, maxLength = 900) {
   return value.length > maxLength ? `${value.slice(0, maxLength)}...` : value
 }
 
+function extractModelText(response) {
+  if (!response) return ''
+  if (typeof response.text === 'string') return response.text
+  if (typeof response.text === 'function') {
+    try {
+      return response.text() || ''
+    } catch {
+      return ''
+    }
+  }
+  return ''
+}
+
 function filterEntriesForRegion(entries, regionKey) {
   const region = REGION_CONFIG[regionKey] || REGION_CONFIG.global
   if (!region.bounds) return entries
@@ -966,8 +979,12 @@ export async function POST(req) {
       }
 
       const response = await model.generateContent(prompt)
+      const responseText = extractModelText(response)
+      if (!responseText) {
+        throw new Error('Gemini returned an empty text response.')
+      }
 
-      const rawText = response.text
+      const rawText = responseText
         .trim()
         .replace(/^```json\n?/, '')
         .replace(/\n?```$/, '')
@@ -1006,7 +1023,7 @@ export async function POST(req) {
       }
       return NextResponse.json(parsed)
     } catch (error) {
-      console.error('[MapBot] AI generation failed:', error)
+      console.error('[MapBot] AI generation failed:', error?.message || error)
       const fallback = buildFallback(mode, regionKey, regionEntries, selectedEntry, userPrompt)
       if (mode === 'chat' && chatUsage) {
         return NextResponse.json({
