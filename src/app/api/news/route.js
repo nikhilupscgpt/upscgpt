@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
-import { GoogleGenAI } from '@google/genai'
+import { getGeminiModel } from '@/lib/gemini'
 
 const prisma = new PrismaClient()
 
@@ -105,10 +105,9 @@ async function fetchFromGNews(keywords, sourceGroup, gnewsKey, max = 10) {
 // BACKGROUND AI ENRICHMENT — Enhanced with UPSC relevance scoring
 // ─────────────────────────────────────────────────────────────────────────────
 async function runAiEnrichment(articles) {
-  const geminiKey = process.env.GEMINI_API_KEY
-  if (!geminiKey) return
+  const model = getGeminiModel('extraction')
+  if (!model) return
 
-  const aiClient = new GoogleGenAI({ apiKey: geminiKey })
   const mapEntries = await prisma.mapEntry.findMany()
 
   for (const article of articles) {
@@ -142,10 +141,7 @@ UPSC Relevance Scoring Guide:
 
 If the article is NOT relevant for UPSC (score < 3), return: {"isGeopolitical": false, "upscRelevance": <score>}`
 
-      const response = await aiClient.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: promptText
-      })
+      const response = await model.generateContent(promptText)
 
       let cleanText = response.text.trim()
         .replace(/^```json\n?/, '').replace(/\n?```$/, '')

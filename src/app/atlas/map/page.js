@@ -237,7 +237,7 @@ function MapPageInner() {
             </div>
           `).join('')}
           <div style="text-align: center; margin-top: 40px; color: #94a3b8; font-size: 0.8rem;">
-             Generated autonomously by Gemini 2.5 Flash for UPSCGPT.
+             Generated autonomously by Gemini 1.5 Flash for UPSCGPT.
           </div>
           <script>
             window.onload = () => { window.print(); setTimeout(() => window.close(), 500); }
