@@ -2,8 +2,8 @@ import { z } from 'zod';
 
 // Map Entry Schema
 export const mapEntrySchema = z.object({
-  lat: z.coerce.number().min(-90).max(90),
-  lon: z.coerce.number().min(-180).max(180),
+  lat: z.coerce.number().min(-90).max(90).optional().nullable(),
+  lon: z.coerce.number().min(-180).max(180).optional().nullable(),
   name: z.string().min(1, "Name is required").max(100),
   category: z.string().default("strait"),
   tags: z.string().optional().nullable(),
@@ -11,6 +11,12 @@ export const mapEntrySchema = z.object({
   prelims: z.string().optional().default(""),
   mains: z.string().optional().default(""),
   india: z.string().optional().default(""),
+  // Hierarchy
+  worldPart: z.string().optional().default("POLITICAL"),
+  continent: z.string().optional().nullable(),
+  admRegion: z.string().optional().nullable(),
+  geoGroup: z.string().optional().nullable(),
+  capital: z.string().optional().nullable(),
 });
 
 // Bulk Map Entries Schema

@@ -22,12 +22,20 @@ export default function AdminClient({ session }) {
   const [lastSync, setLastSync] = useState(null)
 
   // Forms
-  const [formData, setFormData] = useState({ lat: '', lon: '', name: '', category: 'strait', tags: '', year: '', prelims: '', mains: '', india: '' })
+  const [formData, setFormData] = useState({ 
+    lat: '', lon: '', name: '', category: 'strait', tags: '', year: '', 
+    prelims: '', mains: '', india: '',
+    worldPart: 'POLITICAL', continent: '', admRegion: '', geoGroup: '', capital: ''
+  })
   const [sheetUrl, setSheetUrl] = useState("")
+  const [importModule, setImportModule] = useState("POLITICAL") // POLITICAL, PHYSICAL, NEWS
   const [userFormData, setUserFormData] = useState({ name: '', email: '', password: '', tier: 'FREE' })
   
   // Comms State
   const [commsForm, setCommsForm] = useState({ channel: 'EMAIL', type: 'MARKETING', recipients: 'PRO', content: '', templateName: '', params: [] })
+  const [remoteSourceUrl, setRemoteSourceUrl] = useState("")
+  const [dataSourceMode, setDataSourceMode] = useState("DATABASE") // DATABASE or REMOTE_CSV
+  const [autoGeocode, setAutoGeocode] = useState(false)
 
 
   const fetchEntries = async () => {
@@ -50,6 +58,15 @@ export default function AdminClient({ session }) {
     } catch (e) { console.error("Stats fail", e) }
   }
 
+  const fetchConfigs = async () => {
+    try {
+      const res = await fetch("/api/admin/config")
+      const data = await res.json()
+      if (data.REMOTE_ATLAS_URL) setRemoteSourceUrl(data.REMOTE_ATLAS_URL)
+      if (data.DATA_SOURCE_MODE) setDataSourceMode(data.DATA_SOURCE_MODE)
+    } catch (e) { console.error("Config fetch fail", e) }
+  }
+
   const fetchLastSync = async () => {
     try {
       const res = await fetch("/api/admin/news-sync")
@@ -59,12 +76,21 @@ export default function AdminClient({ session }) {
   }
 
   useEffect(() => {
-    fetchEntries()
-    if (session?.user?.role === 'ADMIN') {
-      fetchUsers()
-      fetchPaymentStats()
-      fetchLastSync()
-    }
+    const initAdmin = async () => {
+      setLoading(true);
+      await fetchEntries();
+      if (session?.user?.role === 'ADMIN') {
+        await Promise.all([
+          fetchUsers(),
+          fetchPaymentStats(),
+          fetchLastSync(),
+          fetchConfigs()
+        ]);
+      }
+      setLoading(false);
+    };
+    
+    initAdmin();
   }, [session])
 
   // --- MAPPING ACTIONS ---
@@ -88,20 +114,87 @@ export default function AdminClient({ session }) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  const handleSheetSync = () => {
+  const handleSaveConfig = async (key, value) => {
+    setLoading(true); setStatus(`Saving setting: ${key}...`);
+    try {
+      const res = await fetch("/api/admin/config", {
+        method: "POST",
+        body: JSON.stringify({ key, value }),
+        headers: { "Content-Type": "application/json" }
+      });
+      if (res.ok) setStatus(`Platform Setting Updated: ${key}`);
+    } catch (e) { setStatus("Failed to save config."); }
+    setLoading(false);
+  }
+
+  const handleSheetSync = (doGeocode = false) => {
     if (!sheetUrl) return;
-    setLoading(true); setStatus("AI Geocoding & Syncing Google Sheet...");
+    const isAiSync = doGeocode || autoGeocode;
+    setLoading(true); 
+    setStatus(isAiSync ? `AI is identifying & syncing ${importModule} locations...` : `Syncing ${importModule} Data...`);
+    
     Papa.parse(sheetUrl, {
       download: true, header: true, skipEmptyLines: true,
+      error: (err) => {
+        console.error("Papa Parse Error:", err);
+        setStatus(`Sheet Error: ${err.message}. Make sure the CSV is 'Published to the web'.`);
+        setLoading(false);
+      },
       complete: async (results) => {
-        const res = await fetch("/api/entries/bulk", {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ entries: results.data })
-        })
-        if (res.ok) { setStatus("Google Sheets Sync Complete!"); fetchEntries(); }
+        if (!results.data || results.data.length === 0) {
+          console.warn("No data found in sheet.", results);
+          setStatus("Sheet Sync Failed: No rows found in the CSV.");
+          setLoading(false);
+          return;
+        }
+        
+        // Tag all entries with the selected module
+        const taggedEntries = results.data.map(e => ({ ...e, worldPart: importModule }));
+        
+        try {
+          const res = await fetch("/api/entries/bulk", {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ 
+              entries: taggedEntries,
+              autoGeocode: isAiSync,
+              worldPart: importModule
+            })
+          })
+          
+          if (res.ok) { 
+            setStatus(`${importModule} ${isAiSync ? 'AI Discovery' : 'Sync'} Complete!`); 
+            fetchEntries(); 
+          } else {
+            const errorData = await res.json();
+            console.error("Bulk API Full Error Payload:", errorData);
+            setStatus(`Import failed: ${errorData.details || errorData.error || 'Check server logs for details'}`);
+          }
+        } catch (e) {
+          console.error("Network Error during bulk sync:", e);
+          setStatus("Network error during sync.");
+        }
         setLoading(false);
       }
     });
+  }
+
+  const handleDeleteAll = async () => {
+    if (!window.confirm("⚠️ ATTENTION: This will PERMANENTLY delete ALL map entries. This action cannot be undone. Are you absolutely sure?")) return;
+    if (!window.confirm("FINAL CONFIRMATION: Wipe the entire strategic database?")) return;
+    
+    setLoading(true); setStatus("Wiping Global Registry...");
+    try {
+      const res = await fetch("/api/entries/bulk", { method: "DELETE" });
+      if (res.ok) {
+        setStatus("Strategic Database Wiped Successfully.");
+        fetchEntries();
+      } else {
+        setStatus("Wipe Failed: Check server logs.");
+      }
+    } catch (e) {
+      setStatus("Network error during wipe.");
+    }
+    setLoading(false);
   }
 
   // --- USER ACTIONS ---
@@ -237,32 +330,78 @@ export default function AdminClient({ session }) {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 0.8fr', gap: '40px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
               <section style={cardStyle}>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '24px', display:'flex', alignItems:'center', gap:'12px' }}><PlusCircle size={22} color="#3b82f6"/> {editingId ? "Edit Strategic Node" : "Individual Entry"}</h2>
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <input placeholder="Location Name (e.g., Strait of Hormuz)" value={formData.name} onChange={e=>setFormData({...formData, name: e.target.value})} style={{ padding:'16px', borderRadius:'14px', border: '1px solid #e2e8f0', background: '#f8fafc', fontSize: '1rem' }} />
-                  <div style={{ display: 'flex', gap: '16px' }}>
-                    <input placeholder="Lat" type="number" step="any" value={formData.lat} onChange={e=>setFormData({...formData, lat: e.target.value})} style={{ flex:1, padding:'16px', borderRadius:'14px', border: '1px solid #e2e8f0' }} />
-                    <input placeholder="Lon" type="number" step="any" value={formData.lon} onChange={e=>setFormData({...formData, lon: e.target.value})} style={{ flex:1, padding:'16px', borderRadius:'14px', border: '1px solid #e2e8f0' }} />
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '20px', color: '#3b82f6' }}>Bulk Mapping Engine</h2>
+                <div style={{ background: '#eff6ff', padding: '24px', borderRadius: '20px', border: '1px solid #bfdbfe', marginBottom: '24px' }}>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 800, color: '#1e40af', display: 'block', marginBottom: '12px' }}>SELECT SUB-MODULE TARGET</label>
+                  <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                    {['POLITICAL', 'PHYSICAL', 'NEWS'].map(m => (
+                      <button 
+                        key={m} 
+                        onClick={() => setImportModule(m)}
+                        style={{
+                          flex: 1, padding: '10px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '0.75rem',
+                          background: importModule === m ? '#3b82f6' : 'white',
+                          color: importModule === m ? 'white' : '#64748b',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        {m}
+                      </button>
+                    ))}
                   </div>
-                  <select value={formData.category} onChange={e=>setFormData({...formData, category: e.target.value})} style={{ padding:'16px', borderRadius:'14px', border: '1px solid #e2e8f0', background: 'white' }}>
-                    <option value="strait">Choke Point / Strait</option><option value="conflict">Conflict Zone</option>
-                    <option value="nature">Environmental / Nature</option><option value="island">Island Strategy</option><option value="mineral">Strategic Mineral</option>
-                  </select>
-                  <textarea placeholder="Prelims Points..." value={formData.prelims} onChange={e=>setFormData({...formData, prelims: e.target.value})} style={{ minHeight:'100px', padding:'16px', borderRadius:'14px', border: '1px solid #e2e8f0' }} />
-                  <textarea placeholder="Mains Dimension..." value={formData.mains} onChange={e=>setFormData({...formData, mains: e.target.value})} style={{ minHeight:'100px', padding:'16px', borderRadius:'14px', border: '1px solid #e2e8f0' }} />
-                  <textarea placeholder="India's Stake..." value={formData.india} onChange={e=>setFormData({...formData, india: e.target.value})} style={{ minHeight:'100px', padding:'16px', borderRadius:'14px', border: '1px solid #e2e8f0' }} />
-                  <button type="submit" disabled={loading} style={{ padding: '18px', background: '#3b82f6', color: 'white', borderRadius: '16px', border:'none', cursor: 'pointer', fontWeight: 800, fontSize: '1.1rem' }}>
-                    {editingId ? "Apply Changes" : "Commit to Database"}
-                  </button>
-                </form>
-              </section>
+                  <input placeholder="Paste Google Sheet CSV URL here..." value={sheetUrl} onChange={e=>setSheetUrl(e.target.value)} style={{ width: '100%', padding:'14px', borderRadius:'12px', border: '1px solid #cbd5e1', marginBottom:'16px' }} />
+                  
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <button onClick={() => handleSheetSync(false)} disabled={loading} style={{ flex: 1, padding: '14px', background: 'white', color: '#1e293b', border: '1px solid #cbd5e1', borderRadius: '12px', fontWeight: 800, cursor: 'pointer' }}>
+                      Standard Sync
+                    </button>
+                    <button onClick={() => handleSheetSync(true)} disabled={loading} style={{ flex: 1.5, ...btnPrimary, padding: '14px' }}>
+                      <Zap size={16}/> AI Geocode & Sync
+                    </button>
+                  </div>
+                  
+                  <div style={{ marginTop: '16px', fontSize: '0.7rem', color: '#3b82f6', fontWeight: 600 }}>
+                    💡 Tip: If you don&apos;t have Lat/Lon, use <b>AI Geocode</b>. It will find coordinates and hierarchy automatically.
+                  </div>
 
-              <section style={cardStyle}>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '20px' }}>Bulk Operations</h2>
-                <div style={{ background: '#f8fafc', padding: '24px', borderRadius: '20px', marginBottom: '24px' }}>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#64748b', display: 'block', marginBottom: '12px' }}>GOOGLE SHEETS SYNC (CSV URL)</label>
-                  <input placeholder="Paste CSV URL here..." value={sheetUrl} onChange={e=>setSheetUrl(e.target.value)} style={{ width: '100%', padding:'14px', borderRadius:'12px', border: '1px solid #cbd5e1', marginBottom:'16px' }} />
-                  <button onClick={handleSheetSync} disabled={loading} style={{ width: '100%', padding: '14px', background: '#10b981', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer' }}>Sync Now</button>
+                  <div style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px dashed #cbd5e1' }}>
+                    <button 
+                      onClick={handleDeleteAll} 
+                      disabled={loading}
+                      style={{ 
+                        width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #fee2e2',
+                        background: '#fef2f2', color: '#ef4444', fontWeight: 800, fontSize: '0.75rem',
+                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
+                      }}
+                    >
+                      <Trash2 size={16}/> Wipe Global Registry (Nuclear)
+                    </button>
+                  </div>
+                </div>
+
+                <div style={cardStyle}>
+                  <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '24px', display:'flex', alignItems:'center', gap:'12px' }}><PlusCircle size={22} color="#3b82f6"/> {editingId ? "Edit Node" : "Individual Form"}</h2>
+                  <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <div style={{ display: 'flex', gap: '16px' }}>
+                      <input placeholder="Country / Name" value={formData.name} onChange={e=>setFormData({...formData, name: e.target.value})} style={{ flex: 2, padding:'14px', borderRadius:'12px', border: '1px solid #e2e8f0' }} />
+                      <input placeholder="Capital" value={formData.capital} onChange={e=>setFormData({...formData, capital: e.target.value})} style={{ flex: 1, padding:'14px', borderRadius:'12px', border: '1px solid #e2e8f0' }} />
+                    </div>
+                    
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+                      <input placeholder="Continent" value={formData.continent} onChange={e=>setFormData({...formData, continent: e.target.value})} style={{ padding:'12px', borderRadius:'12px', border: '1px solid #e2e8f0' }} />
+                      <input placeholder="Adm. Region" value={formData.admRegion} onChange={e=>setFormData({...formData, admRegion: e.target.value})} style={{ padding:'12px', borderRadius:'12px', border: '1px solid #e2e8f0' }} />
+                      <input placeholder="Geo-Political Group" value={formData.geoGroup} onChange={e=>setFormData({...formData, geoGroup: e.target.value})} style={{ padding:'12px', borderRadius:'12px', border: '1px solid #e2e8f0' }} />
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '16px' }}>
+                      <input placeholder="Lat" type="number" step="any" value={formData.lat} onChange={e=>setFormData({...formData, lat: e.target.value})} style={{ flex:1, padding:'14px', borderRadius:'12px', border: '1px solid #e2e8f0' }} />
+                      <input placeholder="Lon" type="number" step="any" value={formData.lon} onChange={e=>setFormData({...formData, lon: e.target.value})} style={{ flex:1, padding:'14px', borderRadius:'12px', border: '1px solid #e2e8f0' }} />
+                    </div>
+                    
+                    <button type="submit" disabled={loading} style={{ padding: '18px', background: '#3b82f6', color: 'white', borderRadius: '16px', border:'none', cursor: 'pointer', fontWeight: 800 }}>
+                      {editingId ? "Save Changes" : "Create Node"}
+                    </button>
+                  </form>
                 </div>
               </section>
             </div>

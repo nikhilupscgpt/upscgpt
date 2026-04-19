@@ -8,33 +8,60 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 
 const REGION_CONFIG = {
   asia: {
-    label: 'Asia & Pacific',
+    label: 'Asia',
     bounds: [-10, 55, 60, 180],
-  },
-  middle_east: {
-    label: 'Middle East',
-    bounds: [10, 42, 25, 65],
+    continents: ['Asia'],
   },
   africa: {
     label: 'Africa',
     bounds: [-35, 38, -20, 55],
-  },
-  indian_ocean: {
-    label: 'Indian Ocean',
-    bounds: [-40, 25, 40, 100],
+    continents: ['Africa'],
   },
   europe: {
     label: 'Europe',
     bounds: [35, 72, -25, 45],
+    continents: ['Europe'],
   },
-  americas: {
-    label: 'Americas',
-    bounds: [-60, 60, -170, -30],
+  north_america: {
+    label: 'North America',
+    bounds: [5, 75, -170, -50],
+    continents: ['North America'],
+  },
+  south_america: {
+    label: 'South America',
+    bounds: [-60, 15, -90, -30],
+    continents: ['South America'],
+  },
+  oceania: {
+    label: 'Oceania',
+    bounds: [-50, 10, 110, 180],
+    continents: ['Oceania'],
   },
   global: {
     label: 'Global View',
     bounds: null,
+    continents: [],
   },
+}
+
+function getContinentKey(value) {
+  if (!value) return ''
+
+  const normalized = value.toString().trim().toLowerCase()
+  const aliasMap = {
+    asia: 'asia',
+    africa: 'africa',
+    europe: 'europe',
+    'north america': 'north_america',
+    north_america: 'north_america',
+    'northern america': 'north_america',
+    'south america': 'south_america',
+    south_america: 'south_america',
+    oceania: 'oceania',
+    global: 'global',
+  }
+
+  return aliasMap[normalized] || ''
 }
 
 const MAPBOT_MODES = {
@@ -263,6 +290,9 @@ function extractModelText(response) {
 
 function filterEntriesForRegion(entries, regionKey) {
   const region = REGION_CONFIG[regionKey] || REGION_CONFIG.global
+  if (region.continents?.length) {
+    return entries.filter((entry) => region.continents.includes(entry.continent))
+  }
   if (!region.bounds) return entries
 
   const [minLat, maxLat, minLon, maxLon] = region.bounds
@@ -285,6 +315,10 @@ function summarizeEntry(entry) {
     name: entry.name,
     category: entry.category,
     year: entry.year,
+    continent: entry.continent,
+    continentKey: getContinentKey(entry.continent),
+    admRegion: entry.admRegion,
+    geoGroup: entry.geoGroup,
     tags: toList(entry.tags),
     coordinates:
       entry.lat != null && entry.lon != null
@@ -465,7 +499,7 @@ function buildPrompt({ mode, regionKey, regionEntries, selectedEntry, userPrompt
   const entrySummary = summarizeEntry(selectedEntry)
 
   const sharedRules = [
-    'You are MapBot for UPSCGPT, an AI tutor embedded inside a UPSC strategic atlas.',
+    'You are Nano Assistant for upscgpt, an AI tutor embedded inside a UPSC strategic atlas.',
     'Keep the output exam-ready, easy to revise, and anchored in the given atlas data only.',
     'Do not invent locations, treaties, organisations, or current developments that are not supported by the provided context.',
     'Prefer crisp markdown with short sections, bullets, and comparison framing where useful.',
@@ -562,7 +596,7 @@ function buildFallback(mode, regionKey, regionEntries, selectedEntry, userPrompt
         title: 'Pick a map node',
         contextLabel: region.label,
         markdown:
-          'Select a location on the map to trigger the node explainer. MapBot needs one atlas node to break down its strategic significance, UPSC framing, and India angle.',
+          'Select a location on the map to trigger the node explainer. Nano Assistant needs one atlas node to break down its strategic significance, UPSC framing, and India angle.',
         suggestedFollowups: ['Open a location', 'Try Region Tutor', 'Generate Prelims'],
       }
     }
@@ -658,7 +692,7 @@ ${regionEntries
 
   if (mode === 'chat') {
     return {
-      title: 'MapBot Chat',
+      title: 'Nano AI Chat',
       contextLabel: selectedEntry?.name || region.label,
       markdown: `I can help with atlas-linked questions in this region${selectedEntry ? ` and around **${selectedEntry.name}**` : ''}.
 
@@ -681,7 +715,7 @@ ${regionEntries
   return {
     title: `${region.label} Prelims Drill`,
     contextLabel: selectedEntry?.name || region.label,
-    markdown: `Generate prelims is ready, but Gemini is not configured in this environment. Once \`GEMINI_API_KEY\` is present, MapBot will turn atlas context into full MCQs with answer keys and traps.`,
+    markdown: `Generate prelims is ready, but Gemini is not configured in this environment. Once \`GEMINI_API_KEY\` is present, Nano Assistant will turn atlas context into full MCQs with answer keys and traps.`,
     suggestedFollowups: ['Explain a node', 'Interpret linked news', 'Use region tutor'],
   }
 }
@@ -973,7 +1007,15 @@ export async function POST(req) {
     })
 
     try {
-      const model = getGeminiModel(mode === 'chat' ? 'chat' : 'analysis')
+      // Model routing — preserves Gemini 2.5 Flash for multi-entry synthesis
+      // node_explainer + prelims_generator → Gemma 4 26B ('chat' chain, separate quota)
+      // region_tutor + news_interpreter    → Gemini 2.5 Flash ('analysis' chain, needs long context)
+      const modelTask =
+        mode === 'chat'             ? 'chat'     :
+        mode === 'region_tutor'     ? 'analysis' :
+        mode === 'news_interpreter' ? 'analysis' :
+        'chat' // node_explainer, prelims_generator
+      const model = getGeminiModel(modelTask)
       if (!model) {
         return NextResponse.json(buildFallback(mode, regionKey, regionEntries, selectedEntry, userPrompt))
       }
@@ -1023,7 +1065,7 @@ export async function POST(req) {
       }
       return NextResponse.json(parsed)
     } catch (error) {
-      console.error('[MapBot] AI generation failed:', error?.message || error)
+      console.error('[Nano] AI generation failed:', error?.message || error)
       const fallback = buildFallback(mode, regionKey, regionEntries, selectedEntry, userPrompt)
       if (mode === 'chat' && chatUsage) {
         return NextResponse.json({
@@ -1034,7 +1076,7 @@ export async function POST(req) {
       return NextResponse.json(fallback)
     }
   } catch (error) {
-    console.error('[MapBot] Request failed:', error)
-    return NextResponse.json({ error: 'MapBot request failed.' }, { status: 500 })
+    console.error('[Nano] Request failed:', error)
+    return NextResponse.json({ error: 'Nano Assistant request failed.' }, { status: 500 })
   }
 }

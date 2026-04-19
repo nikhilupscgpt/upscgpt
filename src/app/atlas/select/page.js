@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 
-import Navigation from '@/components/Navigation'
 
 const OPTIONS = [
   {
@@ -43,7 +42,6 @@ export default function AtlasSelectorPage() {
         color: 'white',
       }}
     >
-      <Navigation />
       <main style={{ maxWidth: '1120px', margin: '0 auto', padding: '60px 20px 70px' }}>
         <div style={{ textAlign: 'center', marginBottom: '34px' }}>
           <p

@@ -48,22 +48,21 @@ export async function PATCH(request) {
     const body = await request.json();
     console.log("[Profile API] Body:", body);
     
+    // 1. Validate incoming data
     const validatedData = profileSchema.parse(body);
-    console.log("[Profile API] Validated Data:", validatedData);
 
-    if (!session.user.id) {
+    // 2. Identify target user (Must have ID from session)
+    const userId = session.user.id;
+    if (!userId) {
       console.error("[Profile API] Missing user id in session");
       return NextResponse.json({ error: "Missing identity in session" }, { status: 401 });
     }
 
-    const baseQuery = session.user.id 
-      ? { id: session.user.id } 
-      : { email: session.user.email };
+    console.log("[Profile API] Updating user:", userId);
 
-    console.log("[Profile API] Querying with:", baseQuery);
-
+    // 3. Perform update
     const updatedUser = await prisma.user.update({
-      where: baseQuery,
+      where: { id: userId },
       data: {
         name: validatedData.name,
         examYear: validatedData.examYear,

@@ -2,17 +2,23 @@ import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import Papa from "papaparse"
 
 import { mapEntrySchema } from "@/lib/validations"
 
 export async function GET() {
   try {
+    // Database-first approach for 100% reliability
     const entries = await prisma.mapEntry.findMany({
       orderBy: { createdAt: "desc" }
     })
+    
+    // Return the entries including the new hierarchical data
     return NextResponse.json(entries)
   } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch entries" }, { status: 500 })
+    console.error("GET Entries Error:", error)
+    // Return empty array to prevent frontend .map() crashes
+    return NextResponse.json([])
   }
 }
 

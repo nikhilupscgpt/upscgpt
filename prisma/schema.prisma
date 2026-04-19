@@ -8,49 +8,39 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  
-  // Platform Access (Global for UPSCGPT)
-  role               String? @default("USER") // ADMIN, USER
-  tier               String? @default("FREE") // FREE, PRO
-  validUntil         DateTime? // Date for manual access expiry
-  
-  // Razorpay
-  razorpayCustomerId String? @unique
-  
-  favorites       FavoriteEntry[]
-  
-  // Admin Login Support
-  username String? @unique
-  password String?
-  
-  examYear    Int?
-  preferences Json? @default("{}")
-  
-  createdAt DateTime @default(now())
+  id                 String          @id @default(cuid())
+  name               String?
+  email              String?         @unique
+  emailVerified      DateTime?
+  image              String?
+  role               String?         @default("USER")
+  tier               String?         @default("FREE")
+  validUntil         DateTime?
+  razorpayCustomerId String?         @unique
+  username           String?         @unique
+  password           String?
+  createdAt          DateTime        @default(now())
+  preferences        Json?           @default("{}")
+  examYear           Int?
+  accounts           Account[]
+  favorites          FavoriteEntry[]
+  sessions           Session[]
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?
-  access_token       String?
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?
-  session_state      String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -72,59 +62,99 @@ model VerificationToken {
 }
 
 model Subscription {
-  id                String   @id @default(cuid())
-  userId            String   @unique
-  razorpaySubId     String   @unique
-  razorpayPlanId    String
-  status            String   // active, halted, cancelled, completed
-  currentStart      DateTime
-  currentEnd        DateTime
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  razorpaySubId  String   @unique
+  razorpayPlanId String
+  status         String
+  currentStart   DateTime
+  currentEnd     DateTime
 }
 
 model FavoriteEntry {
-  id      String   @id @default(cuid())
-  userId  String
-  entryId String
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  entry   MapEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  id        String   @id @default(cuid())
+  userId    String
+  entryId   String
   createdAt DateTime @default(now())
+  entry     MapEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, entryId])
 }
 
 model MapEntry {
-  id        String   @id @default(cuid())
-  lat       Float?
-  lon       Float?
-  name      String
-  category  String
-  tags      String?
-  year      Int?
-  shape     String?
-  prelims        String?
-  mains          String?
-  india          String?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @default(now()) @updatedAt
-  
-  lastNewsDate   DateTime?
-  newsMentions   String?
-  aiNodeSummaryTitle      String?
-  aiNodeSummaryMarkdown   String?
+  id                      String          @id @default(cuid())
+  lat                     Float?
+  lon                     Float?
+  name                    String
+  category                String
+  tags                    String?
+  year                    Int?
+  shape                   String?
+  prelims                 String?
+  mains                   String?
+  india                   String?
+  createdAt               DateTime        @default(now())
+  updatedAt               DateTime        @default(now()) @updatedAt
+  lastNewsDate            DateTime?
+  newsMentions            String?
   aiNodeSummaryFollowups  String?
+  aiNodeSummaryMarkdown   String?
   aiNodeSummarySourceHash String?
+  aiNodeSummaryTitle      String?
   aiNodeSummaryUpdatedAt  DateTime?
-  aiNewsSummaryTitle      String?
-  aiNewsSummaryMarkdown   String?
   aiNewsSummaryFollowups  String?
+  aiNewsSummaryMarkdown   String?
   aiNewsSummarySourceHash String?
+  aiNewsSummaryTitle      String?
   aiNewsSummaryUpdatedAt  DateTime?
-  
-  favoritedBy  FavoriteEntry[]
+  admRegion               String?
+  capital                 String?
+  continent               String?
+  geoGroup                String?
+  worldPart               String?         @default("POLITICAL")
 
+  // Three-Layer Mapping Architecture
+  nodeSubType             String?   // COUNTRY | PHYSICAL | CONFLICT_ZONE | ETHNIC_REGION | STRAIT | PASS | PIPELINE | ROUTE | ORG_HQ
+  parentCountry           String?   // For sub-national nodes e.g. "Tigray" → "Ethiopia"
+  seaBorders              String?   // Comma-separated: "Mediterranean Sea,Adriatic Sea"
+  riverOutflow            String?   // Body of water a river drains into e.g. "Caspian Sea"
+  mountainType            String?   // Fold | Block | Volcanic | Residual
+  highestPeak             String?   // Specifically for mountains e.g. "Mount Everest"
+  countriesSpread         String?   // Specifically for features that spread across multiple countries
+  isLandlocked            Boolean?  @default(false)
+  organizations           String?   // Comma-separated org memberships: "NATO,G7,OECD"
+  isCurrentAffairs        Boolean?  @default(false)
+  upscFrequency           Int?      // Times appeared in PYQs (rough 1-10 scale)
+
+  favoritedBy             FavoriteEntry[]
+  newsFacts               NewsFact[]
+
+  @@unique([name, lat, lon])
   @@index([name])
   @@index([category])
-  @@unique([name, lat, lon])
+  @@index([worldPart])
+  @@index([nodeSubType])
+}
+
+model Organization {
+  id           String   @id @default(cuid())
+  name         String   @unique  // "North Atlantic Treaty Organization"
+  shortName    String            // "NATO"
+  category     String            // MILITARY | ECONOMIC | REGIONAL | ENVIRONMENTAL | SCIENTIFIC
+  members      String            // Comma-separated country names (as they appear in MapEntry.name)
+  hqCity       String?
+  hqLat        Float?
+  hqLon        Float?
+  founded      Int?
+  description  String?
+  upscContext  String?   // Why UPSC tests this; India's relationship
+  indiaRole    String?   // MEMBER | OBSERVER | DIALOGUE_PARTNER | NOT_MEMBER
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @default(now()) @updatedAt
+
+  @@index([category])
+  @@index([shortName])
 }
 
 model RegionInsightCache {
@@ -164,7 +194,7 @@ model QuizPack {
 
 model ActionLog {
   id        String   @id @default(cuid())
-  action    String   // SCRAPE_RUN, USER_MOD, CONTENT_EDIT, COMMS_SEND
+  action    String
   details   String?
   userId    String?
   createdAt DateTime @default(now())
@@ -173,20 +203,80 @@ model ActionLog {
 model CommunicationLog {
   id        String   @id @default(cuid())
   userId    String?
-  type      String   // OTP, MARKETING, SYSTEM, NEWS_ALERT
-  channel   String   // EMAIL, SMS, WHATSAPP
-  status    String   // SENT, FAILED, DELIVERED
+  type      String
+  channel   String
+  status    String
   content   String?
-  recipient String   // Email or Phone number
+  recipient String
   createdAt DateTime @default(now())
 }
 
 model PaymentLog {
-  id          String   @id @default(cuid())
-  userId      String
-  razorpayId  String   // Payment or Order ID
-  amount      Int
-  currency    String   @default("INR")
-  status      String
-  createdAt   DateTime @default(now())
+  id         String   @id @default(cuid())
+  userId     String
+  razorpayId String
+  amount     Int
+  currency   String   @default("INR")
+  status     String
+  createdAt  DateTime @default(now())
+}
+
+model NewsArticle {
+  id          String              @id @default(cuid())
+  title       String
+  url         String              @unique
+  source      String
+  content     String?
+  summary     String?
+  publishedAt DateTime
+  category    String?
+  relevance   Int?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @default(now()) @updatedAt
+  editorials  EditorialAnalysis[]
+  facts       NewsFact[]
+
+  @@index([source])
+  @@index([category])
+}
+
+model EditorialAnalysis {
+  id           String       @id @default(cuid())
+  articleId    String?
+  issue        String
+  crux         String
+  perspectives Json?
+  keywords     String?
+  gsPaper      String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @default(now()) @updatedAt
+  article      NewsArticle? @relation(fields: [articleId], references: [id])
+
+  @@index([issue])
+  @@index([gsPaper])
+}
+
+model NewsFact {
+  id            String       @id @default(cuid())
+  articleId     String?
+  type          String
+  content       String
+  category      String
+  year          Int?
+  mapEntryId    String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @default(now()) @updatedAt
+  mainsQuestion String?
+  questionData  Json?
+  article       NewsArticle? @relation(fields: [articleId], references: [id])
+  mapEntry      MapEntry?    @relation(fields: [mapEntryId], references: [id])
+
+  @@index([type])
+  @@index([category])
+}
+
+model PlatformConfig {
+  key       String   @id
+  value     String
+  updatedAt DateTime @default(now()) @updatedAt
 }

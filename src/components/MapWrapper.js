@@ -10,7 +10,11 @@ const Map = dynamic(() => import('./Map'), {
   )
 })
 
-export default function MapWrapper({ entries, layers, mapRef, initialCenter, initialZoom, initialMinZoom, maxBounds, onEntrySelect, heatmapMode, selectedEntry }) {
+export default function MapWrapper({ 
+  entries, layers, mapRef, initialCenter, initialZoom, initialMinZoom, 
+  maxBounds, onEntrySelect, heatmapMode, selectedEntry, 
+  activeContinent, activeAdmRegion, searchQuery, activeOrg, regionConfig 
+}) {
   return (
     <Map
       entries={entries}
@@ -23,6 +27,11 @@ export default function MapWrapper({ entries, layers, mapRef, initialCenter, ini
       onEntrySelect={onEntrySelect}
       heatmapMode={heatmapMode}
       selectedEntry={selectedEntry}
+      activeContinent={activeContinent}
+      activeAdmRegion={activeAdmRegion}
+      searchQuery={searchQuery}
+      activeOrg={activeOrg}
+      regionConfig={regionConfig}
     />
   )
 }

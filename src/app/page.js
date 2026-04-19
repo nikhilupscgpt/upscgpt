@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 
-import Navigation from '@/components/Navigation'
 
 export default function UPSCGPTMasterPortal() {
   const [stats, setStats] = useState({ entries: 0, categories: 0, newsToday: 0 })
@@ -158,7 +157,6 @@ export default function UPSCGPTMasterPortal() {
         }}
       />
 
-      <Navigation />
 
       <main style={{ position: 'relative', zIndex: 10, maxWidth: '1200px', margin: '0 auto', padding: '70px 20px 40px' }}>
         <div style={{ textAlign: 'center', marginBottom: '60px' }}>

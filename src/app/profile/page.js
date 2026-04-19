@@ -3,7 +3,6 @@
 import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Navigation from "@/components/Navigation";
 import toast, { Toaster } from "react-hot-toast";
 import Script from "next/script";
 
@@ -183,7 +182,6 @@ export default function ProfilePage() {
   return (
     <div style={containerStyle}>
       <Toaster position="bottom-right" />
-      <Navigation />
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
       
       <main style={contentStyle}>

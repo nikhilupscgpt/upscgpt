@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 
-import Navigation from '@/components/Navigation'
 
 export default function IndiaAtlasComingSoonPage() {
   return (
@@ -14,7 +13,6 @@ export default function IndiaAtlasComingSoonPage() {
         color: 'white',
       }}
     >
-      <Navigation />
       <main style={{ maxWidth: '920px', margin: '0 auto', padding: '64px 20px 80px' }}>
         <section
           style={{

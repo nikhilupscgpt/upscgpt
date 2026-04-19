@@ -23,27 +23,27 @@ const TRUSTED_SOURCES = {
 // UPSC-relevant queries — STRICTLY Economy + International Relations only
 const REGION_QUERIES = {
   asia: {
-    keywords: '"Indo-Pacific" OR "South China Sea" OR "ASEAN summit" OR "Taiwan strait" OR "Quad alliance" OR "Belt and Road Initiative"',
-    sourceGroup: 'global_strategic',
-  },
-  middle_east: {
-    keywords: '"Strait of Hormuz" OR "Suez Canal" OR "OPEC" OR "Gulf cooperation council" OR "Iran nuclear deal" OR "Abraham Accords"',
+    keywords: '"Indo-Pacific" OR "South China Sea" OR "ASEAN summit" OR "Taiwan strait" OR "Quad alliance" OR "Belt and Road Initiative" OR "West Asia"',
     sourceGroup: 'global_strategic',
   },
   africa: {
     keywords: '"African Union" OR "Horn of Africa" OR "Sahel crisis" OR "BRICS Africa" OR "India Africa summit"',
     sourceGroup: 'global_strategic',
   },
-  indian_ocean: {
-    keywords: '"Indian Ocean" OR "Malacca Strait" OR "IORA" OR "String of Pearls" OR "India navy" OR "maritime trade route"',
-    sourceGroup: 'india_editorial',
-  },
   europe: {
     keywords: '"NATO expansion" OR "Ukraine Russia" OR "European Union summit" OR "Arctic council" OR "Russia sanctions"',
     sourceGroup: 'global_strategic',
   },
-  americas: {
-    keywords: '"Panama Canal" OR "US India relations" OR "BRICS summit" OR "G20 summit" OR "climate agreement"',
+  north_america: {
+    keywords: '"Panama Canal" OR "US India relations" OR "USMCA" OR "Arctic North America" OR "Caribbean security"',
+    sourceGroup: 'global_strategic',
+  },
+  south_america: {
+    keywords: '"Mercosur" OR "Andean region" OR "Amazon rainforest" OR "Brazil foreign policy" OR "South America lithium"',
+    sourceGroup: 'global_strategic',
+  },
+  oceania: {
+    keywords: '"Pacific Islands Forum" OR "AUKUS" OR "South Pacific" OR "Australia India relations" OR "Melanesia"',
     sourceGroup: 'global_strategic',
   },
   global: {
@@ -105,7 +105,8 @@ async function fetchFromGNews(keywords, sourceGroup, gnewsKey, max = 10) {
 // BACKGROUND AI ENRICHMENT — Enhanced with UPSC relevance scoring
 // ─────────────────────────────────────────────────────────────────────────────
 async function runAiEnrichment(articles) {
-  const model = getGeminiModel('extraction')
+  // Use 'background' task type → routes to Gemma 3 27B (separate quota from Gemini)
+  const model = getGeminiModel('background')
   if (!model) return
 
   const mapEntries = await prisma.mapEntry.findMany()
@@ -230,7 +231,7 @@ export async function GET(req) {
       
       // For global region, also fetch India-focused news
       let indiaNews = []
-      if (region === 'global' || region === 'indian_ocean') {
+      if (region === 'global' || region === 'asia') {
         for (const iq of INDIA_FOCUS_QUERIES) {
           const batch = await fetchFromGNews(iq.keywords, iq.sourceGroup, gnewsKey, 5)
           indiaNews = [...indiaNews, ...batch]

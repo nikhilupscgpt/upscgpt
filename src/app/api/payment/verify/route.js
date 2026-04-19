@@ -23,25 +23,39 @@ export async function POST(request) {
     if (razorpay_signature === expectedSign) {
       console.log(`[Payment Verify] Signature valid for user ${session.user.id}. Upgrading...`);
 
-      // Update User to PRO
-      const updatedUser = await prisma.user.update({
-        where: { id: session.user.id },
-        data: { tier: 'PRO' },
+      // 1. Idempotency Check: Have we already processed this payment?
+      const existingPayment = await prisma.paymentLog.findUnique({
+        where: { razorpayId: razorpay_payment_id }
       });
 
-      // Log Payment
-      await prisma.paymentLog.create({
-        data: {
-          userId: session.user.id,
-          razorpayId: razorpay_payment_id,
-          amount: 99900,
-          status: 'COMPLETED',
-        },
-      });
+      if (existingPayment) {
+        console.warn(`[Payment Verify] Duplicate payment ID detected: ${razorpay_payment_id}`);
+        return NextResponse.json({ 
+          success: true, 
+          message: "Payment already processed",
+          user: session.user 
+        });
+      }
+
+      // 2. Atomic Update: Upgrade user and log payment
+      const [updatedUser] = await prisma.$transaction([
+        prisma.user.update({
+          where: { id: session.user.id },
+          data: { tier: 'PRO' },
+        }),
+        prisma.paymentLog.create({
+          data: {
+            userId: session.user.id,
+            razorpayId: razorpay_payment_id,
+            amount: 99900,
+            status: 'COMPLETED',
+          },
+        })
+      ]);
 
       return NextResponse.json({
         success: true,
-        message: "Payment verified successfully",
+        message: "Payment verified successfully. Welcome to PRO!",
         user: updatedUser,
       });
     } else {

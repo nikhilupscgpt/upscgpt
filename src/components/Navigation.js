@@ -4,13 +4,19 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavContext } from "@/context/NavContext";
+import NanoAssistant from "./NanoAssistant";
 
 export default function Navigation({ children }) {
   const { data: session, status } = useSession();
+  const { navContent } = useNavContext();
   const pathname = usePathname();
   const loading = status === "loading";
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [nanoOpen, setNanoOpen] = useState(false);
+
+  const activeContent = children || navContent;
 
   if (pathname === "/login" || pathname === "/admin-login") return null;
 
@@ -42,49 +48,68 @@ export default function Navigation({ children }) {
   };
 
   return (
-    <nav className={`app-nav ${mobileMenuOpen ? "mobile-open" : ""}`}>
-      <div className="app-nav__bar">
+    <>
+      <nav className={`app-nav ${mobileMenuOpen ? "mobile-open" : ""}`}>
+        <div className="app-nav__bar">
         <div className="app-nav__brand-group">
-          <Link href="/" className="app-nav__brand" onClick={() => setMobileMenuOpen(false)}>
-            <div className="app-nav__logo">💎</div>
+           <Link href="/" className="app-nav__brand" onClick={() => setMobileMenuOpen(false)}>
+            <div className="app-nav__logo">
+              <Image 
+                src="/logo.png" 
+                alt="upscgpt logo" 
+                width={36} 
+                height={36} 
+                priority 
+              />
+            </div>
             <span className="app-nav__brand-text">
-              UPSC ATLAS
+              upscgpt
             </span>
           </Link>
 
           <div className="app-nav__links">
             <Link href="/atlas" className="app-nav__link">Atlas</Link>
-            <Link href="/insights" className="app-nav__link">Insights</Link>
+            <Link href="/news" className="app-nav__link">Intelligence Hub</Link>
           </div>
         </div>
 
         <div className="app-nav__actions">
-          {children ? <div className="app-nav__slot">{children}</div> : null}
+          {activeContent ? <div className="app-nav__slot">{activeContent}</div> : null}
+
+          <button 
+            onClick={() => setNanoOpen(true)}
+            title="Ask Nano AI"
+            style={{ ...btnSecondaryStyle, background: 'rgba(99, 102, 241, 0.2)', borderColor: 'rgba(99, 102, 241, 0.4)', color: '#c7d2fe', display: 'flex', alignItems: 'center', gap: '4px', padding: '6px 10px', marginRight: '6px' }}
+          >
+             ✨ <span className="nav-desktop-text">Ask Nano</span>
+          </button>
 
           {loading ? (
             <div style={{ width: '40px', height: '32px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px' }}></div>
           ) : session ? (
             <div className="app-nav__session">
-              <div className="app-nav__identity">
-                <div style={{ fontSize: '0.8rem', fontWeight: '700', color: 'white' }}>{session.user.name.split(' ')[0]}</div>
-                <Link href="/profile" style={{ fontSize: '0.65rem', color: session.user.tier === 'PRO' ? '#fbbf24' : '#94a3b8', fontWeight: '800', textDecoration: 'none', textTransform: 'uppercase' }}>
-                  {session.user.tier} TIER
+              <>
+                <div className="app-nav__identity" style={{ marginRight: '4px' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'white', lineHeight: 1 }}>{session.user.name.split(' ')[0]}</div>
+                  <Link href="/profile" style={{ fontSize: '0.6rem', color: session.user.tier === 'PRO' ? '#fbbf24' : '#94a3b8', fontWeight: '800', textDecoration: 'none', textTransform: 'uppercase' }}>
+                    {session.user.tier} TIER
+                  </Link>
+                </div>
+                {session.user.tier === 'FREE' && (
+                  <Link href="/profile" className="app-nav__go-pro">
+                    💎 GO PRO
+                  </Link>
+                )}
+                <Link href="/profile" style={{ ...btnSecondaryStyle, display: 'flex', alignItems: 'center', gap: '6px', padding: '6px 10px' }}>
+                   👤 <span className="nav-desktop-text">Profile</span>
                 </Link>
-              </div>
-              {session.user.tier === 'FREE' && (
-                <Link href="/profile" className="app-nav__go-pro">
-                  💎 GO PRO
-                </Link>
-              )}
-              <Link href="/profile" style={{ ...btnSecondaryStyle, display: 'flex', alignItems: 'center', gap: '6px' }}>
-                 👤 <span className="nav-desktop-text">Profile</span>
-              </Link>
-              <button
-                onClick={() => signOut()}
-                style={{ ...btnSecondaryStyle, background: 'transparent', border: 'none', color: '#64748b' }}
-              >
-                Logout
-              </button>
+                <button
+                  onClick={() => signOut()}
+                  style={{ ...btnSecondaryStyle, background: 'transparent', border: 'none', color: '#64748b', padding: '6px 4px' }}
+                >
+                  Logout
+                </button>
+              </>
             </div>
           ) : (
             <button
@@ -111,11 +136,11 @@ export default function Navigation({ children }) {
       <div className="app-nav__mobile-panel">
         <div className="app-nav__mobile-links">
           <Link href="/atlas" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>Atlas</Link>
-          <Link href="/insights" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>Insights</Link>
+          <Link href="/news" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>Intelligence Hub</Link>
           {session ? <Link href="/profile" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>Profile</Link> : null}
         </div>
 
-        {children ? <div className="app-nav__mobile-slot">{children}</div> : null}
+        {activeContent ? <div className="app-nav__mobile-slot">{activeContent}</div> : null}
 
         {session ? (
           <div className="app-nav__mobile-account">
@@ -137,5 +162,7 @@ export default function Navigation({ children }) {
         ) : null}
       </div>
     </nav>
+    <NanoAssistant isOpen={nanoOpen} onClose={() => setNanoOpen(false)} />
+    </>
   );
 }

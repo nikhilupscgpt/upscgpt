@@ -1,29 +1,18 @@
 "use client"
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import Navigation from '@/components/Navigation'
 
 const REGIONS = [
   {
     key: 'asia',
-    label: 'Asia & Pacific',
+    label: 'Asia',
     emoji: '🌏',
     color: '#f59e0b',
     gradient: 'linear-gradient(135deg, #f59e0b, #d97706)',
-    description: 'South Asia, Southeast Asia, East Asia, Central Asia',
-    highlights: ['Strait of Malacca', 'South China Sea', 'Himalayan Ecology'],
+    description: 'West Asia, South Asia, Southeast Asia, East Asia, Central Asia',
+    highlights: ['South China Sea', 'Himalayan Arc', 'Strait of Malacca'],
     // bounding box [minLat, maxLat, minLon, maxLon]
     bounds: [-10, 55, 60, 180],
-  },
-  {
-    key: 'middle_east',
-    label: 'Middle East',
-    emoji: '🕌',
-    color: '#ef4444',
-    gradient: 'linear-gradient(135deg, #ef4444, #b91c1c)',
-    description: 'Gulf Region, Levant, Arabian Peninsula',
-    highlights: ['Strait of Hormuz', 'Suez Canal', 'Yemen Conflict'],
-    bounds: [10, 42, 25, 65],
   },
   {
     key: 'africa',
@@ -31,19 +20,9 @@ const REGIONS = [
     emoji: '🌍',
     color: '#22c55e',
     gradient: 'linear-gradient(135deg, #22c55e, #15803d)',
-    description: 'Sub-Saharan, North Africa, Horn of Africa',
-    highlights: ['Horn of Africa', 'Sahel Crisis', 'Congo Basin'],
+    description: 'North Africa, West Africa, East Africa, Central Africa, Southern Africa',
+    highlights: ['Horn of Africa', 'Sahel Belt', 'Congo Basin'],
     bounds: [-35, 38, -20, 55],
-  },
-  {
-    key: 'indian_ocean',
-    label: 'Indian Ocean',
-    emoji: '🌊',
-    color: '#3b82f6',
-    gradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-    description: 'IOR Islands, Littoral States, Maritime Routes',
-    highlights: ['Andaman Islands', 'Diego Garcia', 'IORA'],
-    bounds: [-40, 25, 40, 100],
   },
   {
     key: 'europe',
@@ -51,19 +30,39 @@ const REGIONS = [
     emoji: '🗺️',
     color: '#6366f1',
     gradient: 'linear-gradient(135deg, #6366f1, #4338ca)',
-    description: 'European Union, Eastern Europe, Arctic',
-    highlights: ['Ukraine Conflict', 'Arctic Race', 'NATO Expansion'],
+    description: 'Western Europe, Eastern Europe, Northern Europe, Southern Europe',
+    highlights: ['Ukraine Theatre', 'Arctic Frontier', 'NATO Belt'],
     bounds: [35, 72, -25, 45],
   },
   {
-    key: 'americas',
-    label: 'Americas',
+    key: 'north_america',
+    label: 'North America',
     emoji: '🌎',
+    color: '#ef4444',
+    gradient: 'linear-gradient(135deg, #ef4444, #b91c1c)',
+    description: 'Northern America, Central America, Caribbean',
+    highlights: ['Panama Canal', 'USMCA Corridor', 'Caribbean Sea'],
+    bounds: [5, 75, -170, -50],
+  },
+  {
+    key: 'south_america',
+    label: 'South America',
+    emoji: '🦜',
+    color: '#3b82f6',
+    gradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+    description: 'Andean states, Southern Cone, Northern South America',
+    highlights: ['Amazon Basin', 'Andes Spine', 'Mercosur Arc'],
+    bounds: [-60, 15, -90, -30],
+  },
+  {
+    key: 'oceania',
+    label: 'Oceania',
+    emoji: '🌊',
     color: '#10b981',
     gradient: 'linear-gradient(135deg, #10b981, #047857)',
-    description: 'Latin America, Caribbean, North America',
-    highlights: ['Panama Canal', 'Amazon Rainforest', 'Caribbean Islands'],
-    bounds: [-60, 60, -170, -30],
+    description: 'Australasia, Melanesia, Micronesia, Polynesia',
+    highlights: ['South Pacific', 'Coral Sea', 'Pacific Islands Forum'],
+    bounds: [-50, 10, 110, 180],
   },
   {
     key: 'global',
@@ -92,12 +91,13 @@ export default function PortalHome() {
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
-    fetch('/api/entries').then(r => r.json()).then(d => { setEntries(d); setLoaded(true) }).catch(() => setLoaded(true))
+    fetch('/api/entries').then(r => r.json()).then(d => { setEntries(Array.isArray(d) ? d : []); setLoaded(true) }).catch(() => setLoaded(true))
   }, [])
 
-  const totalEntries = entries.length
-  const categories = [...new Set(entries.map(e => e.category))].length
-  const years = entries.map(e => e.year).filter(Boolean)
+  const entriesArr = Array.isArray(entries) ? entries : []
+  const totalEntries = entriesArr.length
+  const categories = [...new Set(entriesArr.map(e => e.category).filter(Boolean))].length
+  const years = entriesArr.map(e => e.year).filter(Boolean)
   const yearRange = years.length ? `${Math.min(...years)}–${Math.max(...years)}` : '—'
 
   return (
@@ -105,7 +105,6 @@ export default function PortalHome() {
       minHeight: '100vh', fontFamily: "'Outfit', sans-serif",
       background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%)',
     }}>
-      <Navigation />
       {/* BG GLOW */}
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(99,102,241,0.15) 0%, transparent 60%)' }} />
 

@@ -6,6 +6,8 @@ export const metadata = {
 }
 
 import AuthProvider from '../components/AuthProvider'
+import { NavProvider } from '../context/NavContext'
+import Navigation from '../components/Navigation'
 
 export default function RootLayout({ children }) {
   return (
@@ -15,7 +17,10 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <AuthProvider>
-          {children}
+          <NavProvider>
+            <Navigation />
+            {children}
+          </NavProvider>
         </AuthProvider>
       </body>
     </html>
