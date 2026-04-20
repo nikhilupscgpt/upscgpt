@@ -1,4 +1,5 @@
 import { generateJSON } from './ai.js'
+import { getRenderedPrompt } from './aiPromptRegistry.js'
 const REST_COUNTRIES_URL = 'https://restcountries.com/v3.1/all?fields=name,altSpellings,cca2,cca3,capital,latlng'
 const NOMINATIM_BASE_URL = 'https://nominatim.openstreetmap.org/search'
 
@@ -148,11 +149,7 @@ async function fetchNominatimGeocode(entry) {
 }
 
 async function fetchAiGeocode(entry) {
-  const systemInstruction = `
-    You are a Geographic Intelligence Assistant. 
-    Find the precise Lat/Lon for the provided location.
-    Return JSON: {"lat": number, "lon": number, "name": "matching display name"}
-  `
+  const systemInstruction = await getRenderedPrompt('country_geocoder.fallback.system')
   const prompt = `Geocode: ${entry.name} ${entry.admRegion || ''} ${entry.continent || ''}`
   
   try {

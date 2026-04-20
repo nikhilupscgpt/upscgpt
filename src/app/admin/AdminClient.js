@@ -6,7 +6,7 @@ import Papa from "papaparse"
 import { 
   Users, Map as MapIcon, RefreshCw, CreditCard, MessageSquare, 
   Send, ShieldCheck, TrendingUp, HelpCircle, LogOut, ChevronRight,
-  Globe, Zap, ZapOff, Trash2, Edit3, PlusCircle, CheckCircle
+  Globe, Zap, ZapOff, Trash2, Edit3, PlusCircle, CheckCircle, BrainCircuit
 } from "lucide-react"
 
 export default function AdminClient({ session }) {
@@ -20,6 +20,9 @@ export default function AdminClient({ session }) {
   const [status, setStatus] = useState("")
   const [loading, setLoading] = useState(false)
   const [lastSync, setLastSync] = useState(null)
+  const [newsEngineStatus, setNewsEngineStatus] = useState(null)
+  const [aiPrompts, setAiPrompts] = useState([])
+  const [savingPromptId, setSavingPromptId] = useState(null)
 
   // Forms
   const [formData, setFormData] = useState({ 
@@ -75,6 +78,22 @@ export default function AdminClient({ session }) {
     } catch (e) { console.error("Last sync fetch fail", e) }
   }
 
+  const fetchNewsEngineStatus = async () => {
+    try {
+      const res = await fetch("/api/admin/news-engine-status")
+      const data = await res.json()
+      if (!data.error) setNewsEngineStatus(data)
+    } catch (e) { console.error("News engine status fetch fail", e) }
+  }
+
+  const fetchAiPrompts = async () => {
+    try {
+      const res = await fetch("/api/admin/ai-prompts")
+      const data = await res.json()
+      if (Array.isArray(data.prompts)) setAiPrompts(data.prompts)
+    } catch (e) { console.error("AI prompt fetch fail", e) }
+  }
+
   useEffect(() => {
     const initAdmin = async () => {
       setLoading(true);
@@ -84,7 +103,9 @@ export default function AdminClient({ session }) {
           fetchUsers(),
           fetchPaymentStats(),
           fetchLastSync(),
-          fetchConfigs()
+          fetchConfigs(),
+          fetchNewsEngineStatus(),
+          fetchAiPrompts()
         ]);
       }
       setLoading(false);
@@ -254,6 +275,7 @@ export default function AdminClient({ session }) {
         setStatus(`Sync Complete! Fetched: ${data.stats.totalFetched}, Enriched: ${data.stats.totalEnriched}`);
         fetchEntries();
         fetchLastSync();
+        fetchNewsEngineStatus();
       }
     } catch (e) { setStatus("Sync Failed."); }
     setLoading(false);
@@ -269,6 +291,33 @@ export default function AdminClient({ session }) {
       if (data.success) setStatus(`Communication Sent to ${data.count} users!`);
     } catch (e) { setStatus("Communication Failed."); }
     setLoading(false);
+  }
+
+  const handlePromptChange = (id, value) => {
+    setAiPrompts(current => current.map(prompt => (
+      prompt.id === id ? { ...prompt, value } : prompt
+    )))
+  }
+
+  const handlePromptSave = async (prompt) => {
+    setSavingPromptId(prompt.id)
+    setStatus(`Saving AI prompt: ${prompt.label}...`)
+    try {
+      const res = await fetch("/api/admin/ai-prompts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: prompt.id, value: prompt.value })
+      })
+      if (res.ok) {
+        setStatus(`AI prompt updated: ${prompt.label}`)
+        fetchAiPrompts()
+      } else {
+        setStatus(`Failed to update AI prompt: ${prompt.label}`)
+      }
+    } catch (e) {
+      setStatus(`Failed to update AI prompt: ${prompt.label}`)
+    }
+    setSavingPromptId(null)
   }
 
   // UI Tokens
@@ -304,6 +353,7 @@ export default function AdminClient({ session }) {
           {sidebarItem("content", <MapIcon size={20}/>, "Geographic Content")}
           {sidebarItem("users", <Users size={20}/>, "User Management")}
           {sidebarItem("sync", <RefreshCw size={20} className={loading && activeTab==='sync'?'animate-spin':''}/>, "News Sync Engine")}
+          {sidebarItem("ai", <BrainCircuit size={20}/>, "AI Prompt Control")}
           {sidebarItem("payments", <CreditCard size={20}/>, "Payment Stats")}
           {sidebarItem("comms", <MessageSquare size={20}/>, "Communication")}
         </nav>
@@ -502,7 +552,95 @@ export default function AdminClient({ session }) {
                   </div>
                 </div>
               )}
+
+              {newsEngineStatus && (
+                <div style={{ marginTop: '24px', padding: '24px', background: '#ffffff', borderRadius: '20px', border: '1px solid #e2e8f0', textAlign: 'left' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', marginBottom: '14px', letterSpacing: '0.05em' }}>Engine Status Snapshot</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '18px' }}>
+                    {[
+                      ['Articles', newsEngineStatus.stats.newsArticleCount],
+                      ['Facts', newsEngineStatus.stats.newsFactCount],
+                      ['Editorials', newsEngineStatus.stats.editorialCount],
+                      ['Map Links', newsEngineStatus.stats.mapEntriesWithNews],
+                    ].map(([label, value]) => (
+                      <div key={label} style={{ background: '#f8fafc', borderRadius: '14px', padding: '14px' }}>
+                        <div style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 800, marginBottom: '6px' }}>{label}</div>
+                        <div style={{ fontSize: '1.3rem', color: '#0f172a', fontWeight: 900 }}>{value}</div>
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ display: 'grid', gap: '12px' }}>
+                    <div style={{ padding: '14px', borderRadius: '14px', background: newsEngineStatus.assessment.structuredPipelineHealthy ? '#ecfdf5' : '#fff7ed', color: newsEngineStatus.assessment.structuredPipelineHealthy ? '#166534' : '#9a3412' }}>
+                      <div style={{ fontWeight: 800 }}>Structured news engine</div>
+                      <div style={{ fontSize: '0.85rem', marginTop: '4px' }}>
+                        {newsEngineStatus.assessment.structuredPipelineHealthy
+                          ? `Working with stored articles/facts. Last structured sync: ${newsEngineStatus.latestStructuredSync ? new Date(newsEngineStatus.latestStructuredSync.createdAt).toLocaleString() : 'unknown'}`
+                          : 'Not fully healthy yet. The structured NewsArticle/NewsFact pipeline has little or no stored output.'}
+                      </div>
+                    </div>
+                    <div style={{ padding: '14px', borderRadius: '14px', background: newsEngineStatus.assessment.manualScraperHealthy ? '#eff6ff' : '#f8fafc', color: newsEngineStatus.assessment.manualScraperHealthy ? '#1d4ed8' : '#475569' }}>
+                      <div style={{ fontWeight: 800 }}>Manual scrape engine</div>
+                      <div style={{ fontSize: '0.85rem', marginTop: '4px' }}>
+                        {newsEngineStatus.latestManualScrape
+                          ? `Last admin scrape: ${new Date(newsEngineStatus.latestManualScrape.createdAt).toLocaleString()}`
+                          : 'No manual scrape run has been logged yet.'}
+                      </div>
+                    </div>
+                    {newsEngineStatus.latestNewsArticle && (
+                      <div style={{ padding: '14px', borderRadius: '14px', background: '#f8fafc', color: '#334155' }}>
+                        <div style={{ fontWeight: 800 }}>Latest stored article</div>
+                        <div style={{ fontSize: '0.9rem', marginTop: '4px' }}>{newsEngineStatus.latestNewsArticle.title}</div>
+                        <div style={{ fontSize: '0.8rem', marginTop: '4px', color: '#64748b' }}>
+                          {newsEngineStatus.latestNewsArticle.source} · Published {new Date(newsEngineStatus.latestNewsArticle.publishedAt).toLocaleString()}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
+          </div>
+        )}
+
+        {activeTab === 'ai' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', maxWidth: '1100px' }}>
+            <section style={cardStyle}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '12px' }}>
+                <BrainCircuit size={28} color="#3b82f6" /> AI Prompt Control
+              </h2>
+              <p style={{ color: '#64748b', lineHeight: 1.7, marginBottom: '24px' }}>
+                Every prompt below is tied to a real AI interaction in the app. Edit the prompt, save it, and the corresponding feature will use the new prompt on the next request.
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {aiPrompts.map((prompt) => (
+                  <div key={prompt.id} style={{ border: '1px solid #e2e8f0', borderRadius: '20px', padding: '24px', background: '#f8fafc' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: '20px', marginBottom: '12px', alignItems: 'flex-start' }}>
+                      <div>
+                        <div style={{ fontSize: '1rem', fontWeight: 800, color: '#0f172a' }}>{prompt.label}</div>
+                        <div style={{ fontSize: '0.78rem', color: '#3b82f6', fontWeight: 800, marginTop: '4px' }}>{prompt.area}</div>
+                        <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '8px' }}>{prompt.description}</div>
+                        <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '8px' }}>{prompt.location}</div>
+                      </div>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 800, color: prompt.hasOverride ? '#16a34a' : '#64748b', whiteSpace: 'nowrap' }}>
+                        {prompt.hasOverride ? 'CUSTOM OVERRIDE' : 'DEFAULT PROMPT'}
+                      </div>
+                    </div>
+                    <textarea
+                      value={prompt.value}
+                      onChange={(e) => handlePromptChange(prompt.id, e.target.value)}
+                      style={{ width: '100%', minHeight: '220px', padding: '18px', borderRadius: '16px', border: '1px solid #cbd5e1', background: 'white', fontSize: '0.92rem', lineHeight: 1.6, marginBottom: '14px' }}
+                    />
+                    <button
+                      onClick={() => handlePromptSave(prompt)}
+                      disabled={savingPromptId === prompt.id}
+                      style={{ ...btnPrimary, padding: '14px 20px', minWidth: '180px' }}
+                    >
+                      {savingPromptId === prompt.id ? 'Saving...' : 'Save Prompt'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </section>
           </div>
         )}
 

@@ -181,7 +181,7 @@ export default function NewsTicker({ regionKey, onArticleSelect, drawerOpen, onC
                 <div className="news-md">
                   <ReactMarkdown 
                     remarkPlugins={[remarkGfm]}
-                    transformLinkUri={(uri) => {
+                    urlTransform={(uri) => {
                       const protocols = ['http', 'https', 'mailto', 'tel'];
                       try {
                         const parsed = new URL(uri, typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');

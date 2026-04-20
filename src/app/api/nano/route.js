@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getGeminiModel } from '@/lib/gemini';
+import { getRenderedPrompt } from '@/lib/aiPromptRegistry';
 
 export async function POST(req) {
   try {
@@ -13,9 +14,8 @@ export async function POST(req) {
       return NextResponse.json({ error: "AI service is currently unavailable." }, { status: 500 });
     }
 
-    const response = await ai.generateContent(`System: You are Nano Assistant for upscgpt, an AI tutor for UPSC students. You provide strategic, concise, and exam-focused guidance. Keep answers professional and use formatting if necessary.
-
-User: ${query}`);
+    const systemPrompt = await getRenderedPrompt('nano.assistant.system');
+    const response = await ai.generateContent(`System: ${systemPrompt}\n\nUser: ${query}`);
 
     const resultText = typeof response.text === 'function' ? response.text() : (response.text || '');
 

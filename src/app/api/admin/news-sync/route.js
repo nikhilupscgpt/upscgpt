@@ -36,11 +36,11 @@ export async function POST() {
     const stats = await scrapeAndEnrich()
     const durationSeconds = ((Date.now() - startTime) / 1000).toFixed(1)
 
-    // Log the manual action
+    // Log the manual action with more detail
     await prisma.actionLog.create({
       data: {
         action: 'SCRAPE_RUN',
-        details: `Manual scrape triggered. Fetched: ${stats.totalFetched}, Enriched: ${stats.totalEnriched}`,
+        details: `Manual scrape triggered. Fetched: ${stats.totalFetched} (GNews: ${stats.gnewsCount}, NewsData: ${stats.newsDataCount}), Enriched: ${stats.totalEnriched}`,
         userId: session.user.id
       }
     })

@@ -116,6 +116,13 @@ export async function POST(req) {
       }
     }
 
+    await prisma.actionLog.create({
+      data: {
+        action: 'NEWS_ENGINE_SYNC',
+        details: `Structured sync processed=${results.processed}, created=${results.created}, updated=${results.updated}, facts=${results.factsBuilt}, editorials=${results.editorialsBuilt}, errors=${results.errors.length}`,
+      },
+    })
+
     return NextResponse.json({
       message: 'Sync completed successfully.',
       results

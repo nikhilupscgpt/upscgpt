@@ -1,33 +1,13 @@
 import { generateJSON } from './ai.js'
 import { geocodeCountryEntries } from './countryGeocoder.js'
+import { getRenderedPrompt } from './aiPromptRegistry.js'
 
 /**
  * Intelligent Data Enrichment for the UPSC Atlas Portal.
  * Extracts geopolitical groups and strategic regions for geocoded locations.
  */
 async function enrichWithAI(entries, worldPart) {
-  const systemInstruction = `
-    You are a Strategic Intelligence Assistant for a UPSC Atlas.
-    For the provided geocoded locations, provide UPSC-linked hierarchy.
-    
-    Track: ${worldPart}
-    Identify:
-    - Continent (Africa, Asia, Europe, Middle East, Americas, etc.).
-    - Adm. Region (e.g., Maghreb, West Africa, Central Asia, Southeast Asia).
-    - Geo-Political Group (e.g., ASEAN, Sahel, BIMSTEC, G7, BRICS, Quad).
-    - Capital city for countries.
-    
-    Return a JSON array of objects with the exact keys:
-    [
-      {
-        "name": "EXACT location name from input",
-        "continent": "string",
-        "admRegion": "string",
-        "geoGroup": "string",
-        "capital": "string"
-      }
-    ]
-  `
+  const systemInstruction = await getRenderedPrompt('geocoder.enrichment.system', { worldPart })
 
   const prompt = `
     Enrich the following strategic locations with UPSC metadata:

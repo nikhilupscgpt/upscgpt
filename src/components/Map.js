@@ -221,11 +221,13 @@ function normalizeCountryName(name) {
 }
 
 // ─── Org GeoJSON Highlight Layer ───
-const GEOJSON_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json'
 let geoJsonCache = null
+let indiaOfficialGeoJsonCache = null
+const INDIA_OFFICIAL_GEOJSON_URL = 'https://raw.githubusercontent.com/AbhinavSwami28/india-official-geojson/main/india-states-simplified.geojson'
 
 function OrgGeoLayer({ activeOrg, orgColor }) {
   const [geoData, setGeoData] = useState(() => geoJsonCache)
+  const [indiaOfficialGeoData, setIndiaOfficialGeoData] = useState(() => indiaOfficialGeoJsonCache)
   const map = useMap()
 
   // Fetch and convert TopoJSON → GeoJSON (cached)
@@ -247,60 +249,129 @@ function OrgGeoLayer({ activeOrg, orgColor }) {
       })
   }, [])
 
+  useEffect(() => {
+    if (indiaOfficialGeoJsonCache) return
+    fetch(INDIA_OFFICIAL_GEOJSON_URL)
+      .then(r => r.json())
+      .then(data => {
+        indiaOfficialGeoJsonCache = data
+        setIndiaOfficialGeoData(data)
+      })
+      .catch(console.error)
+  }, [])
+
   // Filter features to member countries
   const memberFeatures = useMemo(() => {
     if (!geoData || !activeOrg?.members) return null
     const memberNames = activeOrg.members.split(',').map(m => normalizeCountryName(m))
     const memberNamesLower = new Set(memberNames.map(n => n.toLowerCase()))
+    const hasIndiaMember = memberNamesLower.has('india')
 
     const filtered = {
       type: 'FeatureCollection',
       features: geoData.features.filter(f => {
         const geoName = (f.properties.ADMIN || f.properties.name || f.properties.NAME || '').toLowerCase()
-        const geoISO = (f.properties.ISO_A3 || f.properties.ISO_A2 || '').toLowerCase()
+        const isIndiaFeature = geoName === 'india' || geoName.includes('india')
+        if (hasIndiaMember && indiaOfficialGeoData && isIndiaFeature) return false
         return memberNamesLower.has(geoName) || memberNames.some(mn => geoName.includes(mn.toLowerCase()) || mn.toLowerCase().includes(geoName))
       })
     }
     return filtered
-  }, [geoData, activeOrg])
+  }, [geoData, activeOrg, indiaOfficialGeoData])
+
+  const indiaOfficialOverlay = useMemo(() => {
+    if (!indiaOfficialGeoData) return null
+    return indiaOfficialGeoData
+  }, [indiaOfficialGeoData])
+
+  const hasIndiaMember = useMemo(() => {
+    if (!activeOrg?.members) return false
+    return activeOrg.members
+      .split(',')
+      .map(m => normalizeCountryName(m).toLowerCase())
+      .includes('india')
+  }, [activeOrg])
 
   // Fit map to member bounds
   useEffect(() => {
-    if (memberFeatures && memberFeatures.features.length > 0 && map) {
+    if (map) {
       try {
-        const layer = L.geoJSON(memberFeatures)
+        const features = []
+        if (memberFeatures?.features?.length) {
+          features.push(...memberFeatures.features)
+        }
+        if (hasIndiaMember && indiaOfficialOverlay?.features?.length) {
+          features.push(...indiaOfficialOverlay.features)
+        }
+        if (!features.length) return
+
+        const layer = L.geoJSON({
+          type: 'FeatureCollection',
+          features,
+        })
         const bounds = layer.getBounds()
         if (bounds.isValid()) {
           map.fitBounds(bounds, { padding: [40, 40], maxZoom: 5, duration: 1.5 })
         }
       } catch (e) { /* ignore bounds errors */ }
     }
-  }, [memberFeatures, map])
+  }, [hasIndiaMember, indiaOfficialOverlay, map, memberFeatures])
 
-  if (!memberFeatures || memberFeatures.features.length === 0) return null
+  if ((!memberFeatures || memberFeatures.features.length === 0) && !indiaOfficialOverlay) return null
 
   const color = orgColor || '#6366f1'
 
   return (
-    <GeoJSON
-      key={activeOrg.id}
-      data={memberFeatures}
-      style={() => ({
-        fillColor: color,
-        fillOpacity: 0.28,
-        color: color,
-        weight: 2,
-        opacity: 0.7,
-      })}
-      onEachFeature={(feature, layer) => {
-        const name = feature.properties.ADMIN || feature.properties.name || feature.properties.NAME || 'Unknown'
-        layer.bindTooltip(`<strong>${name}</strong><br/><span style="font-size:10px;color:${color}">${activeOrg.shortName} member</span>`, {
-          sticky: true,
-          className: 'org-tooltip',
-          direction: 'top'
-        })
-      }}
-    />
+    <>
+      {memberFeatures && memberFeatures.features.length > 0 ? (
+        <GeoJSON
+          key={activeOrg.id}
+          data={memberFeatures}
+          style={() => ({
+            fillColor: color,
+            fillOpacity: 0.28,
+            color: color,
+            weight: 2,
+            opacity: 0.7,
+          })}
+          onEachFeature={(feature, layer) => {
+            const name = feature.properties.ADMIN || feature.properties.name || feature.properties.NAME || 'Unknown'
+            layer.bindTooltip(`<strong>${name}</strong><br/><span style="font-size:10px;color:${color}">${activeOrg.shortName} member</span>`, {
+              sticky: true,
+              className: 'org-tooltip',
+              direction: 'top'
+            })
+          }}
+        />
+      ) : null}
+
+      {indiaOfficialOverlay ? (
+        <GeoJSON
+          key={`india-official-${activeOrg.id}`}
+          data={indiaOfficialOverlay}
+          style={() => ({
+            fillColor: hasIndiaMember ? color : '#94a3b8',
+            fillOpacity: hasIndiaMember ? 0.28 : 0.05,
+            color: hasIndiaMember ? color : '#475569',
+            weight: hasIndiaMember ? 2 : 1.4,
+            opacity: 0.9,
+          })}
+          onEachFeature={(feature, layer) => {
+            const name = feature.properties.st_nm || feature.properties.NAME_1 || feature.properties.name || 'India'
+            layer.bindTooltip(
+              hasIndiaMember
+                ? `<strong>${name}</strong><br/><span style="font-size:10px;color:${color}">India boundary as per official position</span>`
+                : `<strong>${name}</strong><br/><span style="font-size:10px;color:#475569">India boundary overlay</span>`,
+              {
+                sticky: true,
+                className: 'org-tooltip',
+                direction: 'top'
+              }
+            )
+          }}
+        />
+      ) : null}
+    </>
   )
 }
 

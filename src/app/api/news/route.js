@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import { getGeminiModel } from '@/lib/gemini'
+import { getRenderedPrompt } from '@/lib/aiPromptRegistry'
 
 const prisma = new PrismaClient()
 
@@ -116,31 +117,10 @@ async function runAiEnrichment(articles) {
       await delay(4200) // stay safely below 15 RPM free tier limit
 
       const articleText = `${article.title} ${article.description || ''}`
-      const promptText = `You are a UPSC exam preparation expert. Analyze this news article for UPSC Civil Services relevance.
-
-Article: "${articleText}"
-Source: ${article.url || 'unknown'}
-
-Return a strictly valid JSON object. No markdown. No code fences. Raw JSON only:
-{
-  "isGeopolitical": true,
-  "upscRelevance": <integer 0-10 rating on how relevant this is for UPSC>,
-  "locationName": "Primary geographic entity/country/region name",
-  "lat": <latitude as float>,
-  "lon": <longitude as float>,
-  "category": "conflict|strait|island|mineral|nature|economy|governance|diplomacy|general",
-  "prelims": "2-3 key facts useful for UPSC Prelims MCQs (treaties, organisations, geographical facts)",
-  "mainsDetails": "1-2 paragraphs of UPSC Mains background: historical context, India's position, constitutional/policy angle, international significance",
-  "upscCrux": "• Strategic/geopolitical significance of this development\\n• India's stake, response, or diplomatic position\\n• UPSC syllabus link: specify GS Paper and exact topic"
-}
-
-UPSC Relevance Scoring Guide:
-- 8-10: Directly maps to UPSC syllabus (geopolitics, India's foreign policy, economy, governance, environment)
-- 5-7: Indirectly relevant (global trends affecting India, international organisations)  
-- 3-4: Mildly relevant (general international news with some India angle)
-- 0-2: Not relevant (entertainment, sports, tech product launches)
-
-If the article is NOT relevant for UPSC (score < 3), return: {"isGeopolitical": false, "upscRelevance": <score>}`
+      const promptText = await getRenderedPrompt('news.background.enrichment', {
+        articleText,
+        sourceUrl: article.url || 'unknown',
+      })
 
       const response = await model.generateContent(promptText)
 

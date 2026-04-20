@@ -1,5 +1,6 @@
 import prisma from "./prisma"
 import { getGeminiModel } from "./gemini"
+import { getRenderedPrompt } from "./aiPromptRegistry"
 const delay = (ms) => new Promise(res => setTimeout(res, ms))
 
 export const TRUSTED_SOURCES = {
@@ -49,22 +50,24 @@ export const SCRAPE_PLAN = [
 
 async function fetchFromGNews(keywords, sourceGroup, gnewsKey, max = 10) {
   const sourceDomains = TRUSTED_SOURCES[sourceGroup]
-  const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(keywords)}&lang=en&max=${max}&sortby=publishedAt&in=title,description&apikey=${gnewsKey}`
+  // REFINE: Direct domain targeting in q search to avoid "top 10 mismatch"
+  const domainQuery = sourceDomains.split(',').map(d => `site:${d}`).join(' OR ')
+  const q = `(${keywords}) AND (${domainQuery})`
+  const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(q)}&lang=en&max=${max}&sortby=publishedAt&in=title,description&apikey=${gnewsKey}`
+
+  console.log(`[Scraper] GNews fetching for ${sourceGroup}...`)
 
   try {
     const res = await fetch(url, { cache: 'no-store' })
     if (res.ok) {
       const data = await res.json()
       if (data?.articles?.length) {
-        const trustedDomains = sourceDomains.split(',')
-        const filtered = data.articles.filter(article => {
-          try {
-            const host = new URL(article.url).hostname.replace('www.', '')
-            return trustedDomains.some(d => host.includes(d))
-          } catch { return false }
-        })
-        return filtered
+        console.log(`[Scraper] GNews returned ${data.articles.length} articles for ${sourceGroup}`)
+        return data.articles
       }
+    } else {
+      const errorBody = await res.text()
+      console.error(`[Scraper] GNews API error (${res.status}):`, errorBody)
     }
   } catch (e) {
     console.error(`[Scraper] GNews fetch failed for "${sourceGroup}":`, e.message)
@@ -72,8 +75,45 @@ async function fetchFromGNews(keywords, sourceGroup, gnewsKey, max = 10) {
   return []
 }
 
+async function fetchFromNewsData(keywords, sourceGroup, apiKey, max = 10) {
+  // NewsData has different filtering: we'll use broad keywords but filter by domain post-fetch
+  // as it doesn't support complex site: OR site: queries as reliably in free tier
+  const url = `https://newsdata.io/api/1/news?apikey=${apiKey}&q=${encodeURIComponent(keywords)}&language=en`
+
+  try {
+    const res = await fetch(url, { cache: 'no-store' })
+    if (res.ok) {
+      const data = await res.json()
+      if (data?.results?.length) {
+        const sourceDomains = TRUSTED_SOURCES[sourceGroup].split(',')
+        const filtered = data.results.filter(article => {
+          try {
+            const host = new URL(article.link).hostname.replace('www.', '')
+            return sourceDomains.some(d => host.includes(d))
+          } catch { return false }
+        }).map(a => ({
+          title: a.title,
+          description: a.description || a.content,
+          url: a.link,
+          publishedAt: a.pubDate,
+          source: a.source_id
+        }))
+        console.log(`[Scraper] NewsData returned ${filtered.length} filtered articles for ${sourceGroup}`)
+        return filtered
+      }
+    } else {
+      const errorBody = await res.text()
+      console.error(`[Scraper] NewsData API error (${res.status}):`, errorBody)
+    }
+  } catch (e) {
+    console.error(`[Scraper] NewsData fetch failed:`, e.message)
+  }
+  return []
+}
+
 export async function scrapeAndEnrich() {
   const gnewsKey = process.env.GNEWS_API_KEY
+  const newsDataKey = process.env.NEWSDATA_API_KEY
   const model = getGeminiModel('extraction')
   const mapEntries = await prisma.mapEntry.findMany()
 
@@ -81,12 +121,23 @@ export async function scrapeAndEnrich() {
   let totalEnriched = 0
   let totalCreated = 0
   let totalFiltered = 0
+  let gnewsCount = 0
+  let newsDataCount = 0
 
   for (const plan of SCRAPE_PLAN) {
     let articles = []
 
+    // 1. Try GNews first (targeted query)
     if (gnewsKey && gnewsKey.trim() !== '' && !gnewsKey.includes('[')) {
       articles = await fetchFromGNews(plan.keywords, plan.sourceGroup, gnewsKey, plan.max)
+      gnewsCount += articles.length
+    }
+
+    // 2. Fallback to NewsData if GNews returned nothing
+    if (articles.length === 0 && newsDataKey && newsDataKey.trim() !== '' && !newsDataKey.includes('[')) {
+      console.log(`[Scraper] Falling back to NewsData for ${plan.label}`)
+      articles = await fetchFromNewsData(plan.keywords, plan.sourceGroup, newsDataKey, 5)
+      newsDataCount += articles.length
     }
 
     totalFetched += articles.length
@@ -95,6 +146,7 @@ export async function scrapeAndEnrich() {
       if (!model) continue
 
       try {
+        // Stay safely below 15 RPM free tier limit
         await delay(4200) 
 
         const articleText = `${article.title} ${article.description || ''}`
@@ -102,12 +154,13 @@ export async function scrapeAndEnrich() {
           try { return new URL(article.url).hostname.replace('www.', '') } catch { return 'unknown' }
         })()
 
-        const promptText = `You are a UPSC Civil Services exam preparation expert. Analyze this article for UPSC relevance: "${articleText}". Source: ${sourceName}. Return strictly valid JSON: { "isGeopolitical": true, "upscRelevance": 0-10, "locationName": "string", "lat": float, "lon": float, "category": "strait|conflict|island|mineral|nature|economy|governance|diplomacy|general", "prelims": "string", "mainsDetails": "string", "upscCrux": "string" }`
+        const promptText = await getRenderedPrompt('news.scraper.enrichment', {
+          articleText,
+          sourceName,
+        })
 
         const response = await model.generateContent(promptText)
-        const responseText = response.text
-
-        let cleanText = responseText.trim()
+        let cleanText = response.text.trim()
           .replace(/^```json\n?/, '').replace(/\n?```$/, '')
           .replace(/^```\n?/, '').replace(/\n?```$/, '')
 
@@ -118,7 +171,7 @@ export async function scrapeAndEnrich() {
           continue
         }
 
-        const formattedDate = new Date(article.publishedAt).toISOString().split('T')[0]
+        const formattedDate = new Date(article.publishedAt || new Date()).toISOString().split('T')[0]
         const newMentionStr = `\n\n### [${article.title}](${article.url}) (${formattedDate})\n**Source:** ${sourceName} · **UPSC Relevance:** ${parsed.upscRelevance}/10\n\n**UPSC Crux:**\n${parsed.upscCrux}\n---`
 
         let matchedEntry = mapEntries.find(
@@ -159,10 +212,10 @@ export async function scrapeAndEnrich() {
           totalCreated++
         }
       } catch (err) {
-        console.error(`[Scraper] AI failed for: "${article.title}"`, err.message)
+        console.error(`[Scraper] AI Enrichment failed for: "${article.title}"`, err.message)
       }
     }
   }
 
-  return { totalFetched, totalEnriched, totalCreated, totalFiltered }
+  return { totalFetched, totalEnriched, totalCreated, totalFiltered, gnewsCount, newsDataCount }
 }

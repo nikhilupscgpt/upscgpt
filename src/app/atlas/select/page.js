@@ -15,7 +15,7 @@ const OPTIONS = [
     gradient: 'linear-gradient(135deg, #0ea5e9, #2563eb)',
     status: 'live',
     cta: 'Open World Atlas',
-    highlights: ['Regional drilldowns', 'MapBot tutoring', 'News-linked nodes'],
+    highlights: ['Regional drilldowns', 'Nano tutoring', 'News-linked nodes'],
   },
   {
     key: 'india',

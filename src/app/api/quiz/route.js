@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { generateJSON } from '@/lib/ai'
+import { getRenderedPrompt } from '@/lib/aiPromptRegistry'
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
@@ -113,24 +114,7 @@ async function buildMatchedPairsQuestion(scope) {
  * Uses Gemini to generate fresh UPSC-style MCQs.
  */
 async function buildIntelligenceQuiz(zone) {
-  const systemInstruction = `You are a UPSC Prelims question generator specialising in world geography and current affairs.
-Generate one MCQ in valid JSON format. The question MUST be in the style of actual UPSC Prelims questions.
-
-Rules:
-- Start question with "Consider the following..." or direct factual framing
-- 4 options labeled a, b, c, d
-- Include a brief explanation for the correct answer
-- Focus on the region's strategic, geographic, or political significance
-
-Return ONLY this JSON (no markdown):
-{
-  "type": "INTELLIGENCE",
-  "question": "string",
-  "options": [{"label":"a","text":"string"},{"label":"b","text":"string"},{"label":"c","text":"string"},{"label":"d","text":"string"}],
-  "correctLabel": "a|b|c|d",
-  "explanation": "string",
-  "difficulty": "EASY|MEDIUM|HARD"
-}`
+  const systemInstruction = await getRenderedPrompt('quiz.intelligence.system')
 
   const prompt = `Generate a UPSC Prelims MCQ about: ${zone.name} (${zone.nodeSubType} in ${zone.parentCountry}).
 Context: ${zone.prelims}

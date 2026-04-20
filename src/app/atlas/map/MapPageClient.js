@@ -145,7 +145,7 @@ async function requestMapBot(payload) {
 
   const data = await res.json()
   if (!res.ok) {
-    const error = new Error(data?.error || 'MapBot could not respond.')
+    const error = new Error(data?.error || 'Nano could not respond.')
     error.status = res.status
     error.usage = data?.usage || null
     throw error
@@ -159,7 +159,7 @@ async function requestMapBotChatUsage() {
   const data = await res.json()
 
   if (!res.ok) {
-    throw new Error(data?.error || 'MapBot usage could not be loaded.')
+    throw new Error(data?.error || 'Nano usage could not be loaded.')
   }
 
   return data?.usage || null
@@ -719,7 +719,9 @@ function MapPageInner() {
 
   const entriesArr = Array.isArray(entries) ? entries : []
   const regionContinentFilter = getRegionKeyContinentFilter(regionKey)
-  const activeContinentKey = activeContinent || (regionKey !== 'global' ? regionKey : '')
+  const activeContinentKey = activeModule === 'POLITICAL'
+    ? (activeContinent || (regionKey !== 'global' ? regionKey : ''))
+    : ''
   const allTags = [...new Set(entriesArr.flatMap(e => e.tags ? e.tags.split(',').map(t => t.trim()) : []))].filter(Boolean).sort()
   const allYears = [...new Set(entriesArr.map(e => e.year).filter(Boolean))].sort((a, b) => b - a)
 
@@ -875,6 +877,49 @@ function MapPageInner() {
     if (!isMobile || !mapbotPanelOpen || mapbotPanelMinimized) return
     setSidebarOpen(false)
   }, [isMobile, mapbotPanelMinimized, mapbotPanelOpen])
+
+  const focusEntryOnMap = (entry, options = {}) => {
+    if (!entry) return
+
+    const {
+      module = entry.worldPart || activeModule,
+      useLightBase = false,
+      clearOrganization = true,
+    } = options
+
+    setActiveModule(module)
+    setActiveAdmRegion('')
+    setActiveGeoGroup('')
+
+    if (clearOrganization) {
+      setActiveOrg(null)
+    }
+
+    if (useLightBase) {
+      setLayers(prev => ({ ...prev, base: 'light' }))
+    }
+
+    handleSelectEntry(entry)
+
+    if (entry.lat != null && entry.lon != null) {
+      window.setTimeout(() => {
+        if (mapRef.current) {
+          mapRef.current.flyTo([entry.lat, entry.lon], 6)
+        }
+      }, 80)
+    }
+  }
+
+  const focusOrganizationOnMap = (org) => {
+    setActiveModule('INTELLIGENCE')
+    setIntelSubLayer('ORGS')
+    setActiveAdmRegion('')
+    setActiveGeoGroup('')
+    setSelectedEntry(null)
+    setInfoCardOpen(false)
+    setLayers(prev => ({ ...prev, base: 'light' }))
+    setActiveOrg(org)
+  }
 
   const handleSelectEntry = (entry) => {
     setSelectedEntry(entry)
@@ -1122,6 +1167,9 @@ function MapPageInner() {
                         setActiveAdmRegion('')
                         setActiveGeoGroup('')
                         setActiveOrg(null)
+                        if (m.id !== 'POLITICAL') {
+                          setInfoCardOpen(false)
+                        }
                       }}
                       style={{
                         flex: 1, padding: '12px 6px', borderRadius: '16px', border: activeModule === m.id ? '1px solid rgba(99,102,241,0.18)' : '1px solid transparent', cursor: 'pointer',
@@ -1185,7 +1233,7 @@ function MapPageInner() {
                   {activeModule === 'POLITICAL' || activeModule === 'PHYSICAL' ? (
                     <>
                       {/* LEVEL 0: CONTINENT SELECTION */}
-                      {!activeContinentKey && (
+                      {activeModule === 'POLITICAL' && !activeContinentKey && (
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
                           {Object.entries(REGION_CONFIG).filter(([k]) => k !== 'global').map(([key, cfg]) => (
                             <button
@@ -1240,9 +1288,13 @@ function MapPageInner() {
                       )}
 
                       {/* LEVEL 2: COUNTRY / ENTRY LIST */}
-                      {(activeModule === 'POLITICAL' ? activeAdmRegion : activeContinentKey) && (
+                      {(activeModule === 'PHYSICAL' || (activeModule === 'POLITICAL' ? activeAdmRegion : activeContinentKey)) && (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          <div style={{ fontSize: '0.76rem', color: '#94a3b8', fontWeight: 800, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Entries in {activeAdmRegion || REGION_CONFIG[activeContinentKey]?.label || activeContinentKey}</div>
+                          <div style={{ fontSize: '0.76rem', color: '#94a3b8', fontWeight: 800, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                            {activeModule === 'PHYSICAL'
+                              ? 'Physical Features Across Global View'
+                              : `Entries in ${activeAdmRegion || REGION_CONFIG[activeContinentKey]?.label || activeContinentKey}`}
+                          </div>
                           {filteredEntries.length === 0 ? (
                             <div style={{ padding: '20px', textAlign: 'center', color: '#94a3b8', fontSize: '0.8rem' }}>No nodes found in this region.</div>
                           ) : (
@@ -1250,10 +1302,10 @@ function MapPageInner() {
                               <div key={e.id} style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
                                 <button
                                   onClick={() => {
-                                    setSelectedEntry(e);
-                                    if (e.lat && e.lon && mapRef.current) {
-                                      mapRef.current.flyTo([e.lat, e.lon], 7);
-                                    }
+                                    focusEntryOnMap(e, {
+                                      module: activeModule,
+                                      useLightBase: false,
+                                    })
                                   }}
                                   style={{
                                     padding: '14px 16px', borderRadius: selectedEntry?.id === e.id ? '18px 18px 12px 12px' : '18px', border: selectedEntry?.id === e.id ? '2px solid #818cf8' : '1px solid rgba(148,163,184,0.16)',
@@ -1275,7 +1327,7 @@ function MapPageInner() {
                           <button 
                             onClick={() => setActiveAdmRegion('')}
                             style={{ marginTop: '10px', padding: '12px', fontSize: '0.78rem', fontWeight: 800, color: '#e0e7ff', background: 'linear-gradient(135deg, rgba(79,70,229,0.7), rgba(99,102,241,0.72))', border: '1px solid rgba(129,140,248,0.24)', borderRadius: '12px', cursor: 'pointer', boxShadow: '0 10px 18px rgba(99,102,241,0.16)' }}
-                          >Back to Region List</button>
+                          >{activeModule === 'PHYSICAL' ? 'Refresh Physical List' : 'Back to Region List'}</button>
                         </div>
                       )}
                     </>
@@ -1304,7 +1356,7 @@ function MapPageInner() {
                         <OrgLens
                           activeOrg={activeOrg}
                           onOrgSelect={(org) => {
-                            setActiveOrg(org)
+                            focusOrganizationOnMap(org)
                           }}
                         />
                       ) : (
@@ -1318,8 +1370,10 @@ function MapPageInner() {
                               <button
                                 key={e.id}
                                 onClick={() => {
-                                  handleSelectEntry(e)
-                                  if (e.lat && e.lon && mapRef.current) mapRef.current.flyTo([e.lat, e.lon], 6)
+                                  focusEntryOnMap(e, {
+                                    module: 'INTELLIGENCE',
+                                    useLightBase: true,
+                                  })
                                 }}
                                 style={{
                                   padding: '12px 14px', borderRadius: '14px',
@@ -1356,8 +1410,10 @@ function MapPageInner() {
                           <div
                             key={e.id}
                             onClick={() => {
-                              if (e.lat && e.lon && mapRef.current) mapRef.current.flyTo([e.lat, e.lon], 6)
-                              handleSelectEntry(e)
+                              focusEntryOnMap(e, {
+                                module: 'NEWS',
+                                useLightBase: true,
+                              })
                             }}
                             style={{
                               padding: '10px 12px', background: 'rgba(30,41,59,0.94)', border: '1px solid rgba(148,163,184,0.14)', borderRadius: '10px',
@@ -1491,10 +1547,21 @@ function MapPageInner() {
             chatUsage={chatUsage}
           />
           <NewsTicker regionKey={regionKey} onCloseDrawer={() => setSelectedEntry(null)} onArticleSelect={(article) => {
-            if (article.lat && article.lon && mapRef.current) {
-              mapRef.current.flyTo([article.lat, article.lon], 6)
+            if (article.lat && article.lon) {
               const matchedEntry = entries.find(e => e.id === article.entryId)
-              if (matchedEntry) handleSelectEntry(matchedEntry)
+              if (matchedEntry) {
+                focusEntryOnMap(matchedEntry, {
+                  module: 'NEWS',
+                  useLightBase: true,
+                })
+              } else if (mapRef.current) {
+                setActiveModule('NEWS')
+                setActiveAdmRegion('')
+                setActiveGeoGroup('')
+                setActiveOrg(null)
+                setLayers(prev => ({ ...prev, base: 'light' }))
+                mapRef.current.flyTo([article.lat, article.lon], 6)
+              }
             }
           }} />
         </section>

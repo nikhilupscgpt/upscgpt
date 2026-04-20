@@ -49,7 +49,7 @@ export default function IndiaAtlasComingSoonPage() {
             This page is now the official entry point for that module.
           </p>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginTop: 18 }}>
-            {['State & region layers', 'Thematic overlays', 'UPSC quick revision', 'MapBot India context'].map((item) => (
+            {['State & region layers', 'Thematic overlays', 'UPSC quick revision', 'Nano India context'].map((item) => (
               <span
                 key={item}
                 style={{

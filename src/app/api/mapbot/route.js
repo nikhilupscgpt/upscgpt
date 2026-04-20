@@ -5,6 +5,7 @@ import { getServerSession } from 'next-auth/next'
 
 import prisma from '@/lib/prisma'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { getRenderedPrompt } from '@/lib/aiPromptRegistry'
 
 const REGION_CONFIG = {
   asia: {
@@ -227,7 +228,7 @@ async function recordChatUsage(identity, prompt, response) {
           tier: identity.tier,
           identifierHash: identity.identifierHash,
           promptLength: prompt.length,
-          responseTitle: response?.title || 'MapBot Chat',
+          responseTitle: response?.title || 'Nano AI Chat',
         }),
       },
     })
@@ -240,7 +241,7 @@ export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url)
     if (searchParams.get('usage') !== 'chat') {
-      return NextResponse.json({ error: 'Unsupported MapBot query.' }, { status: 400 })
+      return NextResponse.json({ error: 'Unsupported Nano query.' }, { status: 400 })
     }
 
     const identity = await resolveChatIdentity(req)
@@ -249,7 +250,7 @@ export async function GET(req) {
     return NextResponse.json({ usage })
   } catch (error) {
     console.error('[MapBot] Usage request failed:', error)
-    return NextResponse.json({ error: 'MapBot usage request failed.' }, { status: 500 })
+    return NextResponse.json({ error: 'Nano usage request failed.' }, { status: 500 })
   }
 }
 
@@ -492,73 +493,21 @@ function formatCachedResponse({ title, contextLabel, markdown, suggestedFollowup
   }
 }
 
-function buildPrompt({ mode, regionKey, regionEntries, selectedEntry, userPrompt, chatHistory = [] }) {
+async function buildPrompt({ mode, regionKey, regionEntries, selectedEntry, userPrompt, chatHistory = [] }) {
   const modeConfig = MAPBOT_MODES[mode]
   const region = REGION_CONFIG[regionKey] || REGION_CONFIG.global
   const regionDigest = buildRegionDigest(regionEntries)
   const entrySummary = summarizeEntry(selectedEntry)
 
-  const sharedRules = [
-    'You are Nano Assistant for upscgpt, an AI tutor embedded inside a UPSC strategic atlas.',
-    'Keep the output exam-ready, easy to revise, and anchored in the given atlas data only.',
-    'Do not invent locations, treaties, organisations, or current developments that are not supported by the provided context.',
-    'Prefer crisp markdown with short sections, bullets, and comparison framing where useful.',
-    'Every answer must connect geography to UPSC relevance.',
-  ].join('\n')
-
-  const modeInstructions = {
-    node_explainer: `
-Mode: Node Explainer
-Goal: Explain the selected map location in simple but exam-ready language.
-Required structure inside markdown:
-- "Why This Place Matters"
-- "Prelims Lens"
-- "Mains Lens"
-- "India Angle"
-- "Revise Fast" with 3 short bullets
-`,
-    region_tutor: `
-Mode: Region Tutor
-Goal: Summarize the most important strategic themes in this region for UPSC.
-Required structure inside markdown:
-- "Region Snapshot"
-- "Most Important Themes"
-- "High-Value Locations to Revise"
-- "Likely UPSC Angles"
-- "7-Day Revision Plan" with 4 short bullets
-`,
-    news_interpreter: `
-Mode: News-to-Map Interpreter
-Goal: Explain recent news in map-linked language.
-Required structure inside markdown:
-- "What Happened"
-- "Where It Happened"
-- "Why It Matters Strategically"
-- "How UPSC May Ask It"
-- "Map Revision Hook"
-If no strong recent-news context exists, say so clearly and shift to the freshest available atlas-linked developments.
-`,
-    prelims_generator: `
-Mode: Prelims Generator
-Goal: Generate UPSC-style map-based MCQs from the atlas context.
-Required structure inside markdown:
-- Short intro line
-- 5 MCQs, each with 4 options
-- Correct answer after each question
-- 1-line explanation after each answer
-- End with "Common Traps" and 3 bullets
-Questions must be solvable from the provided atlas context and regional themes.
-`,
-    chat: `
-Mode: AI Chat
-Goal: Answer the student's question in a conversational but exam-smart way.
-Required structure inside markdown:
-- Give a direct answer first
-- Then add "UPSC Lens"
-- Then add "What To Revise Next"
-Keep it tight unless the student's query clearly asks for depth.
-`,
+  const sharedRules = await getRenderedPrompt('mapbot.shared_rules')
+  const modePromptIds = {
+    node_explainer: 'mapbot.mode.node_explainer',
+    region_tutor: 'mapbot.mode.region_tutor',
+    news_interpreter: 'mapbot.mode.news_interpreter',
+    prelims_generator: 'mapbot.mode.prelims_generator',
+    chat: 'mapbot.mode.chat',
   }
+  const modeInstruction = await getRenderedPrompt(modePromptIds[mode])
 
   return `${sharedRules}
 
@@ -570,7 +519,7 @@ Return strictly valid JSON with this shape and no markdown fences:
   "suggestedFollowups": ["short CTA", "short CTA", "short CTA"]
 }
 
-${modeInstructions[mode]}
+${modeInstruction}
 
 Mode label: ${modeConfig.label}
 Region: ${region.label}
@@ -917,7 +866,7 @@ export async function POST(req) {
     const selectedEntrySnapshot = normalizeEntrySnapshot(body?.selectedEntrySnapshot)
 
     if (!MAPBOT_MODES[mode]) {
-      return NextResponse.json({ error: 'Unsupported MapBot mode.' }, { status: 400 })
+      return NextResponse.json({ error: 'Unsupported Nano mode.' }, { status: 400 })
     }
 
     const chatIdentity = mode === 'chat' ? await resolveChatIdentity(req) : null
@@ -997,7 +946,7 @@ export async function POST(req) {
       )
     }
 
-    const prompt = buildPrompt({
+    const prompt = await buildPrompt({
       mode,
       regionKey,
       regionEntries,

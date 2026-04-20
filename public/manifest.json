@@ -1,0 +1,17 @@
+{
+  "name": "Global Strategic Atlas",
+  "short_name": "UPSC Atlas",
+  "description": "Premium UPSC Strategic Intelligence & Geopolitical Atlas",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
