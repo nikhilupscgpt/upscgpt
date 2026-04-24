@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Send, Loader2, Focus } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import './portal-rag.css';
+import './../../app/content-portal/portal-rag.css';
 
 export default function SubjectChat({ subject, examType }) {
   const [query, setQuery] = useState('');
