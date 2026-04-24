@@ -12,15 +12,32 @@ async function checkAdmin() {
   return session?.user?.role === 'ADMIN'
 }
 
+import { runWithRetry } from '@/lib/db-retry'
+
 export async function GET() {
   if (!await checkAdmin()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  const users = await prisma.user.findMany({
-    orderBy: { createdAt: 'desc' },
-    select: {
-      id: true, name: true, email: true, role: true, tier: true, validUntil: true, createdAt: true
-    }
-  })
-  return NextResponse.json(users)
+
+  try {
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Database query timed out after 15s')), 15000)
+    );
+
+    const dbQueryPromise = runWithRetry(async () => {
+      return await prisma.user.findMany({
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true, name: true, email: true, role: true, tier: true, validUntil: true, createdAt: true
+        }
+      })
+    }, 2, 500);
+
+    const users = await Promise.race([dbQueryPromise, timeoutPromise]);
+    
+    return NextResponse.json(users)
+  } catch (error) {
+    console.error('Failed to fetch users:', error)
+    return NextResponse.json({ error: 'Failed to fetch users' }, { status: 500 })
+  }
 }
 
 import { adminUserSchema } from "@/lib/validations"

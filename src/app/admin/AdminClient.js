@@ -6,7 +6,8 @@ import Papa from "papaparse"
 import { 
   Users, Map as MapIcon, RefreshCw, CreditCard, MessageSquare, 
   Send, ShieldCheck, TrendingUp, HelpCircle, LogOut, ChevronRight,
-  Globe, Zap, ZapOff, Trash2, Edit3, PlusCircle, CheckCircle, BrainCircuit
+  Globe, Zap, ZapOff, Trash2, Edit3, PlusCircle, CheckCircle, BrainCircuit,
+  Newspaper, Search, FileText, Link2, Calendar, User, BookOpen, Filter, ChevronDown, ExternalLink, AlertCircle
 } from "lucide-react"
 
 export default function AdminClient({ session }) {
@@ -23,6 +24,18 @@ export default function AdminClient({ session }) {
   const [newsEngineStatus, setNewsEngineStatus] = useState(null)
   const [aiPrompts, setAiPrompts] = useState([])
   const [savingPromptId, setSavingPromptId] = useState(null)
+
+  // News Engine V2 State
+  const [issues, setIssues] = useState([])
+  const [issueSearch, setIssueSearch] = useState('')
+  const [issueCategoryFilter, setIssueCategoryFilter] = useState('')
+  const [selectedIssue, setSelectedIssue] = useState(null)
+  const [ingestType, setIngestType] = useState('ARTICLE')
+  const [ingestForm, setIngestForm] = useState({ title: '', url: '', source: '', contentType: 'NEWS', author: '', rawContent: '', publishedAt: '' })
+  const [ingestLoading, setIngestLoading] = useState(false)
+  const [ingestResult, setIngestResult] = useState(null)
+  const [recentIngestions, setRecentIngestions] = useState([])
+  const [issueDropdownOpen, setIssueDropdownOpen] = useState(false)
 
   // Forms
   const [formData, setFormData] = useState({ 
@@ -94,6 +107,46 @@ export default function AdminClient({ session }) {
     } catch (e) { console.error("AI prompt fetch fail", e) }
   }
 
+  // --- NEWS ENGINE V2 ACTIONS ---
+  const fetchIssues = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (issueCategoryFilter) params.set('category', issueCategoryFilter);
+      if (issueSearch) params.set('search', issueSearch);
+      const res = await fetch(`/api/admin/issues?${params.toString()}`);
+      const data = await res.json();
+      if (data.success) setIssues(data.issues || []);
+    } catch (e) { console.error('Issue fetch fail', e); }
+  }
+
+  const handleIngest = async () => {
+    if (!selectedIssue || !ingestForm.title) return;
+    setIngestLoading(true); setIngestResult(null);
+    try {
+      const res = await fetch('/api/admin/issues/ingest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          issueId: selectedIssue.id,
+          type: ingestType,
+          ...ingestForm,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setIngestResult({ success: true, message: data.message });
+        setIngestForm({ title: '', url: '', source: '', contentType: 'NEWS', author: '', rawContent: '', publishedAt: '' });
+        setRecentIngestions(prev => [{ id: data.id, type: ingestType, title: ingestForm.title, linkedTo: data.linkedTo, time: new Date().toLocaleTimeString() }, ...prev.slice(0, 9)]);
+        fetchIssues(); // Refresh counts
+      } else {
+        setIngestResult({ success: false, message: data.error });
+      }
+    } catch (e) {
+      setIngestResult({ success: false, message: 'Network error' });
+    }
+    setIngestLoading(false);
+  }
+
   useEffect(() => {
     const initAdmin = async () => {
       setLoading(true);
@@ -105,7 +158,8 @@ export default function AdminClient({ session }) {
           fetchLastSync(),
           fetchConfigs(),
           fetchNewsEngineStatus(),
-          fetchAiPrompts()
+          fetchAiPrompts(),
+          fetchIssues()
         ]);
       }
       setLoading(false);
@@ -113,6 +167,14 @@ export default function AdminClient({ session }) {
     
     initAdmin();
   }, [session])
+
+  // Debounced issue search
+  useEffect(() => {
+    if (activeTab === 'newsv2') {
+      const t = setTimeout(() => fetchIssues(), 300);
+      return () => clearTimeout(t);
+    }
+  }, [issueSearch, issueCategoryFilter, activeTab])
 
   // --- MAPPING ACTIONS ---
   const handleSubmit = async (e) => {
@@ -353,6 +415,7 @@ export default function AdminClient({ session }) {
           {sidebarItem("content", <MapIcon size={20}/>, "Geographic Content")}
           {sidebarItem("users", <Users size={20}/>, "User Management")}
           {sidebarItem("sync", <RefreshCw size={20} className={loading && activeTab==='sync'?'animate-spin':''}/>, "News Sync Engine")}
+          {sidebarItem("newsv2", <Newspaper size={20}/>, "News Engine V2")}
           {sidebarItem("ai", <BrainCircuit size={20}/>, "AI Prompt Control")}
           {sidebarItem("payments", <CreditCard size={20}/>, "Payment Stats")}
           {sidebarItem("comms", <MessageSquare size={20}/>, "Communication")}
@@ -597,6 +660,293 @@ export default function AdminClient({ session }) {
                     )}
                   </div>
                 </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'newsv2' && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '40px' }}>
+            {/* LEFT: Issue Picker */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <section style={cardStyle}>
+                <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                  <BookOpen size={24} color="#8b5cf6" /> Issue Graph
+                </h2>
+                <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '20px' }}>Select an Issue node to attach content to.</p>
+
+                {/* Category Filter */}
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', flexWrap: 'wrap' }}>
+                  {['', 'POLITY', 'GOVERNANCE', 'ECONOMY', 'SOCIETY', 'ENVIRONMENT', 'SCIENCE_TECHNOLOGY', 'INTERNATIONAL_RELATIONS', 'INTERNAL_SECURITY', 'HISTORY', 'GEOGRAPHY', 'CULTURE', 'ETHICS', 'AGRICULTURE'].map(cat => (
+                    <button
+                      key={cat}
+                      onClick={() => setIssueCategoryFilter(cat)}
+                      style={{
+                        padding: '6px 12px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '0.7rem', fontWeight: 700,
+                        background: issueCategoryFilter === cat ? '#8b5cf6' : '#f1f5f9',
+                        color: issueCategoryFilter === cat ? 'white' : '#64748b',
+                        transition: 'all 0.15s'
+                      }}
+                    >
+                      {cat || 'ALL'}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Search */}
+                <div style={{ position: 'relative', marginBottom: '16px' }}>
+                  <Search size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                  <input
+                    placeholder="Search 545 Issue nodes..."
+                    value={issueSearch}
+                    onChange={e => setIssueSearch(e.target.value)}
+                    style={{ width: '100%', padding: '12px 14px 12px 40px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '0.9rem' }}
+                  />
+                </div>
+
+                {/* Issue List */}
+                <div style={{ maxHeight: '500px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {issues.slice(0, 50).map(issue => (
+                    <button
+                      key={issue.id}
+                      onClick={() => { setSelectedIssue(issue); setIngestResult(null); }}
+                      style={{
+                        display: 'flex', alignItems: 'flex-start', gap: '12px', width: '100%', padding: '12px 14px',
+                        borderRadius: '12px', border: selectedIssue?.id === issue.id ? '2px solid #8b5cf6' : '1px solid #f1f5f9',
+                        background: selectedIssue?.id === issue.id ? '#f5f3ff' : 'white',
+                        cursor: 'pointer', textAlign: 'left', transition: 'all 0.15s'
+                      }}
+                    >
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#1e293b', lineHeight: 1.3 }}>{issue.title}</div>
+                        <div style={{ fontSize: '0.7rem', color: '#8b5cf6', fontWeight: 700, marginTop: '4px' }}>
+                          {issue.gsPapers.join(', ')} · {issue.domain}
+                        </div>
+                        <div style={{ fontSize: '0.68rem', color: '#94a3b8', marginTop: '2px' }}>{issue.topic}</div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '6px', flexShrink: 0, marginTop: '2px' }}>
+                        {issue._count.articles > 0 && <span style={{ fontSize: '0.65rem', background: '#dbeafe', color: '#2563eb', padding: '2px 6px', borderRadius: '6px', fontWeight: 700 }}>{issue._count.articles}A</span>}
+                        {issue._count.editorials > 0 && <span style={{ fontSize: '0.65rem', background: '#fce7f3', color: '#db2777', padding: '2px 6px', borderRadius: '6px', fontWeight: 700 }}>{issue._count.editorials}E</span>}
+                      </div>
+                    </button>
+                  ))}
+                  {issues.length > 50 && (
+                    <div style={{ padding: '12px', textAlign: 'center', color: '#94a3b8', fontSize: '0.8rem', fontWeight: 600 }}>
+                      Showing 50 of {issues.length} — refine your search
+                    </div>
+                  )}
+                  {issues.length === 0 && (
+                    <div style={{ padding: '32px', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>No issues found.</div>
+                  )}
+                </div>
+              </section>
+            </div>
+
+            {/* RIGHT: Ingestion Form */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              {/* Selected Issue Banner */}
+              {selectedIssue ? (
+                <div style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)', borderRadius: '24px', padding: '24px 28px', color: 'white' }}>
+                  <div style={{ fontSize: '0.7rem', fontWeight: 800, opacity: 0.7, letterSpacing: '0.1em', marginBottom: '8px' }}>INGESTING TO</div>
+                  <div style={{ fontSize: '1.2rem', fontWeight: 900, lineHeight: 1.3 }}>{selectedIssue.title}</div>
+                  <div style={{ fontSize: '0.8rem', opacity: 0.8, marginTop: '6px' }}>
+                    {selectedIssue.gsPapers.join(', ')} · {selectedIssue.domain} · {selectedIssue.topic}
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                    <span style={{ fontSize: '0.72rem', background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '8px', fontWeight: 700 }}>{selectedIssue._count.articles} Articles</span>
+                    <span style={{ fontSize: '0.72rem', background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '8px', fontWeight: 700 }}>{selectedIssue._count.editorials} Editorials</span>
+                    <span style={{ fontSize: '0.72rem', background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '8px', fontWeight: 700 }}>{selectedIssue.nodeType}</span>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ ...cardStyle, textAlign: 'center', padding: '48px', border: '2px dashed #e2e8f0' }}>
+                  <BookOpen size={40} style={{ margin: '0 auto 16px', color: '#cbd5e1' }} />
+                  <div style={{ color: '#94a3b8', fontWeight: 600 }}>Select an Issue from the left panel to begin ingestion</div>
+                </div>
+              )}
+
+              {/* Ingestion Form */}
+              {selectedIssue && (
+                <section style={cardStyle}>
+                  <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0f172a', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <PlusCircle size={20} color="#8b5cf6" /> Add Content
+                  </h3>
+
+                  {/* Type Toggle */}
+                  <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', background: '#f1f5f9', padding: '4px', borderRadius: '12px' }}>
+                    {['ARTICLE', 'EDITORIAL'].map(t => (
+                      <button
+                        key={t}
+                        onClick={() => setIngestType(t)}
+                        style={{
+                          flex: 1, padding: '10px', borderRadius: '10px', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem',
+                          background: ingestType === t ? 'white' : 'transparent',
+                          color: ingestType === t ? '#7c3aed' : '#64748b',
+                          boxShadow: ingestType === t ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                          transition: 'all 0.15s'
+                        }}
+                      >
+                        {t === 'ARTICLE' ? '📰 Article / News' : '📝 Editorial / Opinion'}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Form Fields */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                    {/* Title */}
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', display: 'block', marginBottom: '6px' }}>TITLE *</label>
+                      <input
+                        placeholder={ingestType === 'ARTICLE' ? 'Article headline...' : 'Editorial title...'}
+                        value={ingestForm.title}
+                        onChange={e => setIngestForm({...ingestForm, title: e.target.value})}
+                        style={{ width: '100%', padding: '12px 14px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '0.92rem', fontWeight: 600 }}
+                      />
+                    </div>
+
+                    {/* URL + Source */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '12px' }}>
+                      <div>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', display: 'block', marginBottom: '6px' }}>URL</label>
+                        <div style={{ position: 'relative' }}>
+                          <Link2 size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                          <input
+                            placeholder="https://..."
+                            value={ingestForm.url}
+                            onChange={e => setIngestForm({...ingestForm, url: e.target.value})}
+                            style={{ width: '100%', padding: '12px 12px 12px 34px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '0.85rem' }}
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', display: 'block', marginBottom: '6px' }}>SOURCE</label>
+                        <select
+                          value={ingestForm.source}
+                          onChange={e => setIngestForm({...ingestForm, source: e.target.value})}
+                          style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '0.85rem', background: 'white' }}
+                        >
+                          <option value="">Select source...</option>
+                          <option value="The Hindu">The Hindu</option>
+                          <option value="Indian Express">Indian Express</option>
+                          <option value="PIB">PIB</option>
+                          <option value="Livemint">Livemint</option>
+                          <option value="Economic Times">Economic Times</option>
+                          <option value="EPW">EPW</option>
+                          <option value="Down to Earth">Down to Earth</option>
+                          <option value="Frontline">Frontline</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Content Type (Article) / Author (Editorial) + Date */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      {ingestType === 'ARTICLE' ? (
+                        <div>
+                          <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', display: 'block', marginBottom: '6px' }}>CONTENT TYPE</label>
+                          <select
+                            value={ingestForm.contentType}
+                            onChange={e => setIngestForm({...ingestForm, contentType: e.target.value})}
+                            style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '0.85rem', background: 'white' }}
+                          >
+                            <option value="NEWS">News</option>
+                            <option value="PIB">PIB Release</option>
+                            <option value="REPORT">Report</option>
+                          </select>
+                        </div>
+                      ) : (
+                        <div>
+                          <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', display: 'block', marginBottom: '6px' }}>AUTHOR</label>
+                          <div style={{ position: 'relative' }}>
+                            <User size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                            <input
+                              placeholder="Author name..."
+                              value={ingestForm.author}
+                              onChange={e => setIngestForm({...ingestForm, author: e.target.value})}
+                              style={{ width: '100%', padding: '12px 12px 12px 34px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '0.85rem' }}
+                            />
+                          </div>
+                        </div>
+                      )}
+                      <div>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', display: 'block', marginBottom: '6px' }}>PUBLISHED DATE</label>
+                        <input
+                          type="date"
+                          value={ingestForm.publishedAt}
+                          onChange={e => setIngestForm({...ingestForm, publishedAt: e.target.value})}
+                          style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '0.85rem' }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Raw Content */}
+                    <div>
+                      <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', display: 'block', marginBottom: '6px' }}>RAW CONTENT (Optional — for AI processing)</label>
+                      <textarea
+                        placeholder="Paste the full article/editorial text here. AI will process this into structured analysis..."
+                        value={ingestForm.rawContent}
+                        onChange={e => setIngestForm({...ingestForm, rawContent: e.target.value})}
+                        style={{ width: '100%', minHeight: '160px', padding: '14px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '0.85rem', lineHeight: 1.6, resize: 'vertical' }}
+                      />
+                    </div>
+
+                    {/* Result Message */}
+                    {ingestResult && (
+                      <div style={{
+                        padding: '14px 18px', borderRadius: '12px', fontWeight: 700, fontSize: '0.85rem',
+                        display: 'flex', alignItems: 'center', gap: '10px',
+                        background: ingestResult.success ? '#ecfdf5' : '#fef2f2',
+                        color: ingestResult.success ? '#166534' : '#991b1b',
+                        border: `1px solid ${ingestResult.success ? '#bbf7d0' : '#fecaca'}`,
+                      }}>
+                        {ingestResult.success ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
+                        {ingestResult.message}
+                      </div>
+                    )}
+
+                    {/* Submit */}
+                    <button
+                      onClick={handleIngest}
+                      disabled={ingestLoading || !ingestForm.title}
+                      style={{
+                        ...btnPrimary,
+                        padding: '16px',
+                        fontSize: '1rem',
+                        background: ingestLoading ? '#94a3b8' : 'linear-gradient(135deg, #7c3aed 0%, #6366f1 100%)',
+                        opacity: !ingestForm.title ? 0.5 : 1,
+                      }}
+                    >
+                      {ingestLoading ? 'Ingesting...' : `Ingest ${ingestType === 'ARTICLE' ? 'Article' : 'Editorial'}`}
+                    </button>
+                  </div>
+                </section>
+              )}
+
+              {/* Recent Ingestions */}
+              {recentIngestions.length > 0 && (
+                <section style={cardStyle}>
+                  <h3 style={{ fontSize: '1rem', fontWeight: 800, color: '#0f172a', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <CheckCircle size={18} color="#10b981" /> Recent Ingestions
+                  </h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {recentIngestions.map((item, i) => (
+                      <div key={i} style={{ padding: '12px 14px', background: '#f8fafc', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: '0.88rem', color: '#1e293b' }}>{item.title}</div>
+                          <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '2px' }}>→ {item.linkedTo}</div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{
+                            fontSize: '0.65rem', padding: '3px 8px', borderRadius: '6px', fontWeight: 700,
+                            background: item.type === 'ARTICLE' ? '#dbeafe' : '#fce7f3',
+                            color: item.type === 'ARTICLE' ? '#2563eb' : '#db2777'
+                          }}>{item.type}</span>
+                          <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{item.time}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
               )}
             </div>
           </div>

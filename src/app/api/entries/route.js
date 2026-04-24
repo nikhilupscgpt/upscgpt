@@ -6,12 +6,16 @@ import Papa from "papaparse"
 
 import { mapEntrySchema } from "@/lib/validations"
 
+import { runWithRetry } from "@/lib/db-retry"
+
 export async function GET() {
   try {
-    // Database-first approach for 100% reliability
-    const entries = await prisma.mapEntry.findMany({
-      orderBy: { createdAt: "desc" }
-    })
+    // Database-first approach for 100% reliability, wrapped in retry for Neon Serverless
+    const entries = await runWithRetry(async () => {
+      return await prisma.mapEntry.findMany({
+        orderBy: { createdAt: "desc" }
+      })
+    }, 3, 500);
     
     // Return the entries including the new hierarchical data
     return NextResponse.json(entries)

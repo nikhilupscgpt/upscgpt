@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from "@prisma/client"
+import prisma from "@/lib/prisma"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 
-const prisma = new PrismaClient()
+import { runWithRetry } from "@/lib/db-retry"
 
 async function checkAdmin() {
   const session = await getServerSession(authOptions)
@@ -16,15 +16,18 @@ export async function GET() {
   }
 
   try {
-    const totalUsers = await prisma.user.count()
-    const proUsers = await prisma.user.count({ where: { tier: 'PRO' } })
-    const activeSubs = await prisma.subscription.count({ where: { status: 'active' } })
-    
-    // Recent 10 payments
-    const recentPayments = await prisma.paymentLog.findMany({
-      take: 10,
-      orderBy: { createdAt: 'desc' }
-    })
+    const { totalUsers, proUsers, activeSubs, recentPayments } = await runWithRetry(async () => {
+      const tUsers = await prisma.user.count()
+      const pUsers = await prisma.user.count({ where: { tier: 'PRO' } })
+      const aSubs = await prisma.subscription.count({ where: { status: 'active' } })
+      
+      const rPayments = await prisma.paymentLog.findMany({
+        take: 10,
+        orderBy: { createdAt: 'desc' }
+      })
+      
+      return { totalUsers: tUsers, proUsers: pUsers, activeSubs: aSubs, recentPayments: rPayments }
+    }, 3, 500)
 
     return NextResponse.json({
       success: true,

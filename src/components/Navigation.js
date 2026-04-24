@@ -69,7 +69,6 @@ export default function Navigation({ children }) {
 
           <div className="app-nav__links">
             <Link href="/atlas" className="app-nav__link">Atlas</Link>
-            <Link href="/news" className="app-nav__link">Intelligence Hub</Link>
           </div>
         </div>
 
@@ -136,7 +135,6 @@ export default function Navigation({ children }) {
       <div className="app-nav__mobile-panel">
         <div className="app-nav__mobile-links">
           <Link href="/atlas" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>Atlas</Link>
-          <Link href="/news" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>Intelligence Hub</Link>
           {session ? <Link href="/profile" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>Profile</Link> : null}
         </div>
 

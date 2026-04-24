@@ -36,78 +36,85 @@ export async function POST(req) {
       try {
         results.processed++;
         
-        // 1. Create or Update the News Article
-        const article = await prisma.newsArticle.upsert({
-          where: { url: data.url },
-          update: {
-            title: data.title,
-            content: data.content,
-            summary: data.summary,
-            publishedAt: new Date(data.publishedAt),
-            category: data.category,
-            relevance: data.relevance,
-          },
-          create: {
-            title: data.title,
-            url: data.url,
-            source: data.source,
-            content: data.content,
-            summary: data.summary,
-            publishedAt: new Date(data.publishedAt),
-            category: data.category,
-            relevance: data.relevance,
+        // 1. Create or Update the News Article and related data in a transaction
+        const article = await prisma.$transaction(async (tx) => {
+          const upsertedArticle = await tx.newsArticle.upsert({
+            where: { url: data.url },
+            update: {
+              title: data.title,
+              content: data.content,
+              summary: data.summary,
+              publishedAt: new Date(data.publishedAt),
+              category: data.category,
+              relevance: data.relevance,
+            },
+            create: {
+              title: data.title,
+              url: data.url,
+              source: data.source,
+              content: data.content,
+              summary: data.summary,
+              publishedAt: new Date(data.publishedAt),
+              category: data.category,
+              relevance: data.relevance,
+            }
+          });
+
+          // 2. Clear existing editorials and facts to avoid duplicates
+          await tx.editorialAnalysis.deleteMany({ where: { articleId: upsertedArticle.id } });
+          await tx.newsFact.deleteMany({ where: { articleId: upsertedArticle.id } });
+
+          // 3. Build Editorials (Issues/Crux)
+          if (data.editorials && Array.isArray(data.editorials)) {
+            for (const ed of data.editorials) {
+              await tx.editorialAnalysis.create({
+                data: {
+                  article: { connect: { id: upsertedArticle.id } },
+                  issue: ed.issue,
+                  crux: ed.crux,
+                  perspectives: ed.perspectives || {},
+                  keywords: ed.keywords,
+                  gsPaper: ed.gsPaper
+                }
+              });
+              results.editorialsBuilt++;
+            }
           }
+
+          // 4. Build Facts (PF/MF) and Link to Map
+          if (data.facts && Array.isArray(data.facts)) {
+            for (const fact of data.facts) {
+              let mapEntryId = null;
+              if (fact.locationName) {
+                const entry = await tx.mapEntry.findFirst({
+                  where: { name: { equals: fact.locationName, mode: 'insensitive' } }
+                });
+                mapEntryId = entry?.id || null;
+              }
+
+              await tx.newsFact.create({
+                data: {
+                  article: { connect: { id: upsertedArticle.id } },
+                  type: fact.type,
+                  content: fact.content,
+                  category: fact.category,
+                  year: fact.year || new Date().getFullYear(),
+                  mapEntry: mapEntryId ? { connect: { id: mapEntryId } } : undefined,
+                  questionData: fact.mcq || null,
+                  mainsQuestion: fact.mainsQuestion || null
+                }
+              });
+              results.factsBuilt++;
+            }
+          }
+
+          return upsertedArticle;
         });
 
         if (article.createdAt.getTime() === article.updatedAt.getTime()) {
           results.created++;
         } else {
           results.updated++;
-        }
-
-        // 2. Build Editorials (Issues/Crux)
-        if (data.editorials && Array.isArray(data.editorials)) {
-          for (const ed of data.editorials) {
-            await prisma.editorialAnalysis.create({
-              data: {
-                article: { connect: { id: article.id } },
-                issue: ed.issue,
-                crux: ed.crux,
-                perspectives: ed.perspectives || {},
-                keywords: ed.keywords,
-                gsPaper: ed.gsPaper
-              }
-            });
-            results.editorialsBuilt++;
-          }
-        }
-
-        // 3. Build Facts (PF/MF) and Link to Map
-        if (data.facts && Array.isArray(data.facts)) {
-          for (const fact of data.facts) {
-            // Optional: Match to MapEntry by name if provided
-            let mapEntryId = null;
-            if (fact.locationName) {
-              const entry = await prisma.mapEntry.findFirst({
-                where: { name: { equals: fact.locationName, mode: 'insensitive' } }
-              });
-              mapEntryId = entry?.id || null;
-            }
-
-            await prisma.newsFact.create({
-              data: {
-                article: { connect: { id: article.id } },
-                type: fact.type, // PRELIMS_FACT or MAINS_FACT
-                content: fact.content,
-                category: fact.category,
-                year: fact.year || new Date().getFullYear(),
-                mapEntry: mapEntryId ? { connect: { id: mapEntryId } } : undefined,
-                questionData: fact.mcq || null,
-                mainsQuestion: fact.mainsQuestion || null
-              }
-            });
-            results.factsBuilt++;
-          }
         }
 
       } catch (err) {

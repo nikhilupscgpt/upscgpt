@@ -51,7 +51,7 @@ export default function UPSCGPTMasterPortal() {
       icon: '🗞️',
       gradient: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
       accentColor: '#22d3ee',
-      href: '/insights',
+      href: '/issues',
       status: 'live',
       features: ['Daily Briefing', 'Map-Linked News', 'Revision Hooks', 'Streak-Ready Flow'],
       stat: { value: stats.newsToday, label: 'News in 24h' },
@@ -318,9 +318,9 @@ export default function UPSCGPTMasterPortal() {
                     ))}
                   </div>
 
-                  {center.id === 'mapping' && (
+                  {(center.id === 'mapping' || center.id === 'current-affairs') && (
                     <div className="mapping-primary-cta">
-                      Open Mapping Command Center
+                      Open {center.title}
                     </div>
                   )}
 

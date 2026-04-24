@@ -1,119 +1,74 @@
 import prisma from "./prisma"
 import { getGeminiModel } from "./gemini"
 import { getRenderedPrompt } from "./aiPromptRegistry"
+import { JSDOM } from 'jsdom'
+import { Readability } from '@mozilla/readability'
+import { runWithRetry } from './db-retry'
+import Parser from 'rss-parser';
+
+const rssParser = new Parser();
+
 const delay = (ms) => new Promise(res => setTimeout(res, ms))
 
-export const TRUSTED_SOURCES = {
-  india_editorial: 'thehindu.com,indianexpress.com',
-  india_business: 'livemint.com,business-standard.com,economictimes.indiatimes.com',
-  global_strategic: 'nytimes.com,washingtonpost.com,bbc.com,aljazeera.com,thediplomat.com',
+async function harvestArticleText(url) {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+    const res = await fetch(url, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (!res.ok) return null;
+    const html = await res.text();
+    const dom = new JSDOM(html, { url });
+    const reader = new Readability(dom.window.document);
+    const article = reader.parse();
+    return article ? article.textContent : null;
+  } catch (err) {
+    console.warn(`[Scraper] Failed to fetch text for ${url}: ${err.message}`);
+    return null;
+  }
 }
 
-export const SCRAPE_PLAN = [
-  {
-    label: 'India Editorial: Foreign Policy & IR',
-    keywords: '"India foreign policy" OR "Indo-Pacific" OR "bilateral relations" OR "BRICS summit" OR "SCO summit" OR "G20 summit" OR "UN Security Council"',
-    sourceGroup: 'india_editorial',
-    max: 10,
-  },
-  {
-    label: 'India Editorial: Defence & Strategic',
-    keywords: '"India defence" OR "India navy" OR "India nuclear" OR "ISRO" OR "India border" OR "India China" OR "India Pakistan"',
-    sourceGroup: 'india_editorial',
-    max: 10,
-  },
-  {
-    label: 'India Business: Macro Economy',
-    keywords: '"RBI policy" OR "GDP growth" OR "fiscal deficit" OR "FDI India" OR "trade deficit" OR "economic survey" OR "India budget"',
-    sourceGroup: 'india_business',
-    max: 10,
-  },
-  {
-    label: 'India Business: Trade & Investment',
-    keywords: '"India trade agreement" OR "WTO India" OR "rupee dollar" OR "India export" OR "India import" OR "foreign exchange reserves"',
-    sourceGroup: 'india_business',
-    max: 10,
-  },
-  {
-    label: 'Global: Conflicts & Alliances',
-    keywords: '"NATO expansion" OR "Ukraine Russia" OR "South China Sea" OR "Taiwan strait" OR "Iran nuclear deal" OR "Abraham Accords"',
-    sourceGroup: 'global_strategic',
-    max: 10,
-  },
-  {
-    label: 'Global: Strategic Geography & Trade Routes',
-    keywords: '"Strait of Hormuz" OR "Suez Canal" OR "Arctic council" OR "Indian Ocean" OR "Malacca Strait" OR "maritime trade" OR "Panama Canal"',
-    sourceGroup: 'global_strategic',
-    max: 10,
-  },
-]
+export const RSS_FEEDS = [
+  { label: 'PIB Press Releases', url: 'https://pib.gov.in/RssMain.aspx?ModId=6&Lang=1&Regid=1', source: 'PIB' },
+  { label: 'The Hindu National', url: 'https://www.thehindu.com/news/national/feeder/default.rss', source: 'The Hindu' },
+  { label: 'The Hindu International', url: 'https://www.thehindu.com/news/international/feeder/default.rss', source: 'The Hindu' },
+  { label: 'The Hindu Economy', url: 'https://www.thehindu.com/business/Economy/feeder/default.rss', source: 'The Hindu' },
+];
 
-async function fetchFromGNews(keywords, sourceGroup, gnewsKey, max = 10) {
-  const sourceDomains = TRUSTED_SOURCES[sourceGroup]
-  // REFINE: Direct domain targeting in q search to avoid "top 10 mismatch"
-  const domainQuery = sourceDomains.split(',').map(d => `site:${d}`).join(' OR ')
-  const q = `(${keywords}) AND (${domainQuery})`
-  const url = `https://gnews.io/api/v4/search?q=${encodeURIComponent(q)}&lang=en&max=${max}&sortby=publishedAt&in=title,description&apikey=${gnewsKey}`
-
-  console.log(`[Scraper] GNews fetching for ${sourceGroup}...`)
-
+async function fetchFromRSS(feedConfig, max = 10) {
+  console.log(`[Scraper] Fetching RSS: ${feedConfig.label}...`);
   try {
-    const res = await fetch(url, { cache: 'no-store' })
-    if (res.ok) {
-      const data = await res.json()
-      if (data?.articles?.length) {
-        console.log(`[Scraper] GNews returned ${data.articles.length} articles for ${sourceGroup}`)
-        return data.articles
-      }
-    } else {
-      const errorBody = await res.text()
-      console.error(`[Scraper] GNews API error (${res.status}):`, errorBody)
-    }
-  } catch (e) {
-    console.error(`[Scraper] GNews fetch failed for "${sourceGroup}":`, e.message)
+    const feed = await rssParser.parseURL(feedConfig.url, { timeout: 10000 });
+    const now = new Date();
+    
+    return feed.items
+      .map(item => ({
+        title: item.title,
+        description: item.contentSnippet || item.content || '',
+        url: item.link,
+        publishedAt: item.isoDate || item.pubDate || new Date().toISOString(),
+        source: feedConfig.source
+      }))
+      .filter(item => {
+        // Only keep articles from the last 48 hours to be safe
+        const pubDate = new Date(item.publishedAt);
+        const hoursOld = (now - pubDate) / (1000 * 60 * 60);
+        return hoursOld <= 48;
+      })
+      .slice(0, max);
+  } catch (error) {
+    console.error(`[Scraper] Failed to fetch RSS ${feedConfig.label}:`, error.message);
+    return [];
   }
-  return []
-}
-
-async function fetchFromNewsData(keywords, sourceGroup, apiKey, max = 10) {
-  // NewsData has different filtering: we'll use broad keywords but filter by domain post-fetch
-  // as it doesn't support complex site: OR site: queries as reliably in free tier
-  const url = `https://newsdata.io/api/1/news?apikey=${apiKey}&q=${encodeURIComponent(keywords)}&language=en`
-
-  try {
-    const res = await fetch(url, { cache: 'no-store' })
-    if (res.ok) {
-      const data = await res.json()
-      if (data?.results?.length) {
-        const sourceDomains = TRUSTED_SOURCES[sourceGroup].split(',')
-        const filtered = data.results.filter(article => {
-          try {
-            const host = new URL(article.link).hostname.replace('www.', '')
-            return sourceDomains.some(d => host.includes(d))
-          } catch { return false }
-        }).map(a => ({
-          title: a.title,
-          description: a.description || a.content,
-          url: a.link,
-          publishedAt: a.pubDate,
-          source: a.source_id
-        }))
-        console.log(`[Scraper] NewsData returned ${filtered.length} filtered articles for ${sourceGroup}`)
-        return filtered
-      }
-    } else {
-      const errorBody = await res.text()
-      console.error(`[Scraper] NewsData API error (${res.status}):`, errorBody)
-    }
-  } catch (e) {
-    console.error(`[Scraper] NewsData fetch failed:`, e.message)
-  }
-  return []
 }
 
 export async function scrapeAndEnrich() {
-  const gnewsKey = process.env.GNEWS_API_KEY
-  const newsDataKey = process.env.NEWSDATA_API_KEY
   const model = getGeminiModel('extraction')
   const mapEntries = await prisma.mapEntry.findMany()
 
@@ -121,26 +76,10 @@ export async function scrapeAndEnrich() {
   let totalEnriched = 0
   let totalCreated = 0
   let totalFiltered = 0
-  let gnewsCount = 0
-  let newsDataCount = 0
 
-  for (const plan of SCRAPE_PLAN) {
-    let articles = []
-
-    // 1. Try GNews first (targeted query)
-    if (gnewsKey && gnewsKey.trim() !== '' && !gnewsKey.includes('[')) {
-      articles = await fetchFromGNews(plan.keywords, plan.sourceGroup, gnewsKey, plan.max)
-      gnewsCount += articles.length
-    }
-
-    // 2. Fallback to NewsData if GNews returned nothing
-    if (articles.length === 0 && newsDataKey && newsDataKey.trim() !== '' && !newsDataKey.includes('[')) {
-      console.log(`[Scraper] Falling back to NewsData for ${plan.label}`)
-      articles = await fetchFromNewsData(plan.keywords, plan.sourceGroup, newsDataKey, 5)
-      newsDataCount += articles.length
-    }
-
-    totalFetched += articles.length
+  for (const feed of RSS_FEEDS) {
+    let articles = await fetchFromRSS(feed, 3);
+    totalFetched += articles.length;
 
     for (const article of articles) {
       if (!model) continue
@@ -149,7 +88,10 @@ export async function scrapeAndEnrich() {
         // Stay safely below 15 RPM free tier limit
         await delay(4200) 
 
-        const articleText = `${article.title} ${article.description || ''}`
+        // FETCH FULL TEXT
+        let fullText = await harvestArticleText(article.url);
+        const articleText = fullText ? fullText.substring(0, 5000) : `${article.title} ${article.description || ''}`;
+
         const sourceName = (() => {
           try { return new URL(article.url).hostname.replace('www.', '') } catch { return 'unknown' }
         })()
@@ -166,56 +108,120 @@ export async function scrapeAndEnrich() {
 
         const parsed = JSON.parse(cleanText)
         
-        if (!parsed.isGeopolitical || parsed.upscRelevance < 3 || !parsed.locationName) {
+        if (!parsed.isGeopolitical || parsed.upscRelevance < 4) {
           totalFiltered++
           continue
         }
 
-        const formattedDate = new Date(article.publishedAt || new Date()).toISOString().split('T')[0]
-        const newMentionStr = `\n\n### [${article.title}](${article.url}) (${formattedDate})\n**Source:** ${sourceName} · **UPSC Relevance:** ${parsed.upscRelevance}/10\n\n**UPSC Crux:**\n${parsed.upscCrux}\n---`
-
-        let matchedEntry = mapEntries.find(
-          e => e.name.toLowerCase() === parsed.locationName.toLowerCase()
-        )
-
-        if (matchedEntry) {
-          const existingMentions = matchedEntry.newsMentions || ''
-          if (!existingMentions.includes(article.url)) {
-            await prisma.mapEntry.update({
-              where: { id: matchedEntry.id },
-              data: {
-                newsMentions: existingMentions + newMentionStr,
-                lastNewsDate: new Date(),
-                mains: matchedEntry.mains || parsed.mainsDetails,
-                prelims: matchedEntry.prelims || parsed.prelims,
+        const formattedDate = new Date(article.publishedAt || new Date()).toISOString()
+        
+        // 1. Create or Update the News Article and related data in a transaction
+        await runWithRetry(async () => {
+          await prisma.$transaction(async (tx) => {
+            const upsertedArticle = await tx.newsArticle.upsert({
+              where: { url: article.url },
+              update: {
+                title: article.title,
+                content: articleText.substring(0, 2000), // store a snippet
+                summary: parsed.summary || article.description || '',
+                publishedAt: new Date(formattedDate),
+                category: parsed.category || 'general',
+                relevance: parsed.upscRelevance,
+              },
+              create: {
+                title: article.title,
+                url: article.url,
+                source: sourceName,
+                content: articleText.substring(0, 2000),
+                summary: parsed.summary || article.description || '',
+                publishedAt: new Date(formattedDate),
+                category: parsed.category || 'general',
+                relevance: parsed.upscRelevance,
               }
-            })
-            totalEnriched++
-          }
-        } else {
-          const newEntry = await prisma.mapEntry.create({
-            data: {
-              name: parsed.locationName,
-              lat: parsed.lat || 0,
-              lon: parsed.lon || 0,
-              category: parsed.category || 'general',
-              prelims: parsed.prelims,
-              mains: parsed.mainsDetails,
-              india: 'Pending AI analysis...',
-              shape: 'marker',
-              year: new Date().getFullYear(),
-              newsMentions: newMentionStr,
-              lastNewsDate: new Date()
+            });
+
+            // 2. Clear existing editorials and facts to avoid duplicates
+            await tx.editorialAnalysis.deleteMany({ where: { articleId: upsertedArticle.id } });
+            await tx.newsFact.deleteMany({ where: { articleId: upsertedArticle.id } });
+
+            // 3. Build Editorials
+            if (parsed.editorials && Array.isArray(parsed.editorials)) {
+              for (const ed of parsed.editorials) {
+                await tx.editorialAnalysis.create({
+                  data: {
+                    article: { connect: { id: upsertedArticle.id } },
+                    issue: ed.issue || '',
+                    crux: ed.crux || '',
+                    gsPaper: ed.gsPaper || ''
+                  }
+                });
+              }
             }
-          })
-          mapEntries.push(newEntry)
-          totalCreated++
-        }
+
+            // 4. Build Facts and Link to Map
+            if (parsed.facts && Array.isArray(parsed.facts)) {
+              for (const fact of parsed.facts) {
+                let mapEntryId = null;
+                // Map Linking Logic
+                if (parsed.locationName && parsed.locationName.trim() !== '' && parsed.locationName.toLowerCase() !== 'null') {
+                  let matchedEntry = await tx.mapEntry.findFirst({
+                    where: { name: { equals: parsed.locationName, mode: 'insensitive' } }
+                  });
+                  
+                  if (matchedEntry) {
+                     mapEntryId = matchedEntry.id;
+                     const existingMentions = matchedEntry.newsMentions || '';
+                     const newMentionStr = `\n\n### [${article.title}](${article.url})\n**Source:** ${sourceName}`;
+                     if (!existingMentions.includes(article.url)) {
+                       await tx.mapEntry.update({
+                         where: { id: matchedEntry.id },
+                         data: {
+                           newsMentions: existingMentions + newMentionStr,
+                           lastNewsDate: new Date()
+                         }
+                       });
+                     }
+                  } else {
+                     const newEntry = await tx.mapEntry.create({
+                       data: {
+                         name: parsed.locationName,
+                         lat: 0,
+                         lon: 0,
+                         category: parsed.category || 'general',
+                         shape: 'marker',
+                         year: new Date().getFullYear(),
+                         newsMentions: `\n\n### [${article.title}](${article.url})\n**Source:** ${sourceName}`,
+                         lastNewsDate: new Date()
+                       }
+                     });
+                     mapEntryId = newEntry.id;
+                     totalCreated++;
+                  }
+                }
+
+                await tx.newsFact.create({
+                  data: {
+                    article: { connect: { id: upsertedArticle.id } },
+                    type: fact.type || 'PRELIMS_FACT',
+                    content: fact.content || '',
+                    category: fact.category || 'general',
+                    year: new Date().getFullYear(),
+                    mapEntry: mapEntryId ? { connect: { id: mapEntryId } } : undefined,
+                    questionData: fact.mcq || null
+                  }
+                });
+              }
+            }
+          });
+        }, 3, 1000);
+        
+        totalEnriched++;
+        
       } catch (err) {
         console.error(`[Scraper] AI Enrichment failed for: "${article.title}"`, err.message)
       }
     }
   }
 
-  return { totalFetched, totalEnriched, totalCreated, totalFiltered, gnewsCount, newsDataCount }
+  return { totalFetched, totalEnriched, totalCreated, totalFiltered }
 }

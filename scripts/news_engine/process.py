@@ -55,42 +55,49 @@ def process_news(articles):
         
         # Layer 3: The Reasoning Brain (Gemma 4 26B)
         reasoning_prompt = f"""
-        Task: Deep UPSC Analysis
-        Article: {article['content']}
+        Task: Elite UPSC Strategic Analysis
+        Article Title: {article['title']}
+        Full Content: {article['content']}
+        
+        Instruction: Analyze the provided article as a senior UPSC evaluator. 
+        1. CRITICAL: Do NOT mention "RBI", "Repo Rate", "Article 324", or "Election Commission" unless they are the primary subject of THIS specific article.
+        2. Identify any GEOGRAPHIC LOCATIONS (Cities, Rivers, Borders, Regions) mentioned.
+        3. Synthesize the "Crux" for Mains (GS 1-4 context).
+        4. Extract a "Prelims Fact" and a "Mains Inquiry".
         
         Output JSON Format:
         {{
-          "category": "Economy|IR|Conflict",
+          "category": "Economy|IR|Polity|Environment|Security|Science",
           "relevance": {gate_result['relevance_score']},
-          "summary": "Brief 1-line snapshot",
+          "summary": "1-sentence executive summary",
           "editorials": [
             {{
-              "issue": "Primary Issue Name",
-              "crux": "Balanced synthesis for Mains",
-              "perspectives": {{"pros": ["..."], "cons": ["..."], "neutral": ["..."]}},
+              "issue": "The core thematic challenge",
+              "crux": "Deep analytical synthesis (150-200 words)",
+              "perspectives": {{"government": ["..."], "critics": ["..."], "way_forward": ["..."]}},
               "gsPaper": "GS1|GS2|GS3|GS4",
-              "keywords": "Comma-separated keywords"
+              "keywords": "5 high-value UPSC keywords"
             }}
           ],
           "facts": [
             {{
               "type": "PRELIMS_FACT",
-              "content": "Specific actionable snippet/stat",
-              "category": "Geography|History|Economy",
-              "locationName": "Optional location for Map link",
+              "content": "A high-yield factual data point from the text",
+              "category": "Geography|Economy|Polity",
+              "locationName": "The EXACT name of the location for mapping (if any)",
               "mcq": {{
-                "question": "Generate a tough UPSC-style MCQ testing this fact",
+                "question": "A conceptual UPSC-style MCQ testing this fact",
                 "options": ["A...", "B...", "C...", "D..."],
-                "answer": "Correct option exactly as in the array",
-                "explanation": "Why this is the answer"
+                "answer": "Exact text of correct option",
+                "explanation": "Why this option is correct based ONLY on the text"
               }}
             }},
             {{
               "type": "MAINS_FACT",
-              "content": "Key argument or synthesis data",
-              "category": "Geography|History|Economy",
-              "locationName": "Optional location for Map link",
-              "mainsQuestion": "Generate an analytical evaluating question for GS Mains based on this fact"
+              "content": "A significant argument or structural data point",
+              "category": "Geography|Economy|Polity",
+              "locationName": "Location name if relevant",
+              "mainsQuestion": "An analytical question for GS Mains based on this article's developments"
             }}
           ]
         }}

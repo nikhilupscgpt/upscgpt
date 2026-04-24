@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth/next'
 import prisma from '@/lib/prisma'
 import { authOptions } from '@/app/api/auth/[...nextauth]/route'
 import { getPromptConfigKey, listAiPrompts } from '@/lib/aiPromptRegistry'
+import { runWithRetry } from '@/lib/db-retry'
 
 async function requireAdmin() {
   const session = await getServerSession(authOptions)
@@ -20,7 +21,16 @@ export async function GET() {
   }
 
   try {
-    const prompts = await listAiPrompts()
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Database query timed out after 15s')), 15000)
+    );
+
+    const dbQueryPromise = runWithRetry(async () => {
+      return await listAiPrompts()
+    }, 2, 500);
+
+    const prompts = await Promise.race([dbQueryPromise, timeoutPromise]);
+    
     return NextResponse.json({ prompts })
   } catch (error) {
     console.error('[AdminAiPrompts] GET failed:', error)

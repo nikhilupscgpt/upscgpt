@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 
+import { runWithRetry } from "@/lib/db-retry"
+
 export async function GET() {
   const session = await getServerSession(authOptions)
   if (!session || session.user?.role !== 'ADMIN') {
@@ -10,7 +12,10 @@ export async function GET() {
   }
 
   try {
-    const configs = await prisma.platformConfig.findMany()
+    const configs = await runWithRetry(async () => {
+      return await prisma.platformConfig.findMany()
+    }, 3, 500)
+    
     const configMap = configs.reduce((acc, curr) => {
       acc[curr.key] = curr.value
       return acc

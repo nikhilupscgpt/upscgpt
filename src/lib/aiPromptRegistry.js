@@ -180,7 +180,41 @@ Return JSON: {"lat": number, "lon": number, "name": "matching display name"}`,
     area: 'News Engine',
     location: 'src/lib/scraper.js',
     description: 'Prompt used by the admin-triggered scraper to enrich fetched headlines into atlas updates.',
-    defaultValue: `You are a UPSC Civil Services exam preparation expert. Analyze this article for UPSC relevance: "{{articleText}}". Source: {{sourceName}}. Return strictly valid JSON: { "isGeopolitical": true, "upscRelevance": 0-10, "locationName": "string", "lat": float, "lon": float, "category": "strait|conflict|island|mineral|nature|economy|governance|diplomacy|general", "prelims": "string", "mainsDetails": "string", "upscCrux": "string" }`,
+    defaultValue: `You are an elite UPSC Strategic Analyst. Analyze this article for UPSC relevance.
+Article Text: "{{articleText}}"
+Source: {{sourceName}}
+
+Instruction: Analyze the article. Identify GEOGRAPHIC LOCATIONS (Cities, Rivers, Regions). Extract a Prelims Fact and a Mains Inquiry. Do NOT mention "RBI" or "Article 324" unless present in text.
+
+Return strictly valid JSON:
+{
+  "isGeopolitical": true,
+  "upscRelevance": 0-10,
+  "locationName": "EXACT name of the location for map linking (or null)",
+  "category": "Economy|IR|Polity|Environment|Security|Science",
+  "summary": "1-sentence executive summary",
+  "editorials": [
+    {
+      "issue": "Core thematic challenge",
+      "crux": "Deep analytical synthesis (150-200 words)",
+      "gsPaper": "GS1|GS2|GS3|GS4"
+    }
+  ],
+  "facts": [
+    {
+      "type": "PRELIMS_FACT",
+      "content": "High-yield factual data point",
+      "category": "Economy|IR|Polity|Environment|Security|Science",
+      "mcq": {
+        "question": "A conceptual UPSC-style MCQ",
+        "options": ["A...", "B...", "C...", "D..."],
+        "answer": "Exact text of correct option",
+        "explanation": "Why this option is correct"
+      }
+    }
+  ]
+}
+If the article is not relevant for UPSC (score < 4), return {"isGeopolitical": false, "upscRelevance": <score>}`
   },
   {
     id: 'news.background.enrichment',
@@ -213,6 +247,55 @@ UPSC Relevance Scoring Guide:
 - 0-2: Not relevant (entertainment, sports, tech product launches)
 
 If the article is NOT relevant for UPSC (score < 3), return: {"isGeopolitical": false, "upscRelevance": <score>}`,
+  },
+  {
+    id: 'issue.article.extraction',
+    label: 'Issue Graph: Content Extraction',
+    area: 'News Engine V2',
+    location: 'src/app/api/admin/news-engine/process/route.js',
+    description: 'Extracts structured insights from a raw article/editorial attached to an Issue.',
+    defaultValue: `You are an elite UPSC Strategic Analyst.
+Analyze the provided content to extract high-yield insights for the UPSC Civil Services Exam.
+
+Title: "{{title}}"
+Content: "{{content}}"
+
+Return strictly valid JSON:
+{
+  "crux": "1-2 paragraph deep analytical synthesis of the core arguments/developments (150-200 words)",
+  "prelimsFact": "A highly specific, testable factual point (e.g., a treaty, index, organization, or geographic location) mentioned in the text, or null if none",
+  "mcq": {
+    "question": "A conceptual UPSC Prelims-style MCQ based on the text",
+    "options": ["A. ...", "B. ...", "C. ...", "D. ..."],
+    "answer": "Exact text of the correct option",
+    "explanation": "Why this option is correct"
+  }
+}
+If the text does not contain enough info for a Prelims Fact or MCQ, return null for those fields.`
+  },
+  {
+    id: 'issue.cumulative.synthesis',
+    label: 'Issue Graph: Cumulative Synthesis',
+    area: 'News Engine V2',
+    location: 'src/app/api/admin/news-engine/process/route.js',
+    description: 'Generates the strategic summary for an Issue node based on all attached content.',
+    defaultValue: `You are a UPSC Mains examiner and strategic content synthesizer.
+Your task is to write a cohesive "Strategic Summary" for a UPSC Syllabus Topic (an "Issue Node"), using a provided timeline of recent developments.
+
+Issue: "{{issueTitle}}"
+Domain: "{{domain}}"
+Topic: "{{topic}}"
+
+Recent Developments (Chronological):
+{{timelineData}}
+
+Instructions:
+1. Write 3 to 4 paragraphs synthesizing the overarching narrative of this issue.
+2. Incorporate the recent developments provided to show how the issue has evolved.
+3. Focus on: Core Challenge, Government/Policy Response, and the Way Forward.
+4. Format using HTML: use <b> for emphasis, <ul>/<li> for brief lists if needed, and wrap paragraphs in <p> tags.
+5. Do NOT include markdown blocks (\`\`\`). Return raw HTML string only.
+6. Make it exam-ready for UPSC Mains GS papers.`
   },
 ]
 
