@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { scrapeAndEnrich, TRUSTED_SOURCES } from '@/lib/scraper'
+import { scrapeAndEnrich, RSS_FEEDS } from '@/lib/scraper'
 
 export async function GET(req) {
   const authHeader = req.headers.get('authorization')
@@ -24,7 +24,7 @@ export async function GET(req) {
       timestamp: new Date().toISOString(),
       durationSeconds,
       stats,
-      sources: Object.keys(TRUSTED_SOURCES).map(k => `${k}: ${TRUSTED_SOURCES[k]}`),
+      sources: RSS_FEEDS.map(f => `${f.name}: ${f.url}`),
     })
   } catch (error) {
     console.error('[Cron] ❌ Daily scrape failed:', error)
