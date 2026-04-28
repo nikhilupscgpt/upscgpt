@@ -63,7 +63,10 @@ export default function Navigation({ children }) {
 
             {/* Desktop Navigation Links */}
             <div className="app-nav__links">
-              <Link href="/atlas" className="app-nav__link">{t('nav.atlas')}</Link>
+              <Link href="/atlas" className="app-nav__link">Atlas</Link>
+              <Link href="/issues" className="app-nav__link">Hub</Link>
+              <Link href="/prelims" className="app-nav__link">Prelims</Link>
+              <Link href="/mains" className="app-nav__link">Mains</Link>
             </div>
           </div>
 
