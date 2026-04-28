@@ -1,25 +1,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
-
 :root {
   --glass-bg: rgba(255, 255, 255, 0.72);
   --glass-border: rgba(255, 255, 255, 0.85);
   --text-primary: #ffffff;
   --text-secondary: #94a3b8;
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --hero-bg-gradient: linear-gradient(135deg, #020617 0%, #0f172a 40%, #1e1b4b 70%, #020617 100%);
-  --nav-bg: rgba(2, 6, 23, 0.85);
-  --nav-border: rgba(255, 255, 255, 0.1);
-  --nav-brand: linear-gradient(to right, #fff, #94a3b8);
-  --btn-sec-bg: rgba(255, 255, 255, 0.05);
-  --btn-sec-border: rgba(255, 255, 255, 0.1);
-  --btn-sec-text: #ffffff;
-  --select-bg: rgba(255, 255, 255, 0.08);
-  --nano-bg: rgba(99, 102, 241, 0.2);
-  --nano-text: #c7d2fe;
-  --card-bg: rgba(255,255,255,0.03);
+  --bg-primary: #020617;
+  --bg-secondary: #0f172a;
+  --hero-bg-gradient: radial-gradient(circle at 50% -20%, #1e293b 0%, #020617 80%);
+  --nav-bg: rgba(2, 6, 23, 0.75);
+  --nav-border: rgba(255, 255, 255, 0.08);
   --card-border: rgba(255,255,255,0.08);
   --sidebar-muted: #94a3b8;
   --sidebar-surface: #111827;
@@ -52,13 +43,18 @@ body {
   top: 0;
   z-index: 1100;
   width: 100%;
-  padding: 0.75rem 2rem;
-  background: var(--nav-bg);
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--nav-border);
+  padding: 0.6rem 2rem;
+  background: rgba(10, 15, 28, 0.75);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   font-family: 'Outfit', sans-serif;
-  transition: background 0.3s ease, border-color 0.3s ease;
+  transition: all 0.3s ease;
+}
+
+.app-nav:hover {
+  background: rgba(10, 15, 28, 0.85);
+  border-bottom-color: rgba(255, 255, 255, 0.12);
 }
 
 .app-nav__bar {
@@ -107,13 +103,14 @@ body {
 }
 
 .app-nav__brand-text {
-  font-weight: 800;
-  font-size: 1.1rem;
-  letter-spacing: -0.02em;
-  background: var(--nav-brand);
+  font-weight: 900;
+  font-size: 1.15rem;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
 }
 
 .app-nav__links {
@@ -122,13 +119,18 @@ body {
 
 .app-nav__link,
 .app-nav__mobile-link {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #94a3b8;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.6);
   text-decoration: none;
-  transition: color 0.2s;
-  padding: 6px 12px;
-  border-radius: 8px;
+  transition: all 0.2s;
+  padding: 8px 14px;
+  border-radius: 10px;
+}
+
+.app-nav__link:hover {
+  color: white;
+  background: rgba(255,255,255,0.05);
 }
 
 .app-nav__actions {

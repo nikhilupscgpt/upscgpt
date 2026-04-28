@@ -33,6 +33,16 @@
 
 .module-card:hover { 
   transform: translateY(-8px) scale(1.02); 
+  box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 20px rgba(99,102,241,0.1);
+}
+
+.module-card#mapping {
+  animation: neural-pulse 8s ease-in-out infinite;
+}
+
+@keyframes neural-pulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(139,92,246,0); }
+  50% { box-shadow: 0 0 30px rgba(139,92,246,0.15); }
 }
 
 .module-card:hover .card-glow { 
