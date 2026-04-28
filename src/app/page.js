@@ -159,9 +159,7 @@ export default function UPSCGPTMasterPortal() {
 
 
       <main style={{ position: 'relative', zIndex: 10, maxWidth: '1200px', margin: '0 auto' }} className="main-responsive-padding">
-        <div style={{ textAlign: 'center', marginBottom: '60px' }} className="hero-section">
-          <div style={{ marginTop: '40px' }}></div>
-
+        <div style={{ textAlign: 'center', marginBottom: '60px', marginTop: '64px' }} className="hero-section">
           <h2 className="main-title">
             The Future of
             <br />
