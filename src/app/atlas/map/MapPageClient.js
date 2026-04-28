@@ -214,30 +214,40 @@ function FloatingMapBotPanel({
     return () => window.removeEventListener('resize', handleResize)
   }, [panelMinimized, clampPosition])
 
-  useEffect(() => {
-    if (!panelOpen) return undefined
-
-    const handlePointerMove = (event) => {
-      if (!dragStateRef.current) return
-      const next = clampPosition(
-        event.clientX - dragStateRef.current.offsetX,
-        event.clientY - dragStateRef.current.offsetY
-      )
-      setPanelPosition({ ...next, hasMoved: true })
+  const handlePointerDown = (event) => {
+    if (typeof window !== 'undefined' && window.innerWidth <= 768) return
+    if (event.target.closest('button, input, textarea')) return
+    
+    const rect = event.currentTarget.parentElement?.getBoundingClientRect()
+    dragStateRef.current = {
+      offsetX: event.clientX - (rect?.left || 0),
+      offsetY: event.clientY - (rect?.top || 0),
+      pointerId: event.pointerId
     }
+    
+    event.currentTarget.setPointerCapture(event.pointerId)
+    document.body.style.userSelect = 'none'
+  }
 
-    const handlePointerUp = () => {
-      dragStateRef.current = null
-      document.body.style.userSelect = ''
-    }
+  const handlePointerMove = (event) => {
+    if (!dragStateRef.current || dragStateRef.current.pointerId !== event.pointerId) return
+    const next = clampPosition(
+      event.clientX - dragStateRef.current.offsetX,
+      event.clientY - dragStateRef.current.offsetY
+    )
+    setPanelPosition({ ...next, hasMoved: true })
+  }
 
-    window.addEventListener('pointermove', handlePointerMove)
-    window.addEventListener('pointerup', handlePointerUp)
-    return () => {
-      window.removeEventListener('pointermove', handlePointerMove)
-      window.removeEventListener('pointerup', handlePointerUp)
+  const handlePointerUp = (event) => {
+    if (!dragStateRef.current) return
+    try {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    } catch (e) {
+      // Ignore if pointer capture already released
     }
-  }, [panelOpen, panelMinimized, clampPosition])
+    dragStateRef.current = null
+    document.body.style.userSelect = ''
+  }
 
   if (!panelOpen) {
     return (
@@ -272,16 +282,10 @@ function FloatingMapBotPanel({
     >
       <div
         className="mapbot-floating-header"
-        onPointerDown={(event) => {
-          if (typeof window !== 'undefined' && window.innerWidth <= 768) return
-          if (event.target.closest('button, input, textarea')) return
-          const rect = event.currentTarget.parentElement?.getBoundingClientRect()
-          dragStateRef.current = {
-            offsetX: event.clientX - (rect?.left || 0),
-            offsetY: event.clientY - (rect?.top || 0),
-          }
-          document.body.style.userSelect = 'none'
-        }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
       >
         <div style={{ minWidth: 0, flex: 1 }}>
           <div className="mapbot-kicker">Nano Intelligence</div>
@@ -503,24 +507,43 @@ function MapInfoCard({ entry, onClose, onAskNano }) {
     }
   }, [])
 
-  useEffect(() => {
-    const onMove = (e) => {
-      if (!dragRef.current) return
-      const { offsetX, offsetY } = dragRef.current
-      setPos(clamp(e.clientX - offsetX, e.clientY - offsetY))
+  const handlePointerDown = (e) => {
+    if (e.target.closest('button')) return
+    if (window.innerWidth <= 768) return
+    
+    const card = e.currentTarget.closest('.map-info-card')
+    const rect = card.getBoundingClientRect()
+    const parent = document.querySelector('.map-view')
+    const pr = parent ? parent.getBoundingClientRect() : { left: 0, top: 0 }
+    
+    dragRef.current = {
+      offsetX: e.clientX - (rect.left - pr.left),
+      offsetY: e.clientY - (rect.top  - pr.top),
+      pointerId: e.pointerId
     }
-    const onUp = () => {
-      dragRef.current = null
-      document.body.style.userSelect = ''
-      document.body.style.cursor = ''
+    
+    e.currentTarget.setPointerCapture(e.pointerId)
+    document.body.style.userSelect = 'none'
+    document.body.style.cursor = 'grabbing'
+  }
+
+  const handlePointerMove = (e) => {
+    if (!dragRef.current || dragRef.current.pointerId !== e.pointerId) return
+    const { offsetX, offsetY } = dragRef.current
+    setPos(clamp(e.clientX - offsetX, e.clientY - offsetY))
+  }
+
+  const handlePointerUp = (e) => {
+    if (!dragRef.current) return
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId)
+    } catch (err) {
+      // Ignore
     }
-    window.addEventListener('pointermove', onMove)
-    window.addEventListener('pointerup', onUp)
-    return () => {
-      window.removeEventListener('pointermove', onMove)
-      window.removeEventListener('pointerup', onUp)
-    }
-  }, [clamp])
+    dragRef.current = null
+    document.body.style.userSelect = ''
+    document.body.style.cursor = ''
+  }
 
   if (!entry) return null
   const catStyle = CATEGORIES.find(c => c.key === entry.category) || CATEGORIES[0]
@@ -543,21 +566,10 @@ function MapInfoCard({ entry, onClose, onAskNano }) {
       {/* Header — drag handle */}
       <div
         className="map-info-card__header map-info-card__header--draggable"
-        onPointerDown={(e) => {
-          if (e.target.closest('button')) return
-          // On mobile skip drag
-          if (window.innerWidth <= 768) return
-          const card = e.currentTarget.closest('.map-info-card')
-          const rect = card.getBoundingClientRect()
-          const parent = document.querySelector('.map-view')
-          const pr = parent ? parent.getBoundingClientRect() : { left: 0, top: 0 }
-          dragRef.current = {
-            offsetX: e.clientX - (rect.left - pr.left),
-            offsetY: e.clientY - (rect.top  - pr.top),
-          }
-          document.body.style.userSelect = 'none'
-          document.body.style.cursor = 'grabbing'
-        }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
       >
         {/* Grip icon */}
         <div className="map-info-card__grip" aria-hidden="true">⠿</div>
