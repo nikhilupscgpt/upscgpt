@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import './home.css'
 
 
 export default function UPSCGPTMasterPortal() {
@@ -136,26 +137,6 @@ export default function UPSCGPTMasterPortal() {
         />
       </div>
 
-      <style
-        dangerouslySetInnerHTML={{
-          __html: `
-        @keyframes float1 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(30px,-40px); } }
-        @keyframes float2 { 0%,100% { transform: translate(0,0); } 50% { transform: translate(-40px,30px); } }
-        @keyframes float3 { 0%,100% { transform: translate(-50%,-50%); } 50% { transform: translate(-50%,-50%) translate(20px,-20px); } }
-        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-        .command-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
-        .module-card { transition: all 0.4s cubic-bezier(0.4,0,0.2,1); }
-        .module-card:hover { transform: translateY(-8px) scale(1.02); }
-        .module-card:hover .card-glow { opacity: 1; }
-        .card-glow { position: absolute; inset: -1px; border-radius: 25px; opacity: 0; transition: opacity 0.4s; pointer-events: none; z-index: 0; }
-        .stat-chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 800; }
-        .feature-tag { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.5); border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s; }
-        .feature-tag:hover { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.8); }
-        .mapping-primary-cta { margin-top: 16px; display: inline-flex; align-items: center; justify-content: center; width: 100%; border-radius: 12px; padding: 11px 12px; font-size: 0.76rem; font-weight: 800; letter-spacing: 0.55px; text-transform: uppercase; text-decoration: none; color: white; border: 1px solid rgba(125,211,252,0.36); background: linear-gradient(135deg, rgba(8,47,73,0.95), rgba(30,64,175,0.92)); }
-        @media (max-width: 1100px) { .command-grid { grid-template-columns: 1fr; } }
-      `,
-        }}
-      />
 
 
       <main style={{ position: 'relative', zIndex: 10, maxWidth: '1200px', margin: '0 auto' }} className="main-responsive-padding">
@@ -180,27 +161,6 @@ export default function UPSCGPTMasterPortal() {
           </p>
         </div>
 
-        <style jsx>{`
-          .main-responsive-padding { padding: 70px 20px 40px; }
-          .main-title { 
-            font-size: 5rem; 
-            font-weight: 950; 
-            line-height: 1.02; 
-            margin: 0 0 24px; 
-            letter-spacing: -3.5px; 
-            text-shadow: 0 10px 30px rgba(0,0,0,0.3);
-          }
-          .main-subtitle { fontSize: 1.15rem; color: #94a3b8; maxWidth: 640px; margin: 0 auto; lineHeight: 1.7; }
-
-          @media (max-width: 768px) {
-            .main-responsive-padding { padding: 40px 15px; }
-            .hero-section { margin-bottom: 40px; }
-            .main-title { font-size: 2.2rem; letter-spacing: -1px; }
-            .main-subtitle { font-size: 0.95rem; }
-            .platform-badge { padding: 4px 12px; }
-            .platform-badge span { font-size: 0.65rem; }
-          }
-        `}</style>
 
         <div className="command-grid">
           {commandCenters.map((center) => {
