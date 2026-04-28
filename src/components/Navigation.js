@@ -104,7 +104,7 @@ export default function Navigation({ children }) {
                   <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-primary)', lineHeight: 1 }}>
                     {session.user.name?.split(' ')[0] || 'User'}
                   </div>
-                  <Link href="/profile" style={{ fontSize: '0.6rem', color: session.user.tier === 'PRO' ? '#fbbf24' : '#94a3b8', fontWeight: '800', textDecoration: 'none', textTransform: 'uppercase' }}>
+                  <Link href="/profile" className={session.user.tier === 'PRO' ? 'tier-badge-pro' : ''} style={session.user.tier !== 'PRO' ? { fontSize: '0.6rem', color: '#94a3b8', fontWeight: '800', textDecoration: 'none', textTransform: 'uppercase' } : {}}>
                     {session.user.tier} TIER
                   </Link>
                 </div>

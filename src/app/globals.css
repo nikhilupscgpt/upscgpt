@@ -39,22 +39,48 @@ body {
 .nav-desktop-text { display: inline; }
 
 .app-nav {
-  position: sticky;
-  top: 0;
+  position: fixed;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 1100;
-  width: 100%;
-  padding: 0.6rem 2rem;
-  background: rgba(10, 15, 28, 0.75);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  backdrop-filter: blur(20px) saturate(180%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  width: 95%;
+  max-width: 1400px;
+  padding: 0.6rem 1.5rem;
+  background: rgba(10, 15, 28, 0.7);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   font-family: 'Outfit', sans-serif;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5), inset 0 0 20px rgba(255,255,255,0.02);
+}
+
+.app-nav::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: 24px;
+  padding: 1px;
+  background: linear-gradient(90deg, transparent, rgba(56,189,248,0.3), rgba(139,92,246,0.3), transparent);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: border-rotate 8s linear infinite;
+}
+
+@keyframes border-rotate {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
 .app-nav:hover {
   background: rgba(10, 15, 28, 0.85);
-  border-bottom-color: rgba(255, 255, 255, 0.12);
+  width: 96%;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
 }
 
 .app-nav__bar {
@@ -103,14 +129,19 @@ body {
 }
 
 .app-nav__brand-text {
-  font-weight: 900;
-  font-size: 1.15rem;
-  letter-spacing: -0.03em;
-  background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+  font-weight: 950;
+  font-size: 1.25rem;
+  letter-spacing: -0.04em;
+  background: linear-gradient(to right, #fff 20%, #94a3b8 50%, #fff 80%);
+  background-size: 200% auto;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));
+  animation: text-shine 6s linear infinite;
+}
+
+@keyframes text-shine {
+  to { background-position: 200% center; }
 }
 
 .app-nav__links {
@@ -1485,4 +1516,49 @@ input, select, textarea { font-family: 'Outfit', sans-serif; }
 .nano-send:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+/* ===== FANCY NAVIGATION ELEMENTS ===== */
+.btn-nano {
+  background: linear-gradient(135deg, rgba(56,189,248,0.2) 0%, rgba(139,92,246,0.2) 100%) !important;
+  border: 1px solid rgba(139,92,246,0.3) !important;
+  color: #c7d2fe !important;
+  padding: 8px 16px !important;
+  border-radius: 12px !important;
+  font-weight: 800 !important;
+  font-size: 0.75rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  box-shadow: 0 4px 15px rgba(139,92,246,0.1) !important;
+}
+
+.btn-nano:hover {
+  background: linear-gradient(135deg, rgba(56,189,248,0.3) 0%, rgba(139,92,246,0.3) 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(139,92,246,0.2) !important;
+  border-color: rgba(139,92,246,0.5) !important;
+}
+
+.tier-badge-pro {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+  background-size: 200% auto !important;
+  color: #020617 !important;
+  padding: 2px 8px !important;
+  border-radius: 6px !important;
+  font-size: 0.6rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.5px !important;
+  animation: nav-shimmer 3s linear infinite !important;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.3) !important;
+  text-decoration: none !important;
+  display: inline-block !important;
+}
+
+@keyframes nav-shimmer {
+  to { background-position: 200% center; }
 }
