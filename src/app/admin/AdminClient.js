@@ -184,7 +184,10 @@ export default function AdminClient({ session }) {
       const res = await fetch('/api/admin/questions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(questionForm)
+        body: JSON.stringify({
+          ...questionForm,
+          issueId: questionForm.issueId || null
+        })
       });
       const data = await res.json();
       if (data.success) {
@@ -266,7 +269,11 @@ export default function AdminClient({ session }) {
       const res = await fetch('/api/admin/tests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...testForm, questions: [] }) // Start with empty test, add questions later
+        body: JSON.stringify({ 
+          ...testForm, 
+          issueId: testForm.issueId || null,
+          questions: [] 
+        }) // Start with empty test, add questions later
       });
       const data = await res.json();
       if (data.success) {

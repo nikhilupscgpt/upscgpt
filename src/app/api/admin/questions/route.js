@@ -61,7 +61,7 @@ export async function POST(req) {
         explanation,
         difficulty: difficulty || 'MEDIUM',
         gsPaper,
-        issueId,
+        issueId: issueId || null,
         tags: tags || [],
       }
     });

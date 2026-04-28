@@ -87,7 +87,7 @@ export async function POST(req) {
         type,
         durationMins: parseInt(durationMins) || 0,
         passingScore: parseInt(passingScore) || 70,
-        issueId,
+        issueId: issueId || null,
         questions: {
           create: questions.map(q => ({
             text: q.text,
