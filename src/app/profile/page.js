@@ -293,7 +293,7 @@ export default function ProfilePage() {
                     <div style={{ flex: 1 }}>
                       <div className="activity-action">
                         {act.action.replace(/_/g, ' ')}
-                        {act.user && <span className="admin-user-tag"> • {act.user.name || act.user.email.split('@')[0]}</span>}
+                        {act.user && <span className="admin-user-tag"> • {act.user.name || (act.user.email ? act.user.email.split('@')[0] : 'Strategist')}</span>}
                       </div>
                       <div className="activity-msg">{act.message}</div>
                       <div className="activity-date">{new Date(act.createdAt).toLocaleString()}</div>

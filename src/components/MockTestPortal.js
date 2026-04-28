@@ -881,13 +881,22 @@ export default function MockTestPortal({ testPack, userId }) {
 
         /* Responsive Breakpoints */
         @media (max-width: 768px) {
-          .ibps-header { padding: 12px 16px; }
+          .ibps-header { padding: 10px 12px; height: 60px; }
+          .ibps-brand { gap: 8px; }
+          .ibps-logo-box { padding: 4px; }
+          .ibps-title { font-size: 0.85rem; max-width: 150px; }
+          .ibps-subtitle { font-size: 0.5rem; }
+          
+          .ibps-timer-box { padding: 4px 8px; gap: 4px; }
+          .ibps-timer-value { font-size: 0.85rem; }
+          .ibps-timer-icon { width: 14px; height: 14px; }
+
           .hide-mobile { display: none !important; }
           .ibps-palette-toggle { display: block; }
           
           .ibps-sidebar {
             position: absolute;
-            top: 0;
+            top: 60px;
             right: 0;
             bottom: 0;
             width: 100%;
@@ -900,10 +909,12 @@ export default function MockTestPortal({ testPack, userId }) {
             transform: translateX(0);
           }
 
-          .ibps-question-content { padding: 16px 16px 80px; }
-          .ibps-q-header { margin-bottom: 16px; }
-          .ibps-q-text { font-size: 1rem; }
-          .ibps-option-text { font-size: 0.85rem; }
+          .ibps-question-content { padding: 16px 16px 100px; }
+          .ibps-q-header { margin-bottom: 16px; gap: 8px; }
+          .ibps-q-number { width: 28px; height: 28px; font-size: 0.8rem; }
+          .ibps-q-text { font-size: 0.95rem; }
+          .ibps-option-text { font-size: 0.8rem; }
+          .ibps-option-card { padding: 10px 12px; }
           
           .ibps-footer {
             position: fixed;
@@ -911,8 +922,23 @@ export default function MockTestPortal({ testPack, userId }) {
             left: 0;
             right: 0;
             z-index: 40;
-            background-color: white;
-            box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
+            background-color: #f8fafc;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+            padding: 12px;
+          }
+
+          .ibps-palette-grid {
+            grid-template-columns: repeat(5, 1fr);
+          }
+
+          .ibps-btn-primary {
+            padding: 12px 20px;
+            font-size: 0.9rem;
+          }
+
+          .ibps-btn-sec {
+            padding: 10px;
+            font-size: 0.7rem;
           }
         }
 

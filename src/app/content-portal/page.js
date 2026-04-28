@@ -74,6 +74,7 @@ export default function ContentPortal() {
   const [isOptionalMode, setIsOptionalMode] = useState(false);
   const [userOptionalSlug, setUserOptionalSlug] = useState(null);
   const [showOptionalSelector, setShowOptionalSelector] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     fetch('/api/optionals')
@@ -107,6 +108,7 @@ export default function ContentPortal() {
     setIsOptionalMode(false);
     setActiveOptional(null);
     setView('CHAT');
+    setSidebarOpen(false);
   };
 
   const handleOptionalClick = (opt) => {
@@ -117,6 +119,7 @@ export default function ContentPortal() {
     setActiveSubjectName(`${opt.name} [Optional Lab]`);
     setExamMode('MAINS'); 
     setView('CHAT');
+    setSidebarOpen(false);
   };
 
   const saveOptionalPreference = async (slug) => {
@@ -245,8 +248,15 @@ export default function ContentPortal() {
 
   // CHAT VIEW
   return (
-    <div className="portal-layout">
-      <div className="portal-sidebar">
+    <div className={`portal-layout ${sidebarOpen ? 'sidebar-open' : ''}`}>
+      <button 
+        className="mobile-sidebar-toggle"
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+      >
+        {sidebarOpen ? '✕' : <LayoutGrid size={20} />}
+      </button>
+
+      <div className={`portal-sidebar ${sidebarOpen ? 'active' : ''}`}>
         <div className="sidebar-top-nav">
           <button onClick={() => setView('GRID')} className="back-to-dashboard">
             <LayoutGrid size={16} />
