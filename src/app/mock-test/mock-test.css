@@ -411,3 +411,68 @@
 }
 .res-btn-sec { background-color: #1e293b; color: white; border: 1px solid #334155; }
 .res-btn-primary { background-color: #2563eb; color: white; box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3); }
+
+/* Responsive adjustments for Result Page */
+@media (max-width: 768px) {
+  .mt-page {
+    padding: 24px 16px;
+  }
+
+  .mt-title {
+    font-size: 1.8rem;
+    line-height: 1.2;
+  }
+
+  .res-header {
+    flex-direction: column;
+    gap: 24px;
+    margin-bottom: 32px;
+  }
+
+  .res-status-badge {
+    padding: 12px 20px;
+    width: fit-content;
+  }
+
+  .res-status-badge p:last-child {
+    font-size: 1.1rem !important;
+  }
+
+  .res-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .res-card {
+    padding: 24px;
+  }
+
+  .res-card-val {
+    font-size: 2.5rem;
+  }
+
+  .res-br-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px;
+  }
+
+  .res-br-item {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .res-ans-row {
+    grid-template-columns: 1fr;
+  }
+
+  .res-footer {
+    flex-direction: column;
+  }
+
+  .res-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
