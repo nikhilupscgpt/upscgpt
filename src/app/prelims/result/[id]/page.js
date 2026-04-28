@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import '../../mock-test.css';
+import '../../prelims.css';
 import { 
   CheckCircle2, 
   XCircle, 
@@ -172,7 +172,7 @@ export default async function MockTestResultPage({ params }) {
         {/* Footer Actions */}
         <div className="res-footer">
           <Link href="/atlas" className="res-btn res-btn-sec">Go Home</Link>
-          <Link href={`/mock-test/${testPack.id}`} className="res-btn res-btn-primary">Retake Test</Link>
+          <Link href={`/prelims/${testPack.id}`} className="res-btn res-btn-primary">Retake Test</Link>
         </div>
       </div>
     </div>

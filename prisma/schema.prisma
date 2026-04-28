@@ -99,26 +99,42 @@ model MapEntry {
   lat                     Float?
   lon                     Float?
   name                    String
+  name_hi                 String?
+  name_mr                 String?
   category                String
   tags                    String?
   year                    Int?
   shape                   String?
   prelims                 String?
+  prelims_hi              String?
+  prelims_mr              String?
   mains                   String?
+  mains_hi                String?
+  mains_mr                String?
   india                   String?
+  india_hi                String?
+  india_mr                String?
   createdAt               DateTime        @default(now())
   updatedAt               DateTime        @default(now()) @updatedAt
   lastNewsDate            DateTime?
   newsMentions            String?
   aiNodeSummaryFollowups  String?
   aiNodeSummaryMarkdown   String?
+  aiNodeSummaryMarkdown_hi String?
+  aiNodeSummaryMarkdown_mr String?
   aiNodeSummarySourceHash String?
   aiNodeSummaryTitle      String?
+  aiNodeSummaryTitle_hi   String?
+  aiNodeSummaryTitle_mr   String?
   aiNodeSummaryUpdatedAt  DateTime?
   aiNewsSummaryFollowups  String?
   aiNewsSummaryMarkdown   String?
+  aiNewsSummaryMarkdown_hi String?
+  aiNewsSummaryMarkdown_mr String?
   aiNewsSummarySourceHash String?
   aiNewsSummaryTitle      String?
+  aiNewsSummaryTitle_hi   String?
+  aiNewsSummaryTitle_mr   String?
   aiNewsSummaryUpdatedAt  DateTime?
   admRegion               String?
   capital                 String?
@@ -146,20 +162,28 @@ model MapEntry {
 }
 
 model Organization {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  shortName   String
-  category    String
-  members     String
-  hqCity      String?
-  hqLat       Float?
-  hqLon       Float?
-  founded     Int?
-  description String?
-  upscContext String?
-  indiaRole   String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  id              String   @id @default(cuid())
+  name            String   @unique
+  name_hi         String?
+  name_mr         String?
+  shortName       String
+  category        String
+  members         String
+  hqCity          String?
+  hqLat           Float?
+  hqLon           Float?
+  founded         Int?
+  description     String?
+  description_hi  String?
+  description_mr  String?
+  upscContext     String?
+  upscContext_hi  String?
+  upscContext_mr  String?
+  indiaRole       String?
+  indiaRole_hi    String?
+  indiaRole_mr    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
 
   @@index([category])
   @@index([shortName])
@@ -169,30 +193,45 @@ model Organization {
 /// News items and editorials attach TO Issues. Every new attachment triggers
 /// a background rebuild of cumulativeSummary.
 model Issue {
-  id                String                 @id @default(cuid())
-  title             String
-  slug              String                 @unique
-  domain            String
-  topic             String
-  category          IssueCategory
-  gsPapers          String[]
-  nodeType          IssueNodeType          @default(NEWS)
-  status            IssueStatus            @default(ACTIVE)
-  backgroundNote    String?
-  cumulativeSummary String?
-  embedding         Unsupported("vector")?
-  lastUpdatedAt     DateTime               @updatedAt
-  createdAt         DateTime               @default(now())
-  articles          Article[]
-  editorials        Editorial[]
-  followers         IssueFollow[]
-  userProgress      IssueProgress[]
-  pyqLinks          PYQLink[]
-  timelineEvents    TimelineEvent[]
-  userNotes         UserNote[]
-  optionalId        String?
-  optionalSubject   OptionalSubject?       @relation(fields: [optionalId], references: [id])
-  testPacks         TestPack[]
+  id                   String                 @id @default(cuid())
+  title                String
+  title_hi             String?
+  title_mr             String?
+  slug                 String                 @unique
+  domain               String
+  topic                String
+  topic_hi             String?
+  topic_mr             String?
+  category             IssueCategory
+  gsPapers             String[]
+  nodeType             IssueNodeType          @default(NEWS)
+  status               IssueStatus            @default(ACTIVE)
+  backgroundNote       String?
+  backgroundNote_hi    String?
+  backgroundNote_mr    String?
+  cumulativeSummary    String?
+  cumulativeSummary_hi String?
+  cumulativeSummary_mr String?
+  valueAddition        String?
+  valueAddition_hi     String?
+  valueAddition_mr     String?
+  possibleQuestions    String? @db.Text
+  possibleQuestions_hi String? @db.Text
+  possibleQuestions_mr String? @db.Text
+  embedding            Unsupported("vector")?
+  orderIndex           Int                    @default(0)
+  lastUpdatedAt        DateTime               @updatedAt
+  createdAt            DateTime               @default(now())
+  articles             Article[]
+  editorials           Editorial[]
+  followers            IssueFollow[]
+  userProgress         IssueProgress[]
+  pyqLinks             PYQLink[]
+  timelineEvents       TimelineEvent[]
+  userNotes            UserNote[]
+  optionalId           String?
+  optionalSubject      OptionalSubject?       @relation(fields: [optionalId], references: [id])
+  testPacks            TestPack[]
 
   @@index([category])
   @@index([domain])
@@ -207,6 +246,8 @@ model Article {
   id             String           @id @default(cuid())
   issueId        String
   title          String
+  title_hi       String?
+  title_mr       String?
   url            String?          @unique
   source         String?
   contentType    ContentType      @default(NEWS)
@@ -232,6 +273,8 @@ model Editorial {
   id             String           @id @default(cuid())
   issueId        String
   title          String
+  title_hi       String?
+  title_mr       String?
   url            String?
   author         String?
   source         String?
@@ -425,34 +468,45 @@ model IssueProgress {
 }
 
 model Question {
-  id           String   @id @default(cuid())
-  text         String   @db.Text
-  options      Json // [{label: "a", text: "..."}, ...]
-  correctLabel String
-  explanation  String   @db.Text
-  difficulty   String   @default("MEDIUM") // EASY, MEDIUM, HARD
-  domain       String
-  gsPaper      String?
-  tags         String[]
-  issueId      String? // Optional link to a syllabus node
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id              String   @id @default(cuid())
+  text            String   @db.Text
+  text_hi         String?  @db.Text
+  text_mr         String?  @db.Text
+  options         Json // [{label: "a", text: "..."}, ...]
+  options_hi      Json?
+  options_mr      Json?
+  correctLabel    String
+  explanation     String   @db.Text
+  explanation_hi  String?  @db.Text
+  explanation_mr  String?  @db.Text
+  difficulty      String   @default("MEDIUM") // EASY, MEDIUM, HARD
+  domain          String
+  gsPaper         String?
+  tags            String[]
+  issueId         String? // Optional link to a syllabus node
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   testPacks TestPack[] @relation("TestPackQuestions")
 }
 
 model TestPack {
-  id           String   @id @default(cuid())
-  title        String
-  description  String?  @db.Text
-  type         String   @default("PRACTICE") // PRACTICE or MOCK
+  id               String   @id @default(cuid())
+  title            String
+  title_hi         String?
+  title_mr         String?
+  description      String?  @db.Text
+  description_hi   String?  @db.Text
+  description_mr   String?  @db.Text
+  type             String   @default("PRACTICE") // PRACTICE or MOCK
+  subType          String?  @default("FULL_LENGTH") // SECTIONAL or FULL_LENGTH
   durationMins     Int      @default(0) // 0 for untimed
   passingScore     Int      @default(70)
   negativeMarking  Float    @default(0.33) // Default for UPSC
   marksPerQuestion Float    @default(2.0)  // Default for UPSC
   issueId          String? // Link to a specific syllabus node
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   questions Question[]    @relation("TestPackQuestions")
   attempts  QuizAttempt[]
@@ -522,11 +576,17 @@ enum IssueCategory {
   ENVIRONMENT
   INTERNAL_SECURITY
   SOCIETY
+  ANCIENT_INDIA
+  MEDIEVAL_INDIA
+  MODERN_INDIA
+  ART_CULTURE
   HISTORY
   GEOGRAPHY
   CULTURE
   ETHICS
   DISASTER_MANAGEMENT
+  CURRENT_AFFAIRS
+  CSAT
   OPTIONAL
 }
 

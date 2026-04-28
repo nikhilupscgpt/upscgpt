@@ -1,4 +1,5 @@
-"use client"
+"use client";
+
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
@@ -11,7 +12,6 @@ const REGIONS = [
     gradient: 'linear-gradient(135deg, #f59e0b, #d97706)',
     description: 'West Asia, South Asia, Southeast Asia, East Asia, Central Asia',
     highlights: ['South China Sea', 'Himalayan Arc', 'Strait of Malacca'],
-    // bounding box [minLat, maxLat, minLon, maxLon]
     bounds: [-10, 55, 60, 180],
   },
   {
@@ -109,7 +109,7 @@ export default function PortalHome() {
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(99,102,241,0.15) 0%, transparent 60%)' }} />
 
       {/* HERO */}
-      <div style={{ position: 'relative', zIndex: 10, padding: '50px 48px 36px', textAlign: 'center' }}>
+      <div className="atlas-hero" style={{ position: 'relative', zIndex: 10, padding: '80px 48px 36px', textAlign: 'center' }}>
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: '8px',
           padding: '5px 14px', borderRadius: '20px', marginBottom: '18px',
@@ -120,7 +120,7 @@ export default function PortalHome() {
           </span>
         </div>
 
-        <h2 style={{ fontSize: '2.8rem', fontWeight: 800, color: 'white', margin: '0 0 14px', letterSpacing: '-0.8px', lineHeight: 1.1 }}>
+        <h2 className="atlas-hero-title" style={{ fontSize: '2.8rem', fontWeight: 800, color: 'white', margin: '0 0 14px', letterSpacing: '-0.8px', lineHeight: 1.1 }}>
           Select Your Study Region
         </h2>
         <p style={{ fontSize: '1rem', color: 'rgba(255,255,255,0.45)', maxWidth: '500px', margin: '0 auto 36px', lineHeight: 1.6 }}>
@@ -128,10 +128,12 @@ export default function PortalHome() {
         </p>
 
         {/* STATS */}
-        <div style={{
+        <div className="atlas-stats-bar" style={{
           display: 'inline-flex', borderRadius: '14px', overflow: 'hidden',
           background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
           marginBottom: '52px',
+          flexWrap: 'wrap',
+          justifyContent: 'center'
         }}>
           {[
             { val: loaded ? totalEntries : '…', label: 'Map Entries' },
@@ -139,7 +141,7 @@ export default function PortalHome() {
             { val: loaded ? yearRange : '…', label: 'Years' },
             { val: REGIONS.length - 1, label: 'Regions' },
           ].map((s, i) => (
-            <div key={i} style={{
+            <div key={i} className="atlas-stat-item" style={{
               padding: '14px 26px', borderRight: i < 3 ? '1px solid rgba(255,255,255,0.08)' : 'none', textAlign: 'center',
             }}>
               <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'white', lineHeight: 1 }}>{s.val}</div>
@@ -150,7 +152,7 @@ export default function PortalHome() {
       </div>
 
       {/* REGION CARDS */}
-      <div style={{
+      <div className="atlas-region-grid" style={{
         position: 'relative', zIndex: 10,
         display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))',
         gap: '18px', padding: '0 48px 80px', maxWidth: '1400px', margin: '0 auto',
@@ -193,6 +195,31 @@ export default function PortalHome() {
           )
         })}
       </div>
+
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .atlas-hero {
+            padding: 40px 20px 24px !important;
+          }
+          .atlas-hero-title {
+            font-size: 2rem !important;
+          }
+          .atlas-stats-bar {
+            width: 100%;
+            border: none !important;
+            background: transparent !important;
+          }
+          .atlas-stat-item {
+            border: 1px solid rgba(255,255,255,0.08) !important;
+            border-radius: 12px;
+            margin: 4px;
+            flex: 1 1 140px;
+          }
+          .atlas-region-grid {
+            padding: 0 20px 60px !important;
+          }
+        }
+      `}</style>
     </div>
   )
 }

@@ -1,8 +1,46 @@
 import './globals.css'
+import Script from 'next/script'
 
 export const metadata = {
-  title: 'Global Strategic Atlas',
-  description: 'UPSC Pedagogy Web Portal',
+  title: {
+    default: 'Global Strategic Atlas | UPSC Intelligence Hub',
+    template: '%s | Global Strategic Atlas'
+  },
+  description: 'The most comprehensive strategic and syllabus graph for UPSC preparation. 500+ syllabus nodes, real-time geopolitical tracking, and AI-driven current affairs enrichment.',
+  keywords: ['UPSC', 'IAS', 'Geography', 'Current Affairs', 'Strategic Atlas', 'Issue Graph', 'Geopolitics', 'Civil Services Examination'],
+  authors: [{ name: 'Antigravity AI' }],
+  creator: 'Antigravity AI',
+  publisher: 'UPSC Atlas Portal',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL('https://upscatlas.com'), // Replace with your production domain
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'Global Strategic Atlas | UPSC Intelligence Hub',
+    description: 'Master UPSC Current Affairs and Geography through a high-performance strategic graph.',
+    url: 'https://upscatlas.com',
+    siteName: 'UPSC Atlas',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Global Strategic Atlas | UPSC Intelligence Hub',
+    description: 'Master UPSC Current Affairs and Geography through a high-performance strategic graph.',
+    images: ['/og-image.png'],
+  },
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
@@ -22,6 +60,7 @@ export const viewport = {
 import AuthProvider from '../components/AuthProvider'
 import { NavProvider } from '../context/NavContext'
 import Navigation from '../components/Navigation'
+import { TranslationProvider } from '../context/TranslationContext'
 
 export default function RootLayout({ children }) {
   return (
@@ -31,12 +70,28 @@ export default function RootLayout({ children }) {
         <link rel="apple-touch-icon" href="/logo.png" />
       </head>
       <body>
-        <AuthProvider>
-          <NavProvider>
-            <Navigation />
-            {children}
-          </NavProvider>
-        </AuthProvider>
+        {/* Google Analytics */}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=G-XV8ZY1XKLC`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-XV8ZY1XKLC');
+          `}
+        </Script>
+
+        <TranslationProvider>
+          <AuthProvider>
+            <NavProvider>
+              <Navigation />
+              {children}
+            </NavProvider>
+          </AuthProvider>
+        </TranslationProvider>
       </body>
     </html>
   )

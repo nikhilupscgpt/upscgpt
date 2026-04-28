@@ -142,6 +142,7 @@ export default function OrgLens({ onOrgSelect, activeOrg }) {
   const [quizLoading, setQuizLoading] = useState(false)
   const [quizQuestion, setQuizQuestion] = useState(null)
   const [userAnswer, setUserAnswer] = useState(null)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     fetch('/api/organizations')
@@ -164,6 +165,7 @@ export default function OrgLens({ onOrgSelect, activeOrg }) {
     setQuizLoading(true)
     setQuizQuestion(null)
     setUserAnswer(null)
+    setError(null)
     try {
       const res = await fetch('/api/quiz', {
         method: 'POST',
@@ -171,9 +173,14 @@ export default function OrgLens({ onOrgSelect, activeOrg }) {
         body: JSON.stringify({ scope: org.id, scopeType: 'ORGANIZATION' })
       })
       const data = await res.json()
-      if (data.question) setQuizQuestion(data.question)
+      if (data.question) {
+        setQuizQuestion(data.question)
+      } else {
+        setError(data.error || 'Failed to generate quiz.')
+      }
     } catch (e) {
       console.error('Quiz generation failed', e)
+      setError('Connection error. Please try again.')
     } finally {
       setQuizLoading(false)
     }
@@ -220,6 +227,22 @@ export default function OrgLens({ onOrgSelect, activeOrg }) {
             onQuiz={handleQuiz}
             quizLoading={quizLoading}
           />
+
+          {/* Error Message */}
+          {error && (
+            <div style={{
+              borderRadius: '12px',
+              background: 'rgba(239,68,68,0.1)',
+              border: '1px solid rgba(239,68,68,0.3)',
+              padding: '12px',
+              color: '#fca5a5',
+              fontSize: '0.8rem',
+              marginBottom: '12px',
+              textAlign: 'center'
+            }}>
+              ⚠️ {error}
+            </div>
+          )}
 
           {/* Inline Quiz */}
           {quizQuestion && (

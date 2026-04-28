@@ -2,31 +2,41 @@
 
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
+import { useTranslation } from "@/context/TranslationContext";
 import './home.css'
 
 
 export default function UPSCGPTMasterPortal() {
-  const [stats, setStats] = useState({ entries: 0, categories: 0, newsToday: 0 })
+  const [stats, setStats] = useState({ entries: 0, categories: 0, newsToday: 0, issues: 0 })
+  const [mounted, setMounted] = useState(false)
+  const { t } = useTranslation();
 
   useEffect(() => {
-    fetch('/api/entries')
-      .then((response) => response.json())
-      .then((data) => {
-        const entries = Array.isArray(data) ? data : []
-        const now = new Date()
-        const todayCount = entries.filter((entry) => {
-          if (!entry.lastNewsDate) return false
-          return (now - new Date(entry.lastNewsDate)) / (1000 * 60 * 60 * 24) <= 1
-        }).length
+    setMounted(true)
+    // Parallel fetch for better performance
+    Promise.all([
+      fetch('/api/entries').then(res => res.json()),
+      fetch('/api/issues').then(res => res.json()).catch(() => []) // Fallback if no issues yet
+    ]).then(([entriesData, issuesData]) => {
+      const entries = Array.isArray(entriesData) ? entriesData : []
+      const issues = Array.isArray(issuesData) ? issuesData : []
+      
+      const now = new Date()
+      const todayCount = entries.filter((entry) => {
+        if (!entry.lastNewsDate) return false
+        return (now - new Date(entry.lastNewsDate)) / (1000 * 60 * 60 * 24) <= 1
+      }).length
 
-        setStats({
-          entries: entries.length,
-          categories: [...new Set(entries.map((entry) => entry.category))].length,
-          newsToday: todayCount,
-        })
+      setStats({
+        entries: entries.length,
+        categories: [...new Set(entries.map((entry) => entry.category))].length,
+        newsToday: todayCount,
+        issues: issues.length
       })
-      .catch(() => {})
+    }).catch(() => {})
   }, [])
+
+  if (!mounted) return <div style={{ minHeight: '100vh', background: 'var(--hero-bg-gradient)' }} />;
 
   const commandCenters = [
     {
@@ -66,10 +76,10 @@ export default function UPSCGPTMasterPortal() {
       icon: '🎯',
       gradient: 'linear-gradient(135deg, #f59e0b, #ef4444)',
       accentColor: '#f59e0b',
-      href: '/mock-test',
+      href: '/prelims',
       status: 'live',
       features: ['AI-Generated MCQs', 'PYQ Pattern Analysis', 'Difficulty Calibration', 'Performance Analytics'],
-      stat: null,
+      stat: { value: 100, label: 'Prelims Tests' },
     },
     {
       id: 'mains',
@@ -83,7 +93,7 @@ export default function UPSCGPTMasterPortal() {
       href: '/mains',
       status: 'live',
       features: ['Answer Evaluation Studio', 'GS/Optional Content Node', 'Essay Guidance', 'Mains Neural Search'],
-      stat: null,
+      stat: { value: stats.issues || 0, label: 'Syllabus Nodes' },
     },
   ]
 
@@ -92,10 +102,11 @@ export default function UPSCGPTMasterPortal() {
       style={{
         minHeight: '100vh',
         fontFamily: "'Outfit', sans-serif",
-        background: 'linear-gradient(135deg, #020617 0%, #0f172a 40%, #1e1b4b 70%, #020617 100%)',
-        color: 'white',
+        background: 'var(--hero-bg-gradient)',
+        color: 'var(--text-primary)',
         overflow: 'hidden',
         position: 'relative',
+        transition: 'background 0.3s ease, color 0.3s ease'
       }}
     >
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
@@ -141,8 +152,8 @@ export default function UPSCGPTMasterPortal() {
 
       <main style={{ position: 'relative', zIndex: 10, maxWidth: '1200px', margin: '0 auto' }} className="main-responsive-padding">
         <div style={{ textAlign: 'center', marginBottom: '60px', marginTop: '64px' }} className="hero-section">
-          <h2 className="main-title">
-            The Future of
+          <h2 className="main-title" style={{ color: 'var(--text-primary)' }}>
+            {t('home.heroTitle')}
             <br />
             <span
               style={{
@@ -153,11 +164,11 @@ export default function UPSCGPTMasterPortal() {
                 WebkitTextFillColor: 'transparent',
               }}
             >
-              UPSC Preparation.
+              {t('home.heroSubtitle')}
             </span>
           </h2>
-          <p className="main-subtitle">
-            A unified UPSC preparation operating system with four command centers: Mapping, Current Affairs, Prelims, and Mains.
+          <p className="main-subtitle" style={{ color: 'var(--text-secondary)' }}>
+            {t('home.heroDesc')}
           </p>
         </div>
 
@@ -177,8 +188,8 @@ export default function UPSCGPTMasterPortal() {
                   className="module-card"
                   style={{
                     position: 'relative',
-                    background: 'rgba(255,255,255,0.03)',
-                    border: '1px solid rgba(255,255,255,0.08)',
+                    background: 'var(--card-bg)',
+                    border: '1px solid var(--card-border)',
                     borderRadius: '24px',
                     padding: '36px 28px 28px',
                     cursor: isCardLinked ? 'pointer' : 'default',
@@ -239,7 +250,7 @@ export default function UPSCGPTMasterPortal() {
                     </span>
                   </div>
 
-                  <div style={{ position: 'relative', zIndex: 1, flex: 1 }}>
+                  <div style={{ position: 'relative', zIndex: 1, height: '140px', overflow: 'hidden', marginBottom: '16px' }}>
                     <p
                       style={{
                         fontSize: '0.72rem',
@@ -252,13 +263,15 @@ export default function UPSCGPTMasterPortal() {
                     >
                       {center.subtitle}
                     </p>
-                    <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 12px', color: 'white', letterSpacing: '-0.3px' }}>
+                    <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 12px', color: 'var(--text-primary)', letterSpacing: '-0.3px' }}>
                       {center.title}
                     </h3>
-                    <p style={{ color: '#94a3b8', fontSize: '0.88rem', margin: '0 0 20px', lineHeight: 1.6 }}>{center.description}</p>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem', margin: 0, lineHeight: 1.6, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {center.description}
+                    </p>
                   </div>
 
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', position: 'relative', zIndex: 1, marginTop: 'auto' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', position: 'relative', zIndex: 1, minHeight: '64px', marginBottom: '16px' }}>
                     {center.features.map((feature) => (
                       <span key={feature} className="feature-tag">
                         {feature}
@@ -266,39 +279,36 @@ export default function UPSCGPTMasterPortal() {
                     ))}
                   </div>
 
-                  {(center.id === 'mapping' || center.id === 'current-affairs' || center.id === 'prelims') && (
-                    <div className="mapping-primary-cta">
+                  <div style={{ marginTop: 'auto', position: 'relative', zIndex: 1 }}>
+                    <div className="mapping-primary-cta" style={{ marginBottom: '16px' }}>
                       Open {center.title}
                     </div>
-                  )}
 
-                  {center.stat && center.stat.value > 0 && (
-                    <div
-                      style={{
-                        marginTop: '16px',
-                        paddingTop: '16px',
-                        borderTop: '1px solid rgba(255,255,255,0.06)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        position: 'relative',
-                        zIndex: 1,
-                      }}
-                    >
-                      <span style={{ fontSize: '1.4rem', fontWeight: 900, color: 'white' }}>{center.stat.value}</span>
-                      <span
+                    {center.stat && (
+                      <div
                         style={{
-                          fontSize: '0.75rem',
-                          color: '#64748b',
-                          fontWeight: 600,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.5px',
+                          paddingTop: '16px',
+                          borderTop: '1px solid rgba(255,255,255,0.06)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
                         }}
                       >
-                        {center.stat.label}
-                      </span>
-                    </div>
-                  )}
+                        <span style={{ fontSize: '1.4rem', fontWeight: 900, color: 'white' }}>{center.stat.value || 0}</span>
+                        <span
+                          style={{
+                            fontSize: '0.68rem',
+                            fontWeight: 800,
+                            color: '#64748b',
+                            textTransform: 'uppercase',
+                            letterSpacing: '1px',
+                          }}
+                        >
+                          {center.stat.label}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </Wrapper>
             )
@@ -310,8 +320,8 @@ export default function UPSCGPTMasterPortal() {
             marginTop: '48px',
             padding: '20px 32px',
             borderRadius: '16px',
-            background: 'rgba(255,255,255,0.03)',
-            border: '1px solid rgba(255,255,255,0.06)',
+            background: 'var(--card-bg)',
+            border: '1px solid var(--card-border)',
             display: 'flex',
             justifyContent: 'center',
             gap: '48px',
@@ -326,11 +336,11 @@ export default function UPSCGPTMasterPortal() {
           ].map((item, index) => (
             <div key={index} style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '1.2rem', marginBottom: '4px' }}>{item.icon}</div>
-              <div style={{ fontSize: '1.6rem', fontWeight: 900, color: 'white', lineHeight: 1 }}>{item.val}</div>
+              <div style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--text-primary)', lineHeight: 1 }}>{item.val}</div>
               <div
                 style={{
                   fontSize: '0.65rem',
-                  color: '#64748b',
+                  color: 'var(--text-secondary)',
                   fontWeight: 700,
                   textTransform: 'uppercase',
                   letterSpacing: '0.8px',

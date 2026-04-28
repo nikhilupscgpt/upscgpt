@@ -48,19 +48,31 @@ export async function PATCH(req) {
     }
 
     const body = await req.json();
-    const { id, questionIds } = body;
+    const { id, questionIds, ...updateData } = body;
 
-    if (!id || !Array.isArray(questionIds)) {
-      return NextResponse.json({ error: 'Test ID and question IDs array required' }, { status: 400 });
+    if (!id) {
+      return NextResponse.json({ error: 'Test ID required' }, { status: 400 });
     }
+
+    const data = {};
+    if (questionIds && Array.isArray(questionIds)) {
+      data.questions = {
+        set: questionIds.map(qid => ({ id: qid }))
+      };
+    }
+    
+    // Support updating other fields like subType
+    if (updateData.title) data.title = updateData.title;
+    if (updateData.description) data.description = updateData.description;
+    if (updateData.type) data.type = updateData.type;
+    if (updateData.subType) data.subType = updateData.subType;
+    if (updateData.durationMins !== undefined) data.durationMins = parseInt(updateData.durationMins) || 0;
+    if (updateData.passingScore !== undefined) data.passingScore = parseInt(updateData.passingScore) || 70;
+    if (updateData.issueId !== undefined) data.issueId = updateData.issueId || null;
 
     const testPack = await prisma.testPack.update({
       where: { id },
-      data: {
-        questions: {
-          set: questionIds.map(qid => ({ id: qid }))
-        }
-      }
+      data
     });
 
     return NextResponse.json({ success: true, testPack });
@@ -78,18 +90,19 @@ export async function POST(req) {
 
   try {
     const body = await req.json();
-    const { title, description, type, durationMins, passingScore, issueId, questions } = body;
+    const { title, description, type, subType, durationMins, passingScore, issueId, questions } = body;
 
     const testPack = await prisma.testPack.create({
       data: {
         title,
         description,
         type,
+        subType: subType || 'FULL_LENGTH',
         durationMins: parseInt(durationMins) || 0,
         passingScore: parseInt(passingScore) || 70,
         issueId: issueId || null,
         questions: {
-          create: questions.map(q => ({
+          create: (questions || []).map(q => ({
             text: q.text,
             options: q.options,
             correctLabel: q.correctLabel,

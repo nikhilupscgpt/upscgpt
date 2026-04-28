@@ -162,7 +162,7 @@ export default function MockTestPortal({ testPack, userId }) {
         // Clear persistence on successful submission
         const storageKey = `mock_test_${testPack.id}_${userId}`;
         localStorage.removeItem(storageKey);
-        router.push(`/mock-test/result/${data.attemptId}`);
+        router.push(`/prelims/result/${data.attemptId}`);
       } else {
         alert(data.error || 'Failed to submit quiz');
       }

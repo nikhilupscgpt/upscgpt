@@ -582,6 +582,11 @@
   font-size: 1.1rem;
   font-weight: 800;
   color: #f1f5f9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  margin-right: 12px;
 }
 
 .chat-mode-badge {

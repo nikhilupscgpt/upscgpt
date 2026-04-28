@@ -7,6 +7,7 @@ import NavSlot from '@/components/NavSlot'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import html2canvas from 'html2canvas'
+import { useTranslation } from '@/context/TranslationContext'
 import { jsPDF } from 'jspdf'
 
 const MapWrapper = dynamic(() => import('../../../components/MapWrapper'), { ssr: false })
@@ -186,8 +187,9 @@ function FloatingMapBotPanel({
   onChatSubmit,
   chatUsage,
 }) {
+  const { t, lang } = useTranslation()
   const style = entry ? (CATEGORIES.find(c => c.key === entry.category) || CATEGORIES[0]) : null
-  const contextLabel = entry?.name || region.label
+  const contextLabel = entry ? (entry[`name_${lang}`] || entry.name) : (t(`atlas.${region.key}`) !== `atlas.${region.key}` ? t(`atlas.${region.key}`) : region.label)
   const [panelPosition, setPanelPosition] = useState({ x: 20, y: 20, hasMoved: false })
   const dragStateRef = useRef(null)
 
@@ -259,7 +261,7 @@ function FloatingMapBotPanel({
           setPanelMinimized(false)
         }}
       >
-        ✨ Ask Nano
+        ✨ {t('nav.askNano')}
       </button>
     )
   }
@@ -492,6 +494,7 @@ function FloatingMapBotPanel({
 
 // ─── On-Map Floating Info Card (draggable) ──────────────────────────────────
 function MapInfoCard({ entry, onClose, onAskNano }) {
+  const { t, lang } = useTranslation()
   const [pos, setPos] = useState({ x: null, y: null }) // null = use CSS default
   const dragRef = useRef(null)
 
@@ -546,6 +549,12 @@ function MapInfoCard({ entry, onClose, onAskNano }) {
   }
 
   if (!entry) return null
+  const entryName = entry[`name_${lang}`] || entry.name
+  const entryGeoGroup = entry[`geoGroup_${lang}`] || entry.geoGroup
+  const entryPrelims = entry[`prelims_${lang}`] || entry.prelims
+  const entryIndia = entry[`india_${lang}`] || entry.india
+  const entryMains = entry[`mains_${lang}`] || entry.mains
+  
   const catStyle = CATEGORIES.find(c => c.key === entry.category) || CATEGORIES[0]
 
   const dragged = pos.x !== null && pos.y !== null
@@ -579,7 +588,7 @@ function MapInfoCard({ entry, onClose, onAskNano }) {
             {catStyle.emoji}&nbsp;{catStyle.label}
             {entry.year ? <span className="map-info-card__year">UPSC {entry.year}</span> : null}
           </div>
-          <div className="map-info-card__name">{entry.name}</div>
+          <div className="map-info-card__name">{entryName}</div>
           {entry.lat != null && entry.lon != null && (
             <div className="map-info-card__coords">
               {Number(entry.lat).toFixed(3)}°, {Number(entry.lon).toFixed(3)}°
@@ -648,29 +657,29 @@ function MapInfoCard({ entry, onClose, onAskNano }) {
 
         {entry.geoGroup && (
           <div className="map-info-card__section">
-            <div className="map-info-card__field-label" style={{ color: '#6366f1' }}>Geo-Political Context</div>
-            <div className="map-info-card__field-value">{entry.geoGroup}</div>
+            <div className="map-info-card__field-label" style={{ color: '#6366f1' }}>{t('atlas.geoContext')}</div>
+            <div className="map-info-card__field-value">{entryGeoGroup || entry.geoGroup}</div>
           </div>
         )}
 
-        {entry.prelims && (
+        {entryPrelims && (
           <div className="map-info-card__section map-info-card__section--prelims">
-            <div className="map-info-card__field-label">📋 Prelims Focus</div>
-            <p className="map-info-card__text">{entry.prelims}</p>
+            <div className="map-info-card__field-label">📋 {t('atlas.prelimsFocus')}</div>
+            <p className="map-info-card__text">{entryPrelims}</p>
           </div>
         )}
 
-        {entry.india && (
+        {entryIndia && (
           <div className="map-info-card__section map-info-card__section--india">
-            <div className="map-info-card__field-label">🇮🇳 India Angle</div>
-            <p className="map-info-card__text">{entry.india}</p>
+            <div className="map-info-card__field-label">🇮🇳 {t('atlas.indiaAngle')}</div>
+            <p className="map-info-card__text">{entryIndia}</p>
           </div>
         )}
 
-        {entry.mains && (
+        {entryMains && (
           <div className="map-info-card__section map-info-card__section--mains">
-            <div className="map-info-card__field-label">📝 Mains Context</div>
-            <p className="map-info-card__text">{entry.mains}</p>
+            <div className="map-info-card__field-label">📝 {t('atlas.mainsContext')}</div>
+            <p className="map-info-card__text">{entryMains}</p>
           </div>
         )}
       </div>
@@ -678,7 +687,7 @@ function MapInfoCard({ entry, onClose, onAskNano }) {
       {/* Footer CTA */}
       <div className="map-info-card__footer">
         <button type="button" className="map-info-card__nano-btn" onClick={onAskNano}>
-          ✨ Ask Nano to Analyse
+          ✨ {t('atlas.askNanoAnalyse')}
         </button>
       </div>
     </div>
@@ -686,6 +695,7 @@ function MapInfoCard({ entry, onClose, onAskNano }) {
 }
 
 function MapPageInner() {
+  const { t, lang } = useTranslation()
   const searchParams = useSearchParams()
   const regionKey = searchParams.get('region') || 'global'
   const region = REGION_CONFIG[regionKey] || REGION_CONFIG.global
@@ -969,6 +979,7 @@ function MapPageInner() {
       const data = await requestMapBot({
         mode,
         regionKey,
+        lang,
         entryId: entry?.id || null,
         entriesSnapshot: filteredEntries.slice(0, 80),
         selectedEntrySnapshot: entry || null,
@@ -1001,6 +1012,7 @@ function MapPageInner() {
       const data = await requestMapBot({
         mode: 'chat',
         regionKey,
+        lang,
         entryId: selectedEntry?.id || null,
         userPrompt: prompt,
         chatHistory: nextMessages,
@@ -1079,8 +1091,8 @@ function MapPageInner() {
             <div className="sidebar-brand">
               <span className="region-icon">{region.emoji}</span>
               <div>
-                <div className="sidebar-kicker">STRATEGIC NAVIGATOR</div>
-                <div className="sidebar-title">{region.label}</div>
+                <div className="sidebar-kicker">{t('atlas.navigator')}</div>
+                <div className="sidebar-title">{t(`atlas.${region.key}`) !== `atlas.${region.key}` ? t(`atlas.${region.key}`) : region.label}</div>
               </div>
             </div>
             {!isMobile ? (
@@ -1107,7 +1119,7 @@ function MapPageInner() {
                 }}
                 className={`sidebar-tab ${activeModule === m.id ? 'active' : ''}`}
               >
-                <span>{m.icon}</span> {m.label}
+                <span>{m.icon}</span> {t(`atlas.${m.label.toLowerCase()}`)}
               </button>
             ))}
           </div>
@@ -1116,7 +1128,7 @@ function MapPageInner() {
             {/* SEARCH BOX */}
             <div className="search-container">
               <input 
-                placeholder={`Search ${region.label} nodes...`} 
+                placeholder={t('atlas.searchNodes', { region: t(`atlas.${region.key}`) !== `atlas.${region.key}` ? t(`atlas.${region.key}`) : region.label })} 
                 value={searchQuery} 
                 onChange={e => setSearchQuery(e.target.value)} 
               />
@@ -1128,7 +1140,7 @@ function MapPageInner() {
               {activeContinentKey && (
                 <>
                   <span className="path-sep">/</span>
-                  <button onClick={() => setActiveAdmRegion('')}>{REGION_CONFIG[activeContinentKey]?.label || activeContinentKey}</button>
+                  <button onClick={() => setActiveAdmRegion('')}>{t(`atlas.${activeContinentKey}`) !== `atlas.${activeContinentKey}` ? t(`atlas.${activeContinentKey}`) : (REGION_CONFIG[activeContinentKey]?.label || activeContinentKey)}</button>
                 </>
               )}
               {activeAdmRegion && (
@@ -1181,8 +1193,8 @@ function MapPageInner() {
                     >
                       <span className="entry-emoji">{CATEGORIES.find(c => c.key === e.category)?.emoji || '📍'}</span>
                       <div className="entry-info">
-                        <div className="entry-name">{e.name}</div>
-                        <div className="entry-sub">{e.geoGroup || 'Strategic Node'}</div>
+                        <div className="entry-name">{e[`name_${lang}`] || e.name}</div>
+                        <div className="entry-sub">{e[`geoGroup_${lang}`] || e.geoGroup || 'Strategic Node'}</div>
                       </div>
                     </button>
                   ))}
@@ -1192,7 +1204,7 @@ function MapPageInner() {
 
             {/* BASEMAP CONTROLS */}
             <div className="basemap-section">
-              <div className="section-label">BASEMAP ENGINE</div>
+              <div className="section-label">{t('atlas.basemap')}</div>
               <div className="basemap-grid">
                 {BASEMAPS.map(b => (
                   <button 

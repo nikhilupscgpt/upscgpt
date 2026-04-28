@@ -1,10 +1,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
 :root {
   --glass-bg: rgba(255, 255, 255, 0.72);
   --glass-border: rgba(255, 255, 255, 0.85);
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --hero-bg-gradient: linear-gradient(135deg, #020617 0%, #0f172a 40%, #1e1b4b 70%, #020617 100%);
+  --nav-bg: rgba(2, 6, 23, 0.85);
+  --nav-border: rgba(255, 255, 255, 0.1);
+  --nav-brand: linear-gradient(to right, #fff, #94a3b8);
+  --btn-sec-bg: rgba(255, 255, 255, 0.05);
+  --btn-sec-border: rgba(255, 255, 255, 0.1);
+  --btn-sec-text: #ffffff;
+  --select-bg: rgba(255, 255, 255, 0.08);
+  --nano-bg: rgba(99, 102, 241, 0.2);
+  --nano-text: #c7d2fe;
+  --card-bg: rgba(255,255,255,0.03);
+  --card-border: rgba(255,255,255,0.08);
   --sidebar-muted: #94a3b8;
   --sidebar-surface: #111827;
   --sidebar-surface-strong: #172036;
@@ -19,9 +35,10 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
   font-family: 'Outfit', sans-serif;
-  background: #0f172a;
+  background: var(--bg-primary);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 /* ===== LAYOUT ===== */
@@ -36,11 +53,12 @@ body {
   z-index: 1100;
   width: 100%;
   padding: 0.75rem 2rem;
-  background: rgba(2, 6, 23, 0.85);
+  background: var(--nav-bg);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--nav-border);
   font-family: 'Outfit', sans-serif;
+  transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 .app-nav__bar {
@@ -92,7 +110,7 @@ body {
   font-weight: 800;
   font-size: 1.1rem;
   letter-spacing: -0.02em;
-  background: linear-gradient(to right, #fff, #94a3b8);
+  background: var(--nav-brand);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -221,8 +239,60 @@ button { font-family: 'Outfit', sans-serif; transition: all 0.25s cubic-bezier(0
   background: var(--primary-gradient); color: white; border: none;
   padding: 8px 16px; border-radius: 10px; cursor: pointer;
   font-size: 0.85rem; font-weight: 700; box-shadow: var(--primary-shadow);
+  display: flex; align-items: center; gap: 6px; text-decoration: none;
 }
 .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(99,102,241,0.5); }
+
+.btn-secondary {
+  background: var(--btn-sec-bg);
+  border: 1px solid var(--btn-sec-border);
+  padding: 6px 14px;
+  border-radius: 10px;
+  color: var(--btn-sec-text);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
+.btn-secondary:hover { background: rgba(255,255,255,0.1); }
+
+.select-custom {
+  background: var(--select-bg);
+  border: 1px solid var(--btn-sec-border);
+  padding: 4px 8px;
+  border-radius: 10px;
+  color: var(--btn-sec-text);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  outline: none;
+  appearance: none;
+}
+
+.select-custom option {
+  color: var(--text-primary);
+  background: var(--bg-primary);
+}
+
+.btn-nano {
+  background: var(--nano-bg);
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  color: var(--nano-text);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
 
 /* ===== SIDEBAR ===== */
 .sidebar {
@@ -1029,6 +1099,19 @@ input, select, textarea { font-family: 'Outfit', sans-serif; }
 
   .atlas-nav-secondary {
     display: none !important;
+  }
+
+  .app-nav {
+    padding: 0.5rem 1rem;
+  }
+
+  .app-nav__brand-text {
+    font-size: 0.9rem;
+  }
+
+  .app-nav__logo {
+    width: 28px;
+    height: 28px;
   }
 
   .nav-desktop-text {

@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "@/context/TranslationContext";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 export default function NanoAssistant({ isOpen, onClose }) {
+  const { lang } = useTranslation();
   const [query, setQuery] = useState("");
   const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
@@ -29,7 +31,7 @@ export default function NanoAssistant({ isOpen, onClose }) {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ query })
+        body: JSON.stringify({ query, lang })
       });
 
       if (!res.ok) {

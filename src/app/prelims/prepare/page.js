@@ -3,7 +3,7 @@ import Link from 'next/link';
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import '../prelims/prelims.css'; // Reuse styles
+import '../prelims.css';
 import { 
   ChevronRight, 
   Search,
@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import PortalResponsiveLayout from '@/components/layout/PortalResponsiveLayout';
 
-export default async function ContentPortalPage({ searchParams }) {
+export default async function PreparePage({ searchParams }) {
   const { q, subject: activeSubjectTitle } = await searchParams;
   const search = q || "";
   const session = await getServerSession(authOptions);
@@ -29,53 +29,30 @@ export default async function ContentPortalPage({ searchParams }) {
     }
   });
 
-  const MAINS_SECTIONS = [
+  const PRELIMS_SECTIONS = [
     {
-      id: 'GS1',
-      title: 'General Studies I',
+      id: 'GS',
+      title: 'General Studies',
       subjects: [
-        { title: 'Indian History & Culture', categories: ['ANCIENT_INDIA', 'MEDIEVAL_INDIA', 'MODERN_INDIA', 'ART_CULTURE', 'HISTORY'] },
-        { title: 'Geography of the World', categories: ['GEOGRAPHY'] },
-        { title: 'Indian Society', categories: ['SOCIETY'] },
-      ]
-    },
-    {
-      id: 'GS2',
-      title: 'General Studies II',
-      subjects: [
-        { title: 'Polity & Constitution', categories: ['POLITY'] },
-        { title: 'Governance & Social Justice', categories: ['GOVERNANCE', 'SOCIAL_JUSTICE'] },
-        { title: 'International Relations', categories: ['INTERNATIONAL_RELATIONS'] },
-      ]
-    },
-    {
-      id: 'GS3',
-      title: 'General Studies III',
-      subjects: [
+        { title: 'Indian History', categories: ['ANCIENT_INDIA', 'MEDIEVAL_INDIA', 'MODERN_INDIA', 'ART_CULTURE', 'HISTORY'] },
+        { title: 'Geography', categories: ['GEOGRAPHY'] },
+        { title: 'Polity & Governance', categories: ['POLITY', 'GOVERNANCE'] },
         { title: 'Economy & Agriculture', categories: ['ECONOMY', 'AGRICULTURE'] },
-        { title: 'Environment & Disaster Mgmt', categories: ['ENVIRONMENT', 'DISASTER_MANAGEMENT'] },
+        { title: 'Environment & Ecology', categories: ['ENVIRONMENT', 'DISASTER_MANAGEMENT'] },
         { title: 'Science & Technology', categories: ['SCIENCE_TECHNOLOGY'] },
-        { title: 'Internal Security', categories: ['INTERNAL_SECURITY'] },
+        { title: 'Current Affairs', categories: ['CURRENT_AFFAIRS', 'INTERNATIONAL_RELATIONS', 'INTERNAL_SECURITY', 'SOCIETY'] }
       ]
     },
     {
-      id: 'GS4',
-      title: 'General Studies IV',
+      id: 'CSAT',
+      title: 'CSAT (Paper II)',
       subjects: [
-        { title: 'Ethics & Integrity', categories: ['ETHICS'] },
-      ]
-    },
-    {
-      id: 'OTHER',
-      title: 'Thematic Hub',
-      subjects: [
-        { title: 'Current Affairs', categories: ['CURRENT_AFFAIRS'] },
-        { title: 'Essay Perspectives', categories: ['ESSAY'] },
+        { title: 'Aptitude & Reasoning', categories: ['CSAT'] }
       ]
     }
   ];
 
-  const organizedData = MAINS_SECTIONS.map(section => ({
+  const organizedData = PRELIMS_SECTIONS.map(section => ({
     ...section,
     subjects: section.subjects.map(subject => ({
       ...subject,
@@ -92,9 +69,9 @@ export default async function ContentPortalPage({ searchParams }) {
     <>
       <div style={{ padding: '32px 24px' }}>
         <h1 style={{ fontSize: '1.4rem', fontWeight: 900, color: 'white', margin: 0, letterSpacing: '-0.5px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Layout size={20} color="#10b981" /> Mains Neural Base
+          <Layout size={20} color="#3b82f6" /> Study Vault
         </h1>
-        <p style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '6px', fontWeight: 600 }}>Deep Strategic Intelligence</p>
+        <p style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '6px', fontWeight: 600 }}>545 Precision Syllabus Nodes</p>
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 32px' }} className="mt-sidebar-scroll">
@@ -119,7 +96,7 @@ export default async function ContentPortalPage({ searchParams }) {
               {section.subjects.map(subject => (
                 <Link 
                   key={subject.title}
-                  href={`/content-portal?subject=${encodeURIComponent(subject.title)}${search ? `&q=${search}` : ''}`}
+                  href={`/prelims/prepare?subject=${encodeURIComponent(subject.title)}${search ? `&q=${search}` : ''}`}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -129,9 +106,9 @@ export default async function ContentPortalPage({ searchParams }) {
                     textDecoration: 'none',
                     fontSize: '0.88rem',
                     fontWeight: 700,
-                    background: activeSubject?.title === subject.title ? 'linear-gradient(90deg, rgba(16, 185, 129, 0.1), transparent)' : 'transparent',
-                    color: activeSubject?.title === subject.title ? '#34d399' : '#94a3b8',
-                    borderLeft: activeSubject?.title === subject.title ? '3px solid #10b981' : '3px solid transparent',
+                    background: activeSubject?.title === subject.title ? 'linear-gradient(90deg, rgba(59, 130, 246, 0.1), transparent)' : 'transparent',
+                    color: activeSubject?.title === subject.title ? '#60a5fa' : '#94a3b8',
+                    borderLeft: activeSubject?.title === subject.title ? '3px solid #3b82f6' : '3px solid transparent',
                     transition: 'all 0.2s'
                   }}
                 >
@@ -147,11 +124,11 @@ export default async function ContentPortalPage({ searchParams }) {
       </div>
 
       <div style={{ padding: '24px', borderTop: '1px solid rgba(255,255,255,0.05)', background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(10px)' }}>
-        <form action="/content-portal" method="GET" style={{ position: 'relative' }}>
+        <form action="/prelims/prepare" method="GET" style={{ position: 'relative' }}>
           <Search size={16} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#475569' }} />
           <input 
             name="q"
-            placeholder="Search Mains Vault..." 
+            placeholder="Quick search..." 
             defaultValue={search}
             style={{ 
               width: '100%', 
@@ -173,14 +150,14 @@ export default async function ContentPortalPage({ searchParams }) {
 
   return (
     <PortalResponsiveLayout sidebar={sidebar}>
-      {/* Subtle Background Gradient for Mains (Greenish) */}
+      {/* Subtle Background Gradient */}
       <div style={{ 
         position: 'absolute', 
         top: 0, 
         left: 0, 
         right: 0, 
         height: '400px', 
-        background: 'radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.08), transparent)',
+        background: 'radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.08), transparent)',
         pointerEvents: 'none'
       }}></div>
 
@@ -190,14 +167,14 @@ export default async function ContentPortalPage({ searchParams }) {
             <div style={{ marginBottom: '64px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '24px' }}>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#10b981', textTransform: 'uppercase', letterSpacing: '2px' }}>{activeSubject.sectionTitle}</span>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '2px' }}>{activeSubject.sectionTitle}</span>
                   <ChevronRight size={14} color="#1e293b" />
                 </div>
                 <h2 style={{ fontSize: '3.5rem', fontWeight: 900, color: 'white', margin: 0, letterSpacing: '-2px' }}>{activeSubject.title}</h2>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: '2rem', fontWeight: 900, color: 'white', lineHeight: 1 }}>{activeSubject.items.length}</div>
-                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '4px' }}>Mains Nodes</div>
+                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '4px' }}>Strategic Nodes</div>
               </div>
             </div>
 
@@ -218,7 +195,7 @@ export default async function ContentPortalPage({ searchParams }) {
                 {activeSubject.items.map(issue => (
                   <Link 
                     key={issue.id} 
-                    href={`/content-portal/${issue.id}`}
+                    href={`/prelims/prepare/${issue.id}`}
                     style={{ textDecoration: 'none' }}
                   >
                     <div className="prepare-card" style={{
@@ -233,13 +210,13 @@ export default async function ContentPortalPage({ searchParams }) {
                       position: 'relative'
                     }}>
                       <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', opacity: 0.8 }}></span>
+                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#3b82f6', opacity: 0.8 }}></span>
                         
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: '12px', flexWrap: 'wrap' }}>
                           <h4 style={{ fontSize: '0.95rem', fontWeight: 600, color: '#f8fafc', margin: 0, letterSpacing: '-0.1px' }}>
                             {issue.title}
                           </h4>
-                          <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#10b981', textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 0.9 }}>
+                          <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#3b82f6', textTransform: 'uppercase', letterSpacing: '0.5px', opacity: 0.9 }}>
                             {issue.category.replace('_', ' ')}
                           </span>
                           <span style={{ fontSize: '0.75rem', color: '#64748b', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '300px' }}>
@@ -251,14 +228,14 @@ export default async function ContentPortalPage({ searchParams }) {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '24px', opacity: 0.6, transition: 'opacity 0.2s' }} className="card-actions">
                         <div style={{ display: 'flex', gap: '16px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                            <BookOpen size={12} /> Core
+                            <BookOpen size={12} /> Study
                           </div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#94a3b8', fontSize: '0.65rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                            <BrainCircuit size={12} /> Chat
+                            <BrainCircuit size={12} /> Practice
                           </div>
                         </div>
                         
-                        <div style={{ color: '#10b981', display: 'flex', alignItems: 'center' }}>
+                        <div style={{ color: '#3b82f6', display: 'flex', alignItems: 'center' }}>
                           <ChevronRight size={14} />
                         </div>
                       </div>
@@ -270,12 +247,12 @@ export default async function ContentPortalPage({ searchParams }) {
           </div>
         ) : (
           <div style={{ textAlign: 'center', padding: '120px 0' }}>
-            <div style={{ background: 'rgba(16, 185, 129, 0.03)', width: '120px', height: '120px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 32px' }}>
-              <GraduationCap size={64} color="#10b981" />
+            <div style={{ background: 'rgba(59, 130, 246, 0.03)', width: '120px', height: '120px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 32px' }}>
+              <GraduationCap size={64} color="#3b82f6" />
             </div>
-            <h2 style={{ color: 'white', fontSize: '2.5rem', fontWeight: 900, letterSpacing: '-1px' }}>Welcome to Mains Neural Base</h2>
+            <h2 style={{ color: 'white', fontSize: '2.5rem', fontWeight: 900, letterSpacing: '-1px' }}>Welcome to Study Vault</h2>
             <p style={{ color: '#64748b', maxWidth: '450px', margin: '20px auto', fontSize: '1.1rem', lineHeight: 1.6 }}>
-              Select a GS Paper from the sidebar to begin your intensive Mains preparation. Read AI-synthesized core material before engaging with the RAG assistant.
+              Select a strategic subject from the sidebar to begin your precision preparation. Every node is linked to PYQs and targeted practice.
             </p>
           </div>
         )}

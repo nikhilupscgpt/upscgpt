@@ -493,11 +493,14 @@ function formatCachedResponse({ title, contextLabel, markdown, suggestedFollowup
   }
 }
 
-async function buildPrompt({ mode, regionKey, regionEntries, selectedEntry, userPrompt, chatHistory = [] }) {
+async function buildPrompt({ mode, regionKey, regionEntries, selectedEntry, userPrompt, chatHistory = [], lang = 'en' }) {
   const modeConfig = MAPBOT_MODES[mode]
   const region = REGION_CONFIG[regionKey] || REGION_CONFIG.global
   const regionDigest = buildRegionDigest(regionEntries)
   const entrySummary = summarizeEntry(selectedEntry)
+
+  const langNames = { en: 'English', hi: 'Hindi', mr: 'Marathi' };
+  const targetLang = langNames[lang] || 'English';
 
   const sharedRules = await getRenderedPrompt('mapbot.shared_rules')
   const modePromptIds = {
@@ -510,6 +513,8 @@ async function buildPrompt({ mode, regionKey, regionEntries, selectedEntry, user
   const modeInstruction = await getRenderedPrompt(modePromptIds[mode])
 
   return `${sharedRules}
+
+IMPORTANT: You MUST respond in ${targetLang} language. All fields (title, markdown, suggestedFollowups) must be in ${targetLang}.
 
 Return strictly valid JSON with this shape and no markdown fences:
 {
@@ -859,6 +864,7 @@ export async function POST(req) {
     const regionKey = body?.regionKey || 'global'
     const entryId = body?.entryId || null
     const userPrompt = body?.userPrompt?.trim() || ''
+    const lang = body?.lang || 'en'
     const chatHistory = Array.isArray(body?.chatHistory) ? body.chatHistory : []
     const entriesSnapshot = Array.isArray(body?.entriesSnapshot)
       ? body.entriesSnapshot.map(normalizeEntrySnapshot).filter(Boolean)
@@ -953,6 +959,7 @@ export async function POST(req) {
       selectedEntry,
       userPrompt,
       chatHistory,
+      lang,
     })
 
     try {

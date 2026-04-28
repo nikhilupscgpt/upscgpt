@@ -1,0 +1,36 @@
+{
+  "nav": {
+    "atlas": "Atlas",
+    "askNano": "Ask Nano",
+    "profile": "Profile",
+    "logout": "Logout",
+    "goPro": "GO PRO",
+    "signIn": "Sign In"
+  },
+  "home": {
+    "heroTitle": "The Intelligence Hub for",
+    "heroSubtitle": "UPSC Aspirants",
+    "heroDesc": "Advanced neural tracking, dynamic syllabus mapping, and AI-driven insights to accelerate your preparation.",
+    "startJourney": "Start Your Journey",
+    "exploreAtlas": "Explore the Atlas",
+    "features": "Core Features"
+  },
+  "theme": {
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "atlas": {
+    "searchNodes": "Search {region} nodes...",
+    "political": "Political",
+    "physical": "Physical",
+    "intel": "Intel",
+    "news": "News",
+    "geoContext": "Geo-political Context",
+    "prelimsFocus": "Prelims Focus",
+    "indiaAngle": "India Angle",
+    "mainsContext": "Mains Context",
+    "askNanoAnalyse": "Ask Nano to Analyse",
+    "basemap": "Basemap Engine",
+    "navigator": "Strategic Navigator"
+  }
+}

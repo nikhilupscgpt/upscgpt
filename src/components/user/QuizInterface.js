@@ -273,11 +273,19 @@ export default function QuizInterface({ testPackId, onClose, onComplete }) {
 
         .quiz-loading { color: #64748b; font-size: 0.75rem; font-weight: 900; letter-spacing: 2px; }
 
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
+          .quiz-overlay { padding: 0; }
+          .quiz-modal { height: 100vh; border-radius: 0; border: none; }
           .quiz-body { padding: 1.5rem; }
-          .question-text { font-size: 1.1rem; }
-          .options-grid { grid-template-columns: 1fr; }
-          .nav-btn span { display: none; }
+          .question-text { font-size: 1.1rem; margin-bottom: 1.5rem; }
+          .options-grid { grid-template-columns: 1fr; gap: 0.75rem; }
+          .option-card { padding: 1rem; gap: 1rem; }
+          .quiz-header { padding: 1rem; }
+          .quiz-footer { padding: 1rem; flex-direction: column; gap: 1rem; }
+          .nav-btns { width: 100%; justify-content: space-between; }
+          .nav-btn { flex: 1; justify-content: center; }
+          
+          .results-card { height: 100vh; border-radius: 0; border: none; overflow-y: auto; padding: 2rem 1rem; }
         }
       `}</style>
     </div>

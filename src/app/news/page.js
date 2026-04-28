@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Calendar } from 'lucide-react';
+import { Calendar, Menu, X } from 'lucide-react';
 
 export default function NewsHub() {
   const [news, setNews] = useState({ articles: [] });
@@ -11,6 +11,7 @@ export default function NewsHub() {
   const [activeArticleId, setActiveArticleId] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedSource, setSelectedSource] = useState('ALL');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dateInputRef = useRef(null);
 
   const sources = ['ALL', 'The Hindu', 'Indian Express', 'PIB', 'AIR', 'Other'];
@@ -19,8 +20,8 @@ export default function NewsHub() {
   const generateDates = () => {
     const dates = [];
     const today = new Date();
-    const day = today.getDay(); // 0 is Sunday, 1 is Monday...
-    const diff = today.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Monday start
+    const day = today.getDay(); 
+    const diff = today.getDate() - day + (day === 0 ? -6 : 1); 
     const monday = new Date(today.setDate(diff));
     
     for (let i = 0; i < 7; i++) {
@@ -81,22 +82,26 @@ export default function NewsHub() {
   const activeArticle = news.articles.find(a => a.id === activeArticleId);
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="news-hub-wrapper" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#020617', color: 'white' }}>
       
-      {/* COMPACT STRATEGIC HEADER */}
-      <header style={{ padding: '0.75rem 2rem', borderBottom: '1px solid rgba(255,255,255,0.06)', background: '#0a0a0f', display: 'grid', gridTemplateColumns: 'minmax(250px, 1.2fr) 3fr', alignItems: 'center', gap: '2rem' }}>
-        <div>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'white', letterSpacing: '-0.5px', marginBottom: '0.1rem' }}>Strategic Intelligence Hub</h1>
-          <p style={{ color: '#475569', fontSize: '0.7rem', fontWeight: 700 }}>Real-time Synthesis • <strong style={{ color: '#10b981' }}>Gemma 4</strong></p>
+      {/* HEADER */}
+      <header className="news-hub-header">
+        <div className="news-brand-area">
+          <button className="mobile-toggle" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+          <div className="brand-text">
+            <h1 style={{ fontSize: '1.1rem', fontWeight: 900, color: 'white', margin: 0 }}>Strategic News Hub</h1>
+            <p style={{ color: '#475569', fontSize: '0.65rem', fontWeight: 700, margin: 0 }}>Real-time Synthesis • <strong style={{ color: '#10b981' }}>Gemma 4</strong></p>
+          </div>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', justifyContent: 'flex-end' }}>
-          {/* SOURCE FILTERS (EMERALD) */}
-          <div style={{ display: 'flex', gap: '0.25rem', background: 'rgba(255,255,255,0.01)', padding: '0.25rem', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.03)' }}>
+        <div className="news-filter-area">
+          <div className="source-filters-scroll hide-scrollbar">
             {sources.map(src => (
               <button 
                 key={src}
-                onClick={(e) => { e.stopPropagation(); setSelectedSource(src); }}
+                onClick={() => setSelectedSource(src)}
                 style={filterChipStyle(selectedSource === src)}
               >
                 {src}
@@ -104,11 +109,9 @@ export default function NewsHub() {
             ))}
           </div>
 
-          <div style={{ height: '30px', width: '1px', background: 'rgba(255,255,255,0.05)' }} />
+          <div className="header-divider" />
 
-          {/* COMPACT DATE STRIP (AMBER) */}
-          <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.6rem', fontWeight: 900, color: '#475569', letterSpacing: '1px', marginRight: '0.5rem' }}>WEEK</span>
+          <div className="date-strip-scroll hide-scrollbar">
             {weekDates.map(dateStr => {
               const d = new Date(dateStr);
               const isActive = selectedDate === dateStr;
@@ -118,110 +121,93 @@ export default function NewsHub() {
                   onClick={() => setSelectedDate(dateStr)}
                   style={dateCardStyle(isActive)}
                 >
-                  <span style={{ fontSize: '0.55rem', fontWeight: 800, opacity: 0.5 }}>{d.toLocaleDateString([], { weekday: 'short' }).toUpperCase()}</span>
-                  <span style={{ fontSize: '0.9rem', fontWeight: 900 }}>{d.toLocaleDateString([], { day: '2-digit' })}</span>
+                  <span style={{ fontSize: '0.5rem', fontWeight: 800, opacity: 0.5 }}>{d.toLocaleDateString([], { weekday: 'short' }).toUpperCase()}</span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 900 }}>{d.toLocaleDateString([], { day: '2-digit' })}</span>
                 </div>
               );
             })}
-
-            {/* HISTORICAL DATE PICKER (CONCISE) */}
-            <div style={{ height: '30px', width: '1px', background: 'rgba(255,255,255,0.05)', margin: '0 0.5rem' }} />
-            
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              {!isDateInCurrentWeek && (
-                <div style={{ background: '#f59e0b', color: '#0f172a', padding: '0.2rem 0.6rem', borderRadius: '4px', fontSize: '0.65rem', fontWeight: 900 }}>
-                  {new Date(selectedDate).toLocaleDateString([], { month: 'short', day: '2-digit', year: 'numeric' })}
-                </div>
-              )}
-              
-              <button 
-                onClick={() => dateInputRef.current?.showPicker()}
-                style={{ ...dateCardStyle(false), width: '32px', background: !isDateInCurrentWeek ? '#f59e0b' : 'rgba(255,255,255,0.02)', color: !isDateInCurrentWeek ? '#0f172a' : '#64748b' }}
-                title="Historical Intelligence"
-              >
-                <Calendar size={14} />
-              </button>
-              
-              <input 
-                type="date" 
-                ref={dateInputRef}
-                style={{ position: 'absolute', opacity: 0, width: 0, height: 0, padding: 0 }}
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-              />
-            </div>
+            <button 
+              onClick={() => dateInputRef.current?.showPicker()}
+              style={{ ...dateCardStyle(false), width: '32px', background: !isDateInCurrentWeek ? '#f59e0b' : 'rgba(255,255,255,0.02)', color: !isDateInCurrentWeek ? '#0f172a' : '#64748b' }}
+            >
+              <Calendar size={14} />
+            </button>
+            <input 
+              type="date" 
+              ref={dateInputRef}
+              style={{ position: 'absolute', opacity: 0, width: 0, height: 0 }}
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+            />
           </div>
         </div>
       </header>
 
       {loading ? (
         <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div className="loader">Synchronizing Intelligence...</div>
+          <div style={{ fontWeight: 700, color: '#64748b' }}>Synchronizing Intelligence...</div>
         </div>
       ) : (
-        <div className="dashboard-container" style={{ display: 'flex', flex: 1, height: 'calc(100vh - 65px)', overflow: 'hidden' }}>
+        <div className="dashboard-content" style={{ display: 'flex', flex: 1, height: 'calc(100vh - 65px)', overflow: 'hidden' }}>
           
           {/* LEFT SIDEBAR: NEWS FEED */}
-          <aside style={sidebarStyle}>
-            <div style={{ padding: '1.25rem', fontSize: '0.7rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '1.5px', background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-              Briefings Grid ({filteredArticles.length})
+          <aside className={`news-sidebar ${mobileMenuOpen ? 'open' : ''}`}>
+            <div style={{ padding: '1rem', fontSize: '0.6rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+              Briefings ({filteredArticles.length})
             </div>
-            <div style={{ flex: 1, overflowY: 'auto', padding: '0.75rem' }}>
+            <div className="sidebar-scroll hide-scrollbar">
               {filteredArticles.length > 0 ? filteredArticles.map(article => (
                 <div 
                   key={article.id} 
-                  onClick={() => setActiveArticleId(article.id)}
+                  onClick={() => {
+                    setActiveArticleId(article.id);
+                    setMobileMenuOpen(false);
+                  }}
                   style={sidebarItemStyle(activeArticleId === article.id)}
                 >
-                  <div style={{ display: 'flex', gap: '0.6rem', marginBottom: '0.4rem' }}>
+                  <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.3rem' }}>
                     <span style={miniTagStyle}>{article.source}</span>
-                    <span style={{ fontSize: '0.7rem', color: '#475569', fontWeight: 700 }}>{new Date(article.publishedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    <span style={{ fontSize: '0.6rem', color: '#475569', fontWeight: 700 }}>{new Date(article.publishedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 800, color: activeArticleId === article.id ? 'white' : '#94a3b8', lineHeight: 1.4 }}>
+                  <div style={{ fontSize: '0.8rem', fontWeight: 700, color: activeArticleId === article.id ? 'white' : '#94a3b8', lineHeight: 1.3 }}>
                     {article.title}
                   </div>
                 </div>
               )) : (
-                <div style={{ padding: '3rem 1rem', textAlign: 'center', color: '#475569', fontSize: '0.85rem', fontWeight: 700 }}>
-                  NO BRIEFINGS FOUND.
+                <div style={{ padding: '2rem 1rem', textAlign: 'center', color: '#475569', fontSize: '0.8rem' }}>
+                  No briefings found.
                 </div>
               )}
             </div>
           </aside>
 
-          {/* MAIN CANVAS: INSIGHTS & ANALYSIS */}
-          <main style={{ flex: 1, overflowY: 'auto', padding: '2.5rem', background: '#0f172a' }}>
-            
-            {/* If an article is active AND it matches filters, show Deep Dive */}
+          {/* MAIN CANVAS */}
+          <main className="news-main hide-scrollbar">
             {activeArticle && filteredArticles.some(a => a.id === activeArticleId) ? (
-              <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
-                <header style={{ marginBottom: '3rem' }}>
-                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+              <div className="article-container">
+                <header style={{ marginBottom: '2rem' }}>
+                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', alignItems: 'center', marginBottom: '0.75rem' }}>
                       <span style={tagStyle}>{activeArticle.source}</span>
-                      <span style={{ fontSize: '0.8rem', color: '#475569', fontWeight: 700 }}>SYNTHESIZED {new Date(activeArticle.publishedAt).toLocaleTimeString()}</span>
-                      <span style={{ fontSize: '0.8rem', color: '#1e40af', fontWeight: 900, textTransform: 'uppercase' }}>{activeArticle.category}</span>
+                      <span style={{ fontSize: '0.7rem', color: '#475569', fontWeight: 700 }}>{new Date(activeArticle.publishedAt).toLocaleTimeString()}</span>
+                      <span style={{ fontSize: '0.7rem', color: '#3b82f6', fontWeight: 900 }}>{activeArticle.category}</span>
                    </div>
-                   <h2 style={{ fontSize: '2rem', fontWeight: 900, color: 'white', lineHeight: 1.1, letterSpacing: '-0.02em' }}>{activeArticle.title}</h2>
+                   <h2 className="article-title">{activeArticle.title}</h2>
                 </header>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem' }}>
-                  
-                  {/* PRELIMS FACTOR (PF) */}
-                  <section style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                <div className="article-grid">
+                  {/* PRELIMS */}
+                  <section className="article-section">
                     <h3 style={sectionHeaderStyle('PRELIMS')}>PRELIMS FACTOR (PF)</h3>
                     {activeArticle.facts?.filter(f => f.type === 'PRELIMS_FACT').map(fact => (
                       <div key={fact.id} style={factCardStyle('PRELIMS')}>
-                        <p style={{ fontWeight: 600, color: 'white', lineHeight: 1.6, fontSize: '1rem', marginBottom: '1.5rem' }}>{fact.content}</p>
+                        <p style={{ fontWeight: 600, color: 'white', lineHeight: 1.6, fontSize: '0.95rem', marginBottom: '1.25rem' }}>{fact.content}</p>
                         {fact.questionData && (
                           <div style={mcqBoxStyle}>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#3b82f6', marginBottom: '0.75rem', textTransform: 'uppercase' }}>CHALLENGE MCQ</div>
-                            <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '1rem' }}>Q: {fact.questionData.question}</p>
-                            <ol style={{ margin: 0, paddingLeft: '1.2rem', color: '#94a3b8', fontSize: '0.9rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-                              {fact.questionData.options?.map((opt, i) => <li key={i} style={{ fontWeight: 500 }}>{opt}</li>)}
-                            </ol>
-                            <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid rgba(59,130,246,0.1)', fontSize: '0.85rem' }}>
-                              <strong style={{ color: '#10b981' }}>Correct Answer: {fact.questionData.answer}</strong>
-                              <p style={{ color: '#64748b', marginTop: '0.5rem', lineHeight: 1.6 }}>{fact.questionData.explanation}</p>
+                            <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#3b82f6', marginBottom: '0.5rem' }}>CHALLENGE MCQ</div>
+                            <p style={{ fontWeight: 700, color: '#f8fafc', marginBottom: '0.75rem', fontSize: '0.9rem' }}>Q: {fact.questionData.question}</p>
+                            <div style={{ marginTop: '1rem', paddingTop: '0.75rem', borderTop: '1px solid rgba(59,130,246,0.1)', fontSize: '0.8rem' }}>
+                              <strong style={{ color: '#10b981' }}>Ans: {fact.questionData.answer}</strong>
+                              <p style={{ color: '#64748b', marginTop: '0.25rem', lineHeight: 1.5 }}>{fact.questionData.explanation}</p>
                             </div>
                           </div>
                         )}
@@ -229,52 +215,31 @@ export default function NewsHub() {
                     ))}
                   </section>
 
-                  {/* MAINS FACTOR (MF) */}
-                  <section style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                  {/* MAINS */}
+                  <section className="article-section">
                     <h3 style={sectionHeaderStyle('MAINS')}>MAINS FACTOR (MF)</h3>
                     {activeArticle.editorials?.map(ed => (
                       <div key={ed.id} style={{ ...factCardStyle('MAINS'), borderLeft: '4px solid #818cf8' }}>
-                         <div style={{ fontSize: '0.7rem', fontWeight: 900, color: '#818cf8', marginBottom: '0.75rem', textTransform: 'uppercase' }}>CORE ANALYTICS - {ed.gsPaper}</div>
-                         <h4 style={{ fontWeight: 900, color: 'white', marginBottom: '1rem', fontSize: '1.2rem', lineHeight: 1.3 }}>{ed.issue}</h4>
-                         <div style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: 1.7 }}>{ed.crux}</div>
-                      </div>
-                    ))}
-                    {activeArticle.facts?.filter(f => f.type === 'MAINS_FACT').map(fact => (
-                      <div key={fact.id} style={factCardStyle('MAINS')}>
-                        <p style={{ fontWeight: 600, color: 'white', lineHeight: 1.6, fontSize: '0.95rem', marginBottom: '1.25rem' }}>{fact.content}</p>
-                        {fact.mainsQuestion && (
-                          <div style={mqBoxStyle}>
-                            <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#818cf8', marginBottom: '0.75rem', textTransform: 'uppercase' }}>ANALYTICAL INQUIRY</div>
-                            <p style={{ fontWeight: 700, color: '#cbd5e1', margin: 0, fontStyle: 'italic', fontSize: '0.95rem', lineHeight: 1.5 }}>{fact.mainsQuestion}</p>
-                          </div>
-                        )}
+                         <div style={{ fontSize: '0.65rem', fontWeight: 900, color: '#818cf8', marginBottom: '0.5rem' }}>CORE ANALYTICS - {ed.gsPaper}</div>
+                         <h4 style={{ fontWeight: 800, color: 'white', marginBottom: '0.75rem', fontSize: '1.1rem' }}>{ed.issue}</h4>
+                         <div style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: 1.6 }}>{ed.crux}</div>
                       </div>
                     ))}
                   </section>
                 </div>
               </div>
             ) : (
-              /* DEFAULT VIEW: MERGED STRATEGIC INSIGHTS */
-              <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', paddingBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                  <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'white' }}>Strategic Global Trendline</h3>
-                  <span style={{ color: '#64748b', fontSize: '0.85rem' }}>Aggregated High-Priority Shifts</span>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
-                  {strategicInsights.map((insight, i) => (
-                    <div key={i} style={insightCardStyle}>
-                      <span style={insightTagStyle}>{insight.tag}</span>
-                      <h4 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '0.75rem', color: 'white' }}>{insight.title}</h4>
-                      <p style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: 1.6 }}>{insight.content}</p>
-                    </div>
-                  ))}
-                </div>
-
-                <div style={promoBoxStyle}>
-                  <h4 style={{ color: '#fbbf24', fontSize: '1.25rem', fontWeight: 900, marginBottom: '0.5rem' }}>Deep Analytical Synthesis</h4>
-                  <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Advanced AI synthesis for Mains Answer Writing models is being generated for PRO users.</p>
-                </div>
+              <div className="news-empty-state">
+                 <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'white', marginBottom: '1rem' }}>Strategic Trendline</h3>
+                 <div className="insight-grid">
+                    {strategicInsights.map((insight, i) => (
+                      <div key={i} className="insight-card">
+                        <span className="insight-tag">{insight.tag}</span>
+                        <h4 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '0.5rem' }}>{insight.title}</h4>
+                        <p style={{ color: '#94a3b8', fontSize: '0.8rem', lineHeight: 1.5 }}>{insight.content}</p>
+                      </div>
+                    ))}
+                 </div>
               </div>
             )}
           </main>
@@ -282,16 +247,53 @@ export default function NewsHub() {
       )}
 
       <style jsx>{`
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .loader { font-weight: 700; color: #64748b; }
+        .news-hub-header {
+          display: flex;
+          align-items: center;
+          padding: 0.75rem 1.5rem;
+          background: #0a0a0f;
+          border-bottom: 1px solid rgba(255,255,255,0.06);
+          gap: 2rem;
+          z-index: 100;
+        }
+        .news-brand-area { display: flex; align-items: center; gap: 1rem; }
+        .mobile-toggle { display: none; background: transparent; border: none; color: white; }
+        .news-filter-area { flex: 1; display: flex; align-items: center; gap: 1.5rem; justify-content: flex-end; overflow: hidden; }
+        .source-filters-scroll, .date-strip-scroll { display: flex; gap: 0.4rem; overflow-x: auto; padding: 2px; }
+        .header-divider { width: 1px; height: 24px; background: rgba(255,255,255,0.05); flex-shrink: 0; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        
+        .news-sidebar { width: 300px; background: #0a0a0f; border-right: 1px solid rgba(255,255,255,0.05); display: flex; flexDirection: column; }
+        .sidebar-scroll { flex: 1; overflow-y: auto; padding: 0.5rem; }
+        
+        .news-main { flex: 1; overflow-y: auto; padding: 2rem; background: #020617; }
+        .article-container { maxWidth: 1000px; margin: 0 auto; }
+        .article-title { fontSize: 2rem; fontWeight: 900; lineHeight: 1.2; letterSpacing: -0.02em; color: white; }
+        .article-grid { display: grid; gridTemplateColumns: 1fr 1fr; gap: 2rem; }
+        .article-section { display: flex; flexDirection: column; gap: 1.5rem; }
+        
+        .news-empty-state { maxWidth: 900px; margin: 0 auto; }
+        .insight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+        .insight-card { background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); border-radius: 16px; padding: 1.25rem; }
+        .insight-tag { fontSize: 0.55rem; fontWeight: 900; color: #10b981; background: rgba(16, 185, 129, 0.1); padding: 2px 8px; border-radius: 99px; margin-bottom: 0.75rem; display: inline-block; }
+
+        @media (max-width: 1024px) {
+          .news-hub-header { flex-direction: column; align-items: stretch; gap: 1rem; padding: 1rem; }
+          .news-filter-area { justify-content: flex-start; }
+          .article-grid { grid-template-columns: 1fr; }
+          .news-sidebar { position: fixed; left: 0; top: 0; bottom: 0; z-index: 1000; transform: translateX(-100%); transition: transform 0.3s ease; width: 280px; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
+          .news-sidebar.open { transform: translateX(0); }
+          .mobile-toggle { display: block; }
+          .article-title { font-size: 1.5rem; }
+        }
       `}</style>
     </div>
   );
 }
 
 const dateCardStyle = (active) => ({
-  width: '42px',
-  padding: '0.35rem 0',
+  minWidth: '40px',
+  padding: '0.3rem 0',
   borderRadius: '8px',
   display: 'flex',
   flexDirection: 'column',
@@ -301,71 +303,70 @@ const dateCardStyle = (active) => ({
   background: active ? '#f59e0b' : 'transparent',
   color: active ? '#0f172a' : '#64748b',
   border: active ? '1px solid #f59e0b' : '1px solid rgba(255,255,255,0.04)',
-  transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+  transition: 'all 0.2s',
+  flexShrink: 0
 });
 
 const filterChipStyle = (active) => ({
   background: active ? 'rgba(16, 185, 129, 0.15)' : 'transparent',
   color: active ? '#10b981' : '#475569',
   border: active ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid transparent',
-  padding: '0.3rem 0.8rem',
+  padding: '0.3rem 0.75rem',
   borderRadius: '6px',
-  fontSize: '0.65rem',
+  fontSize: '0.6rem',
   fontWeight: 900,
   cursor: 'pointer',
+  whiteSpace: 'nowrap',
   transition: 'all 0.2s',
   textTransform: 'uppercase'
 });
 
-const insightCardStyle = {
-  background: 'rgba(255,255,255,0.01)',
-  border: '1px solid rgba(255,255,255,0.03)',
-  borderRadius: '20px',
-  padding: '1.75rem',
-};
-
-const insightTagStyle = {
-  fontSize: '0.6rem',
-  fontWeight: 900,
-  color: '#10b981',
-  background: 'rgba(16, 185, 129, 0.1)',
-  padding: '4px 12px',
-  borderRadius: '100px',
-  display: 'inline-block',
-  marginBottom: '1rem',
-  letterSpacing: '0.5px'
-};
-
-const promoBoxStyle = {
-  marginTop: '4rem',
-  padding: '3rem',
-  background: 'rgba(251, 191, 36, 0.02)',
-  border: '1px dashed rgba(251, 191, 36, 0.2)',
-  borderRadius: '32px',
-  textAlign: 'center'
-};
-
-const sidebarStyle = {
-  width: '320px',
-  borderRight: '1px solid rgba(255,255,255,0.05)',
-  display: 'flex',
-  flexDirection: 'column',
-  background: '#0a0a0f',
-};
-
 const sidebarItemStyle = (active) => ({
-  padding: '1rem',
+  padding: '0.75rem',
   cursor: 'pointer',
   marginBottom: '2px',
   borderRadius: '8px',
-  background: active ? 'rgba(255, 255, 255, 0.02)' : 'transparent',
+  background: active ? 'rgba(255, 255, 255, 0.03)' : 'transparent',
   borderLeft: active ? '3px solid #10b981' : '3px solid transparent',
   transition: 'all 0.2s',
 });
 
+const miniTagStyle = {
+  background: 'rgba(255,255,255,0.04)',
+  color: '#64748b',
+  padding: '0.1rem 0.4rem',
+  borderRadius: '4px',
+  fontSize: '0.55rem',
+  fontWeight: 800,
+  textTransform: 'uppercase'
+};
+
+const tagStyle = {
+  background: 'rgba(255,255,255,0.05)',
+  color: 'white',
+  padding: '0.3rem 0.75rem',
+  borderRadius: '6px',
+  fontSize: '0.65rem',
+  fontWeight: 900,
+  border: '1px solid rgba(255,255,255,0.1)'
+};
+
+const sectionHeaderStyle = (type) => ({
+  fontSize: '0.8rem',
+  fontWeight: 900,
+  color: type === 'PRELIMS' ? '#10b981' : '#f59e0b',
+  margin: '0 0 0.25rem 0',
+  display: 'flex',
+  alignItems: 'center',
+  letterSpacing: '1px',
+  textTransform: 'uppercase',
+  borderBottom: `1px solid ${type === 'PRELIMS' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`,
+  paddingBottom: '0.3rem'
+});
+
 const factCardStyle = (type) => ({
   background: 'rgba(255,255,255,0.01)',
-  padding: '1.5rem',
+  padding: '1.25rem',
   borderRadius: '16px',
   border: `1px solid rgba(255, 255, 255, 0.03)`,
   display: 'flex',
@@ -376,60 +377,5 @@ const mcqBoxStyle = {
   background: 'rgba(16, 185, 129, 0.01)',
   border: '1px solid rgba(16, 185, 129, 0.08)',
   borderRadius: '12px',
-  padding: '1.25rem'
+  padding: '1rem'
 };
-
-const mqBoxStyle = {
-  background: 'rgba(245, 158, 11, 0.01)',
-  border: '1px solid rgba(245, 158, 11, 0.08)',
-  borderRadius: '12px',
-  padding: '1.25rem'
-};
-
-const sectionHeaderStyle = (type) => ({
-  fontSize: '0.9rem',
-  fontWeight: 900,
-  color: type === 'PRELIMS' ? '#10b981' : '#f59e0b',
-  margin: '0 0 0.5rem 0',
-  display: 'flex',
-  alignItems: 'center',
-  letterSpacing: '1px',
-  textTransform: 'uppercase',
-  borderBottom: `1px solid ${type === 'PRELIMS' ? 'rgba(16, 185, 129, 0.3)' : 'rgba(245, 158, 11, 0.3)'}`,
-  paddingBottom: '0.4rem'
-});
-
-const tagStyle = {
-  background: 'rgba(255,255,255,0.05)',
-  color: 'white',
-  padding: '0.4rem 1rem',
-  borderRadius: '6px',
-  fontSize: '0.7rem',
-  fontWeight: 900,
-  letterSpacing: '1px',
-  border: '1px solid rgba(255,255,255,0.1)'
-};
-
-const miniTagStyle = {
-  background: 'rgba(255,255,255,0.04)',
-  color: '#64748b',
-  padding: '0.15rem 0.5rem',
-  borderRadius: '4px',
-  fontSize: '0.6rem',
-  fontWeight: 800,
-  textTransform: 'uppercase'
-};
-
-const emptyStyle = {
-  height: '100%',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  color: '#1e293b',
-  fontSize: '1.5rem',
-  fontWeight: 900,
-  letterSpacing: '2px',
-  textTransform: 'uppercase'
-};
-

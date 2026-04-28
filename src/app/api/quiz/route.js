@@ -140,7 +140,26 @@ export async function POST(req) {
       const org = await prisma.organization.findUnique({ where: { id: scope } })
       if (!org) return NextResponse.json({ error: 'Organization not found' }, { status: 404 })
 
-      // Get all country names for distractors
+      // Try AI generation first for better quality and UPSC framing
+      const systemInstruction = await getRenderedPrompt('quiz.intelligence.system')
+      const prompt = `Generate a UPSC Prelims MCQ about the international organization: ${org.name} (${org.shortName}).
+Context: ${org.description}
+UPSC Context: ${org.upscContext}
+Members: ${org.members}
+HQ: ${org.hqCity}
+
+Focus on membership (who is NOT a member), mandates, or recent strategic relevance mentioned in the context.`
+
+      try {
+        const result = await generateJSON(prompt, systemInstruction)
+        if (result?.question && result?.options) {
+          return NextResponse.json({ question: { ...result, type: 'ORGANIZATION' }, org: { name: org.name, shortName: org.shortName } })
+        }
+      } catch (e) {
+        console.warn('[Quiz] AI generation for Org failed, falling back to local logic:', e.message)
+      }
+
+      // Fallback to local logic if AI fails
       const allCountries = await prisma.mapEntry.findMany({
         where: { worldPart: 'POLITICAL', nodeSubType: { in: ['COUNTRY', null] } },
         select: { name: true }
