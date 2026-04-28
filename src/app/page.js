@@ -361,7 +361,7 @@ export default function UPSCGPTMasterPortal() {
         }}
       >
         <p style={{ fontSize: '0.82rem', color: '#64748b', fontWeight: 600, marginBottom: '16px' }}>
-          UPSCGPT · Built with care for serious aspirants · Powered by strategic intelligence
+          UPSCGPT · © 2026 Stara AI PVT LTD · Built with care for serious aspirants
         </p>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
           <Link
