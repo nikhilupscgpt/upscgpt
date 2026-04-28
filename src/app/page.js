@@ -160,40 +160,7 @@ export default function UPSCGPTMasterPortal() {
 
       <main style={{ position: 'relative', zIndex: 10, maxWidth: '1200px', margin: '0 auto' }} className="main-responsive-padding">
         <div style={{ textAlign: 'center', marginBottom: '60px' }} className="hero-section">
-          <div
-            className="platform-badge"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '6px 16px',
-              borderRadius: '24px',
-              marginBottom: '24px',
-              background: 'rgba(139,92,246,0.15)',
-              border: '1px solid rgba(139,92,246,0.3)',
-            }}
-          >
-            <span
-              style={{
-                width: '6px',
-                height: '6px',
-                borderRadius: '50%',
-                background: '#22c55e',
-                boxShadow: '0 0 8px #22c55e',
-              }}
-            />
-            <span
-              style={{
-                fontSize: '0.75rem',
-                color: '#a5b4fc',
-                fontWeight: 700,
-                letterSpacing: '1px',
-                textTransform: 'uppercase',
-              }}
-            >
-              Platform Active · {stats.entries} Intelligence Nodes
-            </span>
-          </div>
+          <div style={{ marginTop: '40px' }}></div>
 
           <h2 className="main-title">
             The Future of
@@ -217,7 +184,14 @@ export default function UPSCGPTMasterPortal() {
 
         <style jsx>{`
           .main-responsive-padding { padding: 70px 20px 40px; }
-          .main-title { fontSize: 4rem; fontWeight: 900; lineHeight: 1.08; margin: 0 0 20px; letterSpacing: -2px; }
+          .main-title { 
+            font-size: 5rem; 
+            font-weight: 950; 
+            line-height: 1.02; 
+            margin: 0 0 24px; 
+            letter-spacing: -3.5px; 
+            text-shadow: 0 10px 30px rgba(0,0,0,0.3);
+          }
           .main-subtitle { fontSize: 1.15rem; color: #94a3b8; maxWidth: 640px; margin: 0 auto; lineHeight: 1.7; }
 
           @media (max-width: 768px) {
