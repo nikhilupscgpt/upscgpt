@@ -215,7 +215,7 @@ async function seedPlatformConfig() {
     { key: "ISSUE_GRAPH_VERSION",  value: "v2"      },
     { key: "TOTAL_ISSUE_NODES",    value: "545"     },
     { key: "SEED_DATE",            value: new Date().toISOString() },
-    { key: "EMBEDDING_MODEL",      value: "text-embedding-004" },
+    { key: "EMBEDDING_MODEL",      value: "gemini-embedding-001" },
     { key: "SUMMARY_MODEL",        value: "gemma-3-27b-it"     },
   ];
 

@@ -70,7 +70,7 @@ async function fetchFromRSS(feedConfig, max = 10) {
 
 export async function scrapeAndEnrich() {
   const model = getGeminiModel('extraction')
-  const mapEntries = await prisma.mapEntry.findMany()
+  const mapEntries = await runWithRetry(() => prisma.mapEntry.findMany())
 
   let totalFetched = 0
   let totalEnriched = 0

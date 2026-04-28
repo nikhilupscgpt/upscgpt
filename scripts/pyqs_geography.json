@@ -1,0 +1,30 @@
+[
+  {
+    "paper": "OPTIONAL",
+    "year": 2023,
+    "subject": "GEOGRAPHY",
+    "marks": 15,
+    "question": "Discuss the geomorphological features of the Himalayas and their significance in the Indian monsoon system."
+  },
+  {
+    "paper": "OPTIONAL",
+    "year": 2022,
+    "subject": "GEOGRAPHY",
+    "marks": 10,
+    "question": "Explain the concept of Plate Tectonics and its application in explaining the origin of mountain systems like the Himalayas."
+  },
+  {
+    "paper": "OPTIONAL",
+    "year": 2021,
+    "subject": "GEOGRAPHY",
+    "marks": 20,
+    "question": "Analyze the impact of climate change on the glaciers of the Greater Himalayas and its downstream consequences for the Indo-Gangetic plains."
+  },
+  {
+    "paper": "GS1",
+    "year": 2020,
+    "subject": "GEOGRAPHY",
+    "marks": 15,
+    "question": "The Himalayas are highly prone to landslides. Discuss the causes and suggest mitigation measures."
+  }
+]

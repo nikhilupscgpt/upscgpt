@@ -65,8 +65,8 @@ export default function UPSCGPTMasterPortal() {
       icon: '🎯',
       gradient: 'linear-gradient(135deg, #f59e0b, #ef4444)',
       accentColor: '#f59e0b',
-      href: null,
-      status: 'pipeline',
+      href: '/mock-test',
+      status: 'live',
       features: ['AI-Generated MCQs', 'PYQ Pattern Analysis', 'Difficulty Calibration', 'Performance Analytics'],
       stat: null,
     },
@@ -79,9 +79,9 @@ export default function UPSCGPTMasterPortal() {
       icon: '✍️',
       gradient: 'linear-gradient(135deg, #10b981, #0ea5e9)',
       accentColor: '#10b981',
-      href: null,
-      status: 'pipeline',
-      features: ['Answer Upload & Scan', 'AI Rubric Scoring', 'Model Answer Gen', 'Progress Dashboard'],
+      href: '/mains',
+      status: 'live',
+      features: ['Answer Evaluation Studio', 'GS/Optional Content Node', 'Essay Guidance', 'Mains Neural Search'],
       stat: null,
     },
   ]
@@ -158,9 +158,10 @@ export default function UPSCGPTMasterPortal() {
       />
 
 
-      <main style={{ position: 'relative', zIndex: 10, maxWidth: '1200px', margin: '0 auto', padding: '70px 20px 40px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+      <main style={{ position: 'relative', zIndex: 10, maxWidth: '1200px', margin: '0 auto' }} className="main-responsive-padding">
+        <div style={{ textAlign: 'center', marginBottom: '60px' }} className="hero-section">
           <div
+            className="platform-badge"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -194,7 +195,7 @@ export default function UPSCGPTMasterPortal() {
             </span>
           </div>
 
-          <h2 style={{ fontSize: '4rem', fontWeight: 900, lineHeight: 1.08, margin: '0 0 20px', letterSpacing: '-2px' }}>
+          <h2 className="main-title">
             The Future of
             <br />
             <span
@@ -209,10 +210,25 @@ export default function UPSCGPTMasterPortal() {
               UPSC Preparation.
             </span>
           </h2>
-          <p style={{ fontSize: '1.15rem', color: '#94a3b8', maxWidth: '640px', margin: '0 auto', lineHeight: 1.7 }}>
+          <p className="main-subtitle">
             A unified UPSC preparation operating system with four command centers: Mapping, Current Affairs, Prelims, and Mains.
           </p>
         </div>
+
+        <style jsx>{`
+          .main-responsive-padding { padding: 70px 20px 40px; }
+          .main-title { fontSize: 4rem; fontWeight: 900; lineHeight: 1.08; margin: 0 0 20px; letterSpacing: -2px; }
+          .main-subtitle { fontSize: 1.15rem; color: #94a3b8; maxWidth: 640px; margin: 0 auto; lineHeight: 1.7; }
+
+          @media (max-width: 768px) {
+            .main-responsive-padding { padding: 40px 15px; }
+            .hero-section { margin-bottom: 40px; }
+            .main-title { font-size: 2.2rem; letter-spacing: -1px; }
+            .main-subtitle { font-size: 0.95rem; }
+            .platform-badge { padding: 4px 12px; }
+            .platform-badge span { font-size: 0.65rem; }
+          }
+        `}</style>
 
         <div className="command-grid">
           {commandCenters.map((center) => {
@@ -318,7 +334,7 @@ export default function UPSCGPTMasterPortal() {
                     ))}
                   </div>
 
-                  {(center.id === 'mapping' || center.id === 'current-affairs') && (
+                  {(center.id === 'mapping' || center.id === 'current-affairs' || center.id === 'prelims') && (
                     <div className="mapping-primary-cta">
                       Open {center.title}
                     </div>

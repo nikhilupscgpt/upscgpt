@@ -1,9 +1,3 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// UPSC Atlas Portal — Prisma Schema
-// Architecture: Issue Graph Model (V2)
-// Database: PostgreSQL on Neon (serverless) with pgvector
-// ─────────────────────────────────────────────────────────────────────────────
-
 generator client {
   provider        = "prisma-client-js"
   output          = "../node_modules/.prisma/client"
@@ -15,56 +9,6 @@ datasource db {
   url        = env("DATABASE_URL")
   extensions = [vector]
 }
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// ENUMS
-// ═══════════════════════════════════════════════════════════════════════════════
-
-enum IssueCategory {
-  POLITY
-  GOVERNANCE
-  INTERNATIONAL_RELATIONS
-  ECONOMY
-  AGRICULTURE
-  SCIENCE_TECHNOLOGY
-  ENVIRONMENT
-  INTERNAL_SECURITY
-  SOCIETY
-  HISTORY
-  GEOGRAPHY
-  CULTURE
-  ETHICS
-  DISASTER_MANAGEMENT
-}
-
-enum IssueNodeType {
-  NEWS
-  CONCEPTUAL
-  STATIC
-}
-
-enum IssueStatus {
-  ACTIVE
-  DORMANT
-  ARCHIVED
-}
-
-enum ContentType {
-  NEWS
-  PIB
-  REPORT
-}
-
-enum ProcessingStatus {
-  PENDING
-  PROCESSING
-  DONE
-  FAILED
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// AUTH & USER MODELS (Preserved from existing schema)
-// ═══════════════════════════════════════════════════════════════════════════════
 
 model User {
   id                 String          @id @default(cuid())
@@ -82,8 +26,15 @@ model User {
   preferences        Json?           @default("{}")
   examYear           Int?
   accounts           Account[]
+  logs               ActionLog[]
+  bookmarks          Bookmark[]
   favorites          FavoriteEntry[]
+  followedIssues     IssueFollow[]
+  issueProgress      IssueProgress[]
+  payments           PaymentLog[]
   sessions           Session[]
+  notes              UserNote[]
+  QuizAttempt        QuizAttempt[]
 }
 
 model Account {
@@ -115,7 +66,9 @@ model Session {
 model VerificationToken {
   identifier String
   token      String   @unique
+  code       String?  // The 6-digit OTP
   expires    DateTime
+  type       String   @default("EMAIL_OTP") // EMAIL_OTP, SMS_OTP, PASSWORD_RESET
 
   @@unique([identifier, token])
 }
@@ -130,10 +83,6 @@ model Subscription {
   currentEnd     DateTime
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// MAP & GEOGRAPHY MODELS (Preserved from existing schema)
-// ═══════════════════════════════════════════════════════════════════════════════
-
 model FavoriteEntry {
   id        String   @id @default(cuid())
   userId    String
@@ -146,7 +95,7 @@ model FavoriteEntry {
 }
 
 model MapEntry {
-  id                      String    @id @default(cuid())
+  id                      String          @id @default(cuid())
   lat                     Float?
   lon                     Float?
   name                    String
@@ -157,8 +106,8 @@ model MapEntry {
   prelims                 String?
   mains                   String?
   india                   String?
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @default(now()) @updatedAt
+  createdAt               DateTime        @default(now())
+  updatedAt               DateTime        @default(now()) @updatedAt
   lastNewsDate            DateTime?
   newsMentions            String?
   aiNodeSummaryFollowups  String?
@@ -175,22 +124,19 @@ model MapEntry {
   capital                 String?
   continent               String?
   geoGroup                String?
-  worldPart               String?   @default("POLITICAL")
-
-  // Three-Layer Mapping Architecture
-  nodeSubType      String? // COUNTRY | PHYSICAL | CONFLICT_ZONE | ETHNIC_REGION | STRAIT | PASS | PIPELINE | ROUTE | ORG_HQ
-  parentCountry    String? // For sub-national nodes e.g. "Tigray" → "Ethiopia"
-  seaBorders       String? // Comma-separated: "Mediterranean Sea,Adriatic Sea"
-  riverOutflow     String? // Body of water a river drains into e.g. "Caspian Sea"
-  mountainType     String? // Fold | Block | Volcanic | Residual
-  highestPeak      String? // Specifically for mountains e.g. "Mount Everest"
-  countriesSpread  String? // Specifically for features that spread across multiple countries
-  isLandlocked     Boolean? @default(false)
-  organizations    String? // Comma-separated org memberships: "NATO,G7,OECD"
-  isCurrentAffairs Boolean? @default(false)
-  upscFrequency    Int? // Times appeared in PYQs (rough 1-10 scale)
-
-  favoritedBy FavoriteEntry[]
+  worldPart               String?         @default("POLITICAL")
+  isCurrentAffairs        Boolean?        @default(false)
+  isLandlocked            Boolean?        @default(false)
+  mountainType            String?
+  nodeSubType             String?
+  organizations           String?
+  parentCountry           String?
+  riverOutflow            String?
+  seaBorders              String?
+  upscFrequency           Int?
+  countriesSpread         String?
+  highestPeak             String?
+  favoritedBy             FavoriteEntry[]
 
   @@unique([name, lat, lon])
   @@index([name])
@@ -201,17 +147,17 @@ model MapEntry {
 
 model Organization {
   id          String   @id @default(cuid())
-  name        String   @unique // "North Atlantic Treaty Organization"
-  shortName   String // "NATO"
-  category    String // MILITARY | ECONOMIC | REGIONAL | ENVIRONMENTAL | SCIENTIFIC
-  members     String // Comma-separated country names (as they appear in MapEntry.name)
+  name        String   @unique
+  shortName   String
+  category    String
+  members     String
   hqCity      String?
   hqLat       Float?
   hqLon       Float?
   founded     Int?
   description String?
-  upscContext String? // Why UPSC tests this; India's relationship
-  indiaRole   String? // MEMBER | OBSERVER | DIALOGUE_PARTNER | NOT_MEMBER
+  upscContext String?
+  indiaRole   String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt
 
@@ -219,33 +165,34 @@ model Organization {
   @@index([shortName])
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// NEWS ENGINE — ISSUE GRAPH MODELS (V2 Architecture)
-// ═══════════════════════════════════════════════════════════════════════════════
-
 /// The central knowledge node. 545 pre-seeded from UPSC syllabus (GS1–GS4).
 /// News items and editorials attach TO Issues. Every new attachment triggers
 /// a background rebuild of cumulativeSummary.
 model Issue {
-  id                String                      @id @default(cuid())
+  id                String                 @id @default(cuid())
   title             String
-  slug              String                      @unique
-  domain            String                      // e.g. "POLITY", "ENVIRONMENT" — parent domain
-  topic             String                      // parent topic within domain
+  slug              String                 @unique
+  domain            String
+  topic             String
   category          IssueCategory
-  gsPapers          String[]                    // ["GS2", "GS3"]
-  nodeType          IssueNodeType               @default(NEWS)
-  status            IssueStatus                 @default(ACTIVE)
-  backgroundNote    String?                     @db.Text
-  cumulativeSummary String?                     @db.Text
-  embedding         Unsupported("vector(768)")?
-  lastUpdatedAt     DateTime                    @updatedAt
-  createdAt         DateTime                    @default(now())
-
-  articles       Article[]
-  editorials     Editorial[]
-  timelineEvents TimelineEvent[]
-  pyqLinks       PYQLink[]
+  gsPapers          String[]
+  nodeType          IssueNodeType          @default(NEWS)
+  status            IssueStatus            @default(ACTIVE)
+  backgroundNote    String?
+  cumulativeSummary String?
+  embedding         Unsupported("vector")?
+  lastUpdatedAt     DateTime               @updatedAt
+  createdAt         DateTime               @default(now())
+  articles          Article[]
+  editorials        Editorial[]
+  followers         IssueFollow[]
+  userProgress      IssueProgress[]
+  pyqLinks          PYQLink[]
+  timelineEvents    TimelineEvent[]
+  userNotes         UserNote[]
+  optionalId        String?
+  optionalSubject   OptionalSubject?       @relation(fields: [optionalId], references: [id])
+  testPacks         TestPack[]
 
   @@index([category])
   @@index([domain])
@@ -259,18 +206,17 @@ model Issue {
 model Article {
   id             String           @id @default(cuid())
   issueId        String
-  issue          Issue            @relation(fields: [issueId], references: [id], onDelete: Cascade)
   title          String
   url            String?          @unique
-  source         String?          // "Indian Express", "PIB", "The Hindu"
+  source         String?
   contentType    ContentType      @default(NEWS)
-  rawContent     String?          @db.Text
-  structuredData Json?            // Full AI analysis JSON (see schema in KI)
+  rawContent     String?
+  structuredData Json?
   status         ProcessingStatus @default(PENDING)
   addedManually  Boolean          @default(true)
   publishedAt    DateTime?
   createdAt      DateTime         @default(now())
-
+  issue          Issue            @relation(fields: [issueId], references: [id], onDelete: Cascade)
   timelineEvents TimelineEvent[]
 
   @@index([issueId])
@@ -285,16 +231,16 @@ model Article {
 model Editorial {
   id             String           @id @default(cuid())
   issueId        String
-  issue          Issue            @relation(fields: [issueId], references: [id], onDelete: Cascade)
   title          String
   url            String?
   author         String?
-  source         String?          // "Indian Express", "The Hindu", "EPW"
-  rawContent     String?          @db.Text
-  structuredData Json?            // Full editorial analysis JSON (see schema in KI)
+  source         String?
+  rawContent     String?
+  structuredData Json?
   status         ProcessingStatus @default(PENDING)
   publishedAt    DateTime?
   createdAt      DateTime         @default(now())
+  issue          Issue            @relation(fields: [issueId], references: [id], onDelete: Cascade)
 
   @@index([issueId])
   @@index([status])
@@ -306,15 +252,14 @@ model Editorial {
 model TimelineEvent {
   id        String   @id @default(cuid())
   issueId   String
-  issue     Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
   date      DateTime
   eventText String
   sourceUrl String?
-  itemType  String   // "NEWS" | "EDITORIAL" | "MANUAL"
-  refId     String?  // articleId or editorialId
+  itemType  String
+  refId     String?
   createdAt DateTime @default(now())
-
-  article   Article? @relation(fields: [refId], references: [id], onDelete: SetNull)
+  issue     Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  article   Article? @relation(fields: [refId], references: [id])
 
   @@index([issueId])
   @@index([date])
@@ -326,43 +271,38 @@ model TimelineEvent {
 model PYQLink {
   id            String   @id @default(cuid())
   issueId       String
-  issue         Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
-  paperType     String   // "PRELIMS" | "MAINS"
+  paperType     String
   year          Int
-  gsTag         String?  // "GS2"
-  questionText  String   @db.Text
-  relevanceNote String?  // AI-written explanation of why this PYQ is relevant
-  howToUse      String?  // For Mains PYQs: "Use this editorial's Argument 2 as the critical view"
-  score         Float?   // Semantic similarity score
+  gsTag         String?
+  questionText  String
+  relevanceNote String?
+  howToUse      String?
+  score         Float?
   createdAt     DateTime @default(now())
+  issue         Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
 
   @@index([issueId])
   @@index([paperType])
   @@index([year])
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// OPERATIONAL MODELS
-// ═══════════════════════════════════════════════════════════════════════════════
-
 /// Logs all engine operations: ingestion, processing, summary rebuilds, errors.
 model ActionLog {
   id         String   @id @default(cuid())
-  action     String   // "ARTICLE_ADDED" | "PROCESSING_STARTED" | "SUMMARY_REBUILT" | "EMBEDDING_UPDATED"
-  entityType String?  // "Article" | "Editorial" | "Issue"
-  entityId   String?  // ID of the entity this log refers to
-  status     String   @default("SUCCESS") // "SUCCESS" | "FAILED" | "IN_PROGRESS"
-  message    String?  @db.Text
+  action     String
   createdAt  DateTime @default(now())
+  entityId   String?
+  entityType String?
+  message    String?
+  status     String   @default("SUCCESS")
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
 
   @@index([action])
+  @@index([userId])
   @@index([entityType, entityId])
   @@index([createdAt])
 }
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// PLATFORM MODELS (Preserved from existing schema)
-// ═══════════════════════════════════════════════════════════════════════════════
 
 model RegionInsightCache {
   id                 String   @id @default(cuid())
@@ -413,11 +353,12 @@ model CommunicationLog {
 model PaymentLog {
   id         String   @id @default(cuid())
   userId     String
-  razorpayId String
+  razorpayId String   @unique
   amount     Int
   currency   String   @default("INR")
   status     String
   createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
 }
 
 model PlatformConfig {
@@ -427,16 +368,215 @@ model PlatformConfig {
 }
 
 model SubjectContent {
-  id              String                      @id @default(cuid())
+  id              String                 @id @default(cuid())
   subject         String
-  examType        String // PRELIMS | MAINS | BOTH
+  examType        String
   title           String
   contentMarkdown String
-  embedding       Unsupported("vector(768)")?
+  embedding       Unsupported("vector")?
   sourceUrl       String?
-  createdAt       DateTime                    @default(now())
-  updatedAt       DateTime                    @default(now()) @updatedAt
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @default(now()) @updatedAt
+  isOptional      Boolean                @default(false)
+  optionalId      String?
+  optionalSubject OptionalSubject?       @relation(fields: [optionalId], references: [id])
 
   @@index([subject])
   @@index([examType])
+  @@index([optionalId])
+}
+
+model OptionalSubject {
+  id          String                 @id @default(cuid())
+  name        String                 @unique
+  slug        String                 @unique
+  description String?
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @default(now()) @updatedAt
+  contents    SubjectContent[]
+  issues      Issue[]
+  pyqs        PreviousYearQuestion[]
+
+  @@index([slug])
+}
+
+/// Tracks a user's mastery of the 545 syllabus nodes.
+model IssueProgress {
+  id      String         @id @default(cuid())
+  userId  String
+  issueId String
+  status  ProgressStatus @default(UNSTARTED)
+
+  // Mastery Path Sub-tasks
+  readSummary Boolean @default(false)
+  viewedNews  Boolean @default(false)
+  solvedPYQs  Boolean @default(false)
+  solvedMCQs  Boolean @default(false)
+
+  lastStudiedAt DateTime?
+  timeSpentSecs Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  issue         Issue     @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, issueId])
+  @@index([userId, status])
+}
+
+model Question {
+  id           String   @id @default(cuid())
+  text         String   @db.Text
+  options      Json // [{label: "a", text: "..."}, ...]
+  correctLabel String
+  explanation  String   @db.Text
+  difficulty   String   @default("MEDIUM") // EASY, MEDIUM, HARD
+  domain       String
+  gsPaper      String?
+  tags         String[]
+  issueId      String? // Optional link to a syllabus node
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  testPacks TestPack[] @relation("TestPackQuestions")
+}
+
+model TestPack {
+  id           String   @id @default(cuid())
+  title        String
+  description  String?  @db.Text
+  type         String   @default("PRACTICE") // PRACTICE or MOCK
+  durationMins     Int      @default(0) // 0 for untimed
+  passingScore     Int      @default(70)
+  negativeMarking  Float    @default(0.33) // Default for UPSC
+  marksPerQuestion Float    @default(2.0)  // Default for UPSC
+  issueId          String? // Link to a specific syllabus node
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  questions Question[]    @relation("TestPackQuestions")
+  attempts  QuizAttempt[]
+  issue     Issue?        @relation(fields: [issueId], references: [id])
+}
+
+model QuizAttempt {
+  id            String   @id @default(cuid())
+  userId        String
+  testPackId    String
+  score         Int
+  timeTakenSecs Int
+  breakdown     Json // [{questionId: "...", selected: "...", correct: true}, ...]
+  createdAt     DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  testPack TestPack @relation(fields: [testPackId], references: [id], onDelete: Cascade)
+}
+
+/// Allows users to subscribe to real-time updates for an evolving issue.
+model IssueFollow {
+  id        String   @id @default(cuid())
+  userId    String
+  issueId   String
+  createdAt DateTime @default(now())
+  issue     Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, issueId])
+}
+
+/// AI-assisted or manual personal notes linked to an Issue.
+model UserNote {
+  id            String   @id @default(cuid())
+  userId        String
+  issueId       String
+  content       String
+  isAiGenerated Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  issue         Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, issueId])
+}
+
+/// Generic bookmarking for specific Articles or Editorials within an Issue.
+model Bookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  itemType  String
+  itemId    String
+  note      String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, itemType, itemId])
+}
+
+enum IssueCategory {
+  POLITY
+  GOVERNANCE
+  INTERNATIONAL_RELATIONS
+  ECONOMY
+  AGRICULTURE
+  SCIENCE_TECHNOLOGY
+  ENVIRONMENT
+  INTERNAL_SECURITY
+  SOCIETY
+  HISTORY
+  GEOGRAPHY
+  CULTURE
+  ETHICS
+  DISASTER_MANAGEMENT
+  OPTIONAL
+}
+
+enum IssueNodeType {
+  NEWS
+  CONCEPTUAL
+  STATIC
+}
+
+enum IssueStatus {
+  ACTIVE
+  DORMANT
+  ARCHIVED
+}
+
+enum ContentType {
+  NEWS
+  PIB
+  REPORT
+}
+
+enum ProcessingStatus {
+  PENDING
+  PROCESSING
+  DONE
+  FAILED
+}
+
+enum ProgressStatus {
+  UNSTARTED
+  READING
+  MASTERED
+  REVISION_NEEDED
+}
+
+model PreviousYearQuestion {
+  id           String                 @id @default(uuid())
+  paper        String // GS1, GS2, GS3, GS4, ESSAY, OPTIONAL
+  optionalId   String? // Linked if it's an optional paper
+  subject      String // GEOGRAPHY, POLITY, etc.
+  year         Int
+  questionText String                 @db.Text
+  marks        Int?
+  modelAnswer  String?                @db.Text
+  embedding    Unsupported("vector")?
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+  optional     OptionalSubject?       @relation(fields: [optionalId], references: [id])
+
+  @@index([paper])
+  @@index([subject])
+  @@index([year])
 }

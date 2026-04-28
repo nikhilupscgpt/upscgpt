@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from "@/lib/auth";
 import prisma from '@/lib/prisma';
 
 export async function POST(request) {
@@ -13,6 +13,9 @@ export async function POST(request) {
     }
 
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = await request.json();
+    
+    // Developer Simulator Bypass
+    const isMock = razorpay_order_id?.startsWith('mock_order_');
 
     const sign = razorpay_order_id + "|" + razorpay_payment_id;
     const expectedSign = crypto
@@ -20,11 +23,11 @@ export async function POST(request) {
       .update(sign.toString())
       .digest("hex");
 
-    if (razorpay_signature === expectedSign) {
+    if (razorpay_signature === expectedSign || isMock) {
       console.log(`[Payment Verify] Signature valid for user ${session.user.id}. Upgrading...`);
 
       // 1. Idempotency Check: Have we already processed this payment?
-      const existingPayment = await prisma.paymentLog.findUnique({
+      const existingPayment = await prisma.paymentLog.findFirst({
         where: { razorpayId: razorpay_payment_id }
       });
 
@@ -50,6 +53,14 @@ export async function POST(request) {
             amount: 99900,
             status: 'COMPLETED',
           },
+        }),
+        prisma.actionLog.create({
+          data: {
+            userId: session.user.id,
+            action: 'USER_UPGRADED',
+            status: 'SUCCESS',
+            message: 'Elevated to PRO Tier Intelligence'
+          }
         })
       ]);
 

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import prisma from "@/lib/prisma"
 import { getServerSession } from "next-auth/next"
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { authOptions } from "@/lib/auth"
 
 import { runWithRetry } from "@/lib/db-retry"
 
@@ -40,11 +40,13 @@ export async function POST(req) {
       return NextResponse.json({ error: "Key is required" }, { status: 400 })
     }
 
-    const config = await prisma.platformConfig.upsert({
-      where: { key },
-      update: { value },
-      create: { key, value }
-    })
+    const config = await runWithRetry(() =>
+      prisma.platformConfig.upsert({
+        where: { key },
+        update: { value },
+        create: { key, value }
+      })
+    )
 
     return NextResponse.json(config)
   } catch (error) {

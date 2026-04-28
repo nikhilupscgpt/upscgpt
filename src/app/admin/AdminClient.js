@@ -7,7 +7,7 @@ import {
   Users, Map as MapIcon, RefreshCw, CreditCard, MessageSquare, 
   Send, ShieldCheck, TrendingUp, HelpCircle, LogOut, ChevronRight,
   Globe, Zap, ZapOff, Trash2, Edit3, PlusCircle, CheckCircle, BrainCircuit,
-  Newspaper, Search, FileText, Link2, Calendar, User, BookOpen, Filter, ChevronDown, ExternalLink, AlertCircle
+  Newspaper, Search, FileText, Link2, Calendar, User, BookOpen, Filter, ChevronDown, ExternalLink, AlertCircle, Trophy
 } from "lucide-react"
 
 export default function AdminClient({ session }) {
@@ -36,6 +36,18 @@ export default function AdminClient({ session }) {
   const [ingestResult, setIngestResult] = useState(null)
   const [recentIngestions, setRecentIngestions] = useState([])
   const [issueDropdownOpen, setIssueDropdownOpen] = useState(false)
+
+  // Test Admin State
+  const [testPacks, setTestPacks] = useState([])
+  const [testForm, setTestForm] = useState({ title: '', description: '', type: 'PRACTICE', durationMins: 0, passingScore: 70, issueId: '' })
+  const [isCreatingTest, setIsCreatingTest] = useState(false)
+  const [questions, setQuestions] = useState([])
+  const [questionSearch, setQuestionSearch] = useState('')
+  const [questionForm, setQuestionForm] = useState({ text: '', options: [{label:'a', text:''}, {label:'b', text:''}, {label:'c', text:''}, {label:'d', text:''}], correctLabel: 'a', explanation: '', difficulty: 'MEDIUM', gsPaper: '', issueId: '' })
+  const [isCreatingQuestion, setIsCreatingQuestion] = useState(false)
+  const [questionSheetUrl, setQuestionSheetUrl] = useState("")
+  const [selectedTestPack, setSelectedTestPack] = useState(null)
+  const [isEditingTestQuestions, setIsEditingTestQuestions] = useState(false)
 
   // Forms
   const [formData, setFormData] = useState({ 
@@ -147,6 +159,147 @@ export default function AdminClient({ session }) {
     setIngestLoading(false);
   }
 
+  const fetchTestPacks = async () => {
+    try {
+      const res = await fetch('/api/admin/tests');
+      const data = await res.json();
+      if (data.success) setTestPacks(data.testPacks || []);
+    } catch (e) { console.error('Test fetch fail', e); }
+  }
+
+  const fetchQuestions = async () => {
+    try {
+      const params = new URLSearchParams();
+      if (questionSearch) params.set('search', questionSearch);
+      const res = await fetch(`/api/admin/questions?${params.toString()}`);
+      const data = await res.json();
+      if (data.success) setQuestions(data.questions || []);
+    } catch (e) { console.error('Question fetch fail', e); }
+  }
+
+  const handleCreateQuestion = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/questions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(questionForm)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStatus("Question Created Successfully.");
+        setQuestionForm({ text: '', options: [{label:'a', text:''}, {label:'b', text:''}, {label:'c', text:''}, {label:'d', text:''}], correctLabel: 'a', explanation: '', difficulty: 'MEDIUM', gsPaper: '', issueId: '' });
+        setIsCreatingQuestion(false);
+        fetchQuestions();
+      }
+    } catch (e) { setStatus("Failed to create question."); }
+    setLoading(false);
+  }
+
+
+  const handleGoogleSheetQuestionSync = () => {
+    if (!questionSheetUrl) return;
+    setLoading(true);
+    setStatus("Syncing Questions from Google Sheet...");
+
+    Papa.parse(questionSheetUrl, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      error: (err) => {
+        setStatus(`Sheet Error: ${err.message}. Ensure CSV link is correct.`);
+        setLoading(false);
+      },
+      complete: async (results) => {
+        const mappedQuestions = results.data.map(q => {
+          const linkedIssue = issues.find(i => i.slug === q.issue_slug);
+          return {
+            text: q.text,
+            options: [
+              { label: 'a', text: q.option_a },
+              { label: 'b', text: q.option_b },
+              { label: 'c', text: q.option_c },
+              { label: 'd', text: q.option_d }
+            ],
+            correctLabel: (q.correct_label || 'a').toLowerCase(),
+            explanation: q.explanation || '',
+            difficulty: q.difficulty || 'MEDIUM',
+            gsPaper: q.gs_paper,
+            issueId: linkedIssue?.id || null,
+            tags: q.tags ? q.tags.split(',').map(t => t.trim()) : []
+          };
+        });
+
+        try {
+          const res = await fetch('/api/admin/questions/bulk', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ questions: mappedQuestions })
+          });
+          const data = await res.json();
+          if (data.success) {
+            setStatus(data.message);
+            fetchQuestions();
+          } else {
+            setStatus(`Import Error: ${data.error}`);
+          }
+        } catch (err) {
+          setStatus("Network error during bulk import.");
+        }
+        setLoading(false);
+      }
+    });
+  }
+
+  const downloadQuestionTemplate = () => {
+    const a = document.createElement('a');
+    a.href = '/templates/questions_template.csv';
+    a.download = 'upsc_questions_template.csv';
+    a.click();
+  }
+
+  const handleCreateTest = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/tests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...testForm, questions: [] }) // Start with empty test, add questions later
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStatus("Test Pack Created Successfully.");
+        setTestForm({ title: '', description: '', type: 'PRACTICE', durationMins: 0, passingScore: 70, issueId: '' });
+        setIsCreatingTest(false);
+        fetchTestPacks();
+      }
+    } catch (e) { setStatus("Failed to create test."); }
+    setLoading(false);
+  }
+
+  const handleUpdateTestQuestions = async (testId, questionIds) => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/tests', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: testId, questionIds })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStatus("Test Pack Questions Updated.");
+        fetchTestPacks();
+        // Refresh the selected pack details
+        const refreshedRes = await fetch(`/api/admin/tests?id=${testId}`);
+        const refreshedData = await refreshedRes.json();
+        if (refreshedData.success) setSelectedTestPack(refreshedData.testPack);
+      }
+    } catch (e) { setStatus("Failed to update test pack."); }
+    setLoading(false);
+  }
+
   useEffect(() => {
     const initAdmin = async () => {
       setLoading(true);
@@ -159,7 +312,9 @@ export default function AdminClient({ session }) {
           fetchConfigs(),
           fetchNewsEngineStatus(),
           fetchAiPrompts(),
-          fetchIssues()
+          fetchIssues(),
+          fetchTestPacks(),
+          fetchQuestions()
         ]);
       }
       setLoading(false);
@@ -416,6 +571,8 @@ export default function AdminClient({ session }) {
           {sidebarItem("users", <Users size={20}/>, "User Management")}
           {sidebarItem("sync", <RefreshCw size={20} className={loading && activeTab==='sync'?'animate-spin':''}/>, "News Sync Engine")}
           {sidebarItem("newsv2", <Newspaper size={20}/>, "News Engine V2")}
+          {sidebarItem("questions", <HelpCircle size={20}/>, "Question Bank")}
+          {sidebarItem("tests", <Trophy size={20}/>, "Test Administration")}
           {sidebarItem("ai", <BrainCircuit size={20}/>, "AI Prompt Control")}
           {sidebarItem("payments", <CreditCard size={20}/>, "Payment Stats")}
           {sidebarItem("comms", <MessageSquare size={20}/>, "Communication")}
@@ -1061,6 +1218,186 @@ export default function AdminClient({ session }) {
               <button disabled={loading} onClick={handleSendComms} style={{ ...btnPrimary, width: '100%', fontSize: '1.2rem', padding: '22px' }}>
                 <Send size={24}/> Dispatch Global Update Now
               </button>
+            </section>
+          </div>
+        )}
+
+        {activeTab === 'questions' && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '40px' }}>
+            <section style={cardStyle}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', marginBottom: '24px' }}>Bulk Ingestion</h2>
+              <div style={{ background: '#f8fafc', padding: '24px', borderRadius: '20px', border: '2px dashed #e2e8f0', textAlign: 'center' }}>
+                <Globe size={40} style={{ margin: '0 auto 16px', color: '#94a3b8' }} />
+                <h3 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '8px' }}>Google Sheet Integration</h3>
+                <p style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '20px' }}>Paste the <b>Published CSV URL</b> of your Google Sheet. It must have standard headers (text, option_a, etc.)</p>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <input 
+                    placeholder="Paste Google Sheet CSV URL here..." 
+                    value={questionSheetUrl} 
+                    onChange={e=>setQuestionSheetUrl(e.target.value)} 
+                    style={{ width: '100%', padding:'14px', borderRadius:'12px', border: '1px solid #cbd5e1' }} 
+                  />
+                  
+                  <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                    <button 
+                      onClick={handleGoogleSheetQuestionSync}
+                      disabled={loading || !questionSheetUrl}
+                      style={{ ...btnPrimary, padding: '12px 24px', flex: 1 }}
+                    >
+                      <RefreshCw size={16} className={loading ? 'animate-spin' : ''} /> Sync From Sheet
+                    </button>
+                    <button 
+                      onClick={downloadQuestionTemplate}
+                      style={{ background: 'white', border: '1px solid #e2e8f0', padding: '12px 20px', borderRadius: '12px', color: '#64748b', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}
+                    >
+                      <FileText size={16} /> Schema Template
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ marginTop: '40px' }}>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', marginBottom: '24px' }}>Question Creator</h2>
+                <form onSubmit={handleCreateQuestion} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <textarea required placeholder="Question Text..." value={questionForm.text} onChange={e=>setQuestionForm({...questionForm, text: e.target.value})} style={{ padding:'16px', borderRadius:'14px', border: '1px solid #e2e8f0', minHeight: '100px' }} />
+                
+                {questionForm.options.map((opt, idx) => (
+                  <div key={idx} style={{ display: 'flex', gap: '8px' }}>
+                    <div style={{ width: '40px', height: '40px', background: '#f1f5f9', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900 }}>{opt.label}</div>
+                    <input required placeholder={`Option ${opt.label}...`} value={opt.text} onChange={e => {
+                      const newOpts = [...questionForm.options];
+                      newOpts[idx].text = e.target.value;
+                      setQuestionForm({...questionForm, options: newOpts});
+                    }} style={{ flex: 1, padding:'10px', borderRadius:'10px', border: '1px solid #e2e8f0' }} />
+                  </div>
+                ))}
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <select value={questionForm.correctLabel} onChange={e=>setQuestionForm({...questionForm, correctLabel: e.target.value})} style={{ padding:'14px', borderRadius:'12px', border: '1px solid #e2e8f0' }}>
+                    <option value="a">Correct: A</option><option value="b">Correct: B</option><option value="c">Correct: C</option><option value="d">Correct: D</option>
+                  </select>
+                  <select value={questionForm.difficulty} onChange={e=>setQuestionForm({...questionForm, difficulty: e.target.value})} style={{ padding:'14px', borderRadius:'12px', border: '1px solid #e2e8f0' }}>
+                    <option value="EASY">Easy</option><option value="MEDIUM">Medium</option><option value="HARD">Hard</option>
+                  </select>
+                </div>
+
+                <textarea placeholder="Explanation / Mission Debrief..." value={questionForm.explanation} onChange={e=>setQuestionForm({...questionForm, explanation: e.target.value})} style={{ padding:'14px', borderRadius:'12px', border: '1px solid #e2e8f0', minHeight: '80px' }} />
+                
+                <button type="submit" disabled={loading} style={{ ...btnPrimary, padding: '18px' }}>Save to Bank</button>
+              </form>
+            </div>
+            </section>
+
+            <section style={cardStyle}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Question Bank</h2>
+                <input placeholder="Search questions..." value={questionSearch} onChange={e=>setQuestionSearch(e.target.value)} style={{ padding: '8px 16px', borderRadius: '10px', border: '1px solid #e2e8f0' }} />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {questions.map(q => (
+                  <div key={q.id} style={{ padding: '20px', background: '#f8fafc', borderRadius: '20px', border: '1px solid #e2e8f0' }}>
+                    <div style={{ fontWeight: 800, fontSize: '0.95rem', marginBottom: '8px' }}>{q.text}</div>
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                      <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#64748b' }}>{q.difficulty}</span>
+                      <span style={{ fontSize: '0.65rem', fontWeight: 700, color: '#3b82f6' }}>{q.correctLabel.toUpperCase()}</span>
+                      <span style={{ fontSize: '0.65rem', color: '#94a3b8' }}>IN {q._count.testPacks} PACKS</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
+        )}
+
+        {activeTab === 'tests' && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '40px' }}>
+            {/* Create Test Section */}
+            <section style={cardStyle}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', marginBottom: '24px', display:'flex', alignItems:'center', gap:'12px' }}>
+                <PlusCircle size={22} color="#3b82f6"/> Create Test Pack
+              </h2>
+              <form onSubmit={handleCreateTest} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <input required placeholder="Test Title (e.g. GS1 Geography Foundation)" value={testForm.title} onChange={e=>setTestForm({...testForm, title: e.target.value})} style={{ padding:'16px', borderRadius:'14px', border: '1px solid #e2e8f0' }} />
+                <textarea placeholder="Test Description..." value={testForm.description} onChange={e=>setTestForm({...testForm, description: e.target.value})} style={{ padding:'16px', borderRadius:'14px', border: '1px solid #e2e8f0', minHeight: '100px' }} />
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <select value={testForm.type} onChange={e=>setTestForm({...testForm, type: e.target.value})} style={{ padding:'14px', borderRadius:'12px', border: '1px solid #e2e8f0' }}>
+                    <option value="PRACTICE">Practice (Learning)</option>
+                    <option value="MOCK">Mock (Simulation)</option>
+                  </select>
+                  <input placeholder="Duration (mins)" type="number" value={testForm.durationMins} onChange={e=>setTestForm({...testForm, durationMins: e.target.value})} style={{ padding:'14px', borderRadius:'12px', border: '1px solid #e2e8f0' }} />
+                </div>
+                
+                <button type="submit" disabled={loading} style={{ ...btnPrimary, padding: '18px' }}>
+                  Generate Test Pack
+                </button>
+              </form>
+            </section>
+
+            {/* List Section */}
+            <section style={cardStyle}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', marginBottom: '24px' }}>Existing Test Packs</h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {testPacks.map(tp => (
+                  <div key={tp.id} style={{ 
+                    padding: '20px', background: '#f8fafc', borderRadius: '20px', border: selectedTestPack?.id === tp.id ? '2px solid #3b82f6' : '1px solid #e2e8f0',
+                    cursor: 'pointer'
+                  }} onClick={async () => {
+                    const res = await fetch(`/api/admin/tests?id=${tp.id}`);
+                    const data = await res.json();
+                    if (data.success) setSelectedTestPack(data.testPack);
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div>
+                        <div style={{ fontWeight: 800, fontSize: '1.05rem' }}>{tp.title}</div>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#3b82f6', marginTop: '4px', textTransform: 'uppercase' }}>
+                          {tp.type} · {tp._count.questions} QUESTIONS
+                        </div>
+                      </div>
+                      <div style={{ background: '#dcfce7', color: '#16a34a', padding: '4px 10px', borderRadius: '8px', fontSize: '0.65rem', fontWeight: 800 }}>
+                        {tp._count.attempts} ATTEMPTS
+                      </div>
+                    </div>
+                    
+                    {selectedTestPack?.id === tp.id && (
+                      <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #e2e8f0' }}>
+                        <h4 style={{ fontSize: '0.85rem', fontWeight: 800, marginBottom: '12px' }}>ASSIGNED QUESTIONS</h4>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '16px' }}>
+                          {selectedTestPack.questions.map(q => (
+                            <div key={q.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', padding: '8px 12px', borderRadius: '8px', fontSize: '0.8rem' }}>
+                              <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{q.text}</span>
+                              <button onClick={(e) => {
+                                e.stopPropagation();
+                                const newIds = selectedTestPack.questions.filter(item => item.id !== q.id).map(item => item.id);
+                                handleUpdateTestQuestions(tp.id, newIds);
+                              }} style={{ color: '#ef4444', border: 'none', background: 'transparent', cursor: 'pointer' }}><Trash2 size={14}/></button>
+                            </div>
+                          ))}
+                          {selectedTestPack.questions.length === 0 && <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>No questions assigned.</div>}
+                        </div>
+                        
+                        <div style={{ background: '#eff6ff', padding: '16px', borderRadius: '12px' }}>
+                          <h5 style={{ fontSize: '0.75rem', fontWeight: 900, color: '#1e40af', marginBottom: '12px' }}>ADD FROM BANK</h5>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto' }}>
+                            {questions.filter(q => !selectedTestPack.questions.some(item => item.id === q.id)).map(q => (
+                              <div key={q.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', padding: '8px 12px', borderRadius: '8px', fontSize: '0.8rem' }}>
+                                <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{q.text}</span>
+                                <button onClick={(e) => {
+                                  e.stopPropagation();
+                                  const newIds = [...selectedTestPack.questions.map(item => item.id), q.id];
+                                  handleUpdateTestQuestions(tp.id, newIds);
+                                }} style={{ color: '#3b82f6', border: 'none', background: 'transparent', cursor: 'pointer' }}><PlusCircle size={14}/></button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {testPacks.length === 0 && <div style={{ textAlign: 'center', color: '#94a3b8', padding: '40px' }}>No test packs created yet.</div>}
+              </div>
             </section>
           </div>
         )}

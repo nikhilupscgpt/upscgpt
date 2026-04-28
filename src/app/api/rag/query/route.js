@@ -1,70 +1,181 @@
-import { NextResponse } from 'next/server';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { generateEmbedding, searchSimilarContent } from '@/lib/rag-utils';
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { generateEmbedding, searchSimilarContent, searchSimilarPYQs } from '@/lib/rag-utils';
+import { getTierStatus } from '@/lib/tier-gate';
+import { getPromptValue } from '@/lib/aiPromptRegistry';
+import prisma from '@/lib/prisma';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const OLLAMA_HOST = process.env.OLLAMA_HOST || 'http://localhost:11434';
+const OLLAMA_FAST_MODEL = 'gemma:2b';       // Lightweight: query rewriting
+const OLLAMA_REASON_MODEL = 'gemma4:e4b';    // Heavy: answer generation
+
+/**
+ * Call Ollama for a single-shot non-streaming completion (query rewriting).
+ */
+async function ollamaGenerate(model, prompt) {
+  const res = await fetch(`${OLLAMA_HOST}/api/generate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model, prompt, stream: false })
+  });
+  const data = await res.json();
+  return data.response || '';
+}
+
+/**
+ * Generates a standalone search query based on chat history using Gemma 2B (fast).
+ */
+async function getStandaloneQuery(history, currentQuery) {
+  if (!history || history.length === 0) return currentQuery;
+  const prompt = `Rephrase the follow-up question to be a standalone search query for a UPSC database.
+History: ${history.map(m => `${m.role}: ${m.content}`).join('\n')}
+Follow-up: ${currentQuery}
+Standalone Query:`;
+  try {
+    const result = await ollamaGenerate(OLLAMA_FAST_MODEL, prompt);
+    return result.trim() || currentQuery;
+  } catch (err) { return currentQuery; }
+}
 
 export async function POST(req) {
-  // 1. Optional Auth (Depends on if you want free users to use this)
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  const { isPro, user } = await getTierStatus();
+  if (!user) return new Response(JSON.stringify({ error: 'Auth required' }), { status: 401 });
 
   try {
     const body = await req.json();
-    const { query, subject, examType } = body;
+    const { query, subject, examType, optionalSlug, history = [] } = body;
+    if (!query) return new Response(JSON.stringify({ error: 'Missing query' }), { status: 400 });
 
-    if (!query) {
-      return NextResponse.json({ error: 'Missing query' }, { status: 400 });
+    let optionalId = null;
+    if (optionalSlug) {
+      const opt = await prisma.optionalSubject.findUnique({ where: { slug: optionalSlug } });
+      optionalId = opt?.id || null;
     }
 
-    // 2. Embed the User Query
-    const queryEmbedding = await generateEmbedding(query);
+    // 1. Context Search
+    const standaloneQuery = await getStandaloneQuery(history, query);
+    console.log(`[RAG] Standalone Query: ${standaloneQuery}`);
+    
+    // Topic Detection (Search Issue Graph)
+    const matchingIssue = await prisma.issue.findFirst({
+      where: {
+        OR: [
+          { title: { contains: query.substring(0, 50), mode: 'insensitive' } },
+          { topic: { contains: query.substring(0, 50), mode: 'insensitive' } }
+        ]
+      },
+      select: { title: true, slug: true }
+    });
 
-    // 3. Retrieve Context from Vector DB
-    // Limit to 5 chunks to stay within context windows and keep it highly relevant
-    const results = await searchSimilarContent(queryEmbedding, subject, examType, 5);
+    const queryEmbedding = await generateEmbedding(standaloneQuery);
+    const [results, pyqs] = await Promise.all([
+      searchSimilarContent(queryEmbedding, subject, examType, 4, optionalId),
+      searchSimilarPYQs(queryEmbedding, subject, optionalId, 3)
+    ]);
 
-    if (!results || results.length === 0) {
-      return NextResponse.json({ 
-        response: "I couldn't find any specific materials in the UPSC portal database regarding your query. Please broaden your search or ask about a different subject.",
-        sources: [] 
-      });
-    }
+    const contextStrs = results.map(r => `[Source: ${r.title}]\n${r.contentMarkdown}`).join('\n\n---\n\n');
+    const pyqStrs = pyqs.length > 0 ? pyqs.map(p => `[PYQ ${p.year} (${p.paper})]: ${p.questionText}`).join('\n') : '';
+    const historyStrs = history.slice(-4).map(m => `${m.role.toUpperCase()}: ${m.content}`).join('\n');
+    
+    const sources = results.map(r => ({ title: r.title, url: r.sourceUrl }));
+    const pyqMeta = pyqs.map(p => ({ year: p.year, paper: p.paper, text: p.questionText, marks: p.marks }));
 
-    // 4. Construct the RAG Prompt
-    const contextStrs = results.map((r, i) => `[Source ${i+1}: ${r.title}]\n${r.contentMarkdown}`).join('\n\n---\n\n');
-    const sources = results.map(r => ({ title: r.title, url: r.sourceUrl, subject: r.subject }));
-
-    const instruction = examType === 'MAINS' 
-      ? 'You are an expert UPSC Mains evaluator. Answer the student\'s question comprehensively and analytically using ONLY the provided context blocks. Do not introduce outside facts. Structure your answer with an introduction, key points (bulleted), and a synthesized conclusion. Read like an official UPSC model answer.'
-      : 'You are an expert UPSC Prelims tutor. Answer the student\'s question concisely based ONLY on the provided context blocks. Ignore any irrelevant context blocks. If the context does not contain the answer, politely say you don\'t have that information in the database.';
+    let promptId = optionalSlug ? 'rag.query.optional' : (examType === 'MAINS' ? 'rag.query.mains' : 'rag.query.prelims');
+    const instruction = await getPromptValue(promptId);
 
     const finalPrompt = `
-Instruction: ${instruction}
+SYSTEM INSTRUCTION:
+${instruction}
 
-Context Blocks:
+${matchingIssue ? `PROACTIVE GUIDANCE:
+I found a comprehensive UPSC Content Page for "${matchingIssue.title}". 
+Before giving the answer, prefix your response with a 1-sentence note suggesting the student check out this content page for structured preparation. 
+Link: /issues/${matchingIssue.slug}` : ''}
+
+If the Student's Question is a follow-up to the Conversation Memory below, focus STRICTLY on the new specific inquiry. DO NOT repeat general overviews, intros, or sections from previous answers unless they are absolutely required for the new analysis.
+
+REFERENCE MATERIAL (Use for evidence only):
 ${contextStrs}
 
-Student Query: ${query}
-    `;
+UPSC EXAM HISTORY (PYQs):
+${pyqStrs}
 
-    // 5. Generate Answer with Gemini
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-    const aiResponse = await model.generateContent(finalPrompt);
-    const answerMarkdown = aiResponse.response.text();
+CONVERSATION MEMORY (Prior context):
+${historyStrs}
 
-    return NextResponse.json({ 
-      success: true, 
-      response: answerMarkdown,
-      sources: sources
+CURRENT STUDENT QUESTION:
+${query}
+
+YOUR PROFESSIONAL RESPONSE (Follow the structure rules but keep it focused):`;
+
+    const metadata = { sources, pyqs: pyqMeta, isMetadata: true, matchingIssue };
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        // First packet: Metadata (Sources + PYQs)
+        controller.enqueue(encoder.encode(`METADATA:${JSON.stringify(metadata)}\n`));
+
+        try {
+          // 2. Attempt Streaming via Ollama
+          const ollamaRes = await fetch(`${OLLAMA_HOST}/api/generate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model: OLLAMA_REASON_MODEL, prompt: finalPrompt, stream: true }),
+            signal: AbortSignal.timeout(5000), // Timeout after 5s to trigger fallback
+          });
+
+          if (!ollamaRes.ok) throw new Error(`Ollama error: ${ollamaRes.status}`);
+
+          const ollamaReader = ollamaRes.body.getReader();
+          while (true) {
+            const { value, done } = await ollamaReader.read();
+            if (done) break;
+            const chunk = decoder.decode(value);
+            const lines = chunk.split('\n').filter(Boolean);
+            for (const line of lines) {
+              try {
+                const parsed = JSON.parse(line);
+                if (parsed.response) controller.enqueue(encoder.encode(parsed.response));
+              } catch { /* skip malformed lines */ }
+            }
+          }
+        } catch (ollamaErr) {
+          console.warn(`[RAG] Ollama generation failed, falling back to Gemini:`, ollamaErr.message);
+          
+          try {
+            const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+            const model = genAI.getGenerativeModel({ model: "gemma-3n-e4b-it" });
+            const result = await model.generateContentStream(finalPrompt);
+
+            for await (const chunk of result.stream) {
+              const chunkText = chunk.text();
+              if (chunkText) controller.enqueue(encoder.encode(chunkText));
+            }
+          } catch (geminiErr) {
+            console.error(`[RAG] Gemini fallback also failed:`, geminiErr);
+            controller.enqueue(encoder.encode("\n\n**Error:** AI service unavailable. Please check Ollama and Gemini API status."));
+          }
+        }
+        controller.close();
+      }
+    });
+
+    // Log usage (fire and forget)
+    prisma.actionLog.create({
+      data: { userId: user.id, action: 'RAG_QUERY', status: 'SUCCESS', message: `[Gemma4] ${standaloneQuery.substring(0, 50)}` }
+    }).catch(() => {});
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      }
     });
 
   } catch (error) {
     console.error('[RAG Query] Failed:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
   }
 }

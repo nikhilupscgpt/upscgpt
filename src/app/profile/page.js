@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 import Script from "next/script";
+import { Zap, Clock, CheckCircle, BookOpen, Activity, Settings, TrendingUp } from "lucide-react";
 
 export default function ProfilePage() {
   const { data: session, status, update } = useSession();
@@ -14,6 +15,9 @@ export default function ProfilePage() {
     examYear: 2025,
     preferences: { studyMode: "comprehensive" }
   });
+  const [stats, setStats] = useState(null);
+  const [activity, setActivity] = useState([]);
+  const [optionals, setOptionals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -21,20 +25,39 @@ export default function ProfilePage() {
     if (status === "unauthenticated") {
       router.push("/");
     } else if (status === "authenticated") {
-      fetch("/api/user/profile")
-        .then((res) => res.json())
-        .then((data) => {
+      const fetchData = async () => {
+        try {
+          const [profileRes, statsRes, optionalsRes] = await Promise.all([
+            fetch("/api/user/profile"),
+            fetch("/api/user/dashboard-stats"),
+            fetch("/api/optionals")
+          ]);
+          
+          const profileData = await profileRes.json();
+          const statsData = await statsRes.json();
+          const optionalsData = await optionalsRes.json();
+
+          setOptionals(optionalsData);
+
           setProfile({
-            name: data.name || "",
-            examYear: data.examYear || 2025,
-            preferences: data.preferences || { studyMode: "comprehensive" }
+            name: profileData.name || "",
+            examYear: profileData.examYear || 2025,
+            preferences: profileData.preferences || { studyMode: "comprehensive" }
           });
+
+          if (statsData.success) {
+            setStats(statsData.stats);
+            setActivity(statsData.recentActivity || []);
+          }
+        } catch (error) {
+          console.error("Dashboard Fetch Error:", error);
+          toast.error("Failed to load strategic data");
+        } finally {
           setLoading(false);
-        })
-        .catch(() => {
-          toast.error("Failed to load profile");
-          setLoading(false);
-        });
+        }
+      };
+
+      fetchData();
     }
   }, [status, router]);
 
@@ -65,13 +88,41 @@ export default function ProfilePage() {
   const handleUpgrade = async () => {
     setSaving(true);
     try {
-      // 1. Create Order
       const orderRes = await fetch("/api/payment/order", { method: "POST" });
       const orderData = await orderRes.json();
-      
       if (!orderRes.ok) throw new Error(orderData.error || "Order creation failed");
 
-      // 2. Configure Razorpay Options
+      // SIMULATOR MODE: Bypass Razorpay modal if mock order
+      if (orderData.isMock) {
+        toast.loading("Simulating secure payment...", { id: "pay" });
+        try {
+          const verifyRes = await fetch("/api/payment/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_order_id: orderData.id,
+              razorpay_payment_id: `mock_pay_${Date.now()}`,
+              razorpay_signature: "mock_signature"
+            }),
+          });
+          
+          const verifyData = await verifyRes.json();
+          if (verifyRes.ok) {
+            toast.success("Simulator: Upgrade Successful!", { id: "pay" });
+            // FORCE RE-FETCH
+            await update(); 
+            window.location.reload(); // Hard reload to ensure all states sync
+          } else {
+            toast.error(verifyData.error || "Simulation failed", { id: "pay" });
+            setSaving(false);
+          }
+        } catch (err) {
+          toast.error("Simulator connection error", { id: "pay" });
+          setSaving(false);
+        }
+        return;
+      }
+
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: orderData.amount,
@@ -80,33 +131,17 @@ export default function ProfilePage() {
         description: "PRO Tier Strategic Access",
         order_id: orderData.id,
         handler: async function (response) {
-          // 3. Verify Payment
-          try {
-            const verifyRes = await fetch("/api/payment/verify", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-              }),
-            });
-
-            const verifyData = await verifyRes.json();
-            if (verifyRes.ok) {
-              toast.success("Welcome to PRO, Strategist!");
-              await update({ tier: 'PRO' });
-            } else {
-              toast.error(verifyData.error || "Verification failed");
-            }
-          } catch (err) {
-            toast.error("Verification connection error");
+          const verifyRes = await fetch("/api/payment/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(response),
+          });
+          if (verifyRes.ok) {
+            toast.success("Welcome to PRO, Strategist!");
+            await update({ tier: 'PRO' });
           }
         },
-        prefill: {
-          name: session?.user?.name,
-          email: session?.user?.email,
-        },
+        prefill: { name: session?.user?.name, email: session?.user?.email },
         theme: { color: "#3b82f6" },
       };
 
@@ -122,166 +157,352 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div style={{ minHeight: '100vh', background: '#020617', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Loading Strategic Profile...</div>
+        <div style={{ color: '#94a3b8', fontSize: '0.9rem', fontWeight: 900, letterSpacing: '1px' }}>INITIALIZING STRATEGIC DASHBOARD...</div>
       </div>
     );
   }
 
-  const containerStyle = {
-    minHeight: '100vh',
-    background: 'linear-gradient(135deg, #020617 0%, #0f172a 100%)',
-    color: 'white',
-    fontFamily: "'Outfit', sans-serif"
-  };
-
-  const contentStyle = {
-    maxWidth: '800px',
-    margin: '0 auto',
-    padding: '4rem 2rem'
-  };
-
-  const cardStyle = {
-    background: 'rgba(255, 255, 255, 0.03)',
-    border: '1px solid rgba(255, 255, 255, 0.08)',
-    borderRadius: '24px',
-    padding: '2.5rem',
-    backdropFilter: 'blur(20px)'
-  };
-
-  const inputStyle = {
-    width: '100%',
-    padding: '12px 16px',
-    background: 'rgba(255, 255, 255, 0.05)',
-    border: '1px solid rgba(255, 255, 255, 0.1)',
-    borderRadius: '12px',
-    color: 'white',
-    fontSize: '0.95rem',
-    outline: 'none',
-    transition: 'border-color 0.2s'
-  };
-
-  const labelStyle = {
-    display: 'block',
-    fontSize: '0.75rem',
-    fontWeight: '800',
-    color: '#94a3b8',
-    textTransform: 'uppercase',
-    letterSpacing: '0.05em',
-    marginBottom: '8px'
-  };
-
-  const tierBadgeStyle = {
-    padding: '4px 12px',
-    borderRadius: '100px',
-    fontSize: '0.7rem',
-    fontWeight: '900',
-    background: session?.user?.tier === 'PRO' ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' : 'rgba(255,255,255,0.1)',
-    color: session?.user?.tier === 'PRO' ? 'black' : '#94a3b8'
-  };
+  const isPro = session?.user?.tier === 'PRO' || session?.user?.role === 'ADMIN';
 
   return (
-    <div style={containerStyle}>
+    <div className="profile-container">
       <Toaster position="bottom-right" />
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
       
-      <main style={contentStyle}>
-        <div style={{ marginBottom: '2.5rem' }}>
-          <h1 style={{ fontSize: '2.5rem', fontWeight: '900', marginBottom: '0.5rem', letterSpacing: '-0.02em' }}>Student Profile</h1>
-          <p style={{ color: '#94a3b8', fontSize: '1.1rem' }}>Manage your UPSC preparation settings and account status.</p>
-        </div>
+      <main className="profile-main">
+        
+        {/* HEADER SECTION */}
+        <header className="profile-header">
+          <div className="header-info">
+            <div className="title-group">
+              <h1 className="hero-title">Hello, {session?.user?.name}</h1>
+              {isPro && (
+                <span className="pro-badge">
+                  <Zap size={10} fill="black" /> PRO MEMBER
+                </span>
+              )}
+            </div>
+            <p className="hero-subtitle">Tracking your neural progress for the {profile.examYear} Strategic Cycle.</p>
+          </div>
+          <button className="settings-toggle" onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}>
+            <Settings size={14} /> <span className="hide-mobile">ACCOUNT SETTINGS</span>
+          </button>
+        </header>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
-          {/* Identity Card */}
-          <div style={cardStyle}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '2rem' }}>
-              <div style={{ width: '80px', height: '80px', borderRadius: '20px', background: 'linear-gradient(135deg, #3b82f6, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>
-                {session?.user?.name?.[0] || 'U'}
+        <div className="dashboard-grid">
+          
+          {/* LEFT COLUMN: PROGRESS & ANALYTICS */}
+          <div className="analytics-col">
+            
+            {/* OVERVIEW CARDS */}
+            <div className="stats-grid">
+              <div style={statCardStyle}>
+                <div style={statIconStyle('#3b82f6')}><BookOpen size={20} /></div>
+                <div className="stat-val">{stats?.totalProgress || 0}</div>
+                <div className="stat-label">Issues Explored</div>
               </div>
-              <div>
-                <h2 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0 }}>{session?.user?.name}</h2>
-                <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '0.5rem' }}>{session?.user?.email}</p>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <span style={tierBadgeStyle}>{session?.user?.tier} TIER</span>
-                  <span style={{ ...tierBadgeStyle, background: 'rgba(255,255,255,0.05)', color: '#64748b' }}>{session?.user?.role}</span>
-                </div>
+              <div style={statCardStyle}>
+                <div style={statIconStyle('#10b981')}><CheckCircle size={20} /></div>
+                <div className="stat-val">{stats?.masteredCount || 0}</div>
+                <div className="stat-label">Nodes Mastered</div>
+              </div>
+              <div style={statCardStyle}>
+                <div style={statIconStyle('#f59e0b')}><TrendingUp size={20} /></div>
+                <div className="stat-val">{Math.round(((stats?.masteredCount || 0) / 545) * 100)}%</div>
+                <div className="stat-label">Global Coverage</div>
               </div>
             </div>
 
-            {session?.user?.tier === 'FREE' && (
-              <div style={{ padding: '1.5rem', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)', borderRadius: '16px' }}>
-                <h3 style={{ color: '#fbbf24', fontSize: '0.95rem', fontWeight: '800', marginBottom: '0.5rem' }}>UPGRADE TO PRO</h3>
-                <p style={{ fontSize: '0.8rem', color: 'rgba(251, 191, 36, 0.8)', marginBottom: '1rem' }}>Get unlimited map exports, AI-evaluated mains answers, and daily high-priority geopolitical intel.</p>
-                <button 
-                  onClick={handleUpgrade}
-                  disabled={saving}
-                  style={{ width: '100%', padding: '10px', borderRadius: '10px', background: '#fbbf24', color: 'black', fontWeight: '900', border: 'none', cursor: saving ? 'wait' : 'pointer', opacity: saving ? 0.7 : 1 }}
-                >
-                  {saving ? "Processing..." : "Go Pro Now"}
+            {/* SYLLABUS HEATMAP */}
+            <div style={bigCardStyle}>
+              <h3 style={cardTitleStyle}>Syllabus Mastery Heatmap</h3>
+              <div className="heatmap-list">
+                {['GS1', 'GS2', 'GS3', 'GS4', 'OPTIONAL'].map(gs => {
+                  const data = stats?.gsStats?.[gs];
+                  if (gs === 'OPTIONAL' && !profile.preferences?.selectedOptional) return null;
+                  if (!data) return null;
+
+                  const percent = data.total > 0 ? Math.round((data.mastered / data.total) * 100) : 0;
+                  
+                  let label = gs;
+                  if (gs === 'GS1') label = 'GS1: History';
+                  if (gs === 'GS2') label = 'GS2: Polity';
+                  if (gs === 'GS3') label = 'GS3: Economy';
+                  if (gs === 'GS4') label = 'GS4: Ethics';
+                  if (gs === 'OPTIONAL') {
+                    const opt = optionals.find(o => o.id === profile.preferences?.selectedOptional);
+                    label = opt ? `OPT: ${opt.name}` : 'Optional Subject';
+                  }
+
+                  return (
+                    <div key={gs} className="heatmap-item">
+                      <div className="heatmap-label">
+                        <span>{label}</span>
+                        <span className="percent-val">{percent}%</span>
+                      </div>
+                      <div className="progress-bar-bg">
+                        <div className="progress-bar-fill" style={{ width: `${percent}%`, background: gs === 'OPTIONAL' ? 'linear-gradient(90deg, #f59e0b, #fbbf24)' : undefined }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* DOMAIN BREAKDOWN */}
+            <div style={bigCardStyle}>
+              <h3 style={cardTitleStyle}>Domain Intelligence</h3>
+              <div className="domain-grid">
+                {Object.entries(stats?.domainStats || {}).slice(0, 8).map(([domain, data]) => (
+                  <div key={domain} className="domain-card">
+                    <div className="domain-label">{domain}</div>
+                    <div className="domain-val">{data.mastered}/{data.total}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+
+          {/* RIGHT COLUMN: ACTIVITY & UPGRADE */}
+          <div className="sidebar-col">
+            
+            {/* UPGRADE PRO CARD */}
+            {!isPro && (
+              <div className="upgrade-card">
+                <Zap size={32} style={{ color: '#fbbf24', marginBottom: '1rem' }} />
+                <h3 className="upgrade-title">ELEVATE TO PRO</h3>
+                <p className="upgrade-desc">Unlock unlimited neural RAG queries and priority intelligence syncing.</p>
+                <button onClick={handleUpgrade} className="upgrade-btn">
+                  Upgrade for ₹499/mo
                 </button>
               </div>
             )}
+
+            {/* RECENT ACTIVITY */}
+            <div style={bigCardStyle}>
+              <h3 className="card-title-with-icon">
+                <Activity size={16} /> Recent Activity
+              </h3>
+              <div className="activity-list">
+                {activity.length > 0 ? activity.map((act) => (
+                  <div key={act.id} className="activity-item">
+                    <div className="activity-icon">
+                      {act.action.includes('PRO') || act.action.includes('UPGRADE') ? <Zap size={16} color="#fbbf24" /> : <Clock size={16} color="#64748b" />}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div className="activity-action">
+                        {act.action.replace(/_/g, ' ')}
+                        {act.user && <span className="admin-user-tag"> • {act.user.name || act.user.email.split('@')[0]}</span>}
+                      </div>
+                      <div className="activity-msg">{act.message}</div>
+                      <div className="activity-date">{new Date(act.createdAt).toLocaleString()}</div>
+                    </div>
+                  </div>
+                )) : (
+                  <div className="empty-msg">No recent activity vectors found.</div>
+                )}
+              </div>
+            </div>
+
           </div>
+        </div>
 
-          {/* Settings Form */}
-          <div style={cardStyle}>
-            <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <div>
-                <label style={labelStyle}>Display Name</label>
-                <input 
-                  type="text" 
-                  value={profile.name} 
-                  onChange={(e) => setProfile({...profile, name: e.target.value})}
-                  style={inputStyle}
-                  placeholder="Your Name"
-                />
-              </div>
-
-              <div>
-                <label style={labelStyle}>Target Exam Year</label>
-                <select 
-                  value={profile.examYear} 
-                  onChange={(e) => setProfile({...profile, examYear: parseInt(e.target.value)})}
-                  style={inputStyle}
-                >
-                  <option value={2025}>2025</option>
-                  <option value={2026}>2026</option>
-                  <option value={2027}>2027</option>
-                </select>
-              </div>
-
-              <div>
-                <label style={labelStyle}>Preparation Mode</label>
-                <select 
-                  value={profile.preferences.studyMode} 
-                  onChange={(e) => setProfile({
-                    ...profile, 
-                    preferences: { ...profile.preferences, studyMode: e.target.value }
-                  })}
-                  style={inputStyle}
-                >
-                  <option value="comprehensive">Comprehensive (Integrates Prelims + Mains)</option>
-                  <option value="prelims_focussed">Prelims Focussed (Fast pace)</option>
-                  <option value="mains_focussed">Mains Focussed (Deep analysis)</option>
-                </select>
-              </div>
-
-              <button 
-                type="submit" 
-                disabled={saving}
-                style={{
-                  width: '100%', padding: '12px', borderRadius: '12px', 
-                  background: 'linear-gradient(135deg, #3b82f6, #2563eb)', 
-                  color: 'white', fontWeight: '800', border: 'none', cursor: saving ? 'wait' : 'pointer',
-                  opacity: saving ? 0.7 : 1, transition: 'all 0.2s',
-                  boxShadow: '0 4px 12px rgba(37, 99, 235, 0.3)'
-                }}
-              >
-                {saving ? "Saving Changes..." : "Secure Update"}
-              </button>
-            </form>
+        {/* SETTINGS SECTION */}
+        <div className="settings-section">
+          <h2 className="section-title">Account Configuration</h2>
+          <div className="settings-grid">
+            <div style={bigCardStyle}>
+              <form onSubmit={handleSave} className="settings-form">
+                <div>
+                  <label style={labelStyle}>Display Name</label>
+                  <input type="text" value={profile.name} onChange={e => setProfile({...profile, name: e.target.value})} style={inputStyle} />
+                </div>
+                <div className="form-row">
+                  <div>
+                    <label style={labelStyle}>Target Year</label>
+                    <select value={profile.examYear} onChange={e => setProfile({...profile, examYear: parseInt(e.target.value)})} style={inputStyle}>
+                      <option value={2025}>2025 Cycle</option>
+                      <option value={2026}>2026 Cycle</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Optional Subject</label>
+                    <select 
+                      value={profile.preferences?.selectedOptional || ""} 
+                      onChange={e => setProfile({...profile, preferences: {...profile.preferences, selectedOptional: e.target.value}})} 
+                      style={inputStyle}
+                    >
+                      <option value="">Not Selected</option>
+                      {optionals.map(opt => (
+                        <option key={opt.id} value={opt.id}>{opt.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Study Mode</label>
+                    <select value={profile.preferences.studyMode} onChange={e => setProfile({...profile, preferences: {...profile.preferences, studyMode: e.target.value}})} style={inputStyle}>
+                      <option value="comprehensive">Comprehensive</option>
+                      <option value="fast_track">Fast Track</option>
+                    </select>
+                  </div>
+                </div>
+                <button type="submit" disabled={saving} className="save-btn">
+                  {saving ? "SAVING..." : "SECURE UPDATE"}
+                </button>
+              </form>
+            </div>
+            <div style={bigCardStyle}>
+               <h4 style={labelStyle}>Linked Accounts</h4>
+               <div className="account-pill">
+                 <div className="email-val">{session?.user?.email}</div>
+                 <span className="primary-tag">PRIMARY</span>
+               </div>
+            </div>
           </div>
         </div>
       </main>
+
+      <style jsx>{`
+        .profile-container {
+          min-height: 100vh;
+          background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+          color: white;
+          font-family: 'Outfit', sans-serif;
+        }
+
+        .profile-main {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 3rem 2rem;
+        }
+
+        .profile-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+          margin-bottom: 3rem;
+        }
+
+        .title-group { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
+        .hero-title { font-size: 2.5rem; font-weight: 900; margin: 0; letter-spacing: -0.03em; }
+        .pro-badge { padding: 4px 12px; border-radius: 100px; background: #fbbf24; color: black; font-size: 0.7rem; font-weight: 900; display: flex; align-items: center; gap: 4px; }
+        .hero-subtitle { color: #64748b; font-size: 1.1rem; }
+
+        .settings-toggle { display: flex; align-items: center; gap: 8px; color: #94a3b8; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 12px; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
+
+        .dashboard-grid { display: grid; grid-template-columns: 1.8fr 1fr; gap: 2.5rem; }
+        .analytics-col, .sidebar-col { display: flex; flex-direction: column; gap: 2rem; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .stat-val { font-size: 1.5rem; font-weight: 900; }
+        .stat-label { font-size: 0.7rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
+
+        .heatmap-list { display: flex; flex-direction: column; gap: 1.5rem; }
+        .heatmap-label { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem; font-weight: 800; }
+        .percent-val { color: #10b981; }
+        .progress-bar-bg { height: 8px; background: rgba(255,255,255,0.05); border-radius: 100px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #10b981); transition: width 1s ease; }
+
+        .domain-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
+        .domain-card { padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
+        .domain-label { font-size: 0.6rem; font-weight: 900; color: #64748b; margin-bottom: 4px; }
+        .domain-val { font-size: 1rem; font-weight: 900; }
+
+        .upgrade-card { padding: 2rem; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 24px; text-align: center; }
+        .upgrade-title { font-size: 1.25rem; font-weight: 900; color: #fbbf24; margin-bottom: 0.5rem; }
+        .upgrade-desc { font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-bottom: 1.5rem; line-height: 1.6; }
+        .upgrade-btn { width: 100%; padding: 12px; border-radius: 12px; background: #fbbf24; color: black; font-weight: 900; border: none; cursor: pointer; }
+
+        .card-title-with-icon { display: flex; align-items: center; gap: 8px; font-size: 1rem; font-weight: 900; margin-bottom: 1.5rem; }
+        .activity-list { display: flex; flex-direction: column; gap: 1rem; }
+        .activity-item { display: flex; gap: 12px; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+        .activity-icon { padding: 8px; background: rgba(255,255,255,0.03); border-radius: 8px; height: fit-content; }
+        .activity-action { font-size: 0.8rem; font-weight: 800; text-transform: capitalize; }
+        .activity-msg { font-size: 0.75rem; color: #64748b; }
+        .activity-date { font-size: 0.65rem; color: #475569; margin-top: 4px; }
+        .admin-user-tag { font-size: 0.65rem; color: #3b82f6; font-weight: 900; opacity: 0.8; }
+        .empty-msg { text-align: center; padding: 2rem; color: #475569; font-size: 0.8rem; }
+
+        .settings-section { margin-top: 5rem; padding-top: 3rem; border-top: 1px solid rgba(255,255,255,0.06); }
+        .section-title { font-size: 1.5rem; font-weight: 900; margin-bottom: 2rem; }
+        .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
+        .settings-form { display: flex; flexDirection: column; gap: 1.5rem; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .save-btn { width: 100%; padding: 12px; border-radius: 12px; background: #3b82f6; color: white; font-weight: 900; border: none; cursor: pointer; }
+
+        .account-pill { padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .email-val { font-size: 0.85rem; }
+        .primary-tag { font-size: 0.6rem; font-weight: 900; color: #10b981; background: rgba(16, 185, 129, 0.1); padding: 2px 8px; border-radius: 4px; }
+
+        @media (max-width: 900px) {
+          .dashboard-grid { grid-template-columns: 1fr; }
+          .hero-title { font-size: 1.8rem; }
+          .profile-main { padding: 1.5rem 1rem; }
+          .stats-grid { grid-template-columns: 1fr; gap: 1rem; }
+          .hide-mobile { display: none; }
+          .profile-header { align-items: center; }
+        }
+      `}</style>
     </div>
   );
 }
+
+// STYLES
+const statCardStyle = {
+  background: 'rgba(255, 255, 255, 0.02)',
+  border: '1px solid rgba(255, 255, 255, 0.05)',
+  borderRadius: '20px',
+  padding: '1.5rem',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '0.5rem',
+  backdropFilter: 'blur(10px)'
+};
+
+const statIconStyle = (color) => ({
+  width: '36px',
+  height: '36px',
+  borderRadius: '10px',
+  background: `${color}15`,
+  color: color,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  marginBottom: '0.5rem'
+});
+
+const bigCardStyle = {
+  background: 'rgba(255, 255, 255, 0.02)',
+  border: '1px solid rgba(255, 255, 255, 0.05)',
+  borderRadius: '24px',
+  padding: '2rem'
+};
+
+const cardTitleStyle = {
+  fontSize: '1rem',
+  fontWeight: 900,
+  marginBottom: '1.5rem',
+  letterSpacing: '0.5px'
+};
+
+const labelStyle = {
+  display: 'block',
+  fontSize: '0.65rem',
+  fontWeight: 900,
+  color: '#64748b',
+  textTransform: 'uppercase',
+  marginBottom: '8px',
+  letterSpacing: '1px'
+};
+
+const inputStyle = {
+  width: '100%',
+  padding: '12px 16px',
+  background: 'rgba(255, 255, 255, 0.03)',
+  border: '1px solid rgba(255, 255, 255, 0.08)',
+  borderRadius: '12px',
+  color: 'white',
+  fontSize: '0.9rem',
+  outline: 'none'
+};

@@ -1,0 +1,74 @@
+import { NextResponse } from 'next/server';
+import prisma from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+
+export async function GET(req) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user?.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const issueId = searchParams.get('issueId');
+    const gsPaper = searchParams.get('gsPaper');
+    const search = searchParams.get('search');
+
+    const questions = await prisma.question.findMany({
+      where: {
+        issueId: issueId || undefined,
+        gsPaper: gsPaper || undefined,
+        text: search ? { contains: search, mode: 'insensitive' } : undefined,
+      },
+      include: {
+        issue: { select: { title: true } },
+        _count: { select: { testPacks: true } }
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 50
+    });
+
+    return NextResponse.json({ success: true, questions });
+  } catch (error) {
+    console.error(`[Admin Questions API] GET Error:`, error);
+    return NextResponse.json({ error: 'Failed to fetch questions' }, { status: 500 });
+  }
+}
+
+export async function POST(req) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user?.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { 
+      text, options, correctLabel, explanation, 
+      difficulty, gsPaper, issueId, tags 
+    } = body;
+
+    if (!text || !options || !correctLabel) {
+      return NextResponse.json({ error: 'Missing mandatory fields' }, { status: 400 });
+    }
+
+    const question = await prisma.question.create({
+      data: {
+        text,
+        options,
+        correctLabel,
+        explanation,
+        difficulty: difficulty || 'MEDIUM',
+        gsPaper,
+        issueId,
+        tags: tags || [],
+      }
+    });
+
+    return NextResponse.json({ success: true, question });
+  } catch (error) {
+    console.error(`[Admin Questions API] POST Error:`, error);
+    return NextResponse.json({ error: 'Failed to create question' }, { status: 500 });
+  }
+}

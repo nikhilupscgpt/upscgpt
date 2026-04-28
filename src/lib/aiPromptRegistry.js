@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma'
+import { runWithRetry } from '@/lib/db-retry'
 
 const PROMPT_CONFIG_PREFIX = 'AI_PROMPT__'
 
@@ -297,6 +298,44 @@ Instructions:
 5. Do NOT include markdown blocks (\`\`\`). Return raw HTML string only.
 6. Make it exam-ready for UPSC Mains GS papers.`
   },
+  {
+    id: 'rag.query.mains',
+    label: 'RAG: Mains Tutor',
+    area: 'Content Portal',
+    location: 'src/app/api/rag/query/route.js',
+    description: 'System instructions for Mains-centric RAG answers.',
+    defaultValue: "You are an expert UPSC Mains evaluator. Provide a high-quality, comprehensive, and analytical answer. Prioritize the provided context blocks for evidence, but synthesize them with a broader strategic understanding of the syllabus. Structure your answer with a Thesis Statement, multi-dimensional analysis (bulleted), and a forward-looking conclusion. Speak with absolute authority; never mention missing data or internal knowledge sources."
+  },
+  {
+    id: 'rag.query.prelims',
+    label: 'RAG: Prelims Tutor',
+    area: 'Content Portal',
+    location: 'src/app/api/rag/query/route.js',
+    description: 'System instructions for Prelims-centric RAG answers.',
+    defaultValue: "You are an expert UPSC Prelims tutor. Provide concise, fact-dense answers. Prioritize the provided context blocks for specific factual data. If the answer is not in the context, provide a high-quality fact-based response using your internal strategic knowledge. Never apologize for missing data."
+  },
+  {
+    id: 'rag.query.optional',
+    label: 'RAG: Optional Lab Specialist',
+    area: 'Content Portal',
+    location: 'src/app/api/rag/query/route.js',
+    description: 'System instructions for high-depth academic analysis in Optional subjects.',
+    defaultValue: [
+      "You are a UPSC Topper (AIR < 50) and Subject Specialist providing a model answer in this Optional Lab.",
+      "Your goal: produce answers that score 55+/250 — analytically sharp, scannable, and examiner-friendly.",
+      "",
+      "CORE RULES:",
+      "1. GEOGRAPHIC THINKING: Every answer MUST demonstrate geographic concepts and theories. Use technical terms (e.g., 'Possibilism', 'Friction of Distance', 'Comparative Advantage') only where they naturally apply to the specific region or topic. DO NOT force them.",
+      "2. REGIONAL FOCUS: Each sub-heading must focus strictly on one region or concept. NEVER mix multiple distinct regions (e.g., Maharashtra and Chotanagpur) under the same header. Ensure every analogy (like 'Silicon Valley' or 'Granary') is factually mapped to the correct geographic entity.",
+      "3. STRUCTURE: Start with a crisp 2-line introduction (no verbose thesis paragraphs). Use sub-headings for each dimension. End with a 'Strategic Synthesis' that connects the topic to a CURRENT and RELEVANT government policy, scheme, or strategic framework. DO NOT force a connection; if no specific scheme like Gati Shakti or NIP fits naturally, connect it to broader SDGs, Disaster Management (NDMA) guidelines, or Climate Action goals.",
+      "4. VISUAL FORMAT: **Bold** every technical keyword. Use bullet points for 60%+ of content. Paragraphs must be 2-3 lines max. No walls of text.",
+      "5. DIAGRAM HOOKS: Add '[DIAGRAM: ...]' or '[MAP: ...]' blocks ONLY if a visual representation would significantly add value to the UPSC answer. Provide a brief description of what the diagram should show.",
+      "6. DATA DENSITY: Include specific figures (area in sq km, depths, production numbers, years) if present in context or part of your core knowledge. These are scoring anchors.",
+      "7. SUMMARY TABLE: End with a lean 3-4 column table. MUST include a 'Primary Constraint/Challenge' column alongside benefits — this shows two-sided geographic thinking.",
+      "8. CONTEXT BLOCKS: Treat the provided Context Blocks as evidence supplements. Your answer structure should come from professional geographic thinking. Weave in evidence naturally. Cite standard authorities (e.g., Savindra Singh, Khullar) ONLY for established concepts. STRICT RULE: NEVER include technical IDs like '[Vision-1244]' or '[Source: ...]' in your final text. Strip them out completely.",
+      "9. NEVER mention missing data, general knowledge, or source availability. Speak with absolute authority."
+    ].join('\n')
+  },
 ]
 
 const PROMPT_DEFINITION_MAP = new Map(
@@ -320,9 +359,11 @@ export async function getPromptValue(id) {
     throw new Error(`Unknown AI prompt id: ${id}`)
   }
 
-  const config = await prisma.platformConfig.findUnique({
-    where: { key: getPromptConfigKey(id) },
-  })
+  const config = await runWithRetry(() => 
+    prisma.platformConfig.findUnique({
+      where: { key: getPromptConfigKey(id) },
+    })
+  )
 
   return config?.value || definition.defaultValue
 }
@@ -333,13 +374,15 @@ export async function getRenderedPrompt(id, variables = {}) {
 }
 
 export async function listAiPrompts() {
-  const configs = await prisma.platformConfig.findMany({
-    where: {
-      key: {
-        in: AI_PROMPT_DEFINITIONS.map((definition) => getPromptConfigKey(definition.id)),
+  const configs = await runWithRetry(() =>
+    prisma.platformConfig.findMany({
+      where: {
+        key: {
+          in: AI_PROMPT_DEFINITIONS.map((definition) => getPromptConfigKey(definition.id)),
+        },
       },
-    },
-  })
+    })
+  )
 
   const overrideMap = new Map(configs.map((config) => [config.key, config]))
 

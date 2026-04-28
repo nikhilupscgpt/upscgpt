@@ -33,18 +33,18 @@ export default function Navigation({ children }) {
   };
 
   const btnPrimaryStyle = {
-    background: 'white',
-    color: 'black',
-    padding: '6px 16px',
-    borderRadius: '10px',
-    fontSize: '0.8rem',
+    background: 'linear-gradient(135deg, #38bdf8, #818cf8)',
+    color: 'white',
+    padding: '8px 20px',
+    borderRadius: '12px',
+    fontSize: '0.85rem',
     fontWeight: '800',
     cursor: 'pointer',
     border: 'none',
     display: 'flex',
     alignItems: 'center',
     gap: '6px',
-    boxShadow: '0 4px 12px rgba(255, 255, 255, 0.1)'
+    boxShadow: '0 10px 15px -3px rgba(129, 140, 248, 0.3)'
   };
 
   return (
@@ -111,13 +111,12 @@ export default function Navigation({ children }) {
               </>
             </div>
           ) : (
-            <button
-              onClick={() => signIn("google")}
-              style={btnPrimaryStyle}
+            <Link
+              href="/login"
+              style={{ ...btnPrimaryStyle, textDecoration: 'none' }}
             >
-              <Image src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" alt="" width={12} height={12} unoptimized />
               Sign In
-            </button>
+            </Link>
           )}
 
           <button

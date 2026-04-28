@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function GET(req, { params }) {
   try {
@@ -60,6 +62,11 @@ export async function GET(req, { params }) {
             articles: true,
             editorials: true,
           }
+        },
+        testPacks: {
+          where: { type: 'PRACTICE' },
+          select: { id: true },
+          take: 1
         }
       }
     });
@@ -68,12 +75,40 @@ export async function GET(req, { params }) {
       return NextResponse.json({ error: 'Issue not found' }, { status: 404 });
     }
 
+    const testPackId = issue.testPacks?.[0]?.id || null;
+
+    const session = await getServerSession(authOptions);
+    let userContext = { followed: false, status: 'UNSTARTED' };
+
+    if (session?.user?.id) {
+      const [follow, progress] = await Promise.all([
+        prisma.issueFollow.findUnique({
+          where: { userId_issueId: { userId: session.user.id, issueId: issue.id } }
+        }),
+        prisma.issueProgress.findUnique({
+          where: { userId_issueId: { userId: session.user.id, issueId: issue.id } }
+        })
+      ]);
+
+      userContext = {
+        followed: !!follow,
+        progress: progress || {
+          status: 'UNSTARTED',
+          readSummary: false,
+          viewedNews: false,
+          solvedPYQs: false,
+          solvedMCQs: false
+        }
+      };
+    }
+
     // Omit the raw embedding for the frontend payload
     const { embedding, ...issueData } = issue;
 
     return NextResponse.json({
       success: true,
-      issue: issueData,
+      issue: { ...issueData, testPackId },
+      userContext
     });
   } catch (error) {
     console.error(`[Issue Slug API] Error fetching slug:`, error);

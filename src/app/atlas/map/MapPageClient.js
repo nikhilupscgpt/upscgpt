@@ -1056,466 +1056,161 @@ function MapPageInner() {
   const categoryCount = (key) => entries.filter(e => e.category === key).length
 
   return (
-    <div className="layout">
-      <AtlasTimeTracker />
-      {/* HEADER ACTIONS */}
-      <NavSlot>
-        <div className="atlas-nav-actions">
-          <button
-            onClick={() => setSidebarOpen(o => !o)}
-            title={sidebarOpen ? 'Hide sidebar' : 'Show sidebar'}
-            style={{
-              width: '32px', height: '32px', borderRadius: '8px', border: 'none',
-              background: 'rgba(255,255,255,0.1)', color: 'white', cursor: 'pointer',
-              fontSize: '0.9rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}
-          >{sidebarOpen ? '◀' : '▶'}</button>
-          <button className="atlas-nav-secondary" onClick={exportPDF} disabled={isExporting} style={{
-            padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)',
-            background: 'rgba(255,255,255,0.1)', color: 'white', fontWeight: 600, fontSize: '0.75rem',
-            cursor: isExporting ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', gap: '6px',
-            opacity: isExporting ? '0.7' : 1
-          }}>
-            {isExporting ? '⏳' : '📄'} <span className="hidden sm:inline">Export</span>
-          </button>
-          <Link className="atlas-nav-secondary" href="/admin" style={{
-            textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px',
-            padding: '6px 12px', borderRadius: '8px', background: 'rgba(255,191,36,0.1)',
-            border: '1px solid rgba(255,191,36,0.2)', color: '#fbbf24', fontSize: '0.75rem', fontWeight: 700
-          }}>
-             ⚙️ <span className="hidden sm:inline">Admin</span>
-          </Link>
-        </div>
-      </NavSlot>
+    <div className={`portal-container ${isExporting ? 'exporting' : ''}`} ref={exportRef}>
+      <NavSlot />
+      
+      <div className="portal-layout">
+        
+        {/* STRATEGIC NAVIGATOR - Sidebar on Desktop, Bottom Sheet on Mobile */}
+        <aside className={`portal-sidebar ${sidebarOpen ? 'open' : 'closed'} ${isMobile ? 'mobile-sheet' : ''}`}>
+          <div className="sidebar-header">
+            <div className="sidebar-brand">
+              <span className="region-icon">{region.emoji}</span>
+              <div>
+                <div className="sidebar-kicker">STRATEGIC NAVIGATOR</div>
+                <div className="sidebar-title">{region.label}</div>
+              </div>
+            </div>
+            {!isMobile ? (
+              <button className="sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
+                {sidebarOpen ? '❮' : '❯'}
+              </button>
+            ) : (
+              <button className="sidebar-close-mobile" onClick={() => setSidebarOpen(false)}>
+                DONE ✕
+              </button>
+            )}
+          </div>
 
-      <main className="main-content">
-        <div
-          className={`sidebar-backdrop ${sidebarOpen ? 'visible' : ''}`}
-          onClick={() => setSidebarOpen(false)}
-          aria-hidden={!sidebarOpen}
-        />
-        {/* SIDEBAR */}
-        <aside className={`sidebar ${sidebarOpen ? '' : 'sidebar-collapsed'}`}>
-          {/* SEARCH */}
-          <div style={{ padding: '12px', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
-            <div style={{ position: 'relative' }}>
-              <span style={{ position: 'absolute', left: '11px', top: '50%', transform: 'translateY(-50%)', fontSize: '13px', opacity: 0.55 }}>🔍</span>
-              <input
-                type="text" placeholder="Search locations…" value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                style={{ width: '100%', padding: '12px 12px 12px 34px', borderRadius: '14px', fontSize: '0.9rem', border: '1px solid rgba(148,163,184,0.18)', background: 'linear-gradient(180deg, rgba(15,23,42,0.88), rgba(17,24,39,0.96))', color: '#e2e8f0', outline: 'none', boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.03)' }}
+          <div className="sidebar-tabs">
+            {[{id:'POLITICAL', icon:'🏛️', label:'Political'}, {id:'PHYSICAL', icon:'⛰️', label:'Physical'}, {id:'INTELLIGENCE', icon:'📡', label:'Intel'}, {id:'NEWS', icon:'🗞️', label:'News'}].map(m => (
+              <button 
+                key={m.id}
+                onClick={() => {
+                  setActiveModule(m.id);
+                  setActiveAdmRegion('');
+                  setActiveGeoGroup('');
+                  setActiveOrg(null);
+                  if (m.id !== 'POLITICAL') setInfoCardOpen(false);
+                }}
+                className={`sidebar-tab ${activeModule === m.id ? 'active' : ''}`}
+              >
+                <span>{m.icon}</span> {m.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="sidebar-scroll hide-scrollbar">
+            {/* SEARCH BOX */}
+            <div className="search-container">
+              <input 
+                placeholder={`Search ${region.label} nodes...`} 
+                value={searchQuery} 
+                onChange={e => setSearchQuery(e.target.value)} 
               />
             </div>
-          </div>
 
-          {/* REGION SWITCHER */}
-          <div style={{ padding: '10px 12px', borderBottom: '1px solid rgba(148,163,184,0.08)' }}>
-            <div className="quick-jump-title" style={{ marginBottom: '8px' }}>Switch Region</div>
-            <div className="region-switcher-row">
-              {Object.entries(REGION_CONFIG).map(([key, cfg]) => (
-                <Link key={key} className="region-switcher-chip" href={`/atlas/map?region=${key}`} style={{
-                  padding: '10px 14px', borderRadius: '14px', fontSize: '0.72rem', fontWeight: 800,
-                  textDecoration: 'none',
-                  background: key === regionKey ? 'linear-gradient(135deg, #7c3aed, #4f46e5)' : 'linear-gradient(180deg, rgba(30,41,59,0.96), rgba(15,23,42,0.96))',
-                  color: key === regionKey ? '#ffffff' : '#d6e0ee',
-                  border: key === regionKey ? '1px solid rgba(129,140,248,0.42)' : '1px solid rgba(148,163,184,0.16)',
-                  boxShadow: key === regionKey ? '0 12px 28px rgba(99,102,241,0.32)' : '0 6px 16px rgba(2,6,23,0.16)',
-                  transition: 'all 0.2s',
-                }}>{cfg.emoji} {cfg.label}</Link>
-              ))}
-            </div>
-          </div>
-
-          {isMounted && isMobile ? (
-            <div className="mobile-sheet-tabs">
-              {[
-                ['explore', 'Explore'],
-                ['headlines', 'Headlines'],
-                ['filters', 'Filters'],
-              ].map(([key, label]) => (
-                <button
-                  key={key}
-                  type="button"
-                  className={`mobile-sheet-tab ${mobileSheetTab === key ? 'active' : ''}`}
-                  onClick={() => setMobileSheetTab(key)}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          ) : null}
-
-            <div className="sidebar-content">
-              {isMounted && (
+            {/* BREADCRUMBS */}
+            <div className="strategic-path">
+              <button onClick={() => { setActiveContinent(''); setActiveAdmRegion(''); }}>World</button>
+              {activeContinentKey && (
                 <>
-                  {/* 3-PART MODULE TABS */}
-                  <div style={{ padding: '0 20px 24px' }}>
-                <div style={{ 
-                  display: 'flex', background: 'linear-gradient(180deg, rgba(23,32,54,0.98), rgba(17,24,39,0.98))', borderRadius: '24px', padding: '6px',
-                  boxShadow: 'inset 0 2px 10px rgba(2,6,23,0.32)'
-                }}>
-                  {[
-                    { id: 'POLITICAL', label: 'Political', icon: '🏛️' },
-                    { id: 'PHYSICAL', label: 'Physical', icon: '⛰️' },
-                    { id: 'INTELLIGENCE', label: 'Intel', icon: '📡' },
-                    { id: 'NEWS', label: 'News', icon: '📰' }
-                  ].map(m => (
-                    <button
-                      key={m.id}
-                      onClick={() => {
-                        setActiveModule(m.id)
-                        setActiveAdmRegion('')
-                        setActiveGeoGroup('')
-                        setActiveOrg(null)
-                        if (m.id !== 'POLITICAL') {
-                          setInfoCardOpen(false)
-                        }
-                      }}
-                      style={{
-                        flex: 1, padding: '12px 6px', borderRadius: '16px', border: activeModule === m.id ? '1px solid rgba(99,102,241,0.18)' : '1px solid transparent', cursor: 'pointer',
-                        fontSize: '0.75rem', fontWeight: 800, transition: 'all 0.2s',
-                        background: activeModule === m.id ? 'linear-gradient(180deg, #ffffff, #eef2ff)' : 'transparent',
-                        color: activeModule === m.id ? '#0f172a' : '#94a3b8',
-                        boxShadow: activeModule === m.id ? '0 10px 24px rgba(2,6,23,0.24)' : 'none',
-                        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px'
-                      }}
-                    >
-                      <span style={{ fontSize: '1.1rem' }}>{m.icon}</span>
-                      {m.label}
+                  <span className="path-sep">/</span>
+                  <button onClick={() => setActiveAdmRegion('')}>{REGION_CONFIG[activeContinentKey]?.label || activeContinentKey}</button>
+                </>
+              )}
+              {activeAdmRegion && (
+                <>
+                  <span className="path-sep">/</span>
+                  <span className="path-active">{activeAdmRegion}</span>
+                </>
+              )}
+            </div>
+
+            {/* NAVIGATION ENGINE */}
+            <div className="navigator-engine">
+              {activeModule === 'POLITICAL' && !activeContinentKey && (
+                <div className="continent-grid">
+                  {Object.entries(REGION_CONFIG).filter(([k]) => k !== 'global').map(([key, cfg]) => (
+                    <button key={key} className="continent-tile" onClick={() => setActiveContinent(key)}>
+                      <span className="tile-emoji">{cfg.emoji}</span>
+                      <span className="tile-label">{cfg.label}</span>
+                      <span className="tile-cta">EXPLORE REGION</span>
                     </button>
                   ))}
                 </div>
-              </div>
+              )}
 
-              {/* DYNAMIC STRATEGIC NAVIGATOR */}
-              <div className="section-card">
-                <div className="section-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span>Strategic Navigator</span>
-                  { (activeContinent || activeAdmRegion) && (
+              {/* INTELLIGENCE MODULE: Organization Lens */}
+              {activeModule === 'INTELLIGENCE' && (
+                <OrgLens
+                  onOrgSelect={(org) => {
+                    if (org) {
+                      focusOrganizationOnMap(org);
+                    } else {
+                      setActiveOrg(null);
+                    }
+                  }}
+                  activeOrg={activeOrg}
+                />
+              )}
+
+              {/* DYNAMIC LISTS (REGION/COUNTRY) */}
+              {(activeContinentKey || activeModule === 'PHYSICAL') && (
+                <div className="entry-list">
+                  {filteredEntries.map(e => (
                     <button 
+                      key={e.id} 
+                      className={`entry-item ${selectedEntry?.id === e.id ? 'active' : ''}`}
                       onClick={() => {
-                        setActiveContinent(regionKey !== 'global' ? regionKey : '')
-                        setActiveAdmRegion('')
-                        setActiveGeoGroup('')
+                        focusEntryOnMap(e, { module: activeModule, useLightBase: false });
+                        if (isMobile) setSidebarOpen(false);
                       }}
-                      style={{ background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.18)', color: '#4f46e5', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer', borderRadius: '999px', padding: '6px 10px', boxShadow: '0 2px 8px rgba(99,102,241,0.08)' }}
-                    >Reset ✕</button>
-                  ) }
-                </div>
-
-                {/* BREADCRUMBS */}
-                <div style={{ padding: '14px 14px', background: 'linear-gradient(180deg, rgba(17,24,39,0.98), rgba(15,23,42,0.94))', borderBottom: '1px solid rgba(148,163,184,0.12)', display: 'flex', gap: '8px', alignItems: 'center', overflowX: 'auto', whiteSpace: 'nowrap' }}>
-                  <button 
-                    onClick={() => {
-                      setActiveContinent(regionKey !== 'global' ? regionKey : '')
-                      setActiveAdmRegion('')
-                    }}
-                    style={{ background: !activeContinentKey ? 'rgba(129,140,248,0.16)' : 'transparent', border: 'none', fontSize: '0.8rem', fontWeight: !activeContinentKey ? 800 : 700, color: !activeContinentKey ? '#e0e7ff' : '#94a3b8', cursor: 'pointer', borderRadius: '999px', padding: !activeContinentKey ? '6px 10px' : 0 }}
-                  >World</button>
-                  {activeContinentKey && (
-                    <>
-                      <span style={{ color: '#cbd5e1', fontSize: '0.7rem' }}>/</span>
-                      <button 
-                        onClick={() => setActiveAdmRegion('')}
-                        style={{ background: !activeAdmRegion ? 'rgba(129,140,248,0.16)' : 'transparent', border: 'none', fontSize: '0.8rem', fontWeight: !activeAdmRegion ? 800 : 700, color: !activeAdmRegion ? '#e0e7ff' : '#94a3b8', cursor: 'pointer', borderRadius: '999px', padding: !activeAdmRegion ? '6px 10px' : 0 }}
-                      >{REGION_CONFIG[activeContinentKey]?.label || activeContinentKey}</button>
-                    </>
-                  )}
-                  {activeAdmRegion && (
-                    <>
-                      <span style={{ color: '#cbd5e1', fontSize: '0.7rem' }}>/</span>
-                      <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#ffffff', background: 'linear-gradient(135deg, rgba(124,58,237,0.9), rgba(79,70,229,0.88))', border: '1px solid rgba(129,140,248,0.26)', borderRadius: '999px', padding: '6px 10px', boxShadow: '0 8px 18px rgba(99,102,241,0.2)' }}>{activeAdmRegion}</span>
-                    </>
-                  )}
-                </div>
-                
-                <div style={{ padding: '12px' }}>
-                  {activeModule === 'POLITICAL' || activeModule === 'PHYSICAL' ? (
-                    <>
-                      {/* LEVEL 0: CONTINENT SELECTION */}
-                      {activeModule === 'POLITICAL' && !activeContinentKey && (
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
-                          {Object.entries(REGION_CONFIG).filter(([k]) => k !== 'global').map(([key, cfg]) => (
-                            <button
-                              key={key}
-                              onClick={() => setActiveContinent(key)}
-                              style={{
-                                padding: '18px 12px', borderRadius: '16px', border: '1px solid #d6deeb',
-                                background: 'linear-gradient(180deg, #ffffff, #f8fafc)', cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s',
-                                boxShadow: '0 6px 14px rgba(15,23,42,0.05)',
-                                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px'
-                              }}
-                              onMouseOver={e => { e.currentTarget.style.borderColor = '#818cf8'; e.currentTarget.style.boxShadow = '0 10px 22px rgba(99,102,241,0.12)' }}
-                              onMouseOut={e => { e.currentTarget.style.borderColor = '#d6deeb'; e.currentTarget.style.boxShadow = '0 6px 14px rgba(15,23,42,0.05)' }}
-                            >
-                              <span style={{ fontSize: '1.5rem' }}>{cfg.emoji}</span>
-                              <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#1e293b' }}>{cfg.label}</span>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* LEVEL 1: ADMINISTRATIVE REGIONS SELECTION */}
-                      {activeModule === 'POLITICAL' && activeContinentKey && !activeAdmRegion && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          <div style={{ fontSize: '0.76rem', color: '#94a3b8', fontWeight: 800, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>Select Strategic Zone</div>
-                          {[...new Set(entriesArr.filter(e => {
-                            return getContinentKey(e.continent) === activeContinentKey
-                          }).map(e => e.admRegion).filter(Boolean))].sort().map(region => (
-                            <button
-                              key={region}
-                              onClick={() => setActiveAdmRegion(region)}
-                              style={{
-                                padding: '13px 14px', borderRadius: '14px', border: '1px solid rgba(148,163,184,0.16)',
-                                background: 'linear-gradient(180deg, rgba(30,41,59,0.94), rgba(17,24,39,0.94))', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s',
-                                boxShadow: '0 8px 18px rgba(2,6,23,0.14)',
-                                display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-                              }}
-                              onMouseOver={e => { e.currentTarget.style.borderColor='#818cf8'; e.currentTarget.style.background='linear-gradient(180deg, rgba(55,65,81,0.98), rgba(30,41,59,0.98))'; e.currentTarget.style.boxShadow='0 12px 24px rgba(99,102,241,0.14)' }}
-                              onMouseOut={e => { e.currentTarget.style.borderColor='rgba(148,163,184,0.16)'; e.currentTarget.style.background='linear-gradient(180deg, rgba(30,41,59,0.94), rgba(17,24,39,0.94))'; e.currentTarget.style.boxShadow='0 8px 18px rgba(2,6,23,0.14)' }}
-                            >
-                              <span style={{ fontSize: '0.88rem', fontWeight: 700, color: '#e2e8f0' }}>📍 {region}</span>
-                              <span style={{ fontSize: '1rem', color: '#94a3b8' }}>›</span>
-                            </button>
-                          ))}
-                          {entriesArr.filter(e => getContinentKey(e.continent) === activeContinentKey && !e.admRegion).length > 0 && (
-                             <button
-                               onClick={() => setActiveAdmRegion('OTHER')}
-                               style={{ padding: '10px', fontSize: '0.75rem', color: '#94a3b8', border: '1px dashed #e2e8f0', background: 'none', borderRadius: '8px', cursor: 'pointer' }}
-                             >View unclassified {REGION_CONFIG[activeContinentKey]?.label || activeContinentKey} nodes</button>
-                          )}
-                        </div>
-                      )}
-
-                      {/* LEVEL 2: COUNTRY / ENTRY LIST */}
-                      {(activeModule === 'PHYSICAL' || (activeModule === 'POLITICAL' ? activeAdmRegion : activeContinentKey)) && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          <div style={{ fontSize: '0.76rem', color: '#94a3b8', fontWeight: 800, marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
-                            {activeModule === 'PHYSICAL'
-                              ? 'Physical Features Across Global View'
-                              : `Entries in ${activeAdmRegion || REGION_CONFIG[activeContinentKey]?.label || activeContinentKey}`}
-                          </div>
-                          {filteredEntries.length === 0 ? (
-                            <div style={{ padding: '20px', textAlign: 'center', color: '#94a3b8', fontSize: '0.8rem' }}>No nodes found in this region.</div>
-                          ) : (
-                            filteredEntries.map(e => (
-                              <div key={e.id} style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-                                <button
-                                  onClick={() => {
-                                    focusEntryOnMap(e, {
-                                      module: activeModule,
-                                      useLightBase: false,
-                                    })
-                                  }}
-                                  style={{
-                                    padding: '14px 16px', borderRadius: selectedEntry?.id === e.id ? '18px 18px 12px 12px' : '18px', border: selectedEntry?.id === e.id ? '2px solid #818cf8' : '1px solid rgba(148,163,184,0.16)',
-                                    background: selectedEntry?.id === e.id ? 'linear-gradient(180deg, rgba(67,56,202,0.34), rgba(30,41,59,0.96))' : 'linear-gradient(180deg, rgba(30,41,59,0.96), rgba(17,24,39,0.96))', cursor: 'pointer', textAlign: 'left', transition: 'all 0.2s',
-                                    boxShadow: selectedEntry?.id === e.id ? '0 14px 28px rgba(99,102,241,0.2)' : '0 8px 18px rgba(2,6,23,0.16)',
-                                    display: 'flex', alignItems: 'center', gap: '12px'
-                                  }}
-                                >
-                                  <span style={{ fontSize: '1.05rem', width: '28px', textAlign: 'center', opacity: selectedEntry?.id === e.id ? 1 : 0.9 }}>{CATEGORIES.find(c => c.key === e.category)?.emoji || '📍'}</span>
-                                  <div style={{ minWidth: 0 }}>
-                                    <div style={{ fontSize: '0.98rem', fontWeight: 900, color: '#f8fafc', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{e.name}</div>
-                                    <div style={{ fontSize: '0.72rem', color: selectedEntry?.id === e.id ? '#e0e7ff' : '#94a3b8', fontWeight: selectedEntry?.id === e.id ? 700 : 600 }}>{e.capital ? `Cap: ${e.capital}` : (e.geoGroup || 'Strategic Node')}</div>
-                                  </div>
-                                </button>
-
-                              </div>
-                            ))
-                          )}
-                          <button 
-                            onClick={() => setActiveAdmRegion('')}
-                            style={{ marginTop: '10px', padding: '12px', fontSize: '0.78rem', fontWeight: 800, color: '#e0e7ff', background: 'linear-gradient(135deg, rgba(79,70,229,0.7), rgba(99,102,241,0.72))', border: '1px solid rgba(129,140,248,0.24)', borderRadius: '12px', cursor: 'pointer', boxShadow: '0 10px 18px rgba(99,102,241,0.16)' }}
-                          >{activeModule === 'PHYSICAL' ? 'Refresh Physical List' : 'Back to Region List'}</button>
-                        </div>
-                      )}
-                    </>
-                  ) : activeModule === 'INTELLIGENCE' ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-
-                      {/* Intelligence Sub-layer Switcher */}
-                      <div style={{ display: 'flex', gap: '8px', background: 'rgba(0,0,0,0.2)', padding: '5px', borderRadius: '12px' }}>
-                        {[{ id: 'ZONES', label: '⚔️ Conflict Zones' }, { id: 'ORGS', label: '🌐 Organizations' }].map(sl => (
-                          <button
-                            key={sl.id}
-                            onClick={() => setIntelSubLayer(sl.id)}
-                            style={{
-                              flex: 1, padding: '8px 6px', borderRadius: '9px', border: 'none',
-                              background: intelSubLayer === sl.id ? 'linear-gradient(135deg, #6366f1, #8b5cf6)' : 'transparent',
-                              color: intelSubLayer === sl.id ? 'white' : '#64748b',
-                              fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s'
-                            }}
-                          >
-                            {sl.label}
-                          </button>
-                        ))}
+                    >
+                      <span className="entry-emoji">{CATEGORIES.find(c => c.key === e.category)?.emoji || '📍'}</span>
+                      <div className="entry-info">
+                        <div className="entry-name">{e.name}</div>
+                        <div className="entry-sub">{e.geoGroup || 'Strategic Node'}</div>
                       </div>
-
-                      {intelSubLayer === 'ORGS' ? (
-                        <OrgLens
-                          activeOrg={activeOrg}
-                          onOrgSelect={(org) => {
-                            focusOrganizationOnMap(org)
-                          }}
-                        />
-                      ) : (
-                        // Conflict Zones list
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          <div style={{ fontSize: '0.72rem', color: '#ef4444', fontWeight: 800, textTransform: 'uppercase', padding: '0 4px' }}>⚔️ Active Conflict &amp; Intelligence Zones</div>
-                          {entriesArr.filter(e => e.worldPart === 'INTELLIGENCE').length === 0 ? (
-                            <div style={{ padding: '20px', textAlign: 'center', color: '#64748b', fontSize: '0.8rem' }}>No intelligence zones loaded.</div>
-                          ) : (
-                            entriesArr.filter(e => e.worldPart === 'INTELLIGENCE').map(e => (
-                              <button
-                                key={e.id}
-                                onClick={() => {
-                                  focusEntryOnMap(e, {
-                                    module: 'INTELLIGENCE',
-                                    useLightBase: true,
-                                  })
-                                }}
-                                style={{
-                                  padding: '12px 14px', borderRadius: '14px',
-                                  border: selectedEntry?.id === e.id ? '2px solid rgba(239,68,68,0.5)' : '1px solid rgba(148,163,184,0.14)',
-                                  background: selectedEntry?.id === e.id ? 'linear-gradient(180deg, rgba(127,29,29,0.3), rgba(30,41,59,0.98))' : 'linear-gradient(180deg, rgba(30,41,59,0.94), rgba(17,24,39,0.9))',
-                                  cursor: 'pointer', textAlign: 'left', boxShadow: '0 4px 12px rgba(0,0,0,0.12)', transition: 'all 0.2s'
-                                }}
-                              >
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                  <span style={{ fontSize: '0.92rem', fontWeight: 900, color: '#f8fafc' }}>{e.name}</span>
-                                  <span style={{ fontSize: '0.62rem', padding: '2px 7px', borderRadius: '999px', background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)', color: '#fca5a5', fontWeight: 800 }}>{e.nodeSubType?.replace('_', ' ')}</span>
-                                </div>
-                                <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '3px' }}>
-                                  {e.parentCountry ? `🏴 ${e.parentCountry}` : e.continent} · {e.admRegion}
-                                </div>
-
-                              </button>
-                            ))
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    /* NEWS tab */
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 600, padding: '0 4px' }}>RECENT INTELLIGENCE ALERTS</div>
-                      {entriesArr.filter(e => e.worldPart === 'NEWS').length === 0 ? (
-                        <div style={{ padding: '20px', textAlign: 'center', background: 'rgba(0,0,0,0.02)', borderRadius: '12px' }}>
-                          <span style={{ fontSize: '1.5rem' }}>📡</span>
-                          <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '8px' }}>No live news markers found. Go to Admin to sync today&apos;s headlines.</p>
-                        </div>
-                      ) : (
-                        entriesArr.filter(e => e.worldPart === 'NEWS').map(e => (
-                          <div
-                            key={e.id}
-                            onClick={() => {
-                              focusEntryOnMap(e, {
-                                module: 'NEWS',
-                                useLightBase: true,
-                              })
-                            }}
-                            style={{
-                              padding: '10px 12px', background: 'rgba(30,41,59,0.94)', border: '1px solid rgba(148,163,184,0.14)', borderRadius: '10px',
-                              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', transition: 'all 0.2s'
-                            }}
-                            onMouseOver={ev => ev.currentTarget.style.borderColor = '#6366f1'}
-                            onMouseOut={ev => ev.currentTarget.style.borderColor = 'rgba(148,163,184,0.14)'}
-                          >
-                            <span style={{ fontSize: '1rem' }}>📍</span>
-                            <div style={{ minWidth: 0 }}>
-                              <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#f8fafc', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{e.name}</div>
-                              <div style={{ fontSize: '0.65rem', color: '#6366f1', fontWeight: 700 }}>{e.geoGroup || 'Global Conflict'}</div>
-                            </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  )}
+                    </button>
+                  ))}
                 </div>
-              </div>
+              )}
+            </div>
 
-            {/* GEOGRAPHIC LAYERS REMOVED AS REQUESTED */}
-
-            {/* BASEMAP */}
-            <div className="section-card">
-              <div className="section-title">ArcGIS Base Layers</div>
-              <div style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {/* BASEMAP CONTROLS */}
+            <div className="basemap-section">
+              <div className="section-label">BASEMAP ENGINE</div>
+              <div className="basemap-grid">
                 {BASEMAPS.map(b => (
-                  <button key={b.key} onClick={() => setLayers(p => ({ ...p, base: b.key }))} style={{
-                    padding: '9px 12px', borderRadius: '10px', border: 'none', cursor: 'pointer',
-                    background: layers.base === b.key ? 'linear-gradient(135deg, #3b82f6, #6366f1)' : 'rgba(0,0,0,0.04)',
-                    color: layers.base === b.key ? 'white' : '#475569',
-                    fontWeight: 700, fontSize: '0.82rem', textAlign: 'left',
-                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                    boxShadow: layers.base === b.key ? '0 4px 12px rgba(99,102,241,0.3)' : 'none',
-                    transition: 'all 0.2s',
-                  }}>
-                    <span>{b.label}</span>
-                    <span style={{ fontSize: '0.7rem', fontWeight: 500, opacity: 0.75 }}>{b.sub}</span>
+                  <button 
+                    key={b.key} 
+                    className={`basemap-tile ${layers.base === b.key ? 'active' : ''}`}
+                    onClick={() => setLayers(p => ({ ...p, base: b.key }))}
+                  >
+                    {b.label}
                   </button>
                 ))}
               </div>
             </div>
-
-            {/* ANNOTATIONS */}
-            <div className="section-card" style={{ marginBottom: 0 }}>
-              <div className="section-title">Annotations</div>
-              <div className={`layer-row ${layers.graticules ? 'on' : 'off'}`} onClick={() => toggleLayer('graticules')} style={{ borderBottom: 'none' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: layers.graticules ? '#94a3b8' : '#e2e8f0', transition: 'all 0.3s', flexShrink: 0 }} />
-                  <div>
-                    <div style={{ fontSize: '0.85rem', fontWeight: 600, color: layers.graticules ? '#0f172a' : '#94a3b8' }}>Equator & Tropics</div>
-                    <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Reference lines</div>
-                  </div>
-                </div>
-                <div className={`toggle-switch ${layers.graticules ? 'on' : ''}`}><div className="toggle-knob" /></div>
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-    </aside>
-
-        {/* MAP + DRAWER CONTAINER */}
-        <section className="map-view" ref={exportRef}>
-          <div id="pdf-watermark" style={{
-            position: 'absolute', inset: 0, zIndex: 9999, pointerEvents: 'none', display: 'none',
-            flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            background: 'rgba(255,255,255,0.4)', backdropFilter: 'blur(2px)',
-          }}>
-            <h1 style={{ fontSize: '5rem', color: 'rgba(0,0,0,0.15)', transform: 'rotate(-30deg)', margin: 0 }}>UPSCGPT</h1>
-            <p style={{ fontSize: '2rem', color: 'rgba(0,0,0,0.2)', transform: 'rotate(-30deg)', fontWeight: 800 }}>Nikhil Wandhe | 7709495797</p>
           </div>
+        </aside>
 
-          {/* ON-MAP FLOATING INFO CARD — hidden when Nano panel is active */}
-          {selectedEntry && infoCardOpen && (
-            <MapInfoCard
-              key={selectedEntry.id}
-              entry={selectedEntry}
-              onClose={() => setInfoCardOpen(false)}
-              onAskNano={() => runMapBot('node_explainer')}
-            />
-          )}
-          
-          {isDataLoading && (
-            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 1000, background: 'rgba(15,23,42,0.85)', color: 'white', padding: '20px 30px', borderRadius: '16px', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', gap: '16px', boxShadow: '0 10px 40px rgba(0,0,0,0.5)', border: '1px solid rgba(129,140,248,0.2)' }}>
-               <style>{`@keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
-               <div style={{ width: '28px', height: '28px', border: '3px solid rgba(255,255,255,0.1)', borderTopColor: '#818cf8', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-               <div style={{ fontWeight: 800, fontSize: '1.2rem', fontFamily: "'Outfit', sans-serif" }}>Loading Strategic Atlas...</div>
-            </div>
-          )}
-
-          <MapWrapper
-            key={regionKey}
-            entries={mapFilteredEntries}
+        {/* MAP CANVAS */}
+        <main className="map-view">
+          <MapWrapper 
+            entries={mapFilteredEntries} 
             layers={layers}
             mapRef={mapRef}
             initialCenter={region.center}
             initialZoom={region.zoom}
             initialMinZoom={region.minZoom}
-            maxBounds={region.bounds}
-            onEntrySelect={handleSelectEntry}
+            maxBounds={region.maxBounds}
+            onEntrySelect={(e) => {
+              setSelectedEntry(e);
+              if (e) setInfoCardOpen(true);
+              if (isMobile) setSidebarOpen(false);
+            }}
             heatmapMode={heatmapMode}
             selectedEntry={selectedEntry}
             activeContinent={activeContinentKey}
@@ -1525,7 +1220,22 @@ function MapPageInner() {
             regionConfig={REGION_CONFIG}
           />
 
-          <FloatingMapBotPanel
+          {/* MOBILE NAV TRIGGER */}
+          {isMobile && !sidebarOpen && (
+            <button className="mobile-nav-fab" onClick={() => setSidebarOpen(true)}>
+              🗺️ <span>SELECT REGION</span>
+            </button>
+          )}
+
+          {infoCardOpen && selectedEntry && (
+            <MapInfoCard 
+              entry={selectedEntry} 
+              onClose={() => { setInfoCardOpen(false); setSelectedEntry(null); }}
+              onAskNano={() => runMapBot('node_explainer')}
+            />
+          )}
+
+          <FloatingMapBotPanel 
             entry={selectedEntry}
             region={region}
             panelOpen={mapbotPanelOpen}
@@ -1546,26 +1256,104 @@ function MapPageInner() {
             onChatSubmit={sendMapBotChat}
             chatUsage={chatUsage}
           />
-          <NewsTicker regionKey={regionKey} onCloseDrawer={() => setSelectedEntry(null)} onArticleSelect={(article) => {
-            if (article.lat && article.lon) {
-              const matchedEntry = entries.find(e => e.id === article.entryId)
-              if (matchedEntry) {
-                focusEntryOnMap(matchedEntry, {
-                  module: 'NEWS',
-                  useLightBase: true,
-                })
-              } else if (mapRef.current) {
-                setActiveModule('NEWS')
-                setActiveAdmRegion('')
-                setActiveGeoGroup('')
-                setActiveOrg(null)
-                setLayers(prev => ({ ...prev, base: 'light' }))
-                mapRef.current.flyTo([article.lat, article.lon], 6)
-              }
-            }
-          }} />
-        </section>
-      </main>
+
+          <NewsTicker regionKey={regionKey} />
+          <AtlasTimeTracker regionKey={regionKey} />
+        </main>
+      </div>
+
+      <style jsx>{`
+        .portal-container { height: 100vh; background: #020617; display: flex; flex-direction: column; overflow: hidden; font-family: 'Outfit', sans-serif; }
+        .portal-layout { flex: 1; display: flex; position: relative; overflow: hidden; }
+
+        /* SIDEBAR / BOTTOM SHEET */
+        .portal-sidebar {
+          width: 380px; background: #0a0a0f; border-right: 1px solid rgba(255,255,255,0.06);
+          display: flex; flex-direction: column; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          z-index: 1000;
+        }
+        .portal-sidebar.closed { width: 0; transform: translateX(-100%); }
+
+        .sidebar-header { padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .sidebar-brand { display: flex; gap: 12px; align-items: center; }
+        .region-icon { font-size: 1.5rem; background: rgba(255,255,255,0.03); padding: 8px; border-radius: 12px; }
+        .sidebar-kicker { font-size: 0.6rem; font-weight: 900; color: #475569; letter-spacing: 1px; }
+        .sidebar-title { font-size: 1.25rem; font-weight: 900; color: white; }
+        
+        .sidebar-tabs { display: grid; grid-template-columns: repeat(4, 1fr); padding: 0 1rem 1rem; gap: 4px; }
+        .sidebar-tab { 
+          padding: 10px 4px; border: none; background: rgba(255,255,255,0.02); color: #475569; 
+          font-size: 0.65rem; font-weight: 900; border-radius: 8px; cursor: pointer; transition: all 0.2s;
+          display: flex; flex-direction: column; align-items: center; gap: 4px;
+        }
+        .sidebar-tab.active { background: rgba(99, 102, 241, 0.1); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.2); }
+
+        .sidebar-scroll { flex: 1; overflow-y: auto; padding: 1rem 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
+        
+        .search-container input {
+          width: 100%; padding: 12px 16px; border-radius: 12px; background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.08); color: white; font-size: 0.85rem; outline: none;
+        }
+
+        .strategic-path { display: flex; gap: 8px; align-items: center; font-size: 0.75rem; color: #64748b; font-weight: 800; }
+        .strategic-path button { background: none; border: none; color: #818cf8; font-weight: 900; cursor: pointer; font-size: inherit; }
+        .path-active { color: white; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 20px; }
+
+        /* TILES */
+        .continent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .continent-tile {
+          padding: 20px 12px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 8px;
+          cursor: pointer; transition: all 0.2s;
+        }
+        .continent-tile:hover { background: rgba(255,255,255,0.05); border-color: #818cf8; }
+        .tile-emoji { font-size: 1.8rem; }
+        .tile-label { font-size: 0.85rem; font-weight: 900; color: white; }
+        .tile-cta { font-size: 0.55rem; font-weight: 900; color: #475569; letter-spacing: 0.5px; }
+
+        .entry-item {
+          display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 14px;
+          background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+          color: white; text-align: left; cursor: pointer; transition: all 0.2s; margin-bottom: 8px;
+        }
+        .entry-item.active { background: rgba(99, 102, 241, 0.1); border-color: #818cf8; }
+        .entry-emoji { font-size: 1.2rem; }
+        .entry-name { font-size: 0.9rem; font-weight: 900; }
+        .entry-sub { font-size: 0.7rem; color: #64748b; }
+
+        .basemap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .basemap-tile {
+          padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);
+          background: rgba(255,255,255,0.02); color: #64748b; font-size: 0.65rem; font-weight: 900; cursor: pointer;
+        }
+        .basemap-tile.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+
+        .map-view { flex: 1; position: relative; }
+
+        @media (max-width: 768px) {
+          .portal-sidebar.mobile-sheet {
+            position: fixed; bottom: 0; left: 0; right: 0; top: auto; width: 100%;
+            height: 75vh; border-top: 1px solid rgba(255,255,255,0.15); border-radius: 24px 24px 0 0;
+            transform: translateY(100%); background: #050507; box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
+          }
+          .portal-sidebar.mobile-sheet.open { transform: translateY(0); }
+          .sidebar-header { padding: 1.25rem 1.5rem; }
+          .sidebar-close-mobile { background: #818cf8; color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 900; font-size: 0.7rem; }
+          
+          .continent-grid { grid-template-columns: 1fr; }
+          .continent-tile { flex-direction: row; padding: 16px; gap: 16px; }
+          .tile-cta { margin-left: auto; color: #818cf8; }
+          
+          .mobile-nav-fab {
+            position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+            background: #1e1b4b; border: 1px solid #4338ca; color: white; padding: 14px 24px;
+            border-radius: 100px; font-size: 0.8rem; font-weight: 900; display: flex; align-items: center; gap: 10px;
+            z-index: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+          }
+        }
+
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+      `}</style>
     </div>
   )
 }

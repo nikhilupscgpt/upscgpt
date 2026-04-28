@@ -1,64 +1,89 @@
 import { NextResponse } from 'next/server';
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { chunkText, generateEmbedding } from '@/lib/rag-utils';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
 
 export async function POST(req) {
-  // 1. Verify Authentication
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const body = await req.json();
-    const { title, subject, examType, contentMarkdown, sourceUrl } = body;
+    const contentType = req.headers.get('content-type') || '';
+    let title, subject, examType, contentMarkdown, sourceUrl, optionalId, isOptional;
 
-    if (!title || !subject || !contentMarkdown) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    if (contentType.includes('multipart/form-data')) {
+      const formData = await req.formData();
+      const file = formData.get('file');
+      title = formData.get('title');
+      subject = formData.get('subject');
+      examType = formData.get('examType') || 'BOTH';
+      sourceUrl = formData.get('sourceUrl') || '';
+      isOptional = formData.get('isOptional') === 'true';
+      const optionalSlug = formData.get('optionalSlug');
+
+      if (optionalSlug) {
+        const opt = await prisma.optionalSubject.findUnique({ where: { slug: optionalSlug } });
+        optionalId = opt?.id;
+      }
+
+      if (file && file.type === 'application/pdf') {
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        const { PDFParse } = require('pdf-parse');
+        const parser = new PDFParse({ data: buffer });
+        const result = await parser.getText();
+        contentMarkdown = result.text;
+        await parser.destroy();
+      } else if (file) {
+        contentMarkdown = await file.text();
+      }
+    } else {
+      const body = await req.json();
+      title = body.title;
+      subject = body.subject;
+      examType = body.examType;
+      contentMarkdown = body.contentMarkdown;
+      sourceUrl = body.sourceUrl;
+      isOptional = body.isOptional;
+      optionalId = body.optionalId;
     }
 
-    // 2. Chunk the incoming markdown text
-    const chunks = chunkText(contentMarkdown, 1500); // 1500 chars is roughly 300 words
-    
-    // 3. Process each chunk
+    if (!title || !subject || !contentMarkdown) {
+      return NextResponse.json({ error: 'Missing required fields (Title, Subject, Content)' }, { status: 400 });
+    }
+
+    const chunks = chunkText(contentMarkdown, 1500);
     let successfulChunks = 0;
     
-    // Process serially or in small batches to avoid rate limits
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i];
       try {
-        // Generate Embedding
         const embedding = await generateEmbedding(chunk);
         const vectorStr = `[${embedding.join(',')}]`;
 
-        // We use $executeRawUnsafe to insert the Unsupported("vector") type.
         await prisma.$executeRawUnsafe(`
-          INSERT INTO "SubjectContent" (id, subject, "examType", title, "contentMarkdown", "sourceUrl", "createdAt", "updatedAt", embedding)
+          INSERT INTO "SubjectContent" (id, subject, "examType", "isOptional", "optionalId", title, "contentMarkdown", "sourceUrl", "createdAt", "updatedAt", embedding)
           VALUES (
-            gen_random_uuid()::text, 
-            $1, 
-            $2, 
-            $3, 
-            $4, 
-            $5, 
-            NOW(), 
-            NOW(), 
-            $6::vector
+            gen_random_uuid()::text, $1, $2, $3, $4, $5, $6, $7, NOW(), NOW(), $8::vector
           )
         `, 
           subject, 
           examType || 'BOTH', 
+          isOptional || false,
+          optionalId || null,
           `${title} - Part ${i+1}`, 
           chunk, 
-          sourceUrl || ''
+          sourceUrl || '',
+          vectorStr
         );
-        
         successfulChunks++;
       } catch (err) {
         console.error(`Failed to process chunk ${i}:`, err);
-        // Continue processing other chunks even if one fails
       }
     }
 

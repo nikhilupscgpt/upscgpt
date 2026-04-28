@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 
 import prisma from '@/lib/prisma'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { authOptions } from "@/lib/auth"
 import { getPromptConfigKey, listAiPrompts } from '@/lib/aiPromptRegistry'
 import { runWithRetry } from '@/lib/db-retry'
 
@@ -52,14 +52,16 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Prompt id and string value are required.' }, { status: 400 })
     }
 
-    const config = await prisma.platformConfig.upsert({
-      where: { key: getPromptConfigKey(id) },
-      update: { value },
-      create: {
-        key: getPromptConfigKey(id),
-        value,
-      },
-    })
+    const config = await runWithRetry(() =>
+      prisma.platformConfig.upsert({
+        where: { key: getPromptConfigKey(id) },
+        update: { value },
+        create: {
+          key: getPromptConfigKey(id),
+          value,
+        },
+      })
+    )
 
     await prisma.actionLog.create({
       data: {
