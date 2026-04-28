@@ -475,4 +475,40 @@
     width: 100%;
     text-align: center;
   }
+
+  /* Listing Page Specific Mobile Fixes */
+  .mt-header {
+    margin-bottom: 32px;
+  }
+
+  .mt-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 24px;
+    gap: 24px;
+  }
+
+  .mt-test-title {
+    font-size: 1.25rem;
+  }
+
+  .mt-test-meta {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .mt-btn-start {
+    width: 100%;
+    justify-content: center;
+    padding: 14px;
+  }
+
+  .mt-section-title {
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+  }
+
+  .mt-perf-panel {
+    gap: 24px;
+  }
 }
