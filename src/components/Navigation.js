@@ -26,9 +26,8 @@ export default function Navigation({ children }) {
 
   const activeContent = children || navContent;
 
+  if (!mounted) return null;
   if (pathname === "/login" || pathname === "/admin-login") return null;
-
-
 
   return (
     <>
@@ -52,13 +51,13 @@ export default function Navigation({ children }) {
               <div className="app-nav__logo">
                 <Image 
                   src="/logo.png" 
-                  alt="upscgpt logo" 
+                  alt="STARA logo" 
                   width={36} 
                   height={36} 
                   priority 
                 />
               </div>
-              <span className="app-nav__brand-text">upscgpt</span>
+              <span className="app-nav__brand-text">STARA</span>
             </Link>
 
             {/* Desktop Navigation Links */}

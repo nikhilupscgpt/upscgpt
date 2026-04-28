@@ -3,10 +3,10 @@ import Script from 'next/script'
 
 export const metadata = {
   title: {
-    default: 'Global Strategic Atlas | UPSC Intelligence Hub',
-    template: '%s | Global Strategic Atlas'
+    default: 'STARA Intelligence | Strategic Command Hub',
+    template: '%s | STARA Intelligence'
   },
-  description: 'The most comprehensive strategic and syllabus graph for UPSC preparation. 500+ syllabus nodes, real-time geopolitical tracking, and AI-driven current affairs enrichment.',
+  description: 'The definitive strategic intelligence platform for UPSC preparation. 500+ syllabus nodes, real-time geopolitical tracking, and neural-enhanced current affairs.',
   keywords: ['UPSC', 'IAS', 'Geography', 'Current Affairs', 'Strategic Atlas', 'Issue Graph', 'Geopolitics', 'Civil Services Examination'],
   authors: [{ name: 'Antigravity AI' }],
   creator: 'Antigravity AI',
@@ -21,10 +21,10 @@ export const metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: 'Global Strategic Atlas | UPSC Intelligence Hub',
-    description: 'Master UPSC Current Affairs and Geography through a high-performance strategic graph.',
+    title: 'STARA Intelligence | Strategic Command Hub',
+    description: 'Master UPSC Current Affairs and Geopolitics through high-performance neural tracking.',
     url: 'https://upscatlas.com',
-    siteName: 'UPSC Atlas',
+    siteName: 'STARA Intelligence',
     images: [
       {
         url: '/og-image.png',
@@ -69,7 +69,8 @@ export default function RootLayout({ children }) {
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossOrigin="" />
         <link rel="apple-touch-icon" href="/logo.png" />
       </head>
-      <body>
+      <body className="antialiased">
+        <div className="universal-page-glow" />
         {/* Google Analytics */}
         <Script
           src={`https://www.googletagmanager.com/gtag/js?id=G-XV8ZY1XKLC`}
