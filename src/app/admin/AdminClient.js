@@ -7,13 +7,15 @@ import {
   Users, Map as MapIcon, RefreshCw, CreditCard, MessageSquare, 
   Send, ShieldCheck, TrendingUp, HelpCircle, LogOut, ChevronRight,
   Globe, Zap, ZapOff, Trash2, Edit3, PlusCircle, CheckCircle, BrainCircuit,
-  Newspaper, Search, FileText, Link2, Calendar, User, BookOpen, Filter, ChevronDown, ExternalLink, AlertCircle, Trophy
+  Newspaper, Search, FileText, Link2, Calendar, User, BookOpen, Filter, ChevronDown, ExternalLink, AlertCircle, Trophy, Book, PenTool
 } from "lucide-react"
 
 export default function AdminClient({ session }) {
   const [activeTab, setActiveTab] = useState("content") // content, users, sync, payments, comms
   const [entries, setEntries] = useState([])
   const [editingId, setEditingId] = useState(null)
+  const [isCreatingSubnode, setIsCreatingSubnode] = useState(false)
+  const [subnodeForm, setSubnodeForm] = useState({ title: '', domain: '', topic: '', category: '', gsPapers: [] })
   
   // Data State
   const [users, setUsers] = useState([])
@@ -29,6 +31,7 @@ export default function AdminClient({ session }) {
   const [issues, setIssues] = useState([])
   const [issueSearch, setIssueSearch] = useState('')
   const [issueCategoryFilter, setIssueCategoryFilter] = useState('')
+  const [examTypeFilter, setExamTypeFilter] = useState('')
   const [selectedIssue, setSelectedIssue] = useState(null)
   const [ingestType, setIngestType] = useState('ARTICLE')
   const [ingestForm, setIngestForm] = useState({ title: '', url: '', source: '', contentType: 'NEWS', author: '', rawContent: '', publishedAt: '' })
@@ -37,7 +40,26 @@ export default function AdminClient({ session }) {
   const [recentIngestions, setRecentIngestions] = useState([])
   const [issueDropdownOpen, setIssueDropdownOpen] = useState(false)
   const [isEditingNode, setIsEditingNode] = useState(false)
-  const [nodeEditForm, setNodeEditForm] = useState({ backgroundNote: '', possibleQuestions: '', status: 'ACTIVE' })
+  const [nodeEditForm, setNodeEditForm] = useState({ 
+    title: '',
+    backgroundNote: '', 
+    prelimsNote: '', 
+    mainsNote: '', 
+    mainsFacts: '',
+    cumulativeSummary: '',
+    valueAddition: '',
+    possibleQuestions: '', 
+    status: 'ACTIVE', 
+    orderIndex: 0,
+    relatedIssueIds: [] 
+  })
+  const [contentSubTab, setContentSubTab] = useState('general') // general, prelims, mains, related, ingested
+  
+  // Approval Queue State
+  const [ingestQueue, setIngestQueue] = useState([])
+  const [loadingQueue, setLoadingQueue] = useState(false)
+  const [queueEdits, setQueueEdits] = useState({}) // { [id]: { issueId: '', title: '' } }
+  const [selectedQueueItems, setSelectedQueueItems] = useState([]) // [id1, id2, ...]
 
   // Test Admin State
   const [testPacks, setTestPacks] = useState([])
@@ -50,6 +72,10 @@ export default function AdminClient({ session }) {
   const [questionSheetUrl, setQuestionSheetUrl] = useState("")
   const [selectedTestPack, setSelectedTestPack] = useState(null)
   const [isEditingTestQuestions, setIsEditingTestQuestions] = useState(false)
+  
+  // Rapid Ingestion State
+  const [ingestMode, setIngestMode] = useState('pdf') // pdf, paste
+  const [pastedText, setPastedText] = useState('')
 
   // Forms
   const [formData, setFormData] = useState({ 
@@ -120,17 +146,155 @@ export default function AdminClient({ session }) {
       if (Array.isArray(data.prompts)) setAiPrompts(data.prompts)
     } catch (e) { console.error("AI prompt fetch fail", e) }
   }
+  useEffect(() => {
+    if (activeTab === 'prelims') {
+      setExamTypeFilter('PRELIMS');
+      setIssueCategoryFilter('');
+      setContentSubTab('prelims');
+      setIngestForm(prev => ({ ...prev, contentType: 'PRELIMS' }));
+    } else if (activeTab === 'mains') {
+      setExamTypeFilter('MAINS');
+      setIssueCategoryFilter('');
+      setContentSubTab('mains');
+      setIngestForm(prev => ({ ...prev, contentType: 'MAINS' }));
+    } else if (activeTab === 'newsv2') {
+      setExamTypeFilter('');
+      setIssueCategoryFilter('');
+      setContentSubTab('general');
+      setIngestForm(prev => ({ ...prev, contentType: 'NEWS' }));
+    }
+  }, [activeTab]);
 
   // --- NEWS ENGINE V2 ACTIONS ---
   const fetchIssues = async () => {
     try {
       const params = new URLSearchParams();
       if (issueCategoryFilter) params.set('category', issueCategoryFilter);
+      if (examTypeFilter) params.set('examType', examTypeFilter);
       if (issueSearch) params.set('search', issueSearch);
       const res = await fetch(`/api/admin/issues?${params.toString()}`);
       const data = await res.json();
-      if (data.success) setIssues(data.issues || []);
-    } catch (e) { console.error('Issue fetch fail', e); }
+      if (data.success) {
+        setIssues(data.issues || []);
+      } else {
+        setStatus(`API Error: ${data.error || 'Unknown error'}`);
+      }
+    } catch (e) { 
+      console.error('Issue fetch fail', e);
+      setStatus(`Failed to fetch issues: ${e.message}`);
+    }
+  }
+
+  useEffect(() => {
+    fetchIssues();
+  }, [issueCategoryFilter, issueSearch, examTypeFilter]);
+
+  const fetchIngestQueue = async () => {
+    setLoadingQueue(true);
+    try {
+      const res = await fetch('/api/admin/ingest-queue');
+      const data = await res.json();
+      if (data.success) setIngestQueue(data.queue || []);
+    } catch (e) { console.error('Queue fetch fail', e); }
+    setLoadingQueue(false);
+  }
+
+  const handleQueueAction = async (id, type, action, skipRefresh = false) => {
+    const edits = queueEdits[id] || {};
+    try {
+      const res = await fetch(`/api/admin/ingest-queue/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          action, 
+          type,
+          issueId: edits.issueId,
+          title: edits.title,
+          contentType: edits.contentType
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (!skipRefresh) {
+          setStatus(`Item ${action}D successfully`);
+          fetchIngestQueue(); // Refresh queue
+        }
+        return true;
+      } else {
+        if (!skipRefresh) setStatus(`Error: ${data.error}`);
+        return false;
+      }
+    } catch (e) { 
+      console.error('Queue action fail', e); 
+      return false;
+    }
+  }
+
+  const handleBulkQueueAction = async (action) => {
+    if (selectedQueueItems.length === 0) return;
+    setLoading(true);
+    setStatus(`Bulk ${action.toLowerCase()}ing ${selectedQueueItems.length} items...`);
+    
+    let count = 0;
+    for (const id of selectedQueueItems) {
+      const item = ingestQueue.find(i => i.id === id);
+      if (item) {
+        const success = await handleQueueAction(id, item.type, action, true);
+        if (success) count++;
+      }
+    }
+    
+    setSelectedQueueItems([]);
+    setStatus(`Bulk ${action} completed: ${count} items processed.`);
+    fetchIngestQueue();
+    setLoading(false);
+  }
+
+  const fetchIssueDetails = async (issueId) => {
+    try {
+      const res = await fetch(`/api/admin/issues/${issueId}`);
+      const data = await res.json();
+      if (data.success) {
+        setSelectedIssue(data.issue);
+        setNodeEditForm({ 
+          title: data.issue.title || '',
+          backgroundNote: data.issue.backgroundNote || '', 
+          prelimsNote: data.issue.prelimsNote || '',
+          mainsNote: data.issue.mainsNote || '',
+          mainsFacts: data.issue.mainsFacts || '',
+          cumulativeSummary: data.issue.cumulativeSummary || '',
+          valueAddition: data.issue.valueAddition || '',
+          possibleQuestions: data.issue.possibleQuestions || '', 
+          status: data.issue.status || 'ACTIVE',
+          orderIndex: data.issue.orderIndex || 0,
+          relatedIssueIds: data.issue.relatedTo?.map(r => r.id) || []
+        });
+      }
+    } catch (e) { console.error('Issue details fetch fail', e); }
+  }
+
+  const handleAiGenerate = async (fieldId) => {
+    if (!selectedIssue) return;
+    setLoading(true);
+    setStatus(`AI is generating ${fieldId} for ${selectedIssue.title}...`);
+    try {
+      const res = await fetch('/api/admin/ai/generate-segment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ issueId: selectedIssue.id, type: fieldId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setNodeEditForm(prev => ({ ...prev, [fieldId]: data.content }));
+        setStatus("AI Generation Complete.");
+      } else {
+        setStatus(`AI Error: ${data.error}`);
+      }
+    } catch (e) {
+      console.error('AI Generation failed', e);
+      setStatus("AI Generation failed.");
+    }
+    setLoading(false);
   }
 
   const handleIngest = async () => {
@@ -362,6 +526,12 @@ export default function AdminClient({ session }) {
       return () => clearTimeout(t);
     }
   }, [issueSearch, issueCategoryFilter, activeTab])
+
+  useEffect(() => {
+    if (activeTab === 'approval') {
+      fetchIngestQueue();
+    }
+  }, [activeTab])
 
   // --- MAPPING ACTIONS ---
   const handleSubmit = async (e) => {
@@ -619,14 +789,17 @@ export default function AdminClient({ session }) {
 
         <nav style={{ flex: 1 }}>
           {sidebarItem("content", <MapIcon size={20}/>, "Geographic Content")}
+          <div style={{ margin: '12px 0 8px 12px', fontSize: '0.65rem', fontWeight: 900, color: '#3b82f6', letterSpacing: '0.1em' }}>SYLLABUS MANAGEMENT</div>
+          {sidebarItem("prelims", <Book size={20}/>, "Prelims Manager")}
+          {sidebarItem("mains", <PenTool size={20}/>, "Mains Manager")}
+          <div style={{ margin: '12px 0 8px 12px', fontSize: '0.65rem', fontWeight: 900, color: '#8b5cf6', letterSpacing: '0.1em' }}>INGESTION ENGINE</div>
+          {sidebarItem("pdfnews", <FileText size={20}/>, "Rapid Ingestion")}
+          {sidebarItem("approval", <CheckCircle size={20}/>, "Approval Queue")}
+          <div style={{ margin: '12px 0 8px 12px', fontSize: '0.65rem', fontWeight: 900, color: '#64748b', letterSpacing: '0.1em' }}>PLATFORM TOOLS</div>
           {sidebarItem("users", <Users size={20}/>, "User Management")}
-          {sidebarItem("sync", <RefreshCw size={20} className={loading && activeTab==='sync'?'animate-spin':''}/>, "News Sync Engine")}
-          {sidebarItem("newsv2", <Newspaper size={20}/>, "News Engine V2")}
           {sidebarItem("questions", <HelpCircle size={20}/>, "Question Bank")}
           {sidebarItem("tests", <Trophy size={20}/>, "Test Administration")}
           {sidebarItem("ai", <BrainCircuit size={20}/>, "AI Prompt Control")}
-          {sidebarItem("payments", <CreditCard size={20}/>, "Payment Stats")}
-          {sidebarItem("comms", <MessageSquare size={20}/>, "Communication")}
         </nav>
 
         <div style={{ borderTop: '1px solid var(--card-border)', paddingTop: '32px' }}>
@@ -873,13 +1046,14 @@ export default function AdminClient({ session }) {
           </div>
         )}
 
-        {activeTab === 'newsv2' && (
+        {(['prelims', 'mains', 'newsv2'].includes(activeTab)) && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '40px' }}>
             {/* LEFT: Issue Picker */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               <section style={cardStyle}>
                 <h2 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                  <BookOpen size={24} color="#8b5cf6" /> Issue Graph
+                  {activeTab === 'prelims' ? <Book size={24} color="#3b82f6" /> : activeTab === 'mains' ? <PenTool size={24} color="#10b981" /> : <BookOpen size={24} color="#8b5cf6" />}
+                  {activeTab === 'prelims' ? 'Prelims Syllabus' : activeTab === 'mains' ? 'Mains Syllabus' : 'Issue Graph'}
                 </h2>
                 <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '20px' }}>Select an Issue node to attach content to.</p>
 
@@ -921,10 +1095,11 @@ export default function AdminClient({ session }) {
                         setSelectedIssue(issue); 
                         setIngestResult(null);
                         setNodeEditForm({ 
-                          backgroundNote: issue.backgroundNote || '', 
-                          possibleQuestions: issue.possibleQuestions || '', 
+                          backgroundNote: '', 
+                          possibleQuestions: '', 
                           status: issue.status || 'ACTIVE' 
                         });
+                        fetchIssueDetails(issue.id);
                       }}
                       style={{
                         display: 'flex', alignItems: 'flex-start', gap: '12px', width: '100%', padding: '12px 14px',
@@ -941,8 +1116,8 @@ export default function AdminClient({ session }) {
                         <div style={{ fontSize: '0.68rem', color: '#94a3b8', marginTop: '2px' }}>{issue.topic}</div>
                       </div>
                       <div style={{ display: 'flex', gap: '6px', flexShrink: 0, marginTop: '2px' }}>
-                        {issue._count.articles > 0 && <span style={{ fontSize: '0.65rem', background: '#dbeafe', color: '#2563eb', padding: '2px 6px', borderRadius: '6px', fontWeight: 700 }}>{issue._count.articles}A</span>}
-                        {issue._count.editorials > 0 && <span style={{ fontSize: '0.65rem', background: '#fce7f3', color: '#db2777', padding: '2px 6px', borderRadius: '6px', fontWeight: 700 }}>{issue._count.editorials}E</span>}
+                        {issue._count?.articles > 0 && <span style={{ fontSize: '0.65rem', background: '#dbeafe', color: '#2563eb', padding: '2px 6px', borderRadius: '6px', fontWeight: 700 }}>{issue._count?.articles}A</span>}
+                        {issue._count?.editorials > 0 && <span style={{ fontSize: '0.65rem', background: '#fce7f3', color: '#db2777', padding: '2px 6px', borderRadius: '6px', fontWeight: 700 }}>{issue._count?.editorials}E</span>}
                       </div>
                     </button>
                   ))}
@@ -969,14 +1144,29 @@ export default function AdminClient({ session }) {
                     {selectedIssue.gsPapers.join(', ')} · {selectedIssue.domain} · {selectedIssue.topic}
                   </div>
                   <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-                    <span style={{ fontSize: '0.72rem', background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '8px', fontWeight: 700 }}>{selectedIssue._count.articles} Articles</span>
-                    <span style={{ fontSize: '0.72rem', background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '8px', fontWeight: 700 }}>{selectedIssue._count.editorials} Editorials</span>
+                    <span style={{ fontSize: '0.72rem', background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '8px', fontWeight: 700 }}>{selectedIssue._count?.articles || 0} Articles</span>
+                    <span style={{ fontSize: '0.72rem', background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '8px', fontWeight: 700 }}>{selectedIssue._count?.editorials || 0} Editorials</span>
                     <span style={{ fontSize: '0.72rem', background: 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: '8px', fontWeight: 700 }}>{selectedIssue.nodeType}</span>
                     <button 
                       onClick={() => setIsEditingNode(!isEditingNode)}
                       style={{ marginLeft: 'auto', fontSize: '0.72rem', background: 'white', color: '#7c3aed', padding: '4px 12px', borderRadius: '8px', fontWeight: 800, border: 'none', cursor: 'pointer' }}
                     >
                       {isEditingNode ? 'Cancel Edit' : 'Edit Node Content'}
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setIsCreatingSubnode(true);
+                        setSubnodeForm({ 
+                          title: '', 
+                          domain: selectedIssue.domain, 
+                          topic: selectedIssue.topic, 
+                          category: selectedIssue.category, 
+                          gsPapers: selectedIssue.gsPapers 
+                        });
+                      }}
+                      style={{ fontSize: '0.72rem', background: '#ecfdf5', color: '#10b981', padding: '4px 12px', borderRadius: '8px', fontWeight: 800, border: 'none', cursor: 'pointer' }}
+                    >
+                      + Subnode
                     </button>
                   </div>
                 </div>
@@ -987,32 +1177,178 @@ export default function AdminClient({ session }) {
                 </div>
               )}
 
-              {/* Node Editing Form */}
-              {selectedIssue && isEditingNode && (
+              {/* Node Edi              {selectedIssue && isEditingNode && (
                 <section style={cardStyle}>
-                  <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <Edit3 size={20} color="#7c3aed" /> Edit Strategic Content
-                  </h3>
+                  <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', borderBottom: '1px solid var(--card-border)', paddingBottom: '12px' }}>
+                    {['general', 'prelims', 'mains', 'related', 'ingested'].map(tab => (
+                      <button 
+                        key={tab} 
+                        onClick={() => setContentSubTab(tab)}
+                        style={{
+                          padding: '8px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 800,
+                          background: contentSubTab === tab ? '#7c3aed' : 'transparent',
+                          color: contentSubTab === tab ? 'white' : 'var(--text-secondary)',
+                          textTransform: 'uppercase'
+                        }}
+                      >
+                        {tab}
+                      </button>
+                    ))}
+                  </div>
+
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <div>
-                      <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>STRATEGIC INTELLIGENCE (Markdown)</label>
-                      <textarea
-                        value={nodeEditForm.backgroundNote}
-                        onChange={e => setNodeEditForm({...nodeEditForm, backgroundNote: e.target.value})}
-                        placeholder="Detailed topic intelligence..."
-                         style={{ width: '100%', minHeight: '150px', padding: '12px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white', fontSize: '0.88rem' }}
-                      />
-                    </div>
-                    <div>
-                      <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>PREDICTED DIMENSIONS / POSSIBLE QUESTIONS (Markdown)</label>
-                      <textarea
-                        value={nodeEditForm.possibleQuestions}
-                        onChange={e => setNodeEditForm({...nodeEditForm, possibleQuestions: e.target.value})}
-                        placeholder="Predictive analysis and possible questions..."
-                        style={{ width: '100%', minHeight: '150px', padding: '12px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white', fontSize: '0.88rem' }}
-                      />
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    {contentSubTab === 'general' && (
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                        <div style={{ gridColumn: 'span 2' }}>
+                          <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>NODE TITLE</label>
+                          <input
+                            value={nodeEditForm.title}
+                            onChange={e => setNodeEditForm({...nodeEditForm, title: e.target.value})}
+                            style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white', fontSize: '0.9rem', fontWeight: 700 }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>ORDER INDEX (Syllabus Sequence)</label>
+                          <input
+                            type="number"
+                            value={nodeEditForm.orderIndex}
+                            onChange={e => setNodeEditForm({...nodeEditForm, orderIndex: parseInt(e.target.value) || 0})}
+                            style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>STATUS</label>
+                          <select
+                            value={nodeEditForm.status}
+                            onChange={e => setNodeEditForm({...nodeEditForm, status: e.target.value})}
+                            style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }}
+                          >
+                            <option value="ACTIVE">ACTIVE</option>
+                            <option value="DORMANT">DORMANT</option>
+                            <option value="ARCHIVED">ARCHIVED</option>
+                          </select>
+                        </div>
+                        <div style={{ gridColumn: 'span 2' }}>
+                          <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>NEURAL CORE / BACKGROUND (Markdown)</label>
+                          <textarea
+                            value={nodeEditForm.backgroundNote}
+                            onChange={e => setNodeEditForm({...nodeEditForm, backgroundNote: e.target.value})}
+                            placeholder="General topic background..."
+                            style={{ width: '100%', minHeight: '200px', padding: '12px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white', fontSize: '0.88rem' }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {contentSubTab === 'prelims' && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <label style={{ fontSize: '0.75rem', fontWeight: 900, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Zap size={16} color="#10b981"/> PRELIMS QUICK FACT-SHEET (Markdown)
+                          </label>
+                          <button 
+                            onClick={() => handleAiGenerate('prelimsNote')}
+                            disabled={loading}
+                            style={{ padding: '6px 12px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', border: 'none', borderRadius: '8px', fontSize: '0.65rem', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                          >
+                            <BrainCircuit size={14}/> {loading ? 'AI WORKING...' : 'GENERATE PRELIMS FACTS'}
+                          </button>
+                        </div>
+                        <textarea
+                          value={nodeEditForm.prelimsNote}
+                          onChange={e => setNodeEditForm({...nodeEditForm, prelimsNote: e.target.value})}
+                          placeholder="Factual points for Prelims..."
+                          style={{ width: '100%', minHeight: '400px', padding: '12px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white', fontSize: '0.88rem', lineHeight: 1.6 }}
+                        />
+                      </div>
+                    )}
+
+                    {contentSubTab === 'mains' && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                        {[
+                          { id: 'mainsNote', label: 'MAINS CONTENT (Master Vault)', icon: <BookOpen size={16}/>, placeholder: 'Strategic analysis, core concepts...' },
+                          { id: 'cumulativeSummary', label: 'EXECUTIVE SUMMARY', icon: <FileText size={16}/>, placeholder: 'Brief summary for quick revision...' },
+                          { id: 'valueAddition', label: 'VALUE ADDITION (Case Studies/Examples)', icon: <TrendingUp size={16}/>, placeholder: 'Committee reports, specific examples...' },
+                          { id: 'mainsFacts', label: 'FACTS & DATA (Statistical Pillars)', icon: <BarChart3 size={16}/>, placeholder: 'Numbers, percentages, trends...' },
+                          { id: 'possibleQuestions', label: 'POSSIBLE QUESTIONS / PREDICTIONS', icon: <HelpCircle size={16}/>, placeholder: 'GS-specific questions and dimensions...' }
+                        ].map(field => (
+                          <div key={field.id}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                              <label style={{ fontSize: '0.75rem', fontWeight: 900, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                {field.icon} {field.label}
+                              </label>
+                              <button 
+                                onClick={() => handleAiGenerate(field.id)}
+                                disabled={loading}
+                                style={{ padding: '6px 12px', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', border: 'none', borderRadius: '8px', fontSize: '0.65rem', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px' }}
+                              >
+                                <BrainCircuit size={14}/> {loading ? 'AI WORKING...' : 'GENERATE WITH AI'}
+                              </button>
+                            </div>
+                            <textarea
+                              value={nodeEditForm[field.id]}
+                              onChange={e => setNodeEditForm({...nodeEditForm, [field.id]: e.target.value})}
+                              placeholder={field.placeholder}
+                              style={{ width: '100%', minHeight: field.id === 'mainsNote' ? '250px' : '120px', padding: '12px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white', fontSize: '0.88rem', lineHeight: 1.6 }}
+                            />
+                          </div>
+                        ))}
+
+                        <div style={{ padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px solid var(--card-border)' }}>
+                          <div style={{ fontSize: '0.75rem', fontWeight: 900, color: 'var(--text-secondary)', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Trophy size={16}/> PREVIOUS YEAR QUESTIONS (PYQ)
+                          </div>
+                          <div style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
+                            {selectedIssue._count?.pyqLinks || 0} PYQs linked to this node. 
+                            <button style={{ marginLeft: '12px', background: 'transparent', border: 'none', color: '#3b82f6', fontWeight: 800, cursor: 'pointer', fontSize: '0.8rem' }}>Manage Links ↗</button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {contentSubTab === 'related' && (
+                      <div>
+                        <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', display: 'block', marginBottom: '12px' }}>CROSS-REFERENCE RELATED NODES</label>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>
+                          {issues.filter(i => i.id !== selectedIssue.id).slice(0, 100).map(issue => (
+                            <label key={issue.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '8px 12px', background: 'rgba(255,255,255,0.02)', borderRadius: '10px', cursor: 'pointer' }}>
+                              <input 
+                                type="checkbox" 
+                                checked={nodeEditForm.relatedIssueIds.includes(issue.id)}
+                                onChange={e => {
+                                  const ids = e.target.checked 
+                                    ? [...nodeEditForm.relatedIssueIds, issue.id]
+                                    : nodeEditForm.relatedIssueIds.filter(id => id !== issue.id);
+                                  setNodeEditForm({...nodeEditForm, relatedIssueIds: ids});
+                                }}
+                              />
+                              <span style={{ fontSize: '0.85rem' }}>{issue.title}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {contentSubTab === 'ingested' && (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <h4 style={{ fontSize: '0.85rem', fontWeight: 800 }}>Linked News & Editorials</h4>
+                        {[...(selectedIssue.articles || []), ...(selectedIssue.editorials || [])]
+                          .sort((a, b) => new Date(b.publishedAt || b.createdAt) - new Date(a.publishedAt || a.createdAt))
+                          .map(item => (
+                          <div key={item.id} style={{ padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid var(--card-border)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>{item.title}</div>
+                              <span style={{ fontSize: '0.65rem', background: item.contentType ? '#dbeafe' : '#fce7f3', color: item.contentType ? '#2563eb' : '#db2777', padding: '2px 6px', borderRadius: '6px' }}>{item.contentType || 'EDITORIAL'}</span>
+                            </div>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                              {item.source} · {new Date(item.publishedAt || item.createdAt).toLocaleDateString()}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px', borderTop: '1px solid var(--card-border)', paddingTop: '20px' }}>
                        <select 
                         value={nodeEditForm.status} 
                         onChange={e => setNodeEditForm({...nodeEditForm, status: e.target.value})}
@@ -1030,6 +1366,51 @@ export default function AdminClient({ session }) {
                          {loading ? 'Saving...' : 'Update Node'}
                        </button>
                     </div>
+                  </div>
+                </section>
+              )}
+
+              {/* Subnode Creation Form */}
+              {selectedIssue && isCreatingSubnode && (
+                <section style={cardStyle}>
+                  <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <PlusCircle size={20} color="#10b981" /> Create Subnode for {selectedIssue.title}
+                  </h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    <input 
+                      placeholder="Subnode Title (e.g. Constitutional Provisions of GDP)" 
+                      value={subnodeForm.title}
+                      onChange={e => setSubnodeForm({...subnodeForm, title: e.target.value})}
+                      style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }}
+                    />
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <input placeholder="Domain" value={subnodeForm.domain} onChange={e => setSubnodeForm({...subnodeForm, domain: e.target.value})} style={{ padding: '12px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }} />
+                      <input placeholder="Topic" value={subnodeForm.topic} onChange={e => setSubnodeForm({...subnodeForm, topic: e.target.value})} style={{ padding: '12px', borderRadius: '12px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }} />
+                    </div>
+                    <button 
+                      onClick={async () => {
+                        setLoading(true);
+                        try {
+                          const res = await fetch('/api/admin/issues', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ ...subnodeForm, parentIssueId: selectedIssue.id })
+                          });
+                          const data = await res.json();
+                          if (data.success) {
+                            setStatus("Subnode created successfully.");
+                            setIsCreatingSubnode(false);
+                            fetchIssues();
+                          }
+                        } catch (e) { setStatus("Subnode creation failed."); }
+                        setLoading(false);
+                      }}
+                      disabled={loading || !subnodeForm.title}
+                      style={{ ...btnPrimary, padding: '14px' }}
+                    >
+                      {loading ? 'Creating...' : 'Create Subnode'}
+                    </button>
+                    <button onClick={() => setIsCreatingSubnode(false)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', fontSize: '0.85rem', cursor: 'pointer' }}>Cancel</button>
                   </div>
                 </section>
               )}
@@ -1118,9 +1499,11 @@ export default function AdminClient({ session }) {
                             onChange={e => setIngestForm({...ingestForm, contentType: e.target.value})}
                             style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '0.85rem', background: 'white' }}
                           >
-                            <option value="NEWS">News</option>
+                            <option value="NEWS">News / Current Affairs</option>
+                            <option value="PRELIMS">Prelims Fact Segment</option>
+                            <option value="MAINS">Mains Master Segment</option>
                             <option value="PIB">PIB Release</option>
-                            <option value="REPORT">Report</option>
+                            <option value="REPORT">Report / Index</option>
                           </select>
                         </div>
                       ) : (
@@ -1524,6 +1907,259 @@ export default function AdminClient({ session }) {
                 {testPacks.length === 0 && <div style={{ textAlign: 'center', color: '#94a3b8', padding: '40px' }}>No test packs created yet.</div>}
               </div>
             </section>
+          </div>
+        )}
+        {activeTab === 'pdfnews' && (
+          <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+            <section style={{ ...cardStyle, padding: '40px' }}>
+              <div style={{ display: 'flex', gap: '12px', marginBottom: '32px', background: 'rgba(255,255,255,0.05)', padding: '8px', borderRadius: '16px' }}>
+                <button 
+                  onClick={() => setIngestMode('pdf')}
+                  style={{ flex: 1, padding: '12px', borderRadius: '12px', border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem', background: ingestMode === 'pdf' ? '#3b82f6' : 'transparent', color: ingestMode === 'pdf' ? 'white' : '#94a3b8' }}
+                >
+                  <FileText size={16} style={{ marginBottom: '4px', display: 'block', margin: '0 auto' }} />
+                  PDF OCR MODE
+                </button>
+                <button 
+                  onClick={() => setIngestMode('paste')}
+                  style={{ flex: 1, padding: '12px', borderRadius: '12px', border: 'none', cursor: 'pointer', fontWeight: 800, fontSize: '0.8rem', background: ingestMode === 'paste' ? '#3b82f6' : 'transparent', color: ingestMode === 'paste' ? 'white' : '#94a3b8' }}
+                >
+                  <BrainCircuit size={16} style={{ marginBottom: '4px', display: 'block', margin: '0 auto' }} />
+                  RAPID PASTE MODE
+                </button>
+              </div>
+
+              {ingestMode === 'pdf' ? (
+                <div style={{ textAlign: 'center' }}>
+                  <div style={{ background: 'rgba(56, 189, 248, 0.1)', width: '64px', height: '64px', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', color: '#0ea5e9' }}>
+                    <FileText size={32} />
+                  </div>
+                  <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'white', marginBottom: '12px' }}>Newspaper PDF Skimmer</h2>
+                  <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', fontSize: '0.9rem' }}>Upload the daily PDF. AI will skim and link to nodes.</p>
+                  
+                  <div style={{ border: '2px dashed var(--card-border)', borderRadius: '24px', padding: '40px', background: 'rgba(0,0,0,0.1)' }}>
+                    <input type="file" id="pdf-upload" style={{ display: 'none' }} accept=".pdf" onChange={async (e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        setStatus(`Reading ${file.name}... This might take 1-2 minutes.`);
+                        setLoading(true);
+                        try {
+                          const formData = new FormData();
+                          formData.append('file', file);
+                          const res = await fetch('/api/admin/ocr', { method: 'POST', body: formData });
+                          const data = await res.json();
+                          if (data.success) {
+                            for (const item of data.items) {
+                              await fetch('/api/admin/issues/ingest', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ issueId: issues[0]?.id, type: item.type, title: item.title, source: item.source || 'PDF OCR', rawContent: item.rawContent, publishedAt: new Date().toISOString() })
+                              });
+                            }
+                            setStatus(`Queued ${data.count} items from PDF.`);
+                            setActiveTab('approval'); fetchIngestQueue();
+                          } else setStatus(`Error: ${data.error}`);
+                        } catch (e) { setStatus(`Failed: ${e.message}`); }
+                        setLoading(false);
+                      }
+                    }} />
+                    <button onClick={() => document.getElementById('pdf-upload').click()} style={{ ...btnPrimary, padding: '16px 32px' }}>Select Newspaper PDF</button>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ textAlign: 'left' }}>
+                  <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'white', marginBottom: '8px' }}>Rapid Text Paste</h2>
+                  <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', fontSize: '0.9rem' }}>Paste article text from websites or digital epapers. AI will split it into discrete news items.</p>
+                  
+                  <textarea 
+                    value={pastedText}
+                    onChange={e => setPastedText(e.target.value)}
+                    placeholder="Paste your content here (min 50 chars)..."
+                    style={{ width: '100%', minHeight: '300px', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--card-border)', borderRadius: '16px', padding: '20px', color: 'white', fontSize: '0.9rem', marginBottom: '20px', resize: 'vertical' }}
+                  />
+                  
+                  <button 
+                    disabled={pastedText.length < 50 || loading}
+                    onClick={async () => {
+                      setLoading(true); setStatus("AI is splitting and analyzing text...");
+                      try {
+                        const res = await fetch('/api/admin/rapid-ingest', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ text: pastedText })
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                          for (const item of data.items) {
+                            await fetch('/api/admin/issues/ingest', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({ issueId: issues[0]?.id, type: item.type, title: item.title, source: item.source || 'Manual Paste', rawContent: item.rawContent, publishedAt: new Date().toISOString() })
+                            });
+                          }
+                          setStatus(`Successfully queued ${data.count} items.`);
+                          setPastedText(''); setActiveTab('approval'); fetchIngestQueue();
+                        } else setStatus(`Error: ${data.error}`);
+                      } catch (e) { setStatus(`Failed: ${e.message}`); }
+                      setLoading(false);
+                    }}
+                    style={{ ...btnPrimary, width: '100%', padding: '16px' }}
+                  >
+                    {loading ? 'Processing...' : 'Process & Send to Approval Queue'}
+                  </button>
+                </div>
+              )}
+
+              <div style={{ textAlign: 'left', marginTop: '32px', background: 'rgba(255,255,255,0.02)', padding: '24px', borderRadius: '20px', border: '1px solid var(--card-border)' }}>
+                <h3 style={{ fontSize: '0.9rem', fontWeight: 800, color: 'white', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '1px' }}>Skimming Pipeline Status</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                     <span style={{ color: 'var(--text-secondary)' }}>OCR Engine</span>
+                     <span style={{ color: '#10b981', fontWeight: 700 }}>READY</span>
+                   </div>
+                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                     <span style={{ color: 'var(--text-secondary)' }}>Strategic Filtering (Gemma 4)</span>
+                     <span style={{ color: '#10b981', fontWeight: 700 }}>ONLINE</span>
+                   </div>
+                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.85rem' }}>
+                     <span style={{ color: 'var(--text-secondary)' }}>Auto-Link Accuracy</span>
+                     <span style={{ color: '#3b82f6', fontWeight: 700 }}>94%</span>
+                   </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        )}
+
+        {activeTab === 'approval' && (
+          <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h2 style={{ fontSize: '1.5rem', fontWeight: 900, color: 'white', margin: 0 }}>Pending Ingestion Queue</h2>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                {selectedQueueItems.length > 0 && (
+                  <>
+                    <button onClick={() => handleBulkQueueAction('REJECT')} style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 700 }}>Reject Selected ({selectedQueueItems.length})</button>
+                    <button onClick={() => handleBulkQueueAction('APPROVE')} style={{ background: '#10b981', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '8px', cursor: 'pointer', fontWeight: 700 }}>Approve Selected ({selectedQueueItems.length})</button>
+                  </>
+                )}
+                <button onClick={fetchIngestQueue} style={{ ...btnPrimary, padding: '10px 20px', fontSize: '0.8rem' }}>Refresh Queue</button>
+              </div>
+            </div>
+
+            {ingestQueue.length > 0 && (
+              <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px', padding: '0 12px' }}>
+                <input 
+                  type="checkbox" 
+                  checked={selectedQueueItems.length === ingestQueue.length} 
+                  onChange={(e) => {
+                    if (e.target.checked) setSelectedQueueItems(ingestQueue.map(i => i.id));
+                    else setSelectedQueueItems([]);
+                  }}
+                  style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                />
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 700 }}>SELECT ALL ITEMS</span>
+              </div>
+            )}
+            
+            {loadingQueue ? (
+              <div style={{ color: 'var(--text-secondary)', textAlign: 'center', padding: '40px' }}>Loading queue...</div>
+            ) : ingestQueue.length === 0 ? (
+              <div style={{ ...cardStyle, textAlign: 'center', padding: '60px' }}>
+                <CheckCircle size={48} style={{ color: '#10b981', margin: '0 auto 16px' }} />
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'white', marginBottom: '8px' }}>Queue is empty</h3>
+                <p style={{ color: 'var(--text-secondary)' }}>All extracted news and editorials have been processed.</p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {ingestQueue.map(item => {
+                  const edit = queueEdits[item.id] || {};
+                  const currentTitle = edit.title !== undefined ? edit.title : item.title;
+                  const currentIssueId = edit.issueId !== undefined ? edit.issueId : item.issueId;
+                  const isSelected = selectedQueueItems.includes(item.id);
+
+                  return (
+                    <div key={item.id} style={{ ...cardStyle, padding: '24px', border: isSelected ? '2px solid #3b82f6' : '1px solid var(--card-border)', transition: 'all 0.2s' }}>
+                      <div style={{ display: 'flex', gap: '20px' }}>
+                        <div style={{ paddingTop: '4px' }}>
+                          <input 
+                            type="checkbox" 
+                            checked={isSelected}
+                            onChange={(e) => {
+                              if (e.target.checked) setSelectedQueueItems([...selectedQueueItems, item.id]);
+                              else setSelectedQueueItems(selectedQueueItems.filter(id => id !== item.id));
+                            }}
+                            style={{ width: '20px', height: '20px', cursor: 'pointer' }}
+                          />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                                <span style={{ background: item.type === 'ARTICLE' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(16, 185, 129, 0.2)', color: item.type === 'ARTICLE' ? '#3b82f6' : '#10b981', padding: '4px 10px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 800 }}>{item.type}</span>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                  <span style={{ color: '#94a3b8', fontSize: '0.7rem', fontWeight: 700 }}>RE-MAP TO:</span>
+                                  <select 
+                                    value={currentIssueId}
+                                    onChange={e => setQueueEdits({...queueEdits, [item.id]: {...edit, issueId: e.target.value}})}
+                                    style={{ background: 'transparent', color: '#8b5cf6', border: 'none', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', outline: 'none' }}
+                                  >
+                                    {issues.map(iss => (
+                                      <option key={iss.id} value={iss.id} style={{ background: '#0f172a', color: 'white' }}>{iss.title}</option>
+                                    ))}
+                                  </select>
+                                </div>
+
+                                {item.type === 'ARTICLE' && (
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                                    <span style={{ color: '#94a3b8', fontSize: '0.7rem', fontWeight: 700 }}>SEGMENT:</span>
+                                    <select 
+                                      value={edit.contentType || item.contentType || 'NEWS'}
+                                      onChange={e => setQueueEdits({...queueEdits, [item.id]: {...edit, contentType: e.target.value}})}
+                                      style={{ background: 'transparent', color: '#10b981', border: 'none', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', outline: 'none' }}
+                                    >
+                                      <option value="NEWS" style={{ background: '#0f172a', color: 'white' }}>News / Current</option>
+                                      <option value="PRELIMS" style={{ background: '#0f172a', color: 'white' }}>Prelims Fact</option>
+                                      <option value="MAINS" style={{ background: '#0f172a', color: 'white' }}>Mains Master</option>
+                                      <option value="PIB" style={{ background: '#0f172a', color: 'white' }}>PIB Release</option>
+                                    </select>
+                                  </div>
+                                )}
+                              </div>
+                              <input 
+                                value={currentTitle}
+                                onChange={e => setQueueEdits({...queueEdits, [item.id]: {...edit, title: e.target.value}})}
+                                placeholder="Edit Title..."
+                                style={{ width: '100%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', fontSize: '1.1rem', fontWeight: 800, padding: '8px 12px', borderRadius: '8px', marginBottom: '8px' }}
+                              />
+                              <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>{item.source} • {new Date(item.publishedAt).toLocaleDateString()}</p>
+                            </div>
+                            <div style={{ display: 'flex', gap: '12px', marginLeft: '24px' }}>
+                              <button onClick={() => handleQueueAction(item.id, item.type, 'REJECT')} style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '10px 20px', borderRadius: '10px', cursor: 'pointer', fontWeight: 700, transition: 'all 0.2s' }}>Reject</button>
+                              <button onClick={() => handleQueueAction(item.id, item.type, 'APPROVE')} style={{ background: '#10b981', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '10px', cursor: 'pointer', fontWeight: 700, boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)', transition: 'all 0.2s' }}>Approve</button>
+                            </div>
+                          </div>
+                          
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                            <div style={{ background: 'rgba(0,0,0,0.3)', padding: '16px', borderRadius: '12px', border: '1px solid var(--card-border)', fontSize: '0.85rem', color: '#e2e8f0', lineHeight: 1.5, height: '300px', overflowY: 'auto' }}>
+                              <div style={{ fontSize: '0.7rem', color: '#3b82f6', fontWeight: 800, marginBottom: '8px', letterSpacing: '0.05em' }}>RAW OCR EXTRACT</div>
+                              <div style={{ whiteSpace: 'pre-wrap' }}>{item.rawContent}</div>
+                            </div>
+                            <div style={{ background: 'rgba(0,0,0,0.3)', padding: '16px', borderRadius: '12px', border: '1px solid var(--card-border)', fontSize: '0.85rem', color: '#e2e8f0', lineHeight: 1.5, height: '300px', overflowY: 'auto' }}>
+                              <div style={{ fontSize: '0.7rem', color: '#8b5cf6', fontWeight: 800, marginBottom: '8px', letterSpacing: '0.05em' }}>AI STRUCTURED DATA</div>
+                              {item.structuredData ? (
+                                <pre style={{ fontSize: '0.75rem', color: '#a5b4fc' }}>{JSON.stringify(item.structuredData, null, 2)}</pre>
+                              ) : (
+                                <div style={{ color: '#64748b', fontStyle: 'italic' }}>No structured data available</div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
       </main>

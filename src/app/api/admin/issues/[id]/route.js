@@ -21,15 +21,22 @@ export async function PATCH(req, props) {
   }
 
   try {
-    const body = await req.json();
-    const { backgroundNote, possibleQuestions, status } = body;
+    const { title, backgroundNote, possibleQuestions, prelimsNote, mainsNote, status, orderIndex, relatedIssueIds, cumulativeSummary, valueAddition, mainsFacts } = body;
 
     const updatedIssue = await prisma.issue.update({
       where: { id },
       data: {
+        title: title !== undefined ? title : undefined,
         backgroundNote: backgroundNote !== undefined ? backgroundNote : undefined,
         possibleQuestions: possibleQuestions !== undefined ? possibleQuestions : undefined,
+        prelimsNote: prelimsNote !== undefined ? prelimsNote : undefined,
+        mainsNote: mainsNote !== undefined ? mainsNote : undefined,
+        mainsFacts: mainsFacts !== undefined ? mainsFacts : undefined,
+        cumulativeSummary: cumulativeSummary !== undefined ? cumulativeSummary : undefined,
+        valueAddition: valueAddition !== undefined ? valueAddition : undefined,
         status: status !== undefined ? status : undefined,
+        orderIndex: orderIndex !== undefined ? parseInt(orderIndex) : undefined,
+        relatedTo: relatedIssueIds ? { set: relatedIssueIds.map(rid => ({ id: rid })) } : undefined
       },
     });
 
@@ -61,11 +68,18 @@ export async function GET(req, props) {
   }
 
   try {
-    const issue = await prisma.issue.findFirst({
-      where: { 
-        AND: [ { id: { equals: id } } ] 
-      },
+    const issue = await prisma.issue.findUnique({
+      where: { id },
       include: {
+        articles: {
+          orderBy: { publishedAt: 'desc' }
+        },
+        editorials: {
+          orderBy: { publishedAt: 'desc' }
+        },
+        relatedTo: {
+          select: { id: true, title: true }
+        },
         _count: {
           select: {
             articles: true,

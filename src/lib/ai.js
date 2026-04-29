@@ -85,3 +85,20 @@ export async function generateJSON(prompt, systemInstruction = '', retryCount = 
 
   throw new Error('No AI provider available. Check GEMINI_API_KEY or Ollama setup.')
 }
+
+export async function generateText(prompt, systemInstruction = '') {
+  const model = getGeminiModel('extraction')
+  if (!model) throw new Error('No AI provider available.')
+  
+  try {
+    const fullPrompt = systemInstruction
+      ? `${systemInstruction}\n\nTask: ${prompt}`
+      : prompt
+
+    const response = await model.generateContent(fullPrompt)
+    return (typeof response.text === 'function' ? response.text() : response.text || '').trim()
+  } catch (e) {
+    console.error("[AI] Text generation failed:", e.message)
+    throw e
+  }
+}

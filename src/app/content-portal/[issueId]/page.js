@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import prisma from "@/lib/prisma";
-import { ChevronRight, BookOpen, Newspaper, Zap, Quote, HelpCircle } from 'lucide-react';
+import { ChevronRight, BookOpen, Newspaper, Zap, Quote, HelpCircle, Layout } from 'lucide-react';
 import FloatingChatWrapper from '@/components/content-portal/FloatingChatWrapper';
 import ReactMarkdown from 'react-markdown';
 import '../../prelims/prelims.css';
@@ -16,7 +16,10 @@ export default async function MainsIssueDetailPage({ params }) {
       articles: {
         where: { status: 'DONE' },
         orderBy: { publishedAt: 'desc' },
-        take: 5
+        take: 50
+      },
+      relatedTo: {
+        select: { id: true, title: true }
       }
     }
   });
@@ -25,11 +28,16 @@ export default async function MainsIssueDetailPage({ params }) {
     notFound();
   }
 
+  const prelimsSegment = issue.articles.filter(a => a.contentType === 'PRELIMS');
+  const mainsSegment = issue.articles.filter(a => a.contentType === 'MAINS');
+  const currentStream = issue.articles.filter(a => !['PRELIMS', 'MAINS'].includes(a.contentType));
+
   const gsPaper = issue.gsPapers[0] || 'GS Paper';
   const category = issue.category.replace('_', ' ');
 
   return (
-    <div className="mt-page" style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
+    <>
+      <div className="mt-page" style={{ minHeight: '100vh', background: 'var(--bg-primary)' }}>
       {/* Container - Using 100% width with padding to satisfy "no spaces in horizontal layout" */}
       <div style={{ width: '100%', padding: '48px 40px', boxSizing: 'border-box' }}>
         
@@ -59,7 +67,7 @@ export default async function MainsIssueDetailPage({ params }) {
           
           {/* LEFT COLUMN: 60% (Core Content) */}
           <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-            <section>
+            <section style={{ marginBottom: '40px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
                 <div style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', padding: '8px', borderRadius: '12px' }}><BookOpen size={20} /></div>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>Neural Core Content</h2>
@@ -68,6 +76,93 @@ export default async function MainsIssueDetailPage({ params }) {
                 <ReactMarkdown>{issue.backgroundNote || 'Strategic core content is being synthesized...'}</ReactMarkdown>
               </div>
             </section>
+
+            {(issue.mainsNote || mainsSegment.length > 0 || issue.mainsFacts) && (
+              <section style={{ marginBottom: '40px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+                  <div style={{ background: 'rgba(236, 72, 153, 0.1)', color: '#ec4899', padding: '8px', borderRadius: '12px' }}><Zap size={20} /></div>
+                  <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>Mains Master Vault</h2>
+                </div>
+                <div style={{ background: 'rgba(236, 72, 153, 0.02)', border: '1px solid rgba(236, 72, 153, 0.2)', borderRadius: '24px', overflow: 'hidden' }}>
+                  {issue.mainsNote && (
+                    <div className="markdown-content" style={{ color: 'var(--text-primary)', lineHeight: 1.8, fontSize: '1.05rem', padding: '32px', borderBottom: (mainsSegment.length > 0 || issue.mainsFacts) ? '1px dashed rgba(236, 72, 153, 0.3)' : 'none' }}>
+                      <ReactMarkdown>{issue.mainsNote}</ReactMarkdown>
+                    </div>
+                  )}
+                  {issue.mainsFacts && (
+                    <div style={{ padding: '24px 32px', borderBottom: mainsSegment.length > 0 ? '1px dashed rgba(236, 72, 153, 0.3)' : 'none' }}>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#ec4899', marginBottom: '16px', letterSpacing: '0.1em' }}>STATISTICAL PILLARS & DATA</div>
+                      <div className="markdown-content" style={{ fontSize: '1rem', color: 'var(--text-primary)', lineHeight: 1.7 }}>
+                        <ReactMarkdown>{issue.mainsFacts}</ReactMarkdown>
+                      </div>
+                    </div>
+                  )}
+                  {mainsSegment.length > 0 && (
+                    <div style={{ padding: '24px 32px' }}>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#ec4899', marginBottom: '16px', letterSpacing: '0.1em' }}>INGESTED MASTER POINTS</div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                        {mainsSegment.map(item => (
+                          <div key={item.id}>
+                            <h4 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 8px' }}>{item.title}</h4>
+                            <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                              <ReactMarkdown>{item.rawContent?.substring(0, 300) + '...'}</ReactMarkdown>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </section>
+            )}
+
+            {(issue.prelimsNote || prelimsSegment.length > 0) && (
+              <section style={{ marginBottom: '40px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+                  <div style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', padding: '8px', borderRadius: '12px' }}><Zap size={20} /></div>
+                  <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>Prelims Quick Fact-Sheet</h2>
+                </div>
+                <div style={{ background: 'rgba(16, 185, 129, 0.02)', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '24px', overflow: 'hidden' }}>
+                  {issue.prelimsNote && (
+                    <div className="markdown-content" style={{ color: 'var(--text-primary)', lineHeight: 1.8, fontSize: '1.05rem', padding: '32px', borderBottom: prelimsSegment.length > 0 ? '1px dashed rgba(16, 185, 129, 0.3)' : 'none' }}>
+                      <ReactMarkdown>{issue.prelimsNote}</ReactMarkdown>
+                    </div>
+                  )}
+                  {prelimsSegment.length > 0 && (
+                    <div style={{ padding: '24px 32px' }}>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 900, color: '#10b981', marginBottom: '16px', letterSpacing: '0.1em' }}>INGESTED FACTUAL SEGMENTS</div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                        {prelimsSegment.map(item => (
+                          <div key={item.id} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', marginTop: '6px', flexShrink: 0 }}></div>
+                            <div>
+                              <div style={{ fontWeight: 800, color: 'var(--text-primary)', fontSize: '1rem' }}>{item.title}</div>
+                              <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>{item.source} · {new Date(item.publishedAt).toLocaleDateString()}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </section>
+            )}
+
+            {issue.relatedTo?.length > 0 && (
+              <section>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+                  <div style={{ background: 'rgba(124, 58, 237, 0.1)', color: '#7c3aed', padding: '8px', borderRadius: '12px' }}><Layout size={20} /></div>
+                  <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>Cross-Referenced Nodes</h2>
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                  {issue.relatedTo.map(rel => (
+                    <Link key={rel.id} href={`/content-portal/${rel.id}`} style={{ textDecoration: 'none', background: 'rgba(124, 58, 237, 0.05)', color: '#a78bfa', padding: '10px 20px', borderRadius: '14px', border: '1px solid rgba(124, 58, 237, 0.2)', fontSize: '0.9rem', fontWeight: 700 }}>
+                      {rel.title}
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
 
           {/* RIGHT COLUMN: 40% (Rest of elements arranged below each other) */}
@@ -114,11 +209,11 @@ export default async function MainsIssueDetailPage({ params }) {
                 <h2 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>Intelligence Stream</h2>
               </div>
               <div style={{ background: 'var(--card-bg)', border: '1px solid var(--card-border)', borderRadius: '20px', padding: '24px' }}>
-                {issue.articles.length === 0 ? (
+                {currentStream.length === 0 ? (
                   <p style={{ color: '#64748b', fontSize: '0.9rem', margin: 0 }}>No recent updates in the stream.</p>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                    {issue.articles.map(article => (
+                    {currentStream.map(article => (
                       <div key={article.id}>
                         <p style={{ fontSize: '0.95rem', color: 'var(--text-primary)', fontWeight: 700, margin: '0 0 6px', lineHeight: 1.4 }}>{article.title}</p>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -188,6 +283,7 @@ export default async function MainsIssueDetailPage({ params }) {
           }
         }
       `}} />
-    </div>
+      </div>
+    </>
   );
 }

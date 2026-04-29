@@ -1,7 +1,7 @@
 {
-  "name": "Global Strategic Atlas",
-  "short_name": "UPSC Atlas",
-  "description": "Premium UPSC Strategic Intelligence & Geopolitical Atlas",
+  "name": "UPSC Intelligence Platform",
+  "short_name": "UPSCGPT",
+  "description": "Premium UPSC Strategic Intelligence Platform",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",

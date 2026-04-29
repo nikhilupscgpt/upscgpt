@@ -129,7 +129,7 @@ export default function StudentLogin() {
           ) : (
             <form onSubmit={handleVerifyOtp}>
               <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '20px' }}>
-                We've sent a 6-digit code to <span style={{ color: 'white', fontWeight: 700 }}>{email}</span>
+                We&apos;ve sent a 6-digit code to <span style={{ color: 'white', fontWeight: 700 }}>{email}</span>
               </p>
               <div style={{ position: 'relative', marginBottom: '20px' }}>
                 <Key size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />

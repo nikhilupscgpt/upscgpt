@@ -57,7 +57,7 @@ export default function Navigation({ children }) {
                   priority 
                 />
               </div>
-              <span className="app-nav__brand-text">STARA</span>
+              <span className="app-nav__brand-text">UPSCGPT</span>
             </Link>
 
             {/* Desktop Navigation Links */}
@@ -95,7 +95,7 @@ export default function Navigation({ children }) {
               className="btn-nano"
               style={{ marginRight: '6px' }}
             >
-               ✨ <span className="nav-desktop-text">{t('nav.askNano')}</span>
+               ✨ <span className="nav-desktop-text">Ask Nano</span>
             </button>
 
             {loading ? (
@@ -116,19 +116,19 @@ export default function Navigation({ children }) {
                   </Link>
                 )}
                 <Link href="/profile" className="btn-secondary" style={{ padding: '6px 10px' }}>
-                   👤 <span className="nav-desktop-text">{t('nav.profile')}</span>
+                   👤 <span className="nav-desktop-text">Profile</span>
                 </Link>
                 <button
                   onClick={() => signOut()}
                   className="btn-secondary"
                   style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', padding: '6px 4px' }}
                 >
-                  {t('nav.logout')}
+                  Logout
                 </button>
               </div>
             ) : (
               <Link href="/login" className="btn-primary" style={{ textDecoration: 'none' }}>
-                {t('nav.signIn')}
+                 Sign In
               </Link>
             )}
           </div>
@@ -137,8 +137,8 @@ export default function Navigation({ children }) {
         {/* Mobile Navigation Panel */}
         <div className="app-nav__mobile-panel">
           <div className="app-nav__mobile-links">
-            <Link href="/atlas" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.atlas')}</Link>
-            {session && <Link href="/profile" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>{t('nav.profile')}</Link>}
+             <Link href="/atlas" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>Atlas</Link>
+               <Link href="/profile" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>Profile</Link>
           </div>
 
           {activeContent && (
@@ -151,7 +151,7 @@ export default function Navigation({ children }) {
             <div className="app-nav__mobile-account">
               {session.user.tier === 'FREE' && (
                 <Link href="/profile" className="app-nav__go-pro" onClick={() => setMobileMenuOpen(false)}>
-                  💎 {t('nav.goPro')}
+                  💎 Go Pro
                 </Link>
               )}
               <button

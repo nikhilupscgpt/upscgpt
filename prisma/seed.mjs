@@ -172,8 +172,9 @@ async function seedIssues() {
     const batch = nodes.slice(i, i + BATCH_SIZE);
 
     await Promise.all(
-      batch.map((node) =>
-        prisma.issue.upsert({
+      batch.map((node, batchIdx) => {
+        const orderIndex = i + batchIdx;
+        return prisma.issue.upsert({
           where: { slug: toSlug(node.title) },
           update: {
             title:    node.title,
@@ -183,6 +184,7 @@ async function seedIssues() {
             gsPapers: node.gsPapers,
             nodeType: node.nodeType,
             status:   node.status ?? "ACTIVE",
+            orderIndex: orderIndex,
           },
           create: {
             title:    node.title,
@@ -193,9 +195,10 @@ async function seedIssues() {
             gsPapers: node.gsPapers,
             nodeType: node.nodeType,
             status:   node.status ?? "ACTIVE",
+            orderIndex: orderIndex,
           },
-        })
-      )
+        });
+      })
     );
 
     upserted += batch.length;

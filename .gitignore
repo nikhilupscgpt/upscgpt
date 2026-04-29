@@ -41,6 +41,13 @@ prisma/*.db
 # dev-only scripts — not for production
 seed.js
 test-csv.js
+check-db.mjs
+test-prisma.js
+test-prisma.mjs
+lint_output.txt
+/public/uploads/
+scripts/check-samples.js
+scripts/seed-gdp.mjs
 
 # vercel
 .vercel

@@ -3,6 +3,9 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { useTranslation } from "@/context/TranslationContext";
+import { useRouter } from 'next/navigation';
+import UniversalSearchBar from '@/components/UniversalSearchBar';
+
 import './home.css'
 
 
@@ -10,6 +13,8 @@ export default function UPSCGPTMasterPortal() {
   const [stats, setStats] = useState({ entries: 0, categories: 0, newsToday: 0, issues: 0 })
   const [mounted, setMounted] = useState(false)
   const { t } = useTranslation();
+  const [searchTerm, setSearchTerm] = useState('');
+  // handleSearch removed, handled by component
 
   useEffect(() => {
     setMounted(true)
@@ -151,7 +156,7 @@ export default function UPSCGPTMasterPortal() {
 
 
       <main style={{ position: 'relative', zIndex: 10, maxWidth: '1400px', margin: '0 auto' }} className="main-responsive-padding">
-        <div style={{ textAlign: 'center', marginBottom: '32px', marginTop: '24px' }} className="hero-section">
+                <div style={{ textAlign: 'center', marginBottom: '64px', marginTop: '120px' }} className="hero-section">
           <h2 className="main-title" style={{ color: 'var(--text-primary)' }}>
             {t('home.heroTitle')}
             <br />
@@ -171,7 +176,11 @@ export default function UPSCGPTMasterPortal() {
             {t('home.heroDesc')}
           </p>
         </div>
-
+        
+        {/* Universal Search Bar with Autocomplete */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '32px' }}>
+          <UniversalSearchBar placeholder="Search across nodes..." />
+        </div>
 
         <div className="command-grid">
           {commandCenters.map((center) => {
@@ -310,44 +319,8 @@ export default function UPSCGPTMasterPortal() {
               </Wrapper>
             )
           })}
-        </div>
+ 
 
-        <div
-          style={{
-            marginTop: '48px',
-            padding: '20px 32px',
-            borderRadius: '16px',
-            background: 'var(--card-bg)',
-            border: '1px solid var(--card-border)',
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '48px',
-            flexWrap: 'wrap',
-          }}
-        >
-          {[
-            { icon: '🌍', val: stats.entries, label: 'Atlas Nodes' },
-            { icon: '📊', val: stats.categories, label: 'Categories' },
-            { icon: '🔥', val: stats.newsToday, label: 'News Today' },
-            { icon: '🏛️', val: 4, label: 'Command Centers' },
-          ].map((item, index) => (
-            <div key={index} style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '1.2rem', marginBottom: '4px' }}>{item.icon}</div>
-              <div style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--text-primary)', lineHeight: 1 }}>{item.val}</div>
-              <div
-                style={{
-                  fontSize: '0.65rem',
-                  color: 'var(--text-secondary)',
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.8px',
-                  marginTop: '4px',
-                }}
-              >
-                {item.label}
-              </div>
-            </div>
-          ))}
         </div>
       </main>
 

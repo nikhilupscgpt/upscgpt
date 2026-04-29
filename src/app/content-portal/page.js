@@ -207,7 +207,7 @@ export default async function ContentPortalPage({ searchParams }) {
                   <Search size={32} color="#1e293b" />
                 </div>
                 <h3 style={{ color: 'white', fontSize: '1.25rem', fontWeight: 800 }}>No results found</h3>
-                <p style={{ color: '#64748b', maxWidth: '300px', margin: '12px auto' }}>We couldn't find any topics matching your search in this subject.</p>
+                <p style={{ color: '#64748b', maxWidth: '300px', margin: '12px auto' }}>We couldn&apos;t find any topics matching your search in this subject.</p>
               </div>
             ) : (
               <div style={{ 

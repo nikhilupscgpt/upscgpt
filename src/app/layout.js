@@ -3,8 +3,8 @@ import Script from 'next/script'
 
 export const metadata = {
   title: {
-    default: 'STARA Intelligence | Strategic Command Hub',
-    template: '%s | STARA Intelligence'
+    default: 'UPSC Intelligence Platform | UPSCGPT',
+    template: '%s | UPSCGPT'
   },
   description: 'The definitive strategic intelligence platform for UPSC preparation. 500+ syllabus nodes, real-time geopolitical tracking, and neural-enhanced current affairs.',
   keywords: ['UPSC', 'IAS', 'Geography', 'Current Affairs', 'Strategic Atlas', 'Issue Graph', 'Geopolitics', 'Civil Services Examination'],
@@ -21,10 +21,10 @@ export const metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: 'STARA Intelligence | Strategic Command Hub',
+    title: 'UPSC Intelligence Platform | UPSCGPT',
     description: 'Master UPSC Current Affairs and Geopolitics through high-performance neural tracking.',
     url: 'https://upscatlas.com',
-    siteName: 'STARA Intelligence',
+    siteName: 'UPSCGPT',
     images: [
       {
         url: '/og-image.png',
@@ -37,7 +37,7 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Global Strategic Atlas | UPSC Intelligence Hub',
+    title: 'UPSC Intelligence Platform | UPSCGPT',
     description: 'Master UPSC Current Affairs and Geography through a high-performance strategic graph.',
     images: ['/og-image.png'],
   },
@@ -45,7 +45,7 @@ export const metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'UPSC Atlas',
+    title: 'UPSC Intelligence Platform',
   },
 }
 

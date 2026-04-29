@@ -218,6 +218,9 @@ model Issue {
   possibleQuestions    String? @db.Text
   possibleQuestions_hi String? @db.Text
   possibleQuestions_mr String? @db.Text
+  prelimsNote          String? @db.Text
+  mainsNote            String? @db.Text
+  mainsFacts           String? @db.Text
   embedding            Unsupported("vector")?
   orderIndex           Int                    @default(0)
   lastUpdatedAt        DateTime               @updatedAt
@@ -232,12 +235,19 @@ model Issue {
   optionalId           String?
   optionalSubject      OptionalSubject?       @relation(fields: [optionalId], references: [id])
   testPacks            TestPack[]
+  parentIssueId        String?
+  parentIssue          Issue?                 @relation("SubNodes", fields: [parentIssueId], references: [id])
+  subNodes             Issue[]                @relation("SubNodes")
+  relatedTo            Issue[]                @relation("IssueRelations")
+  relatedFrom          Issue[]                @relation("IssueRelations")
 
   @@index([category])
   @@index([domain])
   @@index([nodeType])
   @@index([status])
   @@index([slug])
+  @@index([orderIndex])
+  @@index([title])
 }
 
 /// Manually added news items, linked to an Issue.
@@ -606,6 +616,8 @@ enum ContentType {
   NEWS
   PIB
   REPORT
+  PRELIMS
+  MAINS
 }
 
 enum ProcessingStatus {
