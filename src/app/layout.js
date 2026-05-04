@@ -72,14 +72,9 @@ export default function RootLayout({ children }) {
       </head>
       <body className="antialiased" style={{ minHeight: '100vh', position: 'relative', overflowX: 'hidden' }}>
         <div className="universal-page-glow" />
-        {/* Intensified Universal Neural Glow System */}
-        <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
-          {/* Top Left Purple Glow */}
-          <div className="neural-orb" style={{ top: '-15%', left: '-10%', width: '90vw', height: '90vw', background: 'radial-gradient(circle, rgba(168, 85, 247, 0.5) 0%, transparent 70%)', filter: 'blur(120px)' }} />
-          {/* Bottom Right Blue Glow */}
-          <div className="neural-orb" style={{ bottom: '-20%', right: '-10%', width: '90vw', height: '90vw', background: 'radial-gradient(circle, rgba(59, 130, 246, 0.45) 0%, transparent 70%)', filter: 'blur(120px)' }} />
-          {/* Center Left Cyan Glow for depth */}
-          <div className="neural-orb" style={{ top: '30%', left: '-5%', width: '60vw', height: '60vw', background: 'radial-gradient(circle, rgba(45, 212, 191, 0.25) 0%, transparent 65%)', filter: 'blur(100px)', animationDelay: '-5s' }} />
+        {/* Simplified Background for Performance */}
+        <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: '#020617' }}>
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'radial-gradient(circle at 10% 10%, rgba(139, 92, 246, 0.08), transparent 50%), radial-gradient(circle at 90% 90%, rgba(59, 130, 246, 0.08), transparent 50%)' }} />
         </div>
 
         {/* Google Analytics */}

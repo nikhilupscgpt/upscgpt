@@ -200,9 +200,10 @@ body {
   right: 0;
   z-index: 1000;
   background: var(--glass-bg);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--glass-border);
   height: 72px;
+  transform: translateZ(0);
 }
 
 .app-nav__bar {

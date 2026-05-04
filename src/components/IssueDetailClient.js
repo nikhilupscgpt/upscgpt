@@ -298,23 +298,23 @@ export default function IssueDetailClient({ issue }) {
       <style jsx global>{`
         .issue-shell { max-width: 1000px; margin: 0 auto; position: relative; z-index: 10; font-family: 'Outfit', sans-serif; padding: 20px; }
         
-        /* Header Upgrade */
-        .issue-header { background: linear-gradient(135deg, rgba(15,23,42,0.9), rgba(15,23,42,0.6)); backdrop-filter: blur(40px); border: 1px solid rgba(255,255,255,0.08); border-top: 4px solid #3b82f6; border-radius: 32px; padding: 60px; margin-bottom: 40px; box-shadow: 0 30px 60px rgba(0,0,0,0.5); }
-        .issue-header__label { font-size: 0.75rem; font-weight: 900; color: #3b82f6; text-transform: uppercase; letter-spacing: 0.3em; display: block; margin-bottom: 20px; opacity: 0.8; }
-        .issue-header__title { font-size: 3.5rem; font-weight: 950; margin: 0 0 16px; color: white; letter-spacing: -0.05em; line-height: 1.1; }
-        .issue-header__sub { font-size: 0.9rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; display: flex; align-items: center; gap: 12px; }
-        .gs-badge { margin-left: 15px; font-size: 0.65rem; font-weight: 900; color: #f59e0b; background: rgba(245,158,11,0.1); padding: 5px 15px; border-radius: 10px; border: 1px solid rgba(245,158,11,0.2); }
+        /* Header Upgrade - Performance First */
+        .issue-header { background: #0f172a; border: 1px solid rgba(255,255,255,0.08); border-top: 4px solid #3b82f6; border-radius: 24px; padding: 40px; margin-bottom: 32px; }
+        .issue-header__label { font-size: 0.75rem; font-weight: 900; color: #3b82f6; text-transform: uppercase; letter-spacing: 0.2em; display: block; margin-bottom: 12px; }
+        .issue-header__title { font-size: 2.5rem; font-weight: 900; margin: 0 0 12px; color: white; letter-spacing: -0.03em; line-height: 1.2; }
+        .issue-header__sub { font-size: 0.85rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; display: flex; align-items: center; gap: 8px; }
+        .gs-badge { margin-left: 10px; font-size: 0.6rem; font-weight: 900; color: #f59e0b; background: rgba(245,158,11,0.1); padding: 4px 12px; border-radius: 8px; border: 1px solid rgba(245,158,11,0.2); }
 
-        /* Tabs Upgrade */
-        .issue-tabs-sticky { position: sticky; top: 80px; z-index: 100; margin-bottom: 40px; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 10px; display: flex; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .issue-tabs { display: flex; gap: 10px; width: 100%; }
-        .issue-tab { flex: 1; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 16px; background: transparent; border: 1px solid transparent; border-radius: 18px; color: #94a3b8; font-size: 0.8rem; font-weight: 800; cursor: pointer; text-transform: uppercase; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .issue-tab:hover { background: rgba(255,255,255,0.05); color: white; }
-        .issue-tab.active { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.3); color: white; box-shadow: 0 0 30px rgba(59,130,246,0.2); }
+        /* Tabs - Simplified */
+        .issue-tabs-sticky { position: sticky; top: 72px; z-index: 100; margin-bottom: 32px; background: #0f172a; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding: 4px 0; }
+        .issue-tabs { display: flex; gap: 4px; width: 100%; max-width: 1000px; margin: 0 auto; }
+        .issue-tab { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; background: transparent; border: none; color: #64748b; font-size: 0.75rem; font-weight: 800; cursor: pointer; text-transform: uppercase; transition: color 0.2s; }
+        .issue-tab:hover { color: white; }
+        .issue-tab.active { color: #3b82f6; position: relative; }
+        .issue-tab.active::after { content: ''; position: absolute; bottom: 0; left: 20%; right: 20%; height: 3px; background: #3b82f6; border-radius: 10px 10px 0 0; }
 
-        /* Content Markdown Upgrade */
-        .issue-content { background: rgba(15,23,42,0.4); border: 1px solid rgba(255,255,255,0.06); border-radius: 32px; padding: 60px 40px; position: relative; min-height: 600px; box-shadow: 0 50px 120px rgba(0,0,0,0.5); max-width: 100%; overflow-x: hidden; }
-        @media (max-width: 768px) { .issue-content { padding: 40px 20px; border-radius: 20px; } }
+        /* Content Simplified */
+        .issue-content { background: rgba(15,23,42,0.2); border: 1px solid rgba(255,255,255,0.04); border-radius: 24px; padding: 40px; position: relative; min-height: 400px; max-width: 100%; }
         .issue-md { color: #e2e8f0; font-size: 1.15rem; line-height: 1.8; max-width: 100%; overflow-wrap: break-word; }
         .issue-md h2 { font-size: 2rem; font-weight: 900; color: white; margin: 2.5em 0 1em; letter-spacing: -0.02em; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; position: relative; }
         .issue-md h2::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 60px; height: 3px; background: #3b82f6; }
@@ -327,14 +327,14 @@ export default function IssueDetailClient({ issue }) {
         
         /* Practice Lab Upgrade */
         .lab-head { margin-bottom: 60px; padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-        .q-node { background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255,255,255,0.06); border-radius: 24px; margin-bottom: 24px; backdrop-filter: blur(10px); }
-        .q-header { padding: 32px 40px; }
-        .q-title-box h4 { font-size: 1.35rem; letter-spacing: -0.01em; }
-        .q-footer { background: rgba(59,130,246,0.08); border-radius: 20px; padding: 28px; }
+        .q-node { background: #1e293b; border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; margin-bottom: 16px; }
+        .q-header { padding: 24px 32px; }
+        .q-title-box h4 { font-size: 1.1rem; letter-spacing: -0.01em; }
+        .q-footer { background: rgba(59,130,246,0.05); border-radius: 12px; padding: 20px; }
         
         /* Transitions */
-        .issue-content { animation: slideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        /* Transitions - Removed for maximum performance */
+        .issue-content { animation: none; }
 
         /* Subnode Tree Styles */
         .subnode-tree-section { margin-top: 60px; }
@@ -342,7 +342,7 @@ export default function IssueDetailClient({ issue }) {
         .divider-line { flex: 1; height: 1px; background: rgba(255,255,255,0.08); }
         .divider-label { font-size: 0.7rem; font-weight: 900; color: #3b82f6; text-transform: uppercase; letter-spacing: 0.2em; display: flex; align-items: center; gap: 10px; }
         
-        .sub-node-block { background: rgba(15, 23, 42, 0.2); border: 1px solid rgba(255,255,255,0.04); border-radius: 20px; margin-bottom: 24px; padding: 10px; transition: 0.3s; }
+        .sub-node-block { background: rgba(15, 23, 42, 0.2); border: 1px solid rgba(255,255,255,0.04); border-radius: 20px; margin-bottom: 24px; padding: 10px; transition: background 0.3s, border-color 0.3s; }
         .sub-node-block.expanded { border-color: rgba(59, 130, 246, 0.2); background: rgba(15, 23, 42, 0.4); box-shadow: inset 0 0 40px rgba(0,0,0,0.2); }
         .sub-node-header { padding: 20px 24px; display: flex; align-items: center; gap: 20px; cursor: pointer; }
         .sub-node-idx { width: 28px; height: 28px; background: rgba(59, 130, 246, 0.05); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 900; color: #3b82f6; opacity: 0.6; }
@@ -361,9 +361,9 @@ export default function IssueDetailClient({ issue }) {
         .q-parent-tag { background: rgba(59,130,246,0.1); color: #3b82f6; padding: 2px 8px; border-radius: 4px; font-size: 0.6rem; }
         .intelligence-narrative { margin-top: 40px; margin-bottom: 40px; }
         .stitched-stack { display: flex; flex-direction: column; gap: 60px; }
-        .stitched-segment { position: relative; background: rgba(15, 23, 42, 0.2); border: 1px solid rgba(255,255,255,0.04); border-radius: 20px; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .stitched-segment { position: relative; background: rgba(15, 23, 42, 0.2); border: 1px solid rgba(255,255,255,0.04); border-radius: 20px; transition: background 0.3s, border-color 0.3s; }
         .stitched-segment.expanded { background: rgba(15, 23, 42, 0.4); border-color: rgba(59, 130, 246, 0.2); }
-        .segment-header { display: flex; align-items: center; gap: 20px; padding: 24px 32px; transition: 0.3s; }
+        .segment-header { display: flex; align-items: center; gap: 20px; padding: 24px 32px; transition: background 0.2s; }
         .segment-idx { width: 32px; height: 32px; background: rgba(59, 130, 246, 0.1); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 900; color: #3b82f6; }
         .segment-header h3 { font-size: 1.3rem; font-weight: 750; color: white; margin: 0; letter-spacing: -0.02em; }
         .segment-body { padding: 0 32px 32px 84px; border-top: 1px solid rgba(255,255,255,0.03); padding-top: 24px; animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
