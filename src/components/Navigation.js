@@ -38,6 +38,11 @@ export default function Navigation({ children }) {
 
   const activeContent = children || navContent;
 
+  const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
   const isHiddenRoute = pathname === "/login" || pathname === "/admin-login" || pathname.startsWith("/admin");
   if (!pathname || isHiddenRoute) return null;
 
@@ -68,7 +73,7 @@ export default function Navigation({ children }) {
               <div className="app-nav__logo">
                 <Image src="/logo.png" alt="logo" width={36} height={36} priority />
               </div>
-              <span className="app-nav__brand-text" style={{ fontFamily: 'monospace', letterSpacing: '-0.02em', fontSize: '1.2rem', textTransform: 'lowercase' }}>upscgpt</span>
+              <span className="app-nav__brand-text" suppressHydrationWarning={true} style={{ fontFamily: 'monospace', letterSpacing: '-0.02em', fontSize: '1.2rem', textTransform: 'lowercase' }}>upscgpt</span>
             </Link>
 
             <div className="app-nav__links">
