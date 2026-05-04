@@ -27,6 +27,7 @@
     "next-auth": "^4.24.13",
     "node-cron": "^4.2.1",
     "nodemailer": "^7.0.13",
+    "openai": "^6.35.0",
     "papaparse": "^5.5.3",
     "pdf-parse": "^2.4.5",
     "prisma": "^5.22.0",

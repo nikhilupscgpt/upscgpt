@@ -131,20 +131,22 @@ export default function PortalHome() {
         <div className="atlas-stats-bar" style={{
           display: 'inline-flex', borderRadius: '14px', overflow: 'hidden',
           background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
-          marginBottom: '52px',
-          flexWrap: 'wrap',
-          justifyContent: 'center'
+          marginBottom: '52px', flexWrap: 'wrap', justifyContent: 'center'
         }}>
           {[
-            { val: loaded ? totalEntries : '…', label: 'Map Entries' },
-            { val: loaded ? categories : '…', label: 'Categories' },
-            { val: loaded ? yearRange : '…', label: 'Years' },
-            { val: REGIONS.length - 1, label: 'Regions' },
+            { val: loaded ? totalEntries : '…', label: 'Map Entries', isLoading: !loaded },
+            { val: loaded ? categories : '…', label: 'Categories', isLoading: !loaded },
+            { val: loaded ? yearRange : '…', label: 'Years', isLoading: !loaded },
+            { val: REGIONS.length - 1, label: 'Regions', isLoading: false },
           ].map((s, i) => (
             <div key={i} className="atlas-stat-item" style={{
               padding: '14px 26px', borderRight: i < 3 ? '1px solid rgba(255,255,255,0.08)' : 'none', textAlign: 'center',
             }}>
-              <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'white', lineHeight: 1 }}>{s.val}</div>
+              {s.isLoading ? (
+                <div className="skeleton-shimmer" style={{ width: '36px', height: '22px', margin: '0 auto 4px' }} />
+              ) : (
+                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'white', lineHeight: 1 }}>{s.val}</div>
+              )}
               <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '3px' }}>{s.label}</div>
             </div>
           ))}
@@ -172,7 +174,9 @@ export default function PortalHome() {
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     boxShadow: `0 8px 20px ${region.color}44`,
                   }}>{region.emoji}</div>
-                  {loaded && count > 0 && (
+                  {!loaded ? (
+                    <div className="skeleton-shimmer" style={{ width: '70px', height: '22px', borderRadius: '20px' }} />
+                  ) : count > 0 && (
                     <div style={{
                       padding: '4px 12px', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 800,
                       background: `${region.color}22`, color: region.color, border: `1px solid ${region.color}44`,

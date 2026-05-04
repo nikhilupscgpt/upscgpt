@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import UniversalSearchBar from '@/components/UniversalSearchBar';
+import { useIsClient } from '@/lib/useIsClient';
 import './search.css';
 
 const FILTERS = [
@@ -16,52 +17,9 @@ const FILTERS = [
 
 function SearchResults() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const query = searchParams.get('q');
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('ALL');
-  const [mounted, setMounted] = useState(false);
-  const [loadingStep, setLoadingStep] = useState(0);
-
-  const loadingMessages = [
-    "Initializing neural uplink...",
-    "Scouring 545 syllabus nodes...",
-    "Analyzing semantic vector space...",
-    "Indexing historical PYQ database...",
-    "Mapping global strategic nodes..."
-  ];
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  useEffect(() => {
-    if (query && mounted) {
-      setLoading(true);
-      setLoadingStep(0);
-      
-      // Artificial delay steps for "Neural Progress" feel
-      const stepTimer = setInterval(() => {
-        setLoadingStep(prev => (prev < loadingMessages.length - 1 ? prev + 1 : prev));
-      }, 400);
-
-      fetch(`/api/search?q=${encodeURIComponent(query)}`)
-        .then(res => res.json())
-        .then(data => {
-          setResults(data.results || []);
-          setLoading(false);
-          clearInterval(stepTimer);
-        })
-        .catch(err => {
-          console.error("Search fetch error:", err);
-          setLoading(false);
-          clearInterval(stepTimer);
-        });
-        
-      return () => clearInterval(stepTimer);
-    }
-  }, [query, mounted]);
+  const isClient = useIsClient();
 
   const highlightText = (text, q) => {
     if (!q || !text) return text;
@@ -78,10 +36,53 @@ function SearchResults() {
   };
 
   const filteredResults = activeFilter === 'ALL' 
-    ? results 
-    : results.filter(r => r.type === activeFilter);
+    ? null
+    : null;
 
-  if (!mounted) return null;
+  if (!isClient) return null;
+
+  return <SearchResultsInner key={query || ''} query={query} activeFilter={activeFilter} setActiveFilter={setActiveFilter} highlightText={highlightText} />;
+}
+
+function SearchResultsInner({ query, activeFilter, setActiveFilter, highlightText }) {
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(Boolean(query));
+  const [loadingStep, setLoadingStep] = useState(0);
+
+  const loadingMessages = [
+    "Initializing neural uplink...",
+    "Scouring 545 syllabus nodes...",
+    "Analyzing semantic vector space...",
+    "Indexing historical PYQ database...",
+    "Mapping global strategic nodes..."
+  ];
+
+  useEffect(() => {
+    if (!query) return;
+
+    const stepTimer = setInterval(() => {
+      setLoadingStep(prev => (prev < loadingMessages.length - 1 ? prev + 1 : prev));
+    }, 400);
+
+    fetch(`/api/search?q=${encodeURIComponent(query)}`)
+      .then(res => res.json())
+      .then(data => {
+        setResults(data.results || []);
+        setLoading(false);
+        clearInterval(stepTimer);
+      })
+      .catch(err => {
+        console.error("Search fetch error:", err);
+        setLoading(false);
+        clearInterval(stepTimer);
+      });
+
+    return () => clearInterval(stepTimer);
+  }, [query, loadingMessages.length]);
+
+  const filteredResults = activeFilter === 'ALL'
+    ? results
+    : results.filter(r => r.type === activeFilter);
 
   return (
     <div className="search-page">

@@ -2,192 +2,278 @@
 
 import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
-import { Upload, FileText, CheckCircle2, AlertCircle, Trash2 } from 'lucide-react';
+import { 
+  Search, 
+  FileText, 
+  Sparkles, 
+  Save, 
+  ChevronRight, 
+  Layers, 
+  Globe, 
+  AlertCircle 
+} from 'lucide-react';
 import './admin-rag.css';
 
-export default function ContentIngestionPage() {
-  const [formData, setFormData] = useState({
-    title: '',
-    subject: 'GEOGRAPHY',
-    examType: 'BOTH',
-    sourceUrl: '',
-    contentMarkdown: '',
-    isOptional: false,
-    optionalSlug: ''
+export default function NodeCMSPage() {
+  const [nodes, setNodes] = useState([]);
+  const [filteredNodes, setFilteredNodes] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedNode, setSelectedNode] = useState(null);
+  const [content, setContent] = useState({
+    prelimsNote: '',
+    mainsNote: '',
+    status: 'DRAFT',
+    slug: ''
   });
-  const [file, setFile] = useState(null);
+  const [mode, setMode] = useState('PRELIMS'); // PRELIMS or MAINS
   const [loading, setLoading] = useState(false);
-  const [stats, setStats] = useState(null);
-  const [optionals, setOptionals] = useState([]);
+  const [listLoading, setListLoading] = useState(true);
 
+  // Fetch all nodes for sidebar
   useEffect(() => {
-    fetch('/api/optionals')
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) setOptionals(data);
-      })
-      .catch(err => console.error('Error fetching optionals:', err));
+    fetchNodes();
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setStats(null);
+  const fetchNodes = async () => {
+    setListLoading(true);
     try {
-      const payload = new FormData();
-      payload.append('title', formData.title);
-      payload.append('subject', formData.subject);
-      payload.append('examType', formData.examType);
-      payload.append('sourceUrl', formData.sourceUrl);
-      payload.append('contentMarkdown', formData.contentMarkdown);
-      payload.append('isOptional', formData.isOptional);
-      payload.append('optionalSlug', formData.optionalSlug);
-      
-      if (file) {
-        payload.append('file', file);
+      const res = await fetch('/api/admin/node-content?list=true');
+      const data = await res.json();
+      if (data.issues) {
+        setNodes(data.issues);
+        setFilteredNodes(data.issues);
       }
+    } catch (err) {
+      toast.error('Failed to load nodes list');
+    } finally {
+      setListLoading(false);
+    }
+  };
 
-      const res = await fetch('/api/admin/ingest-content', {
+  // Search logic
+  useEffect(() => {
+    const filtered = nodes.filter(n => 
+      n.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      n.domain.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredNodes(filtered);
+  }, [searchTerm, nodes]);
+
+  // Fetch content when node selected
+  const handleNodeSelect = async (node) => {
+    setSelectedNode(node);
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/admin/node-content?issueId=${node.id}`);
+      const data = await res.json();
+      if (data.content) {
+        setContent({
+          prelimsNote: data.content.prelimsNote || '',
+          mainsNote: data.content.mainsNote || '',
+          status: data.content.status || 'DRAFT',
+          slug: data.content.issue?.slug || ''
+        });
+      } else {
+        setContent({
+          prelimsNote: '',
+          mainsNote: '',
+          status: 'DRAFT',
+          slug: node.slug || ''
+        });
+      }
+    } catch (err) {
+      toast.error('Error loading node content');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGenerate = async () => {
+    if (!selectedNode) return;
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/node-content', {
         method: 'POST',
-        body: payload,
+        body: JSON.stringify({ 
+          issueId: selectedNode.id, 
+          generateType: mode 
+        })
       });
       const data = await res.json();
-      
-      if (!res.ok) throw new Error(data.error || 'Ingestion failed');
-      
-      toast.success('Content successfully ingested to Neural Base!');
-      setStats(data.stats);
-      setFormData({ ...formData, contentMarkdown: '', title: '', sourceUrl: '', isOptional: false });
-      setFile(null);
+      if (data.aiText) {
+        if (mode === 'PRELIMS') {
+          setContent(prev => ({ ...prev, prelimsNote: data.aiText }));
+        } else {
+          setContent(prev => ({ ...prev, mainsNote: data.aiText }));
+        }
+        toast.success('AI Draft Generated!');
+      }
     } catch (err) {
-      toast.error(err.message);
+      toast.error('AI Generation failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!selectedNode) return;
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/node-content', {
+        method: 'POST',
+        body: JSON.stringify({
+          issueId: selectedNode.id,
+          prelimsNote: content.prelimsNote,
+          mainsNote: content.mainsNote,
+          status: content.status
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success('Node Intelligence Synced!');
+        fetchNodes(); // Refresh sidebar status
+      }
+    } catch (err) {
+      toast.error('Save failed');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="admin-rag-container">
-      <div className="admin-rag-card">
-        <div className="admin-rag-header">
-          <h1 className="admin-rag-title">Neural Ingestion Hub</h1>
-          <p className="admin-rag-subtitle">Upload PDFs or paste text into the Strategic Knowledge Base</p>
+    <div className="cms-container">
+      {/* SIDEBAR */}
+      <div className="cms-sidebar">
+        <div className="sidebar-header">
+          <h1 className="sidebar-title">Node CMS</h1>
+          <p className="sidebar-subtitle">UPSC Intelligence Hub</p>
         </div>
-
-        <form onSubmit={handleSubmit} className="admin-rag-form">
-          <div className="admin-rag-grid">
-            <div className="admin-rag-group">
-              <label className="admin-rag-label">Document Title</label>
-              <input 
-                required
-                type="text" 
-                className="admin-rag-input"
-                value={formData.title}
-                onChange={e => setFormData({...formData, title: e.target.value})}
-                placeholder="e.g. Khullar - Indian Geography Ch 1"
-              />
-            </div>
-            <div className="admin-rag-group">
-              <label className="admin-rag-label">PDF Upload (Optional)</label>
-              <div className="file-upload-zone">
-                {file ? (
-                  <div className="file-info">
-                    <FileText size={18} color="#10b981" />
-                    <span className="file-name">{file.name}</span>
-                    <button type="button" onClick={() => setFile(null)} className="remove-file">
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
-                ) : (
-                  <label className="file-label">
-                    <Upload size={18} />
-                    <span>Select PDF File</span>
-                    <input 
-                      type="file" 
-                      accept=".pdf" 
-                      onChange={e => setFile(e.target.files[0])} 
-                      style={{ display: 'none' }}
-                    />
-                  </label>
-                )}
-              </div>
-            </div>
+        <div className="sidebar-search">
+          <div style={{ position: 'relative' }}>
+            <Search size={14} style={{ position: 'absolute', left: '10px', top: '10px', color: '#64748b' }} />
+            <input 
+              type="text" 
+              className="search-input" 
+              placeholder="Search syllabus nodes..." 
+              style={{ paddingLeft: '32px' }}
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value)}
+            />
           </div>
-
-          <div className="admin-rag-grid" style={{ marginTop: '1.5rem' }}>
-            <div className="admin-rag-group">
-              <label className="admin-rag-label">Target GS Subject</label>
-              <select 
-                className="admin-rag-select"
-                value={formData.subject}
-                onChange={e => setFormData({...formData, subject: e.target.value})}
-              >
-                <option value="GEOGRAPHY">Geography</option>
-                <option value="POLITY">Polity & Governance</option>
-                <option value="HISTORY">History & Culture</option>
-                <option value="ECONOMY">Economy</option>
-                <option value="ENVIRONMENT">Environment & Ecology</option>
-                <option value="SCIENCE">Science & Tech</option>
-                <option value="CURRENT_AFFAIRS">Current Affairs</option>
-              </select>
-            </div>
-            <div className="admin-rag-group">
-              <label className="admin-rag-label">Strategic Category</label>
-              <div className="optional-toggle-container">
-                <label className="toggle-switch">
-                  <input 
-                    type="checkbox" 
-                    checked={formData.isOptional}
-                    onChange={e => setFormData({...formData, isOptional: e.target.checked})}
-                  />
-                  <span className="toggle-slider"></span>
-                </label>
-                <span className="toggle-label">Is Optional Subject?</span>
-              </div>
+        </div>
+        <div className="node-list">
+          {listLoading ? (
+             <div style={{ padding: '20px', textAlign: 'center', opacity: 0.5 }}>Loading...</div>
+          ) : (
+            filteredNodes.map(node => {
+              const status = node.nodeContent?.status;
+              const statusClass = !status ? 'status-empty' : status === 'PUBLISHED' ? 'status-published' : 'status-draft';
               
-              {formData.isOptional && (
-                <select 
-                  required
-                  className="admin-rag-select"
-                  style={{ marginTop: '10px' }}
-                  value={formData.optionalSlug}
-                  onChange={e => setFormData({...formData, optionalSlug: e.target.value})}
+              return (
+                <div 
+                  key={node.id} 
+                  className={`node-item ${selectedNode?.id === node.id ? 'active' : ''}`}
+                  onClick={() => handleNodeSelect(node)}
                 >
-                  <option value="">-- Choose Optional --</option>
-                  {optionals.map(opt => (
-                    <option key={opt.id} value={opt.slug}>{opt.name}</option>
-                  ))}
-                </select>
-              )}
-            </div>
-          </div>
-
-          {!file && (
-            <div className="admin-rag-group" style={{ marginTop: '1.5rem' }}>
-              <label className="admin-rag-label">Manual Text (Markdown)</label>
-              <textarea 
-                className="admin-rag-textarea"
-                value={formData.contentMarkdown}
-                onChange={e => setFormData({...formData, contentMarkdown: e.target.value})}
-                placeholder="Paste notes here if not uploading a PDF..."
-              />
-            </div>
+                  <div className={`node-status ${statusClass}`}></div>
+                  <div className="node-info">
+                    <span className="node-name">{node.title}</span>
+                    <span className="node-meta">{node.domain} • {node.gsPapers?.[0] || 'GS'}</span>
+                  </div>
+                  <ChevronRight size={14} style={{ opacity: 0.3 }} />
+                </div>
+              );
+            })
           )}
+        </div>
+      </div>
 
-          <button 
-            type="submit" 
-            className="admin-rag-button"
-            disabled={loading}
-            style={{ marginTop: '2rem' }}
-          >
-            {loading ? 'Processing Neural Vectors...' : 'Sync with Knowledge Base'}
-          </button>
-        </form>
+      {/* MAIN CONTENT AREA */}
+      <div className="cms-main">
+        {selectedNode ? (
+          <>
+            <div className="cms-toolbar">
+              <div className="toolbar-left">
+                <div className="mode-tabs">
+                  <div 
+                    className={`mode-tab ${mode === 'PRELIMS' ? 'active' : ''}`}
+                    onClick={() => setMode('PRELIMS')}
+                  >
+                    Prelims
+                  </div>
+                  <div 
+                    className={`mode-tab ${mode === 'MAINS' ? 'active' : ''}`}
+                    onClick={() => setMode('MAINS')}
+                  >
+                    Mains
+                  </div>
+                </div>
+                <div className="status-toggle">
+                  <span className="sidebar-subtitle">Status:</span>
+                  <select 
+                    className="status-select"
+                    value={content.status}
+                    onChange={e => setContent({...content, status: e.target.value})}
+                  >
+                    <option value="DRAFT">Draft</option>
+                    <option value="PUBLISHED">Published</option>
+                  </select>
+                </div>
+              </div>
+              <button 
+                className="btn-save" 
+                onClick={handleSave}
+                disabled={loading}
+              >
+                {loading ? 'Saving...' : 'Sync Node'}
+              </button>
+            </div>
 
-        {stats && (
-          <div className="admin-rag-success">
-             <CheckCircle2 size={18} />
-             <span>Successfully indexed {stats.saved} strategic segments.</span>
+            <div className="editor-container">
+              <div className="editor-header">
+                <h2 className="editor-title">{selectedNode.title}</h2>
+                <div className="editor-slug-wrap">
+                  <Globe size={14} />
+                  <span>Slug:</span>
+                  <input 
+                    type="text" 
+                    className="slug-input"
+                    value={content.slug}
+                    readOnly
+                  />
+                </div>
+              </div>
+
+              <div className="ai-controls">
+                <button className="btn-ai" onClick={handleGenerate} disabled={loading}>
+                  <Sparkles size={16} />
+                  Generate {mode} Draft
+                </button>
+                <div style={{ flex: 1 }}></div>
+                <div className="sidebar-subtitle" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <AlertCircle size={14} />
+                  Markdown Editor
+                </div>
+              </div>
+
+              <textarea 
+                className="markdown-textarea"
+                placeholder={`Write ${mode.toLowerCase()} intelligence for this node...`}
+                value={mode === 'PRELIMS' ? content.prelimsNote : content.mainsNote}
+                onChange={e => {
+                  if (mode === 'PRELIMS') setContent({...content, prelimsNote: e.target.value});
+                  else setContent({...content, mainsNote: e.target.value});
+                }}
+              ></textarea>
+            </div>
+          </>
+        ) : (
+          <div className="empty-state">
+            <Layers size={64} className="empty-icon" />
+            <h3>Select a node to begin ingestion</h3>
+            <p className="sidebar-subtitle" style={{ maxWidth: '300px', marginTop: '10px' }}>
+              Choose a syllabus node from the left to populate its static intelligence base.
+            </p>
           </div>
         )}
       </div>

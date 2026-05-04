@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { getServerSession } from 'next-auth/next'
+import prisma from "@/lib/prisma"
+import { authOptions } from '@/lib/auth'
 
 const MOUNTAINS_SHAPES = {
   'Himalayas': [[35.3, 74.6], [32.5, 78.5], [29.6, 81.3], [28.2, 84.1], [27.7, 88.1], [27.5, 91.5], [29.6, 95.3]],
@@ -15,6 +15,11 @@ const MOUNTAINS_SHAPES = {
 }
 
 export async function GET() {
+  const session = await getServerSession(authOptions)
+  if (!session || session.user?.role !== 'ADMIN') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
     let updated = 0
     for (const [name, shapeArr] of Object.entries(MOUNTAINS_SHAPES)) {

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import prisma from "@/lib/prisma";
 import { getGeminiModel } from "@/lib/gemini";
 import { getRenderedPrompt } from "@/lib/aiPromptRegistry";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
 // Helper to clean JSON from markdown
 const cleanJson = (text) => {
@@ -18,14 +20,52 @@ const cleanJson = (text) => {
 };
 
 export async function POST(req) {
-  // Authorization can be added here or via middleware. 
-  // For cron/admin, we could verify a secret token or NextAuth session.
-  // Assuming auth is handled.
+  const session = await getServerSession(authOptions);
+  if (!session || session.user?.role !== 'ADMIN') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
 
   try {
-    const ai = getGeminiModel('background'); // Uses configured background model (e.g., Gemma 3 27B)
+    const body = await req.json();
+    const { mode, issueId, field } = body;
+
+    const ai = getGeminiModel('background'); 
     if (!ai) {
       return NextResponse.json({ error: 'AI Model not configured' }, { status: 500 });
+    }
+
+    // --- NEW: NODE_CONTENT_REBUILD MODE ---
+    if (mode === 'NODE_CONTENT_REBUILD') {
+      if (!issueId || !field) {
+        return NextResponse.json({ error: 'Missing issueId or field' }, { status: 400 });
+      }
+
+      const issue = await prisma.issue.findUnique({
+        where: { id: issueId }
+      });
+
+      if (!issue) return NextResponse.json({ error: 'Issue not found' }, { status: 404 });
+
+      // Determine prompt type
+      let promptKey = 'cms.node.generate.mains';
+      if (field === 'prelimsNote') promptKey = 'cms.node.generate.prelims';
+
+      const prompt = await getRenderedPrompt(promptKey, {
+        title: issue.title,
+        domain: issue.domain,
+        topic: issue.topic
+      });
+
+      const response = await ai.generateContent(prompt);
+      let output = typeof response.text === 'function' ? response.text() : response.text;
+      
+      // Clean markdown
+      output = output.replace(/```(?:markdown|html)?\s*([\s\S]*?)\s*```/g, '$1').trim();
+
+      return NextResponse.json({
+        success: true,
+        output
+      });
     }
 
     const processedItems = { articles: 0, editorials: 0 };

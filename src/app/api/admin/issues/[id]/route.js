@@ -3,104 +3,86 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 
-/**
- * PATCH /api/admin/issues/[id]
- * Updates a specific Issue node.
- */
-export async function PATCH(req, props) {
+async function requireAdmin() {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== 'ADMIN') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  if (!session || session.user?.role !== 'ADMIN') {
+    return null;
   }
+  return session;
+}
 
-  const params = await props.params;
-  const id = params?.id;
-
-  if (!id || id === 'undefined') {
-    return NextResponse.json({ error: 'Valid Issue ID required' }, { status: 400 });
-  }
-
+export async function PATCH(req, { params }) {
   try {
-    const { title, backgroundNote, possibleQuestions, prelimsNote, mainsNote, status, orderIndex, relatedIssueIds, cumulativeSummary, valueAddition, mainsFacts } = body;
+    const session = await requireAdmin();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
 
-    const updatedIssue = await prisma.issue.update({
-      where: { id },
-      data: {
-        title: title !== undefined ? title : undefined,
-        backgroundNote: backgroundNote !== undefined ? backgroundNote : undefined,
-        possibleQuestions: possibleQuestions !== undefined ? possibleQuestions : undefined,
-        prelimsNote: prelimsNote !== undefined ? prelimsNote : undefined,
-        mainsNote: mainsNote !== undefined ? mainsNote : undefined,
-        mainsFacts: mainsFacts !== undefined ? mainsFacts : undefined,
-        cumulativeSummary: cumulativeSummary !== undefined ? cumulativeSummary : undefined,
-        valueAddition: valueAddition !== undefined ? valueAddition : undefined,
-        status: status !== undefined ? status : undefined,
-        orderIndex: orderIndex !== undefined ? parseInt(orderIndex) : undefined,
-        relatedTo: relatedIssueIds ? { set: relatedIssueIds.map(rid => ({ id: rid })) } : undefined
-      },
+    const { id } = await params;
+    const body = await req.json();
+
+    console.log(`[PATCH DEBUG] ID: ${id}`);
+    
+    const data = {};
+    const fields = [
+      'title', 'backgroundNote', 'cumulativeSummary', 'mainsNote', 'mainsFacts', 'valueAddition', 'prelimsNote', 'possibleQuestions',
+      'title_hi', 'topic_hi', 'backgroundNote_hi', 'cumulativeSummary_hi', 'mainsNote_hi', 'mainsFacts_hi', 'valueAddition_hi', 'prelimsNote_hi', 'possibleQuestions_hi',
+      'title_mr', 'topic_mr', 'backgroundNote_mr', 'cumulativeSummary_mr', 'mainsNote_mr', 'mainsFacts_mr', 'valueAddition_mr', 'prelimsNote_mr', 'possibleQuestions_mr'
+    ];
+
+    fields.forEach(f => {
+      if (body[f] !== undefined) data[f] = body[f] === null ? null : String(body[f]);
     });
 
-    return NextResponse.json({
-      success: true,
-      issue: updatedIssue,
+    if (body.status) data.status = body.status;
+    if (body.orderIndex !== undefined) data.orderIndex = parseInt(body.orderIndex) || 0;
+
+    await prisma.issue.update({
+      where: { id: String(id) },
+      data
     });
+
+    return new Response(JSON.stringify({ success: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+
   } catch (error) {
-    console.error('[Issue Detail API] PATCH Error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('[PATCH FATAL]', error);
+    return new Response(JSON.stringify({ error: 'CRASH', msg: error.message }), { status: 500, headers: { 'Content-Type': 'application/json' } });
   }
 }
 
-/**
- * GET /api/admin/issues/[id]
- * Fetches a specific Issue node with counts and details.
- */
-export async function GET(req, props) {
-  const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== 'ADMIN') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
-  const params = await props.params;
-  const id = params?.id;
-
-  if (!id || id === 'undefined') {
-    return NextResponse.json({ error: 'Valid Issue ID required' }, { status: 400 });
-  }
-
+export async function GET(req, { params }) {
   try {
-    const issue = await prisma.issue.findUnique({
-      where: { id },
-      include: {
-        articles: {
-          orderBy: { publishedAt: 'desc' }
-        },
-        editorials: {
-          orderBy: { publishedAt: 'desc' }
-        },
-        relatedTo: {
-          select: { id: true, title: true }
-        },
-        _count: {
-          select: {
-            articles: true,
-            editorials: true,
-            testPacks: true,
-            pyqLinks: true,
-          }
-        }
-      }
-    });
-
-    if (!issue) {
-      return NextResponse.json({ error: 'Issue not found' }, { status: 404 });
+    const session = await requireAdmin();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    return NextResponse.json({
-      success: true,
-      issue,
+    const { id } = await params;
+    const issue = await prisma.issue.findUnique({ 
+      where: { id: String(id) },
+      include: {
+        questions: { orderBy: { createdAt: 'desc' } },
+        articles: { orderBy: { publishedAt: 'desc' }, take: 10 },
+        editorials: { orderBy: { publishedAt: 'desc' }, take: 5 }
+      }
     });
-  } catch (error) {
-    console.error('[Issue Detail API] GET Error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ success: true, issue });
+  } catch (err) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
+export async function DELETE(req, { params }) {
+  try {
+    const session = await requireAdmin();
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { id } = await params;
+    await prisma.issue.delete({ where: { id: String(id) } });
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error('[DELETE ERROR]', err);
+    return NextResponse.json({ error: 'Failed to delete node' }, { status: 500 });
   }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useState } from "react";
 import en from "../locales/en.json";
 import hi from "../locales/hi.json";
 import mr from "../locales/mr.json";
@@ -9,15 +9,17 @@ const translations = { en, hi, mr };
 
 const TranslationContext = createContext();
 
-export function TranslationProvider({ children }) {
-  const [lang, setLang] = useState("en");
+function getInitialLanguage() {
+  if (typeof window === "undefined") {
+    return "en";
+  }
 
-  useEffect(() => {
-    const savedLang = localStorage.getItem("language");
-    if (savedLang && translations[savedLang]) {
-      setLang(savedLang);
-    }
-  }, []);
+  const savedLang = window.localStorage.getItem("language");
+  return savedLang && translations[savedLang] ? savedLang : "en";
+}
+
+export function TranslationProvider({ children }) {
+  const [lang, setLang] = useState(getInitialLanguage);
 
   const changeLanguage = (newLang) => {
     if (translations[newLang]) {

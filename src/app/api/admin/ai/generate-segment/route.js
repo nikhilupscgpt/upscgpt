@@ -11,13 +11,12 @@ export async function POST(req) {
   }
 
   try {
-    const { issueId, type } = await req.json();
+    const { issueId, type, lang = 'EN', sourceText, mode = 'generate' } = await req.json();
 
     const issue = await prisma.issue.findUnique({
       where: { id: issueId },
       include: {
         articles: { where: { status: 'DONE' }, take: 10 },
-        editorials: { where: { status: 'DONE' }, take: 5 }
       }
     });
 
@@ -25,41 +24,51 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Issue not found' }, { status: 404 });
     }
 
-    const context = `
-      Topic: ${issue.title}
-      Domain: ${issue.domain}
-      Topic Details: ${issue.topic}
-      Recent News Headings: ${issue.articles.map(a => a.title).join(', ')}
-      Recent Editorials: ${issue.editorials.map(e => e.title).join(', ')}
-    `;
+    const langName = lang === 'HI' ? 'Hindi' : lang === 'MR' ? 'Marathi' : 'English';
+
+    // TRANSLATION LOGIC
+    if (mode === 'translate' && sourceText) {
+      const systemInstruction = `You are a UPSC Translation Expert. Translate the following English text into ${langName}. 
+      CRITICAL RULES:
+      1. Use professional, high-standard ${langName} (official Devnagari).
+      2. Keep UPSC technical terms (e.g., 'Federalism', 'Article 21', 'Fiscal Deficit') in brackets after their translated counterparts if appropriate.
+      3. Maintain the exact bullet points and structure of the original text.
+      4. DO NOT add any new information. Only translate.`;
+      
+      const prompt = `Translate this UPSC content into ${langName}: \n\n${sourceText}`;
+      const content = await generateText(prompt, systemInstruction);
+      
+      return NextResponse.json({ success: true, content });
+    }
+
+    // GENERATION LOGIC (Existing)
+    const langInstruction = lang !== 'EN' ? `CRITICAL: You MUST generate the content in ${langName}. Use the official Devnagari script.` : 'Generate in English.';
+    const context = `Topic: ${issue.title} \nRecent News: ${issue.articles.map(a => a.title).join(', ')}`;
+
 
     let systemInstruction = '';
     let prompt = '';
 
     switch (type) {
       case 'mainsNote':
-        systemInstruction = "You are a UPSC Mains Specialist. Generate a high-yield 'Master Vault' note for the given topic. Focus on multi-dimensional analysis (Social, Political, Economic, Environmental, Tech, Legal). Use professional, strategic language.";
-        prompt = `Generate a comprehensive Mains Note for: ${issue.title}. \nContext: ${context}`;
+        systemInstruction = `You are a UPSC Mains Specialist. Generate a high-yield note in ${langName}. ${langInstruction}`;
+        prompt = `Forge a strategic Mains Note in ${langName} for: ${issue.title}. \nContext: ${context}`;
         break;
       case 'cumulativeSummary':
-        systemInstruction = "You are a UPSC Content Summarizer. Generate a concise, bulleted executive summary of the given topic. Focus on 'What, Why, and Way Forward'.";
-        prompt = `Generate an Executive Summary for: ${issue.title}. \nContext: ${context}`;
+        systemInstruction = `You are a UPSC Content Summarizer. Generate a concise summary in ${langName}. Limit: 150 words. ${langInstruction}`;
+        prompt = `Generate an Executive Summary in ${langName} for: ${issue.title}. \nContext: ${context}`;
         break;
       case 'valueAddition':
-        systemInstruction = "You are a UPSC Value Addition Expert. Provide 3-5 high-impact data points, committee names, quotes, or case studies relevant to the topic that a student can use to get extra marks in Mains.";
-        prompt = `Provide Value Addition (Data/Case Studies) for: ${issue.title}. \nContext: ${context}`;
-        break;
-      case 'prelimsNote':
-        systemInstruction = "You are a UPSC Prelims Specialist. Generate 5-10 'Quick Fact' points that are highly likely to be asked in the Preliminary exam (e.g., Constitutional articles, years, nodal agencies, reports).";
-        prompt = `Generate Prelims Fact-Sheet for: ${issue.title}. \nContext: ${context}`;
+        systemInstruction = `You are a UPSC Value Addition Expert. Provide 3-5 data points or case studies in ${langName}. ${langInstruction}`;
+        prompt = `Provide Value Addition in ${langName} for: ${issue.title}. \nContext: ${context}`;
         break;
       case 'mainsFacts':
-        systemInstruction = "You are a UPSC Data Specialist. Provide 5-10 strategic data points, statistics, or committee facts relevant to the topic for Mains answers.";
-        prompt = `Generate Mains Facts/Data for: ${issue.title}. \nContext: ${context}`;
+        systemInstruction = `You are a UPSC Data Specialist. Provide 5-10 strategic statistics in ${langName}. ${langInstruction}`;
+        prompt = `Generate Strategic Stats in ${langName} for: ${issue.title}. \nContext: ${context}`;
         break;
-      case 'possibleQuestions':
-        systemInstruction = "You are a UPSC Mains Question Predictor. Based on the current context and importance, generate 3 strategic Mains-style questions (10 and 15 markers).";
-        prompt = `Generate Possible Mains Questions for: ${issue.title}. \nContext: ${context}`;
+      case 'prelimsNote':
+        systemInstruction = `You are a UPSC Prelims Specialist. Generate 5-10 facts in ${langName}. ${langInstruction}`;
+        prompt = `Generate Prelims Fact-Sheet in ${langName} for: ${issue.title}. \nContext: ${context}`;
         break;
       default:
         return NextResponse.json({ error: 'Invalid segment type' }, { status: 400 });

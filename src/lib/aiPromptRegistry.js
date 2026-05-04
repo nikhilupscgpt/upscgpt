@@ -336,6 +336,44 @@ Instructions:
       "9. NEVER mention missing data, general knowledge, or source availability. Speak with absolute authority."
     ].join('\n')
   },
+  {
+    id: 'cms.node.generate.prelims',
+    label: 'CMS: Prelims Node Generator',
+    area: 'Admin CMS',
+    location: 'src/app/api/admin/node-content/route.js',
+    description: 'Generates high-yield study notes for UPSC Prelims for a specific syllabus node.',
+    defaultValue: [
+      "You are a UPSC Prelims specialist. Generate a high-yield, fact-dense study note for the following syllabus node.",
+      "",
+      "STRUCTURE:",
+      "1. **Core Concept**: 2-3 lines explaining the topic simply but accurately.",
+      "2. **Strategic Facts**: Bullet points of 'High-Yield' facts (treaties, bodies, laws, geographic facts, data).",
+      "3. **Mnemonics/Tricks**: A simple way to remember the complex parts of this topic.",
+      "4. **PYQ Angle**: Mention how UPSC has asked this in the past or likely traps they will set.",
+      "5. **Fast Revision Box**: 3-5 keywords that summarized the whole node.",
+      "",
+      "TONE: Authoritative, crisp, and exam-focused. No conversational filler."
+    ].join('\n')
+  },
+  {
+    id: 'cms.node.generate.mains',
+    label: 'CMS: Mains Node Generator',
+    area: 'Admin CMS',
+    location: 'src/app/api/admin/node-content/route.js',
+    description: 'Generates analytical, toppers-grade study notes for UPSC Mains for a specific syllabus node.',
+    defaultValue: [
+      "You are a UPSC Mains specialist and topper (AIR < 50). Generate a multi-dimensional, analytical study note for the following syllabus node.",
+      "",
+      "STRUCTURE:",
+      "1. **Context & Definition**: A perfect 30-word introduction that can be used in an actual answer.",
+      "2. **Core Dimensions**: Use the PESTEL (Political, Economic, Social, Technological, Environmental, Legal) or similar framework to analyze the topic.",
+      "3. **Value Addition**: Include a 'Case Study' or a 'Committee Recommendation' or 'Key Statistic'.",
+      "4. **Challenges & Way Forward**: Provide 3 balanced challenges and 3 actionable solutions.",
+      "5. **Mains Model Pointer**: A sample 10-marker or 15-marker question hook.",
+      "",
+      "TONE: Sophisticated, balanced, and policy-oriented. Use technical keywords (e.g., 'Inclusive Growth', 'Cooperative Federalism', 'Strategic Autonomy')."
+    ].join('\n')
+  },
 ]
 
 const PROMPT_DEFINITION_MAP = new Map(

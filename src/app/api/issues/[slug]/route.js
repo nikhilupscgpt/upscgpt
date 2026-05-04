@@ -63,6 +63,17 @@ export async function GET(req, { params }) {
             editorials: true,
           }
         },
+        subNodes: {
+          include: {
+            articles: {
+              select: { id: true, title: true, source: true }
+            },
+            subNodes: {
+              where: { nodeType: 'MAINS_QUESTION' }
+            }
+          },
+          orderBy: { orderIndex: 'asc' }
+        },
         testPacks: {
           where: { type: 'PRACTICE' },
           select: { id: true },
@@ -74,6 +85,18 @@ export async function GET(req, { params }) {
     if (!issue) {
       return NextResponse.json({ error: 'Issue not found' }, { status: 404 });
     }
+
+    // FORCE-FETCH: Ensure subnodes are populated manually
+    const manualSubNodes = await prisma.issue.findMany({
+      where: { parentIssueId: issue.id },
+      include: { 
+        articles: { select: { id: true, title: true, source: true } },
+        subNodes: { where: { nodeType: 'MAINS_QUESTION' } }
+      },
+      orderBy: { orderIndex: 'asc' }
+    });
+    
+    issue.subNodes = manualSubNodes;
 
     const testPackId = issue.testPacks?.[0]?.id || null;
 

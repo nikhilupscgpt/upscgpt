@@ -17,7 +17,7 @@ function toSlug(title) {
 
 /**
  * GET /api/admin/issues
- * Lists all Issue nodes with optional filtering.
+ * List issues with search and filtering
  */
 export async function GET(req) {
   const session = await getServerSession(authOptions);
@@ -25,54 +25,23 @@ export async function GET(req) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  const { searchParams } = new URL(req.url);
+  const domain = searchParams.get('domain');
+  const search = searchParams.get('search');
+
   try {
-    const { searchParams } = new URL(req.url);
-    const category = searchParams.get('category');
-    const domain = searchParams.get('domain');
-    const search = searchParams.get('search');
-    const status = searchParams.get('status');
-    const examType = searchParams.get('examType');
-
-    console.log('[Issues API] GET Request received. query:', req.url);
-    const where = {};
-    if (category) where.category = category;
-    if (domain) where.domain = domain;
-    if (status && status !== 'ALL') where.status = status;
-    if (examType === 'PRELIMS') {
-      where.gsPapers = { has: 'PRELIMS' };
-    } else if (examType === 'MAINS') {
-      where.gsPapers = { hasSome: ['GS1', 'GS2', 'GS3', 'GS4'] };
-    }
-    if (search) {
-      where.title = { contains: search, mode: 'insensitive' };
-    }
-
-    console.log('[Issues API] Fetching with where:', JSON.stringify(where));
-    const start = Date.now();
     const issues = await prisma.issue.findMany({
-      where,
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        domain: true,
-        topic: true,
-        category: true,
-        gsPapers: true,
-        nodeType: true,
-        status: true,
+      where: {
+        AND: [
+          domain ? { domain: domain } : {},
+          search ? { title: { contains: search, mode: 'insensitive' } } : {},
+        ],
       },
       orderBy: { title: 'asc' },
-      take: 1000,
     });
-
-    const duration = Date.now() - start;
-    console.log(`[Issues API] Fetched ${issues.length} issues in ${duration}ms`);
 
     return NextResponse.json({
       success: true,
-      count: issues.length,
-      where,
       issues,
     });
   } catch (error) {
@@ -93,24 +62,48 @@ export async function POST(req) {
 
   try {
     const body = await req.json();
-    const { title, domain, topic, category, gsPapers, parentIssueId } = body;
+    const { title, domain, topic, gsPapers, status, nodeType, parentIssueId } = body;
 
     if (!title) {
       return NextResponse.json({ error: 'Title is required' }, { status: 400 });
     }
 
-    const slug = toSlug(title);
+    // 🔍 Global Guard: Strict Canonical Deduplication
+    const toCanonical = (str) => str.toLowerCase().replace(/\s+/g, '').replace(/[\u00A0\u1680​\u180e\u2000-\u200b\u202f\u205f\u3000\ufeff]/g, '').trim();
+    const canonicalTitle = toCanonical(title);
+
+    const allIssues = await prisma.issue.findMany({ select: { title: true } });
+    const exists = allIssues.some(i => toCanonical(i.title) === canonicalTitle);
+
+    if (exists) {
+      return NextResponse.json({ error: 'Node already exists in syllabus (duplicate title detected)' }, { status: 400 });
+    }
+
+    // Auto-Category Mapping
+    const validCategories = ['POLITY', 'GOVERNANCE', 'INTERNATIONAL_RELATIONS', 'ECONOMY', 'AGRICULTURE', 'SCIENCE_TECHNOLOGY', 'ENVIRONMENT', 'INTERNAL_SECURITY', 'SOCIETY', 'HISTORY', 'GEOGRAPHY', 'CULTURE', 'ETHICS', 'DISASTER_MANAGEMENT'];
+    const assignedCategory = validCategories.includes(domain?.toUpperCase()) ? domain.toUpperCase() : 'CURRENT_AFFAIRS';
+
+    let slug = toSlug(title);
+    
+    // Ensure slug uniqueness
+    let finalSlug = slug;
+    let counter = 1;
+    while (await prisma.issue.findUnique({ where: { slug: finalSlug } })) {
+      counter++;
+      finalSlug = `${slug}-${counter}`;
+    }
 
     const issue = await prisma.issue.create({
       data: {
         title,
-        slug,
+        slug: finalSlug,
         domain: domain || 'GENERAL',
         topic: topic || 'General',
-        category: category || 'CURRENT_AFFAIRS',
-        gsPapers: gsPapers || ['GS3'],
-        parentIssueId,
-        nodeType: parentIssueId ? 'SUB_TOPIC' : 'CONCEPTUAL'
+        category: assignedCategory,
+        gsPapers: gsPapers || ['GS1'],
+        status: status || 'ACTIVE',
+        nodeType: nodeType || 'CONCEPTUAL',
+        parentIssueId
       }
     });
 

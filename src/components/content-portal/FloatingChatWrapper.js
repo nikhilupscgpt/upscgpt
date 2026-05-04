@@ -4,8 +4,22 @@ import React, { useState } from 'react';
 import { MessageSquare, X } from 'lucide-react';
 import SubjectChat from './SubjectChat';
 
-export default function FloatingChatWrapper({ subjectId, displayName, examType }) {
+export default function FloatingChatWrapper({ subjectId, displayName, examType, variant = 'floating' }) {
   const [isOpen, setIsOpen] = useState(false);
+
+  if (variant === 'inline') {
+    return (
+      <div className="issue-chat-panel">
+        <div className="issue-chat-panel__body">
+          <SubjectChat 
+            subjectId={subjectId}
+            displayName={displayName}
+            examType={examType}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="floating-chat-container">

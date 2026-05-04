@@ -63,9 +63,7 @@ export default function StudentLogin() {
       overflow: 'hidden',
       padding: '20px'
     }}>
-      {/* Animated Background Orbs */}
-      <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '40vw', height: '40vw', background: 'radial-gradient(circle, rgba(56,189,248,0.1) 0%, transparent 60%)', filter: 'blur(60px)' }} />
-      <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '40vw', height: '40vw', background: 'radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 60%)', filter: 'blur(60px)' }} />
+      {/* Background Orbs Removed */}
 
       <div style={{ 
         position: 'relative', zIndex: 10,

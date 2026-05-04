@@ -1,0 +1,315 @@
+.forge-root {
+  height: 100vh;
+  background: transparent;
+  color: white !important;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: 'Outfit', sans-serif;
+}
+
+.forge-header {
+  height: 110px;
+  background: rgba(15, 23, 42, 0.7) !important;
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30px 40px 10px;
+  flex-shrink: 0;
+}
+
+.badge-neural {
+  font-size: 0.65rem;
+  font-weight: 900;
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  padding: 6px 12px;
+  border-radius: 8px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.btn-save-master {
+  background: #3b82f6 !important;
+  color: white !important;
+  border: none !important;
+  padding: 12px 28px !important;
+  border-radius: 12px !important;
+  font-size: 0.75rem !important;
+  font-weight: 900 !important;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+}
+
+.forge-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.forge-sidebar {
+  width: 260px;
+  background: rgba(15, 23, 42, 0.4) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 30px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.forge-sidebar button {
+  width: 100%;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #64748b;
+  padding: 14px 20px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+  text-align: left;
+}
+
+.forge-sidebar button.active {
+  background: rgba(59, 130, 246, 0.15) !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
+  color: white !important;
+}
+
+.forge-workspace {
+  flex: 1;
+  padding: 32px;
+  background: transparent !important;
+  overflow: hidden;
+}
+
+.studio-quad {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 24px;
+  height: 100%;
+}
+
+.editor-pane {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: rgba(15, 23, 42, 0.6) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 24px;
+}
+
+.pane-head label {
+  font-size: 0.7rem;
+  font-weight: 900;
+  color: #94a3b8 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-sync {
+  background: rgba(59, 130, 246, 0.1) !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+  color: #3b82f6 !important;
+  font-size: 0.65rem;
+  font-weight: 900;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.editor-pane textarea {
+  flex: 1;
+  background: #020617 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-radius: 12px;
+  color: #f1f5f9 !important;
+  padding: 20px;
+  font-size: 1rem;
+  line-height: 1.6;
+  outline: none;
+  resize: none;
+  font-family: 'Outfit', sans-serif;
+}
+
+.editor-pane textarea:focus {
+  border-color: #3b82f6 !important;
+  background: #020617 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+}
+
+.spin {
+  animation: forge-spin 1s linear infinite;
+}
+
+@keyframes forge-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.forge-root {
+  margin-top: 0;
+  height: 100vh;
+}
+
+.forge-header {
+  border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.forge-progress-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  margin-right: 15px;
+}
+
+.progress-track {
+  width: 150px;
+  height: 4px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-track div {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  transition: width 0.4s ease;
+}
+
+.forge-progress-status span {
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.btn-sync-all {
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6) !important;
+  color: white !important;
+  border: none !important;
+  padding: 10px 18px !important;
+  border-radius: 10px !important;
+  font-size: 0.7rem !important;
+  font-weight: 900 !important;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  letter-spacing: 0.05em;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-sync-all:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+}
+
+.btn-sync-all:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Subnode Focus Styles */
+.studio-single {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  height: 100%;
+}
+
+.studio-single .editor-pane {
+  flex: 1;
+}
+
+.subnode-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(59, 130, 246, 0.05);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+  padding: 24px 32px;
+  border-radius: 20px;
+}
+
+.subnode-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  color: #3b82f6;
+}
+
+.subnode-info h2 {
+  font-size: 1.1rem;
+  font-weight: 900;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.subnode-info p {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 4px 0 0;
+  font-weight: 600;
+}
+
+.subnode-quick-links {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-quick {
+  background: rgba(15, 23, 42, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  color: #f1f5f9 !important;
+  padding: 10px 20px !important;
+  border-radius: 12px !important;
+  font-size: 0.7rem !important;
+  font-weight: 800 !important;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-quick:hover {
+  background: #1e293b !important;
+  border-color: #3b82f6 !important;
+  transform: translateY(-2px);
+}
+
+.parent-link {
+  font-size: 0.6rem;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: #64748b;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 15px;
+}

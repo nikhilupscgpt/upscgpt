@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useSession, signIn, signOut } from "next-auth/react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useNavContext } from "@/context/NavContext";
 import { useTranslation } from "@/context/TranslationContext";
@@ -18,23 +18,41 @@ export default function Navigation({ children }) {
   
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [nanoOpen, setNanoOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  const handleLinkClick = (e) => {
+    const target = e.target.closest('a');
+    if (target && target.href && !target.href.includes('#') && !target.href.includes('mailto:')) {
+      // Only trigger for internal links that are different from current path
+      const url = new URL(target.href, window.location.origin);
+      if (url.pathname !== window.location.pathname) {
+        setIsNavigating(true);
+      }
+    }
+  };
 
   useEffect(() => {
-    setMounted(true);
+    document.addEventListener('click', handleLinkClick);
+    return () => document.removeEventListener('click', handleLinkClick);
   }, []);
 
   const activeContent = children || navContent;
 
-  if (!mounted) return null;
-  if (pathname === "/login" || pathname === "/admin-login") return null;
+  const isHiddenRoute = pathname === "/login" || pathname === "/admin-login" || pathname.startsWith("/admin");
+  if (!pathname || isHiddenRoute) return null;
 
   return (
     <>
+      {/* Neural Progress Bar */}
+      {isNavigating && (
+        <div style={{ position: 'fixed', top: 0, left: 0, height: '3px', background: 'linear-gradient(90deg, #3b82f6, #10b981)', zIndex: 9999, width: '100%', overflow: 'hidden' }}>
+          <div className="neural-progress-shimmer" />
+        </div>
+      )}
+
       <nav className={`app-nav${mobileMenuOpen ? " mobile-open" : ""}`}>
         <div className="app-nav__bar">
           <div className="app-nav__brand-group">
-            {/* Mobile Toggle Button */}
             <button
               type="button"
               className="app-nav__menu-btn"
@@ -46,21 +64,13 @@ export default function Navigation({ children }) {
               {mobileMenuOpen ? "✕" : "☰"}
             </button>
 
-            {/* Brand Logo & Name */}
-            <Link href="/" className="app-nav__brand" onClick={() => setMobileMenuOpen(false)}>
+            <Link href="/" className="app-nav__brand" onClick={() => { setMobileMenuOpen(false); setIsNavigating(false); }}>
               <div className="app-nav__logo">
-                <Image 
-                  src="/logo.png" 
-                  alt="STARA logo" 
-                  width={36} 
-                  height={36} 
-                  priority 
-                />
+                <Image src="/logo.png" alt="logo" width={36} height={36} priority />
               </div>
               <span className="app-nav__brand-text">UPSCGPT</span>
             </Link>
 
-            {/* Desktop Navigation Links */}
             <div className="app-nav__links">
               <Link href="/atlas" className="app-nav__link">Atlas</Link>
               <Link href="/issues" className="app-nav__link">Hub</Link>
@@ -70,105 +80,76 @@ export default function Navigation({ children }) {
           </div>
 
           <div className="app-nav__actions">
-            {activeContent && (
-              <div className="app-nav__slot">
-                {activeContent}
-              </div>
-            )}
+            {activeContent && <div className="app-nav__slot">{activeContent}</div>}
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginRight: '16px', borderRight: '1px solid rgba(255,255,255,0.1)', paddingRight: '16px' }}>
-              <select 
-                value={lang} 
-                onChange={(e) => changeLanguage(e.target.value)}
-                className="select-custom"
-                aria-label="Select Language"
-              >
-                <option value="en">EN</option>
-                <option value="hi">HI</option>
-                <option value="mr">MR</option>
-              </select>
+            <div className="lang-toggle-container">
+              <div className="lang-toggle">
+                {['en', 'hi', 'mr'].map((l) => (
+                  <button key={l} onClick={() => changeLanguage(l)} className={lang === l ? 'active' : ''}>
+                    {l.toUpperCase()}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            <button 
-              onClick={() => setNanoOpen(true)}
-              title="Ask Nano AI"
-              className="btn-nano"
-              style={{ marginRight: '6px' }}
-            >
+            <button onClick={() => setNanoOpen(true)} className="btn-nano" style={{ marginRight: '6px' }}>
                ✨ <span className="nav-desktop-text">Ask Nano</span>
             </button>
 
             {loading ? (
-              <div style={{ width: '40px', height: '32px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px' }}></div>
+              <div style={{ width: '40px', height: '32px', background: 'rgba(255,255,255,0.05)', borderRadius: '10px' }} />
             ) : session ? (
               <div className="app-nav__session">
                 <div className="app-nav__identity" style={{ marginRight: '4px' }}>
-                  <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-primary)', lineHeight: 1 }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: '700', color: 'white', lineHeight: 1 }}>
                     {session.user.name?.split(' ')[0] || 'User'}
                   </div>
-                  <Link href="/profile" className={session.user.tier === 'PRO' ? 'tier-badge-pro' : ''} style={session.user.tier !== 'PRO' ? { fontSize: '0.6rem', color: '#94a3b8', fontWeight: '800', textDecoration: 'none', textTransform: 'uppercase' } : {}}>
+                  <Link href="/profile" className={session.user.tier === 'PRO' ? 'tier-badge-pro' : ''} style={{ fontSize: '0.6rem', color: '#94a3b8', fontWeight: '800', textDecoration: 'none', textTransform: 'uppercase' }}>
                     {session.user.tier} TIER
                   </Link>
                 </div>
-                {session.user.tier === 'FREE' && (
-                  <Link href="/profile" className="app-nav__go-pro">
-                    💎 {t('nav.goPro')}
-                  </Link>
-                )}
                 <Link href="/profile" className="btn-secondary" style={{ padding: '6px 10px' }}>
                    👤 <span className="nav-desktop-text">Profile</span>
                 </Link>
-                <button
-                  onClick={() => signOut()}
-                  className="btn-secondary"
-                  style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', padding: '6px 4px' }}
-                >
+                <button onClick={() => signOut()} className="btn-secondary" style={{ background: 'transparent', border: 'none', color: '#94a3b8', padding: '6px 4px' }}>
                   Logout
                 </button>
               </div>
             ) : (
-              <Link href="/login" className="btn-primary" style={{ textDecoration: 'none' }}>
-                 Sign In
-              </Link>
+              <Link href="/login" className="btn-primary" style={{ textDecoration: 'none' }}>Sign In</Link>
             )}
           </div>
         </div>
 
-        {/* Mobile Navigation Panel */}
         <div className="app-nav__mobile-panel">
           <div className="app-nav__mobile-links">
              <Link href="/atlas" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>Atlas</Link>
-               <Link href="/profile" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>Profile</Link>
+             <Link href="/profile" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>Profile</Link>
           </div>
-
-          {activeContent && (
-            <div className="app-nav__mobile-slot">
-              {activeContent}
-            </div>
-          )}
-
           {session && (
             <div className="app-nav__mobile-account">
-              {session.user.tier === 'FREE' && (
-                <Link href="/profile" className="app-nav__go-pro" onClick={() => setMobileMenuOpen(false)}>
-                  💎 Go Pro
-                </Link>
-              )}
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  signOut();
-                }}
-                className="btn-secondary"
-                style={{ width: '100%', justifyContent: 'center' }}
-              >
-                {t('nav.logout')}
+              <button onClick={() => { setMobileMenuOpen(false); signOut(); }} className="btn-secondary" style={{ width: '100%', justifyContent: 'center' }}>
+                Logout
               </button>
             </div>
           )}
         </div>
       </nav>
       <NanoAssistant isOpen={nanoOpen} onClose={() => setNanoOpen(false)} />
+
+      <style jsx global>{`
+        .neural-progress-shimmer {
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+          transform: translateX(-100%);
+          animation: neural-progress 1s infinite;
+        }
+        @keyframes neural-progress {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+      `}</style>
     </>
   );
 }

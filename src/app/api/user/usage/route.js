@@ -1,9 +1,8 @@
 import { NextResponse } from 'next/server'
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
-import { PrismaClient } from "@prisma/client"
+import prisma from "@/lib/prisma"
 
-const prisma = new PrismaClient()
 const FREE_DAILY_SECONDS = 15 * 60 // 15 mins
 
 function getTodayString() {

@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from "@prisma/client"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import bcrypt from "bcryptjs"
-
-const prisma = new PrismaClient()
+import prisma from "@/lib/prisma";
 
 // Helper to check if requester is ADMIN
 async function checkAdmin() {

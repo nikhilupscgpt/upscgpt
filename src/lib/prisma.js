@@ -1,18 +1,19 @@
 import { PrismaClient } from "@prisma/client"
 
+// Neural Resync - Clear global cache to force schema update
+if (globalThis.prisma) {
+  console.log("Neural Re-Sync: Flushing Prisma Singleton...");
+  globalThis.prisma.$disconnect().catch(() => {});
+  globalThis.prisma = undefined;
+}
+
 const prismaClientSingleton = () => {
   return new PrismaClient({
-    log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
-    datasources: {
-      db: {
-        url: process.env.DATABASE_URL + (process.env.DATABASE_URL.includes('?') ? '&' : '?') + 'connection_limit=20&pool_timeout=20',
-      },
-    },
+    log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
   })
 }
 
 const globalForPrisma = globalThis
-
 const prisma = globalForPrisma.prisma ?? prismaClientSingleton()
 
 export default prisma

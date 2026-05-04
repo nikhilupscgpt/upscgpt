@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server"
-import { PrismaClient } from "@prisma/client"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
-
-const prisma = new PrismaClient()
+import prisma from "@/lib/prisma"
 
 // Public GET — used by NewsTicker to fetch UPSC crux content on click
 export async function GET(req, { params }) {

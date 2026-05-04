@@ -30,7 +30,14 @@
     "indiaAngle": "भारत का दृष्टिकोण",
     "mainsContext": "मेन्स संदर्भ",
     "askNanoAnalyse": "नैनो से विश्लेषण कराएं",
-    "basemap": "बेसमेप इंजन",
+    "basemap": "आधार मानचित्र इंजन",
     "navigator": "रणनीतिक नेविगेटर"
+  },
+  "issue": {
+    "summary": "सारांश",
+    "mainsNote": "विस्तार",
+    "stats": "आंकड़े",
+    "valueAdd": "अंतर्दृष्टि",
+    "questions": "प्रश्न"
   }
 }

@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import prisma from "@/lib/prisma"
 import { getGeminiModel } from '@/lib/gemini'
 import { getRenderedPrompt } from '@/lib/aiPromptRegistry'
-
-const prisma = new PrismaClient()
 
 // Rate Limiter: protects Gemini Free Tier (max 15 RPM)
 const delay = (ms) => new Promise(res => setTimeout(res, ms))

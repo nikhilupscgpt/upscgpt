@@ -5,19 +5,19 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from "@/context/TranslationContext";
 import { useRouter } from 'next/navigation';
 import UniversalSearchBar from '@/components/UniversalSearchBar';
+import { useIsClient } from '@/lib/useIsClient';
 
 import './home.css'
 
 
 export default function UPSCGPTMasterPortal() {
   const [stats, setStats] = useState({ entries: 0, categories: 0, newsToday: 0, issues: 0 })
-  const [mounted, setMounted] = useState(false)
   const { t } = useTranslation();
+  const isClient = useIsClient();
   const [searchTerm, setSearchTerm] = useState('');
   // handleSearch removed, handled by component
 
   useEffect(() => {
-    setMounted(true)
     // Parallel fetch for better performance
     Promise.all([
       fetch('/api/entries').then(res => res.json()),
@@ -41,7 +41,7 @@ export default function UPSCGPTMasterPortal() {
     }).catch(() => {})
   }, [])
 
-  if (!mounted) return <div style={{ minHeight: '100vh', background: 'var(--hero-bg-gradient)' }} />;
+  if (!isClient) return <div style={{ minHeight: '100vh', background: 'var(--hero-bg-gradient)' }} />;
 
   const commandCenters = [
     {
@@ -89,15 +89,15 @@ export default function UPSCGPTMasterPortal() {
     {
       id: 'mains',
       title: 'Mains Command Center',
-      subtitle: 'Answer Evaluation Studio',
+      subtitle: 'Neural Intelligence Base',
       description:
-        'Upload handwritten or typed answers for structured AI evaluation aligned to UPSC Mains expectations, with keyword depth checks and model answer guidance.',
+        'Consolidated GS Paper nodes with AI-synthesized material, strategic mapping evaluation, and topper-grade answer evaluators.',
       icon: '✍️',
       gradient: 'linear-gradient(135deg, #10b981, #0ea5e9)',
       accentColor: '#10b981',
-      href: '/mains',
+      href: '/issues',
       status: 'live',
-      features: ['Answer Evaluation Studio', 'GS/Optional Content Node', 'Essay Guidance', 'Mains Neural Search'],
+      features: ['Neural Base Grid', 'GS/Optional Content Node', 'Essay Guidance', 'Mains Evaluators'],
       stat: { value: stats.issues || 0, label: 'Syllabus Nodes' },
     },
   ]
@@ -107,51 +107,14 @@ export default function UPSCGPTMasterPortal() {
       style={{
         minHeight: '100vh',
         fontFamily: "'Outfit', sans-serif",
-        background: 'var(--hero-bg-gradient)',
+        background: 'transparent',
         color: 'var(--text-primary)',
         overflow: 'hidden',
         position: 'relative',
         transition: 'background 0.3s ease, color 0.3s ease'
       }}
     >
-      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
-        <div
-          style={{
-            position: 'absolute',
-            top: '-15%',
-            left: '-10%',
-            width: '55vw',
-            height: '55vw',
-            background: 'radial-gradient(circle, rgba(56,189,248,0.12) 0%, transparent 55%)',
-            filter: 'blur(80px)',
-            animation: 'float1 20s ease-in-out infinite',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '-15%',
-            right: '-10%',
-            width: '55vw',
-            height: '55vw',
-            background: 'radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 55%)',
-            filter: 'blur(80px)',
-            animation: 'float2 25s ease-in-out infinite',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            top: '40%',
-            left: '50%',
-            width: '30vw',
-            height: '30vw',
-            background: 'radial-gradient(circle, rgba(245,158,11,0.08) 0%, transparent 50%)',
-            filter: 'blur(60px)',
-            animation: 'float3 18s ease-in-out infinite',
-          }}
-        />
-      </div>
+      <div style={{ display: 'none' }} />
 
 
 
@@ -182,7 +145,7 @@ export default function UPSCGPTMasterPortal() {
           <UniversalSearchBar placeholder="Search across nodes..." />
         </div>
 
-        <div className="command-grid">
+        <div className="command-grid" style={{ alignItems: 'stretch' }}>
           {commandCenters.map((center) => {
             const isLive = center.status === 'live'
             const isCardLinked = Boolean(isLive && center.href)
@@ -191,26 +154,37 @@ export default function UPSCGPTMasterPortal() {
             return (
               <Wrapper
                 key={center.id}
-                {...(isCardLinked ? { href: center.href, style: { textDecoration: 'none', color: 'inherit' } } : {})}
+                {...(isCardLinked ? { href: center.href, style: { textDecoration: 'none', color: 'inherit', display: 'flex' } } : { style: { display: 'flex' } })}
               >
                 <div
                   className="module-card"
                   style={{
                     position: 'relative',
-                    background: 'var(--card-bg)',
-                    border: '1px solid var(--card-border)',
-                    borderRadius: '20px',
-                    padding: '24px 20px 20px',
+                    background: 'rgba(15, 23, 42, 0.7)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    borderRadius: '24px',
+                    padding: '28px 24px 24px',
                     cursor: isCardLinked ? 'pointer' : 'default',
                     opacity: isLive ? 1 : 0.75,
                     overflow: 'hidden',
-                    minHeight: '280px',
+                    minHeight: '320px',
+                    width: '100%',
                     display: 'flex',
                     flexDirection: 'column',
+                    boxShadow: `0 20px 40px -15px rgba(0,0,0,0.8), 0 0 25px ${center.accentColor}33, inset 0 0 20px ${center.accentColor}05`,
+                    transition: 'all 0.4s ease'
                   }}
                 >
-                  <div className="card-glow" style={{ background: center.gradient, filter: 'blur(40px)', opacity: 0 }} />
-                  <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '3px', background: center.gradient }} />
+                  <div className="card-glow" style={{ background: center.gradient, filter: 'blur(60px)', opacity: 0.15 }} />
+                  <div style={{ 
+                    position: 'absolute', 
+                    top: 0, 
+                    left: 0, 
+                    width: '100%', 
+                    height: '4px', 
+                    background: center.gradient,
+                    boxShadow: `0 0 20px ${center.accentColor}, 0 0 40px ${center.accentColor}88` 
+                  }} />
 
                   <div
                     style={{
@@ -349,6 +323,20 @@ export default function UPSCGPTMasterPortal() {
             }}
           >
             Instructor Vault
+          </Link>
+          <span style={{ color: '#1e293b' }}>•</span>
+          <Link
+            href="/sitemap.xml"
+            style={{
+              color: '#1e293b',
+              fontSize: '0.7rem',
+              textDecoration: 'none',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+            }}
+          >
+            Sitemap
           </Link>
           <span style={{ color: '#1e293b' }}>•</span>
           <span

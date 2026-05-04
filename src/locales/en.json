@@ -32,5 +32,12 @@
     "askNanoAnalyse": "Ask Nano to Analyse",
     "basemap": "Basemap Engine",
     "navigator": "Strategic Navigator"
+  },
+  "issue": {
+    "summary": "Summary",
+    "mainsNote": "Details",
+    "stats": "Stats",
+    "valueAdd": "Insights",
+    "questions": "Questions"
   }
 }

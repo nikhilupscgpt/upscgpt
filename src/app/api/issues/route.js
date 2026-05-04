@@ -12,7 +12,7 @@ export async function GET(req) {
     // Default to only returning issues that have SOME content, or all if requested
     const showAll = searchParams.get('showAll') === 'true';
 
-    const where = { status: 'ACTIVE' };
+    const where = { status: 'ACTIVE', parentIssueId: null };
     if (domain) where.domain = domain;
     if (search) {
       where.title = { contains: search, mode: 'insensitive' };
@@ -45,7 +45,16 @@ export async function GET(req) {
         category: true,
         gsPapers: true,
         nodeType: true,
+        orderIndex: true,
         lastUpdatedAt: true,
+        cumulativeSummary: true,
+        subNodes: {
+          select: {
+            id: true,
+            title: true,
+            nodeType: true
+          }
+        },
         _count: {
           select: {
             articles: true,
@@ -54,10 +63,9 @@ export async function GET(req) {
         }
       },
       orderBy: [
-        { lastUpdatedAt: 'desc' }, // Order by recently updated
+        { orderIndex: 'asc' },
         { title: 'asc' },
       ],
-      take: 100, // Limit for performance on the frontend list
     });
 
     return NextResponse.json({
