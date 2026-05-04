@@ -5,8 +5,8 @@ import { getPromptValue } from '@/lib/aiPromptRegistry';
 import prisma from '@/lib/prisma';
 
 const OLLAMA_HOST = process.env.OLLAMA_HOST || 'http://localhost:11434';
-const OLLAMA_FAST_MODEL = 'gemma:2b';       // Lightweight: query rewriting
-const OLLAMA_REASON_MODEL = 'gemma4:e4b';    // Heavy: answer generation
+const OLLAMA_FAST_MODEL = 'gemma:2b';       
+const OLLAMA_REASON_MODEL = 'gemma:27b-it'; 
 
 /**
  * Call Ollama for a single-shot non-streaming completion (query rewriting).
@@ -86,26 +86,29 @@ export async function POST(req) {
 SYSTEM INSTRUCTION:
 ${instruction}
 
+CONTEXT LOCK: 
+1. Use ONLY the "REFERENCE MATERIAL" provided below to answer the question.
+2. If the answer is not explicitly contained in the reference material or your core UPSC strategic knowledge, state "I do not have specific data on this in my current vectors" rather than guessing.
+3. DO NOT invent dates, statistics, or names of committees.
+
 ${matchingIssue ? `PROACTIVE GUIDANCE:
 I found a comprehensive UPSC Content Page for "${matchingIssue.title}". 
 Before giving the answer, prefix your response with a 1-sentence note suggesting the student check out this content page for structured preparation. 
 Link: /issues/${matchingIssue.slug}` : ''}
 
-If the Student's Question is a follow-up to the Conversation Memory below, focus STRICTLY on the new specific inquiry. DO NOT repeat general overviews, intros, or sections from previous answers unless they are absolutely required for the new analysis.
-
-REFERENCE MATERIAL (Use for evidence only):
+REFERENCE MATERIAL:
 ${contextStrs}
 
 UPSC EXAM HISTORY (PYQs):
 ${pyqStrs}
 
-CONVERSATION MEMORY (Prior context):
+CONVERSATION MEMORY:
 ${historyStrs}
 
-CURRENT STUDENT QUESTION:
+STUDENT QUESTION:
 ${query}
 
-YOUR PROFESSIONAL RESPONSE (Follow the structure rules but keep it focused):`;
+RESPONSE (Professional, scannable, and grounded):`;
 
     const metadata = { sources, pyqs: pyqMeta, isMetadata: true, matchingIssue };
     const encoder = new TextEncoder();

@@ -54,14 +54,20 @@ export async function generateEmbedding(text) {
   
   if (ollamaUrl) {
     try {
-      const response = await fetch(`${ollamaUrl}/api/embeddings`, {
+      const formattedUrl = ollamaUrl.startsWith('http') ? ollamaUrl : `http://${ollamaUrl}`;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+      const response = await fetch(`${formattedUrl}/api/embeddings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           model: process.env.OLLAMA_EMBED_MODEL || 'nomic-embed-text',
           prompt: text,
         }),
+        signal: controller.signal
       });
+      clearTimeout(timeoutId);
       
       if (response.ok) {
         const data = await response.json();
@@ -73,15 +79,24 @@ export async function generateEmbedding(text) {
   }
 
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-embedding-001" });
+    const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
     const result = await model.embedContent({
       content: { parts: [{ text: text }] },
       outputDimensionality: 768
     });
     return result.embedding.values;
   } catch (err) {
-    console.error(`[RAG] Gemini embedding failed:`, err);
-    throw new Error("No embedding provider available");
+    console.warn(`[RAG] text-embedding-004 failed: ${err.message}. Trying embedding-001 fallback.`);
+    try {
+      const fallbackModel = genAI.getGenerativeModel({ model: "embedding-001" });
+      const fallbackResult = await fallbackModel.embedContent({
+        content: { parts: [{ text: text }] }
+      });
+      return fallbackResult.embedding.values;
+    } catch (fallbackErr) {
+      console.error(`[RAG] All Gemini embedding models failed:`, fallbackErr);
+      throw new Error(`Embedding failed: ${fallbackErr.message}`);
+    }
   }
 }
 

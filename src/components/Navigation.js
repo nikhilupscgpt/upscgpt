@@ -68,10 +68,11 @@ export default function Navigation({ children }) {
               <div className="app-nav__logo">
                 <Image src="/logo.png" alt="logo" width={36} height={36} priority />
               </div>
-              <span className="app-nav__brand-text">UPSCGPT</span>
+              <span className="app-nav__brand-text" style={{ fontFamily: 'monospace', letterSpacing: '-0.02em', fontSize: '1.2rem', textTransform: 'lowercase' }}>upscgpt</span>
             </Link>
 
             <div className="app-nav__links">
+              <Link href="/dashboard" className="app-nav__link">Dashboard</Link>
               <Link href="/atlas" className="app-nav__link">Atlas</Link>
               <Link href="/issues" className="app-nav__link">Hub</Link>
               <Link href="/prelims" className="app-nav__link">Prelims</Link>
