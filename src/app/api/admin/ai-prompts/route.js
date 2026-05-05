@@ -67,7 +67,7 @@ export async function POST(req) {
       data: {
         action: 'AI_PROMPT_UPDATE',
         userId: session.user.id,
-        details: `Updated AI prompt: ${id}`,
+        message: `Updated AI prompt: ${id}`,
       },
     })
 

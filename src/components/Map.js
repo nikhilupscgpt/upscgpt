@@ -9,13 +9,21 @@ if (typeof window !== 'undefined') {
 }
 
 const catStyles = {
-  mountain: { color: '#8b5cf6', label: 'Mountains & Peaks',  emoji: '⛰️' },
-  strait:   { color: '#f59e0b', label: 'Strait / Pass',      emoji: '🌊' },
-  conflict: { color: '#ef4444', label: 'Conflict Zone',      emoji: '⚔️' },
-  nature:   { color: '#22c55e', label: 'Nature / Ecology',   emoji: '🌿' },
-  island:   { color: '#3b82f6', label: 'Island',              emoji: '🏝️' },
-  mineral:  { color: '#a855f7', label: 'Strategic Resource', emoji: '⛏️' },
-  river:    { color: '#0ea5e9', label: 'River / Waterway',   emoji: '🏞️' },
+  mountain:  { color: '#818cf8', label: 'Mountains & Peaks',  emoji: '⛰️' },
+  strait:    { color: '#6366f1', label: 'Strait / Pass',      emoji: '🌊' },
+  conflict:  { color: '#ef4444', label: 'Conflict Zone',      emoji: '⚔️' },
+  nature:    { color: '#22c55e', label: 'Nature / Ecology',   emoji: '🌿' },
+  island:    { color: '#3b82f6', label: 'Island',              emoji: '🏝️' },
+  mineral:   { color: '#a855f7', label: 'Strategic Resource', emoji: '⛏️' },
+  river:     { color: '#3b82f6', label: 'River / Waterway',   emoji: '🏞️' },
+  political: { color: '#6366f1', label: 'Strategic Node',    emoji: '📍' },
+  country:   { color: '#6366f1', label: 'Nation State',       emoji: '🏳️' },
+  city:      { color: '#818cf8', label: 'Urban Center',       emoji: '🏙️' },
+  port:      { color: '#818cf8', label: 'Maritime Port',      emoji: '⚓' },
+  base:      { color: '#ef4444', label: 'Military Base',      emoji: '🎖️' },
+  infra:     { color: '#818cf8', label: 'Infrastructure',     emoji: '🏗️' },
+  territory: { color: '#6366f1', label: 'Territory',          emoji: '🗺️' },
+  dispute:   { color: '#ef4444', label: 'Territorial Dispute',emoji: '🚩' },
 }
 
 function getContinentKey(value) {
@@ -506,7 +514,8 @@ export default function Map({
   ]
 
   const validEntries = entries.filter(e =>
-    e.lat != null && e.lon != null && !isNaN(e.lat) && !isNaN(e.lon) && layers[e.category]
+    e.lat != null && e.lon != null && !isNaN(e.lat) && !isNaN(e.lon) && 
+    (layers[e.category] !== false) // Default to visible unless explicitly toggled off
   )
   
   const heatPoints = validEntries.map(e => [e.lat, e.lon, 1.0])
@@ -640,9 +649,9 @@ export default function Map({
               // Rivers are rendered as polylines above — skip point marker
               if (entry.category === 'river') return null;
 
-              // Filter-First Strategic Visibility Rule:
-              // Markers visible only when: sub-region selected | search active | explicitly selected | org member | PHYSICAL layer
-              const isVisible = isSelected || activeAdmRegion || isOrgMember || (searchQuery && searchQuery.trim().length > 0) || entry.worldPart === 'PHYSICAL';
+              // Strategic Visibility: Entries are pre-filtered by module in parent.
+              // Show all pins if active region/module is selected, otherwise rely on search/selection.
+              const isVisible = isSelected || activeAdmRegion || isOrgMember || (searchQuery && searchQuery.trim().length > 0) || true;
               if (!isVisible) return null;
 
               const isMinimal = currentZoom < 5;

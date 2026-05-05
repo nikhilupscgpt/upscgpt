@@ -108,12 +108,17 @@ function getRegionKeyContinentFilter(regionKey) {
 
 const CATEGORIES = [
   { key: 'mountain', label: 'Mountains & Peaks',   color: '#8b5cf6', emoji: '⛰️' },
-  { key: 'strait',   label: 'Straits & Passes',    color: '#f59e0b', emoji: '🌊' },
+  { key: 'strait',   label: 'Straits & Passes',    color: '#6366f1', emoji: '🌊' },
   { key: 'conflict', label: 'Conflict Zones',       color: '#ef4444', emoji: '⚔️' },
   { key: 'nature',   label: 'Nature & Ecology',     color: '#22c55e', emoji: '🌿' },
   { key: 'island',   label: 'Islands',              color: '#3b82f6', emoji: '🏝️' },
   { key: 'mineral',  label: 'Strategic Resources',  color: '#a855f7', emoji: '⛏️' },
-  { key: 'river',    label: 'Rivers & Waterways',   color: '#0ea5e9', emoji: '🏞️' },
+  { key: 'river',    label: 'Rivers & Waterways',   color: '#818cf8', emoji: '🏞️' },
+  { key: 'political',label: 'Strategic Nodes',     color: '#6366f1', emoji: '📍' },
+  { key: 'country',  label: 'Nation States',        color: '#6366f1', emoji: '🏳️' },
+  { key: 'port',     label: 'Strategic Ports',     color: '#818cf8', emoji: '⚓' },
+  { key: 'base',     label: 'Military Bases',      color: '#ef4444', emoji: '🎖️' },
+  { key: 'city',     label: 'Urban Centers',       color: '#818cf8', emoji: '🏙️' },
 ]
 
 const BASEMAPS = [
@@ -166,530 +171,331 @@ async function requestMapBotChatUsage() {
   return data?.usage || null
 }
 
-function FloatingMapBotPanel({
-  entry,
-  region,
-  panelOpen,
-  setPanelOpen,
-  panelMinimized,
-  setPanelMinimized,
-  activeTab,
-  setActiveTab,
-  onMapBotAction,
-  mapbotMode,
-  mapbotLoading,
-  mapbotError,
-  mapbotResult,
-  chatMessages,
-  chatInput,
-  setChatInput,
-  chatLoading,
-  onChatSubmit,
-  chatUsage,
-}) {
-  const { t, lang } = useTranslation()
-  const style = entry ? (CATEGORIES.find(c => c.key === entry.category) || CATEGORIES[0]) : null
-  const contextLabel = entry ? (entry[`name_${lang}`] || entry.name) : (t(`atlas.${region.key}`) !== `atlas.${region.key}` ? t(`atlas.${region.key}`) : region.label)
-  const [panelPosition, setPanelPosition] = useState({ x: 20, y: 20, hasMoved: false })
-  const dragStateRef = useRef(null)
 
-  const clampPosition = useCallback((x, y) => {
-    if (typeof window === 'undefined') return { x, y }
-    const panelWidth = panelMinimized ? 240 : Math.min(430, window.innerWidth - 40)
-    const panelHeight = panelMinimized ? 84 : Math.min(760, window.innerHeight - 40)
-    return {
-      x: Math.min(Math.max(12, x), Math.max(12, window.innerWidth - panelWidth - 12)),
-      y: Math.min(Math.max(12, y), Math.max(12, window.innerHeight - panelHeight - 12)),
-    }
-  }, [panelMinimized])
-
-  useEffect(() => {
-    const handleResize = () => {
-      setPanelPosition((current) => {
-        if (!current.hasMoved) return current
-        const next = clampPosition(current.x, current.y)
-        return { ...current, ...next }
-      })
-    }
-
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [panelMinimized, clampPosition])
-
-  const handlePointerDown = (event) => {
-    if (typeof window !== 'undefined' && window.innerWidth <= 768) return
-    if (event.target.closest('button, input, textarea')) return
-    
-    const rect = event.currentTarget.parentElement?.getBoundingClientRect()
-    dragStateRef.current = {
-      offsetX: event.clientX - (rect?.left || 0),
-      offsetY: event.clientY - (rect?.top || 0),
-      pointerId: event.pointerId
-    }
-    
-    event.currentTarget.setPointerCapture(event.pointerId)
-    document.body.style.userSelect = 'none'
-  }
-
-  const handlePointerMove = (event) => {
-    if (!dragStateRef.current || dragStateRef.current.pointerId !== event.pointerId) return
-    const next = clampPosition(
-      event.clientX - dragStateRef.current.offsetX,
-      event.clientY - dragStateRef.current.offsetY
-    )
-    setPanelPosition({ ...next, hasMoved: true })
-  }
-
-  const handlePointerUp = (event) => {
-    if (!dragStateRef.current) return
-    try {
-      event.currentTarget.releasePointerCapture(event.pointerId)
-    } catch (e) {
-      // Ignore if pointer capture already released
-    }
-    dragStateRef.current = null
-    document.body.style.userSelect = ''
-  }
-
-  if (!panelOpen) {
-    return (
-      <button
-        type="button"
-        className="mapbot-fab"
-        onClick={() => {
-          setPanelOpen(true)
-          setPanelMinimized(false)
-        }}
-      >
-        ✨ {t('nav.askNano')}
-      </button>
-    )
-  }
-
-  const safeUri = (uri) => {
-    const protocols = ['http', 'https', 'mailto', 'tel'];
-    try {
-      const parsed = new URL(uri, window.location.origin);
-      if (protocols.includes(parsed.protocol.replace(':', ''))) return uri;
-      return '#';
-    } catch {
-      return uri.startsWith('/') ? uri : '#';
-    }
-  };
-
-  return (
-    <div
-      className={`mapbot-floating-panel ${panelMinimized ? 'minimized' : ''}`}
-      style={panelPosition.hasMoved ? { top: `${panelPosition.y}px`, left: `${panelPosition.x}px`, right: 'auto' } : undefined}
-    >
-      <div
-        className="mapbot-floating-header"
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
-      >
-        <div style={{ minWidth: 0, flex: 1 }}>
-          <div className="mapbot-kicker">Nano Intelligence</div>
-          <div className="mapbot-title-row">
-            <strong>{contextLabel}</strong>
-            {entry && style ? (
-              <span className="mapbot-context-badge" style={{ background: `${style.color}22`, color: style.color, borderColor: `${style.color}44` }}>
-                {style.emoji} {entry.category}
-              </span>
-            ) : null}
-          </div>
-          <div className="mapbot-subtle">
-            {entry
-              ? 'Node details, exam framing, and AI help now live in one floating panel.'
-              : 'Use Nano as a floating tutor for this region, latest news, and quick AI chat.'}
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button type="button" className="mapbot-icon-btn" onClick={() => setPanelMinimized(!panelMinimized)}>
-            {panelMinimized ? '▢' : '—'}
-          </button>
-          <button
-            type="button"
-            className="mapbot-icon-btn"
-            onClick={() => {
-              setPanelOpen(false)
-              setPanelMinimized(false)
-            }}
-          >
-            ✕
-          </button>
-        </div>
-      </div>
-
-      {!panelMinimized ? (
-        <>
-          <div className="mapbot-tabs">
-            <button type="button" className={`mapbot-tab ${activeTab === 'context' ? 'active' : ''}`} onClick={() => setActiveTab('context')}>
-              Context
-            </button>
-            <button type="button" className={`mapbot-tab ${activeTab === 'chat' ? 'active' : ''}`} onClick={() => setActiveTab('chat')}>
-              AI Chat
-            </button>
-          </div>
-
-          <div className="mapbot-floating-body">
-            {activeTab === 'context' ? (
-              <>
-                <div className="mapbot-quick-actions">
-                  {MAPBOT_ACTIONS.map((action) => (
-                    <button
-                      key={action.key}
-                      type="button"
-                      className={`mapbot-action-pill ${mapbotMode === action.key ? 'active' : ''}`}
-                      disabled={(action.requiresEntry && !entry) || mapbotLoading}
-                      onClick={() => onMapBotAction(action.key, entry)}
-                    >
-                      {action.label}
-                    </button>
-                  ))}
-                </div>
-
-                {entry ? (
-                  <div className="mapbot-entry-card">
-                    <div className="mapbot-entry-topline">
-                      <span>{entry.year ? `UPSC ${entry.year}` : 'Atlas node'}</span>
-                      {entry.lat != null && entry.lon != null ? (
-                        <span>{Number(entry.lat).toFixed(3)}, {Number(entry.lon).toFixed(3)}</span>
-                      ) : null}
-                    </div>
-                    {entry.tags ? (
-                      <div className="mapbot-tag-row">
-                        {entry.tags.split(',').map((tag) => (
-                          <span key={tag} className="mapbot-tag-chip">#{tag.trim()}</span>
-                        ))}
-                      </div>
-                    ) : null}
-                    <div className="mapbot-entry-grid">
-                      <div>
-                        <div className="mapbot-mini-label">Prelims</div>
-                        <p>{entry.prelims || 'No prelims notes yet for this node.'}</p>
-                      </div>
-                      <div>
-                        <div className="mapbot-mini-label">India Angle</div>
-                        <p>{entry.india || 'India-specific framing is still being expanded.'}</p>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="mapbot-empty-state">
-                    Click a node on the map to bring its details here. Until then, Nano can still tutor the region or interpret its mapped news.
-                  </div>
-                )}
-
-                {mapbotError ? <div className="mapbot-inline-error">{mapbotError}</div> : null}
-                {mapbotLoading ? <div className="mapbot-loading-card">Nano is preparing an exam-ready response...</div> : null}
-
-                {mapbotResult && !mapbotLoading ? (
-                  <div className="mapbot-panel">
-                    <div style={{ marginBottom: '10px' }}>
-                      <div style={{ fontSize: '0.95rem', color: '#0f172a', fontWeight: 800 }}>{mapbotResult.title}</div>
-                      {mapbotResult.contextLabel ? (
-                        <div style={{ fontSize: '0.72rem', color: '#6366f1', fontWeight: 700, marginTop: '3px' }}>
-                          {mapbotResult.contextLabel}
-                        </div>
-                      ) : null}
-                    </div>
-                    <div className="mapbot-markdown">
-                      <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        urlTransform={safeUri}
-                        disallowedElements={['script', 'iframe', 'object', 'embed']}
-                      >
-                        {mapbotResult.markdown || 'No response returned.'}
-                      </ReactMarkdown>
-                    </div>
-                    {Array.isArray(mapbotResult.suggestedFollowups) && mapbotResult.suggestedFollowups.length > 0 ? (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '12px' }}>
-                        {mapbotResult.suggestedFollowups.slice(0, 3).map((followup) => (
-                          <button
-                            key={followup}
-                            type="button"
-                            className="mapbot-followup"
-                            onClick={() => {
-                              setActiveTab('chat')
-                              setChatInput(followup)
-                            }}
-                          >
-                            {followup}
-                          </button>
-                        ))}
-                      </div>
-                    ) : null}
-                  </div>
-                ) : null}
-              </>
-            ) : (
-              <>
-                <div className="mapbot-chat-scroll">
-                  {chatMessages.length === 0 ? (
-                    <div className="mapbot-empty-state">
-                      Ask about the selected node, compare locations, request a mains answer, or turn the current context into prelims practice.
-                    </div>
-                  ) : (
-                    chatMessages.map((message, index) => (
-                      <div key={`${message.role}-${index}`} className={`mapbot-message ${message.role}`}>
-                        <div className="mapbot-message-role">{message.role === 'user' ? 'You' : 'Nano'}</div>
-                        <div className="mapbot-markdown">
-                          <ReactMarkdown
-                            remarkPlugins={[remarkGfm]}
-                            urlTransform={safeUri}
-                            disallowedElements={['script', 'iframe', 'object', 'embed']}
-                          >
-                            {message.content}
-                          </ReactMarkdown>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-
-                <div className="mapbot-suggestion-row">
-                  {MAPBOT_CHAT_SUGGESTIONS.map((prompt) => (
-                    <button key={prompt} type="button" className="mapbot-suggestion" onClick={() => setChatInput(prompt)}>
-                      {prompt}
-                    </button>
-                  ))}
-                </div>
-
-                {chatUsage ? (
-                  <div className="mapbot-subtle" style={{ marginBottom: '0.6rem' }}>
-                    {chatUsage.limit == null
-                      ? 'Live AI chat is available without a daily cap on your current plan.'
-                      : `Live AI chat remaining today: ${chatUsage.remaining}/${chatUsage.limit}`}
-                  </div>
-                ) : null}
-
-                <form
-                  className="mapbot-chat-form"
-                  onSubmit={(event) => {
-                    event.preventDefault()
-                    onChatSubmit()
-                  }}
-                >
-                  <textarea
-                    rows={3}
-                    value={chatInput}
-                    onChange={(event) => setChatInput(event.target.value)}
-                    placeholder={entry ? `Ask Nano about ${entry.name}...` : `Ask Nano about ${region.label}...`}
-                    className="mapbot-chat-input"
-                  />
-                  <button type="submit" className="btn-primary" disabled={chatLoading || !chatInput.trim()} style={{ width: '100%', justifyContent: 'center' }}>
-                    {chatLoading ? 'Thinking…' : 'Send to Nano'}
-                  </button>
-                </form>
-              </>
-            )}
-          </div>
-        </>
-      ) : null}
-    </div>
-  )
-}
 
 // ─── On-Map Floating Info Card (draggable) ──────────────────────────────────
-function MapInfoCard({ entry, onClose, onAskNano }) {
+function MapInfoCard({ 
+  entry, 
+  onClose, 
+  onAskNano,
+  mapbotLoading,
+  mapbotResult,
+  mapbotError,
+}) {
   const { t, lang } = useTranslation()
-  const [pos, setPos] = useState({ x: null, y: null }) // null = use CSS default
+  const [activeTab, setActiveTab] = useState('overview')
+  const [pos, setPos] = useState({ x: null, y: null })
   const dragRef = useRef(null)
 
-  // Clamp inside the map-view parent
-  const clamp = useCallback((x, y, cardW = 340, cardH = 480) => {
+  const clamp = useCallback((x, y, cardW = 390, cardH = 680) => {
     if (typeof window === 'undefined') return { x, y }
-    const parent = document.querySelector('.map-view')
-    const pw = parent ? parent.clientWidth  : window.innerWidth
-    const ph = parent ? parent.clientHeight : window.innerHeight
+    const pw = window.innerWidth
+    const ph = window.innerHeight
     return {
-      x: Math.min(Math.max(0, x), Math.max(0, pw - cardW)),
-      y: Math.min(Math.max(0, y), Math.max(0, ph - cardH)),
+      x: Math.min(Math.max(12, x), Math.max(12, pw - cardW - 12)),
+      y: Math.min(Math.max(84, y), Math.max(84, ph - cardH - 12)),
     }
   }, [])
 
   const handlePointerDown = (e) => {
-    if (e.target.closest('button')) return
-    if (window.innerWidth <= 768) return
-    
-    const card = e.currentTarget.closest('.map-info-card')
+    if (e.target.closest('button, .drawer-scroll')) return
+    const card = e.currentTarget.closest('.map-info-drawer')
     const rect = card.getBoundingClientRect()
-    const parent = document.querySelector('.map-view')
-    const pr = parent ? parent.getBoundingClientRect() : { left: 0, top: 0 }
-    
     dragRef.current = {
-      offsetX: e.clientX - (rect.left - pr.left),
-      offsetY: e.clientY - (rect.top  - pr.top),
+      offsetX: e.clientX - rect.left,
+      offsetY: e.clientY - rect.top,
       pointerId: e.pointerId
     }
-    
     e.currentTarget.setPointerCapture(e.pointerId)
-    document.body.style.userSelect = 'none'
-    document.body.style.cursor = 'grabbing'
   }
 
   const handlePointerMove = (e) => {
     if (!dragRef.current || dragRef.current.pointerId !== e.pointerId) return
-    const { offsetX, offsetY } = dragRef.current
-    setPos(clamp(e.clientX - offsetX, e.clientY - offsetY))
+    setPos(clamp(e.clientX - dragRef.current.offsetX, e.clientY - dragRef.current.offsetY))
   }
 
   const handlePointerUp = (e) => {
     if (!dragRef.current) return
-    try {
-      e.currentTarget.releasePointerCapture(e.pointerId)
-    } catch (err) {
-      // Ignore
-    }
+    try { e.currentTarget.releasePointerCapture(e.pointerId) } catch (err) {}
     dragRef.current = null
-    document.body.style.userSelect = ''
-    document.body.style.cursor = ''
   }
 
   if (!entry) return null
-  const entryName = entry[`name_${lang}`] || entry.name
-  const entryGeoGroup = entry[`geoGroup_${lang}`] || entry.geoGroup
-  const entryPrelims = entry[`prelims_${lang}`] || entry.prelims
-  const entryIndia = entry[`india_${lang}`] || entry.india
-  const entryMains = entry[`mains_${lang}`] || entry.mains
   
-  const catStyle = CATEGORIES.find(c => c.key === entry.category) || CATEGORIES[0]
+  const getKPIs = () => [
+    { label: 'UPSC WEIGHT', value: entry.year ? 'HIGH' : 'MEDIUM' },
+    { label: 'INFRA', value: entry.category?.toUpperCase() || 'NODE' },
+    { label: 'INTELLIGENCE', value: entry.newsMentions ? 'ACTIVE' : 'STATIC' }
+  ]
 
-  const dragged = pos.x !== null && pos.y !== null
-  const positionStyle = dragged
-    ? { top: pos.y, left: pos.x, bottom: 'auto' }
-    : {} // CSS default (bottom-left via stylesheet)
+  const kpis = getKPIs()
+  const positionStyle = pos.x !== null ? { top: pos.y, left: pos.x, right: 'auto', bottom: 'auto' } : {}
 
   return (
-    <div
-      className="map-info-card"
-      style={positionStyle}
-      role="dialog"
-      aria-label={`Details for ${entry.name}`}
-    >
-      {/* Colour accent strip */}
-      <div className="map-info-card__strip" style={{ background: catStyle.color }} />
-
-      {/* Header — drag handle */}
-      <div
-        className="map-info-card__header map-info-card__header--draggable"
+    <div className="map-info-drawer" style={positionStyle}>
+      <div 
+        className="drawer-drag-handle"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
       >
-        {/* Grip icon */}
-        <div className="map-info-card__grip" aria-hidden="true">⠿</div>
+        <div className="drawer-badge">
+          <span className="badge-dot" style={{ background: '#4ade80' }}></span>
+          ATLAS.{entry.category?.toUpperCase() || 'NODE'}
+        </div>
+        <button className="drawer-close" onClick={onClose}>✕</button>
+      </div>
 
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div className="map-info-card__kicker">
-            {catStyle.emoji}&nbsp;{catStyle.label}
-            {entry.year ? <span className="map-info-card__year">UPSC {entry.year}</span> : null}
-          </div>
-          <div className="map-info-card__name">{entryName}</div>
-          {entry.lat != null && entry.lon != null && (
-            <div className="map-info-card__coords">
-              {Number(entry.lat).toFixed(3)}°, {Number(entry.lon).toFixed(3)}°
+      <div className="drawer-scroll hide-scrollbar">
+        <div className="drawer-hero">
+          <h2 className="drawer-title">{entry[`name_${lang}`] || entry.name}</h2>
+          <p className="drawer-subtitle">
+            {entry.geoGroup || 'STRATEGIC NODE'} • {entry.continent || 'GLOBAL'}
+          </p>
+        </div>
+
+        <div className="drawer-kpi-grid">
+          {kpis.map((kpi, i) => (
+            <div key={i} className="kpi-card">
+              <div className="kpi-value" style={{ color: '#3b82f6' }}>{kpi.value}</div>
+              <div className="kpi-label">{kpi.label}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="drawer-tabs">
+          {['overview', 'links', 'pyq', 'news', 'nano'].map(tab => (
+            <button 
+              key={tab} 
+              className={`drawer-tab ${activeTab === tab ? 'active' : ''}`}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab === 'nano' ? '🤖 Nano' : tab}
+            </button>
+          ))}
+        </div>
+
+        <div className="drawer-main-content">
+          {activeTab === 'overview' && (
+            <div className="fade-in">
+              <div className="upsc-context-box">
+                <div className="box-header">⚡ UPSC EXAM CONTEXT</div>
+                <p className="drawer-text">{entry[`prelims_${lang}`] || entry.prelims || 'Analysis pending.'}</p>
+              </div>
+              
+              {entry.india && (
+                <div style={{ marginBottom: '24px' }}>
+                  <div className="section-kicker">🇮🇳 INDIA'S ROLE</div>
+                  <div className="india-role-badge">Verified Strategic Partner</div>
+                  <p className="drawer-text" style={{ marginTop: '10px' }}>{entry[`india_${lang}`] || entry.india}</p>
+                </div>
+              )}
+
+              {entry.mains && (
+                <div>
+                  <div className="section-kicker">📝 MAINS PERSPECTIVE</div>
+                  <p className="drawer-text">{entry[`mains_${lang}`] || entry.mains}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'links' && (
+            <div className="fade-in">
+              <div className="section-kicker">SYLLABUS TAGS</div>
+              <div className="drawer-tags">
+                {(entry.tags || '').split(',').map(tag => tag.trim()).filter(Boolean).map(tag => (
+                  <span key={tag} className="drawer-tag">{tag}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'news' && (
+            <div className="fade-in">
+              <div className="section-kicker">INTEL LOGS</div>
+              {entry.newsMentions ? (
+                <div className="drawer-markdown">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{entry.newsMentions}</ReactMarkdown>
+                </div>
+              ) : (
+                <p className="drawer-text-subtle">No recent news mentions recorded.</p>
+              )}
+            </div>
+          )}
+          
+          {activeTab === 'nano' && (
+            <div className="fade-in">
+              <div className="section-kicker">AI INTELLIGENCE</div>
+              {mapbotLoading ? (
+                <div className="nano-loading">
+                  <div className="nano-pulse"></div>
+                  Nano is analyzing this node for UPSC...
+                </div>
+              ) : mapbotResult ? (
+                <div className="nano-result">
+                  <div className="nano-result-title">{mapbotResult.title}</div>
+                  <div className="drawer-markdown">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{mapbotResult.markdown}</ReactMarkdown>
+                  </div>
+                  {mapbotResult.suggestedFollowups && (
+                    <div className="nano-followups">
+                      {mapbotResult.suggestedFollowups.slice(0,3).map(f => (
+                        <div key={f} className="nano-followup-item">🎯 {f}</div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="nano-empty">
+                  <p className="drawer-text">Click the "Ask AI" button below to generate a real-time strategic breakdown of this location.</p>
+                </div>
+              )}
+              {mapbotError && <div className="nano-error">{mapbotError}</div>}
             </div>
           )}
         </div>
-        <button
-          type="button"
-          className="map-info-card__close"
-          onClick={onClose}
-          aria-label="Close info card"
-        >✕</button>
       </div>
 
-      {/* Tags */}
-      {entry.tags && (
-        <div className="map-info-card__tags">
-          {entry.tags.split(',').map(t => (
-            <span key={t} className="map-info-card__tag" style={{ borderColor: `${catStyle.color}44`, color: catStyle.color, background: `${catStyle.color}12` }}>
-              #{t.trim()}
-            </span>
-          ))}
-        </div>
-      )}
-
-      {/* Body */}
-      <div className="map-info-card__body">
-        {/* Mountain metadata */}
-        {entry.nodeSubType === 'PHYSICAL' && entry.category === 'mountain' && (
-          <div className="map-info-card__mountain-grid" style={{ borderColor: `${catStyle.color}30` }}>
-            <div>
-              <div className="map-info-card__field-label">Highest Peak</div>
-              <div className="map-info-card__field-value">🔝 {entry.highestPeak || 'Unknown'}</div>
-            </div>
-            <div>
-              <div className="map-info-card__field-label">Mountain Type</div>
-              <div className="map-info-card__field-value">{entry.mountainType || 'Unknown'}</div>
-            </div>
-            <div style={{ gridColumn: '1 / -1' }}>
-              <div className="map-info-card__field-label">Spreads Across</div>
-              <div className="map-info-card__field-value">{entry.countriesSpread || 'Multiple Countries'}</div>
-            </div>
-          </div>
-        )}
-
-        {/* River metadata */}
-        {entry.category === 'river' && (
-          <div className="map-info-card__mountain-grid" style={{ borderColor: '#0ea5e930' }}>
-            <div>
-              <div className="map-info-card__field-label">🌊 Drains Into</div>
-              <div className="map-info-card__field-value">{entry.riverOutflow || 'Unknown'}</div>
-            </div>
-            <div>
-              <div className="map-info-card__field-label">🗺️ Countries</div>
-              <div className="map-info-card__field-value">{entry.countriesSpread || '—'}</div>
-            </div>
-          </div>
-        )}
-
-        {entry.capital && (
-          <div className="map-info-card__pill">
-            <span className="map-info-card__field-label">Capital</span>
-            <span className="map-info-card__field-value">🏙️ {entry.capital}</span>
-          </div>
-        )}
-
-        {entry.geoGroup && (
-          <div className="map-info-card__section">
-            <div className="map-info-card__field-label" style={{ color: '#6366f1' }}>{t('atlas.geoContext')}</div>
-            <div className="map-info-card__field-value">{entryGeoGroup || entry.geoGroup}</div>
-          </div>
-        )}
-
-        {entryPrelims && (
-          <div className="map-info-card__section map-info-card__section--prelims">
-            <div className="map-info-card__field-label">📋 {t('atlas.prelimsFocus')}</div>
-            <p className="map-info-card__text">{entryPrelims}</p>
-          </div>
-        )}
-
-        {entryIndia && (
-          <div className="map-info-card__section map-info-card__section--india">
-            <div className="map-info-card__field-label">🇮🇳 {t('atlas.indiaAngle')}</div>
-            <p className="map-info-card__text">{entryIndia}</p>
-          </div>
-        )}
-
-        {entryMains && (
-          <div className="map-info-card__section map-info-card__section--mains">
-            <div className="map-info-card__field-label">📝 {t('atlas.mainsContext')}</div>
-            <p className="map-info-card__text">{entryMains}</p>
-          </div>
-        )}
-      </div>
-
-      {/* Footer CTA */}
-      <div className="map-info-card__footer">
-        <button type="button" className="map-info-card__nano-btn" onClick={onAskNano}>
-          ✨ {t('atlas.askNanoAnalyse')}
+      <div className="drawer-footer">
+        <button className="btn-drawer-primary" onClick={() => window.open(`/atlas/node/${entry.id}`, '_blank')}>
+          Open Full Node
+        </button>
+        <button className="btn-drawer-outline" onClick={() => { setActiveTab('nano'); onAskNano(); }}>
+          Ask AI
         </button>
       </div>
+
+      <style jsx>{`
+        .map-info-drawer {
+          position: absolute;
+          top: 100px;
+          right: 32px;
+          width: 390px;
+          height: 680px;
+          background: rgba(15, 23, 42, 0.95);
+          backdrop-filter: blur(40px);
+          border: 1px solid rgba(59, 130, 246, 0.2);
+          border-radius: 24px;
+          display: flex;
+          flex-direction: column;
+          z-index: 9000;
+          box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+          overflow: hidden;
+          color: white;
+          font-family: 'Outfit', sans-serif;
+          letter-spacing: 0.01em;
+        }
+
+        .drawer-drag-handle { 
+          padding: 24px 24px 12px; 
+          display: flex; 
+          justify-content: space-between; 
+          align-items: center; 
+          cursor: grab;
+          user-select: none;
+        }
+        .drawer-drag-handle:active { cursor: grabbing; }
+
+        .drawer-badge {
+          display: flex; align-items: center; gap: 8px; padding: 6px 14px;
+          background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 100px; font-size: 0.65rem; font-weight: 900; letter-spacing: 0.5px;
+          color: #94a3b8;
+        }
+        .badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+        .drawer-close {
+          background: rgba(255,255,255,0.05); border: none; color: #64748b;
+          width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+        }
+
+        .drawer-scroll { flex: 1; overflow-y: auto; padding: 0 24px; margin-bottom: 8px; min-height: 0; }
+
+        .drawer-hero { margin-bottom: 24px; }
+        .drawer-title { font-size: 1.8rem; font-weight: 900; margin-bottom: 4px; line-height: 1.2; letter-spacing: -0.03em; color: #ffffff; }
+        .drawer-subtitle { font-size: 0.75rem; color: #64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+
+        .drawer-kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
+        .kpi-card {
+          background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 16px; padding: 18px 8px; text-align: center;
+        }
+        .kpi-value { font-size: 1rem; font-weight: 900; color: #3b82f6; margin-bottom: 4px; }
+        .kpi-label { font-size: 0.55rem; font-weight: 900; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .drawer-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; gap: 24px; }
+        .drawer-tab {
+          padding: 12px 0; background: none; border: none; color: #475569;
+          font-size: 0.75rem; font-weight: 900; cursor: pointer; position: relative;
+          text-transform: uppercase; letter-spacing: 0.1em; transition: color 0.2s;
+        }
+        .drawer-tab.active { color: white; }
+        .drawer-tab.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: #3b82f6; }
+
+        .upsc-context-box {
+          background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.15);
+          border-radius: 16px; padding: 20px; margin-bottom: 20px;
+        }
+        .box-header { font-size: 0.65rem; font-weight: 900; color: #60a5fa; letter-spacing: 1px; margin-bottom: 10px; }
+
+        .section-kicker { font-size: 0.65rem; font-weight: 900; color: #3b82f6; letter-spacing: 1px; margin-bottom: 12px; }
+        .drawer-text { font-size: 1.05rem; line-height: 1.7; color: #f8fafc; font-weight: 500; }
+        
+        .drawer-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+        .drawer-tag {
+          font-size: 0.7rem; font-weight: 900; padding: 6px 12px;
+          background: rgba(255, 255, 255, 0.04); color: #cbd5e1;
+          border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .india-role-badge { 
+          display: inline-block; padding: 4px 10px; background: rgba(34, 197, 94, 0.1); 
+          color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 6px;
+          font-size: 0.65rem; font-weight: 900;
+        }
+
+        .drawer-footer {
+          padding: 20px 24px 24px; background: rgba(0,0,0,0.4); border-top: 1px solid rgba(255,255,255,0.05);
+          display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: auto;
+        }
+
+        .btn-drawer-primary {
+          background: linear-gradient(135deg, #6366f1, #3b82f6); color: #000; border: none; padding: 16px;
+          border-radius: 14px; font-weight: 900; font-size: 0.85rem; cursor: pointer;
+          box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3); transition: all 0.2s;
+        }
+        .btn-drawer-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(217, 119, 6, 0.5); }
+
+        .btn-drawer-outline {
+          background: rgba(255,255,255,0.03); color: white; border: 1px solid rgba(255, 255, 255, 0.15);
+          padding: 16px; border-radius: 14px; font-weight: 900; font-size: 0.85rem; cursor: pointer;
+          transition: all 0.2s;
+        }
+        .btn-drawer-outline:hover { border-color: #6366f1; background: rgba(99, 102, 241, 0.08); color: #818cf8; }
+
+        .nano-loading {
+          padding: 30px 0; text-align: center; color: #818cf8; font-weight: 700; font-size: 0.9rem;
+          display: flex; flex-direction: column; align-items: center; gap: 15px;
+        }
+        .nano-pulse {
+          width: 40px; height: 40px; border-radius: 50%; background: #6366f1;
+          animation: pulse 1.5s infinite; opacity: 0.5;
+        }
+        @keyframes pulse { 0% { transform: scale(0.8); opacity: 0.5; } 50% { transform: scale(1.2); opacity: 0.2; } 100% { transform: scale(0.8); opacity: 0.5; } }
+        
+        .nano-result-title { font-size: 1.1rem; font-weight: 800; color: white; margin-bottom: 12px; }
+        .nano-followups { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
+        .nano-followup-item { font-size: 0.75rem; color: #818cf8; font-weight: 700; background: rgba(99, 102, 241, 0.05); padding: 8px 12px; border-radius: 8px; }
+        .nano-error { color: #ef4444; font-size: 0.8rem; margin-top: 10px; }
+
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 768px) {
+          .map-info-drawer { width: 100% !important; top: auto !important; right: 0 !important; left: 0 !important; bottom: 0 !important; height: 75vh !important; border-radius: 20px 20px 0 0 !important; }
+        }
+      `}</style>
     </div>
   )
 }
@@ -704,7 +510,8 @@ function MapPageInner() {
   const [isDataLoading, setIsDataLoading] = useState(true)
   const [isMounted, setIsMounted] = useState(false)
   const [layers, setLayers] = useState({
-    base: 'natgeo', mountain: true, strait: true, conflict: true, nature: true, island: true, mineral: true, graticules: true
+    base: 'natgeo', mountain: true, strait: true, conflict: true, nature: true, island: true, mineral: true, political: true, 
+    country: true, port: true, base: true, city: true, graticules: true
   })
   const [activeTag, setActiveTag] = useState('')
   const [activeYear, setActiveYear] = useState('')
@@ -732,9 +539,11 @@ function MapPageInner() {
   const [chatInput, setChatInput] = useState('')
   const [chatLoading, setChatLoading] = useState(false)
   const [chatUsage, setChatUsage] = useState(null)
-  const [activeOrg, setActiveOrg] = useState(null)         // selected organization for lens highlighting
+  const [discoveryAnchors, setDiscoveryAnchors] = useState([])
+  const [practiceHooks, setPracticeHooks] = useState([])
+  const [activeOrg, setActiveOrg] = useState(null)
   const [intelSubLayer, setIntelSubLayer] = useState('ZONES') // 'ZONES' | 'ORGS'
-  
+
   const mapRef = useRef(null)
   const exportRef = useRef(null)
   const lastAutoExplainedEntryRef = useRef(null)
@@ -763,7 +572,7 @@ function MapPageInner() {
     
     if (activeGeoGroup && e.geoGroup !== activeGeoGroup) return false
     if (activeTag && (!e.tags || !e.tags.split(',').map(t => t.trim()).includes(activeTag))) return false
-    if (activeYear && e.year !== parseInt(activeYear)) return false
+    if (activeYear && e.year !== null && e.year !== parseInt(activeYear)) return false
     if (searchQuery && !e.name?.toLowerCase().includes(searchQuery.toLowerCase())) return false
 
     if (timeFilter !== 'all') {
@@ -783,7 +592,7 @@ function MapPageInner() {
     if (activeContinentKey && entryContinentKey !== activeContinentKey) return false
     
     if (activeTag && (!e.tags || !e.tags.split(',').map(t => t.trim()).includes(activeTag))) return false
-    if (activeYear && e.year !== parseInt(activeYear)) return false
+    if (activeYear && e.year !== null && e.year !== parseInt(activeYear)) return false
     
     return true
   })
@@ -825,9 +634,9 @@ function MapPageInner() {
           <style>
              body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 40px; color: #1e293b; line-height: 1.6; max-width: 800px; margin: 0 auto; }
              h1 { color: #0f172a; border-bottom: 3px solid #0ea5e9; padding-bottom: 10px; font-weight: 800; font-size: 2.2rem; margin-bottom: 5px; }
-             h2 { color: #f59e0b; margin-top: 30px; font-weight: 800; }
+             h2 { color: #6366f1; margin-top: 30px; font-weight: 800; }
              .subtitle { color: #64748b; font-size: 0.95rem; margin-top: 0; margin-bottom: 30px; }
-             .entry { background: #f8fafc; border-left: 4px solid #f59e0b; padding: 25px; margin-bottom: 30px; border-radius: 0 8px 8px 0; border-top: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; }
+             .entry { background: #f8fafc; border-left: 4px solid #6366f1; padding: 25px; margin-bottom: 30px; border-radius: 0 8px 8px 0; border-top: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; }
              .meta { font-size: 0.8rem; color: #64748b; margin-bottom: 15px; font-family: monospace; background: #e2e8f0; display: inline-block; padding: 3px 8px; border-radius: 4px;}
              .mains { margin-top: 20px; background: white; padding: 20px; border-radius: 6px; border: 1px dashed #cbd5e1; }
              .crux { margin-top: 20px; }
@@ -947,8 +756,7 @@ function MapPageInner() {
     setSelectedEntry(entry)
     if (entry) {
       setInfoCardOpen(true)
-      // Close/Minimize Nano panel when a node info card is shown to avoid dual-panel clutter
-      setMapbotPanelOpen(false)
+      // Allow Nano panel and Info card to coexist for advanced research
     } else {
       setInfoCardOpen(false)
     }
@@ -966,11 +774,12 @@ function MapPageInner() {
 
     setMapbotLoading(true)
     setMapbotError('')
+    setMapbotResult(null) // Clear previous result
     setMapbotMode(mode)
     setMapbotActiveTab('context')
     setMapbotPanelOpen(true)
     setMapbotPanelMinimized(false)
-    setInfoCardOpen(false) // close the floating info card — Nano panel takes over exclusively
+    // Removed setInfoCardOpen(false) to allow co-existence
     if (isMobile) {
       setSidebarOpen(false)
     }
@@ -984,7 +793,8 @@ function MapPageInner() {
         entriesSnapshot: filteredEntries.slice(0, 80),
         selectedEntrySnapshot: entry || null,
       })
-      setMapbotResult(data)
+      console.log('[MapBot] Data received:', data);
+      setMapbotResult({ ...data }); // Force a fresh object to trigger re-render
     } catch (error) {
       setMapbotError(error.message || 'Nano could not respond.')
     } finally {
@@ -1080,6 +890,52 @@ function MapPageInner() {
   const categoryCount = (key) => entries.filter(e => e.category === key).length
 
   return (
+    <>
+      {isDataLoading && (
+        <div className="neural-loading-overlay">
+          <div className="neural-loader-content">
+            <div className="strategic-pulse">
+              <div className="pulse-ring ring-1" />
+              <div className="pulse-ring ring-2" />
+              <div className="pulse-ring ring-3" />
+              <div className="pulse-core">🌏</div>
+            </div>
+            <div className="loading-text-stack">
+              <div className="loading-kicker">Neural Intelligence</div>
+              <div className="loading-title">Initializing Strategic Graph...</div>
+              <div className="loading-sub">Syncing regional nodes and conflict flashpoints</div>
+            </div>
+          </div>
+          <style jsx>{`
+            .neural-loading-overlay {
+              position: fixed; inset: 0; z-index: 100000;
+              background: #020617; display: flex; align-items: center; justify-content: center;
+              transition: opacity 0.5s ease-out;
+            }
+            .neural-loader-content { display: flex; flex-direction: column; align-items: center; gap: 40px; }
+            
+            .strategic-pulse { position: relative; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
+            .pulse-core { font-size: 3rem; z-index: 2; filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.5)); animation: coreRotate 10s linear infinite; }
+            .pulse-ring { position: absolute; border: 2px solid #3b82f6; border-radius: 50%; opacity: 0; animation: ringPulse 3s cubic-bezier(0.21, 0.6, 0.35, 1) infinite; }
+            .ring-1 { width: 100%; height: 100%; animation-delay: 0s; }
+            .ring-2 { width: 100%; height: 100%; animation-delay: 1s; }
+            .ring-3 { width: 100%; height: 100%; animation-delay: 2s; }
+            
+            @keyframes ringPulse {
+              0% { transform: scale(0.5); opacity: 0; }
+              50% { opacity: 0.5; }
+              100% { transform: scale(2.5); opacity: 0; }
+            }
+            @keyframes coreRotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+            .loading-text-stack { text-align: center; }
+            .loading-kicker { font-size: 0.7rem; font-weight: 950; color: #3b82f6; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+            .loading-title { font-size: 1.5rem; font-weight: 900; color: white; margin-bottom: 4px; letter-spacing: -0.5px; }
+            .loading-sub { font-size: 0.85rem; color: #64748b; font-weight: 600; }
+          `}</style>
+        </div>
+      )}
+
     <div className={`portal-container ${isExporting ? 'exporting' : ''}`} ref={exportRef}>
       <NavSlot />
       
@@ -1107,15 +963,20 @@ function MapPageInner() {
           </div>
 
           <div className="sidebar-tabs">
-            {[{id:'POLITICAL', icon:'🏛️', label:'Political'}, {id:'PHYSICAL', icon:'⛰️', label:'Physical'}, {id:'INTELLIGENCE', icon:'📡', label:'Intel'}, {id:'NEWS', icon:'🗞️', label:'News'}].map(m => (
+            {[
+              { key: 'POLITICAL', label: t('atlas.political'), emoji: '🏛️' },
+              { key: 'PHYSICAL',  label: t('atlas.physical'),  emoji: '⛰️' },
+              { key: 'INTELLIGENCE', label: 'INTEL',           emoji: '📡' },
+              { key: 'NEWS',      label: 'NEWS',               emoji: '🗞️' },
+            ].map(m => (
               <button 
-                key={m.id}
+                key={m.key} 
+                className={`sidebar-tab ${activeModule === m.key ? 'active' : ''}`}
                 onClick={() => {
-                  setActiveModule(m.id);
+                  setActiveModule(m.key);
                   setActiveAdmRegion('');
                   setActiveGeoGroup('');
                   setActiveOrg(null);
-                  if (m.id !== 'POLITICAL') setInfoCardOpen(false);
                 }}
                 className={`sidebar-tab ${activeModule === m.id ? 'active' : ''}`}
               >
@@ -1212,6 +1073,7 @@ function MapPageInner() {
                     className={`basemap-tile ${layers.base === b.key ? 'active' : ''}`}
                     onClick={() => setLayers(p => ({ ...p, base: b.key }))}
                   >
+                    <span className="tile-icon">{b.emoji}</span>
                     {b.label}
                   </button>
                 ))}
@@ -1256,30 +1118,13 @@ function MapPageInner() {
               entry={selectedEntry} 
               onClose={() => { setInfoCardOpen(false); setSelectedEntry(null); }}
               onAskNano={() => runMapBot('node_explainer')}
+              mapbotLoading={mapbotLoading}
+              mapbotResult={mapbotResult}
+              mapbotError={mapbotError}
             />
           )}
 
-          <FloatingMapBotPanel 
-            entry={selectedEntry}
-            region={region}
-            panelOpen={mapbotPanelOpen}
-            setPanelOpen={setMapbotPanelOpen}
-            panelMinimized={mapbotPanelMinimized}
-            setPanelMinimized={setMapbotPanelMinimized}
-            activeTab={mapbotActiveTab}
-            setActiveTab={setMapbotActiveTab}
-            onMapBotAction={runMapBot}
-            mapbotMode={mapbotMode}
-            mapbotLoading={mapbotLoading}
-            mapbotError={mapbotError}
-            mapbotResult={mapbotResult}
-            chatMessages={chatMessages}
-            chatInput={chatInput}
-            setChatInput={setChatInput}
-            chatLoading={chatLoading}
-            onChatSubmit={sendMapBotChat}
-            chatUsage={chatUsage}
-          />
+
 
           <NewsTicker regionKey={regionKey} />
           <AtlasTimeTracker regionKey={regionKey} />
@@ -1287,30 +1132,66 @@ function MapPageInner() {
       </div>
 
       <style jsx>{`
-        .portal-container { height: 100vh; background: #020617; display: flex; flex-direction: column; overflow: hidden; font-family: 'Outfit', sans-serif; }
+        .portal-container { 
+          height: 100vh; 
+          background: #01040a; 
+          display: flex; 
+          flex-direction: column; 
+          overflow: hidden; 
+          font-family: 'Outfit', sans-serif;
+          padding-top: 72px; /* Fix for fixed header overlap */
+        }
         .portal-layout { flex: 1; display: flex; position: relative; overflow: hidden; }
 
         /* SIDEBAR / BOTTOM SHEET */
         .portal-sidebar {
-          width: 380px; background: #0a0a0f; border-right: 1px solid rgba(255,255,255,0.06);
-          display: flex; flex-direction: column; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          width: 360px;
+          height: 100%;
+          background: rgba(15, 23, 42, 0.95);
+          backdrop-filter: blur(40px);
+          border-right: 1px solid rgba(59, 130, 246, 0.1);
+          display: flex;
+          flex-direction: column;
+          position: relative;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
           z-index: 1000;
+          font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+          letter-spacing: 0.01em;
+          line-height: 1.6;
         }
         .portal-sidebar.closed { width: 0; transform: translateX(-100%); }
 
         .sidebar-header { padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
-        .sidebar-brand { display: flex; gap: 12px; align-items: center; }
-        .region-icon { font-size: 1.5rem; background: rgba(255,255,255,0.03); padding: 8px; border-radius: 12px; }
-        .sidebar-kicker { font-size: 0.6rem; font-weight: 900; color: #475569; letter-spacing: 1px; }
-        .sidebar-title { font-size: 1.25rem; font-weight: 900; color: white; }
+        .sidebar-brand { display: flex; gap: 16px; align-items: center; }
+        .region-icon { font-size: 2.2rem; background: rgba(59, 130, 246, 0.05); padding: 12px; border-radius: 16px; border: 1px solid rgba(59, 130, 246, 0.1); }
+        .sidebar-title { font-size: 1.5rem; font-weight: 950; color: white; letter-spacing: -0.02em; }
+        .sidebar-kicker { font-size: 0.65rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: 1.5px; }
         
-        .sidebar-tabs { display: grid; grid-template-columns: repeat(4, 1fr); padding: 0 1rem 1rem; gap: 4px; }
+        .sidebar-tabs { display: grid; grid-template-columns: repeat(4, 1fr); padding: 0 1.25rem 1.5rem; gap: 10px; }
         .sidebar-tab { 
-          padding: 10px 4px; border: none; background: rgba(255,255,255,0.02); color: #475569; 
-          font-size: 0.65rem; font-weight: 900; border-radius: 8px; cursor: pointer; transition: all 0.2s;
-          display: flex; flex-direction: column; align-items: center; gap: 4px;
+          padding: 14px 4px; border: 1px solid rgba(255,255,255,0.08); 
+          background: rgba(255,255,255,0.03); color: #94a3b8; 
+          font-size: 0.62rem; font-weight: 800; border-radius: 16px; cursor: pointer; 
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          display: flex; flex-direction: column; align-items: center; gap: 8px;
+          text-transform: uppercase; letter-spacing: 0.8px;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
-        .sidebar-tab.active { background: rgba(99, 102, 241, 0.1); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.2); }
+        .tab-emoji { font-size: 1.6rem; transition: transform 0.2s; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
+        
+        .sidebar-tab:hover { 
+          background: rgba(59, 130, 246, 0.08); 
+          color: white; 
+          border-color: rgba(59, 130, 246, 0.3);
+          transform: translateY(-2px);
+        }
+        .sidebar-tab.active { 
+          background: linear-gradient(135deg, #2563eb, #1d4ed8); 
+          color: white; 
+          border-color: #60a5fa;
+          box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+        }
+        .sidebar-tab.active .tab-emoji { transform: scale(1.1); filter: drop-shadow(0 0 8px rgba(255,255,255,0.4)); }
 
         .sidebar-scroll { flex: 1; overflow-y: auto; padding: 1rem 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
         
@@ -1319,9 +1200,12 @@ function MapPageInner() {
           border: 1px solid rgba(255,255,255,0.08); color: white; font-size: 0.85rem; outline: none;
         }
 
-        .strategic-path { display: flex; gap: 8px; align-items: center; font-size: 0.75rem; color: #64748b; font-weight: 800; }
-        .strategic-path button { background: none; border: none; color: #818cf8; font-weight: 900; cursor: pointer; font-size: inherit; }
-        .path-active { color: white; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 20px; }
+        .strategic-path { 
+          display: flex; gap: 10px; align-items: center; font-size: 0.8rem; color: #94a3b8; font-weight: 800; 
+          background: rgba(255,255,255,0.03); padding: 6px 12px; border-radius: 12px; align-self: flex-start;
+        }
+        .strategic-path button { background: none; border: none; color: #3b82f6; font-weight: 900; cursor: pointer; font-size: inherit; }
+        .path-active { color: white; font-weight: 900; }
 
         /* TILES */
         .continent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -1336,21 +1220,28 @@ function MapPageInner() {
         .tile-cta { font-size: 0.55rem; font-weight: 900; color: #475569; letter-spacing: 0.5px; }
 
         .entry-item {
-          display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 14px;
+          display: flex; align-items: center; gap: 14px; padding: 18px; border-radius: 18px;
           background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
-          color: white; text-align: left; cursor: pointer; transition: all 0.2s; margin-bottom: 8px;
+          color: white; text-align: left; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin-bottom: 12px;
         }
-        .entry-item.active { background: rgba(99, 102, 241, 0.1); border-color: #818cf8; }
-        .entry-emoji { font-size: 1.2rem; }
-        .entry-name { font-size: 0.9rem; font-weight: 900; }
-        .entry-sub { font-size: 0.7rem; color: #64748b; }
+        .entry-item:hover { background: rgba(255,255,255,0.05); border-color: rgba(59, 130, 246, 0.3); transform: translateX(4px); }
+        .entry-item.active { 
+          background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.05)); 
+          border-color: #3b82f6; 
+          box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        .entry-emoji { font-size: 1.4rem; filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.3)); }
+        .entry-name { font-size: 1rem; font-weight: 900; color: #f8fafc; }
+        .entry-sub { font-size: 0.75rem; color: #94a3b8; font-weight: 700; margin-top: 2px; }
 
-        .basemap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .basemap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .basemap-tile {
-          padding: 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);
-          background: rgba(255,255,255,0.02); color: #64748b; font-size: 0.65rem; font-weight: 900; cursor: pointer;
+          padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);
+          background: rgba(255,255,255,0.02); color: #94a3b8; font-size: 0.75rem; font-weight: 800; cursor: pointer;
+          display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.2s;
         }
-        .basemap-tile.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+        .basemap-tile.active { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border-color: #3b82f6; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+        .basemap-tile .tile-icon { font-size: 1.2rem; }
 
         .map-view { flex: 1; position: relative; }
 
@@ -1376,9 +1267,11 @@ function MapPageInner() {
           }
         }
 
+
         .hide-scrollbar::-webkit-scrollbar { display: none; }
       `}</style>
     </div>
+    </>
   )
 }
 

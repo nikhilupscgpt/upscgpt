@@ -201,7 +201,7 @@ async function getChatUsageState(identity) {
     if (identity.userId) {
       where.userId = identity.userId
     } else {
-      where.details = {
+      where.message = {
         contains: `"identifierHash":"${identity.identifierHash}"`,
       }
     }
@@ -222,7 +222,7 @@ async function recordChatUsage(identity, prompt, response) {
       data: {
         action: 'MAPBOT_CHAT',
         userId: identity.userId,
-        details: JSON.stringify({
+        message: JSON.stringify({
           dayKey: identity.dayKey,
           scope: identity.scope,
           tier: identity.tier,

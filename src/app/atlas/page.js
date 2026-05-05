@@ -101,9 +101,55 @@ export default function PortalHome() {
   const yearRange = years.length ? `${Math.min(...years)}–${Math.max(...years)}` : '—'
 
   return (
-    <div style={{
-      minHeight: '100vh', fontFamily: "'Outfit', sans-serif",
-      background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%)',
+    <>
+      {!loaded && (
+        <div className="neural-loading-overlay">
+          <div className="neural-loader-content">
+            <div className="strategic-pulse">
+              <div className="pulse-ring ring-1" />
+              <div className="pulse-ring ring-2" />
+              <div className="pulse-ring ring-3" />
+              <div className="pulse-core">🌏</div>
+            </div>
+            <div className="loading-text-stack">
+              <div className="loading-kicker">Neural Intelligence</div>
+              <div className="loading-title">Initializing Atlas...</div>
+              <div className="loading-sub">Preparing geo-strategic regions for study</div>
+            </div>
+          </div>
+          <style jsx>{`
+            .neural-loading-overlay {
+              position: fixed; inset: 0; z-index: 100000;
+              background: #020617; display: flex; align-items: center; justify-content: center;
+              transition: opacity 0.5s ease-out;
+            }
+            .neural-loader-content { display: flex; flex-direction: column; align-items: center; gap: 40px; }
+            
+            .strategic-pulse { position: relative; width: 100px; height: 100px; display: flex; align-items: center; justify-content: center; }
+            .pulse-core { font-size: 3rem; z-index: 2; filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.5)); animation: coreRotate 10s linear infinite; }
+            .pulse-ring { position: absolute; border: 2px solid #3b82f6; border-radius: 50%; opacity: 0; animation: ringPulse 3s cubic-bezier(0.21, 0.6, 0.35, 1) infinite; }
+            .ring-1 { width: 100%; height: 100%; animation-delay: 0s; }
+            .ring-2 { width: 100%; height: 100%; animation-delay: 1s; }
+            .ring-3 { width: 100%; height: 100%; animation-delay: 2s; }
+            
+            @keyframes ringPulse {
+              0% { transform: scale(0.5); opacity: 0; }
+              50% { opacity: 0.5; }
+              100% { transform: scale(2.5); opacity: 0; }
+            }
+            @keyframes coreRotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+            .loading-text-stack { text-align: center; }
+            .loading-kicker { font-size: 0.7rem; font-weight: 950; color: #3b82f6; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+            .loading-title { font-size: 1.5rem; font-weight: 900; color: white; margin-bottom: 4px; letter-spacing: -0.5px; }
+            .loading-sub { font-size: 0.85rem; color: #64748b; font-weight: 600; }
+          `}</style>
+        </div>
+      )}
+
+      <div style={{
+      minHeight: '100vh', fontFamily: "var(--font-outfit), sans-serif",
+      background: '#020617',
     }}>
       {/* BG GLOW */}
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(99,102,241,0.15) 0%, transparent 60%)' }} />
@@ -201,6 +247,36 @@ export default function PortalHome() {
       </div>
 
       <style jsx>{`
+        .region-card {
+          padding: 28px;
+          height: 100%;
+          background: rgba(15, 23, 42, 0.6);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 28px;
+          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          position: relative;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .region-card:hover {
+          transform: translateY(-8px) scale(1.02);
+          background: rgba(15, 23, 42, 0.8);
+          border-color: rgba(59, 130, 246, 0.3);
+          box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+        }
+
+        .region-card::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(circle at top right, var(--accent), transparent 70%);
+          opacity: 0.05;
+          pointer-events: none;
+        }
+
         @media (max-width: 768px) {
           .atlas-hero {
             padding: 40px 20px 24px !important;
@@ -224,6 +300,7 @@ export default function PortalHome() {
           }
         }
       `}</style>
-    </div>
+      </div>
+    </>
   )
 }

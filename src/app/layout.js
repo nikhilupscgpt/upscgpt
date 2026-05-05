@@ -1,5 +1,12 @@
 import './globals.css'
 import Script from 'next/script'
+import { Outfit } from 'next/font/google'
+
+const outfit = Outfit({ 
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-outfit',
+})
 
 export const metadata = {
   title: {
@@ -70,7 +77,7 @@ export default function RootLayout({ children }) {
         <link rel="apple-touch-icon" href="/logo.png" />
         <meta name="google-site-verification" content="ADD_YOUR_VERIFICATION_CODE_HERE" />
       </head>
-      <body className="antialiased" style={{ minHeight: '100vh', position: 'relative', overflowX: 'hidden' }}>
+      <body className={`${outfit.variable} antialiased`} style={{ minHeight: '100vh', position: 'relative', overflowX: 'hidden', fontFamily: 'var(--font-outfit), sans-serif' }}>
         <div className="universal-page-glow" />
         {/* Simplified Background for Performance */}
         <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: '#020617' }}>

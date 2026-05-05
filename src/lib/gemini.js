@@ -39,8 +39,8 @@ const FALLBACK_MODEL_CHAIN = {
   // Structured JSON extraction (quiz, seed scripts): same Gemma 3 pool
   extraction: ['gemma-3-27b-it', 'gemma-3-12b-it', 'gemini-2.0-flash'],
 
-  // Conversational chat (Nano Assistant): Gemma 4 26B — higher quality, still separate quota
-  chat: ['gemma-4-26b-it', 'gemma-3-27b-it', 'gemini-2.0-flash'],
+  // Conversational chat (Nano Assistant): Gemma 3 27B — high quality, separate quota
+  chat: ['gemma-3-27b-it', 'gemma-2-27b-it', 'gemini-2.0-flash'],
 
   // Deep analysis (Node Explainer, Region Tutor): needs long context + reasoning
   analysis: ['gemini-2.5-flash', 'gemini-2.0-flash'],
@@ -102,6 +102,17 @@ export const getGeminiModel = (taskType = 'extraction') => {
       )
     },
   }
+}
+
+export const generateEmbedding = async (text) => {
+  const apiKey = process.env.GEMINI_API_KEY
+  if (!apiKey) throw new Error('GEMINI_API_KEY not configured')
+
+  const client = new GoogleGenAI(apiKey)
+  const model = client.getGenerativeModel({ model: 'text-embedding-004' })
+
+  const result = await model.embedContent(text)
+  return result.embedding.values
 }
 
 export default getGeminiModel

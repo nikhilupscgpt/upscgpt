@@ -70,7 +70,7 @@ export async function POST(req) {
     await prisma.actionLog.create({
       data: {
         action: 'COMMS_SEND',
-        details: `Sent bulk messages via ${channel}. Recipients: ${recipients}, Count: ${results.length}`,
+        message: `Sent bulk messages via ${channel}. Recipients: ${recipients}, Count: ${results.length}`,
         userId: session.user.id
       }
     })

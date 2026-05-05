@@ -43,7 +43,7 @@ export async function PATCH(req, { params }) {
     await prisma.actionLog.create({
       data: {
         action: 'USER_MOD',
-        details: `Updated user: ${user.email || user.username} (ID: ${user.id})`,
+        message: `Updated user: ${user.email || user.username} (ID: ${user.id})`,
         userId: session.user.id
       }
     })
@@ -69,7 +69,7 @@ export async function DELETE(req, { params }) {
     await prisma.actionLog.create({
       data: {
         action: 'USER_MOD',
-        details: `Deleted user: ${user.email || user.username} (ID: ${user.id})`,
+        message: `Deleted user: ${user.email || user.username} (ID: ${user.id})`,
         userId: session.user.id
       }
     })

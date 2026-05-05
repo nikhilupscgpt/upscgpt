@@ -58,7 +58,7 @@ export async function POST(req) {
     await prisma.actionLog.create({
       data: {
         action: 'CONTENT_EDIT',
-        details: `Created map entry: ${name} (${category})`,
+        message: `Created map entry: ${name} (${category})`,
         userId: session.user.id
       }
     })

@@ -76,7 +76,7 @@ export async function POST(req) {
     await prisma.actionLog.create({
       data: {
         action: 'USER_MOD',
-        details: `Created user: ${email || username} (Role: ${role}, Tier: ${tier})`,
+        message: `Created user: ${email || username} (Role: ${role}, Tier: ${tier})`,
         userId: session.user.id
       }
     })

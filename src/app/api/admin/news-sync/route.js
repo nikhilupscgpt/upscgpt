@@ -40,7 +40,7 @@ export async function POST() {
     await prisma.actionLog.create({
       data: {
         action: 'SCRAPE_RUN',
-        details: `Manual scrape triggered via RSS Feeds. Fetched: ${stats.totalFetched}, Enriched: ${stats.totalEnriched}`,
+        message: `Manual scrape triggered via RSS Feeds. Fetched: ${stats.totalFetched}, Enriched: ${stats.totalEnriched}`,
         userId: session.user.id
       }
     })

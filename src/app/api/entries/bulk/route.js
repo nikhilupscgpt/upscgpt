@@ -104,7 +104,7 @@ export async function POST(req) {
     await prisma.actionLog.create({
       data: {
         action: 'CONTENT_EDIT',
-        details: `Bulk created map entries (AI Geocode: ${autoGeocode}). Count: ${result.count}`,
+        message: `Bulk created map entries (AI Geocode: ${autoGeocode}). Count: ${result.count}`,
         userId: session.user.id
       }
     })
@@ -130,7 +130,7 @@ export async function DELETE(req) {
     await prisma.actionLog.create({
       data: {
         action: 'CONTENT_EDIT',
-        details: `Deleted all map entries. Count: ${result.count}`,
+        message: `Deleted all map entries. Count: ${result.count}`,
         userId: session.user.id
       }
     })
