@@ -6,7 +6,8 @@ export async function proxy(request) {
   if (
     pathname.startsWith('/api/') ||
     pathname.startsWith('/_next/') ||
-    pathname.startsWith('/favicon')
+    pathname.startsWith('/favicon') ||
+    pathname.startsWith('/search')
   ) {
     return NextResponse.next()
   }
