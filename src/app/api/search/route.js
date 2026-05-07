@@ -36,10 +36,15 @@ export async function GET(req) {
       LIMIT 10
     `;
 
-    // 3. Semantic Fallback (if keyword results are sparse)
-    if ((nodes || []).length < 3) {
+    // 3. Semantic Fallback (only if keyword search is empty)
+    if ((nodes || []).length === 0) {
       try {
-        const embedding = await generateEmbedding(query);
+        const embeddingPromise = generateEmbedding(query);
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Embedding timeout')), 3000)
+        );
+        
+        const embedding = await Promise.race([embeddingPromise, timeoutPromise]);
         const vectorStr = `[${embedding.join(",")}]`;
 
         const semanticNodes = await prisma.$queryRawUnsafe(`
@@ -62,7 +67,7 @@ export async function GET(req) {
           }
         });
       } catch (embErr) {
-        console.warn("[Search API] Semantic fallback failed:", embErr.message);
+        console.warn("[Search API] Semantic fallback skipped:", embErr.message);
       }
     }
 
