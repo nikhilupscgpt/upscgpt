@@ -4,6 +4,8 @@ export async function proxy(request) {
   const { pathname } = request.nextUrl
   // Allow all API routes, static files, and auth routes through
   if (
+    pathname === '/' ||
+    pathname.startsWith('/login') ||
     pathname.startsWith('/api/') ||
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/favicon') ||
