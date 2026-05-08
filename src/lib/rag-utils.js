@@ -52,11 +52,12 @@ export function chunkText(text, chunkSize = 1500) {
 export async function generateEmbedding(text) {
   const ollamaUrl = process.env.OLLAMA_HOST;
   
+  // 1. Primary Path: Local Ollama (Zero Cost, No latency to cloud)
   if (ollamaUrl) {
     try {
       const formattedUrl = ollamaUrl.startsWith('http') ? ollamaUrl : `http://${ollamaUrl}`;
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      const timeoutId = setTimeout(() => controller.abort(), 3000); // Strict timeout for speed
 
       const response = await fetch(`${formattedUrl}/api/embeddings`, {
         method: 'POST',
@@ -74,29 +75,22 @@ export async function generateEmbedding(text) {
         return data.embedding;
       }
     } catch (err) {
-      console.warn(`[RAG] Ollama connection failed: ${err.message}. Falling back to Gemini.`);
+      console.warn(`[RAG] Ollama connection skipped or timed out: ${err.message}.`);
     }
   }
 
+  // 2. Secondary Path: Gemini 
   try {
-    const model = genAI.getGenerativeModel({ model: "text-embedding-004" });
+    const model = genAI.getGenerativeModel({ model: "models/text-embedding-004" });
     const result = await model.embedContent({
       content: { parts: [{ text: text }] },
       outputDimensionality: 768
     });
     return result.embedding.values;
   } catch (err) {
-    console.warn(`[RAG] text-embedding-004 failed: ${err.message}. Trying embedding-001 fallback.`);
-    try {
-      const fallbackModel = genAI.getGenerativeModel({ model: "embedding-001" });
-      const fallbackResult = await fallbackModel.embedContent({
-        content: { parts: [{ text: text }] }
-      });
-      return fallbackResult.embedding.values;
-    } catch (fallbackErr) {
-      console.error(`[RAG] All Gemini embedding models failed:`, fallbackErr);
-      throw new Error(`Embedding failed: ${fallbackErr.message}`);
-    }
+    console.error(`[RAG] Gemini models/text-embedding-004 failed: ${err.message}`);
+    // No more fallbacks - return empty to allow search API to continue with keyword-only
+    throw new Error(`CRITICAL: All embedding services unavailable.`);
   }
 }
 

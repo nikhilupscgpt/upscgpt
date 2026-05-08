@@ -1,0 +1,237 @@
+.node-detail-page {
+  min-height: 100vh;
+  background: #020617;
+  color: white;
+  padding: 120px 20px 80px;
+  font-family: 'Outfit', sans-serif;
+}
+
+.node-detail-container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 32px;
+}
+
+.breadcrumb a {
+  color: #38bdf8;
+  text-decoration: none;
+}
+
+.node-header {
+  margin-bottom: 48px;
+}
+
+.node-meta-top {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.node-gs-badge {
+  background: rgba(56, 189, 248, 0.1);
+  color: #38bdf8;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.node-type-label {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.5);
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.node-title {
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin: 0 0 8px 0;
+}
+
+.node-domain-subtitle {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 500;
+}
+
+.node-content-grid {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 40px;
+}
+
+.node-section {
+  margin-bottom: 48px;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 24px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.theme-card {
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.theme-dot {
+  width: 6px;
+  height: 6px;
+  background: #38bdf8;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #38bdf8;
+}
+
+.subtopics-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.subtopics-list li {
+  padding-left: 24px;
+  position: relative;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1.05rem;
+}
+
+.subtopics-list li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: #38bdf8;
+}
+
+.coming-soon-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  padding: 32px;
+  border-radius: 20px;
+  text-align: center;
+}
+
+.coming-soon-box p {
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 20px;
+}
+
+.legacy-link {
+  color: #38bdf8;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.sidebar-card {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 24px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+}
+
+.sidebar-card h3 {
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+}
+
+.action-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.action-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  font-size: 0.9rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.action-btn.atlas {
+  background: #38bdf8;
+  color: #020617;
+}
+
+.action-btn.bookmark {
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.meta-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.meta-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.meta-stat .label {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.9rem;
+}
+
+.meta-stat .value {
+  color: white;
+  font-weight: 800;
+}
+
+@media (max-width: 900px) {
+  .node-content-grid { grid-template-columns: 1fr; }
+  .node-title { font-size: 2rem; }
+}
