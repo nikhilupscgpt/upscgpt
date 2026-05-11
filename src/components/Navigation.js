@@ -73,7 +73,7 @@ export default function Navigation({ children }) {
               <div className="app-nav__logo">
                 <Image src="/logo.png" alt="logo" width={36} height={36} priority />
               </div>
-              <span className="app-nav__brand-text" suppressHydrationWarning={true} style={{ fontFamily: 'var(--font-outfit)', letterSpacing: '-0.02em', fontSize: '1.2rem', textTransform: 'none' }}>UPSC Atlas · Beta</span>
+              <span className="app-nav__brand-text" suppressHydrationWarning={true} style={{ fontFamily: 'monospace', letterSpacing: '-0.02em', fontSize: '1.2rem', textTransform: 'lowercase' }}>upscgpt</span>
               <span className="beta-badge">Beta</span>
             </Link>
 
