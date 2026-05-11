@@ -27,7 +27,7 @@ export async function POST(req) {
 
   try {
     const body = await req.json();
-    const { mode, issueId, field } = body;
+    const { mode, issueId, field, articleId, editorialId } = body;
 
     const ai = getGeminiModel('background'); 
     if (!ai) {
@@ -73,8 +73,12 @@ export async function POST(req) {
 
     // 1. Process PENDING Articles
     const pendingArticles = await prisma.article.findMany({
-      where: { status: 'PENDING', rawContent: { not: null } },
-      take: 5 // Process in small batches
+      where: { 
+        id: articleId || undefined,
+        status: 'PENDING', 
+        rawContent: { not: null } 
+      },
+      take: articleId ? 1 : 5 // Process 1 if specific ID, else batch
     });
 
     for (const article of pendingArticles) {
@@ -114,8 +118,12 @@ export async function POST(req) {
 
     // 2. Process PENDING Editorials
     const pendingEditorials = await prisma.editorial.findMany({
-      where: { status: 'PENDING', rawContent: { not: null } },
-      take: 5
+      where: { 
+        id: editorialId || undefined,
+        status: 'PENDING', 
+        rawContent: { not: null } 
+      },
+      take: editorialId ? 1 : 5
     });
 
     for (const editorial of pendingEditorials) {

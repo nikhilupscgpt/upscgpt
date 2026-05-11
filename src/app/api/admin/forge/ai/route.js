@@ -1,9 +1,7 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+import { getGeminiModel } from '@/lib/gemini';
 
 export async function POST(req) {
   const session = await getServerSession(authOptions);
@@ -45,10 +43,9 @@ export async function POST(req) {
       COMMAND: Begin output immediately with the content. Do NOT include any introductory or process-oriented text.
     `;
 
-    const model = genAI.getGenerativeModel({ model: "gemma-4-31b-it" });
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    let aiText = response.text();
+    const ai = getGeminiModel('analysis');
+    const result = await ai.generateContent(prompt);
+    let aiText = typeof result.text === 'function' ? result.text() : result.text;
 
     // --- NEURAL MUZZLE: Post-Processing Sanitization ---
     // 1. Force-strip thinking blocks and anything that looks like a repeated instruction block

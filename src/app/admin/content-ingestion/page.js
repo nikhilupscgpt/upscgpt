@@ -25,7 +25,15 @@ export default function NodeCMSPage() {
     status: 'DRAFT',
     slug: ''
   });
-  const [mode, setMode] = useState('PRELIMS'); // PRELIMS or MAINS
+  const [newsForm, setNewsForm] = useState({
+    url: '',
+    title: '',
+    rawContent: '',
+    source: '',
+    publishedAt: new Date().toISOString().split('T')[0],
+    contentType: 'NEWS'
+  });
+  const [mode, setMode] = useState('PRELIMS'); // PRELIMS, MAINS, or NEWS
   const [loading, setLoading] = useState(false);
   const [listLoading, setListLoading] = useState(true);
 
@@ -140,6 +148,81 @@ export default function NodeCMSPage() {
     }
   };
 
+  const handleExtract = async () => {
+    if (!newsForm.url) return;
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/extract-url', {
+        method: 'POST',
+        body: JSON.stringify({ url: newsForm.url })
+      });
+      const result = await res.json();
+      if (result.success) {
+        setNewsForm(prev => ({
+          ...prev,
+          title: result.data.title || '',
+          rawContent: result.data.content || '',
+          source: result.data.source || ''
+        }));
+        toast.success('Content extracted!');
+      } else {
+        toast.error(result.error || 'Extraction failed');
+      }
+    } catch (err) {
+      toast.error('Error connecting to extractor');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSaveNews = async (triggerAI = false) => {
+    if (!selectedNode || !newsForm.title) {
+      toast.error('Missing required fields');
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/issues/ingest', {
+        method: 'POST',
+        body: JSON.stringify({
+          issueId: selectedNode.id,
+          type: newsForm.contentType === 'EDITORIAL' ? 'EDITORIAL' : 'ARTICLE',
+          title: newsForm.title,
+          url: newsForm.url,
+          source: newsForm.source,
+          contentType: newsForm.contentType,
+          rawContent: newsForm.rawContent,
+          publishedAt: newsForm.publishedAt
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success('News Item Saved!');
+        // Reset form
+        setNewsForm({
+          url: '',
+          title: '',
+          rawContent: '',
+          source: '',
+          publishedAt: new Date().toISOString().split('T')[0],
+          contentType: 'NEWS'
+        });
+        
+        if (triggerAI) {
+           toast.loading('Triggering AI synthesis...', { duration: 3000 });
+           await fetch('/api/admin/news-engine/process', { method: 'POST' });
+           toast.success('AI Pipeline Triggered!');
+        }
+      } else {
+        toast.error(data.error || 'Save failed');
+      }
+    } catch (err) {
+      toast.error('Network error saving news');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="cms-container">
       {/* SIDEBAR */}
@@ -207,26 +290,54 @@ export default function NodeCMSPage() {
                   >
                     Mains
                   </div>
-                </div>
-                <div className="status-toggle">
-                  <span className="sidebar-subtitle">Status:</span>
-                  <select 
-                    className="status-select"
-                    value={content.status}
-                    onChange={e => setContent({...content, status: e.target.value})}
+                  <div 
+                    className={`mode-tab ${mode === 'NEWS' ? 'active' : ''}`}
+                    onClick={() => setMode('NEWS')}
                   >
-                    <option value="DRAFT">Draft</option>
-                    <option value="PUBLISHED">Published</option>
-                  </select>
+                    Add News
+                  </div>
                 </div>
+                {mode !== 'NEWS' && (
+                  <div className="status-toggle">
+                    <span className="sidebar-subtitle">Status:</span>
+                    <select 
+                      className="status-select"
+                      value={content.status}
+                      onChange={e => setContent({...content, status: e.target.value})}
+                    >
+                      <option value="DRAFT">Draft</option>
+                      <option value="PUBLISHED">Published</option>
+                    </select>
+                  </div>
+                )}
               </div>
-              <button 
-                className="btn-save" 
-                onClick={handleSave}
-                disabled={loading}
-              >
-                {loading ? 'Saving...' : 'Sync Node'}
-              </button>
+              {mode !== 'NEWS' ? (
+                <button 
+                  className="btn-save" 
+                  onClick={handleSave}
+                  disabled={loading}
+                >
+                  {loading ? 'Saving...' : 'Sync Node'}
+                </button>
+              ) : (
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <button 
+                    className="btn-save" 
+                    style={{ background: '#475569' }}
+                    onClick={() => handleSaveNews(false)}
+                    disabled={loading}
+                  >
+                    Save Draft
+                  </button>
+                  <button 
+                    className="btn-save" 
+                    onClick={() => handleSaveNews(true)}
+                    disabled={loading}
+                  >
+                    Save & Process
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="editor-container">
@@ -244,27 +355,115 @@ export default function NodeCMSPage() {
                 </div>
               </div>
 
-              <div className="ai-controls">
-                <button className="btn-ai" onClick={handleGenerate} disabled={loading}>
-                  <Sparkles size={16} />
-                  Generate {mode} Draft
-                </button>
-                <div style={{ flex: 1 }}></div>
-                <div className="sidebar-subtitle" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <AlertCircle size={14} />
-                  Markdown Editor
-                </div>
-              </div>
+              {mode === 'NEWS' ? (
+                <div className="news-ingestion-form" style={{ marginTop: '20px' }}>
+                  <div className="form-row" style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                    <div style={{ flex: 1 }}>
+                      <label className="sidebar-subtitle">Article URL</label>
+                      <div style={{ position: 'relative' }}>
+                        <input 
+                          type="text" 
+                          className="search-input" 
+                          placeholder="Paste URL here..." 
+                          value={newsForm.url}
+                          onChange={e => setNewsForm({...newsForm, url: e.target.value})}
+                        />
+                      </div>
+                    </div>
+                    <button 
+                      className="btn-ai" 
+                      style={{ marginTop: '20px', height: '36px' }}
+                      onClick={handleExtract}
+                      disabled={loading}
+                    >
+                      <Sparkles size={14} />
+                      Extract
+                    </button>
+                  </div>
 
-              <textarea 
-                className="markdown-textarea"
-                placeholder={`Write ${mode.toLowerCase()} intelligence for this node...`}
-                value={mode === 'PRELIMS' ? content.prelimsNote : content.mainsNote}
-                onChange={e => {
-                  if (mode === 'PRELIMS') setContent({...content, prelimsNote: e.target.value});
-                  else setContent({...content, mainsNote: e.target.value});
-                }}
-              ></textarea>
+                  <div className="form-row" style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
+                    <div style={{ flex: 2 }}>
+                      <label className="sidebar-subtitle">Title</label>
+                      <input 
+                        type="text" 
+                        className="search-input" 
+                        value={newsForm.title}
+                        onChange={e => setNewsForm({...newsForm, title: e.target.value})}
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label className="sidebar-subtitle">Source</label>
+                      <input 
+                        type="text" 
+                        className="search-input" 
+                        value={newsForm.source}
+                        placeholder="e.g. The Hindu"
+                        onChange={e => setNewsForm({...newsForm, source: e.target.value})}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-row" style={{ display: 'flex', gap: '15px', marginBottom: '15px' }}>
+                    <div style={{ flex: 1 }}>
+                      <label className="sidebar-subtitle">Publish Date</label>
+                      <input 
+                        type="date" 
+                        className="search-input" 
+                        value={newsForm.publishedAt}
+                        onChange={e => setNewsForm({...newsForm, publishedAt: e.target.value})}
+                      />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label className="sidebar-subtitle">Content Type</label>
+                      <select 
+                        className="status-select" 
+                        style={{ width: '100%', marginTop: '4px' }}
+                        value={newsForm.contentType}
+                        onChange={e => setNewsForm({...newsForm, contentType: e.target.value})}
+                      >
+                        <option value="NEWS">NEWS</option>
+                        <option value="EDITORIAL">EDITORIAL</option>
+                        <option value="PIB">PIB</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="form-row">
+                    <label className="sidebar-subtitle">Raw Content (for AI Processing)</label>
+                    <textarea 
+                      className="markdown-textarea"
+                      style={{ height: '250px', marginTop: '5px' }}
+                      value={newsForm.rawContent}
+                      onChange={e => setNewsForm({...newsForm, rawContent: e.target.value})}
+                      placeholder="Article body content will appear here..."
+                    ></textarea>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="ai-controls">
+                    <button className="btn-ai" onClick={handleGenerate} disabled={loading}>
+                      <Sparkles size={16} />
+                      Generate {mode} Draft
+                    </button>
+                    <div style={{ flex: 1 }}></div>
+                    <div className="sidebar-subtitle" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <AlertCircle size={14} />
+                      Markdown Editor
+                    </div>
+                  </div>
+
+                  <textarea 
+                    className="markdown-textarea"
+                    placeholder={`Write ${mode.toLowerCase()} intelligence for this node...`}
+                    value={mode === 'PRELIMS' ? content.prelimsNote : content.mainsNote}
+                    onChange={e => {
+                      if (mode === 'PRELIMS') setContent({...content, prelimsNote: e.target.value});
+                      else setContent({...content, mainsNote: e.target.value});
+                    }}
+                  ></textarea>
+                </>
+              )}
             </div>
           </>
         ) : (

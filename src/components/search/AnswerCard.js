@@ -65,15 +65,6 @@ export default function AnswerCard({ node, query, highlightText }) {
         </div>
       </div>
 
-      <div className="answer-footer">
-        <Link href={`/issues/${node.slug}`} className="answer-cta primary">
-          Open Full Node →
-        </Link>
-        <Link href={`/atlas?node=${node.slug}`} className="answer-cta secondary">
-          View on Map 🗺️
-        </Link>
-      </div>
-
       <style jsx>{`
         .answer-card-rich {
           background: rgba(15, 23, 42, 0.6);

@@ -25,7 +25,7 @@ export default function UPSCGPTMasterPortal() {
     ]).then(([entriesData, issuesData]) => {
       const entries = Array.isArray(entriesData) ? entriesData : []
       const issues = Array.isArray(issuesData) ? issuesData : []
-      
+
       const now = new Date()
       const todayCount = entries.filter((entry) => {
         if (!entry.lastNewsDate) return false
@@ -38,7 +38,7 @@ export default function UPSCGPTMasterPortal() {
         newsToday: todayCount,
         issues: issues.length
       })
-    }).catch(() => {})
+    }).catch(() => { })
   }, [])
 
   if (!isClient) return <div style={{ minHeight: '100vh', background: 'var(--hero-bg-gradient)' }} />;
@@ -119,7 +119,7 @@ export default function UPSCGPTMasterPortal() {
 
 
       <main style={{ position: 'relative', zIndex: 10, maxWidth: '1400px', margin: '0 auto' }} className="main-responsive-padding">
-                <div style={{ textAlign: 'center', marginBottom: '64px', marginTop: '120px' }} className="hero-section">
+        <div style={{ textAlign: 'center', marginBottom: '64px', marginTop: '120px' }} className="hero-section">
           <h2 className="main-title" style={{ color: 'var(--text-primary)' }}>
             {t('home.heroTitle')}
             <br />
@@ -138,8 +138,11 @@ export default function UPSCGPTMasterPortal() {
           <p className="main-subtitle" style={{ color: 'var(--text-secondary)' }}>
             {t('home.heroDesc')}
           </p>
+          <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginTop: '12px', fontWeight: 500 }}>
+            This platform is currently in Beta. Features are actively being improved.
+          </p>
         </div>
-        
+
         {/* Universal Search Bar with Autocomplete */}
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '32px' }}>
           <UniversalSearchBar placeholder="Search across nodes..." />
@@ -176,14 +179,14 @@ export default function UPSCGPTMasterPortal() {
                   }}
                 >
                   <div className="card-glow" style={{ background: center.gradient, filter: 'blur(60px)', opacity: 0.15 }} />
-                  <div style={{ 
-                    position: 'absolute', 
-                    top: 0, 
-                    left: 0, 
-                    width: '100%', 
-                    height: '4px', 
+                  <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '4px',
                     background: center.gradient,
-                    boxShadow: `0 0 20px ${center.accentColor}, 0 0 40px ${center.accentColor}88` 
+                    boxShadow: `0 0 20px ${center.accentColor}, 0 0 40px ${center.accentColor}88`
                   }} />
 
                   <div
@@ -293,7 +296,7 @@ export default function UPSCGPTMasterPortal() {
               </Wrapper>
             )
           })}
- 
+
 
         </div>
       </main>

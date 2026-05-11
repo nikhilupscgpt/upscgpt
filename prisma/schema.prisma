@@ -1,3 +1,7 @@
+// WARNING: searchVector columns are Unsupported tsvector — always run init scripts after db push.
+// This schema uses Unsupported types for PostgreSQL full-text search.
+// Standard prisma db push will create the columns but NOT the GIN indexes or ts_vector data.
+
 generator client {
   provider        = "prisma-client-js"
   output          = "../node_modules/.prisma/client"
@@ -218,8 +222,9 @@ model Issue {
   possibleQuestions      String?
   possibleQuestions_hi   String?
   possibleQuestions_mr   String?
-  prelimsNote            String?
-  mainsNote              String?
+  prelimsNote            Json?
+  mainsNote              Json?
+  searchVector           Unsupported("tsvector")?
   mainsFacts             String?
   imageUrl               String?
   embedding              Unsupported("vector")?
@@ -247,6 +252,7 @@ model Issue {
   timelineEvents         TimelineEvent[]
   userNotes              UserNote[]
   questions              Question[]
+  metadata               Json?
   Issue_IssueRelations_A Issue[]                @relation("IssueRelations")
   Issue_IssueRelations_B Issue[]                @relation("IssueRelations")
 
@@ -605,6 +611,8 @@ model PreviousYearQuestion {
   marks        Int?
   modelAnswer  String?
   embedding    Unsupported("vector")?
+  searchVector   Unsupported("tsvector")?
+  metadata       Json?
   createdAt    DateTime               @default(now())
   updatedAt    DateTime               @updatedAt
   optional     OptionalSubject?       @relation(fields: [optionalId], references: [id])

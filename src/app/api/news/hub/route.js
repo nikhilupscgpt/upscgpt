@@ -1,36 +1,32 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { runWithRetry } from '@/lib/db-retry';
 
-// Force hot-reload following Prisma schema update for NewsFact
-
-export async function GET() {
+export async function GET(req) {
   try {
-    // Fetch latest News Articles with their extracted facts and editorials
-    const articles = await runWithRetry(async () => {
-      return await prisma.newsArticle.findMany({
-        take: 20,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          facts: {
-            include: {
-              mapEntry: {
-                select: { name: true, lat: true, lon: true }
-              }
-            }
-          },
-          editorials: true
-        }
-      });
-    }, 3, 500);
+    const { searchParams } = new URL(req.url);
+    const date = searchParams.get('date');
 
-    return NextResponse.json({
-      articles,
-      timestamp: new Date().toISOString()
+    const where = date
+      ? {
+          createdAt: {
+            gte: new Date(`${date}T00:00:00.000Z`),
+            lt: new Date(`${date}T23:59:59.999Z`),
+          },
+        }
+      : {};
+
+    const articles = await prisma.article.findMany({
+      where,
+      take: 50,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        issue: { select: { title: true, category: true, slug: true } },
+      },
     });
 
-  } catch (error) {
-    console.error('[News Hub API] Error:', error);
-    return NextResponse.json({ error: 'Failed to fetch News Hub data.' }, { status: 500 });
+    return NextResponse.json({ articles });
+  } catch (e) {
+    console.error('[News Hub API] Error:', e);
+    return NextResponse.json({ articles: [], error: 'Failed to load news' }, { status: 500 });
   }
 }

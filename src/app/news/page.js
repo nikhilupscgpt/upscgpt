@@ -41,24 +41,26 @@ export default function NewsHub() {
     { title: "Critical Mineral Alliances", tag: "ECONOMY", content: "The race for Lithium/Cobalt in the 'Lithium Triangle' is impacting global supply chains. Focus on the Minerals Security Partnership (MSP)." }
   ];
 
-  useEffect(() => {
-    async function fetchNews() {
-      try {
-        const res = await fetch('/api/news/hub');
-        const data = await res.json();
-        setNews({ articles: data.articles || [] });
-        
-        if (data.articles?.length > 0) {
-          setActiveArticleId(data.articles[0].id);
-        }
-      } catch (err) {
-        console.error("Failed to fetch news hub data:", err);
-      } finally {
-        setLoading(false);
+  async function fetchNews() {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/news/hub?date=${selectedDate}`);
+      const data = await res.json();
+      setNews({ articles: data.articles || [] });
+      
+      if (data.articles?.length > 0) {
+        setActiveArticleId(data.articles[0].id);
       }
+    } catch (err) {
+      console.error("Failed to fetch news hub data:", err);
+    } finally {
+      setLoading(false);
     }
+  }
+
+  useEffect(() => {
     fetchNews();
-  }, []);
+  }, [selectedDate]);
 
   // Filter Logic
   const filteredArticles = news.articles.filter(article => {
@@ -165,9 +167,14 @@ export default function NewsHub() {
                   }}
                   style={sidebarItemStyle(activeArticleId === article.id)}
                 >
-                  <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.3rem' }}>
+                  <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.3rem', alignItems: 'center' }}>
                     <span style={miniTagStyle}>{article.source}</span>
-                    <span style={{ fontSize: '0.6rem', color: '#475569', fontWeight: 700 }}>{new Date(article.publishedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    {article.issue?.title && (
+                      <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#818cf8', background: 'rgba(129,140,248,0.1)', padding: '0.1rem 0.4rem', borderRadius: '4px', textTransform: 'uppercase', maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {article.issue.title}
+                      </span>
+                    )}
+                    <span style={{ fontSize: '0.6rem', color: '#475569', fontWeight: 700 }}>{new Date(article.publishedAt || article.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                   </div>
                   <div style={{ fontSize: '0.8rem', fontWeight: 700, color: activeArticleId === article.id ? 'white' : '#94a3b8', lineHeight: 1.3 }}>
                     {article.title}

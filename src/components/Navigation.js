@@ -15,7 +15,7 @@ export default function Navigation({ children }) {
   const { t, lang, changeLanguage } = useTranslation();
   const pathname = usePathname();
   const loading = status === "loading";
-  
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [nanoOpen, setNanoOpen] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
@@ -73,7 +73,8 @@ export default function Navigation({ children }) {
               <div className="app-nav__logo">
                 <Image src="/logo.png" alt="logo" width={36} height={36} priority />
               </div>
-              <span className="app-nav__brand-text" suppressHydrationWarning={true} style={{ fontFamily: 'monospace', letterSpacing: '-0.02em', fontSize: '1.2rem', textTransform: 'lowercase' }}>upscgpt</span>
+              <span className="app-nav__brand-text" suppressHydrationWarning={true} style={{ fontFamily: 'var(--font-outfit)', letterSpacing: '-0.02em', fontSize: '1.2rem', textTransform: 'none' }}>UPSC Atlas · Beta</span>
+              <span className="beta-badge">Beta</span>
             </Link>
 
             <div className="app-nav__links">
@@ -99,7 +100,7 @@ export default function Navigation({ children }) {
             </div>
 
             <button onClick={() => setNanoOpen(true)} className="btn-nano" style={{ marginRight: '6px' }}>
-               ✨ <span className="nav-desktop-text">Ask Nano</span>
+              ✨ <span className="nav-desktop-text">Ask Nano</span>
             </button>
 
             {loading ? (
@@ -115,7 +116,7 @@ export default function Navigation({ children }) {
                   </Link>
                 </div>
                 <Link href="/profile" className="btn-secondary" style={{ padding: '6px 10px' }}>
-                   👤 <span className="nav-desktop-text">Profile</span>
+                  👤 <span className="nav-desktop-text">Profile</span>
                 </Link>
                 <button onClick={() => signOut()} className="btn-secondary" style={{ background: 'transparent', border: 'none', color: '#94a3b8', padding: '6px 4px' }}>
                   Logout
@@ -129,8 +130,8 @@ export default function Navigation({ children }) {
 
         <div className="app-nav__mobile-panel">
           <div className="app-nav__mobile-links">
-             <Link href="/atlas" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>Atlas</Link>
-             <Link href="/profile" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>Profile</Link>
+            <Link href="/atlas" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>Atlas</Link>
+            <Link href="/profile" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>Profile</Link>
           </div>
           {session && (
             <div className="app-nav__mobile-account">

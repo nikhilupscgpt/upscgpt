@@ -55,8 +55,8 @@ export default function StudentLogin() {
   }
 
   return (
-    <div style={{ 
-      minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', 
+    <div style={{
+      minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
       background: 'linear-gradient(135deg, #020617 0%, #0f172a 100%)',
       fontFamily: "'Outfit', sans-serif",
       position: 'relative',
@@ -65,7 +65,7 @@ export default function StudentLogin() {
     }}>
       {/* Background Orbs Removed */}
 
-      <div style={{ 
+      <div style={{
         position: 'relative', zIndex: 10,
         background: 'rgba(255, 255, 255, 0.02)',
         backdropFilter: 'blur(30px)',
@@ -79,12 +79,12 @@ export default function StudentLogin() {
       }}>
         {/* Brand Header */}
         <div style={{ marginBottom: '40px' }}>
-          <div style={{ 
-            width: '64px', height: '64px', 
-            background: 'linear-gradient(135deg, #38bdf8, #8b5cf6)', 
-            borderRadius: '20px', 
-            margin: '0 auto 20px', 
-            display: 'flex', alignItems: 'center', justifyContent: 'center', 
+          <div style={{
+            width: '64px', height: '64px',
+            background: 'linear-gradient(135deg, #38bdf8, #8b5cf6)',
+            borderRadius: '20px',
+            margin: '0 auto 20px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: '2rem',
             boxShadow: '0 10px 25px rgba(139,92,246,0.4)',
             transform: 'rotate(-5deg)'
@@ -99,23 +99,23 @@ export default function StudentLogin() {
             <form onSubmit={handleRequestOtp}>
               <div style={{ position: 'relative', marginBottom: '20px' }}>
                 <Mail size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
-                <input 
-                  type="email" 
+                <input
+                  type="email"
                   placeholder="Enter your email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  style={{ 
-                    width: '100%', padding: '16px 16px 16px 48px', borderRadius: '16px', 
+                  style={{
+                    width: '100%', padding: '16px 16px 16px 48px', borderRadius: '16px',
                     background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
                     color: 'white', fontSize: '1rem', outline: 'none', transition: 'border-color 0.2s'
                   }}
                 />
               </div>
-              <button 
+              <button
                 type="submit"
                 disabled={loading}
-                style={{ 
+                style={{
                   width: '100%', padding: '16px', borderRadius: '16px', border: 'none',
                   background: 'linear-gradient(135deg, #38bdf8, #8b5cf6)', color: 'white',
                   fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
@@ -131,24 +131,24 @@ export default function StudentLogin() {
               </p>
               <div style={{ position: 'relative', marginBottom: '20px' }}>
                 <Key size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="Enter 6-digit OTP"
                   maxLength={6}
                   required
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
-                  style={{ 
-                    width: '100%', padding: '16px 16px 16px 48px', borderRadius: '16px', 
+                  style={{
+                    width: '100%', padding: '16px 16px 16px 48px', borderRadius: '16px',
                     background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
                     color: 'white', fontSize: '1.2rem', outline: 'none', letterSpacing: '0.5em', textAlign: 'center'
                   }}
                 />
               </div>
-              <button 
+              <button
                 type="submit"
                 disabled={loading}
-                style={{ 
+                style={{
                   width: '100%', padding: '16px', borderRadius: '16px', border: 'none',
                   background: '#22c55e', color: 'white',
                   fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
@@ -156,8 +156,8 @@ export default function StudentLogin() {
               >
                 {loading ? 'Verifying...' : 'Complete Login'} <ShieldCheck size={18} />
               </button>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => setStep(1)}
                 style={{ background: 'none', border: 'none', color: '#64748b', marginTop: '16px', cursor: 'pointer', fontSize: '0.8rem' }}
               >
@@ -175,9 +175,9 @@ export default function StudentLogin() {
         </div>
 
         {/* Secondary Action: Google */}
-        <button 
+        <button
           onClick={() => signIn('google', { callbackUrl: '/atlas' })}
-          style={{ 
+          style={{
             width: '100%', padding: '14px 24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)',
             background: 'transparent', color: 'white', fontWeight: 700, fontSize: '0.95rem',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', transition: 'background 0.2s'
@@ -191,12 +191,12 @@ export default function StudentLogin() {
 
         {/* Discreet Admin Link */}
         <div style={{ marginTop: '40px', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-          <Link href="/admin-login" style={{ 
+          <Link href="/admin-login" style={{
             color: '#334155', fontSize: '0.7rem', textDecoration: 'none', fontWeight: 800,
             textTransform: 'uppercase', letterSpacing: '1.5px', transition: 'color 0.2s'
           }}
-          onMouseOver={(e) => e.currentTarget.style.color = '#64748b'}
-          onMouseOut={(e) => e.currentTarget.style.color = '#334155'}
+            onMouseOver={(e) => e.currentTarget.style.color = '#64748b'}
+            onMouseOut={(e) => e.currentTarget.style.color = '#334155'}
           >
             Instructors Command Center
           </Link>

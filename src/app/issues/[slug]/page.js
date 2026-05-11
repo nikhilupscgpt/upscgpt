@@ -13,33 +13,28 @@ export async function generateMetadata({ params }) {
   })
   if (!issue) return { title: 'Issue Not Found' }
   return {
-    title: `${issue.title} — UPSCGPT Strategic Notes`,
-    description: issue.cumulativeSummary?.slice(0, 160) || `Comprehensive UPSC analysis of ${issue.title} in ${issue.domain}.`,
+    title: `${issue.title} — UPSCGPT Intelligence Hub`,
+    description: issue.cumulativeSummary?.slice(0, 160) || `Strategic analysis of ${issue.title}.`,
   }
 }
 
-export default async function IssuePublicPage({ params }) {
+export default async function IssuePage({ params }) {
   const { slug } = await params;
-  
-  // High-Fidelity Query for Node and Sub-Nodes
+
   const issue = await prisma.issue.findUnique({
     where: { slug },
     include: {
-      articles: { orderBy: { publishedAt: 'desc' }, take: 10 },
-      editorials: { orderBy: { publishedAt: 'desc' }, take: 5 },
-      pyqLinks: true,
-      nodeContent: true,
-      questions: { orderBy: { createdAt: 'desc' } },
-      subNodes: {
-        where: { status: 'ACTIVE' },
-        include: { 
-          articles: { select: { id: true, title: true, source: true } },
-          subNodes: {
-            where: { nodeType: 'MAINS_QUESTION' },
-            select: { id: true, title: true, mainsNote: true, mainsNote_hi: true, mainsNote_mr: true }
-          }
-        },
-        orderBy: { orderIndex: 'asc' }
+      articles: {
+        where: { status: 'DONE' },
+        orderBy: { createdAt: 'desc' },
+        take: 10
+      },
+      timelineEvents: {
+        orderBy: { date: 'desc' },
+        take: 15
+      },
+      pyqLinks: {
+        orderBy: { year: 'desc' }
       }
     }
   })
@@ -47,22 +42,22 @@ export default async function IssuePublicPage({ params }) {
   if (!issue) notFound()
 
   const session = await getServerSession(authOptions);
-  // Ensure dates and nested structures are cleanly serialized
+
+  // Clean serialization for Client Component
   const issueData = JSON.parse(JSON.stringify(issue));
 
   return (
-    <div style={{ background: '#020617', minHeight: '100vh', padding: '100px 32px 80px', fontFamily: '"Outfit", sans-serif', color: '#f5f5f7', position: 'relative' }}>
-      {/* Background simplified for performance */}
-      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'radial-gradient(circle at top right, rgba(59, 130, 246, 0.05), transparent), radial-gradient(circle at bottom left, rgba(168, 85, 247, 0.05), transparent)' }} />
+    <div style={{ background: '#020617', minHeight: '100vh', padding: '90px 24px 80px', fontFamily: '"Outfit", sans-serif', color: '#f8fafc', position: 'relative' }}>
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.03), transparent), radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.03), transparent)' }} />
 
-      <div className="issue-study-layout">
+      <div className="issue-study-layout" style={{ maxWidth: '1440px', margin: '0 auto', display: 'grid', gridTemplateColumns: session ? '1fr 380px' : '1fr', gap: '32px' }}>
         <main className="issue-study-main">
           <IssueDetailClient issue={issueData} />
         </main>
 
         {session && (
-          <aside className="issue-study-assistant" aria-label="Issue assistant">
-            <FloatingChatWrapper 
+          <aside className="issue-study-assistant" style={{ position: 'sticky', top: '100px', height: 'calc(100vh - 140px)' }}>
+            <FloatingChatWrapper
               subjectId={issue.id}
               displayName={issue.title}
               examType="MAINS"
@@ -71,7 +66,6 @@ export default async function IssuePublicPage({ params }) {
           </aside>
         )}
       </div>
-
     </div>
   )
 }

@@ -14,22 +14,20 @@ export async function GET(req) {
       return NextResponse.json({ nodes: [], pyqs: [], news: [] });
     }
 
-    const cleanQuery = query.replace(/'/g, "''");
-
     // PRIMARY FAST PATH: PostgreSQL Full-Text Search
     const [nodes, pyqs, news] = await Promise.all([
       prisma.$queryRaw`
         SELECT id, title, slug, "nodeType", domain, "gsPapers", metadata,
-               ts_rank("searchVector", plainto_tsquery('english', ${cleanQuery})) as rank
+               ts_rank("searchVector", plainto_tsquery('english', ${query})) as rank
         FROM "Issue"
-        WHERE "searchVector" @@ plainto_tsquery('english', ${cleanQuery})
+        WHERE "searchVector" @@ plainto_tsquery('english', ${query})
         ORDER BY rank DESC LIMIT 15
       `,
       prisma.$queryRaw`
         SELECT id, "questionText" as question, year, paper,
-               ts_rank("searchVector", plainto_tsquery('english', ${cleanQuery})) as rank
+               ts_rank("searchVector", plainto_tsquery('english', ${query})) as rank
         FROM "PreviousYearQuestion"
-        WHERE "searchVector" @@ plainto_tsquery('english', ${cleanQuery})
+        WHERE "searchVector" @@ plainto_tsquery('english', ${query})
         ORDER BY rank DESC LIMIT 10
       `,
       prisma.article.findMany({

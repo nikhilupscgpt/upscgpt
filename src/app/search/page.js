@@ -66,7 +66,7 @@ function SearchResultsInner({ query, highlightText }) {
   const [pyqs, setPyqs] = useState([]);
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(Boolean(query));
-  const [activeTab, setActiveTab] = useState('NOTE');
+  const [activeTab, setActiveTab] = useState('ANSWER');
 
   useEffect(() => {
     if (!query) return;
@@ -255,6 +255,21 @@ function SearchResultsInner({ query, highlightText }) {
               </div>
             )}
 
+            {/* Global Discovery Footer (Persistent across tabs) */}
+            {topNode && (
+              <div className="discovery-global-footer">
+                <Link href={`/issues/${topNode.slug}`} className="discovery-cta primary">
+                  Open Full Node →
+                </Link>
+                <Link href={`/atlas/graph?focus=${topNode.slug}`} className="discovery-cta secondary">
+                  View on Graph 🕸️
+                </Link>
+                <Link href={`/atlas?node=${topNode.slug}`} className="discovery-cta secondary">
+                  View on Map 🗺️
+                </Link>
+              </div>
+            )}
+
           </div>
         ) : (
           <div className="search-empty-state-large">
@@ -314,6 +329,51 @@ function SearchResultsInner({ query, highlightText }) {
           border-color: #38bdf8;
           color: #38bdf8;
           box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
+        }
+
+        .discovery-global-footer {
+          display: flex;
+          gap: 16px;
+          margin-top: 40px;
+          padding-top: 32px;
+          border-top: 1px solid rgba(255, 255, 255, 0.08);
+          background: linear-gradient(to top, rgba(15, 23, 42, 0.4), transparent);
+          border-radius: 0 0 24px 24px;
+        }
+
+        .discovery-cta {
+          padding: 12px 28px;
+          border-radius: 12px;
+          font-weight: 800;
+          text-decoration: none;
+          font-size: 0.9rem;
+          transition: all 0.3s;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .discovery-cta.primary {
+          background: #38bdf8;
+          color: #0f172a;
+          box-shadow: 0 4px 20px rgba(56, 189, 248, 0.3);
+        }
+
+        .discovery-cta.primary:hover {
+          background: white;
+          transform: translateY(-2px);
+        }
+
+        .discovery-cta.secondary {
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          color: white;
+        }
+
+        .discovery-cta.secondary:hover {
+          background: rgba(255, 255, 255, 0.1);
+          transform: translateY(-2px);
+          border-color: rgba(255, 255, 255, 0.3);
         }
 
         .tab-icon { font-size: 1rem; }
