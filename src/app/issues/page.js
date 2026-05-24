@@ -1,15 +1,16 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { Search, ChevronRight, Layout, BookOpen, BrainCircuit, Sparkles, GraduationCap, Layers, Globe, RefreshCw } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Search, ChevronRight, Layout, BookOpen, BrainCircuit, Sparkles, GraduationCap, Layers, Globe, RefreshCw, Target } from 'lucide-react';
 import { Toaster } from 'react-hot-toast';
 
 const MAINS_SECTIONS = [
   {
     id: 'GS1',
     title: 'General Studies I',
-    color: '#0ea5e9',
+    color: '#10b981', // emerald color matching mains mode
     subjects: [
       { title: 'Indian History & Culture', domains: ['INDIAN CULTURE', 'MODERN HISTORY', 'WORLD HISTORY', 'POST-INDEPENDENCE CONSOLIDATION'] },
       { title: 'Geography of the World', domains: ['GEOGRAPHY'] },
@@ -29,7 +30,7 @@ const MAINS_SECTIONS = [
   {
     id: 'GS3',
     title: 'General Studies III',
-    color: '#f59e0b',
+    color: '#10b981',
     subjects: [
       { title: 'Economy & Agriculture', domains: ['INDIAN ECONOMY', 'AGRICULTURE'] },
       { title: 'Environment & Disaster Mgmt', domains: ['ENVIRONMENT'] },
@@ -40,14 +41,44 @@ const MAINS_SECTIONS = [
   {
     id: 'GS4',
     title: 'General Studies IV',
-    color: '#8b5cf6',
+    color: '#10b981',
     subjects: [
       { title: 'Ethics & Integrity', domains: ['ETHICS'] },
     ]
   }
 ];
 
-export default function StrategicHub() {
+const PRELIMS_SECTIONS = [
+  {
+    id: 'GS',
+    title: 'General Studies',
+    color: '#fbbf24', // amber color matching prelims mode
+    subjects: [
+      { title: 'Indian History', categories: ['ANCIENT_INDIA', 'MEDIEVAL_INDIA', 'MODERN_INDIA', 'ART_CULTURE', 'HISTORY'] },
+      { title: 'Geography', categories: ['GEOGRAPHY'] },
+      { title: 'Polity & Governance', categories: ['POLITY', 'GOVERNANCE'] },
+      { title: 'Economy & Agriculture', categories: ['ECONOMY', 'AGRICULTURE'] },
+      { title: 'Environment & Ecology', categories: ['ENVIRONMENT', 'DISASTER_MANAGEMENT'] },
+      { title: 'Science & Technology', categories: ['SCIENCE_TECHNOLOGY'] },
+      { title: 'Current Affairs', categories: ['CURRENT_AFFAIRS', 'INTERNATIONAL_RELATIONS', 'INTERNAL_SECURITY', 'SOCIETY'] }
+    ]
+  },
+  {
+    id: 'CSAT',
+    title: 'CSAT (Paper II)',
+    color: '#f59e0b',
+    subjects: [
+      { title: 'Aptitude & Reasoning', categories: ['CSAT'] }
+    ]
+  }
+];
+
+export function StrategicHubContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const flowParam = searchParams.get('flow');
+
+  const [currentFlow, setCurrentFlow] = useState('mains');
   const [issues, setIssues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [transitioning, setTransitioning] = useState(false);
@@ -75,6 +106,42 @@ export default function StrategicHub() {
     fetchIssues();
   }, []);
 
+  useEffect(() => {
+    if (mounted) {
+      if (flowParam && (flowParam === 'prelims' || flowParam === 'mains')) {
+        setCurrentFlow(flowParam);
+        localStorage.setItem('upsc_flow_context', flowParam);
+      } else {
+        const savedFlow = localStorage.getItem('upsc_flow_context');
+        if (savedFlow && (savedFlow === 'prelims' || savedFlow === 'mains')) {
+          setCurrentFlow(savedFlow);
+          const params = new URLSearchParams(window.location.search);
+          params.set('flow', savedFlow);
+          router.replace(`/issues?${params.toString()}`);
+        } else {
+          setCurrentFlow('mains');
+          localStorage.setItem('upsc_flow_context', 'mains');
+          const params = new URLSearchParams(window.location.search);
+          params.set('flow', 'mains');
+          router.replace(`/issues?${params.toString()}`);
+        }
+      }
+    }
+  }, [flowParam, router, mounted]);
+
+  useEffect(() => {
+    setActiveSubject(null);
+  }, [currentFlow]);
+
+  const handleModeChange = (mode) => {
+    localStorage.setItem('upsc_flow_context', mode);
+    setCurrentFlow(mode);
+    setActiveSubject(null);
+    const params = new URLSearchParams(window.location.search);
+    params.set('flow', mode);
+    router.push(`/issues?${params.toString()}`);
+  };
+
   if (!mounted) return null;
 
   const handleSubjectClick = (subject, color) => {
@@ -84,14 +151,17 @@ export default function StrategicHub() {
     setTimeout(() => setTransitioning(false), 300);
   };
 
-  const getGroupedTopics = (domains) => {
-    if (!domains) return [];
-    const filtered = issues.filter(issue => 
-      domains.includes(issue.domain) && 
-      (searchTerm === '' || 
-       issue.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-       issue.topic.toLowerCase().includes(searchTerm.toLowerCase()))
-    ).sort((a, b) => a.orderIndex - b.orderIndex);
+  const getGroupedTopics = (domainsOrCategories) => {
+    if (!domainsOrCategories) return [];
+    const filtered = issues.filter(issue => {
+      const matchScope = currentFlow === 'prelims'
+        ? domainsOrCategories.includes(issue.category)
+        : domainsOrCategories.includes(issue.domain);
+      const matchSearch = searchTerm === '' ||
+       issue.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       issue.topic.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchScope && matchSearch;
+    }).sort((a, b) => a.orderIndex - b.orderIndex);
 
     const topics = {};
     filtered.forEach(node => {
@@ -110,6 +180,58 @@ export default function StrategicHub() {
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'rgba(15, 23, 42, 0.3)', backdropFilter: 'blur(40px)', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
       <div style={{ padding: '32px 24px' }}>
         <h2 style={{ fontSize: '0.7rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.25em', marginBottom: '24px' }}>Strategic Command</h2>
+        
+        {/* Mode Switcher Pill */}
+        <div className="mode-switcher-sidebar" style={{
+          background: 'rgba(15, 23, 42, 0.6)',
+          border: '1px solid rgba(255,255,255,0.08)',
+          borderRadius: '16px',
+          padding: '4px',
+          display: 'flex',
+          gap: '4px',
+          backdropFilter: 'blur(8px)',
+          marginBottom: '24px'
+        }}>
+           <button onClick={() => handleModeChange('prelims')} style={{
+             flex: 1,
+             background: currentFlow === 'prelims' ? 'rgba(251, 191, 36, 0.1)' : 'transparent',
+             border: 'none',
+             color: currentFlow === 'prelims' ? '#fbbf24' : '#64748b',
+             fontSize: '0.75rem',
+             fontWeight: 800,
+             padding: '8px 12px',
+             borderRadius: '12px',
+             cursor: 'pointer',
+             display: 'flex',
+             alignItems: 'center',
+             justifyContent: 'center',
+             gap: '6px',
+             transition: 'all 0.3s ease',
+             boxShadow: currentFlow === 'prelims' ? 'inset 0 0 12px rgba(251, 191, 36, 0.05)' : 'none'
+           }}>
+              <Target size={12} /> Prelims Mode
+           </button>
+           <button onClick={() => handleModeChange('mains')} style={{
+             flex: 1,
+             background: currentFlow === 'mains' ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
+             border: 'none',
+             color: currentFlow === 'mains' ? '#10b981' : '#64748b',
+             fontSize: '0.75rem',
+             fontWeight: 800,
+             padding: '8px 12px',
+             borderRadius: '12px',
+             cursor: 'pointer',
+             display: 'flex',
+             alignItems: 'center',
+             justifyContent: 'center',
+             gap: '6px',
+             transition: 'all 0.3s ease',
+             boxShadow: currentFlow === 'mains' ? 'inset 0 0 12px rgba(16, 185, 129, 0.05)' : 'none'
+           }}>
+              <BookOpen size={12} /> Mains Mode
+           </button>
+        </div>
+
         <div style={{ position: 'relative' }}>
           <Search size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
           <input 
@@ -125,14 +247,18 @@ export default function StrategicHub() {
       </div>
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px 32px' }} className="hide-scrollbar">
-        {MAINS_SECTIONS.map(section => (
+        {(currentFlow === 'prelims' ? PRELIMS_SECTIONS : MAINS_SECTIONS).map(section => (
           <div key={section.id} style={{ marginBottom: '40px' }}>
             <div style={{ fontSize: '0.7rem', fontWeight: 900, color: section.color, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '16px', paddingLeft: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div style={{ width: '4px', height: '4px', borderRadius: '50%', background: section.color }}></div>
               {section.title}
             </div>
             {section.subjects.map(subject => {
-              const count = issues.filter(i => subject.domains.includes(i.domain)).length;
+              const count = issues.filter(i => 
+                currentFlow === 'prelims'
+                  ? subject.categories.includes(i.category)
+                  : subject.domains.includes(i.domain)
+              ).length;
               return (
                 <button 
                   key={subject.title}
@@ -154,6 +280,8 @@ export default function StrategicHub() {
       </div>
     </div>
   );
+
+  const activeSubjectData = currentFlow === 'prelims' ? activeSubject?.categories : activeSubject?.domains;
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', paddingTop: '80px', position: 'relative' }}>
@@ -187,12 +315,12 @@ export default function StrategicHub() {
             </header>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '48px' }}>
-              {getGroupedTopics(activeSubject.domains).length > 0 ? getGroupedTopics(activeSubject.domains).map(topic => (
+              {getGroupedTopics(activeSubjectData).length > 0 ? getGroupedTopics(activeSubjectData).map(topic => (
                 <div key={topic.name}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px', color: '#3b82f6' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px', color: currentFlow === 'prelims' ? '#fbbf24' : '#3b82f6' }}>
                     <Layers size={18} />
                     <h2 style={{ fontSize: '0.9rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>{topic.name}</h2>
-                    <div style={{ flex: 1, height: '1px', background: 'rgba(59, 130, 246, 0.2)' }}></div>
+                    <div style={{ flex: 1, height: '1px', background: currentFlow === 'prelims' ? 'rgba(251, 191, 36, 0.2)' : 'rgba(59, 130, 246, 0.2)' }}></div>
                   </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -200,7 +328,7 @@ export default function StrategicHub() {
                       return (
                         <div key={issue.id} style={{ marginBottom: '24px' }}>
                           {/* Parent Card */}
-                          <Link href={`/issues/${issue.slug}`} style={{ textDecoration: 'none' }}>
+                          <Link href={`/issues/${issue.slug}?flow=${currentFlow}`} style={{ textDecoration: 'none' }}>
                             <div style={{ 
                               background: 'rgba(15, 23, 42, 0.5)', 
                               backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.06)',
@@ -209,7 +337,19 @@ export default function StrategicHub() {
                               cursor: 'pointer'
                             }} className="hub-item-hover">
                               <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(59, 130, 246, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3b82f6', fontSize: '0.9rem', fontWeight: 900, border: '1px solid rgba(59, 130, 246, 0.1)' }}>
+                                <div style={{ 
+                                  width: '40px', 
+                                  height: '40px', 
+                                  borderRadius: '12px', 
+                                  background: currentFlow === 'prelims' ? 'rgba(251, 191, 36, 0.05)' : 'rgba(59, 130, 246, 0.05)', 
+                                  display: 'flex', 
+                                  alignItems: 'center', 
+                                  justifyContent: 'center', 
+                                  color: currentFlow === 'prelims' ? '#fbbf24' : '#3b82f6', 
+                                  fontSize: '0.9rem', 
+                                  fontWeight: 900, 
+                                  border: `1px solid ${currentFlow === 'prelims' ? 'rgba(251, 191, 36, 0.1)' : 'rgba(59, 130, 246, 0.1)'}` 
+                                }}>
                                   {issue.orderIndex}
                                 </div>
                                 <div>
@@ -224,18 +364,18 @@ export default function StrategicHub() {
                           {/* Persistent Subnode Branch */}
                           {issue.subNodes?.length > 0 && (
                             <div style={{ 
-                              marginLeft: '52px', marginTop: '12px', paddingLeft: '24px', borderLeft: '1px solid rgba(59, 130, 246, 0.2)',
+                              marginLeft: '52px', marginTop: '12px', paddingLeft: '24px', borderLeft: `1px solid ${currentFlow === 'prelims' ? 'rgba(251, 191, 36, 0.2)' : 'rgba(59, 130, 246, 0.2)'}`,
                               display: 'flex', flexDirection: 'column', gap: '8px'
                             }}>
                                {issue.subNodes.map((sub) => (
-                                 <Link key={sub.id} href={`/issues/${issue.slug}#${sub.id}`} style={{ textDecoration: 'none' }}>
+                                 <Link key={sub.id} href={`/issues/${issue.slug}?flow=${currentFlow}#${sub.id}`} style={{ textDecoration: 'none' }}>
                                    <div style={{ 
                                      padding: '10px 16px', background: 'rgba(15, 23, 42, 0.3)', border: '1px solid rgba(255,255,255,0.03)', 
                                      borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '12px', transition: '0.2s'
                                    }} className="sub-node-capsule">
-                                     <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#3b82f6', boxShadow: '0 0 10px #3b82f6' }}></div>
+                                     <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: currentFlow === 'prelims' ? '#fbbf24' : '#3b82f6', boxShadow: `0 0 10px ${currentFlow === 'prelims' ? '#fbbf24' : '#3b82f6'}` }}></div>
                                      <div style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: 600 }}>{sub.title}</div>
-                                     <Sparkles size={12} style={{ marginLeft: 'auto', opacity: 0.3, color: '#3b82f6' }} />
+                                     <Sparkles size={12} style={{ marginLeft: 'auto', opacity: 0.3, color: currentFlow === 'prelims' ? '#fbbf24' : '#3b82f6' }} />
                                    </div>
                                  </Link>
                                ))}
@@ -292,5 +432,17 @@ export default function StrategicHub() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function StrategicHub() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#020617', color: 'white' }}>
+        <RefreshCw className="animate-spin" size={24} style={{ color: '#3b82f6' }} />
+      </div>
+    }>
+      <StrategicHubContent />
+    </Suspense>
   );
 }

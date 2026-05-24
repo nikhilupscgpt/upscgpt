@@ -46,13 +46,15 @@ export async function GET(req) {
           title: true,
           domain: true,
           gsPapers: true,
+          category: true,
+          orderIndex: true,
           nodeContent: {
             select: {
               status: true
             }
           }
         },
-        orderBy: { title: 'asc' }
+        orderBy: { orderIndex: 'asc' }
       });
       return NextResponse.json({ issues });
     } catch (error) {
@@ -128,12 +130,21 @@ export async function POST(req) {
       }
     });
 
+    // Sync notes back to parent Issue model for student-facing interface
+    const issueUpdateData = {};
+    if (prelimsNote !== undefined) issueUpdateData.prelimsNote = prelimsNote;
+    if (mainsNote !== undefined) issueUpdateData.mainsNote = mainsNote;
+
     // SEO Slug Logic: Update issue slug if it looks generic or is missing
     const newSlug = `${slugify(issue.title)}-${slugify(issue.domain)}`;
     if (issue.slug !== newSlug) {
+      issueUpdateData.slug = newSlug;
+    }
+
+    if (Object.keys(issueUpdateData).length > 0) {
       await prisma.issue.update({
         where: { id: issueId },
-        data: { slug: newSlug }
+        data: issueUpdateData
       });
     }
 

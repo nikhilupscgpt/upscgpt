@@ -2,6 +2,8 @@ import prisma from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from "@/lib/auth"
+import Link from 'next/link'
+import { Lock } from 'lucide-react'
 import FloatingChatWrapper from '@/components/content-portal/FloatingChatWrapper'
 import IssueDetailClient from '@/components/IssueDetailClient'
 
@@ -18,8 +20,10 @@ export async function generateMetadata({ params }) {
   }
 }
 
-export default async function IssuePage({ params }) {
+export default async function IssuePage({ params, searchParams }) {
   const { slug } = await params;
+  const { flow } = (await searchParams) || {};
+  const activeFlow = flow === 'prelims' ? 'prelims' : 'mains';
 
   const issue = await prisma.issue.findUnique({
     where: { slug },
@@ -50,17 +54,33 @@ export default async function IssuePage({ params }) {
     <div style={{ background: '#020617', minHeight: '100vh', padding: '90px 24px 80px', fontFamily: '"Outfit", sans-serif', color: '#f8fafc', position: 'relative' }}>
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.03), transparent), radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.03), transparent)' }} />
 
-      <div className="issue-study-layout" style={{ maxWidth: '1440px', margin: '0 auto', display: 'grid', gridTemplateColumns: session ? '1fr 380px' : '1fr', gap: '32px' }}>
+      <div className="issue-study-layout with-assistant" style={{ maxWidth: '1440px', margin: '0 auto', display: 'grid', gap: '32px' }}>
         <main className="issue-study-main">
-          <IssueDetailClient issue={issueData} />
+          <IssueDetailClient issue={issueData} initialFlow={activeFlow} />
         </main>
 
-        {session && (
+        {!session ? (
+          <aside className="issue-study-assistant-locked" style={{ position: 'sticky', top: '100px', height: 'calc(100vh - 140px)', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px', textAlign: 'center', backdropFilter: 'blur(12px)' }}>
+            <div style={{ background: 'rgba(59, 130, 246, 0.05)', color: '#3b82f6', width: '64px', height: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px', border: '1px solid rgba(59, 130, 246, 0.1)' }}>
+              <Lock size={24} />
+            </div>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'white', marginBottom: '12px' }}>AI Neural Assistant</h3>
+            <p style={{ fontSize: '0.85rem', color: '#94a3b8', lineHeight: 1.5, marginBottom: '24px' }}>
+              Unlock the interactive AI tutor to ask questions on this syllabus node, request model answers, and draft comparative notes in real-time.
+            </p>
+            <Link 
+              href={`/login?callbackUrl=/issues/${issue.slug}`}
+              style={{ width: '100%', textDecoration: 'none', padding: '12px', background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: 'white', borderRadius: '14px', fontSize: '0.85rem', fontWeight: 800, boxShadow: '0 4px 12px rgba(59, 130, 246, 0.2)', display: 'block' }}
+            >
+              Sign In to Unlock
+            </Link>
+          </aside>
+        ) : (
           <aside className="issue-study-assistant" style={{ position: 'sticky', top: '100px', height: 'calc(100vh - 140px)' }}>
             <FloatingChatWrapper
               subjectId={issue.id}
               displayName={issue.title}
-              examType="MAINS"
+              examType={activeFlow === 'prelims' ? 'PRELIMS' : 'MAINS'}
               variant="inline"
             />
           </aside>

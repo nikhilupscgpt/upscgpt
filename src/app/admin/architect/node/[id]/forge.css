@@ -313,3 +313,350 @@
   gap: 6px;
   margin-left: 15px;
 }
+
+/* Prelims Studio styles */
+.studio-prelims-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 24px;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Google Doc Ingestion Control */
+.gdoc-ingest-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(59, 130, 246, 0.03);
+  border: 1px dashed rgba(59, 130, 246, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+.gdoc-ingest-bar label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #3b82f6;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.gdoc-input-group {
+  display: flex;
+  gap: 10px;
+}
+.gdoc-input-group input {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.3) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: white !important;
+  font-size: 0.85rem;
+  outline: none;
+}
+.gdoc-input-group input:focus {
+  border-color: #3b82f6 !important;
+}
+.gdoc-input-group button {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+  border: none !important;
+  color: white !important;
+  padding: 10px 20px !important;
+  border-radius: 10px !important;
+  font-size: 0.8rem !important;
+  font-weight: 800 !important;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+.gdoc-input-group button:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}
+.gdoc-input-group button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+.gdoc-ingest-bar span {
+  font-size: 0.65rem;
+  color: #64748b;
+}
+
+/* MCQ Bank Builder styling */
+.mcq-bank-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+  overflow: hidden;
+}
+.mcq-bank-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+.mcq-bank-header h3 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: white;
+  margin: 0;
+}
+.mcq-bank-header p {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 4px 0 0 0;
+}
+.mcq-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-right: 4px;
+}
+.mcq-card {
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color 0.2s;
+}
+.mcq-card:hover {
+  border-color: rgba(59, 130, 246, 0.2);
+}
+.mcq-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.mcq-number {
+  font-size: 0.7rem;
+  font-weight: 900;
+  color: #3b82f6;
+  letter-spacing: 0.05em;
+}
+.mcq-difficulty {
+  font-size: 0.65rem;
+  font-weight: 900;
+  padding: 3px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+.mcq-difficulty.hard {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+.mcq-difficulty.medium {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+.mcq-difficulty.easy {
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+.mcq-text {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  line-height: 1.5;
+}
+.mcq-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.mcq-option {
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 0.8rem;
+  color: #94a3b8;
+  display: flex;
+  gap: 6px;
+  transition: all 0.2s;
+}
+.mcq-option.correct {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  font-weight: 700;
+}
+.mcq-btn-debrief {
+  background: transparent !important;
+  border: none !important;
+  color: #8b5cf6 !important;
+  font-size: 0.75rem !important;
+  font-weight: 800 !important;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0 !important;
+  width: fit-content;
+  transition: color 0.2s;
+}
+.mcq-btn-debrief:hover {
+  color: #a78bfa !important;
+}
+.mcq-debrief {
+  padding: 14px 16px;
+  background: rgba(139, 92, 246, 0.03);
+  border-left: 3px solid #8b5cf6;
+  border-radius: 0 10px 10px 0;
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+.mcq-debrief p {
+  margin: 0;
+}
+
+/* Tab selector within Prelims Studio */
+.prelims-lang-selector {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.prelims-lang-selector button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  background: rgba(15, 23, 42, 0.4) !important;
+  color: #64748b;
+  cursor: pointer;
+  width: auto;
+  display: inline-block;
+}
+.prelims-lang-selector button.active {
+  background: rgba(59, 130, 246, 0.15) !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
+  color: white !important;
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 12px 0;
+}
+
+/* Settings Workspace */
+.settings-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-group.full-width {
+  grid-column: span 2;
+}
+
+.settings-group label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.settings-input, .settings-select {
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.3) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: white !important;
+  font-size: 0.9rem;
+  outline: none;
+  font-family: 'Outfit', sans-serif;
+  transition: all 0.2s;
+}
+
+.settings-input:focus, .settings-select:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.gs-papers-selector {
+  display: flex;
+  gap: 10px;
+}
+
+.gs-paper-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: rgba(15, 23, 42, 0.4) !important;
+  color: #64748b;
+  font-weight: 800;
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.gs-paper-btn.active {
+  background: rgba(59, 130, 246, 0.15) !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
+  color: white !important;
+}
+
+.settings-textarea {
+  min-height: 120px;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.3) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: white !important;
+  font-size: 0.9rem;
+  outline: none;
+  font-family: 'Outfit', sans-serif;
+  resize: vertical;
+  transition: all 0.2s;
+}
+
+.settings-textarea:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.multilingual-backgrounds {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+

@@ -1,20 +1,82 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 import { 
   ChevronRight, Calendar, BookOpen, Lightbulb, Zap, HelpCircle, 
-  MessageSquareQuote, Newspaper, History, Link as LinkIcon, FileText
+  MessageSquareQuote, Newspaper, History, Link as LinkIcon, FileText, Target
 } from 'lucide-react';
 import { useTranslation } from '@/context/TranslationContext';
 import ZenCard from './ZenCard';
 import { useIsClient } from '@/lib/useIsClient';
 
-export default function IssueDetailClient({ issue }) {
+export default function IssueDetailClient({ issue, initialFlow }) {
   const { t, lang } = useTranslation();
-  const [activeTab, setActiveTab] = useState('summary');
   const isClient = useIsClient();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const flowParam = searchParams.get('flow');
+  const currentFlow = flowParam || initialFlow || 'mains';
+
+  useEffect(() => {
+    if (isClient) {
+      if (flowParam) {
+        localStorage.setItem('upsc_flow_context', flowParam);
+      } else {
+        const savedFlow = localStorage.getItem('upsc_flow_context');
+        if (savedFlow && (savedFlow === 'prelims' || savedFlow === 'mains')) {
+          router.replace(`/issues/${issue.slug}?flow=${savedFlow}`);
+        } else {
+          localStorage.setItem('upsc_flow_context', 'mains');
+          router.replace(`/issues/${issue.slug}?flow=mains`);
+        }
+      }
+    }
+  }, [flowParam, isClient, issue.slug, router]);
+
+  // Helper for localized fields
+  const getLocalizedField = (fieldBase) => {
+    if (!issue) return null;
+    if (lang === 'en') return issue[fieldBase];
+    const localizedKey = `${fieldBase}_${lang}`;
+    return issue[localizedKey] || issue[fieldBase];
+  };
+
+  const localizedTitle = getLocalizedField('title') || issue?.title;
+  const localizedTopic = getLocalizedField('topic') || issue?.topic;
+  const localizedCumulativeSummary = getLocalizedField('cumulativeSummary');
+  const localizedBackgroundNote = getLocalizedField('backgroundNote');
+  const localizedPrelimsNote = getLocalizedField('prelimsNote');
+  const localizedMainsNote = getLocalizedField('mainsNote');
+
+  // Determine standard tab labels with simple localized mapping
+  const getTabLabel = (id) => {
+    if (id === 'summary') return lang === 'hi' ? 'सारांश' : (lang === 'mr' ? 'सारांश' : 'Summary');
+    if (id === 'prelims_note') return lang === 'hi' ? 'प्रीलिम्स नोट्स' : (lang === 'mr' ? 'प्रीलिम्स नोट्स' : 'Prelims Focus');
+    if (id === 'mains_note') return lang === 'hi' ? 'मुख्य परीक्षा नोट्स' : (lang === 'mr' ? 'मुख्य परीक्षा नोट्स' : 'Mains Notes');
+    if (id === 'analysis') return lang === 'hi' ? 'विश्लेषणात्मक हब' : (lang === 'mr' ? 'विश्लेषणात्मक हब' : 'Analytical Hub');
+    if (id === 'timeline') return lang === 'hi' ? 'समयरेखा' : (lang === 'mr' ? 'समयरेखा' : 'Timeline');
+    if (id === 'practice') return lang === 'hi' ? 'पीवाईक्यू लैब' : (lang === 'mr' ? 'पीवाईक्यू लैब' : 'PYQ Lab');
+    return id;
+  };
+
+  const hasSummary = !!localizedCumulativeSummary || !!localizedBackgroundNote;
+  
+  const defaultTab = currentFlow === 'prelims' 
+    ? (localizedPrelimsNote ? 'prelims_note' : 'timeline')
+    : (hasSummary ? 'summary' : (localizedMainsNote ? 'mains_note' : 'analysis'));
+
+  const [activeTab, setActiveTab] = useState(defaultTab);
+  const [prevFlow, setPrevFlow] = useState(currentFlow);
+
+  if (currentFlow !== prevFlow) {
+    setPrevFlow(currentFlow);
+    setActiveTab(defaultTab);
+  }
 
   if (!isClient || !issue) return null;
 
@@ -23,31 +85,53 @@ export default function IssueDetailClient({ issue }) {
   const timeline = issue.timelineEvents || [];
   const pyqs = issue.pyqLinks || [];
 
-  const TABS = [
-    { id: 'summary',   label: 'Summary',   icon: FileText },
-    { id: 'analysis',  label: 'Analytical Hub', icon: BookOpen },
-    { id: 'timeline',  label: 'Timeline', icon: History },
-    { id: 'practice',  label: 'PYQ Lab', icon: Zap },
-  ];
+  // Determine TABS dynamically based on flow
+  const TABS = [];
+  if (currentFlow === 'prelims') {
+    if (localizedPrelimsNote) {
+      TABS.push({ id: 'prelims_note', label: getTabLabel('prelims_note'), icon: BookOpen });
+    }
+    TABS.push(
+      { id: 'timeline',  label: getTabLabel('timeline'), icon: History },
+      { id: 'practice',  label: getTabLabel('practice'), icon: Zap }
+    );
+  } else {
+    TABS.push({ id: 'summary',   label: getTabLabel('summary'),   icon: FileText });
+    if (localizedMainsNote) {
+      TABS.push({ id: 'mains_note', label: getTabLabel('mains_note'), icon: Lightbulb });
+    }
+    TABS.push(
+      { id: 'analysis',  label: getTabLabel('analysis'), icon: BookOpen },
+      { id: 'timeline',  label: getTabLabel('timeline'), icon: History }
+    );
+  }
 
   // Derive "Answer Hook" from the latest article's crux if available
-  const answerHook = articles[0]?.structuredData?.cruxForMains || issue.cumulativeSummary?.slice(0, 200) + "...";
+  const answerHook = articles[0]?.structuredData?.cruxForMains || 
+                     (localizedCumulativeSummary ? localizedCumulativeSummary.slice(0, 200) + "..." : 
+                     (localizedPrelimsNote ? localizedPrelimsNote.slice(0, 200) + "..." : 
+                     (localizedMainsNote ? localizedMainsNote.slice(0, 200) + "..." : "Strategic overview placeholder...")));
+
+  // Derive "Core Prelims Fact" snippet from the prelimsNote if available
+  const prelimsFact = localizedPrelimsNote 
+    ? (localizedPrelimsNote.length > 250 ? localizedPrelimsNote.replace(/[#*`]/g, '').slice(0, 240).trim() + "..." : localizedPrelimsNote.replace(/[#*`]/g, '').trim())
+    : "Key facts summary in progress...";
 
   const renderSummary = () => (
     <div className="summary-section">
       <ZenCard title="Neural Executive Summary" accentColor="blue">
         <div className="issue-md">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {issue.cumulativeSummary || "Strategic synthesis in progress..."}
+          <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+            {localizedCumulativeSummary || "Strategic synthesis in progress..."}
           </ReactMarkdown>
         </div>
       </ZenCard>
 
-      {issue.backgroundNote && (
+      {localizedBackgroundNote && (
         <div style={{ marginTop: '40px' }}>
           <div className="section-header">Contextual Background</div>
           <div className="context-box">
-             <ReactMarkdown remarkPlugins={[remarkGfm]}>{issue.backgroundNote}</ReactMarkdown>
+             <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{localizedBackgroundNote}</ReactMarkdown>
           </div>
         </div>
       )}
@@ -97,24 +181,43 @@ export default function IssueDetailClient({ issue }) {
     </div>
   );
 
+  const handleModeChange = (mode) => {
+    localStorage.setItem('upsc_flow_context', mode);
+    router.push(`/issues/${issue.slug}?flow=${mode}`);
+  };
+
   return (
     <div className="issue-detail-container">
       {/* TOP HEADER */}
       <header className="issue-main-header">
-        <div className="header-meta">
-           {gsPapers.map(p => <span key={p} className="gs-badge-main">{p}</span>)}
-           <span className="domain-tag">{issue.domain}</span>
-           <div className="status-indicator">
-              <span className="pulse-dot"></span>
-              Live Topic
-           </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
+          <div>
+            <div className="header-meta">
+               {gsPapers.map(p => <span key={p} className="gs-badge-main">{p}</span>)}
+               <span className="domain-tag">{issue.domain}</span>
+               <div className="status-indicator">
+                  <span className="pulse-dot"></span>
+                  Live Topic
+               </div>
+            </div>
+            <h1 className="issue-title">{localizedTitle}</h1>
+            <p className="issue-breadcrumb">{issue.domain} <ChevronRight size={12} /> {localizedTopic}</p>
+          </div>
+
+          {/* Mode Switcher Pill */}
+          <div className="mode-switcher">
+             <button onClick={() => handleModeChange('prelims')} className={`mode-btn ${currentFlow === 'prelims' ? 'active-prelims' : ''}`}>
+                <Target size={14} /> {lang === 'hi' ? 'प्रीलिम्स मोड' : (lang === 'mr' ? 'प्रीलिम्स मोड' : 'Prelims Mode')}
+             </button>
+             <button onClick={() => handleModeChange('mains')} className={`mode-btn ${currentFlow === 'mains' ? 'active-mains' : ''}`}>
+                <BookOpen size={14} /> {lang === 'hi' ? 'मुख्य परीक्षा मोड' : (lang === 'mr' ? 'मुख्य परीक्षा मोड' : 'Mains Mode')}
+             </button>
+          </div>
         </div>
-        <h1 className="issue-title">{issue.title}</h1>
-        <p className="issue-breadcrumb">{issue.domain} <ChevronRight size={12} /> {issue.topic}</p>
         
         <div className="tab-navigation">
            {TABS.map(tab => (
-             <button key={tab.id} className={`nav-tab ${activeTab === tab.id ? 'active' : ''}`} onClick={() => setActiveTab(tab.id)}>
+             <button key={tab.id} className={`nav-tab ${activeTab === tab.id ? `active active-${currentFlow}` : ''}`} onClick={() => setActiveTab(tab.id)}>
                 <tab.icon size={16} /> {tab.label}
              </button>
            ))}
@@ -124,6 +227,28 @@ export default function IssueDetailClient({ issue }) {
       <div className="issue-grid-layout">
          <div className="content-canvas">
             {activeTab === 'summary' && renderSummary()}
+            {activeTab === 'prelims_note' && (
+              <div className="prelims-note-section">
+                <ZenCard title={getTabLabel('prelims_note')} accentColor="amber">
+                  <div className="issue-md">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                      {localizedPrelimsNote || "No prelims notes available."}
+                    </ReactMarkdown>
+                  </div>
+                </ZenCard>
+              </div>
+            )}
+            {activeTab === 'mains_note' && (
+              <div className="mains-note-section">
+                <ZenCard title={getTabLabel('mains_note')} accentColor="emerald">
+                  <div className="issue-md">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                      {localizedMainsNote || "No mains notes available."}
+                    </ReactMarkdown>
+                  </div>
+                </ZenCard>
+              </div>
+            )}
             {activeTab === 'analysis' && renderAnalysis()}
             {activeTab === 'timeline' && (
               <div className="timeline-section">
@@ -156,20 +281,30 @@ export default function IssueDetailClient({ issue }) {
          </div>
 
          <aside className="content-sidebar">
-            <div className="sidebar-widget">
-               <div className="widget-label">ANSWER HOOK</div>
-               <div className="hook-content">
-                  <span className="quote-icon">❝</span>
-                  {answerHook}
-               </div>
-            </div>
+            {currentFlow === 'prelims' ? (
+              <div className="sidebar-widget prelims-widget">
+                 <div className="widget-label prelims-label">{lang === 'hi' ? 'मुख्य प्रारंभिक तथ्य' : (lang === 'mr' ? 'मुख्य पूर्व परीक्षा तथ्य' : 'CORE PRELIMS FACT')}</div>
+                 <div className="hook-content prelims-fact">
+                    <span className="quote-icon prelims-quote">🎯</span>
+                    {prelimsFact}
+                 </div>
+              </div>
+            ) : (
+              <div className="sidebar-widget">
+                 <div className="widget-label">{lang === 'hi' ? 'उत्तर हुक' : (lang === 'mr' ? 'उत्तर हुक' : 'ANSWER HOOK')}</div>
+                 <div className="hook-content">
+                    <span className="quote-icon">❝</span>
+                    {answerHook}
+                 </div>
+              </div>
+            )}
 
             <div className="sidebar-widget">
-               <div className="widget-label">SYLLABUS ALIGNMENT</div>
+               <div className="widget-label">{lang === 'hi' ? 'पाठ्यक्रम संरेखण' : (lang === 'mr' ? 'अभ्यासक्रम संरेखन' : 'SYLLABUS ALIGNMENT')}</div>
                <div className="syllabus-box">
-                  <div className="syllabus-item"><strong>Domain:</strong> {issue.domain}</div>
-                  <div className="syllabus-item"><strong>Topic:</strong> {issue.topic}</div>
-                  <div className="syllabus-item"><strong>GS Papers:</strong> {gsPapers.join(', ')}</div>
+                  <div className="syllabus-item"><strong>{lang === 'hi' ? 'डोमेन' : (lang === 'mr' ? 'डोमेन' : 'Domain')}:</strong> {issue.domain}</div>
+                  <div className="syllabus-item"><strong>{lang === 'hi' ? 'विषय' : (lang === 'mr' ? 'विषय' : 'Topic')}:</strong> {localizedTopic}</div>
+                  <div className="syllabus-item"><strong>{lang === 'hi' ? 'जीएस पेपर्स' : (lang === 'mr' ? 'जीएस पेपर्स' : 'GS Papers')}:</strong> {gsPapers.join(', ')}</div>
                </div>
             </div>
          </aside>
@@ -190,9 +325,20 @@ export default function IssueDetailClient({ issue }) {
         .issue-breadcrumb { font-size: 0.9rem; color: #64748b; font-weight: 600; display: flex; align-items: center; gap: 8px; margin-bottom: 32px; }
         
         .tab-navigation { display: flex; gap: 10px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 24px; }
-        .nav-tab { background: transparent; border: none; color: #64748b; font-size: 0.8rem; font-weight: 800; padding: 12px 24px; border-radius: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.3s; }
+        .nav-tab { background: transparent; border: 1px solid transparent; color: #64748b; font-size: 0.8rem; font-weight: 800; padding: 12px 24px; border-radius: 14px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: 0.3s; }
         .nav-tab:hover { color: white; background: rgba(255,255,255,0.03); }
-        .nav-tab.active { background: #1e293b; color: #3b82f6; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .nav-tab.active.active-prelims {
+          background: rgba(251, 191, 36, 0.1);
+          color: #fbbf24;
+          box-shadow: 0 4px 15px rgba(251, 191, 36, 0.05);
+          border: 1px solid rgba(251, 191, 36, 0.15);
+        }
+        .nav-tab.active.active-mains {
+          background: rgba(16, 185, 129, 0.1);
+          color: #10b981;
+          box-shadow: 0 4px 15px rgba(16, 185, 129, 0.05);
+          border: 1px solid rgba(16, 185, 129, 0.15);
+        }
 
         .issue-grid-layout { display: grid; grid-template-columns: 1fr 340px; gap: 40px; }
         
@@ -237,6 +383,62 @@ export default function IssueDetailClient({ issue }) {
         .pyq-meta { font-size: 0.75rem; font-weight: 850; color: #fbbf24; margin-bottom: 12px; }
         .pyq-text { font-size: 1.05rem; color: white; font-weight: 600; line-height: 1.5; margin-bottom: 16px; }
         .pyq-note { font-size: 0.85rem; color: #94a3b8; background: rgba(255,255,255,0.02); padding: 12px; border-radius: 12px; }
+
+        .mode-switcher {
+          background: rgba(15, 23, 42, 0.6);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 16px;
+          padding: 4px;
+          display: inline-flex;
+          gap: 4px;
+          backdrop-filter: blur(8px);
+          margin-top: 8px;
+        }
+        .mode-btn {
+          background: transparent;
+          border: none;
+          color: #64748b;
+          font-size: 0.8rem;
+          font-weight: 800;
+          padding: 10px 18px;
+          border-radius: 12px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          transition: all 0.3s ease;
+        }
+        .mode-btn:hover {
+          color: #cbd5e1;
+        }
+        .mode-btn.active-prelims {
+          background: rgba(251, 191, 36, 0.1);
+          color: #fbbf24;
+          box-shadow: inset 0 0 12px rgba(251, 191, 36, 0.05);
+        }
+        .mode-btn.active-mains {
+          background: rgba(16, 185, 129, 0.1);
+          color: #10b981;
+          box-shadow: inset 0 0 12px rgba(16, 185, 129, 0.05);
+        }
+
+        .sidebar-widget.prelims-widget {
+          border-color: rgba(251, 191, 36, 0.15);
+        }
+        .widget-label.prelims-label {
+          color: #fbbf24;
+        }
+        .hook-content.prelims-fact {
+          color: #fef08a;
+          padding-left: 20px;
+        }
+        .quote-icon.prelims-quote {
+          color: #fbbf24;
+          font-size: 1.5rem;
+          left: -4px;
+          top: -12px;
+          opacity: 0.3;
+        }
 
         @media (max-width: 1024px) {
            .issue-grid-layout { grid-template-columns: 1fr; }

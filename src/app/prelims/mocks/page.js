@@ -3,6 +3,7 @@ import Link from 'next/link';
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { redirect } from 'next/navigation';
 import '../prelims.css';
 import { 
   Trophy, 
@@ -21,6 +22,10 @@ export default async function MockTestListPage({ searchParams }) {
   const { tab } = await searchParams;
   const activeTab = tab || 'FULL_LENGTH';
   const session = await getServerSession(authOptions);
+  
+  if (!session) {
+    redirect('/login?callbackUrl=/prelims/mocks');
+  }
   
   const testPacks = await prisma.testPack.findMany({
     where: { 

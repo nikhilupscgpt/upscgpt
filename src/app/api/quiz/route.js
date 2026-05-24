@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 import { generateJSON } from '@/lib/ai'
 import { getRenderedPrompt } from '@/lib/aiPromptRegistry'
+import { getServerSession } from "next-auth/next"
+import { authOptions } from "@/lib/auth"
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
@@ -133,6 +135,11 @@ India angle: ${zone.india}`
 
 export async function POST(req) {
   try {
+    const session = await getServerSession(authOptions)
+    if (!session) {
+      return NextResponse.json({ error: 'Authentication required to access AI features.' }, { status: 401 })
+    }
+
     const { scope, scopeType } = await req.json()
     // scopeType: 'ORGANIZATION' | 'INTELLIGENCE_ZONE' | 'SEA_BORDERS'
 
@@ -186,6 +193,35 @@ Focus on membership (who is NOT a member), mandates, or recent strategic relevan
       const question = await buildMatchedPairsQuestion(scope)
       if (!question) return NextResponse.json({ error: 'Not enough sea border data' }, { status: 400 })
       return NextResponse.json({ question })
+    }
+
+    if (scopeType === 'ISSUE') {
+      const issue = await prisma.issue.findUnique({
+        where: { id: scope },
+        include: { nodeContent: true }
+      })
+      if (!issue) return NextResponse.json({ error: 'Issue node not found' }, { status: 404 })
+
+      const systemInstruction = await getRenderedPrompt('quiz.issue.system')
+      const prompt = `Generate a UPSC Prelims MCQ practice set of exactly 5 questions for the syllabus node: "${issue.title}".
+GS Paper: ${issue.gsPapers?.join(', ') || 'General Studies'}
+Topic Domain: ${issue.domain}
+Syllabus Context: ${issue.topic}
+Strategic Intel: ${issue.cumulativeSummary || issue.backgroundNote || ''}
+Prelims Notes: ${issue.nodeContent?.prelimsNote || ''}
+Key Facts: ${JSON.stringify(issue.nodeContent?.facts || [])}`
+
+      try {
+        const result = await generateJSON(prompt, systemInstruction)
+        if (result?.questions && Array.isArray(result.questions)) {
+          return NextResponse.json({ questions: result.questions })
+        } else {
+          throw new Error('AI response structure invalid or empty questions')
+        }
+      } catch (e) {
+        console.error('[Quiz] AI generation for Issue failed:', e.message)
+        return NextResponse.json({ error: 'Failed to generate practice questions with AI', details: e.message }, { status: 500 })
+      }
     }
 
     return NextResponse.json({ error: 'Invalid scopeType' }, { status: 400 })

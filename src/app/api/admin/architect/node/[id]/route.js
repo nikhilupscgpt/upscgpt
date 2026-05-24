@@ -18,6 +18,7 @@ export async function GET(req, { params }) {
         articles: { orderBy: { publishedAt: 'desc' }, take: 10 },
         editorials: { orderBy: { publishedAt: 'desc' }, take: 5 },
         nodeContent: true,
+        questions: { orderBy: { createdAt: 'desc' } },
       }
     });
 

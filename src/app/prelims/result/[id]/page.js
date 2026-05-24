@@ -20,7 +20,7 @@ export default async function MockTestResultPage({ params }) {
   const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session) {
-    redirect('/auth/signin');
+    redirect(`/login?callbackUrl=/prelims/result/${id}`);
   }
 
   const attempt = await prisma.quizAttempt.findUnique({

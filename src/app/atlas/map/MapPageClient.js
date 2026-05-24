@@ -966,8 +966,8 @@ function MapPageInner() {
             {[
               { key: 'POLITICAL', label: t('atlas.political'), emoji: '🏛️' },
               { key: 'PHYSICAL',  label: t('atlas.physical'),  emoji: '⛰️' },
-              { key: 'INTELLIGENCE', label: 'INTEL',           emoji: '📡' },
-              { key: 'NEWS',      label: 'NEWS',               emoji: '🗞️' },
+              { key: 'INTELLIGENCE', label: t('atlas.intel'),    emoji: '📡' },
+              { key: 'NEWS',      label: t('atlas.news'),     emoji: '🗞️' },
             ].map(m => (
               <button 
                 key={m.key} 
@@ -978,9 +978,8 @@ function MapPageInner() {
                   setActiveGeoGroup('');
                   setActiveOrg(null);
                 }}
-                className={`sidebar-tab ${activeModule === m.id ? 'active' : ''}`}
               >
-                <span>{m.icon}</span> {t(`atlas.${m.label.toLowerCase()}`)}
+                <span className="tab-emoji">{m.emoji}</span> {m.label}
               </button>
             ))}
           </div>
@@ -1026,18 +1025,41 @@ function MapPageInner() {
                 </div>
               )}
 
-              {/* INTELLIGENCE MODULE: Organization Lens */}
+              {/* INTELLIGENCE MODULE: Organization Lens & Conflict Heatmap */}
               {activeModule === 'INTELLIGENCE' && (
-                <OrgLens
-                  onOrgSelect={(org) => {
-                    if (org) {
-                      focusOrganizationOnMap(org);
-                    } else {
-                      setActiveOrg(null);
-                    }
-                  }}
-                  activeOrg={activeOrg}
-                />
+                <div className="intelligence-engine fade-in">
+                  <div className="engine-card heatmap-toggle-card">
+                    <div className="card-header">
+                      <span className="card-emoji">🔥</span>
+                      <div className="card-meta">
+                        <div className="card-title">Conflict Intensity</div>
+                        <div className="card-sub">Global Heatmap Visualization</div>
+                      </div>
+                      <label className="ios-switch">
+                        <input 
+                          type="checkbox" 
+                          checked={heatmapMode} 
+                          onChange={() => setHeatmapMode(!heatmapMode)} 
+                        />
+                        <span className="switch-slider"></span>
+                      </label>
+                    </div>
+                    <p className="card-description">
+                      Visualize active conflict zones, military flashpoints, and territorial disputes using neural density analysis.
+                    </p>
+                  </div>
+
+                  <OrgLens
+                    onOrgSelect={(org) => {
+                      if (org) {
+                        focusOrganizationOnMap(org);
+                      } else {
+                        setActiveOrg(null);
+                      }
+                    }}
+                    activeOrg={activeOrg}
+                  />
+                </div>
               )}
 
               {/* DYNAMIC LISTS (REGION/COUNTRY) */}
@@ -1267,6 +1289,56 @@ function MapPageInner() {
           }
         }
 
+
+        .intelligence-engine { display: flex; flex-direction: column; gap: 16px; }
+        .engine-card {
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: 20px;
+          padding: 20px;
+          transition: all 0.3s ease;
+        }
+        .engine-card:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(239, 68, 68, 0.3); }
+        
+        .card-header { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+        .card-emoji { font-size: 1.5rem; }
+        .card-meta { flex: 1; }
+        .card-title { font-size: 0.95rem; font-weight: 900; color: white; }
+        .card-sub { font-size: 0.65rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .card-description { font-size: 0.75rem; color: #94a3b8; line-height: 1.5; font-weight: 500; }
+
+        /* iOS Switch */
+        .ios-switch {
+          position: relative;
+          display: inline-block;
+          width: 44px;
+          height: 24px;
+        }
+        .ios-switch input { opacity: 0; width: 0; height: 0; }
+        .switch-slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background-color: rgba(255,255,255,0.1);
+          transition: .4s;
+          border-radius: 34px;
+        }
+        .switch-slider:before {
+          position: absolute;
+          content: "";
+          height: 18px;
+          width: 18px;
+          left: 3px;
+          bottom: 3px;
+          background-color: white;
+          transition: .4s;
+          border-radius: 50%;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        input:checked + .switch-slider { background-color: #ef4444; }
+        input:focus + .switch-slider { box-shadow: 0 0 1px #ef4444; }
+        input:checked + .switch-slider:before { transform: translateX(20px); }
 
         .hide-scrollbar::-webkit-scrollbar { display: none; }
       `}</style>

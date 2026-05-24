@@ -14,6 +14,9 @@ export async function GET(req) {
     const issueId = searchParams.get('issueId');
     const gsPaper = searchParams.get('gsPaper');
     const search = searchParams.get('search');
+    const limit = searchParams.get('limit');
+    
+    const take = limit ? Math.min(parseInt(limit) || 50, 250) : 50;
 
     const questions = await prisma.question.findMany({
       where: {
@@ -26,7 +29,7 @@ export async function GET(req) {
         _count: { select: { testPacks: true } }
       },
       orderBy: { createdAt: 'desc' },
-      take: 50
+      take
     });
 
     return NextResponse.json({ success: true, questions });
@@ -70,5 +73,68 @@ export async function POST(req) {
   } catch (error) {
     console.error(`[Admin Questions API] POST Error:`, error);
     return NextResponse.json({ error: 'Failed to create question' }, { status: 500 });
+  }
+}
+
+export async function PATCH(req) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user?.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { 
+      id, text, options, correctLabel, explanation, 
+      difficulty, gsPaper, issueId, tags 
+    } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: 'Question ID required' }, { status: 400 });
+    }
+
+    const question = await prisma.question.update({
+      where: { id },
+      data: {
+        text,
+        options,
+        correctLabel,
+        explanation,
+        difficulty: difficulty || 'MEDIUM',
+        gsPaper,
+        issueId: issueId || null,
+        tags: tags || [],
+      }
+    });
+
+    return NextResponse.json({ success: true, question });
+  } catch (error) {
+    console.error(`[Admin Questions API] PATCH Error:`, error);
+    return NextResponse.json({ error: 'Failed to update question' }, { status: 500 });
+  }
+}
+
+export async function DELETE(req) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user?.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: 'Question ID required' }, { status: 400 });
+    }
+
+    await prisma.question.delete({
+      where: { id }
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error(`[Admin Questions API] DELETE Error:`, error);
+    return NextResponse.json({ error: 'Failed to delete question' }, { status: 500 });
   }
 }

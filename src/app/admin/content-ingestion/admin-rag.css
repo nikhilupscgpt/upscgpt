@@ -1,4 +1,4 @@
-/* New Node CMS CSS */
+/* News Ingestion Hub CSS */
 .cms-container {
   display: flex;
   height: calc(100vh - 64px);
@@ -46,6 +46,13 @@
   padding: 8px 12px;
   color: white;
   font-size: 0.85rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 .node-list {
@@ -70,28 +77,29 @@
 }
 
 .node-item.active {
-  background: rgba(59, 130, 246, 0.15);
-  border: 1px solid rgba(59, 130, 246, 0.3);
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .node-status {
   width: 8px;
   height: 8px;
   border-radius: 50%;
+  flex-shrink: 0;
 }
-
-.status-empty { background: #ef4444; box-shadow: 0 0 8px #ef4444; }
-.status-published { background: #10b981; box-shadow: 0 0 8px #10b981; }
-.status-draft { background: #f59e0b; box-shadow: 0 0 8px #f59e0b; }
 
 .node-info {
   flex: 1;
+  min-width: 0;
 }
 
 .node-name {
   font-size: 0.85rem;
   font-weight: 600;
   display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .node-meta {
@@ -110,39 +118,19 @@
 }
 
 .cms-toolbar {
-  padding: 16px 24px;
+  padding: 14px 24px;
   background: #1e293b;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .toolbar-left {
   display: flex;
   align-items: center;
-  gap: 20px;
-}
-
-.mode-tabs {
-  display: flex;
-  background: rgba(0,0,0,0.2);
-  padding: 4px;
-  border-radius: 10px;
-}
-
-.mode-tab {
-  padding: 6px 16px;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.mode-tab.active {
-  background: #3b82f6;
-  color: white;
+  gap: 16px;
 }
 
 .editor-container {
@@ -153,45 +141,20 @@
   overflow-y: auto;
 }
 
-.editor-header {
-  margin-bottom: 24px;
-}
-
-.editor-title {
-  font-size: 1.5rem;
-  font-weight: 800;
-  margin-bottom: 4px;
-}
-
-.editor-slug-wrap {
+/* Form Labels */
+.form-label {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
+  font-size: 0.72rem;
+  font-weight: 700;
   color: #94a3b8;
-  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
 }
 
-.slug-input {
-  background: none;
-  border: 1px solid transparent;
-  color: #3b82f6;
-  padding: 2px 4px;
-  border-radius: 4px;
-  width: 300px;
-}
-
-.slug-input:focus {
-  border-color: #3b82f6;
-  background: rgba(0,0,0,0.2);
-  outline: none;
-}
-
-.ai-controls {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
+/* Buttons */
 .btn-ai {
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: white;
@@ -207,9 +170,14 @@
   transition: all 0.2s;
 }
 
-.btn-ai:hover {
-  transform: translateY(-2px);
+.btn-ai:hover:not(:disabled) {
+  transform: translateY(-1px);
   filter: brightness(1.1);
+}
+
+.btn-ai:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .btn-save {
@@ -221,28 +189,41 @@
   font-size: 0.9rem;
   font-weight: 700;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s;
 }
 
+.btn-save:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.btn-save:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Textarea */
 .markdown-textarea {
-  flex: 1;
   width: 100%;
-  background: #1e293b;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  padding: 20px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px;
   color: #f1f5f9;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   line-height: 1.6;
   resize: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .markdown-textarea:focus {
   outline: none;
   border-color: #3b82f6;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.08);
 }
 
+/* Empty State */
 .empty-state {
   flex: 1;
   display: flex;
@@ -258,13 +239,7 @@
   opacity: 0.3;
 }
 
-.status-toggle {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.85rem;
-}
-
+/* Status Select */
 .status-select {
   background: rgba(0,0,0,0.2);
   border: 1px solid rgba(255,255,255,0.1);
@@ -272,4 +247,86 @@
   padding: 4px 8px;
   border-radius: 6px;
   font-size: 0.8rem;
+  transition: border-color 0.2s;
 }
+
+.status-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+/* Scrollbar Styling */
+.node-list::-webkit-scrollbar,
+.editor-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.node-list::-webkit-scrollbar-track,
+.editor-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.node-list::-webkit-scrollbar-thumb,
+.editor-container::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.08);
+  border-radius: 4px;
+}
+
+.node-list::-webkit-scrollbar-thumb:hover,
+.editor-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.15);
+  border-radius: 4px;
+}
+
+/* Collapsible Tree Sidebar Styles */
+.paper-folder, .subject-folder {
+  display: flex;
+  flex-direction: column;
+}
+
+.paper-folder > div:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.subject-folder > div:hover {
+  background: rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Modal and Option Lists */
+.modal-overlay {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Custom Scrollbar for Modal Columns */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+

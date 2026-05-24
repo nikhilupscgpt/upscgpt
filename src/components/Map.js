@@ -402,10 +402,15 @@ function HeatmapLayer({ points }) {
   useEffect(() => {
     if (!points || !points.length) return
     const heat = L.heatLayer(points, {
-      radius: 25,
-      blur: 15,
+      radius: 35,
+      blur: 20,
       maxZoom: 6,
-      gradient: { 0.4: 'blue', 0.65: 'lime', 1: 'red' }
+      gradient: { 
+        0.2: '#3b82f6', // blue (low intensity)
+        0.5: '#ef4444', // red (medium intensity)
+        0.9: '#7f1d1d', // dark red (high intensity)
+        1.0: '#000000'  // black center (critical)
+      }
     }).addTo(map)
     return () => { map.removeLayer(heat) }
   }, [map, points])
@@ -631,7 +636,12 @@ export default function Map({
         ))}
 
         {heatmapMode ? (
-          <HeatmapLayer points={heatPoints} />
+          <HeatmapLayer 
+            points={validEntries
+              .filter(e => ['conflict', 'base', 'dispute'].includes(e.category))
+              .map(e => [e.lat, e.lon, e.isCurrentAffairs ? 1.0 : 0.6])
+            } 
+          />
         ) : (
           <MarkerClusterGroup
             chunkedLoading

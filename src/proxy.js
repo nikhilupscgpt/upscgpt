@@ -6,13 +6,24 @@ export async function proxy(request) {
   if (
     pathname === '/' ||
     pathname.startsWith('/login') ||
+    pathname.startsWith('/admin-login') ||
     pathname.startsWith('/api/') ||
     pathname.startsWith('/_next/') ||
     pathname.startsWith('/favicon') ||
     pathname.startsWith('/manifest') ||
     pathname.startsWith('/sitemap') ||
     pathname.startsWith('/robots') ||
-    pathname.startsWith('/search')
+    pathname.startsWith('/search') ||
+    pathname === '/news' ||
+    pathname === '/news/' ||
+    pathname.startsWith('/news/') ||
+    pathname === '/prelims' ||
+    pathname === '/prelims/' ||
+    pathname.startsWith('/prelims/prepare') ||
+    pathname.startsWith('/mains') ||
+    pathname.startsWith('/atlas') ||
+    pathname.startsWith('/issues') ||
+    pathname.startsWith('/node')
   ) {
     return NextResponse.next()
   }

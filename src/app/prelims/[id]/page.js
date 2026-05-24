@@ -9,7 +9,7 @@ export default async function MockTestPage({ params }) {
   const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session) {
-    redirect('/auth/signin?callbackUrl=/prelims/' + id);
+    redirect('/login?callbackUrl=/prelims/' + id);
   }
 
   const testPack = await prisma.testPack.findUnique({

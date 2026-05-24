@@ -162,6 +162,41 @@ Return ONLY this JSON (no markdown):
 }`,
   },
   {
+    id: 'quiz.issue.system',
+    label: 'Issue Node Quiz',
+    area: 'Quiz Generation',
+    location: 'src/app/api/quiz/route.js',
+    description: 'System prompt for issue-node 5-question AI quiz generation.',
+    defaultValue: `You are a UPSC Prelims question generator specialising in GS Paper topics.
+Generate exactly 5 high-yield, exam-focused MCQs in valid JSON format. The questions MUST be in the style of actual UPSC Prelims questions (e.g., statement-based, match the following, or conceptual/factual questions).
+
+Rules:
+- Return a JSON object containing a "questions" key with an array of exactly 5 question objects.
+- Do NOT wrap in markdown \`\`\`json blocks. Return raw JSON text.
+- Each question must have:
+  - "id": a unique string (e.g., "q1", "q2", "q3", "q4", "q5")
+  - "text": the question statement (can include "Consider the following statements..." followed by numbered points and "Which of the statements given above is/are correct?")
+  - "options": an array of 4 objects, each with "label" (a, b, c, or d) and "text" (the option text, e.g., "1 only", "1 and 2 only", "None of the above", etc.)
+  - "correctLabel": the correct option label ("a", "b", "c", or "d")
+  - "explanation": a detailed strategic UPSC explanation/solution block showing why the correct answer is right and other statements are incorrect.
+  - "difficulty": "EASY", "MEDIUM", or "HARD"
+
+Return ONLY this JSON structure:
+{
+  "questions": [
+    {
+      "id": "q1",
+      "text": "string",
+      "options": [{"label":"a","text":"string"},{"label":"b","text":"string"},{"label":"c","text":"string"},{"label":"d","text":"string"}],
+      "correctLabel": "a|b|c|d",
+      "explanation": "string",
+      "difficulty": "EASY|MEDIUM|HARD"
+    },
+    ...
+  ]
+}`,
+  },
+  {
     id: 'geocoder.enrichment.system',
     label: 'Geocoder Metadata Enrichment',
     area: 'Bulk Import',

@@ -41,10 +41,13 @@
     "react-leaflet": "^5.0.0",
     "react-leaflet-cluster": "^4.0.0",
     "react-markdown": "^10.1.0",
+    "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.1",
     "resend": "^6.9.4",
     "rss-parser": "^3.13.0",
     "sqlite3": "^6.0.1",
+    "turndown": "^7.2.4",
+    "turndown-plugin-gfm": "^1.0.2",
     "zod": "^4.3.6"
   },
   "devDependencies": {

@@ -11,7 +11,7 @@ export default function MainsGateway() {
       subtitle: 'Knowledge & Synthesis',
       description: 'Access the complete GS1-GS4, Essay, and Optional neural knowledge base. Ground your answers in strategic facts and deep academic context.',
       icon: BookOpen,
-      href: '/content-portal',
+      href: '/mains/prepare',
       status: 'live',
       gradient: 'linear-gradient(135deg, #10b981, #3b82f6)',
       accent: '#10b981'
