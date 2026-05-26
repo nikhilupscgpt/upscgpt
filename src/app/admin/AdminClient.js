@@ -7,7 +7,7 @@ import {
   Users, Map as MapIcon, RefreshCw, CreditCard, MessageSquare, 
   Send, ShieldCheck, TrendingUp, HelpCircle, LogOut, ChevronRight,
   Globe, Zap, ZapOff, Trash2, Edit3, PlusCircle, CheckCircle, BrainCircuit,
-  Newspaper, Search, FileText, Link2, Calendar, User, BookOpen, Filter, ChevronDown, ExternalLink, AlertCircle, Trophy, Book, PenTool, Sparkles, BarChart3
+  Newspaper, Search, FileText, Link2, Calendar, User, BookOpen, Filter, ChevronDown, ExternalLink, AlertCircle, Trophy, Book, PenTool, Sparkles, BarChart3, Layers
 } from "lucide-react"
 
 export default function AdminClient({ session }) {
@@ -709,6 +709,28 @@ export default function AdminClient({ session }) {
     setSavingPromptId(null)
   }
 
+  const handlePromptReset = async (prompt) => {
+    if (!confirm(`Reset "${prompt.label}" to its default value? This will remove any custom override.`)) return;
+    setSavingPromptId(prompt.id)
+    setStatus(`Resetting AI prompt: ${prompt.label}...`)
+    try {
+      const res = await fetch("/api/admin/ai-prompts", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: prompt.id })
+      })
+      if (res.ok) {
+        setStatus(`AI prompt reset to default: ${prompt.label}`)
+        fetchAiPrompts()
+      } else {
+        setStatus(`Failed to reset AI prompt: ${prompt.label}`)
+      }
+    } catch (e) {
+      setStatus(`Failed to reset AI prompt: ${prompt.label}`)
+    }
+    setSavingPromptId(null)
+  }
+
   // UI Tokens
   const sidebarItem = (id, icon, label) => (
     <button onClick={() => handleTabChange(id)} style={{
@@ -787,6 +809,16 @@ export default function AdminClient({ session }) {
             onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#f59e0b'; }}
             onMouseOut={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}>
               <Newspaper size={20}/> News Ingestion Hub
+            </button>
+          </Link>
+          <Link href="/admin/news-streaks" style={{ textDecoration: 'none' }}>
+            <button style={{
+              display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '14px 20px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.95rem',
+              background: 'transparent', color: 'var(--text-secondary)', transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)', marginBottom: '8px'
+            }}
+            onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#06b6d4'; }}
+            onMouseOut={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}>
+              <Layers size={20}/> News Streaks Board
             </button>
           </Link>
           {sidebarItem("pdfnews", <FileText size={20}/>, "Rapid Ingestion")}
@@ -1574,13 +1606,24 @@ export default function AdminClient({ session }) {
                       onChange={(e) => handlePromptChange(prompt.id, e.target.value)}
                       style={{ width: '100%', minHeight: '220px', padding: '18px', borderRadius: '16px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white', fontSize: '0.92rem', lineHeight: 1.6, marginBottom: '14px' }}
                     />
-                    <button
-                      onClick={() => handlePromptSave(prompt)}
-                      disabled={savingPromptId === prompt.id}
-                      style={{ ...btnPrimary, padding: '14px 20px', minWidth: '180px' }}
-                    >
-                      {savingPromptId === prompt.id ? 'Saving...' : 'Save Prompt'}
-                    </button>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                      <button
+                        onClick={() => handlePromptSave(prompt)}
+                        disabled={savingPromptId === prompt.id}
+                        style={{ ...btnPrimary, padding: '14px 20px', minWidth: '160px' }}
+                      >
+                        {savingPromptId === prompt.id ? 'Saving...' : 'Save Prompt'}
+                      </button>
+                      {prompt.hasOverride && (
+                        <button
+                          onClick={() => handlePromptReset(prompt)}
+                          disabled={savingPromptId === prompt.id}
+                          style={{ padding: '14px 20px', minWidth: '160px', background: 'transparent', border: '1px solid rgba(239,68,68,0.3)', color: '#f87171', borderRadius: '16px', cursor: 'pointer', fontWeight: 700, fontSize: '0.88rem', transition: 'all 0.2s' }}
+                        >
+                          ↩ Reset to Default
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

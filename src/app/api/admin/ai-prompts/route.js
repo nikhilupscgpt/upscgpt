@@ -78,3 +78,43 @@ export async function POST(req) {
   }
 }
 
+/**
+ * DELETE /api/admin/ai-prompts
+ * Resets a prompt to its default value by removing the DB override.
+ * Body: { id: string }
+ */
+export async function DELETE(req) {
+  const session = await requireAdmin()
+  if (!session) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  try {
+    const body = await req.json()
+    const { id } = body
+
+    if (!id) {
+      return NextResponse.json({ error: 'Prompt id is required.' }, { status: 400 })
+    }
+
+    const key = getPromptConfigKey(id)
+
+    // Delete the DB override so the code defaultValue takes effect
+    await runWithRetry(() =>
+      prisma.platformConfig.deleteMany({ where: { key } })
+    )
+
+    await prisma.actionLog.create({
+      data: {
+        action: 'AI_PROMPT_RESET',
+        userId: session.user.id,
+        message: `Reset AI prompt to default: ${id}`,
+      },
+    })
+
+    return NextResponse.json({ success: true, message: `Prompt "${id}" has been reset to its default value.` })
+  } catch (error) {
+    console.error('[AdminAiPrompts] DELETE failed:', error)
+    return NextResponse.json({ error: 'Failed to reset AI prompt' }, { status: 500 })
+  }
+}

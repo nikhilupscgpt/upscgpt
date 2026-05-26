@@ -357,6 +357,36 @@ Instructions:
 6. Make it exam-ready for UPSC Mains GS papers.`
   },
   {
+    id: 'streak.living.summary.synthesis',
+    label: 'News Streak: Evolving Living Summary Synthesis',
+    area: 'News Engine V2',
+    location: 'src/app/api/admin/news-engine/process/route.js',
+    description: 'Generates the highly structured Living Summary (Causes, Impact, Tracker) for a News Streak.',
+    defaultValue: [
+      'You are an expert UPSC current affairs analyst writing exam-ready study notes.',
+      'Based on the news timeline below, generate a "Living Summary" as a single valid JSON object with exactly three keys.',
+      '',
+      'Topic: "{{streakTitle}}"',
+      'Syllabus: {{syllabusNodes}}',
+      '',
+      'News Timeline:',
+      '{{timelineData}}',
+      '',
+      'Rules:',
+      '- Return ONLY raw JSON. No markdown code fences, no preamble, no explanations.',
+      '- Each value is a markdown string that reads like a flowing document section.',
+      '- Use **bold** for all key terms and concepts.',
+      '- Use \\n\\n to separate paragraphs within a string.',
+      '',
+      'JSON schema to follow exactly:',
+      '{',
+      '  "causes": "### Why is {{streakTitle}} Happening?\\n\\n[Paragraph 1: Structural triggers and root causes with **bold** key terms]\\n\\n[Paragraph 2: Global/macro factors and historical context with **bold** key terms]\\n\\n[Paragraph 3: Domestic policy or institutional dimensions with **bold** key terms]",',
+      '  "impact": "### Economic & Policy Impact\\n\\n[Paragraph 1: Socio-economic effects on common citizens, prices, inflation with **bold** key terms]\\n\\n[Paragraph 2: Policy dilemmas and institutional responses with **bold** key terms]\\n\\n**Key Specific Effects:**\\n- **[Effect 1]:** [1-line explanation]\\n- **[Effect 2]:** [1-line explanation]\\n- **[Effect 3]:** [1-line explanation]",',
+      '  "tracker": "### Key Data & Concepts to Remember\\n\\n| Metric / Term | What It Means | UPSC Angle |\\n| :--- | :--- | :--- |\\n| [Row 1] | [Description] | [Relevance] |\\n| [Row 2] | [Description] | [Relevance] |\\n| [Row 3] | [Description] | [Relevance] |\\n| [Row 4] | [Description] | [Relevance] |\\n| [Row 5] | [Description] | [Relevance] |"',
+      '}'
+    ].join('\n')
+  },
+  {
     id: 'rag.query.mains',
     label: 'RAG: Mains Tutor',
     area: 'Content Portal',

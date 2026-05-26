@@ -253,6 +253,7 @@ model Issue {
   userNotes              UserNote[]
   questions              Question[]
   metadata               Json?
+  newsStreaks            NewsStreak[]           @relation("NewsStreakIssues")
   Issue_IssueRelations_A Issue[]                @relation("IssueRelations")
   Issue_IssueRelations_B Issue[]                @relation("IssueRelations")
 
@@ -298,6 +299,8 @@ model Article {
   publishedAt    DateTime?
   createdAt      DateTime         @default(now())
   issue          Issue            @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  newsStreakId   String?
+  newsStreak     NewsStreak?      @relation(fields: [newsStreakId], references: [id], onDelete: SetNull)
   timelineEvents TimelineEvent[]
 
   @@index([issueId])
@@ -324,6 +327,8 @@ model Editorial {
   publishedAt    DateTime?
   createdAt      DateTime         @default(now())
   issue          Issue            @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  newsStreakId   String?
+  newsStreak     NewsStreak?      @relation(fields: [newsStreakId], references: [id], onDelete: SetNull)
 
   @@index([issueId])
   @@index([status])
@@ -679,4 +684,25 @@ enum ProgressStatus {
   READING
   MASTERED
   REVISION_NEEDED
+}
+
+model NewsStreak {
+  id               String       @id @default(cuid())
+  title            String
+  title_hi         String?
+  title_mr         String?
+  slug             String       @unique
+  livingSummary    String?      @db.Text
+  livingSummary_hi String?      @db.Text
+  livingSummary_mr String?      @db.Text
+  status           String       @default("ACTIVE") // ACTIVE, ARCHIVED
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  // Relationships
+  articles         Article[]
+  editorials       Editorial[]
+  
+  // Linkages to static syllabus Issues
+  issues           Issue[]      @relation("NewsStreakIssues")
 }

@@ -29,8 +29,9 @@ export async function POST(req) {
     const body = await req.json();
     const { mode, issueId, field, articleId, editorialId } = body;
 
-    const ai = getGeminiModel('background'); 
-    if (!ai) {
+    const batchAi = getGeminiModel('background');   // Gemma 26B for bulk article/editorial processing
+    const synthesisAi = getGeminiModel('synthesis'); // Gemini 2.5 Flash for structured JSON synthesis
+    if (!batchAi || !synthesisAi) {
       return NextResponse.json({ error: 'AI Model not configured' }, { status: 500 });
     }
 
@@ -56,7 +57,7 @@ export async function POST(req) {
         topic: issue.topic
       });
 
-      const response = await ai.generateContent(prompt);
+      const response = await batchAi.generateContent(prompt);
       let output = typeof response.text === 'function' ? response.text() : response.text;
       
       // Clean markdown
@@ -65,6 +66,80 @@ export async function POST(req) {
       return NextResponse.json({
         success: true,
         output
+      });
+    }
+
+    // --- NEW: STREAK_REBUILD MODE ---
+    if (mode === 'STREAK_REBUILD') {
+      const { streakId } = body;
+      if (!streakId) {
+        return NextResponse.json({ error: 'Missing streakId' }, { status: 400 });
+      }
+
+      const streak = await prisma.newsStreak.findUnique({
+        where: { id: streakId },
+        include: {
+          issues: true,
+          articles: { where: { status: 'DONE' }, orderBy: { publishedAt: 'desc' } },
+          editorials: { where: { status: 'DONE' }, orderBy: { publishedAt: 'desc' } }
+        }
+      });
+
+      if (!streak) {
+        return NextResponse.json({ error: 'News Streak not found' }, { status: 404 });
+      }
+
+      const timelineLines = [];
+      streak.articles.forEach(a => {
+        timelineLines.push(`- [Article] ${a.title} (${a.publishedAt?.toISOString().split('T')[0]}): ${a.structuredData?.crux || ''}`);
+      });
+      streak.editorials.forEach(e => {
+        timelineLines.push(`- [Editorial] ${e.title} (${e.publishedAt?.toISOString().split('T')[0]}): ${e.structuredData?.crux || ''}`);
+      });
+      
+      const timelineData = timelineLines.join('\n');
+      const syllabusNodes = streak.issues.map(iss => `${iss.gsPapers?.[0] || 'GS'} • ${iss.title}`).join(', ');
+
+      const prompt = await getRenderedPrompt('streak.living.summary.synthesis', {
+        streakTitle: streak.title,
+        syllabusNodes: syllabusNodes,
+        timelineData: timelineData.substring(0, 8000)
+      });
+
+      // Use JSON mode to guarantee pure JSON output with no markdown fences or preamble
+      const response = await synthesisAi.generateContentJson(prompt);
+      let parsedJson = null;
+
+      if (response && typeof response === 'object' && (response.causes || response.impact)) {
+        // generateContentJson returned a parsed object directly
+        parsedJson = response;
+      } else {
+        // Fallback: response.text() and strip any stray fences
+        let outputText = typeof response?.text === 'function' ? response.text() : String(response || '');
+        const match = outputText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+        const cleanStr = match ? match[1] : outputText.replace(/```json/g, '').replace(/```/g, '').trim();
+        try {
+          parsedJson = JSON.parse(cleanStr);
+        } catch (jsonErr) {
+          console.error('[STREAK_REBUILD] JSON parse failed:', cleanStr.substring(0, 300));
+          parsedJson = {
+            causes: cleanStr || 'Failed to generate synthesis. Please retry.',
+            impact: 'Synthesis failed. Please retry.',
+            tracker: 'Synthesis failed. Please retry.'
+          };
+        }
+      }
+
+      const finalSummaryStr = JSON.stringify(parsedJson);
+
+      await prisma.newsStreak.update({
+        where: { id: streakId },
+        data: { livingSummary: finalSummaryStr }
+      });
+
+      return NextResponse.json({
+        success: true,
+        livingSummary: finalSummaryStr
       });
     }
 
@@ -218,10 +293,71 @@ export async function POST(req) {
       }
     }
 
+    // 4. Rebuild Living Summaries for affected News Streaks
+    const affectedStreaks = await prisma.newsStreak.findMany({
+      where: {
+        OR: [
+          { issues: { some: { id: { in: Array.from(issueIdsToRebuild) } } } },
+          { articles: { some: { id: { in: pendingArticles.map(a => a.id) } } } },
+          { editorials: { some: { id: { in: pendingEditorials.map(e => e.id) } } } }
+        ]
+      },
+      include: {
+        issues: true,
+        articles: { where: { status: 'DONE' }, orderBy: { publishedAt: 'desc' } },
+        editorials: { where: { status: 'DONE' }, orderBy: { publishedAt: 'desc' } }
+      }
+    });
+
+    let rebuiltStreaks = 0;
+    for (const streak of affectedStreaks) {
+      console.log(`[Rebuilding News Streak Summary] ${streak.title}`);
+      
+      const timelineLines = [];
+      streak.articles.forEach(a => {
+        timelineLines.push(`- [Article] ${a.title} (${a.publishedAt?.toISOString().split('T')[0]}): ${a.structuredData?.crux || ''}`);
+      });
+      streak.editorials.forEach(e => {
+        timelineLines.push(`- [Editorial] ${e.title} (${e.publishedAt?.toISOString().split('T')[0]}): ${e.structuredData?.crux || ''}`);
+      });
+      
+      const timelineData = timelineLines.join('\n');
+      const syllabusNodes = streak.issues.map(iss => `${iss.gsPapers?.[0] || 'GS'} • ${iss.title}`).join(', ');
+
+      const prompt = await getRenderedPrompt('streak.living.summary.synthesis', {
+        streakTitle: streak.title,
+        syllabusNodes: syllabusNodes,
+        timelineData: timelineData.substring(0, 8000)
+      });
+
+      try {
+        const parsedJson = await synthesisAi.generateContentJson(prompt);
+
+        const finalSummaryStr = JSON.stringify(parsedJson);
+
+        await prisma.newsStreak.update({
+          where: { id: streak.id },
+          data: { livingSummary: finalSummaryStr }
+        });
+        
+        rebuiltStreaks++;
+        
+        await prisma.actionLog.create({
+          data: { action: 'STREAK_REBUILT', entityType: 'NewsStreak', entityId: streak.id, status: 'SUCCESS', message: `Auto-updated Living Summary` }
+        });
+      } catch (err) {
+        console.error(`[Error Rebuilding Streak] ${streak.id}:`, err);
+        await prisma.actionLog.create({
+          data: { action: 'STREAK_REBUILT', entityType: 'NewsStreak', entityId: streak.id, status: 'FAILED', message: err.message }
+        });
+      }
+    }
+
     return NextResponse.json({
       success: true,
       processed: processedItems,
-      issuesRebuilt: rebuiltIssues
+      issuesRebuilt: rebuiltIssues,
+      streaksRebuilt: rebuiltStreaks
     });
 
   } catch (error) {
