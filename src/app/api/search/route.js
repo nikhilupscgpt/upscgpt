@@ -15,7 +15,7 @@ export async function GET(req) {
     }
 
     // PRIMARY FAST PATH: PostgreSQL Full-Text Search
-    const [nodes, pyqs, news] = await Promise.all([
+    const [nodes, pyqs, news, streaks, editorials] = await Promise.all([
       prisma.$queryRaw`
         SELECT id, title, slug, "nodeType", domain, "gsPapers", metadata,
                ts_rank("searchVector", plainto_tsquery('english', ${query})) as rank
@@ -33,6 +33,16 @@ export async function GET(req) {
       prisma.article.findMany({
         where: { title: { contains: query, mode: 'insensitive' } },
         take: 5,
+        select: { id: true, title: true, publishedAt: true, source: true }
+      }),
+      prisma.newsStreak.findMany({
+        where: { title: { contains: query, mode: 'insensitive' } },
+        take: 3,
+        select: { id: true, title: true, updatedAt: true }
+      }),
+      prisma.editorial.findMany({
+        where: { title: { contains: query, mode: 'insensitive' } },
+        take: 3,
         select: { id: true, title: true, publishedAt: true, source: true }
       })
     ]);
@@ -93,6 +103,8 @@ export async function GET(req) {
       nodes: finalNodes,
       pyqs: pyqs || [],
       news: news || [],
+      streaks: streaks || [],
+      editorials: editorials || [],
       latency: duration
     });
 

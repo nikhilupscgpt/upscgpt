@@ -19,6 +19,35 @@ const cleanJson = (text) => {
   }
 };
 
+const translateNewsContent = async (aiClient, title, content, language) => {
+  if (!content) return { title: null, rawContent: null };
+  const prompt = `You are an expert bilingual translator for UPSC civil services preparation.
+Translate the following English news article into formal, highly accurate ${language}.
+Ensure that technical terms, government schemes, and legal vocabulary are translated correctly as per UPSC standards.
+
+Return a JSON object with this exact structure:
+{
+  "title": "Translated title here",
+  "content": "Translated content here (retain markdown formatting if any)"
+}
+
+English Original:
+Title: ${title}
+Content:
+${content.substring(0, 4500)}`;
+
+  try {
+    const res = await aiClient.generateContent(prompt);
+    let txt = typeof res.text === 'function' ? res.text() : res.text;
+    const match = txt.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+    const cleanStr = match ? match[1] : txt.replace(/```json/g, '').replace(/```/g, '').trim();
+    return JSON.parse(cleanStr);
+  } catch (e) {
+    console.error(`Translation failed for ${language}:`, e);
+    return { title: null, rawContent: null };
+  }
+};
+
 export async function POST(req) {
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== 'ADMIN') {
@@ -169,11 +198,21 @@ export async function POST(req) {
         const structuredData = cleanJson(response.text);
 
         if (structuredData) {
+          console.log(`[Translating Article] ${article.title} to Hindi...`);
+          const hiTranslation = await translateNewsContent(synthesisAi, article.title, article.rawContent, "Hindi");
+          
+          console.log(`[Translating Article] ${article.title} to Marathi...`);
+          const mrTranslation = await translateNewsContent(synthesisAi, article.title, article.rawContent, "Marathi");
+
           await prisma.article.update({
             where: { id: article.id },
             data: {
               structuredData,
-              status: 'DONE'
+              status: 'DONE',
+              title_hi: hiTranslation.title,
+              rawContent_hi: hiTranslation.content,
+              title_mr: mrTranslation.title,
+              rawContent_mr: mrTranslation.content,
             }
           });
           processedItems.articles++;
@@ -214,11 +253,21 @@ export async function POST(req) {
         const structuredData = cleanJson(response.text);
 
         if (structuredData) {
+          console.log(`[Translating Editorial] ${editorial.title} to Hindi...`);
+          const hiTranslation = await translateNewsContent(synthesisAi, editorial.title, editorial.rawContent, "Hindi");
+          
+          console.log(`[Translating Editorial] ${editorial.title} to Marathi...`);
+          const mrTranslation = await translateNewsContent(synthesisAi, editorial.title, editorial.rawContent, "Marathi");
+
           await prisma.editorial.update({
             where: { id: editorial.id },
             data: {
               structuredData,
-              status: 'DONE'
+              status: 'DONE',
+              title_hi: hiTranslation.title,
+              rawContent_hi: hiTranslation.content,
+              title_mr: mrTranslation.title,
+              rawContent_mr: mrTranslation.content,
             }
           });
           processedItems.editorials++;

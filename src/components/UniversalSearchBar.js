@@ -57,6 +57,12 @@ export default function UniversalSearchBar({ placeholder = 'Search or Ask...', i
   results.pyqs?.slice(0, 3).forEach(p => {
     flattenedSuggestions.push({ ...p, category: 'PYQ', icon: '🎯' });
   });
+  results.streaks?.slice(0, 3).forEach(s => {
+    flattenedSuggestions.push({ ...s, category: 'NEWS STREAK', icon: '⚡' });
+  });
+  results.editorials?.slice(0, 3).forEach(e => {
+    flattenedSuggestions.push({ ...e, category: 'EDITORIAL', icon: '🗞️' });
+  });
   results.news?.slice(0, 3).forEach(n => {
     flattenedSuggestions.push({ ...n, category: 'NEWS', icon: '📰' });
   });
@@ -93,8 +99,10 @@ export default function UniversalSearchBar({ placeholder = 'Search or Ask...', i
       router.push(`/node/${item.slug}`)
     } else if (item.category === 'PYQ') {
       router.push(`/search?q=${encodeURIComponent(query)}&tab=PYQ`)
-    } else if (item.category === 'NEWS') {
-      router.push(`/search?q=${encodeURIComponent(query)}&tab=NEWS`)
+    } else if (item.category === 'NEWS STREAK') {
+      router.push(`/news/streak/${item.id}`)
+    } else if (item.category === 'NEWS' || item.category === 'EDITORIAL') {
+      router.push(`/news/article/${item.id}`)
     }
   }
 
@@ -146,7 +154,7 @@ export default function UniversalSearchBar({ placeholder = 'Search or Ask...', i
               ) : (
                 <div className="dropdown-content">
                   {/* Categorized Render */}
-                  {['ANSWER', 'NODE', 'PYQ', 'NEWS'].map(cat => {
+                  {['ANSWER', 'NODE', 'PYQ', 'NEWS STREAK', 'EDITORIAL', 'NEWS'].map(cat => {
                     const catItems = flattenedSuggestions.filter(i => i.category === cat);
                     if (catItems.length === 0) return null;
 
@@ -169,7 +177,8 @@ export default function UniversalSearchBar({ placeholder = 'Search or Ask...', i
                                   <div className="suggestion-subtitle">
                                     {item.category === 'NODE' && `${item.domain} • ${item.gsPapers?.[0] || 'GS'}`}
                                     {item.category === 'PYQ' && `${item.year} · ${item.paper}`}
-                                    {item.category === 'NEWS' && `${item.source} · ${new Date(item.publishedAt).toLocaleDateString()}`}
+                                    {item.category === 'NEWS STREAK' && `Updated ${new Date(item.updatedAt).toLocaleDateString()}`}
+                                    {(item.category === 'NEWS' || item.category === 'EDITORIAL') && `${item.source || 'News'} · ${new Date(item.publishedAt).toLocaleDateString()}`}
                                   </div>
                                 </div>
                               </div>

@@ -12,6 +12,7 @@ import './home.css'
 
 export default function UPSCGPTMasterPortal() {
   const [stats, setStats] = useState({ entries: 0, categories: 0, newsToday: 0, issues: 0 })
+  const [streaks, setStreaks] = useState([])
   const { t } = useTranslation();
   const isClient = useIsClient();
   const [searchTerm, setSearchTerm] = useState('');
@@ -21,10 +22,12 @@ export default function UPSCGPTMasterPortal() {
     // Parallel fetch for better performance
     Promise.all([
       fetch('/api/entries').then(res => res.json()),
-      fetch('/api/issues').then(res => res.json()).catch(() => []) // Fallback if no issues yet
-    ]).then(([entriesData, issuesData]) => {
+      fetch('/api/issues').then(res => res.json()).catch(() => []), // Fallback if no issues yet
+      fetch('/api/news/streaks/active').then(res => res.json()).catch(() => [])
+    ]).then(([entriesData, issuesData, streaksData]) => {
       const entries = Array.isArray(entriesData) ? entriesData : []
       const issues = Array.isArray(issuesData) ? issuesData : []
+      const activeStreaks = Array.isArray(streaksData) ? streaksData : []
 
       const now = new Date()
       const todayCount = entries.filter((entry) => {
@@ -38,6 +41,7 @@ export default function UPSCGPTMasterPortal() {
         newsToday: todayCount,
         issues: issues.length
       })
+      setStreaks(activeStreaks)
     }).catch(() => { })
   }, [])
 
@@ -147,6 +151,80 @@ export default function UPSCGPTMasterPortal() {
         <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '32px' }}>
           <UniversalSearchBar placeholder="Search across nodes..." />
         </div>
+
+        {streaks.length > 0 && (
+          <div style={{ marginTop: '20px', marginBottom: '60px' }}>
+            <h3 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '24px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span style={{ fontSize: '2rem' }}>⚡</span> Live News Streaks (Trending)
+            </h3>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
+              gap: '24px' 
+            }}>
+              {streaks.map(streak => (
+                <Link key={streak.id} href={`/news/streak/${streak.id}`} style={{ textDecoration: 'none' }}>
+                  <div style={{
+                    background: 'rgba(15, 23, 42, 0.7)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: '20px',
+                    padding: '24px',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)'
+                  }} className="streak-card-hover">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                      <span style={{ 
+                        background: 'rgba(34, 197, 94, 0.1)', 
+                        color: '#4ade80', 
+                        padding: '4px 10px', 
+                        borderRadius: '20px', 
+                        fontSize: '0.65rem', 
+                        fontWeight: 800, 
+                        textTransform: 'uppercase', 
+                        letterSpacing: '1px', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '6px' 
+                      }}>
+                        <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', boxShadow: '0 0 8px #4ade80', animation: 'pulse 2s infinite' }} />
+                        LIVE NOW
+                      </span>
+                      <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>
+                        Updated {new Date(streak.updatedAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    
+                    <h4 style={{ fontSize: '1.25rem', color: 'white', fontWeight: 800, margin: '0 0 12px', lineHeight: 1.3 }}>
+                      {streak.title}
+                    </h4>
+                    
+                    <p style={{ fontSize: '0.9rem', color: '#cbd5e1', lineHeight: 1.6, margin: 0, opacity: 0.9 }}>
+                      {streak.livingSummary ? (streak.livingSummary.substring(0, 120) + '...') : 'Follow the developing story...'}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+            
+            <style jsx>{`
+              .streak-card-hover:hover {
+                background: rgba(15, 23, 42, 0.9) !important;
+                border-color: rgba(56, 189, 248, 0.4) !important;
+                transform: translateY(-4px);
+                box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(56, 189, 248, 0.1);
+              }
+              @keyframes pulse {
+                0% { opacity: 1; transform: scale(1); }
+                50% { opacity: 0.5; transform: scale(1.2); }
+                100% { opacity: 1; transform: scale(1); }
+              }
+            `}</style>
+          </div>
+        )}
+
 
         <div className="command-grid" style={{ alignItems: 'stretch' }}>
           {commandCenters.map((center) => {
@@ -297,8 +375,9 @@ export default function UPSCGPTMasterPortal() {
             )
           })}
 
-
         </div>
+
+
       </main>
 
       <footer

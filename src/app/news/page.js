@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useTranslation } from "@/context/TranslationContext";
 import { 
   Calendar, 
   Menu, 
@@ -25,6 +26,7 @@ import {
 
 export default function NewsHub() {
   const { data: session, status } = useSession();
+  const { lang } = useTranslation();
   const sessionExists = status === 'authenticated';
   const router = useRouter();
   const [feed, setFeed] = useState([]);
@@ -1263,7 +1265,7 @@ export default function NewsHub() {
                   {new Date(articleModalItem.item.publishedAt || articleModalItem.item.createdAt).toLocaleDateString([], { day: 'numeric', month: 'long', year: 'numeric' })} • {articleModalItem.item.source || 'News'}
                 </span>
                 <h2 style={{ fontSize: '1.6rem', color: 'white', fontWeight: 900, margin: 0, lineHeight: 1.3 }}>
-                  {articleModalItem.item.title}
+                  {lang === 'hi' ? (articleModalItem.item.title_hi || articleModalItem.item.title) : lang === 'mr' ? (articleModalItem.item.title_mr || articleModalItem.item.title) : articleModalItem.item.title}
                 </h2>
               </div>
               <button 
@@ -1296,7 +1298,11 @@ export default function NewsHub() {
                 </h5>
                 <div style={{ fontSize: '1.1rem', color: '#cbd5e1', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {articleModalItem.item.rawContent || 'No complete text available.'}
+                    {lang === 'hi' 
+                      ? (articleModalItem.item.rawContent_hi || articleModalItem.item.rawContent || 'Hindi translation in progress...') 
+                      : lang === 'mr' 
+                        ? (articleModalItem.item.rawContent_mr || articleModalItem.item.rawContent || 'Marathi translation in progress...') 
+                        : (articleModalItem.item.rawContent || 'No complete text available.')}
                   </ReactMarkdown>
                 </div>
               </div>
