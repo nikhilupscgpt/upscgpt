@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { BookOpen } from 'lucide-react';
 
 export async function generateMetadata({ params }) {
-  const { id } = params;
+  const { id } = await params;
   const streak = await prisma.newsStreak.findUnique({
     where: { id },
   });
@@ -33,7 +33,7 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function NewsStreakPage({ params }) {
-  const { id } = params;
+  const { id } = await params;
   const streak = await prisma.newsStreak.findUnique({
     where: { id },
     include: { articles: { orderBy: { publishedAt: 'desc' } } }
@@ -102,19 +102,6 @@ export default async function NewsStreakPage({ params }) {
         </div>
 
       </div>
-
-      <style jsx global>{`
-        @keyframes pulse {
-          0% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.5; transform: scale(1.2); }
-          100% { opacity: 1; transform: scale(1); }
-        }
-        .hover-glow-card:hover {
-          background: rgba(15, 23, 42, 0.8) !important;
-          border-color: rgba(56, 189, 248, 0.3) !important;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-      `}</style>
     </div>
   );
 }

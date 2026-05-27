@@ -5,7 +5,7 @@ import remarkGfm from 'remark-gfm';
 import Link from 'next/link';
 
 export async function generateMetadata({ params }) {
-  const { id } = params;
+  const { id } = await params;
   const article = await prisma.article.findUnique({
     where: { id },
   });
@@ -30,7 +30,7 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function ArticlePage({ params }) {
-  const { id } = params;
+  const { id } = await params;
   const article = await prisma.article.findUnique({
     where: { id },
     include: { issue: true }

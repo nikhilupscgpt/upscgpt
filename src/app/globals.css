@@ -835,3 +835,15 @@ table.table-premium tbody tr:nth-child(even) {
 table.table-premium tbody tr:hover {
   background: rgba(99, 102, 241, 0.04);
 }
+
+@keyframes pulse {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.hover-glow-card:hover {
+  background: rgba(15, 23, 42, 0.8) !important;
+  border-color: rgba(56, 189, 248, 0.3) !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}

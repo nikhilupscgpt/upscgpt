@@ -56,6 +56,14 @@ export default function NewsHub() {
   const [articleModalItem, setArticleModalItem] = useState(null); // { item, structuredData }
   useEffect(() => {
     setMounted(true);
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const streakId = params.get('streakId');
+      if (streakId) {
+        setActiveFeedTab('streak');
+        setActiveStreakId(streakId);
+      }
+    }
   }, []);
 
   // Interactive MCQs & subjective questions states

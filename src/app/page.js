@@ -163,7 +163,7 @@ export default function UPSCGPTMasterPortal() {
               gap: '24px' 
             }}>
               {streaks.map(streak => (
-                <Link key={streak.id} href={`/news/streak/${streak.id}`} style={{ textDecoration: 'none' }}>
+                <Link key={streak.id} href={`/news?streakId=${streak.id}`} style={{ textDecoration: 'none' }}>
                   <div style={{
                     background: 'rgba(15, 23, 42, 0.7)',
                     border: '1px solid rgba(255, 255, 255, 0.1)',

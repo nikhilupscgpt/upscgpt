@@ -100,7 +100,7 @@ export default function UniversalSearchBar({ placeholder = 'Search or Ask...', i
     } else if (item.category === 'PYQ') {
       router.push(`/search?q=${encodeURIComponent(query)}&tab=PYQ`)
     } else if (item.category === 'NEWS STREAK') {
-      router.push(`/news/streak/${item.id}`)
+      router.push(`/news?streakId=${item.id}`)
     } else if (item.category === 'NEWS' || item.category === 'EDITORIAL') {
       router.push(`/news/article/${item.id}`)
     }
