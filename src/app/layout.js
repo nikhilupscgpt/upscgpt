@@ -68,10 +68,11 @@ import AuthProvider from '../components/AuthProvider'
 import { NavProvider } from '../context/NavContext'
 import Navigation from '../components/Navigation'
 import { TranslationProvider } from '../context/TranslationContext'
+import { ThemeProvider } from '../components/ThemeProvider'
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossOrigin="" />
         <link rel="apple-touch-icon" href="/logo.png" />
@@ -80,7 +81,7 @@ export default function RootLayout({ children }) {
       <body className={`${outfit.variable} antialiased`} style={{ minHeight: '100vh', position: 'relative', overflowX: 'hidden', fontFamily: 'var(--font-outfit), sans-serif' }}>
         <div className="universal-page-glow" />
         {/* Simplified Background for Performance */}
-        <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: '#020617' }}>
+        <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'var(--bg-primary)' }}>
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'radial-gradient(circle at 10% 10%, rgba(139, 92, 246, 0.08), transparent 50%), radial-gradient(circle at 90% 90%, rgba(59, 130, 246, 0.08), transparent 50%)' }} />
         </div>
 
@@ -113,16 +114,18 @@ export default function RootLayout({ children }) {
           }}
         />
 
-        <TranslationProvider>
-          <AuthProvider>
-            <NavProvider>
-              <Navigation />
-              <main style={{ position: 'relative', zIndex: 10 }}>
-                {children}
-              </main>
-            </NavProvider>
-          </AuthProvider>
-        </TranslationProvider>
+        <ThemeProvider attribute="data-theme" defaultTheme="dark" enableSystem={false}>
+          <TranslationProvider>
+            <AuthProvider>
+              <NavProvider>
+                <Navigation />
+                <main style={{ position: 'relative', zIndex: 10 }}>
+                  {children}
+                </main>
+              </NavProvider>
+            </AuthProvider>
+          </TranslationProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

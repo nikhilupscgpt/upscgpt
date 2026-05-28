@@ -7,14 +7,16 @@ export async function GET() {
       where: {
         status: 'ACTIVE',
       },
-      orderBy: {
-        updatedAt: 'desc'
-      },
+      orderBy: [
+        { importanceScore: 'desc' },
+        { updatedAt: 'desc' }
+      ],
       take: 3,
       select: {
         id: true,
         title: true,
         livingSummary: true,
+        importanceScore: true,
         updatedAt: true,
         createdAt: true,
       }

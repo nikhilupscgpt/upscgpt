@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { useNavContext } from "@/context/NavContext";
 import { useTranslation } from "@/context/TranslationContext";
 import NanoAssistant from "./NanoAssistant";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Navigation({ children }) {
   const { data: session, status } = useSession();
@@ -88,6 +89,8 @@ export default function Navigation({ children }) {
 
           <div className="app-nav__actions">
             {activeContent && <div className="app-nav__slot">{activeContent}</div>}
+
+            <ThemeToggle />
 
             <div className="lang-toggle-container">
               <div className="lang-toggle">

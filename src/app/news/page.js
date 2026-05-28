@@ -41,17 +41,20 @@ export default function NewsHub() {
   
   // News Streak states
   const [activeFeedTab, setActiveFeedTab] = useState('feed'); // 'feed' or 'streak'
+  const [selectedTimeframe, setSelectedTimeframe] = useState('day');
   const [streaks, setStreaks] = useState([]);
   const [loadingStreaks, setLoadingStreaks] = useState(false);
   const [activeStreakId, setActiveStreakId] = useState(null);
   const [activeStreakDetails, setActiveStreakDetails] = useState(null);
   const [activeStreakNodeId, setActiveStreakNodeId] = useState(null);
+  const [streakFilterMonth, setStreakFilterMonth] = useState('ALL');
+  const [streakFilterWeek, setStreakFilterWeek] = useState('ALL');
   const [timelineGranularity, setTimelineGranularity] = useState('MONTHLY');
   const [activeStreakWeek, setActiveStreakWeek] = useState('W2');
   const [activeSynthesisTab, setActiveSynthesisTab] = useState('causes');
   const [streakPracticeTab, setStreakPracticeTab] = useState('article');
   const [showPractice, setShowPractice] = useState(false);
-  const [showLivingSummary, setShowLivingSummary] = useState(false);
+  const [showLivingSummary, setShowLivingSummary] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [articleModalItem, setArticleModalItem] = useState(null); // { item, structuredData }
   useEffect(() => {
@@ -98,8 +101,8 @@ export default function NewsHub() {
         setActiveStreakDetails(data.streak);
         
         // Combine articles and editorials chronologically
-        const articles = data.streak.articles || [];
-        const editorials = data.streak.editorials || [];
+        const articles = (data.streak.articles || []).map(a => ({ ...a, isEditorial: false }));
+        const editorials = (data.streak.editorials || []).map(e => ({ ...e, isEditorial: true }));
         const timelineItems = [...articles, ...editorials].sort(
           (a, b) => new Date(a.publishedAt || a.createdAt) - new Date(b.publishedAt || b.createdAt)
         );
@@ -130,8 +133,8 @@ export default function NewsHub() {
 
   const getStreakTimelineItems = () => {
     if (!activeStreakDetails) return [];
-    const articles = activeStreakDetails.articles || [];
-    const editorials = activeStreakDetails.editorials || [];
+    const articles = (activeStreakDetails.articles || []).map(a => ({ ...a, isEditorial: false }));
+    const editorials = (activeStreakDetails.editorials || []).map(e => ({ ...e, isEditorial: true }));
     return [...articles, ...editorials].sort(
       (a, b) => new Date(a.publishedAt || a.createdAt) - new Date(b.publishedAt || b.createdAt)
     );
@@ -182,7 +185,7 @@ export default function NewsHub() {
   async function fetchNews() {
     setLoading(true);
     try {
-      const res = await fetch(`/api/news/hub?date=${selectedDate}`);
+      const res = await fetch(`/api/news/hub?date=${selectedDate}&range=${selectedTimeframe}`);
       const data = await res.json();
       const newFeed = data.feed || [];
       setFeed(newFeed);
@@ -201,7 +204,7 @@ export default function NewsHub() {
 
   useEffect(() => {
     fetchNews();
-  }, [selectedDate]);
+  }, [selectedDate, selectedTimeframe]);
 
   // Filter logic
   const filteredFeed = feed.filter(item => {
@@ -498,9 +501,9 @@ export default function NewsHub() {
               <div style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', padding: '6px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Award size={16} />
               </div>
-              <h4 style={{ color: 'white', margin: 0, fontSize: '0.85rem', fontWeight: 700 }}>Save Your Progress</h4>
+              <h4 style={{ color: 'var(--text-primary)', margin: 0, fontSize: '0.85rem', fontWeight: 700 }}>Save Your Progress</h4>
             </div>
-            <p style={{ margin: 0, fontSize: '0.75rem', color: '#94a3b8', lineHeight: 1.4 }}>Sign in to track your score accuracy, save attempts, and unlock personalized streaks.</p>
+            <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>Sign in to track your score accuracy, save attempts, and unlock personalized streaks.</p>
             <button 
               onClick={() => router.push(`/login?callbackUrl=${window.location.pathname}`)}
               style={{ width: '100%', padding: '8px 16px', background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: 'white', border: 'none', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(59, 130, 246, 0.2)', transition: '0.2s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
@@ -540,6 +543,21 @@ export default function NewsHub() {
       }
     ];
 
+    // Collect all mains questions across all nodes (articles/editorials) in this streak
+    const streakMainsQuestions = activeTimelineItems.reduce((acc, node) => {
+      const nodeMains = node.questions?.filter(q => {
+        const options = getOptionsArray(q.options);
+        return options.length === 0 && q.tags.includes('mains');
+      }) || [];
+      // Deduplicate by question ID
+      nodeMains.forEach(q => {
+        if (!acc.some(existing => existing.id === q.id)) {
+          acc.push(q);
+        }
+      });
+      return acc;
+    }, []);
+
     return (
       <div className="practice-board-content">
         <div className="practice-tabs">
@@ -561,7 +579,7 @@ export default function NewsHub() {
           {streakPracticeTab === 'article' ? (
             <div className="prelims-questions-list">
               <div className="active-recall-card" style={{ marginBottom: '20px', padding: '16px', background: 'rgba(6, 182, 212, 0.03)', border: '1px dashed rgba(6, 182, 212, 0.2)', borderRadius: '16px', textAlign: 'center' }}>
-                <p style={{ margin: '0 0 12px', fontSize: '0.8rem', color: '#cbd5e1', lineHeight: 1.4 }}>Encourage interactive learning to build memory retention for this update.</p>
+                <p style={{ margin: '0 0 12px', fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>Encourage interactive learning to build memory retention for this update.</p>
                 <button 
                   onClick={() => alert("Active Recall initiated for: " + (activeStreakNode?.title || activeStreakDetails?.title))}
                   className="active-recall-cta-btn"
@@ -572,7 +590,7 @@ export default function NewsHub() {
               </div>
 
               {!hasNodePractice ? (
-                <p className="empty-text" style={{ padding: '48px 0', fontSize: '0.8rem', color: '#475569', textAlign: 'center', fontStyle: 'italic' }}>
+                <p className="empty-text" style={{ padding: '48px 0', fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center', fontStyle: 'italic' }}>
                   No updates-specific questions mapped to this node. Use 'The Whole Issue' tab to test comprehensive mock questions.
                 </p>
               ) : (
@@ -657,7 +675,7 @@ export default function NewsHub() {
             </div>
           ) : (
             <div className="mains-questions-list">
-              {mockStreakMainsQuestions.map((q) => {
+              {(streakMainsQuestions.length > 0 ? streakMainsQuestions : mockStreakMainsQuestions).map((q) => {
                 const isExpanded = expandedMainsAnswers[q.id] === true;
                 return (
                   <div key={q.id} className="mains-board-card">
@@ -693,12 +711,247 @@ export default function NewsHub() {
     );
   };
 
+  const renderModalPracticeBoard = (modalItem) => {
+    const item = modalItem.item;
+    const structured = modalItem.structuredData;
+    
+    // Parse options for DB questions
+    const dbPrelimsQuestions = item?.questions?.filter(q => {
+      const options = getOptionsArray(q.options);
+      return options.length > 0 || q.tags.includes('prelims');
+    }) || [];
+
+    const dbMainsQuestions = item?.questions?.filter(q => {
+      const options = getOptionsArray(q.options);
+      return options.length === 0 && q.tags.includes('mains');
+    }) || [];
+
+    const hasMcqs = Boolean(structured?.mcq || dbPrelimsQuestions.length > 0);
+    const hasMainsQuestions = Boolean(dbMainsQuestions.length > 0);
+    const hasPracticeItems = hasMcqs || hasMainsQuestions;
+    
+    if (!hasPracticeItems) {
+      return (
+        <div className="study-assistant-card" style={{ padding: '16px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '12px' }}>
+          <div className="assistant-header" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', fontWeight: 800, color: '#a78bfa', marginBottom: '8px' }}>
+            <Bookmark size={15} />
+            <span>Topic Study Helper</span>
+          </div>
+          <p style={{ margin: '0 0 10px', fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+            No mock questions are currently linked to this briefing. While reading:
+          </p>
+          <ul style={{ margin: 0, paddingLeft: '16px', fontSize: '0.75rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <li>Identify key definitions or geographical entities in the text.</li>
+            <li>Analyze the cause-effect relationships of the policy decisions.</li>
+            <li>Synthesize core arguments into 3 structural bullet points.</li>
+          </ul>
+        </div>
+      );
+    }
+
+    return (
+      <div className="practice-board-content">
+        {/* Toggles */}
+        <div className="practice-tabs" style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', marginBottom: '16px' }}>
+          <button 
+            onClick={() => setPracticeTab('prelims')}
+            className={`practice-tab-btn ${practiceTab === 'prelims' ? 'active' : ''}`}
+            disabled={!hasMcqs}
+            style={{ flex: 1, padding: '10px 0', border: 'none', background: 'transparent', color: practiceTab === 'prelims' ? '#10b981' : 'var(--text-muted)', borderBottom: practiceTab === 'prelims' ? '2px solid #10b981' : 'none', fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer' }}
+          >
+            <span>Prelims MCQs ({dbPrelimsQuestions.length + (structured?.mcq ? 1 : 0)})</span>
+          </button>
+          <button 
+            onClick={() => setPracticeTab('mains')}
+            className={`practice-tab-btn ${practiceTab === 'mains' ? 'active' : ''}`}
+            disabled={!hasMainsQuestions}
+            style={{ flex: 1, padding: '10px 0', border: 'none', background: 'transparent', color: practiceTab === 'mains' ? '#10b981' : 'var(--text-muted)', borderBottom: practiceTab === 'mains' ? '2px solid #10b981' : 'none', fontWeight: 800, fontSize: '0.75rem', cursor: 'pointer' }}
+          >
+            <span>Mains Qs ({dbMainsQuestions.length})</span>
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="practice-body" style={{ maxHeight: '400px', overflowY: 'auto' }}>
+          {practiceTab === 'prelims' && hasMcqs && (
+            <div className="prelims-questions-list" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              
+              {/* Inline MCQ */}
+              {structured?.mcq && (
+                <div className="mcq-board-card" style={{ background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '16px' }}>
+                  <div className="mcq-card-badge" style={{ fontSize: '0.55rem', fontWeight: 900, color: '#f59e0b', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)', padding: '2px 6px', borderRadius: '4px', display: 'inline-block', marginBottom: '8px' }}>AI CHALLENGE MCQ</div>
+                  <h4 className="mcq-card-question" style={{ margin: '0 0 12px', fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 800, lineHeight: 1.4 }}>{structured.mcq.question}</h4>
+                  
+                  <div className="mcq-card-options" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {structured.mcq.options?.map((option, idx) => {
+                      const selected = selectedAnswers[`ai-${item.id}`] === option;
+                      const isCorrectOpt = isMcqCorrect(option, structured.mcq.answer);
+                      const answered = selectedAnswers[`ai-${item.id}`] !== undefined;
+                      
+                      let optStyle = {
+                        width: '100%', padding: '10px 12px', border: '1px solid var(--border-color)', borderRadius: '8px',
+                        background: 'transparent', color: 'var(--text-secondary)', textAlign: 'left', fontSize: '0.75rem',
+                        fontWeight: 700, cursor: 'pointer', transition: '0.2s'
+                      };
+                      if (answered) {
+                        if (isCorrectOpt) {
+                          optStyle.background = 'rgba(16, 185, 129, 0.1)';
+                          optStyle.borderColor = 'rgba(16, 185, 129, 0.3)';
+                          optStyle.color = '#10b981';
+                        } else if (selected) {
+                          optStyle.background = 'rgba(239, 68, 68, 0.1)';
+                          optStyle.borderColor = 'rgba(239, 68, 68, 0.3)';
+                          optStyle.color = '#ef4444';
+                        } else {
+                          optStyle.opacity = 0.5;
+                        }
+                      }
+
+                      return (
+                        <button 
+                          key={idx}
+                          disabled={answered}
+                          onClick={() => setSelectedAnswers(prev => ({ ...prev, [`ai-${item.id}`]: option }))}
+                          style={optStyle}
+                          className="hover-glow-btn"
+                        >
+                          {option}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {selectedAnswers[`ai-${item.id}`] !== undefined && (
+                    <div style={{ marginTop: '16px', borderTop: '1px dashed var(--border-color)', paddingTop: '12px' }}>
+                      <div style={{ fontSize: '0.75rem', fontWeight: 800, color: isMcqCorrect(selectedAnswers[`ai-${item.id}`], structured.mcq.answer) ? '#10b981' : '#ef4444', marginBottom: '4px' }}>
+                        {isMcqCorrect(selectedAnswers[`ai-${item.id}`], structured.mcq.answer) ? "✓ Correct Option Selected" : "✗ Incorrect Option"}
+                      </div>
+                      <p style={{ margin: '0 0 6px', fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
+                        <strong>Correct Answer:</strong> {structured.mcq.answer}
+                      </p>
+                      <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
+                        <strong>Explanation:</strong> {structured.mcq.explanation}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Database Linked MCQs */}
+              {dbPrelimsQuestions.map((q) => {
+                const options = getOptionsArray(q.options);
+                const answered = selectedAnswers[q.id] !== undefined;
+                const selectedOpt = selectedAnswers[q.id];
+
+                return (
+                  <div key={q.id} className="mcq-board-card" style={{ background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '16px' }}>
+                    <div className="mcq-card-badge db" style={{ fontSize: '0.55rem', fontWeight: 900, color: '#10b981', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '2px 6px', borderRadius: '4px', display: 'inline-block', marginBottom: '8px' }}>CENTRAL MCQ</div>
+                    <h4 className="mcq-card-question" style={{ margin: '0 0 12px', fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 800, lineHeight: 1.4 }}>{q.text}</h4>
+                    
+                    <div className="mcq-card-options" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {options.map((option, idx) => {
+                        const selected = selectedOpt?.label === option.label;
+                        const isCorrectOpt = isDbQuestionCorrect(option, q);
+                        
+                        let optStyle = {
+                          width: '100%', padding: '10px 12px', border: '1px solid var(--border-color)', borderRadius: '8px',
+                          background: 'transparent', color: 'var(--text-secondary)', textAlign: 'left', fontSize: '0.75rem',
+                          fontWeight: 700, cursor: 'pointer', transition: '0.2s'
+                        };
+                        if (answered) {
+                          if (isCorrectOpt) {
+                            optStyle.background = 'rgba(16, 185, 129, 0.1)';
+                            optStyle.borderColor = 'rgba(16, 185, 129, 0.3)';
+                            optStyle.color = '#10b981';
+                          } else if (selected) {
+                            optStyle.background = 'rgba(239, 68, 68, 0.1)';
+                            optStyle.borderColor = 'rgba(239, 68, 68, 0.3)';
+                            optStyle.color = '#ef4444';
+                          } else {
+                            optStyle.opacity = 0.5;
+                          }
+                        }
+
+                        return (
+                          <button 
+                            key={idx}
+                            disabled={answered}
+                            onClick={() => setSelectedAnswers(prev => ({ ...prev, [q.id]: option }))}
+                            style={optStyle}
+                            className="hover-glow-btn"
+                          >
+                            <strong>{option.label}.</strong> {option.text}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {answered && (
+                      <div style={{ marginTop: '16px', borderTop: '1px dashed var(--border-color)', paddingTop: '12px' }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 800, color: isDbQuestionCorrect(selectedOpt, q) ? '#10b981' : '#ef4444', marginBottom: '4px' }}>
+                          {isDbQuestionCorrect(selectedOpt, q) ? "✓ Correct Option Selected" : "✗ Incorrect Option"}
+                        </div>
+                        <p style={{ margin: '0 0 6px', fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
+                          <strong>Correct Option:</strong> {q.correctLabel}
+                        </p>
+                        <p style={{ margin: 0, fontSize: '0.72rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
+                          <strong>Explanation:</strong> {q.explanation}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+
+            </div>
+          )}
+
+          {practiceTab === 'mains' && hasMainsQuestions && (
+            <div className="mains-questions-list" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {dbMainsQuestions.map((q) => {
+                const isExpanded = expandedMainsAnswers[q.id] === true;
+                return (
+                  <div key={q.id} className="mains-board-card" style={{ background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '12px', padding: '16px' }}>
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                      <span style={{ fontSize: '0.55rem', fontWeight: 800, background: 'rgba(239, 68, 68, 0.1)', color: '#f87171', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '2px 6px', borderRadius: '4px' }}>{q.difficulty || 'MEDIUM'}</span>
+                      {q.gsPaper && <span style={{ fontSize: '0.55rem', fontWeight: 800, background: 'rgba(255,255,255,0.05)', color: 'var(--text-muted)', border: '1px solid var(--border-color)', padding: '2px 6px', borderRadius: '4px' }}>{q.gsPaper}</span>}
+                    </div>
+                    <h4 style={{ margin: '0 0 12px', fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 800, lineHeight: 1.4 }}>{q.text}</h4>
+                    
+                    <button 
+                      onClick={() => setExpandedMainsAnswers(prev => ({ ...prev, [q.id]: !isExpanded }))}
+                      style={{ width: '100%', padding: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid var(--border-color)', borderRadius: '8px', color: 'var(--text-secondary)', fontSize: '0.72rem', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+                    >
+                      <span>{isExpanded ? "Hide Model Framework" : "Reveal Model Framework"}</span>
+                      {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                    </button>
+
+                    {isExpanded && (
+                      <div style={{ marginTop: '12px', borderTop: '1px dashed var(--border-color)', paddingTop: '12px' }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#fbbf24', marginBottom: '6px' }}>Answer Key & Synthesis Points:</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {q.explanation}
+                          </ReactMarkdown>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="news-hub-wrapper">
       {!mounted ? (
         <div className="loading-state main-loader">
           <div className="loader-ring" />
-          <div style={{ fontWeight: 700, color: '#94a3b8', fontSize: '0.9rem' }}>Synchronizing Timeline Data...</div>
+          <div style={{ fontWeight: 700, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Synchronizing Timeline Data...</div>
         </div>
       ) : (
         <>
@@ -754,8 +1007,8 @@ export default function NewsHub() {
               onClick={() => dateInputRef.current?.showPicker()}
               className="calendar-trigger-btn"
               style={{
-                background: !isDateInCurrentWeek ? '#f59e0b' : 'rgba(255,255,255,0.02)',
-                color: !isDateInCurrentWeek ? '#0f172a' : '#64748b'
+                background: !isDateInCurrentWeek ? '#f59e0b' : 'var(--bg-input)',
+                color: !isDateInCurrentWeek ? '#0f172a' : 'var(--text-muted)'
               }}
             >
               <Calendar size={14} />
@@ -774,7 +1027,7 @@ export default function NewsHub() {
       {loading ? (
         <div className="loading-state">
           <div className="loader-ring" />
-          <div style={{ fontWeight: 700, color: '#94a3b8', fontSize: '0.9rem' }}>Synchronizing Timeline Data...</div>
+          <div style={{ fontWeight: 700, color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Synchronizing Timeline Data...</div>
         </div>
       ) : (
         <div className="dashboard-content">
@@ -795,6 +1048,63 @@ export default function NewsHub() {
                 News Streaks
               </button>
             </div>
+
+            {activeFeedTab === 'feed' && (
+              <div className="timeframe-toggle-container">
+                {['day', 'week', 'month', 'year'].map(t => (
+                  <button
+                    key={t}
+                    onClick={() => {
+                      setSelectedTimeframe(t);
+                    }}
+                    className={`timeframe-toggle-btn ${selectedTimeframe === t ? 'active' : ''}`}
+                  >
+                    {t === 'day' ? 'Daily' : t === 'week' ? 'Weekly' : t === 'month' ? 'Monthly' : 'Yearly'}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {activeFeedTab === 'streak' && (
+              <div className="streak-filter-container">
+                <select
+                  value={streakFilterMonth}
+                  onChange={(e) => {
+                    setStreakFilterMonth(e.target.value);
+                    setStreakFilterWeek('ALL');
+                  }}
+                  className="streak-filter-select"
+                >
+                  <option value="ALL">All Months</option>
+                  <option value="0">January</option>
+                  <option value="1">February</option>
+                  <option value="2">March</option>
+                  <option value="3">April</option>
+                  <option value="4">May</option>
+                  <option value="5">June</option>
+                  <option value="6">July</option>
+                  <option value="7">August</option>
+                  <option value="8">September</option>
+                  <option value="9">October</option>
+                  <option value="10">November</option>
+                  <option value="11">December</option>
+                </select>
+
+                <select
+                  value={streakFilterWeek}
+                  onChange={(e) => setStreakFilterWeek(e.target.value)}
+                  className="streak-filter-select"
+                  disabled={streakFilterMonth === 'ALL'}
+                >
+                  <option value="ALL">All Weeks</option>
+                  <option value="1">Week 1 (1-7)</option>
+                  <option value="2">Week 2 (8-14)</option>
+                  <option value="3">Week 3 (15-21)</option>
+                  <option value="4">Week 4 (22-28)</option>
+                  <option value="5">Week 5 (29-31)</option>
+                </select>
+              </div>
+            )}
 
             {activeFeedTab === 'streak' && session?.user?.role === 'ADMIN' && (
               <div style={{ padding: '0 0.75rem 0.5rem' }}>
@@ -841,15 +1151,22 @@ export default function NewsHub() {
                         setMobileMenuOpen(false);
                         setSelectedAnswers({});
                       }}
-                      className={`sidebar-item ${isActive ? 'active' : ''}`}
+                      className={`sidebar-item ${isActive ? 'active' : ''} ${item.importanceScore >= 4 ? 'high-importance' : ''}`}
                       style={{
-                        borderLeft: isActive ? `3px solid ${badge.color}` : '3px solid transparent'
+                        borderLeft: isActive 
+                          ? (item.importanceScore >= 4 ? '3px solid #fbbf24' : `3px solid ${badge.color}`) 
+                          : (item.importanceScore >= 4 ? '3px solid #fbbf24' : '3px solid transparent')
                       }}
                     >
                       <div className="sidebar-item-meta">
                         <span className="sidebar-badge" style={{ background: badge.bg, color: badge.color, border: badge.border }}>
                           {badge.label}
                         </span>
+                        {item.importanceScore >= 4 && (
+                          <span className="importance-star-badge" style={{ display: 'flex', alignItems: 'center', gap: '2px', background: 'rgba(245, 158, 11, 0.15)', color: '#fbbf24', border: '1px solid rgba(245, 158, 11, 0.3)', padding: '1px 5px', borderRadius: '4px', fontSize: '0.55rem', fontWeight: 900 }}>
+                            ★ KEY TOPIC
+                          </span>
+                        )}
                         {item.source && <span className="sidebar-source">{item.source}</span>}
                         <span className="sidebar-time">{displayTime}</span>
                       </div>
@@ -871,57 +1188,80 @@ export default function NewsHub() {
               ) : (
                 loadingStreaks ? (
                   <div className="sidebar-empty">Loading streaks...</div>
-                ) : streaks.length > 0 ? streaks.map(streak => {
-                  const isActive = activeStreakId === streak.id;
-                  
-                  const paper = streak.issues?.[0]?.gsPapers?.[0] || 'GS-III';
-                  const domain = streak.issues?.[0]?.domain || 'ECONOMY';
-                  const updatesCount = (streak._count?.articles || 0) + (streak._count?.editorials || 0);
-
-                  return (
-                    <div 
-                      key={streak.id}
-                      onClick={() => {
-                        setActiveStreakId(streak.id);
-                        setMobileMenuOpen(false);
-                        setSelectedAnswers({});
-                      }}
-                      className={`sidebar-item streak-sidebar-card ${isActive ? 'active' : ''}`}
-                      style={{
-                        borderLeft: isActive ? `3px solid #fbbf24` : '3px solid transparent'
-                      }}
-                    >
-                      <div className="streak-card-meta">
-                        <span className="streak-meta-paper">{paper} • {domain}</span>
-                        <span className="streak-meta-status" style={{ color: streak.status === 'URGENT' ? '#fbbf24' : '#10b981' }}>{streak.status}</span>
-                      </div>
-                      <div className="streak-card-title">{streak.title}</div>
+                ) : (() => {
+                  const filteredStreaksList = streaks.filter(streak => {
+                    const d = new Date(streak.updatedAt || streak.createdAt);
+                    if (streakFilterMonth !== 'ALL') {
+                      const monthInt = parseInt(streakFilterMonth);
+                      if (d.getUTCMonth() !== monthInt) return false;
                       
-                      <div className="streak-card-graph-row">
-                        <svg className="trendline-svg" viewBox="0 0 100 30" width="70" height="20">
-                          <path 
-                            d={streak.status === 'URGENT' ? "M0 15 Q 25 25, 50 10 T 100 28" : "M0 25 Q 25 5, 50 18 T 100 5"}
-                            fill="none" 
-                            stroke={streak.status === 'URGENT' ? '#fbbf24' : '#06b6d4'} 
-                            strokeWidth="2" 
-                          />
-                        </svg>
-                        <div className="streak-updates-stat">
-                          <span className="count-number" style={{ color: streak.status === 'URGENT' ? '#fbbf24' : '#06b6d4' }}>{updatesCount} Updates</span>
-                          <span className="stat-time">PAST 24 HOURS</span>
+                      if (streakFilterWeek !== 'ALL') {
+                        const weekInt = parseInt(streakFilterWeek);
+                        const day = d.getUTCDate();
+                        let matchWeek = false;
+                        if (weekInt === 1 && day >= 1 && day <= 7) matchWeek = true;
+                        else if (weekInt === 2 && day >= 8 && day <= 14) matchWeek = true;
+                        else if (weekInt === 3 && day >= 15 && day <= 21) matchWeek = true;
+                        else if (weekInt === 4 && day >= 22 && day <= 28) matchWeek = true;
+                        else if (weekInt === 5 && day >= 29) matchWeek = true;
+                        if (!matchWeek) return false;
+                      }
+                    }
+                    return true;
+                  });
+
+                  return filteredStreaksList.length > 0 ? filteredStreaksList.map(streak => {
+                    const isActive = activeStreakId === streak.id;
+                    
+                    const paper = streak.issues?.[0]?.gsPapers?.[0] || 'GS-III';
+                    const domain = streak.issues?.[0]?.domain || 'ECONOMY';
+                    const updatesCount = (streak._count?.articles || 0) + (streak._count?.editorials || 0);
+
+                    return (
+                      <div 
+                        key={streak.id}
+                        onClick={() => {
+                          setActiveStreakId(streak.id);
+                          setMobileMenuOpen(false);
+                          setSelectedAnswers({});
+                        }}
+                        className={`sidebar-item streak-sidebar-card ${isActive ? 'active' : ''}`}
+                        style={{
+                          borderLeft: isActive ? `3px solid #fbbf24` : '3px solid transparent'
+                        }}
+                      >
+                        <div className="streak-card-meta">
+                          <span className="streak-meta-paper">{paper} • {domain}</span>
+                          <span className="streak-meta-status" style={{ color: streak.status === 'URGENT' ? '#fbbf24' : '#10b981' }}>{streak.status}</span>
+                        </div>
+                        <div className="streak-card-title">{streak.title}</div>
+                        
+                        <div className="streak-card-graph-row">
+                          <svg className="trendline-svg" viewBox="0 0 100 30" width="70" height="20">
+                            <path 
+                              d={streak.status === 'URGENT' ? "M0 15 Q 25 25, 50 10 T 100 28" : "M0 25 Q 25 5, 50 18 T 100 5"}
+                              fill="none" 
+                              stroke={streak.status === 'URGENT' ? '#fbbf24' : '#06b6d4'} 
+                              strokeWidth="2" 
+                            />
+                          </svg>
+                          <div className="streak-updates-stat">
+                            <span className="count-number" style={{ color: streak.status === 'URGENT' ? '#fbbf24' : '#06b6d4' }}>{updatesCount} Updates</span>
+                            <span className="stat-time">PAST 24 HOURS</span>
+                          </div>
+                        </div>
+
+                        <div className="streak-card-tags">
+                          {streak.issues?.slice(0, 3).map(iss => (
+                            <span key={iss.id} className="streak-tag-pill">{iss.title.split(' ').slice(0,2).join(' ')}</span>
+                          ))}
                         </div>
                       </div>
-
-                      <div className="streak-card-tags">
-                        {streak.issues?.slice(0, 3).map(iss => (
-                          <span key={iss.id} className="streak-tag-pill">{iss.title.split(' ').slice(0,2).join(' ')}</span>
-                        ))}
-                      </div>
-                    </div>
+                    );
+                  }) : (
+                    <div className="sidebar-empty">No active streaks found for selected time range.</div>
                   );
-                }) : (
-                  <div className="sidebar-empty">No active streaks found.</div>
-                )
+                })()
               )}
             </div>
           </aside>
@@ -945,6 +1285,28 @@ export default function NewsHub() {
                         <span className="meta-text">
                           {new Date(activeItem.publishedAt || activeItem.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
                         </span>
+                        {activeItem.importanceScore !== undefined && (
+                          <span 
+                            className="article-importance-stars" 
+                            style={{ 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              gap: '2px', 
+                              background: activeItem.importanceScore >= 4 ? 'rgba(245, 158, 11, 0.1)' : 'rgba(255, 255, 255, 0.05)', 
+                              color: activeItem.importanceScore >= 4 ? '#fbbf24' : '#64748b', 
+                              border: activeItem.importanceScore >= 4 ? '1px solid rgba(245, 158, 11, 0.2)' : '1px solid rgba(255, 255, 255, 0.1)', 
+                              padding: '2px 8px', 
+                              borderRadius: '6px', 
+                              fontSize: '0.65rem', 
+                              fontWeight: 800 
+                            }}
+                          >
+                            <span>UPSC Importance:</span>
+                            <span style={{ fontSize: '0.8rem', marginLeft: '4px', letterSpacing: '1px' }}>
+                              {'★'.repeat(activeItem.importanceScore)}{'☆'.repeat(5 - activeItem.importanceScore)}
+                            </span>
+                          </span>
+                        )}
                       </div>
                       <h2 className="article-title">{activeItem.title}</h2>
                       
@@ -998,7 +1360,7 @@ export default function NewsHub() {
                           {activeItem.rawContent}
                         </ReactMarkdown>
                       ) : (
-                        <p style={{ color: '#475569', fontStyle: 'italic' }}>No detailed markdown analysis content generated for this item. Refer to the fact cards or practice questions.</p>
+                        <p style={{ color: 'var(--text-muted)', fontStyle: 'italic' }}>No detailed markdown analysis content generated for this item. Refer to the fact cards or practice questions.</p>
                       )}
                     </div>
 
@@ -1023,7 +1385,7 @@ export default function NewsHub() {
                       <button 
                         onClick={() => setShowPractice(false)}
                         className="practice-close-btn"
-                        style={{ marginLeft: 'auto', background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer' }}
+                        style={{ marginLeft: 'auto', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
                       >
                         <X size={16} />
                       </button>
@@ -1052,14 +1414,14 @@ export default function NewsHub() {
             )
           ) : (
             activeStreakDetails ? (
-              <div className={`workspace-main-wrapper ${showPractice ? 'practice-open' : ''}`}>
+              <div className={`workspace-main-wrapper ${showPractice ? 'practice-open' : ''}`} style={{ display: 'flex', width: '100%', height: '100%', overflow: 'hidden' }}>
                 
-                {/* CENTER COLUMN: NEWS STREAK EVOLVING CANVAS */}
-                <main className="news-center-canvas hide-scrollbar">
+                {/* MIDDLE COLUMN: NEWS STREAK EVOLVING CANVAS */}
+                <main className="news-center-canvas hide-scrollbar" style={{ flex: '1.2', borderRight: '1px solid var(--border-color)', height: '100%', overflowY: 'auto', padding: '24px 32px' }}>
                   <div className="streak-page-container animate-fade-in" style={{ width: '100%' }}>
                     
                     {/* Header & Synthesis Badge */}
-                    <header className="article-header streak-header" style={{ marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <header className="article-header streak-header" style={{ marginBottom: '24px', paddingBottom: '16px', borderBottom: '1px solid var(--border-color)' }}>
                       <div className="article-meta-row" style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap' }}>
                         <span className="streak-badge-synthesis" style={{ background: 'rgba(6, 182, 212, 0.1)', color: '#06b6d4', border: '1px solid rgba(6, 182, 212, 0.25)', padding: '4px 10px', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                           • LIVE SYNTHESIS
@@ -1067,16 +1429,16 @@ export default function NewsHub() {
                         <span className="streak-duration-badge" style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', border: '1px solid rgba(16, 185, 129, 0.25)', padding: '4px 10px', borderRadius: '6px', fontSize: '0.65rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                           Week {streakDuration.weeks} • Month {streakDuration.months}
                         </span>
-                        <span className="meta-text" style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700, marginLeft: '4px' }}>
+                        <span className="meta-text" style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 700, marginLeft: '4px' }}>
                           {activeTimelineItems.length} UPDATES CHRONICLE
                         </span>
                       </div>
-                      <h2 className="article-title" style={{ fontSize: '2.2rem', fontWeight: 900, color: 'white', margin: '0 0 16px', lineHeight: 1.25, letterSpacing: '-0.5px' }}>
+                      <h2 className="article-title" style={{ fontSize: '2.2rem', fontWeight: 900, color: 'var(--text-primary)', margin: '0 0 16px', lineHeight: 1.25, letterSpacing: '-0.5px' }}>
                         {activeStreakDetails.title}
                       </h2>
 
                       {/* Toggle Living Summary Button */}
-                      <div style={{ marginBottom: '16px' }}>
+                      <div style={{ marginBottom: '16px', display: 'flex', gap: '12px' }}>
                         <button
                           onClick={() => setShowLivingSummary(!showLivingSummary)}
                           style={{
@@ -1106,27 +1468,27 @@ export default function NewsHub() {
                             <button 
                               className={`synthesis-tab-btn ${activeSynthesisTab === 'causes' ? 'active' : ''}`}
                               onClick={() => setActiveSynthesisTab('causes')}
-                              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)', background: activeSynthesisTab === 'causes' ? 'rgba(6, 182, 212, 0.1)' : 'transparent', color: activeSynthesisTab === 'causes' ? '#06b6d4' : '#94a3b8', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: '0.2s' }}
+                              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', background: activeSynthesisTab === 'causes' ? 'rgba(6, 182, 212, 0.1)' : 'transparent', color: activeSynthesisTab === 'causes' ? '#06b6d4' : 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: '0.2s' }}
                             >
                               Core Causes
                             </button>
                             <button 
                               className={`synthesis-tab-btn ${activeSynthesisTab === 'impact' ? 'active' : ''}`}
                               onClick={() => setActiveSynthesisTab('impact')}
-                              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)', background: activeSynthesisTab === 'impact' ? 'rgba(16, 185, 129, 0.1)' : 'transparent', color: activeSynthesisTab === 'impact' ? '#10b981' : '#94a3b8', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: '0.2s' }}
+                              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', background: activeSynthesisTab === 'impact' ? 'rgba(16, 185, 129, 0.1)' : 'transparent', color: activeSynthesisTab === 'impact' ? '#10b981' : 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: '0.2s' }}
                             >
                               Impact Matrix
                             </button>
                             <button 
                               className={`synthesis-tab-btn ${activeSynthesisTab === 'tracker' ? 'active' : ''}`}
                               onClick={() => setActiveSynthesisTab('tracker')}
-                              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.06)', background: activeSynthesisTab === 'tracker' ? 'rgba(245, 158, 11, 0.1)' : 'transparent', color: activeSynthesisTab === 'tracker' ? '#f59e0b' : '#94a3b8', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: '0.2s' }}
+                              style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border-color)', background: activeSynthesisTab === 'tracker' ? 'rgba(245, 158, 11, 0.1)' : 'transparent', color: activeSynthesisTab === 'tracker' ? '#f59e0b' : 'var(--text-secondary)', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer', transition: '0.2s' }}
                             >
                               Data Tracker
                             </button>
                           </div>
 
-                          <div className="living-summary-content-box" style={{ background: 'rgba(255, 255, 255, 0.01)', border: '1px solid rgba(255, 255, 255, 0.04)', borderRadius: '16px', padding: '20px', fontSize: '1.15rem', color: '#cbd5e1', lineHeight: 1.8 }}>
+                          <div className="living-summary-content-box" style={{ background: 'var(--bg-input)', border: '1px solid var(--border-color)', borderRadius: '16px', padding: '20px', fontSize: '1.15rem', color: 'var(--text-secondary)', lineHeight: 1.8 }}>
                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
                               {(() => {
                                 try {
@@ -1146,81 +1508,138 @@ export default function NewsHub() {
                         </>
                       )}
                     </header>
-                  </div> {/* End of article-container */}
-
-                  {/* HORIZONTAL ARTICLE TIMELINE (Full width of canvas) */}
-                  <div className="horizontal-timeline-section" style={{ borderTop: '1px solid rgba(255,255,255,0.04)', paddingTop: '20px', marginBottom: '24px', width: 'calc(100% + 5rem)', marginLeft: '-2.5rem', marginRight: '-2.5rem' }}>
-                    
-                    {/* Header aligned to left */}
-                    <div className="lineage-header-container" style={{ width: '100%', padding: '0 2.5rem' }}>
-                      <div className="lineage-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
-                        <span className="lineage-title" style={{ fontSize: '0.8rem', fontWeight: 900, color: 'white', letterSpacing: '0.5px' }}>THREAD CHRONICLE</span>
-                        <div className="lineage-filters" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <span className="lineage-date-range" style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 700 }}>UPDATES GRID</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="grid-timeline-scroll hide-scrollbar" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px', padding: '0 2.5rem 20px' }}>
-                        {activeTimelineItems.map(item => {
-                          const d = new Date(item.publishedAt || item.createdAt);
-                          const structuredData = getStructuredData(item);
-                          
-                          return (
-                            <div 
-                              key={item.id} 
-                              className="compact-news-card hover-glow-btn" 
-                              style={{ 
-                                background: 'rgba(15, 23, 42, 0.4)', 
-                                border: '1px solid rgba(255,255,255,0.05)', 
-                                borderRadius: '16px', 
-                                padding: '20px', 
-                                transition: 'all 0.2s ease',
-                                display: 'flex', 
-                                flexDirection: 'column',
-                                cursor: 'pointer',
-                                height: '100%'
-                              }}
-                              onClick={() => {
-                                setArticleModalItem({ item, structuredData });
-                              }}
-                            >
-                              {/* Card Header (Date, Source) */}
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                                <div>
-                                  <span style={{ fontSize: '0.65rem', color: '#06b6d4', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                    {d.toLocaleDateString([], { day: 'numeric', month: 'short', year: 'numeric' })} • {item.source || 'News'}
-                                  </span>
-                                  <h4 style={{ margin: '8px 0 0', color: 'white', fontSize: '1.1rem', fontWeight: 800, lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                                    {item.title}
-                                  </h4>
-                                </div>
-                              </div>
-
-                              {/* Brief Snippet */}
-                              <div style={{ marginTop: 'auto', paddingTop: '16px' }}>
-                                <p style={{ margin: 0, fontSize: '0.85rem', color: '#94a3b8', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                                  {item.rawContent ? item.rawContent.replace(/[#*`]/g, '') : 'No content preview available.'}
-                                </p>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
+                  </div>
                 </main>
 
-                {/* RIGHT COLUMN: PRACTICE BOARD FOR NEWS STREAKS */}
+                {/* RIGHT COLUMN: THREAD CHRONICLE TIMELINE (VERTICAL CHRONICLE) */}
+                <aside className="thread-chronicle-column hide-scrollbar" style={{ flex: '1', height: '100%', overflowY: 'auto', padding: '24px 32px' }}>
+                  <h3 style={{ fontSize: '0.8rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '0.5px', margin: '0 0 20px 0', textTransform: 'uppercase' }}>
+                    Thread Chronicle
+                  </h3>
+                  
+                  {activeTimelineItems.length > 0 ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', position: 'relative', borderLeft: '1px dashed var(--border-color)', paddingLeft: '44px', marginLeft: '32px' }}>
+                      {activeTimelineItems.map((item, idx) => {
+                        const d = new Date(item.publishedAt || item.createdAt);
+                        const structuredData = getStructuredData(item);
+                        
+                        // Source color mapping
+                        const getSourceColor = (source) => {
+                          const clean = (source || '').toLowerCase().trim();
+                          if (clean.includes('hindu')) return '#3b82f6';
+                          if (clean.includes('express')) return '#a855f7';
+                          if (clean.includes('pib')) return '#10b981';
+                          if (clean.includes('air')) return '#ec4444';
+                          return '#f59e0b';
+                        };
+
+                        const sourceColor = getSourceColor(item.source);
+
+                        return (
+                          <div 
+                            key={item.id}
+                            className="timeline-chronicle-item hover-glow-btn"
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '6px',
+                              cursor: 'pointer',
+                              position: 'relative',
+                              padding: '12px 16px',
+                              background: 'var(--bg-card)',
+                              border: '1px solid var(--border-color)',
+                              borderRadius: '12px',
+                              transition: 'all 0.2s'
+                            }}
+                            onClick={() => {
+                              setArticleModalItem({ item, structuredData });
+                            }}
+                          >
+                            {/* Timeline node date badge */}
+                            <div style={{
+                              position: 'absolute',
+                              left: '-76px', // Centers the 64px width badge on the -44px dashed line
+                              top: '12px',
+                              width: '64px',
+                              height: '46px',
+                              borderRadius: '8px',
+                              background: 'var(--bg-secondary)',
+                              border: `1px solid ${sourceColor}`,
+                              boxShadow: `0 2px 8px rgba(0,0,0,0.12), 0 0 4px ${sourceColor}20`,
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              lineHeight: '1.1',
+                              zIndex: 10
+                            }}>
+                              <span style={{ fontSize: '0.55rem', color: sourceColor, textTransform: 'uppercase', fontWeight: 900, letterSpacing: '0.5px' }}>
+                                {d.toLocaleDateString([], { month: 'short' })}
+                              </span>
+                              <span style={{ fontSize: '0.85rem', color: 'var(--text-primary)', fontWeight: 950 }}>
+                                {d.toLocaleDateString([], { day: 'numeric' })}
+                              </span>
+                            </div>
+
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ 
+                                fontSize: '0.62rem', 
+                                color: sourceColor, 
+                                background: `${sourceColor}10`,
+                                border: `1px solid ${sourceColor}25`,
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                                fontWeight: 900,
+                                textTransform: 'uppercase'
+                              }}>
+                                {item.source || 'News'}
+                              </span>
+
+                              <span style={{
+                                fontSize: '0.58rem',
+                                color: item.isEditorial ? '#c084fc' : '#22d3ee',
+                                background: item.isEditorial ? 'rgba(139, 92, 246, 0.1)' : 'rgba(6, 182, 212, 0.1)',
+                                border: item.isEditorial ? '1px solid rgba(139, 92, 246, 0.25)' : '1px solid rgba(6, 182, 212, 0.25)',
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                                fontWeight: 900,
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px'
+                              }}>
+                                {item.isEditorial ? 'Editorial' : 'News'}
+                              </span>
+                            </div>
+
+                            <h4 style={{ 
+                              margin: 0, 
+                              color: 'var(--text-primary)', 
+                              fontSize: '0.9rem', 
+                              fontWeight: 800, 
+                              lineHeight: 1.35 
+                            }}>
+                              {lang === 'hi' ? (item.title_hi || item.title) : lang === 'mr' ? (item.title_mr || item.title) : item.title}
+                            </h4>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontStyle: 'italic', textAlign: 'center', padding: '40px 0' }}>
+                      No linked briefings in this chronicle yet.
+                    </div>
+                  )}
+                </aside>
+
+                {/* RIGHT COLUMN: PRACTICE BOARD */}
                 <aside className={`news-right-panel hide-scrollbar ${showPractice ? 'open' : ''}`}>
                   <div className="right-panel-sticky-wrapper">
                     <div className="practice-panel-header">
-                      <CheckSquare size={16} style={{ color: '#06b6d4' }} />
+                      <CheckSquare size={16} style={{ color: '#10b981' }} />
                       <h2>Neural Practice Board</h2>
                       <button 
                         onClick={() => setShowPractice(false)}
                         className="practice-close-btn"
-                        style={{ marginLeft: 'auto', background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer' }}
+                        style={{ marginLeft: 'auto', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
                       >
                         <X size={16} />
                       </button>
@@ -1260,25 +1679,25 @@ export default function NewsHub() {
           background: 'rgba(0, 0, 0, 0.85)', backdropFilter: 'blur(8px)', padding: '20px'
         }} onClick={() => setArticleModalItem(null)}>
           <div style={{
-            background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px',
-            width: '100%', maxWidth: '900px', maxHeight: '90vh', overflowY: 'auto',
+            background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', borderRadius: '16px',
+            width: '100%', maxWidth: '1200px', maxHeight: '90vh', overflowY: 'auto',
             display: 'flex', flexDirection: 'column', position: 'relative',
             boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
           }} onClick={(e) => e.stopPropagation()} className="hide-scrollbar">
             
             {/* Modal Header */}
-            <div style={{ padding: '24px 32px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'sticky', top: 0, background: 'rgba(15, 23, 42, 0.95)', backdropFilter: 'blur(10px)', zIndex: 10 }}>
+            <div style={{ padding: '24px 32px', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', position: 'sticky', top: 0, background: 'var(--bg-hover)', backdropFilter: 'blur(10px)', zIndex: 10 }}>
               <div>
                 <span style={{ fontSize: '0.75rem', color: '#06b6d4', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '8px' }}>
                   {new Date(articleModalItem.item.publishedAt || articleModalItem.item.createdAt).toLocaleDateString([], { day: 'numeric', month: 'long', year: 'numeric' })} • {articleModalItem.item.source || 'News'}
                 </span>
-                <h2 style={{ fontSize: '1.6rem', color: 'white', fontWeight: 900, margin: 0, lineHeight: 1.3 }}>
+                <h2 style={{ fontSize: '1.6rem', color: 'var(--text-primary)', fontWeight: 900, margin: 0, lineHeight: 1.3 }}>
                   {lang === 'hi' ? (articleModalItem.item.title_hi || articleModalItem.item.title) : lang === 'mr' ? (articleModalItem.item.title_mr || articleModalItem.item.title) : articleModalItem.item.title}
                 </h2>
               </div>
               <button 
                 onClick={() => setArticleModalItem(null)}
-                style={{ background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: '50%', color: '#94a3b8', cursor: 'pointer', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.2s', alignSelf: 'flex-start' }}
+                style={{ background: 'var(--border-color)', border: 'none', borderRadius: '50%', color: 'var(--text-secondary)', cursor: 'pointer', padding: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: '0.2s', alignSelf: 'flex-start' }}
                 className="hover-glow-btn"
               >
                 <X size={20} />
@@ -1286,33 +1705,44 @@ export default function NewsHub() {
             </div>
 
             {/* Modal Body */}
-            <div style={{ padding: '32px' }}>
-              {/* Editorial Lens Box (if available) */}
-              {articleModalItem.structuredData?.crux && (
-                <div style={{ background: 'rgba(192, 132, 252, 0.05)', border: '1px solid rgba(192, 132, 252, 0.2)', padding: '20px', borderRadius: '12px', marginBottom: '32px' }}>
-                  <h5 style={{ color: '#c084fc', fontSize: '0.8rem', margin: '0 0 10px', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <BookOpen size={16} /> Editorial Lens
-                  </h5>
-                  <p style={{ margin: 0, fontSize: '1.05rem', color: '#e2e8f0', fontStyle: 'italic', lineHeight: 1.6 }}>
-                    "{articleModalItem.structuredData.crux}"
-                  </p>
-                </div>
-              )}
+            <div className="news-modal-body-grid" style={{ padding: '32px', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '32px' }}>
+              {/* Left Column: Complete Article Context & Editorial Lens */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                {/* Editorial Lens Box (if available) */}
+                {articleModalItem.structuredData?.crux && (
+                  <div style={{ background: 'rgba(192, 132, 252, 0.05)', border: '1px solid rgba(192, 132, 252, 0.2)', padding: '20px', borderRadius: '12px' }}>
+                    <h5 style={{ color: '#c084fc', fontSize: '0.8rem', margin: '0 0 10px', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <BookOpen size={16} /> Editorial Lens
+                    </h5>
+                    <p style={{ margin: 0, fontSize: '1.05rem', color: 'var(--text-primary)', fontStyle: 'italic', lineHeight: 1.6 }}>
+                      "{articleModalItem.structuredData.crux}"
+                    </p>
+                  </div>
+                )}
 
-              {/* Full Content */}
-              <div>
-                <h5 style={{ color: '#fbbf24', fontSize: '0.85rem', margin: '0 0 16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  Complete Article Context
-                </h5>
-                <div style={{ fontSize: '1.1rem', color: '#cbd5e1', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {lang === 'hi' 
-                      ? (articleModalItem.item.rawContent_hi || articleModalItem.item.rawContent || 'Hindi translation in progress...') 
-                      : lang === 'mr' 
-                        ? (articleModalItem.item.rawContent_mr || articleModalItem.item.rawContent || 'Marathi translation in progress...') 
-                        : (articleModalItem.item.rawContent || 'No complete text available.')}
-                  </ReactMarkdown>
+                {/* Full Content */}
+                <div>
+                  <h5 style={{ color: '#fbbf24', fontSize: '0.85rem', margin: '0 0 16px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Complete Article Context
+                  </h5>
+                  <div style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {lang === 'hi' 
+                        ? (articleModalItem.item.rawContent_hi || articleModalItem.item.rawContent || 'Hindi translation in progress...') 
+                        : lang === 'mr' 
+                          ? (articleModalItem.item.rawContent_mr || articleModalItem.item.rawContent || 'Marathi translation in progress...') 
+                          : (articleModalItem.item.rawContent || 'No complete text available.')}
+                    </ReactMarkdown>
+                  </div>
                 </div>
+              </div>
+
+              {/* Right Column: Practice Board */}
+              <div className="news-modal-practice-column" style={{ borderLeft: '1px solid var(--border-color)', paddingLeft: '32px' }}>
+                <h5 style={{ color: '#10b981', fontSize: '0.85rem', margin: '0 0 16px', textTransform: 'uppercase', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <CheckSquare size={16} /> Neural Practice Board
+                </h5>
+                {renderModalPracticeBoard(articleModalItem)}
               </div>
             </div>
             
@@ -1327,7 +1757,7 @@ export default function NewsHub() {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          background: #020617;
+          background: var(--bg-primary);
         }
 
         .loading-state {
@@ -1350,13 +1780,61 @@ export default function NewsHub() {
           to { transform: rotate(360deg); }
         }
 
+        .streak-filter-container {
+          display: flex;
+          gap: 0.5rem;
+          margin: 0 0.75rem 0.75rem;
+        }
+
+        .streak-filter-select {
+          flex: 1;
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
+          border-radius: 8px;
+          padding: 0.4rem 0.6rem;
+          color: var(--text-secondary);
+          font-size: 0.75rem;
+          font-family: inherit;
+          font-weight: 700;
+          outline: none;
+          cursor: pointer;
+        }
+
+        .streak-filter-select:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+
+        .timeline-chronicle-item {
+          transition: all 0.2s ease;
+        }
+
+        .timeline-chronicle-item:hover {
+          background: var(--bg-hover) !important;
+          border-color: rgba(255,255,255,0.08) !important;
+          transform: translateX(4px);
+        }
+
+        @media (max-width: 768px) {
+          .news-modal-body-grid {
+            grid-template-columns: 1fr !important;
+            gap: 24px !important;
+          }
+          .news-modal-practice-column {
+            border-left: none !important;
+            padding-left: 0 !important;
+            border-top: 1px solid var(--border-color) !important;
+            padding-top: 24px !important;
+          }
+        }
+
         .news-hub-wrapper {
           margin-top: 72px; /* Push layout below the 72px global nav */
           height: calc(100vh - 72px);
           display: flex;
           flex-direction: column;
-          background: #020617;
-          color: white;
+          background: var(--bg-primary);
+          color: var(--text-primary);
           font-family: 'Outfit', sans-serif;
           overflow: hidden;
         }
@@ -1367,9 +1845,9 @@ export default function NewsHub() {
           display: flex;
           align-items: center;
           padding: 0 1.5rem;
-          background: rgba(8, 12, 28, 0.7);
+          background: var(--bg-card);
           backdrop-filter: blur(12px);
-          border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+          border-bottom: 1px solid var(--border-color);
           gap: 2rem;
           z-index: 99;
           flex-shrink: 0;
@@ -1385,20 +1863,20 @@ export default function NewsHub() {
           display: none;
           background: transparent;
           border: none;
-          color: white;
+          color: var(--text-primary);
           cursor: pointer;
         }
 
         .brand-title {
           font-size: 1.1rem;
           font-weight: 900;
-          color: white;
+          color: var(--text-primary);
           margin: 0;
           letter-spacing: -0.01em;
         }
 
         .brand-subtitle {
-          color: #475569;
+          color: var(--text-muted);
           font-size: 0.7rem;
           font-weight: 700;
           margin: 0;
@@ -1425,13 +1903,13 @@ export default function NewsHub() {
         .header-divider {
           width: 1px;
           height: 20px;
-          background: rgba(255, 255, 255, 0.08);
+          background: var(--border-color);
           flex-shrink: 0;
         }
 
         .filter-chip {
           background: transparent;
-          color: #475569;
+          color: var(--text-muted);
           border: 1px solid transparent;
           padding: 0.3rem 0.75rem;
           border-radius: 6px;
@@ -1444,8 +1922,8 @@ export default function NewsHub() {
         }
 
         .filter-chip:hover {
-          color: #94a3b8;
-          background: rgba(255, 255, 255, 0.01);
+          color: var(--text-secondary);
+          background: var(--bg-hover);
         }
 
         .filter-chip.active {
@@ -1463,16 +1941,16 @@ export default function NewsHub() {
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          background: rgba(255, 255, 255, 0.01);
-          color: #475569;
-          border: 1px solid rgba(255, 255, 255, 0.03);
+          background: var(--bg-input);
+          color: var(--text-muted);
+          border: 1px solid var(--border-color);
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
           flex-shrink: 0;
         }
 
         .date-card:hover {
-          color: #94a3b8;
-          border-color: rgba(255, 255, 255, 0.06);
+          color: var(--text-secondary);
+          border-color: var(--border-hover);
         }
 
         .date-card.active {
@@ -1502,7 +1980,7 @@ export default function NewsHub() {
           align-items: center;
           justify-content: center;
           cursor: pointer;
-          border: 1px solid rgba(255, 255, 255, 0.04);
+          border: 1px solid var(--border-color);
           transition: all 0.2s;
           flex-shrink: 0;
         }
@@ -1526,11 +2004,62 @@ export default function NewsHub() {
           overflow: hidden;
         }
 
-        /* NEWS STREAKS DESKTOP STYLES */
+        /* TIMEFRAME TOGGLE AND HIGH IMPORTANCE STYLES */
+        .timeframe-toggle-container {
+          display: flex;
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
+          border-radius: 8px;
+          padding: 0.2rem;
+          margin: 0 0.75rem 0.75rem;
+          gap: 0.2rem;
+        }
+
+        .timeframe-toggle-btn {
+          flex: 1;
+          background: transparent;
+          border: none;
+          color: var(--text-muted);
+          padding: 0.4rem 0;
+          border-radius: 6px;
+          font-size: 0.72rem;
+          font-family: inherit;
+          font-weight: 800;
+          cursor: pointer;
+          transition: all 0.2s;
+          text-align: center;
+        }
+
+        .timeframe-toggle-btn:hover {
+          color: var(--text-secondary);
+          background: var(--bg-hover);
+        }
+
+        .timeframe-toggle-btn.active {
+          background: rgba(16, 185, 129, 0.1);
+          color: #10b981;
+          border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .sidebar-item.high-importance {
+          border-left: 3px solid #fbbf24 !important;
+          background: rgba(245, 158, 11, 0.02);
+        }
+
+        .sidebar-item.high-importance:hover {
+          background: rgba(245, 158, 11, 0.05);
+        }
+
+        .sidebar-item.high-importance.active {
+          background: rgba(245, 158, 11, 0.08);
+          border-left: 4px solid #fbbf24 !important;
+          box-shadow: inset 3px 0 0 #fbbf24, 0 0 12px rgba(245, 158, 11, 0.15);
+        }
+
         .segmented-timeline-toggle {
           display: flex;
-          background: rgba(15, 23, 42, 0.8);
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
           border-radius: 10px;
           padding: 0.25rem;
           margin: 0.75rem;
@@ -1541,7 +2070,7 @@ export default function NewsHub() {
           flex: 1;
           background: transparent;
           border: none;
-          color: #64748b;
+          color: var(--text-muted);
           padding: 0.5rem 0;
           border-radius: 8px;
           font-size: 0.8rem;
@@ -1553,8 +2082,8 @@ export default function NewsHub() {
         }
 
         .timeline-toggle-btn:hover {
-          color: #94a3b8;
-          background: rgba(255, 255, 255, 0.015);
+          color: var(--text-secondary);
+          background: var(--bg-hover);
         }
 
         .timeline-toggle-btn.active {
@@ -1566,8 +2095,8 @@ export default function NewsHub() {
 
         .streak-sidebar-card {
           position: relative;
-          background: rgba(15, 23, 42, 0.3) !important;
-          border: 1px solid rgba(255, 255, 255, 0.03) !important;
+          background: var(--bg-input) !important;
+          border: 1px solid var(--border-color) !important;
           margin-bottom: 0.25rem;
           display: flex;
           flex-direction: column;
@@ -1576,7 +2105,7 @@ export default function NewsHub() {
         }
 
         .streak-sidebar-card:hover {
-          background: rgba(15, 23, 42, 0.6) !important;
+          background: var(--bg-hover) !important;
           border-color: rgba(6, 182, 212, 0.2) !important;
           transform: translateY(-1px);
         }
@@ -1597,7 +2126,7 @@ export default function NewsHub() {
         }
 
         .streak-meta-paper {
-          color: #64748b;
+          color: var(--text-muted);
           text-transform: uppercase;
         }
 
@@ -1607,18 +2136,18 @@ export default function NewsHub() {
           text-transform: uppercase;
           padding: 1px 6px;
           border-radius: 4px;
-          background: rgba(255, 255, 255, 0.02);
+          background: var(--bg-input);
         }
 
         .streak-card-title {
           font-size: 0.88rem;
           font-weight: 800;
-          color: #e2e8f0;
+          color: var(--text-primary);
           line-height: 1.4;
         }
 
         .streak-sidebar-card.active .streak-card-title {
-          color: white;
+          color: var(--text-primary);
         }
 
         .streak-card-graph-row {
@@ -1652,7 +2181,7 @@ export default function NewsHub() {
 
         .stat-time {
           font-size: 0.6rem;
-          color: #475569;
+          color: var(--text-muted);
           font-weight: 700;
           letter-spacing: 0.2px;
         }
@@ -1666,9 +2195,9 @@ export default function NewsHub() {
 
         .streak-tag-pill {
           font-size: 0.62rem;
-          color: #94a3b8;
-          background: rgba(255, 255, 255, 0.02);
-          border: 1px solid rgba(255, 255, 255, 0.04);
+          color: var(--text-secondary);
+          background: var(--bg-input);
+          border: 1px solid var(--border-color);
           padding: 2px 6px;
           border-radius: 4px;
           font-weight: 700;
@@ -1682,8 +2211,8 @@ export default function NewsHub() {
         }
 
         .synthesis-tab-btn:hover {
-          background: rgba(255, 255, 255, 0.02) !important;
-          border-color: rgba(255, 255, 255, 0.1) !important;
+          background: var(--bg-hover) !important;
+          border-color: var(--border-hover) !important;
         }
 
         .synthesis-tab-btn.active {
@@ -1711,12 +2240,12 @@ export default function NewsHub() {
 
         .weekly-bubble-btn {
           transition: all 0.2s ease !important;
-          border: 1px solid rgba(255, 255, 255, 0.03) !important;
+          border: 1px solid var(--border-color) !important;
         }
 
         .weekly-bubble-btn:hover {
-          background: rgba(255, 255, 255, 0.06) !important;
-          color: white !important;
+          background: var(--bg-hover) !important;
+          color: var(--text-primary) !important;
           transform: translateY(-1px);
         }
 
@@ -1729,8 +2258,8 @@ export default function NewsHub() {
         }
 
         .streak-detail-card:hover {
-          border-color: rgba(255, 255, 255, 0.08) !important;
-          background: rgba(15, 23, 42, 0.5) !important;
+          border-color: var(--border-hover) !important;
+          background: var(--bg-hover) !important;
           transform: translateY(-2px);
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         }
@@ -1740,8 +2269,8 @@ export default function NewsHub() {
           width: 22%;
           min-width: 260px;
           max-width: 320px;
-          background: #060913;
-          border-right: 1px solid rgba(255, 255, 255, 0.05);
+          background: var(--bg-secondary);
+          border-right: 1px solid var(--border-color);
           display: flex;
           flex-direction: column;
           flex-shrink: 0;
@@ -1752,10 +2281,10 @@ export default function NewsHub() {
           padding: 1rem;
           font-size: 0.62rem;
           font-weight: 900;
-          color: #475569;
+          color: var(--text-muted);
           text-transform: uppercase;
           letter-spacing: 1px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+          border-bottom: 1px solid var(--border-color);
         }
 
         .sidebar-scroll {
@@ -1771,19 +2300,19 @@ export default function NewsHub() {
           padding: 0.75rem 0.85rem;
           cursor: pointer;
           border-radius: 10px;
-          background: rgba(255, 255, 255, 0.005);
-          border: 1px solid rgba(255, 255, 255, 0.01);
+          background: var(--bg-input);
+          border: 1px solid var(--border-color);
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .sidebar-item:hover {
-          background: rgba(255, 255, 255, 0.015);
-          border-color: rgba(255, 255, 255, 0.03);
+          background: var(--bg-hover);
+          border-color: var(--border-hover);
         }
 
         .sidebar-item.active {
-          background: rgba(255, 255, 255, 0.025);
-          border-color: rgba(255, 255, 255, 0.04);
+          background: var(--bg-hover);
+          border-color: var(--border-hover);
         }
 
         .sidebar-item-meta {
@@ -1804,13 +2333,13 @@ export default function NewsHub() {
 
         .sidebar-source {
           font-size: 0.68rem;
-          color: #475569;
+          color: var(--text-muted);
           font-weight: 700;
         }
 
         .sidebar-time {
           font-size: 0.65rem;
-          color: #334155;
+          color: var(--text-muted);
           font-weight: 600;
           margin-left: auto;
         }
@@ -1818,13 +2347,13 @@ export default function NewsHub() {
         .sidebar-item-title {
           font-size: 0.85rem;
           font-weight: 700;
-          color: #64748b;
+          color: var(--text-secondary);
           line-height: 1.4;
           transition: color 0.2s;
         }
 
         .sidebar-item-title.active {
-          color: white;
+          color: var(--text-primary);
         }
 
         .sidebar-issue-link {
@@ -1841,7 +2370,7 @@ export default function NewsHub() {
         .sidebar-empty {
           padding: 2.5rem 1rem;
           text-align: center;
-          color: #334155;
+          color: var(--text-muted);
           font-size: 0.82rem;
           font-style: italic;
         }
@@ -1852,8 +2381,8 @@ export default function NewsHub() {
           overflow-y: auto;
           padding: 1.5rem 2.5rem;
           height: 100%;
-          border-right: 1px solid rgba(255, 255, 255, 0.05);
-          background: #02050f;
+          border-right: 1px solid var(--border-color);
+          background: var(--bg-primary);
           transition: margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -1865,7 +2394,7 @@ export default function NewsHub() {
         .article-header {
           margin-bottom: 1.25rem;
           padding-bottom: 1.25rem;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+          border-bottom: 1px solid var(--border-color);
         }
 
         .article-meta-row {
@@ -1886,7 +2415,7 @@ export default function NewsHub() {
 
         .meta-text {
           font-size: 0.75rem;
-          color: #475569;
+          color: var(--text-muted);
           font-weight: 700;
           display: inline-flex;
           align-items: center;
@@ -1897,7 +2426,7 @@ export default function NewsHub() {
           font-weight: 900;
           line-height: 1.3;
           letter-spacing: -0.015em;
-          color: white;
+          color: var(--text-primary);
           margin: 0 0 0.85rem 0;
         }
 
@@ -1933,7 +2462,7 @@ export default function NewsHub() {
         .original-source-link {
           display: inline-flex;
           align-items: center;
-          color: #475569;
+          color: var(--text-muted);
           font-size: 0.73rem;
           font-weight: 700;
           text-decoration: none;
@@ -1941,7 +2470,7 @@ export default function NewsHub() {
         }
 
         .original-source-link:hover {
-          color: #64748b;
+          color: var(--text-secondary);
         }
 
         /* TAKEAWAYS GRID (Top of Briefing) */
@@ -1955,7 +2484,7 @@ export default function NewsHub() {
         .takeaway-card {
           padding: 0.95rem 1.15rem;
           border-radius: 12px;
-          background: rgba(255, 255, 255, 0.005);
+          background: var(--bg-input);
         }
 
         .takeaway-card.prelims-card {
@@ -1986,7 +2515,7 @@ export default function NewsHub() {
         .takeaway-text {
           font-size: 0.95rem;
           line-height: 1.6;
-          color: #cbd5e1;
+          color: var(--text-secondary);
           margin: 0;
         }
 
@@ -1995,11 +2524,11 @@ export default function NewsHub() {
           font-weight: 900;
           text-transform: uppercase;
           letter-spacing: 1px;
-          color: #64748b;
+          color: var(--text-muted);
           margin-bottom: 0.75rem;
           display: inline-flex;
           align-items: center;
-          border-bottom: 1px solid rgba(255,255,255,0.03);
+          border-bottom: 1px solid var(--border-color);
           padding-bottom: 0.35rem;
           width: 100%;
         }
@@ -2008,7 +2537,7 @@ export default function NewsHub() {
         .markdown-content {
           font-size: 1.15rem;
           line-height: 1.8;
-          color: #cbd5e1;
+          color: var(--text-secondary);
         }
 
         .markdown-content :global(p) {
@@ -2029,7 +2558,7 @@ export default function NewsHub() {
         }
 
         .markdown-content :global(h3), .markdown-content :global(h4) {
-          color: white;
+          color: var(--text-primary);
           font-weight: 800;
           margin-top: 1.5rem;
           margin-bottom: 0.75rem;
@@ -2051,8 +2580,8 @@ export default function NewsHub() {
         .news-right-panel {
           width: 0;
           min-width: 0;
-          background: #040815;
-          border-left: 1px solid rgba(255, 255, 255, 0.05);
+          background: var(--bg-secondary);
+          border-left: 1px solid var(--border-color);
           overflow-y: auto;
           overflow-x: hidden;
           padding: 0;
@@ -2093,7 +2622,7 @@ export default function NewsHub() {
         }
 
         .practice-close-btn:hover {
-          color: white !important;
+          color: var(--text-primary) !important;
         }
 
         .right-panel-sticky-wrapper {
@@ -2106,7 +2635,7 @@ export default function NewsHub() {
           display: flex;
           align-items: center;
           gap: 0.5rem;
-          border-bottom: 1px solid rgba(255,255,255,0.04);
+          border-bottom: 1px solid var(--border-color);
           padding-bottom: 0.6rem;
         }
 
@@ -2115,14 +2644,14 @@ export default function NewsHub() {
           font-weight: 900;
           text-transform: uppercase;
           letter-spacing: 0.5px;
-          color: white;
+          color: var(--text-primary);
           margin: 0;
         }
 
         .practice-tabs {
           display: flex;
-          background: rgba(255, 255, 255, 0.015);
-          border: 1px solid rgba(255, 255, 255, 0.03);
+          background: var(--bg-input);
+          border: 1px solid var(--border-color);
           border-radius: 8px;
           padding: 0.2rem;
           gap: 0.2rem;
@@ -2132,7 +2661,7 @@ export default function NewsHub() {
           flex: 1;
           background: transparent;
           border: none;
-          color: #475569;
+          color: var(--text-muted);
           padding: 0.45rem;
           border-radius: 6px;
           font-size: 0.78rem;
@@ -2142,12 +2671,12 @@ export default function NewsHub() {
         }
 
         .practice-tab-btn:not(:disabled):hover {
-          color: #94a3b8;
+          color: var(--text-secondary);
         }
 
         .practice-tab-btn.active {
-          background: rgba(255,255,255,0.03);
-          color: white;
+          background: var(--bg-hover);
+          color: var(--text-primary);
         }
 
         .practice-tab-btn:disabled {
@@ -2161,8 +2690,8 @@ export default function NewsHub() {
 
         /* MCQ CARDS ON PRACTICE BOARD */
         .mcq-board-card {
-          background: rgba(255, 255, 255, 0.005);
-          border: 1px solid rgba(255, 255, 255, 0.03);
+          background: var(--bg-input);
+          border: 1px solid var(--border-color);
           border-radius: 12px;
           padding: 1rem;
           margin-bottom: 1rem;
@@ -2190,7 +2719,7 @@ export default function NewsHub() {
         .mcq-card-question {
           font-size: 0.9rem;
           font-weight: 800;
-          color: white;
+          color: var(--text-primary);
           line-height: 1.5;
           margin: 0 0 0.75rem 0;
         }
@@ -2209,17 +2738,17 @@ export default function NewsHub() {
           font-size: 0.83rem;
           font-family: inherit;
           font-weight: 600;
-          background: rgba(255,255,255,0.005);
-          border: 1px solid rgba(255,255,255,0.02);
-          color: #94a3b8;
+          background: var(--bg-input);
+          border: 1px solid var(--border-color);
+          color: var(--text-secondary);
           cursor: pointer;
           transition: all 0.2s;
         }
 
         .mcq-card-option-btn.interactive:hover {
-          background: rgba(255, 255, 255, 0.02);
-          border-color: rgba(255, 255, 255, 0.05);
-          color: white;
+          background: var(--bg-hover);
+          border-color: var(--border-hover);
+          color: var(--text-primary);
           transform: translateX(1px);
         }
 
@@ -2243,8 +2772,8 @@ export default function NewsHub() {
         }
 
         .mcq-card-explanation {
-          background: rgba(255, 255, 255, 0.01);
-          border: 1px solid rgba(255, 255, 255, 0.02);
+          background: var(--bg-input);
+          border: 1px solid var(--border-color);
           border-radius: 8px;
           padding: 0.85rem;
           margin-top: 0.75rem;
@@ -2257,20 +2786,20 @@ export default function NewsHub() {
         }
 
         .exp-sub-text {
-          color: #cbd5e1;
+          color: var(--text-secondary);
           margin: 0 0 0.25rem 0;
         }
 
         .exp-body-text {
-          color: #64748b;
+          color: var(--text-muted);
           margin: 0;
           line-height: 1.5;
         }
 
         /* SUBJECTIVE MAINS CARDS */
         .mains-board-card {
-          background: rgba(255, 255, 255, 0.005);
-          border: 1px solid rgba(255, 255, 255, 0.03);
+          background: var(--bg-input);
+          border: 1px solid var(--border-color);
           border-radius: 12px;
           padding: 1rem;
           margin-bottom: 1rem;
@@ -2305,7 +2834,7 @@ export default function NewsHub() {
         .mains-card-question {
           font-size: 0.9rem;
           font-weight: 800;
-          color: white;
+          color: var(--text-primary);
           line-height: 1.5;
           margin: 0 0 0.75rem 0;
         }
@@ -2315,9 +2844,9 @@ export default function NewsHub() {
           align-items: center;
           justify-content: space-between;
           width: 100%;
-          background: rgba(255, 255, 255, 0.01);
-          border: 1px solid rgba(255, 255, 255, 0.03);
-          color: #64748b;
+          background: var(--bg-input);
+          border: 1px solid var(--border-color);
+          color: var(--text-muted);
           padding: 0.6rem 0.85rem;
           border-radius: 8px;
           font-family: inherit;
@@ -2328,13 +2857,13 @@ export default function NewsHub() {
         }
 
         .mains-reveal-btn:hover {
-          background: rgba(255, 255, 255, 0.02);
-          color: white;
+          background: var(--bg-hover);
+          color: var(--text-primary);
         }
 
         .mains-model-answer {
-          background: rgba(255, 255, 255, 0.01);
-          border: 1px solid rgba(255, 255, 255, 0.02);
+          background: var(--bg-input);
+          border: 1px solid var(--border-color);
           border-radius: 8px;
           padding: 0.85rem;
           margin-top: 0.5rem;
@@ -2352,13 +2881,13 @@ export default function NewsHub() {
         .model-markdown-body {
           font-size: 0.87rem;
           line-height: 1.6;
-          color: #94a3b8;
+          color: var(--text-secondary);
         }
 
         /* FALLBACK CARD IF NO QUESTIONS */
         .study-assistant-card {
-          background: rgba(255, 255, 255, 0.003);
-          border: 1px dashed rgba(255, 255, 255, 0.03);
+          background: var(--bg-input);
+          border: 1px dashed var(--border-color);
           border-radius: 12px;
           padding: 1rem 1.25rem;
         }
@@ -2368,13 +2897,13 @@ export default function NewsHub() {
           align-items: center;
           font-size: 0.82rem;
           font-weight: 900;
-          color: white;
+          color: var(--text-primary);
           margin-bottom: 0.5rem;
         }
 
         .assistant-text {
           font-size: 0.85rem;
-          color: #64748b;
+          color: var(--text-muted);
           line-height: 1.5;
           margin: 0 0 0.6rem 0;
         }
@@ -2383,7 +2912,7 @@ export default function NewsHub() {
           margin: 0;
           padding-left: 1rem;
           font-size: 0.83rem;
-          color: #475569;
+          color: var(--text-muted);
           line-height: 1.55;
         }
 
@@ -2395,7 +2924,7 @@ export default function NewsHub() {
         .practice-panel-inline-mobile {
           display: none;
           margin-top: 2rem;
-          border-top: 1px solid rgba(255, 255, 255, 0.04);
+          border-top: 1px solid var(--border-color);
           padding-top: 2rem;
         }
 
@@ -2411,7 +2940,7 @@ export default function NewsHub() {
           font-weight: 900;
           text-transform: uppercase;
           letter-spacing: 0.5px;
-          color: white;
+          color: var(--text-primary);
           margin: 0;
         }
 
@@ -2436,7 +2965,7 @@ export default function NewsHub() {
 
         .empty-hero-subtitle {
           font-size: 0.88rem;
-          color: #475569;
+          color: var(--text-muted);
           max-width: 440px;
           margin: 0 auto 3rem auto;
           line-height: 1.5;
@@ -2460,16 +2989,16 @@ export default function NewsHub() {
         }
 
         .insight-card {
-          background: rgba(255, 255, 255, 0.005);
-          border: 1px solid rgba(255, 255, 255, 0.02);
+          background: var(--bg-input);
+          border: 1px solid var(--border-color);
           border-radius: 12px;
           padding: 1.15rem;
           transition: all 0.2s;
         }
 
         .insight-card:hover {
-          border-color: rgba(255, 255, 255, 0.04);
-          background: rgba(255, 255, 255, 0.015);
+          border-color: var(--border-hover);
+          background: var(--bg-hover);
         }
 
         .insight-tag {
@@ -2486,12 +3015,12 @@ export default function NewsHub() {
         .insight-card-title {
           font-size: 0.92rem;
           font-weight: 800;
-          color: white;
+          color: var(--text-primary);
           margin: 0 0 0.35rem 0;
         }
 
         .insight-card-desc {
-          color: #475569;
+          color: var(--text-muted);
           font-size: 0.82rem;
           line-height: 1.5;
           margin: 0;
@@ -2551,7 +3080,7 @@ export default function NewsHub() {
             bottom: 0;
             z-index: 1000;
             transform: translateX(-100%);
-            box-shadow: 10px 0 35px rgba(0, 0, 0, 0.55);
+            box-shadow: 10px 0 35px rgba(0, 0, 0, 0.3);
             width: 280px;
             transition: transform 0.25s ease;
           }

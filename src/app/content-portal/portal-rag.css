@@ -2,8 +2,8 @@
 .portal-layout {
   display: flex;
   height: calc(100vh - 60px);
-  background: #0f172a;
-  color: #f1f5f9;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
   font-family: 'Outfit', sans-serif;
   overflow: hidden;
 }
@@ -12,7 +12,7 @@
 .portal-dashboard {
   min-height: 100vh;
   padding: 60px 40px;
-  background: #020617;
+  background: var(--bg-primary);
   overflow-y: auto;
 }
 
@@ -29,12 +29,12 @@
 .dashboard-title {
   font-size: 2.5rem;
   font-weight: 900;
-  color: white;
+  color: var(--text-primary);
   margin-bottom: 8px;
 }
 
 .dashboard-subtitle {
-  color: #64748b;
+  color: var(--text-secondary);
   font-size: 1rem;
 }
 
@@ -48,8 +48,8 @@
 
 .dashboard-card {
   position: relative;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 24px;
   overflow: hidden;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -58,8 +58,8 @@
 
 .dashboard-card:hover {
   transform: translateY(-8px);
-  background: rgba(255,255,255,0.05);
-  border-color: rgba(255,255,255,0.15);
+  background: var(--bg-hover);
+  border-color: var(--border-hover);
 }
 
 .card-accent {
@@ -110,7 +110,7 @@
 .card-title {
   font-size: 1.5rem;
   font-weight: 800;
-  color: white;
+  color: var(--text-primary);
   margin-bottom: 24px;
 }
 
@@ -125,11 +125,11 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
   padding: 8px 14px;
   border-radius: 12px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   font-size: 0.8rem;
   font-weight: 700;
   cursor: pointer;
@@ -137,18 +137,18 @@
 }
 
 .dashboard-subject-link:hover {
-  background: white;
-  color: black;
-  border-color: white;
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-color);
 }
 
 .card-enter-btn {
   width: 100%;
   padding: 12px;
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: rgba(255,255,255,0.05);
-  color: white;
+  border: 1px solid var(--border-color);
+  background: var(--bg-input);
+  color: var(--text-primary);
   font-weight: 800;
   font-size: 0.85rem;
   cursor: pointer;
@@ -165,12 +165,12 @@
 .dashboard-optional-selector {
   position: absolute;
   inset: 12px;
-  background: #0f172a;
+  background: var(--bg-secondary);
   border-radius: 16px;
   z-index: 10;
   padding: 16px;
   overflow-y: auto;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid var(--border-color);
 }
 
 .opt-select-item {
@@ -223,17 +223,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
-  color: #475569;
+  color: var(--text-muted);
   cursor: pointer;
 }
 
 .sidebar-mini-btn:hover, .sidebar-mini-btn.active {
-  background: rgba(255,255,255,0.1);
-  color: white;
-  border-color: rgba(255,255,255,0.2);
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-hover);
 }
 
 .clickable-card {
@@ -248,11 +248,11 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
   padding: 6px 12px;
   border-radius: 20px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   font-size: 0.75rem;
   font-weight: 700;
 }
@@ -261,9 +261,9 @@
   width: 100%;
   padding: 12px;
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: rgba(255,255,255,0.05);
-  color: white;
+  border: 1px solid var(--border-color);
+  background: var(--bg-input);
+  color: var(--text-primary);
   font-weight: 800;
   font-size: 0.85rem;
   text-align: center;
@@ -326,18 +326,18 @@
 }
 
 .opt-list-grid::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.1);
+  background: var(--border-color);
   border-radius: 4px;
 }
 
 .opt-list-item {
   width: 100%;
   text-align: left;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
   padding: 10px 14px;
   border-radius: 10px;
-  color: #94a3b8;
+  color: var(--text-secondary);
   font-size: 0.8rem;
   font-weight: 700;
   cursor: pointer;
@@ -345,9 +345,9 @@
 }
 
 .opt-list-item:hover {
-  background: #10b98122;
-  color: #10b981;
-  border-color: #10b98144;
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-hover);
 }
 
 .optional-active-state {
@@ -377,8 +377,8 @@
 .dashboard-mini-overlay {
   position: absolute;
   inset: 12px;
-  background: #0f172a;
-  border: 1px solid rgba(255,255,255,0.15);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-hover);
   border-radius: 16px;
   z-index: 50;
   padding: 16px;
@@ -406,8 +406,8 @@
 
 .portal-sidebar {
   width: 300px;
-  background: linear-gradient(180deg, rgba(11,18,32,0.98), rgba(15,23,42,0.98));
-  border-right: 1px solid rgba(148,163,184,0.15);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   box-shadow: 4px 0 24px rgba(2,6,23,0.4);
@@ -417,14 +417,14 @@
 
 .portal-header {
   padding: 0 24px 20px;
-  border-bottom: 1px solid rgba(148,163,184,0.1);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .portal-title {
   font-size: 1.4rem;
   font-weight: 900;
   letter-spacing: -0.5px;
-  background: linear-gradient(90deg, #f8fafc, #cbd5e1);
+  background: linear-gradient(90deg, var(--text-primary), var(--text-secondary));
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -441,8 +441,8 @@
 
 .portal-exam-toggle {
   display: flex;
-  background: rgba(15,23,42,0.8);
-  border: 1px solid rgba(148,163,184,0.15);
+  background: var(--bg-hover);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   margin: 20px 24px;
   padding: 4px;
@@ -509,17 +509,17 @@
   border: 1px solid transparent;
   cursor: pointer;
   transition: all 0.2s;
-  color: #94a3b8;
+  color: var(--text-secondary);
 }
 
 .portal-subject-btn:hover {
-  background: rgba(255,255,255,0.03);
+  background: var(--bg-hover);
 }
 
 .portal-subject-btn.active {
-  background: linear-gradient(90deg, rgba(99,102,241,0.15), rgba(99,102,241,0.05));
-  border-color: rgba(99,102,241,0.3);
-  color: #f1f5f9;
+  background: var(--bg-hover);
+  border-color: var(--border-color);
+  color: var(--text-primary);
 }
 
 .portal-subject-icon {
@@ -529,8 +529,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(15,23,42,0.8);
-  border: 1px solid rgba(148,163,184,0.15);
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
 }
 
 .portal-subject-btn.active .portal-subject-icon {
@@ -548,7 +548,7 @@
 /* MAIN CHAT AREA */
 .portal-main {
   flex: 1;
-  background: radial-gradient(circle at center top, rgba(30,41,59,1) 0%, rgba(15,23,42,1) 100%);
+  background: var(--bg-primary);
   padding: 24px 40px;
   display: flex;
   flex-direction: column;
@@ -560,9 +560,9 @@
   margin: 0 auto;
   width: 100%;
   border-radius: 24px;
-  background: rgba(17,24,39,0.7);
+  background: var(--bg-card);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid var(--border-color);
   box-shadow: 0 20px 60px rgba(0,0,0,0.4);
   display: flex;
   flex-direction: column;
@@ -571,8 +571,8 @@
 
 .chat-header {
   padding: 20px 24px;
-  background: rgba(15,23,42,0.8);
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  background: var(--bg-hover);
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -581,7 +581,7 @@
 .chat-subject-name {
   font-size: 1.1rem;
   font-weight: 800;
-  color: #f1f5f9;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -656,9 +656,9 @@
 }
 
 .chat-msg.ai .chat-bubble {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.08);
-  color: #e2e8f0;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
   border-radius: 20px 20px 20px 4px;
 }
 
@@ -671,8 +671,8 @@
 
 .chat-input-area {
   padding: 20px;
-  background: rgba(11,18,32,0.8);
-  border-top: 1px solid rgba(255,255,255,0.05);
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-color);
 }
 
 .chat-form {
@@ -683,10 +683,10 @@
 
 .chat-input {
   width: 100%;
-  background: rgba(15,23,42,0.9);
-  border: 1px solid rgba(148,163,184,0.15);
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
-  color: #f1f5f9;
+  color: var(--text-primary);
   font-family: inherit;
   font-size: 0.95rem;
   padding: 16px 60px 16px 20px;
@@ -726,11 +726,11 @@
 }
 
 /* Chat Markdown Styling overrides */
-.chat-bubble h3 { font-size: 1.05rem; font-weight: 800; color: #fff; margin: 12px 0 6px; }
+.chat-bubble h3 { font-size: 1.05rem; font-weight: 800; color: var(--text-primary); margin: 12px 0 6px; }
 .chat-bubble p { margin-bottom: 12px; }
 .chat-bubble ul { padding-left: 20px; margin-bottom: 12px; }
 .chat-bubble li { margin-bottom: 4px; }
-.chat-bubble strong { color: #f8fafc; font-weight: 700; }
+.chat-bubble strong { color: var(--text-primary); font-weight: 700; }
 
 .chat-sources {
   margin-top: 8px;
@@ -760,8 +760,8 @@
 /* ── PYQ Strategic History Block ── */
 .chat-pyq-block {
   margin-top: 1.5rem;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(251, 191, 36, 0.15);
+  background: var(--bg-hover);
+  border: 1px solid rgba(251, 191, 36, 0.25);
   border-radius: 12px;
   padding: 12px;
 }
@@ -779,7 +779,7 @@
 }
 
 .pyq-item {
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-input);
   border-radius: 8px;
   padding: 10px;
   margin-bottom: 8px;
@@ -805,8 +805,8 @@
 }
 
 .pyq-paper {
-  background: rgba(255, 255, 255, 0.1);
-  color: #94a3b8;
+  background: var(--border-color);
+  color: var(--text-secondary);
   font-size: 0.65rem;
   font-weight: 700;
   padding: 2px 6px;
@@ -822,7 +822,7 @@
 .pyq-text {
   font-size: 0.8rem;
   line-height: 1.4;
-  color: #cbd5e1;
+  color: var(--text-secondary);
   margin: 0;
   font-style: italic;
 }

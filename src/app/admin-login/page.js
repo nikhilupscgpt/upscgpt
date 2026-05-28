@@ -36,25 +36,25 @@ export default function Login() {
       
       <form onSubmit={handleLogin} style={{ 
         position: 'relative', zIndex: 10,
-        background: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(20px)',
+        background: 'var(--bg-card)', backdropFilter: 'blur(20px)',
         padding: '40px', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)', width: '380px',
-        border: '1px solid rgba(255,255,255,0.4)'
+        border: '1px solid var(--border-color)'
       }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <div style={{ width: '48px', height: '48px', background: 'var(--primary-gradient)', borderRadius: '12px', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '24px', boxShadow: 'var(--primary-shadow)' }}>🌍</div>
-          <h2 style={{ fontSize: '1.6rem', color: '#0f172a', fontWeight: 800 }}>Lecturer Login</h2>
-          <p style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '4px' }}>Secure access to the database</p>
+          <h2 style={{ fontSize: '1.6rem', color: 'var(--text-primary)', fontWeight: 800 }}>Lecturer Login</h2>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>Secure access to the database</p>
         </div>
 
         {error && <div style={{ padding:'12px', background:'rgba(239, 68, 68, 0.1)', color: '#ef4444', marginBottom: '20px', fontSize: '0.85rem', borderRadius:'10px', textAlign: 'center', fontWeight: 600 }}>{error}</div>}
         
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', color: '#475569', fontWeight: 600 }}>Username</label>
-          <input required value={username} onChange={e=>setUsername(e.target.value)} style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid #cbd5e1', fontSize: '0.95rem' }} />
+          <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Username</label>
+          <input required value={username} onChange={e=>setUsername(e.target.value)} style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.95rem' }} />
         </div>
         <div style={{ marginBottom: '32px' }}>
-          <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', color: '#475569', fontWeight: 600 }}>Secure Passkey</label>
-          <input required type="password" value={password} onChange={e=>setPassword(e.target.value)} style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid #cbd5e1', fontSize: '0.95rem' }} />
+          <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Secure Passkey</label>
+          <input required type="password" value={password} onChange={e=>setPassword(e.target.value)} style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', background: 'var(--bg-input)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', fontSize: '0.95rem' }} />
         </div>
         <button type="submit" className="btn-primary" disabled={loading} style={{ width: '100%', padding: '14px', borderRadius: '12px', fontSize: '1rem' }}>
           {loading ? "Authenticating..." : "Access Dashboard"}

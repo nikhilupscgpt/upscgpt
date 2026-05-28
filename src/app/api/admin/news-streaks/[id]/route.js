@@ -65,7 +65,7 @@ export async function PUT(req, props) {
 
   try {
     const body = await req.json();
-    const { title, title_hi, title_mr, livingSummary, livingSummary_hi, livingSummary_mr, status, issueIds, articleIds, editorialIds } = body;
+    const { title, title_hi, title_mr, livingSummary, livingSummary_hi, livingSummary_mr, status, importanceScore, issueIds, articleIds, editorialIds } = body;
 
     const currentStreak = await prisma.newsStreak.findUnique({
       where: { id },
@@ -100,6 +100,7 @@ export async function PUT(req, props) {
         livingSummary_hi,
         livingSummary_mr,
         status,
+        importanceScore: importanceScore !== undefined ? (parseInt(importanceScore) || 1) : undefined,
         issues: issuesUpdate
       },
       include: {

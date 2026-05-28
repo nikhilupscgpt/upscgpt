@@ -9,8 +9,8 @@ const ArchitectClient = dynamic(
     ssr: false,
     loading: () => (
       <div style={{ 
-        height: '100vh', background: '#020617', display: 'flex', 
-        alignItems: 'center', justifyContent: 'center', color: '#64748b',
+        height: '100vh', background: 'var(--bg-primary)', display: 'flex', 
+        alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)',
         fontFamily: 'Inter, sans-serif', fontWeight: 800, fontSize: '0.9rem'
       }}>
         INITIALIZING NEURAL ARCHITECT...

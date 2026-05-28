@@ -63,7 +63,8 @@ export async function GET(req, { params }) {
       include: {
         questions: { orderBy: { createdAt: 'desc' } },
         articles: { orderBy: { publishedAt: 'desc' }, take: 10 },
-        editorials: { orderBy: { publishedAt: 'desc' }, take: 5 }
+        editorials: { orderBy: { publishedAt: 'desc' }, take: 5 },
+        newsStreaks: { where: { status: 'ACTIVE' }, select: { id: true, title: true } }
       }
     });
     return NextResponse.json({ success: true, issue });

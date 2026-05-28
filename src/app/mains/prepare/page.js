@@ -125,8 +125,8 @@ export default function MainsPrepareHub() {
       <style jsx>{`
         .prepare-hub-container {
           min-height: 100vh;
-          background: #020617;
-          color: #f8fafc;
+          background: var(--bg-primary);
+          color: var(--text-primary);
           position: relative;
           overflow: hidden;
           font-family: 'Outfit', sans-serif;
@@ -144,7 +144,7 @@ export default function MainsPrepareHub() {
           position: absolute;
           width: 500px;
           height: 500px;
-          background: radial-gradient(circle, rgba(99, 102, 241, 0.05) 0%, transparent 70%);
+          background: var(--hero-bg-gradient);
           filter: blur(80px);
         }
 
@@ -164,28 +164,28 @@ export default function MainsPrepareHub() {
           gap: 8px;
           margin-bottom: 40px;
           font-size: 0.85rem;
-          color: #64748b;
+          color: var(--text-muted);
         }
 
         :global(.breadcrumb-link) {
           display: flex;
           align-items: center;
           gap: 6px;
-          color: #64748b;
+          color: var(--text-muted);
           text-decoration: none;
           transition: color 0.2s;
         }
 
         :global(.breadcrumb-link:hover) {
-          color: #f8fafc;
+          color: var(--text-primary);
         }
 
         .separator {
-          color: #334155;
+          color: var(--border-color);
         }
 
         .current {
-          color: #94a3b8;
+          color: var(--text-secondary);
           font-weight: 600;
         }
 
@@ -209,7 +209,7 @@ export default function MainsPrepareHub() {
 
         .prepare-hub-subtitle {
           font-size: 1.1rem;
-          color: #94a3b8;
+          color: var(--text-secondary);
           max-width: 650px;
           line-height: 1.6;
           margin: 0;
@@ -223,8 +223,8 @@ export default function MainsPrepareHub() {
 
         :global(.paper-card) {
           position: relative;
-          background: rgba(15, 23, 42, 0.45);
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
           border-radius: 24px;
           padding: 32px;
           text-decoration: none;
@@ -238,8 +238,8 @@ export default function MainsPrepareHub() {
 
         :global(.paper-card:hover) {
           transform: translateY(-6px);
-          border-color: rgba(255, 255, 255, 0.12);
-          background: rgba(15, 23, 42, 0.6);
+          border-color: var(--border-hover);
+          background: var(--bg-hover);
           box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
 
@@ -294,12 +294,12 @@ export default function MainsPrepareHub() {
           font-weight: 800;
           margin: 0 0 12px;
           line-height: 1.4;
-          color: #f1f5f9;
+          color: var(--text-primary);
         }
 
         .card-description {
           font-size: 0.9rem;
-          color: #94a3b8;
+          color: var(--text-secondary);
           line-height: 1.6;
           margin: 0;
         }

@@ -78,9 +78,73 @@ export async function GET(req) {
         return NextResponse.json({ error: 'News Streak not found' }, { status: 404 });
       }
 
+      // Collect IDs to fetch associated questions
+      const articleIds = streak.articles.map((a) => a.id);
+      const editorialIds = streak.editorials.map((e) => e.id);
+      const issueIds = [
+        ...streak.articles.map((a) => a.issueId),
+        ...streak.editorials.map((e) => e.issueId)
+      ].filter(Boolean);
+
+      const questionTags = [
+        ...articleIds.map((id) => `article:${id}`),
+        ...editorialIds.map((id) => `editorial:${id}`),
+      ];
+
+      let questions = [];
+      if (questionTags.length > 0 || issueIds.length > 0) {
+        questions = await prisma.question.findMany({
+          where: {
+            OR: [
+              {
+                issueId: {
+                  in: issueIds,
+                },
+              },
+              {
+                tags: {
+                  hasSome: questionTags,
+                },
+              },
+            ],
+          },
+        });
+      }
+
+      // Helper to map questions for a specific article or editorial
+      const getQuestionsForItem = (item, isEditorial) => {
+        const typeTag = isEditorial ? `editorial:${item.id}` : `article:${item.id}`;
+        const directQs = questions.filter((q) => q.tags.includes(typeTag));
+        const topicQs = questions.filter((q) => q.issueId === item.issueId);
+
+        const merged = [...directQs];
+        for (const q of topicQs) {
+          if (!merged.some((mq) => mq.id === q.id)) {
+            merged.push(q);
+          }
+        }
+        return merged;
+      };
+
+      const mappedArticles = streak.articles.map((a) => ({
+        ...a,
+        questions: getQuestionsForItem(a, false),
+      }));
+
+      const mappedEditorials = streak.editorials.map((e) => ({
+        ...e,
+        questions: getQuestionsForItem(e, true),
+      }));
+
+      const streakWithQuestions = {
+        ...streak,
+        articles: mappedArticles,
+        editorials: mappedEditorials
+      };
+
       return NextResponse.json({
         success: true,
-        streak
+        streak: streakWithQuestions
       });
     }
 
@@ -102,7 +166,10 @@ export async function GET(req) {
           }
         }
       },
-      orderBy: { updatedAt: 'desc' }
+      orderBy: [
+        { importanceScore: 'desc' },
+        { updatedAt: 'desc' }
+      ]
     });
 
     return NextResponse.json({

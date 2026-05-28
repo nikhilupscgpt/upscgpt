@@ -284,26 +284,28 @@ model NodeContent {
 /// Manually added news items, linked to an Issue.
 /// structuredData holds the full Gemma 26B analysis JSON.
 model Article {
-  id             String           @id @default(cuid())
-  issueId        String
-  title          String
-  title_hi       String?
-  title_mr       String?
-  url            String?          @unique
-  source         String?
-  contentType    ContentType      @default(NEWS)
-  rawContent     String?
-  rawContent_hi  String?
-  rawContent_mr  String?
-  structuredData Json?
-  status         ProcessingStatus @default(PENDING)
-  addedManually  Boolean          @default(true)
-  publishedAt    DateTime?
-  createdAt      DateTime         @default(now())
-  issue          Issue            @relation(fields: [issueId], references: [id], onDelete: Cascade)
-  newsStreakId   String?
-  newsStreak     NewsStreak?      @relation(fields: [newsStreakId], references: [id], onDelete: SetNull)
-  timelineEvents TimelineEvent[]
+  id              String           @id @default(cuid())
+  issueId         String
+  title           String
+  title_hi        String?
+  title_mr        String?
+  url             String?          @unique
+  source          String?
+  contentType     ContentType      @default(NEWS)
+  examStage       ExamStage?
+  importanceScore Int              @default(1)
+  rawContent      String?
+  rawContent_hi   String?
+  rawContent_mr   String?
+  structuredData  Json?
+  status          ProcessingStatus @default(PENDING)
+  addedManually   Boolean          @default(true)
+  publishedAt     DateTime?
+  createdAt       DateTime         @default(now())
+  issue           Issue            @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  newsStreakId    String?
+  newsStreak      NewsStreak?      @relation(fields: [newsStreakId], references: [id], onDelete: SetNull)
+  timelineEvents  TimelineEvent[]
 
   @@index([issueId])
   @@index([status])
@@ -315,24 +317,25 @@ model Article {
 /// Manually added editorials, linked to an Issue.
 /// structuredData holds the editorial-specific Gemma 26B analysis JSON.
 model Editorial {
-  id             String           @id @default(cuid())
-  issueId        String
-  title          String
-  title_hi       String?
-  title_mr       String?
-  url            String?
-  author         String?
-  source         String?
-  rawContent     String?
-  rawContent_hi  String?
-  rawContent_mr  String?
-  structuredData Json?
-  status         ProcessingStatus @default(PENDING)
-  publishedAt    DateTime?
-  createdAt      DateTime         @default(now())
-  issue          Issue            @relation(fields: [issueId], references: [id], onDelete: Cascade)
-  newsStreakId   String?
-  newsStreak     NewsStreak?      @relation(fields: [newsStreakId], references: [id], onDelete: SetNull)
+  id              String           @id @default(cuid())
+  issueId         String
+  title           String
+  title_hi        String?
+  title_mr        String?
+  url             String?
+  author          String?
+  source          String?
+  importanceScore Int              @default(1)
+  rawContent      String?
+  rawContent_hi   String?
+  rawContent_mr   String?
+  structuredData  Json?
+  status          ProcessingStatus @default(PENDING)
+  publishedAt     DateTime?
+  createdAt       DateTime         @default(now())
+  issue           Issue            @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  newsStreakId    String?
+  newsStreak      NewsStreak?      @relation(fields: [newsStreakId], references: [id], onDelete: SetNull)
 
   @@index([issueId])
   @@index([status])
@@ -672,8 +675,14 @@ enum ContentType {
   NEWS
   PIB
   REPORT
-  PRELIMS
-  MAINS
+  THE_HINDU_TEXT_AND_CONTEXT
+  INDIAN_EXPRESS_EXPLAINED
+}
+
+enum ExamStage {
+  PRELIMS_ONLY
+  MAINS_ONLY
+  BOTH
 }
 
 enum ProcessingStatus {
@@ -700,6 +709,7 @@ model NewsStreak {
   livingSummary_hi String?      @db.Text
   livingSummary_mr String?      @db.Text
   status           String       @default("ACTIVE") // ACTIVE, ARCHIVED
+  importanceScore  Int          @default(1)
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
 

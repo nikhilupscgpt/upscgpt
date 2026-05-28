@@ -44,6 +44,10 @@ export default function NewsStreaksAdmin() {
   const [selectedStreak, setSelectedStreak] = useState(null);
   const [synthesizing, setSynthesizing] = useState(false);
 
+  // Suggestions state
+  const [suggestions, setSuggestions] = useState([]);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+
   // Syllabus expansion state
   const [expandedPapers, setExpandedPapers] = useState({ "GS3": true });
   const [expandedSubjects, setExpandedSubjects] = useState({});
@@ -58,6 +62,7 @@ export default function NewsStreaksAdmin() {
     title_hi: '',
     title_mr: '',
     status: 'ACTIVE',
+    importanceScore: 1,
     issueIds: [],
     articleIds: [],
     editorialIds: []
@@ -69,10 +74,11 @@ export default function NewsStreaksAdmin() {
     tracker: '### Data Tracker\n- Metric tracker: USD/INR live trend, CPI rate etc.'
   });
 
-  // Fetch all news streaks and syllabus issues
+  // Fetch all news streaks, syllabus issues, and streak suggestions
   useEffect(() => {
     fetchStreaks();
     fetchIssues();
+    fetchSuggestions();
   }, []);
 
   const fetchStreaks = async () => {
@@ -89,6 +95,21 @@ export default function NewsStreaksAdmin() {
       toast.error('Error fetching news streaks');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSuggestions = async () => {
+    setLoadingSuggestions(true);
+    try {
+      const res = await fetch('/api/admin/news-streaks/suggestions');
+      const data = await res.json();
+      if (data.success) {
+        setSuggestions(data.suggestions || []);
+      }
+    } catch (err) {
+      console.error('Error fetching streak suggestions:', err);
+    } finally {
+      setLoadingSuggestions(false);
     }
   };
 
@@ -165,6 +186,7 @@ export default function NewsStreaksAdmin() {
           title_hi: fullStreak.title_hi || '',
           title_mr: fullStreak.title_mr || '',
           status: fullStreak.status || 'ACTIVE',
+          importanceScore: fullStreak.importanceScore || 1,
           issueIds: fullStreak.issues?.map(i => i.id) || [],
           articleIds: fullStreak.articles?.map(a => a.id) || [],
           editorialIds: fullStreak.editorials?.map(e => e.id) || []
@@ -184,6 +206,7 @@ export default function NewsStreaksAdmin() {
       title_hi: '',
       title_mr: '',
       status: 'ACTIVE',
+      importanceScore: 1,
       issueIds: [],
       articleIds: [],
       editorialIds: []
@@ -194,6 +217,27 @@ export default function NewsStreaksAdmin() {
       tracker: '### Data Tracker\n- Metric tracker: USD/INR live trend, CPI rate etc.'
     });
     setAvailableArticles([]);
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setSelectedStreak(null);
+    setForm({
+      title: `${suggestion.title} Evolution`,
+      title_hi: '',
+      title_mr: '',
+      status: 'ACTIVE',
+      importanceScore: 3,
+      issueIds: [suggestion.issueId],
+      articleIds: suggestion.items.filter(i => i.type === 'ARTICLE').map(i => i.id),
+      editorialIds: suggestion.items.filter(i => i.type === 'EDITORIAL').map(i => i.id)
+    });
+    setSummaryForm({
+      causes: '### Core Causes\n- Highlight core historical triggers here.',
+      impact: '### Socio-Economic Impact\n- Highlight direct impacts here.',
+      tracker: '### Data Tracker\n- Metric tracker: USD/INR live trend, CPI rate etc.'
+    });
+    fetchArticlesForLinkedIssues([suggestion.issueId]);
+    toast.success(`Streak template initialized for "${suggestion.title}"!`);
   };
 
   const handleAISynthesize = async () => {
@@ -273,6 +317,7 @@ export default function NewsStreaksAdmin() {
         toast.success(selectedStreak ? 'Streak updated!' : 'Streak created!', { id: toastId });
         handleCreateClick();
         fetchStreaks();
+        fetchSuggestions();
       } else {
         toast.error(data.error || 'Failed to save news streak', { id: toastId });
       }
@@ -295,6 +340,7 @@ export default function NewsStreaksAdmin() {
       if (data.success) {
         toast.success('News Streak deleted!', { id: toastId });
         fetchStreaks();
+        fetchSuggestions();
         handleCreateClick();
       } else {
         toast.error(data.error || 'Delete failed', { id: toastId });
@@ -469,6 +515,38 @@ export default function NewsStreaksAdmin() {
               <div className="status-placeholder">No news streaks found.</div>
             )}
           </div>
+
+          {/* Suggested Streaks Panel */}
+          <div className="suggested-streaks-section">
+            <h4>💡 Streak Suggestions</h4>
+            <div className="suggestions-list-scroll hide-scrollbar">
+              {loadingSuggestions ? (
+                <div className="status-placeholder">Loading suggestions...</div>
+              ) : suggestions.length > 0 ? (
+                suggestions.map(suggestion => (
+                  <div 
+                    key={suggestion.issueId} 
+                    className="suggestion-card"
+                    onClick={() => handleSuggestionClick(suggestion)}
+                  >
+                    <div className="suggestion-meta">
+                      <span className="suggestion-count">{suggestion.items.length} unlinked items</span>
+                      {suggestion.gsPapers && suggestion.gsPapers.length > 0 && (
+                        <span className="suggestion-paper">{suggestion.gsPapers[0]}</span>
+                      )}
+                    </div>
+                    <div className="suggestion-title">{suggestion.title}</div>
+                    <div className="suggestion-action">
+                      <span>Click to initialize streak</span>
+                      <ChevronRight size={12} />
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="status-placeholder">No new suggestions. All issues linked!</div>
+              )}
+            </div>
+          </div>
         </aside>
 
         {/* Right column: Form and Details */}
@@ -521,6 +599,19 @@ export default function NewsStreaksAdmin() {
                     <option value="ACTIVE">ACTIVE</option>
                     <option value="URGENT">URGENT</option>
                     <option value="ARCHIVED">ARCHIVED</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Importance Score (1–5)</label>
+                  <select 
+                    value={form.importanceScore} 
+                    onChange={e => setForm(prev => ({ ...prev, importanceScore: parseInt(e.target.value) || 1 }))}
+                  >
+                    <option value={1}>1 - Low</option>
+                    <option value={2}>2 - Medium-Low</option>
+                    <option value={3}>3 - Medium</option>
+                    <option value={4}>4 - High</option>
+                    <option value={5}>5 - Critical</option>
                   </select>
                 </div>
               </div>
@@ -810,6 +901,95 @@ export default function NewsStreaksAdmin() {
           display: flex;
           flex-direction: column;
           padding: 1.25rem;
+        }
+
+        .suggested-streaks-section {
+          border-top: 1px solid rgba(255,255,255,0.05);
+          padding-top: 1rem;
+          margin-top: 1rem;
+          display: flex;
+          flex-direction: column;
+          flex: 1;
+          min-height: 250px;
+          overflow: hidden;
+        }
+
+        .suggested-streaks-section h4 {
+          font-size: 0.75rem;
+          font-weight: 900;
+          color: #f59e0b;
+          text-transform: uppercase;
+          margin: 0 0 0.75rem 0;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+
+        .suggestions-list-scroll {
+          flex: 1;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+
+        .suggestion-card {
+          background: rgba(245, 158, 11, 0.03);
+          border: 1px solid rgba(245, 158, 11, 0.1);
+          border-radius: 8px;
+          padding: 0.75rem;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .suggestion-card:hover {
+          background: rgba(245, 158, 11, 0.08);
+          border-color: rgba(245, 158, 11, 0.25);
+        }
+
+        .suggestion-meta {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 0.25rem;
+        }
+
+        .suggestion-count {
+          font-size: 0.58rem;
+          font-weight: 800;
+          color: #f59e0b;
+          background: rgba(245, 158, 11, 0.1);
+          padding: 1px 6px;
+          border-radius: 4px;
+        }
+
+        .suggestion-paper {
+          font-size: 0.58rem;
+          font-weight: 800;
+          color: #cbd5e1;
+          background: rgba(255, 255, 255, 0.05);
+          padding: 1px 6px;
+          border-radius: 4px;
+        }
+
+        .suggestion-title {
+          font-size: 0.75rem;
+          font-weight: 700;
+          color: #cbd5e1;
+          margin-bottom: 0.4rem;
+        }
+
+        .suggestion-action {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 0.6rem;
+          font-weight: 800;
+          color: #64748b;
+        }
+
+        .suggestion-card:hover .suggestion-action {
+          color: #f59e0b;
         }
 
         .search-box-row {

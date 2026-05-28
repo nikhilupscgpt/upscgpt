@@ -57,7 +57,7 @@ export default function StudentLogin() {
   return (
     <div style={{
       minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      background: 'linear-gradient(135deg, #020617 0%, #0f172a 100%)',
+      background: 'var(--hero-bg-gradient)',
       fontFamily: "'Outfit', sans-serif",
       position: 'relative',
       overflow: 'hidden',
@@ -67,14 +67,14 @@ export default function StudentLogin() {
 
       <div style={{
         position: 'relative', zIndex: 10,
-        background: 'rgba(255, 255, 255, 0.02)',
+        background: 'var(--bg-card)',
         backdropFilter: 'blur(30px)',
         padding: '50px 40px',
         borderRadius: '32px',
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
         width: '100%',
         maxWidth: '440px',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
+        border: '1px solid var(--border-color)',
         textAlign: 'center'
       }}>
         {/* Brand Header */}
@@ -89,8 +89,8 @@ export default function StudentLogin() {
             boxShadow: '0 10px 25px rgba(139,92,246,0.4)',
             transform: 'rotate(-5deg)'
           }}>🌍</div>
-          <h1 style={{ fontSize: '2.2rem', fontWeight: 900, color: 'white', margin: '0 0 8px', letterSpacing: '-0.02em' }}>UPSCGPT</h1>
-          <p style={{ color: '#94a3b8', fontSize: '0.9rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Intelligence Hub</p>
+          <h1 style={{ fontSize: '2.2rem', fontWeight: 900, color: 'var(--text-primary)', margin: '0 0 8px', letterSpacing: '-0.02em' }}>UPSCGPT</h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Intelligence Hub</p>
         </div>
 
         {/* Auth Forms */}
@@ -107,8 +107,8 @@ export default function StudentLogin() {
                   onChange={(e) => setEmail(e.target.value)}
                   style={{
                     width: '100%', padding: '16px 16px 16px 48px', borderRadius: '16px',
-                    background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-                    color: 'white', fontSize: '1rem', outline: 'none', transition: 'border-color 0.2s'
+                    background: 'var(--bg-input)', border: '1px solid var(--border-color)',
+                    color: 'var(--text-primary)', fontSize: '1rem', outline: 'none', transition: 'border-color 0.2s'
                   }}
                 />
               </div>
@@ -126,8 +126,8 @@ export default function StudentLogin() {
             </form>
           ) : (
             <form onSubmit={handleVerifyOtp}>
-              <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginBottom: '20px' }}>
-                We&apos;ve sent a 6-digit code to <span style={{ color: 'white', fontWeight: 700 }}>{email}</span>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '20px' }}>
+                We&apos;ve sent a 6-digit code to <span style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{email}</span>
               </p>
               <div style={{ position: 'relative', marginBottom: '20px' }}>
                 <Key size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
@@ -140,8 +140,8 @@ export default function StudentLogin() {
                   onChange={(e) => setOtp(e.target.value)}
                   style={{
                     width: '100%', padding: '16px 16px 16px 48px', borderRadius: '16px',
-                    background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-                    color: 'white', fontSize: '1.2rem', outline: 'none', letterSpacing: '0.5em', textAlign: 'center'
+                    background: 'var(--bg-input)', border: '1px solid var(--border-color)',
+                    color: 'var(--text-primary)', fontSize: '1.2rem', outline: 'none', letterSpacing: '0.5em', textAlign: 'center'
                   }}
                 />
               </div>
@@ -169,17 +169,17 @@ export default function StudentLogin() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px', margin: '32px 0', opacity: 0.5 }}>
-          <div style={{ flex: 1, height: '1px', background: 'white' }} />
-          <span style={{ fontSize: '0.75rem', color: 'white', fontWeight: 800 }}>OR</span>
-          <div style={{ flex: 1, height: '1px', background: 'white' }} />
+          <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 800 }}>OR</span>
+          <div style={{ flex: 1, height: '1px', background: 'var(--border-color)' }} />
         </div>
 
         {/* Secondary Action: Google */}
         <button
           onClick={() => signIn('google', { callbackUrl: '/atlas' })}
           style={{
-            width: '100%', padding: '14px 24px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)',
-            background: 'transparent', color: 'white', fontWeight: 700, fontSize: '0.95rem',
+            width: '100%', padding: '14px 24px', borderRadius: '16px', border: '1px solid var(--border-color)',
+            background: 'transparent', color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.95rem',
             cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', transition: 'background 0.2s'
           }}
           onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
@@ -190,20 +190,20 @@ export default function StudentLogin() {
         </button>
 
         {/* Discreet Admin Link */}
-        <div style={{ marginTop: '40px', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+        <div style={{ marginTop: '40px', paddingTop: '24px', borderTop: '1px solid var(--border-color)' }}>
           <Link href="/admin-login" style={{
-            color: '#334155', fontSize: '0.7rem', textDecoration: 'none', fontWeight: 800,
+            color: 'var(--text-muted)', fontSize: '0.7rem', textDecoration: 'none', fontWeight: 800,
             textTransform: 'uppercase', letterSpacing: '1.5px', transition: 'color 0.2s'
           }}
-            onMouseOver={(e) => e.currentTarget.style.color = '#64748b'}
-            onMouseOut={(e) => e.currentTarget.style.color = '#334155'}
+            onMouseOver={(e) => e.currentTarget.style.color = 'var(--text-secondary)'}
+            onMouseOut={(e) => e.currentTarget.style.color = 'var(--text-muted)'}
           >
             Instructors Command Center
           </Link>
         </div>
       </div>
 
-      <div style={{ position: 'absolute', bottom: '32px', fontSize: '0.7rem', color: '#1e293b', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div style={{ position: 'absolute', bottom: '32px', fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
         <ShieldCheck size={14} /> ENCRYPTED BIOMETRIC SECURE AUTHENTICATION
       </div>
     </div>

@@ -48,15 +48,6 @@ export default function UniversalSearchBar({ placeholder = 'Search or Ask...', i
 
   // Create flattened list for keyboard navigation
   const flattenedSuggestions = [];
-  if (results.nodes?.length > 0) {
-    flattenedSuggestions.push({ ...results.nodes[0], category: 'ANSWER', icon: '🧠' });
-    results.nodes.slice(1, 5).forEach(n => {
-      flattenedSuggestions.push({ ...n, category: 'NODE', icon: '🏛️' });
-    });
-  }
-  results.pyqs?.slice(0, 3).forEach(p => {
-    flattenedSuggestions.push({ ...p, category: 'PYQ', icon: '🎯' });
-  });
   results.streaks?.slice(0, 3).forEach(s => {
     flattenedSuggestions.push({ ...s, category: 'NEWS STREAK', icon: '⚡' });
   });
@@ -65,6 +56,15 @@ export default function UniversalSearchBar({ placeholder = 'Search or Ask...', i
   });
   results.news?.slice(0, 3).forEach(n => {
     flattenedSuggestions.push({ ...n, category: 'NEWS', icon: '📰' });
+  });
+  if (results.nodes?.length > 0) {
+    flattenedSuggestions.push({ ...results.nodes[0], category: 'ANSWER', icon: '🧠' });
+    results.nodes.slice(1, 5).forEach(n => {
+      flattenedSuggestions.push({ ...n, category: 'NODE', icon: '🏛️' });
+    });
+  }
+  results.pyqs?.slice(0, 3).forEach(p => {
+    flattenedSuggestions.push({ ...p, category: 'PYQ', icon: '🎯' });
   });
 
   // Keyboard navigation
@@ -154,7 +154,7 @@ export default function UniversalSearchBar({ placeholder = 'Search or Ask...', i
               ) : (
                 <div className="dropdown-content">
                   {/* Categorized Render */}
-                  {['ANSWER', 'NODE', 'PYQ', 'NEWS STREAK', 'EDITORIAL', 'NEWS'].map(cat => {
+                  {['NEWS STREAK', 'EDITORIAL', 'NEWS', 'ANSWER', 'NODE', 'PYQ'].map(cat => {
                     const catItems = flattenedSuggestions.filter(i => i.category === cat);
                     if (catItems.length === 0) return null;
 
@@ -224,11 +224,11 @@ export default function UniversalSearchBar({ placeholder = 'Search or Ask...', i
 
         .search-input-premium {
           width: 100%;
-          background: rgba(15, 23, 42, 0.85);
-          border: 1px solid rgba(255, 255, 255, 0.12);
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
           padding: 18px 60px 18px 56px;
           border-radius: 20px;
-          color: white;
+          color: var(--text-primary);
           font-size: 1.15rem;
           font-weight: 500;
           outline: none;
@@ -238,9 +238,9 @@ export default function UniversalSearchBar({ placeholder = 'Search or Ask...', i
         }
 
         .search-input-premium:focus {
-          border-color: #38bdf8;
-          background: rgba(15, 23, 42, 0.98);
-          box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.15), 0 20px 50px rgba(0, 0, 0, 0.5);
+          border-color: var(--neural-blue);
+          background: var(--bg-hover);
+          box-shadow: 0 0 0 4px var(--neural-glow), 0 20px 50px rgba(0, 0, 0, 0.5);
         }
 
         .shortcut-hint {
@@ -251,8 +251,8 @@ export default function UniversalSearchBar({ placeholder = 'Search or Ask...', i
           gap: 4px;
           font-size: 0.75rem;
           font-weight: 800;
-          color: rgba(255, 255, 255, 0.3);
-          background: rgba(255, 255, 255, 0.05);
+          color: var(--text-muted);
+          background: var(--bg-input);
           padding: 4px 10px;
           border-radius: 8px;
           pointer-events: none;
@@ -276,8 +276,8 @@ export default function UniversalSearchBar({ placeholder = 'Search or Ask...', i
           top: calc(100% + 12px);
           left: 0;
           right: 0;
-          background: rgba(15, 23, 42, 0.98);
-          border: 1px solid rgba(255, 255, 255, 0.15);
+          background: var(--bg-hover);
+          border: 1px solid var(--border-color);
           border-radius: 24px;
           overflow: hidden;
           z-index: 1000; /* High enough to be above other elements */
@@ -300,7 +300,7 @@ export default function UniversalSearchBar({ placeholder = 'Search or Ask...', i
           font-size: 0.7rem;
           font-weight: 900;
           text-transform: uppercase;
-          color: rgba(255, 255, 255, 0.3);
+          color: var(--text-muted);
           letter-spacing: 1.5px;
         }
 
@@ -311,8 +311,9 @@ export default function UniversalSearchBar({ placeholder = 'Search or Ask...', i
         }
 
         .suggestion-item.active {
-          background: rgba(56, 189, 248, 0.15);
-          padding-left: 32px;
+          background: var(--bg-hover);
+          border-left: 4px solid var(--neural-blue);
+          padding-left: 28px;
         }
 
         .suggestion-main {
@@ -329,13 +330,13 @@ export default function UniversalSearchBar({ placeholder = 'Search or Ask...', i
         .suggestion-title {
           font-size: 1rem;
           font-weight: 700;
-          color: white;
+          color: var(--text-primary);
           line-height: 1.3;
         }
 
         .suggestion-subtitle {
           font-size: 0.8rem;
-          color: rgba(255, 255, 255, 0.4);
+          color: var(--text-secondary);
           margin-top: 4px;
           font-weight: 600;
         }
@@ -343,7 +344,7 @@ export default function UniversalSearchBar({ placeholder = 'Search or Ask...', i
         .dropdown-loading {
           padding: 32px;
           text-align: center;
-          color: #38bdf8;
+          color: var(--neural-blue);
           font-size: 0.9rem;
           font-weight: 800;
           letter-spacing: 2px;

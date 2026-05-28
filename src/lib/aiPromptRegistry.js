@@ -322,6 +322,7 @@ Content: "{{content}}"
 Return strictly valid JSON:
 {
   "crux": "1-2 paragraph deep analytical synthesis of the core arguments/developments (150-200 words)",
+  "importanceScore": <an integer between 1 and 5 indicating the importance for UPSC: 1 = Normal daily updates/minor events, 3 = High relevance/recurrent syllabus themes, 5 = Critical landmark events/landmark judgment/major policy release>,
   "prelimsFact": "A highly specific, testable factual point (e.g., a treaty, index, organization, or geographic location) mentioned in the text, or null if none",
   "mcq": {
     "question": "A conceptual UPSC Prelims-style MCQ based on the text",

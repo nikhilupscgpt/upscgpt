@@ -51,7 +51,7 @@ export default async function IssuePage({ params, searchParams }) {
   const issueData = JSON.parse(JSON.stringify(issue));
 
   return (
-    <div style={{ background: '#020617', minHeight: '100vh', padding: '90px 24px 80px', fontFamily: '"Outfit", sans-serif', color: '#f8fafc', position: 'relative' }}>
+    <div style={{ background: 'var(--bg-primary)', minHeight: '100vh', padding: '90px 24px 80px', fontFamily: '"Outfit", sans-serif', color: 'var(--text-primary)', position: 'relative' }}>
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.03), transparent), radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.03), transparent)' }} />
 
       <div className="issue-study-layout with-assistant" style={{ maxWidth: '1440px', margin: '0 auto', display: 'grid', gap: '32px' }}>
@@ -60,12 +60,12 @@ export default async function IssuePage({ params, searchParams }) {
         </main>
 
         {!session ? (
-          <aside className="issue-study-assistant-locked" style={{ position: 'sticky', top: '100px', height: 'calc(100vh - 140px)', background: 'rgba(15, 23, 42, 0.45)', border: '1px solid rgba(255, 255, 255, 0.06)', borderRadius: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px', textAlign: 'center', backdropFilter: 'blur(12px)' }}>
+          <aside className="issue-study-assistant-locked" style={{ position: 'sticky', top: '100px', height: 'calc(100vh - 140px)', background: 'var(--bg-card)', border: '1px solid var(--border-color)', borderRadius: '24px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px', textAlign: 'center', backdropFilter: 'blur(12px)' }}>
             <div style={{ background: 'rgba(59, 130, 246, 0.05)', color: '#3b82f6', width: '64px', height: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px', border: '1px solid rgba(59, 130, 246, 0.1)' }}>
               <Lock size={24} />
             </div>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'white', marginBottom: '12px' }}>AI Neural Assistant</h3>
-            <p style={{ fontSize: '0.85rem', color: '#94a3b8', lineHeight: 1.5, marginBottom: '24px' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '12px' }}>AI Neural Assistant</h3>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '24px' }}>
               Unlock the interactive AI tutor to ask questions on this syllabus node, request model answers, and draft comparative notes in real-time.
             </p>
             <Link 

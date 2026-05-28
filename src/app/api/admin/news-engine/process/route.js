@@ -194,10 +194,12 @@ export async function POST(req) {
       });
 
       try {
-        const response = await ai.generateContent(prompt);
+        const response = await batchAi.generateContent(prompt);
         const structuredData = cleanJson(response.text);
 
         if (structuredData) {
+          const aiImportance = structuredData.importanceScore ? (parseInt(structuredData.importanceScore) || 1) : 1;
+          
           console.log(`[Translating Article] ${article.title} to Hindi...`);
           const hiTranslation = await translateNewsContent(synthesisAi, article.title, article.rawContent, "Hindi");
           
@@ -209,6 +211,7 @@ export async function POST(req) {
             data: {
               structuredData,
               status: 'DONE',
+              importanceScore: aiImportance,
               title_hi: hiTranslation.title,
               rawContent_hi: hiTranslation.content,
               title_mr: mrTranslation.title,
@@ -249,10 +252,12 @@ export async function POST(req) {
       });
 
       try {
-        const response = await ai.generateContent(prompt);
+        const response = await batchAi.generateContent(prompt);
         const structuredData = cleanJson(response.text);
 
         if (structuredData) {
+          const aiImportance = structuredData.importanceScore ? (parseInt(structuredData.importanceScore) || 1) : 1;
+          
           console.log(`[Translating Editorial] ${editorial.title} to Hindi...`);
           const hiTranslation = await translateNewsContent(synthesisAi, editorial.title, editorial.rawContent, "Hindi");
           
@@ -264,6 +269,7 @@ export async function POST(req) {
             data: {
               structuredData,
               status: 'DONE',
+              importanceScore: aiImportance,
               title_hi: hiTranslation.title,
               rawContent_hi: hiTranslation.content,
               title_mr: mrTranslation.title,

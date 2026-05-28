@@ -448,8 +448,8 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
       <style jsx global>{`
         .study-container {
           min-height: 100vh;
-          background: #020617;
-          color: #f8fafc;
+          background: var(--bg-primary);
+          color: var(--text-primary);
           padding: 80px 24px 80px;
           font-family: 'Outfit', sans-serif;
           position: relative;
@@ -461,28 +461,28 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
           gap: 8px;
           margin-bottom: 32px;
           font-size: 0.85rem;
-          color: #64748b;
+          color: var(--text-muted);
         }
 
         :global(.breadcrumb-link) {
           display: flex;
           align-items: center;
           gap: 6px;
-          color: #64748b;
+          color: var(--text-muted);
           text-decoration: none;
           transition: color 0.2s;
         }
 
         :global(.breadcrumb-link:hover) {
-          color: #f8fafc;
+          color: var(--text-primary);
         }
 
         .separator {
-          color: #334155;
+          color: var(--border-color);
         }
 
         .current {
-          color: #94a3b8;
+          color: var(--text-secondary);
           font-weight: 600;
           white-space: nowrap;
           overflow: hidden;
@@ -501,7 +501,7 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
         .workspace-tabs {
           display: flex;
           gap: 8px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+          border-bottom: 1px solid var(--border-color);
           padding-bottom: 4px;
           flex-wrap: wrap;
           align-items: center;
@@ -514,7 +514,7 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
           padding: 12px 20px;
           background: transparent;
           border: none;
-          color: #94a3b8;
+          color: var(--text-secondary);
           font-weight: 600;
           font-size: 0.95rem;
           cursor: pointer;
@@ -524,12 +524,12 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
         }
 
         .workspace-tab-btn:hover {
-          color: white;
-          background: rgba(255, 255, 255, 0.02);
+          color: var(--text-primary);
+          background: var(--bg-hover);
         }
 
         .workspace-tab-btn.active {
-          color: #10b981;
+          color: var(--color-emerald);
           background: rgba(16, 185, 129, 0.08);
         }
 
@@ -540,14 +540,14 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
           left: 0;
           right: 0;
           height: 2px;
-          background: #10b981;
+          background: var(--color-emerald);
           border-radius: 99px;
         }
 
         .ask-ai-toggle-btn {
           margin-left: auto;
           background: rgba(16, 185, 129, 0.1);
-          color: #10b981;
+          color: var(--color-emerald);
           border: 1px solid rgba(16, 185, 129, 0.2);
           border-radius: 12px;
           padding: 10px 20px;
@@ -562,7 +562,7 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
 
         .ask-ai-toggle-btn:hover {
           background: rgba(16, 185, 129, 0.2);
-          color: #f8fafc;
+          color: var(--text-primary);
         }
 
         .ask-ai-toggle-btn.chat-open {
@@ -573,13 +573,13 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
 
         .ask-ai-toggle-btn.chat-open:hover {
           background: rgba(239, 68, 68, 0.2);
-          color: #f8fafc;
+          color: var(--text-primary);
         }
 
         /* Workspace Panel */
         .workspace-panel {
-          background: rgba(15, 23, 42, 0.6);
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
           border-radius: 28px;
           padding: 36px;
           min-height: 400px;
@@ -593,11 +593,11 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
           font-size: 0.75rem;
           font-weight: 800;
           letter-spacing: 1px;
-          color: #10b981;
+          color: var(--color-emerald);
           border: 1px solid rgba(16, 185, 129, 0.2);
           padding: 6px 14px;
           border-radius: 99px;
-          background: rgba(16, 185, 129, 0.03);
+          background: var(--bg-input);
           margin-bottom: 28px;
         }
 
@@ -605,7 +605,7 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background: #10b981;
+          background: var(--color-emerald);
         }
 
         .node-header {
@@ -621,8 +621,8 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
         .gs-paper-tag {
           font-size: 0.65rem;
           font-weight: 900;
-          color: #10b981;
-          background: rgba(16, 185, 129, 0.1);
+          color: var(--color-emerald);
+          background: var(--bg-input);
           padding: 4px 10px;
           border-radius: 6px;
           letter-spacing: 0.05em;
@@ -631,8 +631,8 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
         .domain-tag {
           font-size: 0.65rem;
           font-weight: 900;
-          color: #3b82f6;
-          background: rgba(59, 130, 246, 0.1);
+          color: var(--color-blue);
+          background: var(--bg-input);
           padding: 4px 10px;
           border-radius: 6px;
           letter-spacing: 0.05em;
@@ -645,12 +645,12 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
           line-height: 1.2;
           letter-spacing: -0.03em;
           margin: 0 0 8px;
-          color: #f8fafc;
+          color: var(--text-primary);
         }
 
         .node-path {
           font-size: 0.9rem;
-          color: #64748b;
+          color: var(--text-secondary);
           font-weight: 600;
           display: flex;
           align-items: center;
@@ -659,11 +659,11 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
         }
 
         .inline-separator {
-          color: #334155;
+          color: var(--border-color);
         }
 
         .empty-text {
-          color: #64748b;
+          color: var(--text-muted);
           font-style: italic;
           text-align: center;
           padding: 80px 0;
@@ -671,13 +671,13 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
 
         /* Markdown styling overrides */
         :global(.markdown-content) {
-          color: #cbd5e1;
+          color: var(--text-secondary);
           line-height: 1.8;
           font-size: 1.05rem;
         }
 
         :global(.markdown-content h1), :global(.markdown-content h2), :global(.markdown-content h3), :global(.markdown-content h4) {
-          color: #f8fafc;
+          color: var(--text-primary);
           font-weight: 800;
           margin-top: 24px;
           margin-bottom: 12px;
@@ -701,7 +701,7 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
         }
 
         :global(.markdown-content strong) {
-          color: #f8fafc;
+          color: var(--text-primary);
           font-weight: 700;
         }
 
@@ -713,7 +713,7 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
         }
 
         .mains-note-section-block {
-          border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+          border-bottom: 1px solid var(--border-color);
           padding-bottom: 24px;
         }
 
@@ -725,13 +725,13 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
         .mains-section-title {
           font-size: 1.25rem;
           font-weight: 800;
-          color: #10b981;
+          color: var(--color-emerald);
           margin: 0 0 14px;
           letter-spacing: -0.01em;
         }
 
         .mains-section-content {
-          color: #cbd5e1;
+          color: var(--text-secondary);
           line-height: 1.75;
           font-size: 1rem;
         }
@@ -744,8 +744,8 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
         }
 
         .fact-card {
-          background: rgba(30, 41, 59, 0.2);
-          border: 1px solid rgba(255, 255, 255, 0.04);
+          background: var(--bg-input);
+          border: 1px solid var(--border-color);
           border-radius: 16px;
           padding: 20px 24px;
           display: flex;
@@ -759,7 +759,7 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
         }
 
         .fact-content {
-          color: #cbd5e1;
+          color: var(--text-secondary);
           line-height: 1.6;
           font-size: 0.98rem;
         }
@@ -772,25 +772,25 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
         }
 
         .value-add-card {
-          background: rgba(30, 41, 59, 0.25);
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          background: var(--bg-input);
+          border: 1px solid var(--border-color);
           border-radius: 20px;
           overflow: hidden;
         }
 
         .value-add-card-header {
-          background: rgba(255, 255, 255, 0.02);
+          background: var(--bg-hover);
           padding: 14px 24px;
           display: flex;
           align-items: center;
           gap: 10px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+          border-bottom: 1px solid var(--border-color);
         }
 
         .value-add-card-header h4 {
           font-size: 0.95rem;
           font-weight: 800;
-          color: #f8fafc;
+          color: var(--text-primary);
           margin: 0;
           text-transform: uppercase;
           letter-spacing: 0.05em;
@@ -798,7 +798,7 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
 
         .value-add-card-body {
           padding: 24px;
-          color: #cbd5e1;
+          color: var(--text-secondary);
           line-height: 1.7;
           font-size: 0.98rem;
         }
@@ -813,18 +813,18 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
         .questions-section-title {
           font-size: 1.15rem;
           font-weight: 800;
-          color: #f8fafc;
+          color: var(--text-primary);
           margin: 0 0 16px;
-          border-left: 3px solid #10b981;
+          border-left: 3px solid var(--color-emerald);
           padding-left: 12px;
         }
 
         .questions-box {
-          background: rgba(30, 41, 59, 0.15);
-          border: 1px dashed rgba(255, 255, 255, 0.08);
+          background: var(--bg-input);
+          border: 1px dashed var(--border-color);
           border-radius: 16px;
           padding: 24px;
-          color: #cbd5e1;
+          color: var(--text-secondary);
           line-height: 1.7;
         }
 
@@ -835,8 +835,8 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
         }
 
         .pyq-card {
-          background: rgba(15, 23, 42, 0.25);
-          border: 1px solid rgba(255, 255, 255, 0.04);
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
           border-radius: 16px;
           padding: 20px 24px;
         }
@@ -859,8 +859,8 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
         .pyq-year {
           font-size: 0.65rem;
           font-weight: 800;
-          color: #cbd5e1;
-          background: rgba(255, 255, 255, 0.05);
+          color: var(--text-secondary);
+          background: var(--bg-input);
           padding: 3px 8px;
           border-radius: 5px;
         }
@@ -868,15 +868,15 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
         .pyq-text {
           font-size: 1.05rem;
           font-weight: 600;
-          color: #f8fafc;
+          color: var(--text-primary);
           line-height: 1.5;
           margin: 0 0 12px;
         }
 
         .pyq-approach {
           font-size: 0.85rem;
-          color: #94a3b8;
-          background: rgba(255, 255, 255, 0.02);
+          color: var(--text-secondary);
+          background: var(--bg-input);
           padding: 10px 14px;
           border-radius: 8px;
         }

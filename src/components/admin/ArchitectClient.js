@@ -357,63 +357,63 @@ export default function ArchitectClient({ session }) {
       )}
 
       <style jsx global>{`
-        .arc-root { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #020617; color: #f8fafc; font-family: 'Outfit', sans-serif; display: flex; flex-direction: column; z-index: 1000; overflow: hidden; }
-        .arc-header { height: 70px; background: #0f172a; border-bottom: 1px solid #1e293b; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; flex-shrink: 0; }
+        .arc-root { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-primary); color: var(--text-primary); font-family: 'Outfit', sans-serif; display: flex; flex-direction: column; z-index: 1000; overflow: hidden; }
+        .arc-header { height: 70px; background: var(--bg-secondary); border-bottom: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between; padding: 0 30px; flex-shrink: 0; }
         .arc-header-left { display: flex; align-items: center; gap: 30px; }
-        .arc-logo h1 { font-size: 1rem; margin: 0; font-weight: 900; }
-        .arc-logo span { font-size: 0.6rem; color: #64748b; text-transform: uppercase; }
-        .arc-glow { color: #3b82f6; filter: drop-shadow(0 0 5px #3b82f6); }
-        .arc-pills { display: flex; gap: 5px; background: #020617; padding: 3px; border-radius: 10px; }
-        .arc-pills button { background: transparent; border: none; color: #475569; padding: 6px 12px; border-radius: 7px; font-size: 0.7rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
+        .arc-logo h1 { font-size: 1rem; margin: 0; font-weight: 900; color: var(--text-primary); }
+        .arc-logo span { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; }
+        .arc-glow { color: var(--neural-blue); filter: drop-shadow(0 0 5px var(--neural-blue)); }
+        .arc-pills { display: flex; gap: 5px; background: var(--bg-primary); padding: 3px; border-radius: 10px; }
+        .arc-pills button { background: transparent; border: none; color: var(--text-muted); padding: 6px 12px; border-radius: 7px; font-size: 0.7rem; font-weight: 700; cursor: pointer; transition: 0.2s; }
         .arc-pills button.active { background: var(--c); color: white; box-shadow: 0 0 15px var(--c); }
         .arc-header-right { display: flex; align-items: center; gap: 12px; }
-        .btn-icon { background: transparent; border: none; color: #64748b; cursor: pointer; padding: 8px; border-radius: 8px; }
-        .btn-icon:hover { background: #1e293b; color: white; }
-        .arc-search { background: #020617; border: 1px solid #1e293b; border-radius: 8px; display: flex; align-items: center; padding: 0 12px; gap: 10px; }
-        .arc-search input { background: transparent; border: none; color: white; padding: 8px 0; font-size: 0.85rem; outline: none; width: 180px; }
+        .btn-icon { background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 8px; border-radius: 8px; }
+        .btn-icon:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .arc-search { background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px; display: flex; align-items: center; padding: 0 12px; gap: 10px; }
+        .arc-search input { background: transparent; border: none; color: var(--text-primary); padding: 8px 0; font-size: 0.85rem; outline: none; width: 180px; }
         .arc-btn { border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-size: 0.75rem; font-weight: 800; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
-        .arc-btn-pri { background: #3b82f6; color: white; }
-        .arc-btn-pri:hover { transform: translateY(-1px); box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3); }
-        .arc-btn-out { background: transparent; border: 1px solid #334155; color: #94a3b8; }
-        .arc-exit { color: #64748b; font-size: 0.75rem; text-decoration: none; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+        .arc-btn-pri { background: var(--neural-blue); color: white; }
+        .arc-btn-pri:hover { transform: translateY(-1px); box-shadow: var(--neural-glow); }
+        .arc-btn-out { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); }
+        .arc-exit { color: var(--text-muted); font-size: 0.75rem; text-decoration: none; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
         .arc-body { display: flex; flex: 1; overflow: hidden; }
-        .arc-sidebar { width: 260px; background: rgba(15,23,42,0.3); border-right: 1px solid #1e293b; padding: 24px 12px; overflow-y: auto; }
-        .arc-sidebar-label { font-size: 0.65rem; color: #64748b; text-transform: uppercase; margin-bottom: 24px; font-weight: 900; letter-spacing: 0.1em; }
-        .arc-side-item { width: 100%; background: transparent; border: none; display: flex; justify-content: space-between; padding: 12px 15px; color: #94a3b8; border-radius: 12px; cursor: pointer; font-size: 0.8rem; font-weight: 600; text-align: left; transition: 0.2s; }
-        .arc-side-item:hover { background: #0f172a; color: white; }
+        .arc-sidebar { width: 260px; background: var(--bg-secondary); border-right: 1px solid var(--border-color); padding: 24px 12px; overflow-y: auto; }
+        .arc-sidebar-label { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 24px; font-weight: 900; letter-spacing: 0.1em; }
+        .arc-side-item { width: 100%; background: transparent; border: none; display: flex; justify-content: space-between; padding: 12px 15px; color: var(--text-secondary); border-radius: 12px; cursor: pointer; font-size: 0.8rem; font-weight: 600; text-align: left; transition: 0.2s; }
+        .arc-side-item:hover { background: var(--bg-hover); color: var(--text-primary); }
         .arc-side-item.empty { opacity: 0.25; }
-        .arc-side-count { font-size: 0.65rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; }
-        .arc-canvas { flex: 1; padding: 50px; overflow-y: auto; background: #020617; scroll-behavior: smooth; }
-        .arc-loading, .arc-empty-canvas { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #475569; }
-        .arc-empty-canvas h2 { color: white; margin: 20px 0 10px; font-weight: 900; }
-        .arc-empty-canvas p { max-width: 400px; line-height: 1.6; margin-bottom: 30px; }
+        .arc-side-count { font-size: 0.65rem; background: var(--border-color); color: var(--text-secondary); padding: 2px 6px; border-radius: 4px; }
+        .arc-canvas { flex: 1; padding: 50px; overflow-y: auto; background: var(--bg-primary); scroll-behavior: smooth; }
+        .arc-loading, .arc-empty-canvas { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--text-muted); }
+        .arc-empty-canvas h2 { color: var(--text-primary); margin: 20px 0 10px; font-weight: 900; }
+        .arc-empty-canvas p { max-width: 400px; line-height: 1.6; margin-bottom: 30px; color: var(--text-secondary); }
         .arc-domain-box { margin-bottom: 80px; }
-        .arc-domain-head { display: flex; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 20px; margin-bottom: 40px; }
-        .arc-domain-head h2 { font-size: 2.2rem; font-weight: 950; margin: 0; color: white; letter-spacing: -0.04em; }
-        .arc-topic-card { background: #0f172a; border: 1px solid #1e293b; border-radius: 20px; padding: 32px; margin-bottom: 32px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .arc-domain-head { display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; margin-bottom: 40px; }
+        .arc-domain-head h2 { font-size: 2.2rem; font-weight: 950; margin: 0; color: var(--text-primary); letter-spacing: -0.04em; }
+        .arc-topic-card { background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 20px; padding: 32px; margin-bottom: 32px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         .arc-topic-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-        .arc-topic-title { display: flex; align-items: center; gap: 14px; color: #3b82f6; }
-        .arc-topic-title h3 { font-size: 0.85rem; margin: 0; text-transform: uppercase; font-weight: 900; letter-spacing: 0.1em; }
-        .arc-btn-mini { border: none; background: #1e293b; color: #64748b; font-size: 0.65rem; font-weight: 900; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
-        .arc-btn-mini:hover { background: #334155; color: white; }
-        .arc-btn-mini-purp { color: #a855f7; background: rgba(168,85,247,0.1); }
+        .arc-topic-title { display: flex; align-items: center; gap: 14px; color: var(--neural-blue); }
+        .arc-topic-title h3 { font-size: 0.85rem; margin: 0; text-transform: uppercase; font-weight: 900; letter-spacing: 0.1em; color: var(--text-primary); }
+        .arc-btn-mini { border: none; background: var(--bg-primary); color: var(--text-muted); font-size: 0.65rem; font-weight: 900; padding: 6px 12px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        .arc-btn-mini:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .arc-btn-mini-purp { color: var(--color-purple); background: rgba(168,85,247,0.1); }
         .arc-node-stack { display: flex; flex-direction: column; gap: 8px; }
-        .arc-node-item { background: #020617; border: 1px solid #1e293b; padding: 16px 20px; border-radius: 14px; display: flex; align-items: center; gap: 24px; cursor: pointer; transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
-        .arc-node-item:hover { border-color: #3b82f6; background: #0f172a; }
+        .arc-node-item { background: var(--bg-primary); border: 1px solid var(--border-color); padding: 16px 20px; border-radius: 14px; display: flex; align-items: center; gap: 24px; cursor: pointer; transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+        .arc-node-item:hover { border-color: var(--neural-blue); background: var(--bg-secondary); }
         .arc-node-actions { display: flex; gap: 8px; opacity: 0; transition: 0.2s; }
         .arc-node-item:hover .arc-node-actions { opacity: 1; }
-        .btn-action-mini { background: #1e293b; border: 1px solid #334155; color: #94a3b8; padding: 6px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-        .btn-action-mini:hover { background: #3b82f6; color: white; border-color: #3b82f6; }
-        .btn-danger-mini:hover { background: #ef4444 !important; border-color: #ef4444 !important; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+        .btn-action-mini { background: var(--bg-hover); border: 1px solid var(--border-color); color: var(--text-secondary); padding: 6px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        .btn-action-mini:hover { background: var(--neural-blue); color: white; border-color: var(--neural-blue); }
+        .btn-danger-mini:hover { background: var(--color-rose) !important; border-color: var(--color-rose) !important; box-shadow: 0 0 15px rgba(244, 63, 94, 0.4); }
         .arc-node-group { margin-bottom: 6px; position: relative; }
-        .arc-node-item.parent-active { border-color: rgba(59, 130, 246, 0.3); background: rgba(15, 23, 42, 0.6); }
+        .arc-node-item.parent-active { border-color: rgba(59, 130, 246, 0.3); background: var(--bg-card); }
         
         /* Neural Branching Logic */
         .arc-subnode-stack { margin-left: 56px; margin-top: 4px; display: flex; flex-direction: column; gap: 4px; position: relative; }
         .arc-node-item.sub-item { 
           padding: 10px 18px; 
-          background: rgba(15, 23, 42, 0.2); 
-          border-color: rgba(255,255,255,0.02); 
+          background: var(--bg-card); 
+          border-color: var(--border-color); 
           font-size: 0.9rem;
           position: relative;
         }
@@ -433,24 +433,24 @@ export default function ArchitectClient({ session }) {
         }
 
         .arc-node-item.sub-item .arc-checkbox { width: 14px; height: 14px; border-radius: 4px; }
-        .arc-node-item.sub-item h4 { font-size: 0.85rem; color: #cbd5e1; }
+        .arc-node-item.sub-item h4 { font-size: 0.85rem; color: var(--text-secondary); }
         .arc-node-item.sub-item:hover { transform: translateX(8px); border-color: rgba(59, 130, 246, 0.4); }
         
-        .arc-launch-icon-sub { color: #475569; }
-        .arc-node-item.node-q { border-left: 4px solid #8b5cf6; }
-        .arc-node-item.selected { border-color: #3b82f6; background: rgba(59, 130, 246, 0.05); }
+        .arc-launch-icon-sub { color: var(--text-muted); }
+        .arc-node-item.node-q { border-left: 4px solid var(--color-purple); }
+        .arc-node-item.selected { border-color: var(--neural-blue); background: var(--bg-hover); }
         .arc-check-wrap { padding: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .arc-checkbox { width: 18px; height: 18px; border: 2px solid #334155; border-radius: 6px; transition: 0.2s; position: relative; }
-        .arc-checkbox:hover { border-color: #3b82f6; }
-        .arc-checkbox.checked { background: #3b82f6; border-color: #3b82f6; }
+        .arc-checkbox { width: 18px; height: 18px; border: 2px solid var(--border-hover); border-radius: 6px; transition: 0.2s; position: relative; }
+        .arc-checkbox:hover { border-color: var(--neural-blue); }
+        .arc-checkbox.checked { background: var(--neural-blue); border-color: var(--neural-blue); }
         .arc-checkbox.checked::after { content: '✓'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: white; font-size: 10px; font-weight: 900; }
 
-        .arc-bulk-bar { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); background: #0f172a; border: 1px solid #3b82f6; border-radius: 20px; padding: 15px 30px; display: flex; align-items: center; gap: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); z-index: 2000; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .arc-bulk-info { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; font-weight: 700; color: #94a3b8; }
-        .arc-bulk-count { background: #3b82f6; color: white; padding: 4px 12px; border-radius: 8px; font-size: 0.8rem; }
+        .arc-bulk-bar { position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); background: var(--bg-secondary); border: 1px solid var(--neural-blue); border-radius: 20px; padding: 15px 30px; display: flex; align-items: center; gap: 40px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); z-index: 2000; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .arc-bulk-info { display: flex; align-items: center; gap: 12px; font-size: 0.9rem; font-weight: 700; color: var(--text-secondary); }
+        .arc-bulk-count { background: var(--neural-blue); color: white; padding: 4px 12px; border-radius: 8px; font-size: 0.8rem; }
         .arc-bulk-actions { display: flex; gap: 12px; }
-        .arc-btn-danger { background: #ef4444; color: white; }
-        .arc-btn-danger:hover { background: #dc2626; box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3); }
+        .arc-btn-danger { background: var(--color-rose); color: white; }
+        .arc-btn-danger:hover { background: #e11d48; box-shadow: 0 5px 15px rgba(244, 63, 94, 0.3); }
 
         /* Zen Mode Enhancements */
         .zen-active .arc-canvas { padding: 80px 15%; }
@@ -458,9 +458,9 @@ export default function ArchitectClient({ session }) {
           position: fixed; 
           top: 30px; 
           right: 30px; 
-          background: #0f172a; 
-          border: 1px solid #3b82f6; 
-          color: #3b82f6; 
+          background: var(--bg-secondary); 
+          border: 1px solid var(--neural-blue); 
+          color: var(--neural-blue); 
           padding: 10px 20px; 
           border-radius: 12px; 
           cursor: pointer; 
@@ -470,10 +470,25 @@ export default function ArchitectClient({ session }) {
           display: flex;
           align-items: center;
           gap: 10px;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+          box-shadow: 0 10px 30px rgba(0,0,0,0.3);
           transition: 0.2s;
         }
-        .arc-zen-exit:hover { background: #3b82f6; color: white; transform: translateY(-2px); }
+        .arc-zen-exit:hover { background: var(--neural-blue); color: white; transform: translateY(-2px); }
+
+        /* Modals and Overlays styling */
+        .arc-modal-wrap { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 5000; padding: 20px; }
+        .arc-overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); }
+        .arc-modal { position: relative; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 20px; padding: 32px; width: 100%; max-width: 500px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); z-index: 5010; color: var(--text-primary); }
+        .arc-modal-head h2 { font-size: 1.5rem; font-weight: 900; margin: 0 0 8px; color: var(--text-primary); }
+        .arc-modal-head p { font-size: 0.8rem; color: var(--text-muted); margin: 0 0 24px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .arc-form-group { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+        .arc-form-group label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.05em; }
+        .arc-type-toggle { display: flex; gap: 8px; }
+        .arc-type-toggle button { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-secondary); font-size: 0.75rem; font-weight: 800; cursor: pointer; transition: 0.2s; }
+        .arc-type-toggle button.active { background: var(--ac, var(--neural-blue)); color: white; border-color: var(--ac, var(--neural-blue)); }
+        .arc-form-group textarea { background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); padding: 12px; font-family: inherit; font-size: 0.9rem; outline: none; resize: none; transition: 0.2s; }
+        .arc-form-group textarea:focus { border-color: var(--neural-blue); }
+        .arc-modal-foot { display: flex; justify-content: flex-end; margin-top: 10px; }
 
         @keyframes slideUp { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
       `}</style>

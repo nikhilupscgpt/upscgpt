@@ -15,7 +15,7 @@
 
 .main-subtitle { 
   font-size: 1.15rem; 
-  color: #94a3b8; 
+  color: var(--text-secondary); 
   maxWidth: 640px; 
   margin: 0 auto; 
   line-height: 1.7; 
@@ -29,9 +29,9 @@
 
 .module-card { 
   transition: all 0.4s cubic-bezier(0.4,0,0.2,1); 
-  background: rgba(15, 23, 42, 0.6);
+  background: var(--bg-card);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-color);
 }
 
 .module-card:hover { 
@@ -76,15 +76,15 @@
   border-radius: 20px; 
   font-size: 0.7rem; 
   font-weight: 600; 
-  background: rgba(255,255,255,0.06); 
-  color: rgba(255,255,255,0.5); 
-  border: 1px solid rgba(255,255,255,0.08); 
+  background: var(--border-color); 
+  color: var(--text-secondary); 
+  border: 1px solid var(--border-color); 
   transition: all 0.2s; 
 }
 
 .feature-tag:hover { 
-  background: rgba(255,255,255,0.12); 
-  color: rgba(255,255,255,0.8); 
+  background: var(--border-hover); 
+  color: var(--text-primary); 
 }
 
 .mapping-primary-cta { 

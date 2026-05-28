@@ -2,8 +2,8 @@
 .cms-container {
   display: flex;
   height: calc(100vh - 64px);
-  background: #0f172a;
-  color: #f8fafc;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
   font-family: 'Inter', 'Outfit', sans-serif;
   overflow: hidden;
 }
@@ -11,8 +11,8 @@
 /* Sidebar Styling */
 .cms-sidebar {
   width: 320px;
-  background: #1e293b;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -20,7 +20,7 @@
 
 .sidebar-header {
   padding: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .sidebar-title {
@@ -31,7 +31,7 @@
 
 .sidebar-subtitle {
   font-size: 0.75rem;
-  color: #94a3b8;
+  color: var(--text-secondary);
 }
 
 .sidebar-search {
@@ -40,11 +40,11 @@
 
 .search-input {
   width: 100%;
-  background: rgba(0,0,0,0.2);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 8px 12px;
-  color: white;
+  color: var(--text-primary);
   font-size: 0.85rem;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -104,7 +104,7 @@
 
 .node-meta {
   font-size: 0.7rem;
-  color: #64748b;
+  color: var(--text-muted);
   text-transform: uppercase;
 }
 
@@ -113,14 +113,14 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: #0f172a;
+  background: var(--bg-primary);
   overflow: hidden;
 }
 
 .cms-toolbar {
   padding: 14px 24px;
-  background: #1e293b;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -148,7 +148,7 @@
   gap: 5px;
   font-size: 0.72rem;
   font-weight: 700;
-  color: #94a3b8;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   margin-bottom: 6px;
@@ -206,11 +206,11 @@
 /* Textarea */
 .markdown-textarea {
   width: 100%;
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 16px;
-  color: #f1f5f9;
+  color: var(--text-primary);
   font-size: 0.85rem;
   line-height: 1.6;
   resize: none;
@@ -230,7 +230,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #64748b;
+  color: var(--text-muted);
   text-align: center;
 }
 
@@ -241,9 +241,9 @@
 
 /* Status Select */
 .status-select {
-  background: rgba(0,0,0,0.2);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: white;
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
   padding: 4px 8px;
   border-radius: 6px;
   font-size: 0.8rem;

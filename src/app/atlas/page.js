@@ -120,7 +120,7 @@ export default function PortalHome() {
           <style jsx>{`
             .neural-loading-overlay {
               position: fixed; inset: 0; z-index: 100000;
-              background: #020617; display: flex; align-items: center; justify-content: center;
+              background: var(--bg-primary); display: flex; align-items: center; justify-content: center;
               transition: opacity 0.5s ease-out;
             }
             .neural-loader-content { display: flex; flex-direction: column; align-items: center; gap: 40px; }
@@ -141,42 +141,42 @@ export default function PortalHome() {
 
             .loading-text-stack { text-align: center; }
             .loading-kicker { font-size: 0.7rem; font-weight: 950; color: #3b82f6; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
-            .loading-title { font-size: 1.5rem; font-weight: 900; color: white; margin-bottom: 4px; letter-spacing: -0.5px; }
-            .loading-sub { font-size: 0.85rem; color: #64748b; font-weight: 600; }
+            .loading-title { font-size: 1.5rem; font-weight: 900; color: var(--text-primary); margin-bottom: 4px; letter-spacing: -0.5px; }
+            .loading-sub { font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
           `}</style>
         </div>
       )}
 
       <div style={{
       minHeight: '100vh', fontFamily: "var(--font-outfit), sans-serif",
-      background: '#020617',
+      background: 'var(--bg-primary)',
     }}>
       {/* BG GLOW */}
-      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(99,102,241,0.15) 0%, transparent 60%)' }} />
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'var(--hero-bg-gradient)' }} />
 
       {/* HERO */}
       <div className="atlas-hero" style={{ position: 'relative', zIndex: 10, padding: '80px 48px 36px', textAlign: 'center' }}>
         <div style={{
           display: 'inline-flex', alignItems: 'center', gap: '8px',
           padding: '5px 14px', borderRadius: '20px', marginBottom: '18px',
-          background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.3)',
+          background: 'var(--bg-input)', border: '1px solid var(--border-color)',
         }}>
-          <span style={{ fontSize: '0.7rem', color: '#a5b4fc', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase' }}>
+          <span style={{ fontSize: '0.7rem', color: 'var(--color-blue)', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase' }}>
             UPSC 2024–2026 Preparation
           </span>
         </div>
 
-        <h2 className="atlas-hero-title" style={{ fontSize: '2.8rem', fontWeight: 800, color: 'white', margin: '0 0 14px', letterSpacing: '-0.8px', lineHeight: 1.1 }}>
+        <h2 className="atlas-hero-title" style={{ fontSize: '2.8rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 14px', letterSpacing: '-0.8px', lineHeight: 1.1 }}>
           Select Your Study Region
         </h2>
-        <p style={{ fontSize: '1rem', color: 'rgba(255,255,255,0.45)', maxWidth: '500px', margin: '0 auto 36px', lineHeight: 1.6 }}>
+        <p style={{ fontSize: '1rem', color: 'var(--text-secondary)', maxWidth: '500px', margin: '0 auto 36px', lineHeight: 1.6 }}>
           Geo-strategic locations, conflict zones, natural resources & maritime routes — annotated for UPSC Prelims & Mains.
         </p>
 
         {/* STATS */}
         <div className="atlas-stats-bar" style={{
           display: 'inline-flex', borderRadius: '14px', overflow: 'hidden',
-          background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)',
+          background: 'var(--bg-card)', border: '1px solid var(--border-color)',
           marginBottom: '52px', flexWrap: 'wrap', justifyContent: 'center'
         }}>
           {[
@@ -186,14 +186,14 @@ export default function PortalHome() {
             { val: REGIONS.length - 1, label: 'Regions', isLoading: false },
           ].map((s, i) => (
             <div key={i} className="atlas-stat-item" style={{
-              padding: '14px 26px', borderRight: i < 3 ? '1px solid rgba(255,255,255,0.08)' : 'none', textAlign: 'center',
+              padding: '14px 26px', borderRight: i < 3 ? '1px solid var(--border-color)' : 'none', textAlign: 'center',
             }}>
               {s.isLoading ? (
                 <div className="skeleton-shimmer" style={{ width: '36px', height: '22px', margin: '0 auto 4px' }} />
               ) : (
-                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'white', lineHeight: 1 }}>{s.val}</div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1 }}>{s.val}</div>
               )}
-              <div style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '3px' }}>{s.label}</div>
+              <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginTop: '3px' }}>{s.label}</div>
             </div>
           ))}
         </div>
@@ -229,14 +229,14 @@ export default function PortalHome() {
                     }}>{count} entries</div>
                   )}
                 </div>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'white', margin: '0 0 5px', letterSpacing: '-0.2px' }}>{region.label}</h3>
-                <p style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.4)', margin: '0 0 16px', lineHeight: 1.5 }}>{region.description}</p>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 5px', letterSpacing: '-0.2px' }}>{region.label}</h3>
+                <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', margin: '0 0 16px', lineHeight: 1.5 }}>{region.description}</p>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
                   {region.highlights.map(h => (
                     <span key={h} style={{
                       padding: '3px 9px', borderRadius: '20px', fontSize: '0.68rem', fontWeight: 600,
-                      background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.45)',
-                      border: '1px solid rgba(255,255,255,0.07)',
+                      background: 'var(--bg-input)', color: 'var(--text-secondary)',
+                      border: '1px solid var(--border-color)',
                     }}>{h}</span>
                   ))}
                 </div>
@@ -250,9 +250,9 @@ export default function PortalHome() {
         .region-card {
           padding: 28px;
           height: 100%;
-          background: rgba(15, 23, 42, 0.6);
+          background: var(--bg-card);
           backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          border: 1px solid var(--border-color);
           border-radius: 28px;
           transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
           position: relative;
@@ -263,8 +263,8 @@ export default function PortalHome() {
 
         .region-card:hover {
           transform: translateY(-8px) scale(1.02);
-          background: rgba(15, 23, 42, 0.8);
-          border-color: rgba(59, 130, 246, 0.3);
+          background: var(--bg-hover);
+          border-color: var(--border-hover);
           box-shadow: 0 30px 60px rgba(0,0,0,0.4);
         }
 
@@ -290,7 +290,7 @@ export default function PortalHome() {
             background: transparent !important;
           }
           .atlas-stat-item {
-            border: 1px solid rgba(255,255,255,0.08) !important;
+            border: 1px solid var(--border-color) !important;
             border-radius: 12px;
             margin: 4px;
             flex: 1 1 140px;

@@ -10,9 +10,9 @@
 
 .forge-header {
   height: 110px;
-  background: rgba(15, 23, 42, 0.7) !important;
+  background: var(--bg-card) !important;
   backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -55,8 +55,8 @@
 
 .forge-sidebar {
   width: 260px;
-  background: rgba(15, 23, 42, 0.4) !important;
-  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-secondary) !important;
+  border-right: 1px solid var(--border-color);
   padding: 30px 15px;
   display: flex;
   flex-direction: column;
@@ -104,8 +104,8 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  background: rgba(15, 23, 42, 0.6) !important;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-color);
   border-radius: 20px;
   padding: 24px;
 }
@@ -134,10 +134,10 @@
 
 .editor-pane textarea {
   flex: 1;
-  background: #020617 !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  background: var(--bg-primary) !important;
+  border: 1px solid var(--border-color) !important;
   border-radius: 12px;
-  color: #f1f5f9 !important;
+  color: var(--text-primary) !important;
   padding: 20px;
   font-size: 1rem;
   line-height: 1.6;
@@ -148,7 +148,7 @@
 
 .editor-pane textarea:focus {
   border-color: #3b82f6 !important;
-  background: #020617 !important;
+  background: var(--bg-primary) !important;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
 }
 
@@ -281,9 +281,9 @@
 }
 
 .btn-quick {
-  background: rgba(15, 23, 42, 0.8) !important;
-  border: 1px solid rgba(255, 255, 255, 0.05) !important;
-  color: #f1f5f9 !important;
+  background: var(--bg-hover) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
   padding: 10px 20px !important;
   border-radius: 12px !important;
   font-size: 0.7rem !important;
@@ -296,14 +296,14 @@
 }
 
 .btn-quick:hover {
-  background: #1e293b !important;
+  background: var(--bg-hover) !important;
   border-color: #3b82f6 !important;
   transform: translateY(-2px);
 }
 
 .parent-link {
   font-size: 0.6rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--border-color);
   padding: 4px 10px;
   border-radius: 6px;
   color: #64748b;
@@ -539,9 +539,9 @@
   border-radius: 6px;
   font-size: 0.7rem;
   font-weight: 800;
-  border: 1px solid rgba(255, 255, 255, 0.05) !important;
-  background: rgba(15, 23, 42, 0.4) !important;
-  color: #64748b;
+  border: 1px solid var(--border-color) !important;
+  background: var(--bg-input) !important;
+  color: var(--text-muted);
   cursor: pointer;
   width: auto;
   display: inline-block;
@@ -618,9 +618,9 @@
   flex: 1;
   padding: 10px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  background: rgba(15, 23, 42, 0.4) !important;
-  color: #64748b;
+  border: 1px solid var(--border-color) !important;
+  background: var(--bg-input) !important;
+  color: var(--text-muted);
   font-weight: 800;
   font-size: 0.8rem;
   cursor: pointer;
@@ -638,9 +638,9 @@
   min-height: 120px;
   padding: 16px;
   border-radius: 12px;
-  background: rgba(0, 0, 0, 0.3) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  color: white !important;
+  background: var(--bg-input) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
   font-size: 0.9rem;
   outline: none;
   font-family: 'Outfit', sans-serif;

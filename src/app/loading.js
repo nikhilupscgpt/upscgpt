@@ -5,7 +5,7 @@ export default function GlobalLoading() {
     <div style={{ 
       position: 'fixed', 
       inset: 0, 
-      background: '#020617', 
+      background: 'var(--bg-primary)', 
       zIndex: 99999, 
       display: 'flex', 
       flexDirection: 'column', 
@@ -34,13 +34,13 @@ export default function GlobalLoading() {
           filter: 'blur(10px)',
           animation: 'pulse-glow 2s ease-in-out infinite'
         }} />
-        <BrainCircuit size={64} color="#f5f5f7" style={{ position: 'relative', zIndex: 1 }} />
+        <BrainCircuit size={64} color="var(--text-primary)" style={{ position: 'relative', zIndex: 1 }} />
       </div>
 
-      <div style={{ color: 'white', fontSize: '1.2rem', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '12px' }}>
+      <div style={{ color: 'var(--text-primary)', fontSize: '1.2rem', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '12px' }}>
         Synthesizing Intelligence
       </div>
-      <div style={{ color: '#64748b', fontSize: '0.9rem', fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+      <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem', fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
         Synchronizing Neural Nodes...
       </div>
 

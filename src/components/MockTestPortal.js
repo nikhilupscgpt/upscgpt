@@ -368,9 +368,9 @@ export default function MockTestPortal({ testPack, userId }) {
           display: flex;
           flex-direction: column;
           height: 100vh;
-          background-color: #f8fafc;
+          background-color: var(--bg-primary);
           font-family: 'Outfit', sans-serif;
-          color: #1e293b;
+          color: var(--text-primary);
           overflow: hidden;
         }
 
@@ -379,9 +379,9 @@ export default function MockTestPortal({ testPack, userId }) {
           justify-content: space-between;
           align-items: center;
           padding: 12px 24px;
-          background-color: #0f172a;
-          color: white;
-          border-bottom: 1px solid #334155;
+          background-color: var(--bg-secondary);
+          color: var(--text-primary);
+          border-bottom: 1px solid var(--border-color);
           flex-shrink: 0;
           z-index: 100;
         }
@@ -422,7 +422,7 @@ export default function MockTestPortal({ testPack, userId }) {
           font-size: 0.6rem;
           text-transform: uppercase;
           letter-spacing: 0.1em;
-          color: #94a3b8;
+          color: var(--text-muted);
           font-weight: 700;
           margin: 0;
         }
@@ -437,10 +437,10 @@ export default function MockTestPortal({ testPack, userId }) {
           display: flex;
           align-items: center;
           gap: 8px;
-          background-color: #1e293b;
+          background-color: var(--bg-input);
           padding: 6px 12px;
           border-radius: 10px;
-          border: 1px solid #334155;
+          border: 1px solid var(--border-color);
         }
 
         .ibps-timer-icon {
@@ -457,7 +457,7 @@ export default function MockTestPortal({ testPack, userId }) {
         .ibps-timer-label {
           font-size: 0.5rem;
           text-transform: uppercase;
-          color: #94a3b8;
+          color: var(--text-muted);
           font-weight: 800;
         }
 
@@ -476,7 +476,7 @@ export default function MockTestPortal({ testPack, userId }) {
           display: flex;
           align-items: center;
           gap: 12px;
-          border-left: 1px solid #334155;
+          border-left: 1px solid var(--border-color);
           padding-left: 20px;
         }
 
@@ -484,7 +484,7 @@ export default function MockTestPortal({ testPack, userId }) {
           display: none;
           background: none;
           border: none;
-          color: white;
+          color: var(--text-primary);
           cursor: pointer;
           padding: 4px;
         }
@@ -501,7 +501,7 @@ export default function MockTestPortal({ testPack, userId }) {
 
         .ibps-user-id {
           font-size: 0.65rem;
-          color: #94a3b8;
+          color: var(--text-muted);
           margin: 0;
         }
 
@@ -509,12 +509,12 @@ export default function MockTestPortal({ testPack, userId }) {
           width: 36px;
           height: 36px;
           border-radius: 50%;
-          background-color: #1e293b;
+          background-color: var(--bg-input);
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #64748b;
-          border: 2px solid #334155;
+          color: var(--text-muted);
+          border: 2px solid var(--border-color);
         }
 
         .ibps-container {
@@ -528,7 +528,7 @@ export default function MockTestPortal({ testPack, userId }) {
           flex: 1;
           display: flex;
           flex-direction: column;
-          background-color: white;
+          background-color: var(--bg-primary);
           min-width: 0;
         }
 
@@ -537,18 +537,18 @@ export default function MockTestPortal({ testPack, userId }) {
           align-items: center;
           justify-content: space-between;
           padding: 6px 16px;
-          background-color: #f1f5f9;
-          border-bottom: 1px solid #e2e8f0;
+          background-color: var(--bg-secondary);
+          border-bottom: 1px solid var(--border-color);
         }
 
         .ibps-tab {
           padding: 6px 16px;
-          background-color: white;
-          border: 1px solid #e2e8f0;
+          background-color: var(--bg-primary);
+          border: 1px solid var(--border-color);
           border-bottom: none;
           font-size: 0.75rem;
           font-weight: 800;
-          color: #0f172a;
+          color: var(--text-primary);
           border-radius: 6px 6px 0 0;
           margin-bottom: -7px;
           z-index: 10;
@@ -557,11 +557,11 @@ export default function MockTestPortal({ testPack, userId }) {
         .ibps-tab-info {
           font-size: 0.65rem;
           font-weight: 700;
-          color: #64748b;
-          background-color: white;
+          color: var(--text-muted);
+          background-color: var(--bg-primary);
           padding: 2px 8px;
           border-radius: 999px;
-          border: 1px solid #e2e8f0;
+          border: 1px solid var(--border-color);
         }
 
         .ibps-question-content {
@@ -579,8 +579,9 @@ export default function MockTestPortal({ testPack, userId }) {
         .ibps-q-number {
           width: 32px;
           height: 32px;
-          background-color: #0f172a;
-          color: white;
+          background-color: var(--bg-secondary);
+          color: var(--text-primary);
+          border: 1px solid var(--border-color);
           border-radius: 50%;
           display: flex;
           align-items: center;
@@ -595,7 +596,7 @@ export default function MockTestPortal({ testPack, userId }) {
           font-weight: 500;
           line-height: 1.5;
           margin: 0;
-          color: #334155;
+          color: var(--text-primary);
           white-space: pre-wrap;
         }
 
@@ -611,20 +612,20 @@ export default function MockTestPortal({ testPack, userId }) {
           align-items: center;
           gap: 12px;
           padding: 12px 16px;
-          background-color: #f8fafc;
-          border: 2px solid #f1f5f9;
+          background-color: var(--bg-secondary);
+          border: 2px solid var(--border-color);
           border-radius: 12px;
           cursor: pointer;
           transition: all 0.2s;
         }
 
         .ibps-option-card:hover {
-          border-color: #e2e8f0;
+          border-color: var(--border-hover);
         }
 
         .ibps-option-card.selected {
-          border-color: #2563eb;
-          background-color: #eff6ff;
+          border-color: var(--neural-blue);
+          background-color: var(--bg-hover);
         }
 
         .ibps-hidden-input {
@@ -635,33 +636,33 @@ export default function MockTestPortal({ testPack, userId }) {
           width: 28px;
           height: 28px;
           border-radius: 50%;
-          border: 2px solid #cbd5e1;
+          border: 2px solid var(--border-color);
           display: flex;
           align-items: center;
           justify-content: center;
           font-weight: 800;
           font-size: 0.8rem;
-          color: #94a3b8;
-          background-color: white;
+          color: var(--text-muted);
+          background-color: var(--bg-primary);
           flex-shrink: 0;
         }
 
         .ibps-option-card.selected .ibps-option-label {
-          background-color: #2563eb;
-          border-color: #2563eb;
+          background-color: var(--neural-blue);
+          border-color: var(--neural-blue);
           color: white;
         }
 
         .ibps-option-text {
           font-size: 0.95rem;
           font-weight: 500;
-          color: #475569;
+          color: var(--text-secondary);
         }
 
         .ibps-footer {
           padding: 12px 16px;
-          background-color: #f1f5f9;
-          border-top: 1px solid #e2e8f0;
+          background-color: var(--bg-secondary);
+          border-top: 1px solid var(--border-color);
           display: flex;
           flex-direction: column;
           gap: 12px;
@@ -683,9 +684,9 @@ export default function MockTestPortal({ testPack, userId }) {
         .ibps-btn-sec {
           flex: 1;
           padding: 8px 12px;
-          background-color: white;
-          border: 1px solid #cbd5e1;
-          color: #475569;
+          background-color: var(--bg-primary);
+          border: 1px solid var(--border-color);
+          color: var(--text-secondary);
           font-weight: 700;
           border-radius: 10px;
           font-size: 0.75rem;
@@ -695,8 +696,9 @@ export default function MockTestPortal({ testPack, userId }) {
         .ibps-btn-nav {
           width: 36px;
           height: 36px;
-          background-color: white;
-          border: 1px solid #cbd5e1;
+          background-color: var(--bg-primary);
+          border: 1px solid var(--border-color);
+          color: var(--text-primary);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -711,7 +713,7 @@ export default function MockTestPortal({ testPack, userId }) {
 
         .ibps-btn-primary {
           padding: 8px 16px;
-          background-color: #2563eb;
+          background-color: var(--neural-blue);
           color: white;
           font-weight: 700;
           border: none;
@@ -725,8 +727,8 @@ export default function MockTestPortal({ testPack, userId }) {
 
         .ibps-sidebar {
           width: 280px;
-          background-color: white;
-          border-left: 1px solid #e2e8f0;
+          background-color: var(--bg-primary);
+          border-left: 1px solid var(--border-color);
           display: flex;
           flex-direction: column;
           flex-shrink: 0;
@@ -735,8 +737,8 @@ export default function MockTestPortal({ testPack, userId }) {
 
         .ibps-summary {
           padding: 16px;
-          background-color: #f8fafc;
-          border-bottom: 1px solid #e2e8f0;
+          background-color: var(--bg-secondary);
+          border-bottom: 1px solid var(--border-color);
         }
 
         .ibps-sidebar-title {
@@ -744,7 +746,7 @@ export default function MockTestPortal({ testPack, userId }) {
           font-weight: 900;
           text-transform: uppercase;
           letter-spacing: 0.05em;
-          color: #94a3b8;
+          color: var(--text-muted);
           margin-bottom: 12px;
         }
 
@@ -763,7 +765,7 @@ export default function MockTestPortal({ testPack, userId }) {
         .ibps-summary-item span {
           font-size: 0.6rem;
           font-weight: 700;
-          color: #64748b;
+          color: var(--text-secondary);
           text-transform: uppercase;
         }
 
@@ -781,7 +783,7 @@ export default function MockTestPortal({ testPack, userId }) {
 
         .ibps-square.answered { background-color: #16a34a; }
         .ibps-square.not-answered { background-color: #dc2626; }
-        .ibps-square.not-visited { background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+        .ibps-square.not-visited { background-color: var(--bg-secondary); color: var(--text-muted); border: 1px solid var(--border-color); }
         .ibps-square.marked { background-color: #9333ea; }
 
         .ibps-palette {
@@ -805,7 +807,9 @@ export default function MockTestPortal({ testPack, userId }) {
 
         .ibps-palette-btn {
           aspect-ratio: 1;
-          border: 2px solid #f1f5f9;
+          border: 2px solid var(--border-color);
+          background-color: var(--bg-secondary);
+          color: var(--text-primary);
           border-radius: 10px;
           font-weight: 800;
           font-size: 0.8rem;
@@ -813,11 +817,11 @@ export default function MockTestPortal({ testPack, userId }) {
         }
 
         .ibps-palette-btn.active {
-          border-color: #2563eb;
+          border-color: var(--neural-blue);
           transform: scale(1.05);
         }
 
-        .ibps-btn-not-visited { background-color: #f8fafc; color: #64748b; }
+        .ibps-btn-not-visited { background-color: var(--bg-secondary); color: var(--text-muted); }
         .ibps-btn-not-answered { background-color: #dc2626; color: white; border-color: #b91c1c; }
         .ibps-btn-answered { background-color: #16a34a; color: white; border-color: #15803d; }
         .ibps-btn-marked { background-color: #9333ea; color: white; border-color: #7e22ce; }
@@ -839,20 +843,20 @@ export default function MockTestPortal({ testPack, userId }) {
           display: flex;
           align-items: center;
           justify-content: center;
-          border: 2px solid white;
+          border: 2px solid var(--bg-primary);
         }
 
         .ibps-submit-area {
           padding: 16px;
-          background-color: #f8fafc;
-          border-top: 1px solid #e2e8f0;
+          background-color: var(--bg-secondary);
+          border-top: 1px solid var(--border-color);
         }
 
         .ibps-submit-btn {
           width: 100%;
           padding: 12px;
-          background-color: #0f172a;
-          color: white;
+          background-color: var(--text-primary);
+          color: var(--bg-primary);
           font-weight: 900;
           text-transform: uppercase;
           letter-spacing: 0.05em;
@@ -868,7 +872,7 @@ export default function MockTestPortal({ testPack, userId }) {
 
         .ibps-submit-hint {
           font-size: 0.6rem;
-          color: #94a3b8;
+          color: var(--text-muted);
           text-align: center;
           margin-top: 8px;
           font-style: italic;
@@ -922,7 +926,7 @@ export default function MockTestPortal({ testPack, userId }) {
             left: 0;
             right: 0;
             z-index: 40;
-            background-color: #f8fafc;
+            background-color: var(--bg-secondary);
             box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
             padding: 12px;
           }

@@ -151,26 +151,26 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
     <div className="study-container">
       <div style={{ maxWidth: '1300px', margin: '0 auto' }} className="workspace-layout-wrapper">
       {/* Breadcrumb */}
-      <div style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: '#64748b' }}>
-        <Link href="/prelims" style={{ color: '#64748b', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+      <div style={{ marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+        <Link href="/prelims" style={{ color: 'var(--text-muted)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
           <span>Prelims Gateway</span>
         </Link>
-        <ChevronRight size={14} style={{ color: '#334155' }} />
-        <Link href="/prelims/prepare" style={{ color: '#64748b', textDecoration: 'none' }}>
+        <ChevronRight size={14} style={{ color: 'var(--border-color)' }} />
+        <Link href="/prelims/prepare" style={{ color: 'var(--text-muted)', textDecoration: 'none' }}>
           <span>Study Vault</span>
         </Link>
-        <ChevronRight size={14} style={{ color: '#334155' }} />
-        <span style={{ color: '#94a3b8', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '250px' }}>{issue.title}</span>
+        <ChevronRight size={14} style={{ color: 'var(--border-color)' }} />
+        <span style={{ color: 'var(--text-secondary)', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '250px' }}>{issue.title}</span>
       </div>
 
       {/* Hero Header */}
       <div style={{ marginBottom: '56px' }}>
         <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '0.7rem', fontWeight: 900, color: '#fbbf24', background: 'rgba(251, 191, 36, 0.1)', padding: '4px 12px', borderRadius: '8px', textTransform: 'uppercase', letterSpacing: '1px', border: '1px solid rgba(251, 191, 36, 0.15)' }}>{gsPaper}</span>
-          <span style={{ fontSize: '0.7rem', fontWeight: 900, color: '#94a3b8', background: 'rgba(255, 255, 255, 0.05)', padding: '4px 12px', borderRadius: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>{category}</span>
+          <span style={{ fontSize: '0.7rem', fontWeight: 900, color: 'var(--text-secondary)', background: 'var(--bg-input)', padding: '4px 12px', borderRadius: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>{category}</span>
         </div>
-        <h1 className="detail-title" style={{ fontSize: '3rem', fontWeight: 900, color: 'white', marginBottom: '16px', letterSpacing: '-1px' }}>{issue.title}</h1>
-        <p style={{ fontSize: '1.2rem', color: '#94a3b8', maxWidth: '800px', lineHeight: 1.6 }}>{issue.topic}</p>
+        <h1 className="detail-title" style={{ fontSize: '3rem', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '16px', letterSpacing: '-1px' }}>{issue.title}</h1>
+        <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', maxWidth: '800px', lineHeight: 1.6 }}>{issue.topic}</p>
       </div>
 
       <WorkspaceLayout
@@ -188,8 +188,8 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
               <div 
                 className="workspace-assistant-container fade-in"
                 style={{
-                  background: 'rgba(15, 23, 42, 0.4)',
-                  border: '1px solid rgba(255, 255, 255, 0.05)',
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border-color)',
                   borderRadius: '24px',
                   padding: '24px',
                   backdropFilter: 'blur(12px)',
@@ -276,9 +276,9 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
                 className="ask-ai-toggle-btn locked-btn"
                 style={{
                   marginLeft: 'auto',
-                  background: 'rgba(255, 255, 255, 0.05)',
-                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                  color: '#94a3b8',
+                  background: 'var(--bg-input)',
+                  border: '1px solid var(--border-color)',
+                  color: 'var(--text-secondary)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -544,8 +544,8 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
                       <Award size={18} />
                     </div>
                     <div>
-                      <h4 style={{ color: 'white', margin: '0 0 4px', fontSize: '0.9rem', fontWeight: 700 }}>Save Your Progress</h4>
-                      <p style={{ margin: 0, fontSize: '0.8rem', color: '#94a3b8', lineHeight: 1.4 }}>Sign in to track your score accuracy, save attempts, and unlock personalized current affairs tracking.</p>
+                      <h4 style={{ color: 'var(--text-primary)', margin: '0 0 4px', fontSize: '0.9rem', fontWeight: 700 }}>Save Your Progress</h4>
+                      <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>Sign in to track your score accuracy, save attempts, and unlock personalized current affairs tracking.</p>
                     </div>
                   </div>
                   <button 
@@ -603,8 +603,8 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
       <style jsx global>{`
         .study-container {
           min-height: 100vh;
-          background: #020617;
-          color: #f8fafc;
+          background: var(--bg-primary);
+          color: var(--text-primary);
           padding: 80px 24px 80px;
           font-family: 'Outfit', sans-serif;
           position: relative;
@@ -621,7 +621,7 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
         .workspace-tabs {
           display: flex;
           gap: 8px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+          border-bottom: 1px solid var(--border-color);
           padding-bottom: 4px;
           flex-wrap: wrap;
         }
@@ -633,7 +633,7 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
           padding: 12px 20px;
           background: transparent;
           border: none;
-          color: #94a3b8;
+          color: var(--text-secondary);
           font-weight: 600;
           font-size: 0.95rem;
           cursor: pointer;
@@ -643,13 +643,13 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
         }
 
         .workspace-tab-btn:hover {
-          color: white;
-          background: rgba(255, 255, 255, 0.02);
+          color: var(--text-primary);
+          background: var(--bg-hover);
         }
 
         .workspace-tab-btn.active {
-          color: #fbbf24;
-          background: rgba(251, 191, 36, 0.08);
+          color: var(--color-amber);
+          background: rgba(245, 158, 11, 0.08);
         }
 
         .workspace-tab-btn.active::after {
@@ -659,7 +659,7 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
           left: 0;
           right: 0;
           height: 2px;
-          background: #fbbf24;
+          background: var(--color-amber);
           border-radius: 99px;
         }
 
@@ -674,8 +674,8 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
 
         /* Workspace Panel */
         .workspace-panel {
-          background: rgba(15, 23, 42, 0.6);
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
           border-radius: 28px;
           padding: 36px;
           min-height: 400px;
@@ -689,11 +689,11 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
           font-size: 0.75rem;
           font-weight: 800;
           letter-spacing: 1px;
-          color: #fbbf24;
-          border: 1px solid rgba(251, 191, 36, 0.2);
+          color: var(--color-amber);
+          border: 1px solid rgba(245, 158, 11, 0.2);
           padding: 6px 14px;
           border-radius: 99px;
-          background: rgba(251, 191, 36, 0.03);
+          background: rgba(245, 158, 11, 0.03);
           margin-bottom: 28px;
         }
 
@@ -701,11 +701,11 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background: #fbbf24;
+          background: var(--color-amber);
         }
 
         .markdown-content {
-          color: #cbd5e1;
+          color: var(--text-secondary);
           line-height: 1.8;
           font-size: 1.05rem;
         }
@@ -724,7 +724,7 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
         }
 
         .markdown-content strong {
-          color: white;
+          color: var(--text-primary);
         }
 
         /* Animations */
@@ -740,14 +740,14 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
         /* Facts List */
         .facts-section {
           margin-top: 40px;
-          border-top: 1px solid rgba(255, 255, 255, 0.05);
+          border-top: 1px solid var(--border-color);
           padding-top: 32px;
         }
 
         .facts-section-title {
           font-size: 1.15rem;
           font-weight: 800;
-          color: white;
+          color: var(--text-primary);
           margin-bottom: 20px;
         }
 
@@ -758,8 +758,8 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
         }
 
         .fact-card {
-          background: rgba(255, 255, 255, 0.02);
-          border: 1px solid rgba(255, 255, 255, 0.04);
+          background: var(--bg-input);
+          border: 1px solid var(--border-color);
           border-radius: 16px;
           padding: 20px;
           display: flex;
@@ -777,7 +777,7 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
         }
 
         .fact-card p {
-          color: #cbd5e1;
+          color: var(--text-secondary);
           margin: 0;
           font-size: 0.95rem;
           line-height: 1.6;
@@ -791,8 +791,8 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
         }
 
         .pyq-item {
-          background: rgba(255, 255, 255, 0.01);
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          background: var(--bg-input);
+          border: 1px solid var(--border-color);
           border-radius: 20px;
           padding: 24px;
           transition: border-color 0.2s;
@@ -820,14 +820,14 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
 
         .pyq-paper {
           font-size: 0.75rem;
-          color: #94a3b8;
+          color: var(--text-secondary);
           font-weight: 700;
         }
 
         .pyq-text {
           font-size: 1rem;
           line-height: 1.6;
-          color: white;
+          color: var(--text-primary);
           margin-bottom: 16px;
         }
 
@@ -848,7 +848,7 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
 
         .pyq-note-box p {
           font-size: 0.85rem;
-          color: #94a3b8;
+          color: var(--text-secondary);
           margin: 0;
           line-height: 1.5;
         }
@@ -864,7 +864,7 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
         }
 
         .glow-icon {
-          color: #475569;
+          color: var(--text-muted);
           filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.05));
           margin-bottom: 16px;
         }
@@ -872,13 +872,13 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
         .empty-notes-container h3 {
           font-size: 1.25rem;
           font-weight: 800;
-          color: white;
+          color: var(--text-primary);
           margin-bottom: 8px;
         }
 
         .empty-notes-container p {
           font-size: 0.9rem;
-          color: #64748b;
+          color: var(--text-muted);
           max-width: 400px;
         }
 
@@ -890,8 +890,8 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
         }
 
         .quiz-progress-section {
-          background: rgba(255, 255, 255, 0.02);
-          border: 1px solid rgba(255, 255, 255, 0.04);
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
           border-radius: 20px;
           padding: 20px 24px;
         }
@@ -910,7 +910,7 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
         .quiz-progress-stats .label {
           font-size: 0.65rem;
           font-weight: 800;
-          color: #475569;
+          color: var(--text-muted);
           letter-spacing: 1px;
           margin-bottom: 2px;
         }
@@ -918,7 +918,7 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
         .quiz-progress-stats .value {
           font-size: 1rem;
           font-weight: 800;
-          color: white;
+          color: var(--text-primary);
         }
 
         .score-value {
@@ -928,7 +928,7 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
         }
 
         .score-value .divider {
-          color: #475569;
+          color: var(--text-muted);
         }
 
         .text-emerald {
@@ -941,7 +941,7 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
 
         .quiz-progress-track {
           height: 6px;
-          background: rgba(255, 255, 255, 0.03);
+          background: var(--bg-input);
           border-radius: 99px;
           overflow: hidden;
           margin-bottom: 16px;
@@ -965,7 +965,7 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
           width: 10px;
           height: 10px;
           border-radius: 50%;
-          background: rgba(255, 255, 255, 0.1);
+          background: var(--border-color);
           border: none;
           cursor: pointer;
           padding: 0;
@@ -973,7 +973,7 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
         }
 
         .bullet-dot:hover {
-          background: rgba(255, 255, 255, 0.3);
+          background: var(--text-muted);
         }
 
         .bullet-dot.active {
@@ -992,8 +992,8 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
 
         /* Question Display Card */
         .question-card {
-          background: rgba(255, 255, 255, 0.01);
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
           border-radius: 24px;
           padding: 32px;
           display: flex;
@@ -1033,7 +1033,7 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
         .question-text-content {
           font-size: 1.3rem;
           font-weight: 700;
-          color: white;
+          color: var(--text-primary);
           line-height: 1.5;
         }
 
@@ -1051,17 +1051,17 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
           padding: 16px 20px;
           border-radius: 16px;
           text-align: left;
-          background: rgba(255, 255, 255, 0.02);
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          background: var(--bg-input);
+          border: 1px solid var(--border-color);
           cursor: pointer;
           transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-          color: #e2e8f0;
+          color: var(--text-secondary);
           position: relative;
         }
 
         .option-btn.selectable:hover {
-          background: rgba(255, 255, 255, 0.04);
-          border-color: rgba(255, 255, 255, 0.15);
+          background: var(--bg-hover);
+          border-color: var(--border-hover);
           transform: translateY(-1px);
         }
 
@@ -1073,37 +1073,37 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
           width: 30px;
           height: 30px;
           border-radius: 8px;
-          background: rgba(255, 255, 255, 0.05);
+          background: var(--bg-primary);
           display: flex;
           align-items: center;
           justify-content: center;
           font-size: 0.85rem;
           font-weight: 900;
-          color: #94a3b8;
+          color: var(--text-muted);
           flex-shrink: 0;
           transition: all 0.2s;
         }
 
         .option-btn.correct-option {
           background: rgba(16, 185, 129, 0.06);
-          border-color: #10b981;
-          color: white;
+          border-color: var(--color-emerald);
+          color: var(--text-primary);
         }
 
         .option-btn.correct-option .option-label-circle {
-          background: #10b981;
-          color: #020617;
+          background: var(--color-emerald);
+          color: var(--bg-primary);
         }
 
         .option-btn.incorrect-option {
           background: rgba(244, 63, 94, 0.06);
-          border-color: #f43f5e;
-          color: white;
+          border-color: var(--color-rose);
+          color: var(--text-primary);
         }
 
         .option-btn.incorrect-option .option-label-circle {
-          background: #f43f5e;
-          color: #020617;
+          background: var(--color-rose);
+          color: var(--bg-primary);
         }
 
         .option-btn.dimmed {
@@ -1123,11 +1123,11 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
         }
 
         .correct-icon {
-          color: #10b981;
+          color: var(--color-emerald);
         }
 
         .incorrect-icon {
-          color: #f43f5e;
+          color: var(--color-rose);
         }
 
         /* Explanation Wrapper */
@@ -1151,7 +1151,7 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
           display: flex;
           align-items: center;
           gap: 10px;
-          color: #818cf8;
+          color: var(--color-purple);
           margin-bottom: 12px;
         }
 
@@ -1166,7 +1166,7 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
         .explanation-body {
           font-size: 0.95rem;
           line-height: 1.6;
-          color: #94a3b8;
+          color: var(--text-secondary);
         }
 
         /* Quiz Footer Navigation */
@@ -1175,7 +1175,7 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
           justify-content: space-between;
           align-items: center;
           margin-top: 12px;
-          border-top: 1px solid rgba(255, 255, 255, 0.04);
+          border-top: 1px solid var(--border-color);
           padding-top: 24px;
           flex-wrap: wrap;
           gap: 16px;
@@ -1194,25 +1194,26 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
         }
 
         .nav-btn.primary {
-          background: #3b82f6;
+          background: var(--neural-blue);
           color: white;
           border: none;
         }
 
         .nav-btn.primary:hover:not(:disabled) {
-          background: #2563eb;
+          background: var(--neural-blue);
+          opacity: 0.9;
           transform: translateY(-1px);
         }
 
         .nav-btn.secondary {
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.05);
-          color: #94a3b8;
+          background: var(--bg-input);
+          border: 1px solid var(--border-color);
+          color: var(--text-secondary);
         }
 
         .nav-btn.secondary:hover:not(:disabled) {
-          background: rgba(255, 255, 255, 0.05);
-          color: white;
+          background: var(--bg-hover);
+          color: var(--text-primary);
         }
 
         .nav-btn:disabled {
@@ -1226,7 +1227,7 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
           gap: 6px;
           background: transparent;
           border: none;
-          color: #475569;
+          color: var(--text-muted);
           font-size: 0.85rem;
           font-weight: 600;
           cursor: pointer;
@@ -1236,7 +1237,7 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
         }
 
         .reset-btn:hover {
-          color: #f43f5e;
+          color: var(--color-rose);
           background: rgba(244, 63, 94, 0.05);
         }
 
@@ -1254,31 +1255,31 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
           width: 90px;
           height: 90px;
           border-radius: 50%;
-          background: rgba(99, 102, 241, 0.05);
-          border: 1px solid rgba(99, 102, 241, 0.1);
+          background: rgba(139, 92, 246, 0.05);
+          border: 1px solid rgba(139, 92, 246, 0.1);
           display: flex;
           align-items: center;
           justify-content: center;
           margin-bottom: 24px;
-          box-shadow: 0 0 40px rgba(99, 102, 241, 0.1);
+          box-shadow: 0 0 40px rgba(139, 92, 246, 0.1);
         }
 
         .fallback-glow-circle .glow-icon {
-          color: #818cf8;
-          filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.4));
+          color: var(--color-purple);
+          filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.4));
           margin: 0;
         }
 
         .ai-quiz-generation-fallback h3 {
           font-size: 1.4rem;
           font-weight: 800;
-          color: white;
+          color: var(--text-primary);
           margin-bottom: 12px;
         }
 
         .ai-quiz-generation-fallback p {
           font-size: 0.95rem;
-          color: #64748b;
+          color: var(--text-muted);
           max-width: 500px;
           line-height: 1.6;
           margin-bottom: 32px;

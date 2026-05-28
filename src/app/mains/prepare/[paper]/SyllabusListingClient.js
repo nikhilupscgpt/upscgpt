@@ -200,16 +200,16 @@ export default function SyllabusListingClient({ paper, paperInfo, issues }) {
         .syllabus-container {
           min-height: 100vh;
           display: flex;
-          background: #020617;
-          color: #f8fafc;
+          background: var(--bg-primary);
+          color: var(--text-primary);
           font-family: 'Outfit', sans-serif;
           padding-top: 80px;
         }
 
         .syllabus-sidebar {
           width: 360px;
-          background: rgba(15, 23, 42, 0.4);
-          border-right: 1px solid rgba(255, 255, 255, 0.06);
+          background: var(--bg-card);
+          border-right: 1px solid var(--border-color);
           padding: 32px 24px;
           display: flex;
           flex-direction: column;
@@ -226,7 +226,7 @@ export default function SyllabusListingClient({ paper, paperInfo, issues }) {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          color: #64748b;
+          color: var(--text-muted);
           text-decoration: none;
           font-size: 0.85rem;
           margin-bottom: 24px;
@@ -234,7 +234,7 @@ export default function SyllabusListingClient({ paper, paperInfo, issues }) {
         }
 
         .back-link:hover {
-          color: #f8fafc;
+          color: var(--text-primary);
         }
 
         .paper-info {
@@ -271,24 +271,24 @@ export default function SyllabusListingClient({ paper, paperInfo, issues }) {
           left: 14px;
           top: 50%;
           transform: translateY(-50%);
-          color: #64748b;
+          color: var(--text-muted);
         }
 
         .search-input {
           width: 100%;
           padding: 12px 12px 12px 40px;
-          background: rgba(15, 23, 42, 0.5);
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: var(--bg-input);
+          border: 1px solid var(--border-color);
           border-radius: 12px;
-          color: #f8fafc;
+          color: var(--text-primary);
           font-size: 0.88rem;
           outline: none;
           transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .search-input:focus {
-          border-color: rgba(255, 255, 255, 0.18);
-          background: rgba(15, 23, 42, 0.8);
+          border-color: var(--border-hover);
+          background: var(--bg-hover);
           box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.03);
         }
 
@@ -301,7 +301,7 @@ export default function SyllabusListingClient({ paper, paperInfo, issues }) {
         .section-label {
           font-size: 0.7rem;
           font-weight: 900;
-          color: #64748b;
+          color: var(--text-muted);
           text-transform: uppercase;
           letter-spacing: 0.15em;
           margin-bottom: 8px;
@@ -314,7 +314,7 @@ export default function SyllabusListingClient({ paper, paperInfo, issues }) {
           border: 1px solid transparent;
           border-radius: 12px;
           padding: 12px 16px;
-          color: #94a3b8;
+          color: var(--text-secondary);
           font-size: 0.92rem;
           font-weight: 600;
           cursor: pointer;
@@ -325,14 +325,14 @@ export default function SyllabusListingClient({ paper, paperInfo, issues }) {
         }
 
         .subject-btn:hover {
-          color: #f8fafc;
-          background: rgba(255, 255, 255, 0.02);
+          color: var(--text-primary);
+          background: var(--bg-hover);
           transform: translateX(2px);
         }
 
         .subject-btn.active {
-          color: #f8fafc;
-          background: rgba(255, 255, 255, 0.04);
+          color: var(--text-primary);
+          background: var(--bg-hover);
           border-left: 3px solid;
           border-radius: 4px 12px 12px 4px;
           box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.02);
@@ -343,15 +343,15 @@ export default function SyllabusListingClient({ paper, paperInfo, issues }) {
           font-weight: 700;
           padding: 2px 8px;
           border-radius: 6px;
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          color: #64748b;
+          background: var(--bg-input);
+          border: 1px solid var(--border-color);
+          color: var(--text-muted);
           transition: all 0.2s;
         }
 
         .subject-btn.active .subject-count {
-          background: rgba(255, 255, 255, 0.08);
-          color: #f8fafc;
+          background: var(--bg-hover);
+          color: var(--text-primary);
         }
 
         .syllabus-main {
@@ -381,7 +381,7 @@ export default function SyllabusListingClient({ paper, paperInfo, issues }) {
           font-weight: 900;
           letter-spacing: -0.03em;
           margin: 0;
-          color: #f8fafc;
+          color: var(--text-primary);
         }
 
         .topics-list {
@@ -414,7 +414,7 @@ export default function SyllabusListingClient({ paper, paperInfo, issues }) {
         .divider-line {
           flex: 1;
           height: 1px;
-          background: rgba(255, 255, 255, 0.06);
+          background: var(--border-color);
         }
 
         .nodes-grid {
@@ -431,8 +431,8 @@ export default function SyllabusListingClient({ paper, paperInfo, issues }) {
 
         :global(.node-card) {
           position: relative;
-          background: rgba(15, 23, 42, 0.25);
-          border: 1px solid rgba(255, 255, 255, 0.04);
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
           border-radius: 16px;
           padding: 18px 24px;
           display: flex;
@@ -445,8 +445,8 @@ export default function SyllabusListingClient({ paper, paperInfo, issues }) {
         }
 
         :global(.node-card:hover) {
-          background: rgba(15, 23, 42, 0.5);
-          border-color: rgba(255, 255, 255, 0.12);
+          background: var(--bg-hover);
+          border-color: var(--border-hover);
           box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
           transform: translateY(-2.5px);
         }
@@ -480,14 +480,14 @@ export default function SyllabusListingClient({ paper, paperInfo, issues }) {
           font-size: 1.05rem;
           font-weight: 700;
           margin: 0;
-          color: #f1f5f9;
+          color: var(--text-primary);
           transition: color 0.2s ease;
           line-height: 1.4;
           text-decoration: none !important;
         }
 
         :global(.node-card:hover) .node-title {
-          color: #ffffff;
+          color: var(--text-primary);
         }
 
         .node-domain-badge {
@@ -504,8 +504,8 @@ export default function SyllabusListingClient({ paper, paperInfo, issues }) {
         }
 
         :global(.node-card:hover) .node-domain-badge {
-          background: rgba(255, 255, 255, 0.03);
-          border-color: rgba(255, 255, 255, 0.1);
+          background: var(--bg-input);
+          border-color: var(--border-color);
         }
 
         .arrow-icon {
@@ -521,15 +521,15 @@ export default function SyllabusListingClient({ paper, paperInfo, issues }) {
         .subnodes-container {
           margin-left: 20px;
           padding-left: 16px;
-          border-left: 1px solid;
+          border-left: 1px solid var(--border-color);
           display: flex;
           flex-direction: column;
           gap: 8px;
         }
 
         :global(.subnode-capsule) {
-          background: rgba(15, 23, 42, 0.2);
-          border: 1px solid rgba(255, 255, 255, 0.03);
+          background: var(--bg-input);
+          border: 1px solid var(--border-color);
           border-radius: 12px;
           padding: 8px 14px;
           display: flex;
@@ -540,8 +540,8 @@ export default function SyllabusListingClient({ paper, paperInfo, issues }) {
         }
 
         :global(.subnode-capsule:hover) {
-          background: rgba(15, 23, 42, 0.4);
-          border-color: rgba(255, 255, 255, 0.08);
+          background: var(--bg-hover);
+          border-color: var(--border-hover);
         }
 
         :global(.subnode-capsule:hover) .sparkle-icon {
@@ -556,7 +556,7 @@ export default function SyllabusListingClient({ paper, paperInfo, issues }) {
 
         .subnode-title {
           font-size: 0.85rem;
-          color: #94a3b8;
+          color: var(--text-secondary);
           font-weight: 600;
         }
 
@@ -598,10 +598,10 @@ export default function SyllabusListingClient({ paper, paperInfo, issues }) {
         .empty-state {
           text-align: center;
           padding: 80px 40px;
-          color: #64748b;
-          border: 1px dashed rgba(255, 255, 255, 0.06);
+          color: var(--text-muted);
+          border: 1px dashed var(--border-color);
           border-radius: 24px;
-          background: rgba(15, 23, 42, 0.15);
+          background: var(--bg-input);
         }
 
         .empty-icon {
@@ -633,7 +633,7 @@ export default function SyllabusListingClient({ paper, paperInfo, issues }) {
             height: auto;
             top: 0;
             border-right: none;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            border-bottom: 1px solid var(--border-color);
             padding: 24px 16px;
           }
           .syllabus-main {

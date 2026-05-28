@@ -97,8 +97,8 @@ export default function MainsGateway() {
       <style jsx>{`
         .mains-gateway-container {
           min-height: 100vh;
-          background: #020617;
-          color: white;
+          background: var(--bg-primary);
+          color: var(--text-primary);
           position: relative;
           overflow: hidden;
           display: flex;
@@ -117,7 +117,7 @@ export default function MainsGateway() {
           position: absolute;
           width: 600px;
           height: 600px;
-          background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+          background: var(--hero-bg-gradient);
           filter: blur(80px);
         }
 
@@ -143,12 +143,12 @@ export default function MainsGateway() {
           font-weight: 800;
           text-transform: uppercase;
           letter-spacing: 0.15em;
-          color: #10b981;
-          background: rgba(16, 185, 129, 0.1);
+          color: var(--color-emerald);
+          background: var(--bg-input);
           padding: 6px 16px;
           border-radius: 20px;
           margin-bottom: 24px;
-          border: 1px solid rgba(16, 185, 129, 0.2);
+          border: 1px solid var(--border-color);
         }
 
         .mains-gateway-title {
@@ -166,7 +166,7 @@ export default function MainsGateway() {
 
         .mains-gateway-subtitle {
           font-size: 1.1rem;
-          color: #94a3b8;
+          color: var(--text-secondary);
           max-width: 600px;
           margin: 0 auto;
           line-height: 1.6;
@@ -181,8 +181,8 @@ export default function MainsGateway() {
 
         .gateway-card {
           position: relative;
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
           border-radius: 32px;
           padding: 40px;
           text-align: left;
@@ -196,8 +196,8 @@ export default function MainsGateway() {
 
         .gateway-card.live:hover {
           transform: translateY(-10px);
-          background: rgba(255, 255, 255, 0.05);
-          border-color: rgba(255, 255, 255, 0.15);
+          background: var(--bg-hover);
+          border-color: var(--border-hover);
           box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
 
@@ -242,21 +242,21 @@ export default function MainsGateway() {
         }
 
         .card-status.live {
-          background: rgba(34, 197, 94, 0.1);
-          color: #22c55e;
+          background: rgba(16, 185, 129, 0.1);
+          color: var(--color-emerald);
         }
 
         .card-status.live .dot {
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background: #22c55e;
-          box-shadow: 0 0 8px #22c55e;
+          background: var(--color-emerald);
+          box-shadow: 0 0 8px var(--color-emerald);
         }
 
         .card-status.offline {
-          background: rgba(148, 163, 184, 0.1);
-          color: #94a3b8;
+          background: var(--bg-input);
+          color: var(--text-secondary);
         }
 
         .card-subtitle {
@@ -271,12 +271,12 @@ export default function MainsGateway() {
           font-size: 1.75rem;
           font-weight: 800;
           margin: 0 0 16px;
-          color: white;
+          color: var(--text-primary);
         }
 
         .card-desc {
           font-size: 0.95rem;
-          color: #94a3b8;
+          color: var(--text-secondary);
           line-height: 1.6;
           margin: 0;
         }
@@ -288,7 +288,7 @@ export default function MainsGateway() {
           gap: 8px;
           font-size: 0.85rem;
           font-weight: 700;
-          color: white;
+          color: var(--text-primary);
           opacity: 0.6;
           transition: opacity 0.3s;
         }
@@ -300,13 +300,13 @@ export default function MainsGateway() {
         .back-link {
           font-size: 0.85rem;
           font-weight: 700;
-          color: #64748b;
+          color: var(--text-muted);
           text-decoration: none;
           transition: color 0.3s;
         }
 
         .back-link:hover {
-          color: white;
+          color: var(--text-primary);
         }
 
         @media (max-width: 768px) {

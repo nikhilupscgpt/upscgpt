@@ -142,7 +142,7 @@ export default function UPSCGPTMasterPortal() {
           <p className="main-subtitle" style={{ color: 'var(--text-secondary)' }}>
             {t('home.heroDesc')}
           </p>
-          <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginTop: '12px', fontWeight: 500 }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '12px', fontWeight: 500 }}>
             This platform is currently in Beta. Features are actively being improved.
           </p>
         </div>
@@ -152,10 +152,10 @@ export default function UPSCGPTMasterPortal() {
           <UniversalSearchBar placeholder="Search across nodes..." />
         </div>
 
-        {streaks.length > 0 && (
+         {streaks.length > 0 && (
           <div style={{ marginTop: '20px', marginBottom: '60px' }}>
             <h3 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '24px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '2rem' }}>⚡</span> Live News Streaks (Trending)
+              <span style={{ fontSize: '2rem' }}>🔥</span> Most Important Issues This Week
             </h3>
             <div style={{ 
               display: 'grid', 
@@ -165,15 +165,15 @@ export default function UPSCGPTMasterPortal() {
               {streaks.map(streak => (
                 <Link key={streak.id} href={`/news?streakId=${streak.id}`} style={{ textDecoration: 'none' }}>
                   <div style={{
-                    background: 'rgba(15, 23, 42, 0.7)',
-                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    background: 'var(--bg-card)',
+                    border: streak.importanceScore >= 4 ? '1px solid rgba(245, 158, 11, 0.3)' : '1px solid var(--border-color)',
                     borderRadius: '20px',
                     padding: '24px',
                     height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
                     transition: 'all 0.3s ease',
-                    boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)'
+                    boxShadow: streak.importanceScore >= 4 ? '0 10px 30px -10px rgba(245, 158, 11, 0.15)' : '0 10px 30px -10px rgba(0,0,0,0.5)'
                   }} className="streak-card-hover">
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
                       <span style={{ 
@@ -192,16 +192,49 @@ export default function UPSCGPTMasterPortal() {
                         <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', boxShadow: '0 0 8px #4ade80', animation: 'pulse 2s infinite' }} />
                         LIVE NOW
                       </span>
-                      <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>
+                      {streak.importanceScore >= 4 ? (
+                        <span style={{ 
+                          background: 'rgba(245, 158, 11, 0.1)', 
+                          color: '#fbbf24', 
+                          padding: '4px 10px', 
+                          borderRadius: '20px', 
+                          fontSize: '0.65rem', 
+                          fontWeight: 800, 
+                          textTransform: 'uppercase', 
+                          letterSpacing: '1px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}>
+                          🔥 CRITICAL
+                        </span>
+                      ) : streak.importanceScore >= 3 ? (
+                        <span style={{ 
+                          background: 'rgba(59, 130, 246, 0.1)', 
+                          color: '#60a5fa', 
+                          padding: '4px 10px', 
+                          borderRadius: '20px', 
+                          fontSize: '0.65rem', 
+                          fontWeight: 800, 
+                          textTransform: 'uppercase', 
+                          letterSpacing: '1px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}>
+                          🎯 HIGH PRIORITY
+                        </span>
+                      ) : null}
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600, marginLeft: 'auto' }}>
                         Updated {new Date(streak.updatedAt).toLocaleDateString()}
                       </span>
                     </div>
                     
-                    <h4 style={{ fontSize: '1.25rem', color: 'white', fontWeight: 800, margin: '0 0 12px', lineHeight: 1.3 }}>
+                    <h4 style={{ fontSize: '1.25rem', color: 'var(--text-primary)', fontWeight: 800, margin: '0 0 12px', lineHeight: 1.3 }}>
                       {streak.title}
                     </h4>
                     
-                    <p style={{ fontSize: '0.9rem', color: '#cbd5e1', lineHeight: 1.6, margin: 0, opacity: 0.9 }}>
+                    <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0, opacity: 0.9 }}>
                       {streak.livingSummary ? (streak.livingSummary.substring(0, 120) + '...') : 'Follow the developing story...'}
                     </p>
                   </div>
@@ -211,8 +244,8 @@ export default function UPSCGPTMasterPortal() {
             
             <style jsx>{`
               .streak-card-hover:hover {
-                background: rgba(15, 23, 42, 0.9) !important;
-                border-color: rgba(56, 189, 248, 0.4) !important;
+                background: var(--bg-hover) !important;
+                border-color: var(--border-hover) !important;
                 transform: translateY(-4px);
                 box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(56, 189, 248, 0.1);
               }
@@ -241,8 +274,8 @@ export default function UPSCGPTMasterPortal() {
                   className="module-card"
                   style={{
                     position: 'relative',
-                    background: 'rgba(15, 23, 42, 0.7)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border-color)',
                     borderRadius: '24px',
                     padding: '28px 24px 24px',
                     cursor: isCardLinked ? 'pointer' : 'default',
@@ -355,7 +388,7 @@ export default function UPSCGPTMasterPortal() {
                           gap: '8px',
                         }}
                       >
-                        <span style={{ fontSize: '1.2rem', fontWeight: 900, color: 'white' }}>{center.stat.value || 0}</span>
+                        <span style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-primary)' }}>{center.stat.value || 0}</span>
                         <span
                           style={{
                             fontSize: '0.6rem',
@@ -396,7 +429,7 @@ export default function UPSCGPTMasterPortal() {
           <Link
             href="/admin-login"
             style={{
-              color: '#1e293b',
+              color: 'var(--text-muted)',
               fontSize: '0.7rem',
               textDecoration: 'none',
               fontWeight: 700,
@@ -406,11 +439,11 @@ export default function UPSCGPTMasterPortal() {
           >
             Instructor Vault
           </Link>
-          <span style={{ color: '#1e293b' }}>•</span>
+          <span style={{ color: 'var(--text-muted)' }}>•</span>
           <Link
             href="/sitemap.xml"
             style={{
-              color: '#1e293b',
+              color: 'var(--text-muted)',
               fontSize: '0.7rem',
               textDecoration: 'none',
               fontWeight: 700,
@@ -420,10 +453,10 @@ export default function UPSCGPTMasterPortal() {
           >
             Sitemap
           </Link>
-          <span style={{ color: '#1e293b' }}>•</span>
+          <span style={{ color: 'var(--text-muted)' }}>•</span>
           <span
             style={{
-              color: '#1e293b',
+              color: 'var(--text-muted)',
               fontSize: '0.7rem',
               fontWeight: 700,
               textTransform: 'uppercase',

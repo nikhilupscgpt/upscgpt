@@ -71,7 +71,7 @@ export async function POST(req) {
 
   try {
     const body = await req.json();
-    const { title, title_hi, title_mr, livingSummary, status, issueIds = [], articleIds = [], editorialIds = [] } = body;
+    const { title, title_hi, title_mr, livingSummary, status, importanceScore = 1, issueIds = [], articleIds = [], editorialIds = [] } = body;
 
     if (!title) {
       return NextResponse.json({ error: 'Title is required' }, { status: 400 });
@@ -98,6 +98,7 @@ export async function POST(req) {
         slug: finalSlug,
         livingSummary,
         status: status || 'ACTIVE',
+        importanceScore: parseInt(importanceScore) || 1,
         issues: {
           connect: issuesConnection
         }

@@ -112,25 +112,25 @@ export default function MasteryPath({ issueId, progress = {}, testPackId }) {
         .steps-container { display: flex; flex-direction: column; gap: 1rem; }
         .step-card {
           display: flex; justify-content: space-between; align-items: center;
-          padding: 1.25rem 1.5rem; background: rgba(255,255,255,0.02);
-          border: 1px solid rgba(255,255,255,0.05); border-radius: 18px;
+          padding: 1.25rem 1.5rem; background: var(--bg-input);
+          border: 1px solid var(--border-color); border-radius: 18px;
           cursor: pointer; transition: all 0.3s ease;
         }
-        .step-card:hover { background: rgba(255,255,255,0.04); border-color: rgba(16, 185, 129, 0.3); transform: translateX(8px); }
+        .step-card:hover { background: var(--bg-hover); border-color: rgba(16, 185, 129, 0.3); transform: translateX(8px); }
         .step-card.done { border-color: rgba(16, 185, 129, 0.2); background: rgba(16, 185, 129, 0.02); }
 
         .step-left { display: flex; align-items: center; gap: 1.5rem; }
         .icon-circle { 
           width: 48px; height: 48px; border-radius: 14px; 
-          background: rgba(255,255,255,0.05); color: #64748b;
+          background: var(--bg-primary); color: var(--text-muted);
           display: flex; align-items: center; justify-content: center;
           transition: all 0.3s ease;
         }
         .icon-circle.done { background: rgba(16, 185, 129, 0.15); color: #10b981; }
 
         .step-info { display: flex; flex-direction: column; gap: 4px; }
-        .step-label { font-size: 0.6rem; font-weight: 900; color: #475569; letter-spacing: 1px; }
-        .step-desc { font-size: 0.85rem; color: #94a3b8; }
+        .step-label { font-size: 0.6rem; font-weight: 900; color: var(--text-muted); letter-spacing: 1px; }
+        .step-desc { font-size: 0.85rem; color: var(--text-secondary); }
         .step-desc-row { display: flex; flex-direction: column; }
 
         .launch-btn {
@@ -142,7 +142,7 @@ export default function MasteryPath({ issueId, progress = {}, testPackId }) {
         .launch-btn:hover { background: #34d399; transform: translateY(-1px); }
 
         .check-icon { color: #10b981; }
-        .circle-icon { color: rgba(255,255,255,0.1); }
+        .circle-icon { color: var(--border-hover); }
 
         @media (max-width: 600px) {
           .mastery-lab { padding: 1.25rem; }

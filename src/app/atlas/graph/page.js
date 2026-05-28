@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useTheme } from 'next-themes';
 import NavSlot from '@/components/NavSlot';
 
 const ForceGraph2D = dynamic(() => import('react-force-graph-2d'), { ssr: false });
@@ -17,11 +18,20 @@ const GS_COLORS = {
 export default function AtlasGraphPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [data, setData] = useState({ nodes: [], links: [] });
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState('ALL');
   const [highlightNodes, setHighlightNodes] = useState(new Set());
   const [hoverNode, setHoverNode] = useState(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const activeTheme = mounted ? theme : 'dark';
+  const isSepia = activeTheme === 'sepia';
   
   const fgRef = useRef();
 
@@ -110,11 +120,11 @@ export default function AtlasGraphPage() {
           nodeLabel="name"
           nodeColor={n => GS_COLORS[n.group] || GS_COLORS.General}
           nodeRelSize={6}
-          linkColor={() => 'rgba(255, 255, 255, 0.05)'}
+          linkColor={() => isSepia ? 'rgba(139, 115, 85, 0.15)' : 'rgba(255, 255, 255, 0.05)'}
           linkWidth={1}
           d3AlphaDecay={0.01}
           d3VelocityDecay={0.3}
-          backgroundColor="#020617"
+          backgroundColor={isSepia ? '#f4ecd8' : '#020617'}
           onNodeClick={handleNodeClick}
           onNodeHover={setHoverNode}
           nodeCanvasObject={(node, ctx, globalScale) => {
@@ -148,12 +158,12 @@ export default function AtlasGraphPage() {
               const textWidth = ctx.measureText(label).width;
               const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); 
               
-              ctx.fillStyle = 'rgba(2, 6, 23, 0.8)';
+              ctx.fillStyle = isSepia ? 'rgba(235, 225, 205, 0.95)' : 'rgba(2, 6, 23, 0.8)';
               ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y + radius + 2, bckgDimensions[0], bckgDimensions[1]);
 
               ctx.textAlign = 'center';
               ctx.textBaseline = 'middle';
-              ctx.fillStyle = highlightNodes.has(node.id) ? '#fff' : '#94a3b8';
+              ctx.fillStyle = highlightNodes.has(node.id) ? (isSepia ? '#433422' : '#fff') : (isSepia ? '#705e49' : '#94a3b8');
               ctx.fillText(label, node.x, node.y + radius + 2 + bckgDimensions[1] / 2);
             }
           }}
@@ -164,7 +174,7 @@ export default function AtlasGraphPage() {
         .graph-container {
           width: 100vw;
           height: 100vh;
-          background: #0f172a;
+          background: var(--bg-primary);
           position: relative;
           overflow: hidden;
         }
@@ -185,14 +195,14 @@ export default function AtlasGraphPage() {
           font-family: 'Outfit', sans-serif;
           font-size: 2.5rem;
           font-weight: 900;
-          color: white;
+          color: var(--text-primary);
           margin: 0;
           letter-spacing: -1px;
         }
 
         .graph-subtitle {
           font-size: 0.9rem;
-          color: #94a3b8;
+          color: var(--text-secondary);
           font-weight: 600;
           text-transform: uppercase;
           letter-spacing: 1px;
@@ -205,9 +215,9 @@ export default function AtlasGraphPage() {
         }
 
         .filter-btn {
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          color: #94a3b8;
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
+          color: var(--text-secondary);
           padding: 8px 24px;
           border-radius: 100px;
           font-weight: 800;
@@ -217,8 +227,8 @@ export default function AtlasGraphPage() {
         }
 
         .filter-btn:hover {
-          background: rgba(255, 255, 255, 0.08);
-          color: white;
+          background: var(--bg-hover);
+          color: var(--text-primary);
         }
 
         .filter-btn.active {
@@ -230,11 +240,11 @@ export default function AtlasGraphPage() {
 
         .graph-legend {
           margin-top: 32px;
-          background: rgba(2, 6, 23, 0.4);
+          background: var(--bg-card);
           backdrop-filter: blur(10px);
           padding: 16px;
           border-radius: 16px;
-          border: 1px solid rgba(255, 255, 255, 0.05);
+          border: 1px solid var(--border-color);
           display: flex;
           flex-direction: column;
           gap: 10px;
@@ -255,7 +265,7 @@ export default function AtlasGraphPage() {
         .legend-label {
           font-size: 0.7rem;
           font-weight: 800;
-          color: #64748b;
+          color: var(--text-muted);
           text-transform: uppercase;
           letter-spacing: 1px;
         }
@@ -267,15 +277,15 @@ export default function AtlasGraphPage() {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          color: white;
+          color: var(--text-primary);
           font-family: 'Outfit', sans-serif;
         }
 
         .spinner {
           width: 40px;
           height: 40px;
-          border: 3px solid rgba(255, 255, 255, 0.1);
-          border-top-color: #3b82f6;
+          border: 3px solid var(--border-color);
+          border-top-color: var(--color-blue);
           border-radius: 50%;
           animation: spin 1s linear infinite;
           margin-bottom: 16px;

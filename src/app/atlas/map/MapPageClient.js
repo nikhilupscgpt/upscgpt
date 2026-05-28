@@ -373,16 +373,16 @@ function MapInfoCard({
           right: 32px;
           width: 390px;
           height: 680px;
-          background: rgba(15, 23, 42, 0.95);
+          background: var(--bg-card);
           backdrop-filter: blur(40px);
-          border: 1px solid rgba(59, 130, 246, 0.2);
+          border: 1px solid var(--border-color);
           border-radius: 24px;
           display: flex;
           flex-direction: column;
           z-index: 9000;
           box-shadow: 0 40px 100px rgba(0,0,0,0.8);
           overflow: hidden;
-          color: white;
+          color: var(--text-primary);
           font-family: 'Outfit', sans-serif;
           letter-spacing: 0.01em;
         }
@@ -399,76 +399,76 @@ function MapInfoCard({
 
         .drawer-badge {
           display: flex; align-items: center; gap: 8px; padding: 6px 14px;
-          background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+          background: var(--bg-input); border: 1px solid var(--border-color);
           border-radius: 100px; font-size: 0.65rem; font-weight: 900; letter-spacing: 0.5px;
-          color: #94a3b8;
+          color: var(--text-secondary);
         }
         .badge-dot { width: 6px; height: 6px; border-radius: 50%; }
 
         .drawer-close {
-          background: rgba(255,255,255,0.05); border: none; color: #64748b;
+          background: var(--bg-input); border: none; color: var(--text-muted);
           width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
         }
 
         .drawer-scroll { flex: 1; overflow-y: auto; padding: 0 24px; margin-bottom: 8px; min-height: 0; }
 
         .drawer-hero { margin-bottom: 24px; }
-        .drawer-title { font-size: 1.8rem; font-weight: 900; margin-bottom: 4px; line-height: 1.2; letter-spacing: -0.03em; color: #ffffff; }
-        .drawer-subtitle { font-size: 0.75rem; color: #64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        .drawer-title { font-size: 1.8rem; font-weight: 900; margin-bottom: 4px; line-height: 1.2; letter-spacing: -0.03em; color: var(--text-primary); }
+        .drawer-subtitle { font-size: 0.75rem; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
 
         .drawer-kpi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
         .kpi-card {
-          background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+          background: var(--bg-input); border: 1px solid var(--border-color);
           border-radius: 16px; padding: 18px 8px; text-align: center;
         }
-        .kpi-value { font-size: 1rem; font-weight: 900; color: #3b82f6; margin-bottom: 4px; }
-        .kpi-label { font-size: 0.55rem; font-weight: 900; color: #475569; text-transform: uppercase; letter-spacing: 0.5px; }
+        .kpi-value { font-size: 1rem; font-weight: 900; color: var(--color-blue); margin-bottom: 4px; }
+        .kpi-label { font-size: 0.55rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
-        .drawer-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; gap: 24px; }
+        .drawer-tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 20px; gap: 24px; }
         .drawer-tab {
-          padding: 12px 0; background: none; border: none; color: #475569;
+          padding: 12px 0; background: none; border: none; color: var(--text-muted);
           font-size: 0.75rem; font-weight: 900; cursor: pointer; position: relative;
           text-transform: uppercase; letter-spacing: 0.1em; transition: color 0.2s;
         }
-        .drawer-tab.active { color: white; }
-        .drawer-tab.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: #3b82f6; }
+        .drawer-tab.active { color: var(--text-primary); }
+        .drawer-tab.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 2px; background: var(--color-blue); }
 
         .upsc-context-box {
-          background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.15);
+          background: rgba(245, 158, 11, 0.08); border: 1px solid var(--border-color);
           border-radius: 16px; padding: 20px; margin-bottom: 20px;
         }
-        .box-header { font-size: 0.65rem; font-weight: 900; color: #60a5fa; letter-spacing: 1px; margin-bottom: 10px; }
+        .box-header { font-size: 0.65rem; font-weight: 900; color: var(--color-blue); letter-spacing: 1px; margin-bottom: 10px; }
 
-        .section-kicker { font-size: 0.65rem; font-weight: 900; color: #3b82f6; letter-spacing: 1px; margin-bottom: 12px; }
-        .drawer-text { font-size: 1.05rem; line-height: 1.7; color: #f8fafc; font-weight: 500; }
+        .section-kicker { font-size: 0.65rem; font-weight: 900; color: var(--color-blue); letter-spacing: 1px; margin-bottom: 12px; }
+        .drawer-text { font-size: 1.05rem; line-height: 1.7; color: var(--text-primary); font-weight: 500; }
         
         .drawer-tags { display: flex; flex-wrap: wrap; gap: 6px; }
         .drawer-tag {
           font-size: 0.7rem; font-weight: 900; padding: 6px 12px;
-          background: rgba(255, 255, 255, 0.04); color: #cbd5e1;
-          border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.08);
+          background: var(--bg-input); color: var(--text-secondary);
+          border-radius: 10px; border: 1px solid var(--border-color);
         }
 
         .india-role-badge { 
-          display: inline-block; padding: 4px 10px; background: rgba(34, 197, 94, 0.1); 
-          color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 6px;
+          display: inline-block; padding: 4px 10px; background: rgba(16, 185, 129, 0.1); 
+          color: var(--color-emerald); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 6px;
           font-size: 0.65rem; font-weight: 900;
         }
 
         .drawer-footer {
-          padding: 20px 24px 24px; background: rgba(0,0,0,0.4); border-top: 1px solid rgba(255,255,255,0.05);
+          padding: 20px 24px 24px; background: var(--bg-secondary); border-top: 1px solid var(--border-color);
           display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: auto;
         }
 
         .btn-drawer-primary {
-          background: linear-gradient(135deg, #6366f1, #3b82f6); color: #000; border: none; padding: 16px;
+          background: linear-gradient(135deg, #6366f1, #3b82f6); color: #fff; border: none; padding: 16px;
           border-radius: 14px; font-weight: 900; font-size: 0.85rem; cursor: pointer;
           box-shadow: 0 4px 15px rgba(217, 119, 6, 0.3); transition: all 0.2s;
         }
         .btn-drawer-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(217, 119, 6, 0.5); }
 
         .btn-drawer-outline {
-          background: rgba(255,255,255,0.03); color: white; border: 1px solid rgba(255, 255, 255, 0.15);
+          background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-color);
           padding: 16px; border-radius: 14px; font-weight: 900; font-size: 0.85rem; cursor: pointer;
           transition: all 0.2s;
         }
@@ -484,7 +484,7 @@ function MapInfoCard({
         }
         @keyframes pulse { 0% { transform: scale(0.8); opacity: 0.5; } 50% { transform: scale(1.2); opacity: 0.2; } 100% { transform: scale(0.8); opacity: 0.5; } }
         
-        .nano-result-title { font-size: 1.1rem; font-weight: 800; color: white; margin-bottom: 12px; }
+        .nano-result-title { font-size: 1.1rem; font-weight: 800; color: var(--text-primary); margin-bottom: 12px; }
         .nano-followups { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
         .nano-followup-item { font-size: 0.75rem; color: #818cf8; font-weight: 700; background: rgba(99, 102, 241, 0.05); padding: 8px 12px; border-radius: 8px; }
         .nano-error { color: #ef4444; font-size: 0.8rem; margin-top: 10px; }
@@ -1156,7 +1156,7 @@ function MapPageInner() {
       <style jsx>{`
         .portal-container { 
           height: 100vh; 
-          background: #01040a; 
+          background: var(--bg-primary); 
           display: flex; 
           flex-direction: column; 
           overflow: hidden; 
@@ -1169,9 +1169,9 @@ function MapPageInner() {
         .portal-sidebar {
           width: 360px;
           height: 100%;
-          background: rgba(15, 23, 42, 0.95);
+          background: var(--bg-card);
           backdrop-filter: blur(40px);
-          border-right: 1px solid rgba(59, 130, 246, 0.1);
+          border-right: 1px solid var(--border-color);
           display: flex;
           flex-direction: column;
           position: relative;
@@ -1185,14 +1185,14 @@ function MapPageInner() {
 
         .sidebar-header { padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
         .sidebar-brand { display: flex; gap: 16px; align-items: center; }
-        .region-icon { font-size: 2.2rem; background: rgba(59, 130, 246, 0.05); padding: 12px; border-radius: 16px; border: 1px solid rgba(59, 130, 246, 0.1); }
-        .sidebar-title { font-size: 1.5rem; font-weight: 950; color: white; letter-spacing: -0.02em; }
-        .sidebar-kicker { font-size: 0.65rem; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: 1.5px; }
+        .region-icon { font-size: 2.2rem; background: var(--bg-input); padding: 12px; border-radius: 16px; border: 1px solid var(--border-color); }
+        .sidebar-title { font-size: 1.5rem; font-weight: 950; color: var(--text-primary); letter-spacing: -0.02em; }
+        .sidebar-kicker { font-size: 0.65rem; font-weight: 900; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; }
         
         .sidebar-tabs { display: grid; grid-template-columns: repeat(4, 1fr); padding: 0 1.25rem 1.5rem; gap: 10px; }
         .sidebar-tab { 
-          padding: 14px 4px; border: 1px solid rgba(255,255,255,0.08); 
-          background: rgba(255,255,255,0.03); color: #94a3b8; 
+          padding: 14px 4px; border: 1px solid var(--border-color); 
+          background: var(--bg-input); color: var(--text-secondary); 
           font-size: 0.62rem; font-weight: 800; border-radius: 16px; cursor: pointer; 
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           display: flex; flex-direction: column; align-items: center; gap: 8px;
@@ -1202,9 +1202,9 @@ function MapPageInner() {
         .tab-emoji { font-size: 1.6rem; transition: transform 0.2s; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); }
         
         .sidebar-tab:hover { 
-          background: rgba(59, 130, 246, 0.08); 
-          color: white; 
-          border-color: rgba(59, 130, 246, 0.3);
+          background: var(--bg-hover); 
+          color: var(--text-primary); 
+          border-color: var(--border-hover);
           transform: translateY(-2px);
         }
         .sidebar-tab.active { 
@@ -1218,48 +1218,48 @@ function MapPageInner() {
         .sidebar-scroll { flex: 1; overflow-y: auto; padding: 1rem 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
         
         .search-container input {
-          width: 100%; padding: 12px 16px; border-radius: 12px; background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.08); color: white; font-size: 0.85rem; outline: none;
+          width: 100%; padding: 12px 16px; border-radius: 12px; background: var(--bg-input);
+          border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.85rem; outline: none;
         }
 
         .strategic-path { 
-          display: flex; gap: 10px; align-items: center; font-size: 0.8rem; color: #94a3b8; font-weight: 800; 
-          background: rgba(255,255,255,0.03); padding: 6px 12px; border-radius: 12px; align-self: flex-start;
+          display: flex; gap: 10px; align-items: center; font-size: 0.8rem; color: var(--text-secondary); font-weight: 800; 
+          background: var(--bg-input); padding: 6px 12px; border-radius: 12px; align-self: flex-start;
         }
-        .strategic-path button { background: none; border: none; color: #3b82f6; font-weight: 900; cursor: pointer; font-size: inherit; }
-        .path-active { color: white; font-weight: 900; }
+        .strategic-path button { background: none; border: none; color: var(--color-blue); font-weight: 900; cursor: pointer; font-size: inherit; }
+        .path-active { color: var(--text-primary); font-weight: 900; }
 
         /* TILES */
         .continent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .continent-tile {
-          padding: 20px 12px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+          padding: 20px 12px; background: var(--bg-input); border: 1px solid var(--border-color);
           border-radius: 16px; display: flex; flex-direction: column; align-items: center; gap: 8px;
           cursor: pointer; transition: all 0.2s;
         }
-        .continent-tile:hover { background: rgba(255,255,255,0.05); border-color: #818cf8; }
+        .continent-tile:hover { background: var(--bg-hover); border-color: var(--border-hover); }
         .tile-emoji { font-size: 1.8rem; }
-        .tile-label { font-size: 0.85rem; font-weight: 900; color: white; }
-        .tile-cta { font-size: 0.55rem; font-weight: 900; color: #475569; letter-spacing: 0.5px; }
+        .tile-label { font-size: 0.85rem; font-weight: 900; color: var(--text-primary); }
+        .tile-cta { font-size: 0.55rem; font-weight: 900; color: var(--text-muted); letter-spacing: 0.5px; }
 
         .entry-item {
           display: flex; align-items: center; gap: 14px; padding: 18px; border-radius: 18px;
-          background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
-          color: white; text-align: left; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin-bottom: 12px;
+          background: var(--bg-input); border: 1px solid var(--border-color);
+          color: var(--text-primary); text-align: left; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); margin-bottom: 12px;
         }
-        .entry-item:hover { background: rgba(255,255,255,0.05); border-color: rgba(59, 130, 246, 0.3); transform: translateX(4px); }
+        .entry-item:hover { background: var(--bg-hover); border-color: var(--border-hover); transform: translateX(4px); }
         .entry-item.active { 
           background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(37, 99, 235, 0.05)); 
           border-color: #3b82f6; 
           box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
         .entry-emoji { font-size: 1.4rem; filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.3)); }
-        .entry-name { font-size: 1rem; font-weight: 900; color: #f8fafc; }
-        .entry-sub { font-size: 0.75rem; color: #94a3b8; font-weight: 700; margin-top: 2px; }
+        .entry-name { font-size: 1rem; font-weight: 900; color: var(--text-primary); }
+        .entry-sub { font-size: 0.75rem; color: var(--text-secondary); font-weight: 700; margin-top: 2px; }
 
         .basemap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .basemap-tile {
-          padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);
-          background: rgba(255,255,255,0.02); color: #94a3b8; font-size: 0.75rem; font-weight: 800; cursor: pointer;
+          padding: 12px; border-radius: 12px; border: 1px solid var(--border-color);
+          background: var(--bg-input); color: var(--text-secondary); font-size: 0.75rem; font-weight: 800; cursor: pointer;
           display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.2s;
         }
         .basemap-tile.active { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border-color: #3b82f6; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
@@ -1270,8 +1270,8 @@ function MapPageInner() {
         @media (max-width: 768px) {
           .portal-sidebar.mobile-sheet {
             position: fixed; bottom: 0; left: 0; right: 0; top: auto; width: 100%;
-            height: 75vh; border-top: 1px solid rgba(255,255,255,0.15); border-radius: 24px 24px 0 0;
-            transform: translateY(100%); background: #050507; box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
+            height: 75vh; border-top: 1px solid var(--border-color); border-radius: 24px 24px 0 0;
+            transform: translateY(100%); background: var(--bg-primary); box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
           }
           .portal-sidebar.mobile-sheet.open { transform: translateY(0); }
           .sidebar-header { padding: 1.25rem 1.5rem; }
@@ -1289,24 +1289,23 @@ function MapPageInner() {
           }
         }
 
-
         .intelligence-engine { display: flex; flex-direction: column; gap: 16px; }
         .engine-card {
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: var(--bg-input);
+          border: 1px solid var(--border-color);
           border-radius: 20px;
           padding: 20px;
           transition: all 0.3s ease;
         }
-        .engine-card:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(239, 68, 68, 0.3); }
+        .engine-card:hover { background: var(--bg-hover); border-color: var(--border-hover); }
         
         .card-header { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
         .card-emoji { font-size: 1.5rem; }
         .card-meta { flex: 1; }
-        .card-title { font-size: 0.95rem; font-weight: 900; color: white; }
-        .card-sub { font-size: 0.65rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .card-title { font-size: 0.95rem; font-weight: 900; color: var(--text-primary); }
+        .card-sub { font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
         
-        .card-description { font-size: 0.75rem; color: #94a3b8; line-height: 1.5; font-weight: 500; }
+        .card-description { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.5; font-weight: 500; }
 
         /* iOS Switch */
         .ios-switch {
@@ -1320,7 +1319,7 @@ function MapPageInner() {
           position: absolute;
           cursor: pointer;
           top: 0; left: 0; right: 0; bottom: 0;
-          background-color: rgba(255,255,255,0.1);
+          background-color: var(--bg-input);
           transition: .4s;
           border-radius: 34px;
         }

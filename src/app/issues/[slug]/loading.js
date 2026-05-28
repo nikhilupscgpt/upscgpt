@@ -2,7 +2,7 @@
 
 export default function IssueLoading() {
   return (
-    <div style={{ background: '#020617', minHeight: '100vh', padding: '100px 32px 80px', fontFamily: '"Outfit", sans-serif', color: '#f5f5f7', position: 'relative' }}>
+    <div style={{ background: 'var(--bg-primary)', minHeight: '100vh', padding: '100px 32px 80px', fontFamily: '"Outfit", sans-serif', color: 'var(--text-primary)', position: 'relative' }}>
       <div style={{ maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
         
         {/* Header Skeleton */}
@@ -25,7 +25,7 @@ export default function IssueLoading() {
 
       <style jsx>{`
         .skeleton-box {
-          background: rgba(255, 255, 255, 0.03);
+          background: var(--bg-secondary);
           position: relative;
           overflow: hidden;
         }
@@ -34,7 +34,7 @@ export default function IssueLoading() {
           position: absolute;
           inset: 0;
           transform: translateX(-100%);
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.03), transparent);
+          background: linear-gradient(90deg, transparent, rgba(148, 163, 184, 0.08), transparent);
           animation: shimmer 1.5s infinite;
         }
         @keyframes shimmer {

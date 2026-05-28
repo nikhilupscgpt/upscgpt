@@ -34,9 +34,12 @@ export async function POST(req) {
       url,
       source,
       contentType = 'NEWS',
+      examStage,
+      importanceScore = 1,
       author,
       rawContent,
       publishedAt,
+      newsStreakId,
     } = body;
 
     // Validation
@@ -62,6 +65,7 @@ export async function POST(req) {
 
     let result;
     const publishDate = publishedAt ? new Date(publishedAt) : new Date();
+    const parsedImportanceScore = parseInt(importanceScore) || 1;
 
     if (type === 'EDITORIAL') {
       // --- Ingest Editorial ---
@@ -72,9 +76,11 @@ export async function POST(req) {
           url: url || null,
           author: author || null,
           source: source || null,
+          importanceScore: parsedImportanceScore,
           rawContent: rawContent || null,
           status: rawContent ? 'PENDING' : 'DONE',
           publishedAt: publishDate,
+          newsStreakId: newsStreakId || null,
         },
       });
 
@@ -109,10 +115,13 @@ export async function POST(req) {
           url: url || null,
           source: source || null,
           contentType,
+          examStage: examStage || null,
+          importanceScore: parsedImportanceScore,
           rawContent: rawContent || null,
           status: rawContent ? 'PENDING' : 'DONE',
           addedManually: true,
           publishedAt: publishDate,
+          newsStreakId: newsStreakId || null,
         },
       });
 
@@ -166,6 +175,106 @@ export async function POST(req) {
       });
     } catch (_) {}
 
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+
+/**
+ * PUT /api/admin/issues/ingest
+ * Update an existing Article or Editorial.
+ */
+export async function PUT(req) {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== 'ADMIN') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const body = await req.json();
+    const {
+      id,
+      type = 'ARTICLE',
+      title,
+      url,
+      source,
+      contentType,
+      examStage,
+      importanceScore,
+      author,
+      rawContent,
+      publishedAt,
+      newsStreakId,
+    } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: 'Missing required field: id' }, { status: 400 });
+    }
+
+    const publishDate = publishedAt ? new Date(publishedAt) : undefined;
+    const parsedImportanceScore = importanceScore !== undefined ? (parseInt(importanceScore) || 1) : undefined;
+
+    let result;
+    if (type === 'EDITORIAL') {
+      result = await prisma.editorial.update({
+        where: { id },
+        data: {
+          title,
+          url: url !== undefined ? (url || null) : undefined,
+          author: author !== undefined ? (author || null) : undefined,
+          source: source !== undefined ? (source || null) : undefined,
+          importanceScore: parsedImportanceScore,
+          rawContent: rawContent !== undefined ? (rawContent || null) : undefined,
+          publishedAt: publishDate,
+          newsStreakId: newsStreakId !== undefined ? (newsStreakId || null) : undefined,
+        },
+      });
+    } else {
+      // Check duplicate URL
+      if (url) {
+        const existing = await prisma.article.findFirst({
+          where: { url, NOT: { id } }
+        });
+        if (existing) {
+          return NextResponse.json(
+            { error: `Another article with this URL already exists (ID: ${existing.id})` },
+            { status: 409 }
+          );
+        }
+      }
+
+      result = await prisma.article.update({
+        where: { id },
+        data: {
+          title,
+          url: url !== undefined ? (url || null) : undefined,
+          source: source !== undefined ? (source || null) : undefined,
+          contentType: contentType !== undefined ? contentType : undefined,
+          examStage: examStage !== undefined ? (examStage || null) : undefined,
+          importanceScore: parsedImportanceScore,
+          rawContent: rawContent !== undefined ? (rawContent || null) : undefined,
+          publishedAt: publishDate,
+          newsStreakId: newsStreakId !== undefined ? (newsStreakId || null) : undefined,
+        },
+      });
+    }
+
+    // Log the update
+    await prisma.actionLog.create({
+      data: {
+        action: 'MANUAL_UPDATE',
+        message: `${type} Updated: "${title || result.title}" (ID: ${id})`,
+        status: 'SUCCESS',
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      type,
+      id: result.id,
+      message: `${type === 'EDITORIAL' ? 'Editorial' : 'Article'} updated successfully.`,
+    });
+  } catch (error) {
+    console.error('[Ingest API PUT] Error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

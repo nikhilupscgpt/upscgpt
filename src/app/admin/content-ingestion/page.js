@@ -51,6 +51,9 @@ export default function NewsIngestionHub() {
   const [expandedPapers, setExpandedPapers] = useState({});
   const [expandedSubjects, setExpandedSubjects] = useState({});
 
+  const [editingId, setEditingId] = useState(null);
+  const [nodeStreaks, setNodeStreaks] = useState([]);
+
   const [newsForm, setNewsForm] = useState({
     url: '',
     title: '',
@@ -58,7 +61,10 @@ export default function NewsIngestionHub() {
     source: '',
     author: '',
     publishedAt: new Date().toISOString().split('T')[0],
-    contentType: 'NEWS'
+    contentType: 'NEWS',
+    examStage: 'BOTH',
+    importanceScore: 1,
+    newsStreakId: ''
   });
   const [ingestType, setIngestType] = useState('ARTICLE'); // ARTICLE | EDITORIAL
   const [loading, setLoading] = useState(false);
@@ -203,6 +209,7 @@ export default function NewsIngestionHub() {
   // Fetch node details, linked articles, and questions
   const handleNodeSelect = async (node) => {
     setSelectedNode(node);
+    clearForm();
     setArticlesLoading(true);
     try {
       const res = await fetch(`/api/admin/issues/${node.id}`);
@@ -213,13 +220,16 @@ export default function NewsIngestionHub() {
         const allItems = [...articles, ...editorials].sort((a, b) => new Date(b.publishedAt || b.createdAt) - new Date(a.publishedAt || a.createdAt));
         setNodeArticles(allItems);
         setNodeQuestions(data.issue.questions || []);
+        setNodeStreaks(data.issue.newsStreaks || []);
       } else {
         setNodeArticles([]);
         setNodeQuestions([]);
+        setNodeStreaks([]);
       }
     } catch (err) {
       setNodeArticles([]);
       setNodeQuestions([]);
+      setNodeStreaks([]);
     } finally {
       setArticlesLoading(false);
     }
@@ -305,50 +315,51 @@ export default function NewsIngestionHub() {
     }
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/issues/ingest', {
-        method: 'POST',
+      const isEdit = !!editingId;
+      const endpoint = '/api/admin/issues/ingest';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      const res = await fetch(endpoint, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          id: editingId || undefined,
           issueId: selectedNode.id,
           type: ingestType,
           title: newsForm.title,
-          url: newsForm.url,
-          source: newsForm.source,
+          url: newsForm.url || null,
+          source: newsForm.source || null,
           author: ingestType === 'EDITORIAL' ? newsForm.author : undefined,
           contentType: ingestType === 'ARTICLE' ? newsForm.contentType : undefined,
-          rawContent: newsForm.rawContent,
-          publishedAt: newsForm.publishedAt
+          examStage: ingestType === 'ARTICLE' ? newsForm.examStage : undefined,
+          importanceScore: newsForm.importanceScore,
+          rawContent: newsForm.rawContent || null,
+          publishedAt: newsForm.publishedAt,
+          newsStreakId: newsForm.newsStreakId || null
         })
       });
       const data = await res.json();
       if (data.success) {
-        toast.success(`${ingestType === 'EDITORIAL' ? 'Editorial' : 'Article'} ingested!`);
+        toast.success(isEdit ? `${ingestType === 'EDITORIAL' ? 'Editorial' : 'Article'} updated!` : `${ingestType === 'EDITORIAL' ? 'Editorial' : 'Article'} ingested!`);
         
-        // Add to recent ingestions feed
-        setRecentIngestions(prev => [{
-          id: data.id,
-          type: ingestType,
-          title: newsForm.title,
-          source: newsForm.source,
-          linkedTo: selectedNode.title,
-          time: new Date().toLocaleTimeString()
-        }, ...prev.slice(0, 9)]);
+        // Add to recent ingestions feed (only if new ingestion)
+        if (!isEdit) {
+          setRecentIngestions(prev => [{
+            id: data.id,
+            type: ingestType,
+            title: newsForm.title,
+            source: newsForm.source,
+            linkedTo: selectedNode.title,
+            time: new Date().toLocaleTimeString()
+          }, ...prev.slice(0, 9)]);
+        }
 
-        // Reset form
-        setNewsForm({
-          url: '',
-          title: '',
-          rawContent: '',
-          source: '',
-          author: '',
-          publishedAt: new Date().toISOString().split('T')[0],
-          contentType: 'NEWS'
-        });
+        clearForm();
         
         // Refresh linked articles
         handleNodeSelect(selectedNode);
 
-        if (triggerAI) {
+        if (triggerAI && !isEdit) {
           toast.loading('Triggering AI synthesis pipeline...', { duration: 3000 });
           await fetch('/api/admin/news-engine/process', { method: 'POST' });
           toast.success('AI Pipeline Triggered!');
@@ -363,7 +374,7 @@ export default function NewsIngestionHub() {
     }
   };
 
-  const clearForm = () => {
+  function clearForm() {
     setNewsForm({
       url: '',
       title: '',
@@ -371,9 +382,30 @@ export default function NewsIngestionHub() {
       source: '',
       author: '',
       publishedAt: new Date().toISOString().split('T')[0],
-      contentType: 'NEWS'
+      contentType: 'NEWS',
+      examStage: 'BOTH',
+      importanceScore: 1,
+      newsStreakId: ''
     });
     setIngestType('ARTICLE');
+    setEditingId(null);
+  }
+
+  const handleEditClick = (item) => {
+    setIngestType(item.type);
+    setEditingId(item.id);
+    setNewsForm({
+      url: item.url || '',
+      title: item.title || '',
+      rawContent: item.rawContent || '',
+      source: item.source || '',
+      author: item.author || '',
+      publishedAt: item.publishedAt ? new Date(item.publishedAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      contentType: item.contentType || 'NEWS',
+      examStage: item.examStage || 'BOTH',
+      importanceScore: item.importanceScore || 1,
+      newsStreakId: item.newsStreakId || ''
+    });
   };
 
   // Questions Manager helper functions
@@ -887,8 +919,8 @@ export default function NewsIngestionHub() {
                         <option value="NEWS">NEWS</option>
                         <option value="PIB">PIB</option>
                         <option value="REPORT">REPORT</option>
-                        <option value="PRELIMS">PRELIMS (Prelims only)</option>
-                        <option value="MAINS">MAINS (Mains only)</option>
+                        <option value="THE_HINDU_TEXT_AND_CONTEXT">The Hindu Text & Context</option>
+                        <option value="INDIAN_EXPRESS_EXPLAINED">Indian Express Explained</option>
                       </select>
                     </div>
                   ) : (
@@ -903,6 +935,56 @@ export default function NewsIngestionHub() {
                       />
                     </div>
                   )}
+                </div>
+
+                {/* Exam Stage, Importance, Attach to Streak Row */}
+                <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+                  {ingestType === 'ARTICLE' && (
+                    <div style={{ flex: 1 }}>
+                      <label className="form-label">Exam Stage</label>
+                      <select 
+                        className="status-select" 
+                        style={{ width: '100%', padding: '8px 12px', borderRadius: '8px' }}
+                        value={newsForm.examStage}
+                        onChange={e => setNewsForm({...newsForm, examStage: e.target.value})}
+                      >
+                        <option value="PRELIMS_ONLY">Prelims Only</option>
+                        <option value="MAINS_ONLY">Mains Only</option>
+                        <option value="BOTH">Both</option>
+                      </select>
+                    </div>
+                  )}
+
+                  <div style={{ flex: 1 }}>
+                    <label className="form-label">Importance Score</label>
+                    <select 
+                      className="status-select" 
+                      style={{ width: '100%', padding: '8px 12px', borderRadius: '8px' }}
+                      value={newsForm.importanceScore}
+                      onChange={e => setNewsForm({...newsForm, importanceScore: parseInt(e.target.value) || 1})}
+                    >
+                      <option value="1">1 - Normal / Daily Info</option>
+                      <option value="2">2 - Medium / Relevant</option>
+                      <option value="3">3 - High / High Yield</option>
+                      <option value="4">4 - Very High / Core Concept</option>
+                      <option value="5">5 - Critical / Pinned Landmark</option>
+                    </select>
+                  </div>
+
+                  <div style={{ flex: 1 }}>
+                    <label className="form-label">Attach to Streak</label>
+                    <select 
+                      className="status-select" 
+                      style={{ width: '100%', padding: '8px 12px', borderRadius: '8px' }}
+                      value={newsForm.newsStreakId || ''}
+                      onChange={e => setNewsForm({...newsForm, newsStreakId: e.target.value})}
+                    >
+                      <option value="">-- None --</option>
+                      {nodeStreaks.map(st => (
+                        <option key={st.id} value={st.id}>{st.title}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
 
                 {/* Raw Content */}
@@ -1009,19 +1091,34 @@ export default function NewsIngestionHub() {
                             <span style={{ fontSize: '0.6rem', color: '#64748b' }}>
                               {article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : ''}
                               {article.status && <span style={{ marginLeft: '8px', color: article.status === 'DONE' ? '#10b981' : '#f59e0b' }}>● {article.status}</span>}
+                              {article.importanceScore !== undefined && <span style={{ marginLeft: '8px', color: '#fbbf24' }}>★ {article.importanceScore}</span>}
                             </span>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                openQuestionsManager(article);
-                              }}
-                              style={{
-                                background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.2)',
-                                padding: '4px 8px', borderRadius: '6px', fontSize: '0.65rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px'
-                              }}
-                            >
-                              <HelpCircle size={10} /> Questions ({getArticleQuestionsCount(article)})
-                            </button>
+                            <div style={{ display: 'flex', gap: '6px' }}>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEditClick(article);
+                                }}
+                                style={{
+                                  background: 'rgba(59, 130, 246, 0.1)', color: '#60a5fa', border: '1px solid rgba(59, 130, 246, 0.2)',
+                                  padding: '4px 8px', borderRadius: '6px', fontSize: '0.65rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px'
+                                }}
+                              >
+                                <Edit3 size={10} /> Edit
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  openQuestionsManager(article);
+                                }}
+                                style={{
+                                  background: 'rgba(245, 158, 11, 0.1)', color: '#f59e0b', border: '1px solid rgba(245, 158, 11, 0.2)',
+                                  padding: '4px 8px', borderRadius: '6px', fontSize: '0.65rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px'
+                                }}
+                              >
+                                <HelpCircle size={10} /> Questions ({getArticleQuestionsCount(article)})
+                              </button>
+                            </div>
                           </div>
                         </div>
                       ))}

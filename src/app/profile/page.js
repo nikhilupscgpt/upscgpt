@@ -156,8 +156,8 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: '#020617', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ color: '#94a3b8', fontSize: '0.9rem', fontWeight: 900, letterSpacing: '1px' }}>INITIALIZING STRATEGIC DASHBOARD...</div>
+      <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 900, letterSpacing: '1px' }}>INITIALIZING STRATEGIC DASHBOARD...</div>
       </div>
     );
   }
@@ -366,72 +366,72 @@ export default function ProfilePage() {
       <style jsx>{`
         .profile-container {
           min-height: 100vh;
-          background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
-          color: white;
+          background: var(--hero-bg-gradient);
+          color: var(--text-primary);
           font-family: 'Outfit', sans-serif;
         }
-
+ 
         .profile-main {
           max-width: 1200px;
           margin: 0 auto;
           padding: 3rem 2rem;
         }
-
+ 
         .profile-header {
           display: flex;
           justify-content: space-between;
           align-items: flex-end;
           margin-bottom: 3rem;
         }
-
+ 
         .title-group { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem; }
         .hero-title { font-size: 2.5rem; font-weight: 900; margin: 0; letter-spacing: -0.03em; }
         .pro-badge { padding: 4px 12px; border-radius: 100px; background: #fbbf24; color: black; font-size: 0.7rem; font-weight: 900; display: flex; align-items: center; gap: 4px; }
-        .hero-subtitle { color: #64748b; font-size: 1.1rem; }
-
-        .settings-toggle { display: flex; align-items: center; gap: 8px; color: #94a3b8; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 10px 20px; border-radius: 12px; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
-
+        .hero-subtitle { color: var(--text-secondary); font-size: 1.1rem; }
+ 
+        .settings-toggle { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); background: var(--bg-input); border: 1px solid var(--border-color); padding: 10px 20px; border-radius: 12px; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
+ 
         .dashboard-grid { display: grid; grid-template-columns: 1.8fr 1fr; gap: 2.5rem; }
         .analytics-col, .sidebar-col { display: flex; flex-direction: column; gap: 2rem; }
-
+ 
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
         .stat-val { font-size: 1.5rem; font-weight: 900; }
-        .stat-label { font-size: 0.7rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
-
+        .stat-label { font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+ 
         .heatmap-list { display: flex; flex-direction: column; gap: 1.5rem; }
         .heatmap-label { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85rem; font-weight: 800; }
         .percent-val { color: #10b981; }
-        .progress-bar-bg { height: 8px; background: rgba(255,255,255,0.05); border-radius: 100px; overflow: hidden; }
+        .progress-bar-bg { height: 8px; background: var(--bg-input); border-radius: 100px; overflow: hidden; }
         .progress-bar-fill { height: 100%; background: linear-gradient(90deg, #3b82f6, #10b981); transition: width 1s ease; }
-
+ 
         .domain-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
-        .domain-card { padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); }
-        .domain-label { font-size: 0.6rem; font-weight: 900; color: #64748b; margin-bottom: 4px; }
+        .domain-card { padding: 1rem; background: var(--bg-input); border-radius: 12px; border: 1px solid var(--border-color); }
+        .domain-label { font-size: 0.6rem; font-weight: 900; color: var(--text-muted); margin-bottom: 4px; }
         .domain-val { font-size: 1rem; font-weight: 900; }
-
+ 
         .upgrade-card { padding: 2rem; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 24px; text-align: center; }
         .upgrade-title { font-size: 1.25rem; font-weight: 900; color: #fbbf24; margin-bottom: 0.5rem; }
-        .upgrade-desc { font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-bottom: 1.5rem; line-height: 1.6; }
+        .upgrade-desc { font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.6; }
         .upgrade-btn { width: 100%; padding: 12px; border-radius: 12px; background: #fbbf24; color: black; font-weight: 900; border: none; cursor: pointer; }
-
+ 
         .card-title-with-icon { display: flex; align-items: center; gap: 8px; font-size: 1rem; font-weight: 900; margin-bottom: 1.5rem; }
         .activity-list { display: flex; flex-direction: column; gap: 1rem; }
-        .activity-item { display: flex; gap: 12px; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
-        .activity-icon { padding: 8px; background: rgba(255,255,255,0.03); border-radius: 8px; height: fit-content; }
+        .activity-item { display: flex; gap: 12px; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); }
+        .activity-icon { padding: 8px; background: var(--bg-input); border-radius: 8px; height: fit-content; }
         .activity-action { font-size: 0.8rem; font-weight: 800; text-transform: capitalize; }
-        .activity-msg { font-size: 0.75rem; color: #64748b; }
-        .activity-date { font-size: 0.65rem; color: #475569; margin-top: 4px; }
+        .activity-msg { font-size: 0.75rem; color: var(--text-secondary); }
+        .activity-date { font-size: 0.65rem; color: var(--text-muted); margin-top: 4px; }
         .admin-user-tag { font-size: 0.65rem; color: #3b82f6; font-weight: 900; opacity: 0.8; }
-        .empty-msg { text-align: center; padding: 2rem; color: #475569; font-size: 0.8rem; }
-
-        .settings-section { margin-top: 5rem; padding-top: 3rem; border-top: 1px solid rgba(255,255,255,0.06); }
+        .empty-msg { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 0.8rem; }
+ 
+        .settings-section { margin-top: 5rem; padding-top: 3rem; border-top: 1px solid var(--border-color); }
         .section-title { font-size: 1.5rem; font-weight: 900; margin-bottom: 2rem; }
         .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; }
         .settings-form { display: flex; flexDirection: column; gap: 1.5rem; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         .save-btn { width: 100%; padding: 12px; border-radius: 12px; background: #3b82f6; color: white; font-weight: 900; border: none; cursor: pointer; }
-
-        .account-pill { padding: 1rem; background: rgba(255,255,255,0.02); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
+ 
+        .account-pill { padding: 1rem; background: var(--bg-input); border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
         .email-val { font-size: 0.85rem; }
         .primary-tag { font-size: 0.6rem; font-weight: 900; color: #10b981; background: rgba(16, 185, 129, 0.1); padding: 2px 8px; border-radius: 4px; }
 
@@ -450,8 +450,8 @@ export default function ProfilePage() {
 
 // STYLES
 const statCardStyle = {
-  background: 'rgba(255, 255, 255, 0.02)',
-  border: '1px solid rgba(255, 255, 255, 0.05)',
+  background: 'var(--bg-card)',
+  border: '1px solid var(--border-color)',
   borderRadius: '20px',
   padding: '1.5rem',
   display: 'flex',
@@ -473,8 +473,8 @@ const statIconStyle = (color) => ({
 });
 
 const bigCardStyle = {
-  background: 'rgba(255, 255, 255, 0.02)',
-  border: '1px solid rgba(255, 255, 255, 0.05)',
+  background: 'var(--bg-card)',
+  border: '1px solid var(--border-color)',
   borderRadius: '24px',
   padding: '2rem'
 };
@@ -490,7 +490,7 @@ const labelStyle = {
   display: 'block',
   fontSize: '0.65rem',
   fontWeight: 900,
-  color: '#64748b',
+  color: 'var(--text-muted)',
   textTransform: 'uppercase',
   marginBottom: '8px',
   letterSpacing: '1px'
@@ -499,10 +499,10 @@ const labelStyle = {
 const inputStyle = {
   width: '100%',
   padding: '12px 16px',
-  background: 'rgba(255, 255, 255, 0.03)',
-  border: '1px solid rgba(255, 255, 255, 0.08)',
+  background: 'var(--bg-input)',
+  border: '1px solid var(--border-color)',
   borderRadius: '12px',
-  color: 'white',
+  color: 'var(--text-primary)',
   fontSize: '0.9rem',
   outline: 'none'
 };

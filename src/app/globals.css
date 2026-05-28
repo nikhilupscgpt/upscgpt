@@ -5,18 +5,22 @@
 }
 
 :root {
-  --background-dark: #020617;
-  --glass-bg: rgba(15, 23, 42, 0.7);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --neural-blue: #3b82f6;
-  --neural-glow: rgba(59, 130, 246, 0.3);
-
-  /* Restoration Tokens */
-  --hero-bg-gradient: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #020617 80%);
-  --card-bg: rgba(15, 23, 42, 0.6);
-  --card-border: rgba(255, 255, 255, 0.12);
+  /* Default: Dark Theme */
+  --bg-primary: #020617;
+  --bg-secondary: #0b1329;
+  --bg-card: rgba(15, 23, 42, 0.7);
+  --bg-hover: rgba(15, 23, 42, 0.9);
+  --bg-input: rgba(15, 23, 42, 0.4);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.15);
   --text-primary: #ffffff;
   --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --hero-bg-gradient: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #020617 80%);
+
+  /* Neural Branding */
+  --neural-blue: #3b82f6;
+  --neural-glow: rgba(59, 130, 246, 0.3);
 
   /* Accent System */
   --color-blue: #3b82f6;
@@ -24,6 +28,151 @@
   --color-amber: #f59e0b;
   --color-purple: #8b5cf6;
   --color-rose: #f43f5e;
+
+  /* Glass Aliases for backward compatibility */
+  --glass-bg: var(--bg-card);
+  --glass-border: var(--border-color);
+
+  /* Semantic tokens for links, highlights, tags, and glow */
+  --color-link: #38bdf8;
+  --color-link-hover: #ffffff;
+  --bg-highlight: rgba(56, 189, 248, 0.2);
+  --text-highlight: #38bdf8;
+  --bg-glow-1: rgba(139, 92, 246, 0.15);
+  --bg-glow-2: rgba(59, 130, 246, 0.15);
+
+  --btn-primary-bg: #38bdf8;
+  --btn-primary-text: #0f172a;
+  --btn-primary-hover-bg: #ffffff;
+
+  /* Badge colors */
+  --badge-streak-bg: rgba(34, 197, 94, 0.1);
+  --badge-streak-text: #4ade80;
+  --badge-editorial-bg: rgba(129, 140, 248, 0.1);
+  --badge-editorial-text: #818cf8;
+  --badge-news-bg: rgba(56, 189, 248, 0.1);
+  --badge-news-text: #38bdf8;
+  --badge-node-bg: rgba(245, 158, 11, 0.1);
+  --badge-node-text: #fbbf24;
+  --badge-pyq-bg: rgba(239, 68, 68, 0.1);
+  --badge-pyq-text: #f87171;
+}
+
+[data-theme='light'] {
+  /* Light Theme overrides */
+  --bg-primary: #f8fafc;
+  --bg-secondary: #f1f5f9;
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --bg-hover: rgba(241, 245, 249, 0.9);
+  --bg-input: rgba(241, 245, 249, 0.5);
+  --border-color: #e2e8f0;
+  --border-hover: #cbd5e1;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --hero-bg-gradient: radial-gradient(circle at 50% -20%, #e2e8f0 0%, #f8fafc 80%);
+  
+  --neural-glow: rgba(59, 130, 246, 0.1);
+
+  /* Semantic tokens for links, highlights, tags, and glow */
+  --color-link: #0284c7; /* Ocean blue link */
+  --color-link-hover: #0369a1;
+  --bg-highlight: #fef08a; /* Soft yellow highlight */
+  --text-highlight: #854d0e; /* Dark amber text */
+  --bg-glow-1: rgba(139, 92, 246, 0.05);
+  --bg-glow-2: rgba(59, 130, 246, 0.05);
+
+  --btn-primary-bg: #0284c7;
+  --btn-primary-text: #ffffff;
+  --btn-primary-hover-bg: #0369a1;
+
+  /* Badge colors */
+  --badge-streak-bg: rgba(22, 163, 74, 0.1);
+  --badge-streak-text: #166534;
+  --badge-editorial-bg: rgba(79, 70, 229, 0.1);
+  --badge-editorial-text: #3730a3;
+  --badge-news-bg: rgba(2, 132, 199, 0.1);
+  --badge-news-text: #075985;
+  --badge-node-bg: rgba(217, 119, 6, 0.1);
+  --badge-node-text: #9a3412;
+  --badge-pyq-bg: rgba(220, 38, 38, 0.1);
+  --badge-pyq-text: #991b1b;
+}
+
+[data-theme='sepia'] {
+  /* Sepia Theme overrides */
+  --bg-primary: #f4ecd8; /* Warm paper color */
+  --bg-secondary: #ebdcb9; /* Warm darker sepia sidebar/card backplate */
+  --bg-card: rgba(235, 225, 205, 0.85); /* Slightly darker paper */
+  --bg-hover: rgba(225, 215, 195, 0.9);
+  --bg-input: rgba(225, 215, 195, 0.5);
+  --border-color: rgba(139, 115, 85, 0.2);
+  --border-hover: rgba(139, 115, 85, 0.3);
+  --text-primary: #433422; /* Dark brown ink */
+  --text-secondary: #705e49;
+  --text-muted: #8c7a6b;
+  --hero-bg-gradient: radial-gradient(circle at 50% -20%, #e6d7b8 0%, #f4ecd8 80%);
+  
+  /* Tone down accents slightly for sepia */
+  --neural-glow: rgba(59, 130, 246, 0.15);
+
+  /* Semantic tokens for links, highlights, tags, and glow */
+  --color-link: #1e3a8a; /* Deep blue link */
+  --color-link-hover: #0f172a;
+  --bg-highlight: #fed7aa; /* Soft orange highlight */
+  --text-highlight: #7c2d12; /* Burnt orange text */
+  --bg-glow-1: rgba(139, 92, 246, 0.04);
+  --bg-glow-2: rgba(59, 130, 246, 0.04);
+
+  --btn-primary-bg: #7c2d12; /* Dark burnt orange primary button */
+  --btn-primary-text: #fdfaf7;
+  --btn-primary-hover-bg: #431407;
+
+  /* Badge colors */
+  --badge-streak-bg: rgba(22, 163, 74, 0.1);
+  --badge-streak-text: #14532d;
+  --badge-editorial-bg: rgba(79, 70, 229, 0.1);
+  --badge-editorial-text: #312e81;
+  --badge-news-bg: rgba(2, 132, 199, 0.1);
+  --badge-news-text: #1e3a8a;
+  --badge-node-bg: rgba(217, 119, 6, 0.1);
+  --badge-node-text: #7c2d12;
+  --badge-pyq-bg: rgba(220, 38, 38, 0.15);
+  --badge-pyq-text: #7f1d1d;
+}
+
+[data-theme='sepia'] mark.hl-yellow {
+  color: #78350f;
+}
+[data-theme='sepia'] mark.hl-green {
+  color: #064e3b;
+}
+[data-theme='sepia'] mark.hl-blue {
+  color: #1e3a8a;
+}
+[data-theme='sepia'] mark.hl-purple {
+  color: #581c87;
+}
+
+[data-theme='sepia'] .card-info {
+  background: rgba(59, 130, 246, 0.1);
+  color: #1e3a8a;
+}
+[data-theme='sepia'] .card-warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: #78350f;
+}
+[data-theme='sepia'] .card-success {
+  background: rgba(16, 185, 129, 0.1);
+  color: #064e3b;
+}
+[data-theme='sepia'] .card-tip {
+  background: rgba(168, 85, 247, 0.1);
+  color: #581c87;
+}
+
+[data-theme='sepia'] table.table-premium thead th {
+  color: #312e81;
 }
 
 
@@ -216,13 +365,14 @@
 }
 
 body {
-  background-color: #01040a;
-  color: #f8fafc;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   margin: 0;
   font-family: var(--font-outfit), sans-serif;
   line-height: 1.6;
   letter-spacing: 0.01em;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .universal-page-glow {
@@ -230,11 +380,11 @@ body {
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: #01040a;
+  background: var(--bg-primary);
   background-image:
-    radial-gradient(circle at 0% 0%, rgba(139, 92, 246, 0.25) 0%, transparent 50%),
-    radial-gradient(circle at 100% 100%, rgba(59, 130, 246, 0.25) 0%, transparent 50%),
-    radial-gradient(circle at 50% 50%, rgba(2, 6, 23, 0.95) 0%, #01040a 100%);
+    radial-gradient(circle at 0% 0%, var(--bg-glow-1) 0%, transparent 50%),
+    radial-gradient(circle at 100% 100%, var(--bg-glow-2) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, var(--bg-card) 0%, var(--bg-primary) 100%);
 }
 
 .app-nav__session {
@@ -284,7 +434,7 @@ body {
 .app-nav__brand-text {
   font-size: 1.4rem;
   font-weight: 900;
-  color: white;
+  color: var(--text-primary);
   letter-spacing: -0.04em;
 }
 
@@ -296,7 +446,7 @@ body {
 .app-nav__link {
   font-size: 0.85rem;
   font-weight: 800;
-  color: #94a3b8;
+  color: var(--text-secondary);
   text-decoration: none;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -304,7 +454,7 @@ body {
 }
 
 .app-nav__link:hover {
-  color: white;
+  color: var(--text-primary);
 }
 
 .app-nav__actions {
@@ -315,8 +465,8 @@ body {
 
 /* Neural Lang Toggle */
 .lang-toggle-container {
-  background: rgba(15, 23, 42, 0.4);
-  border: 1px solid var(--glass-border);
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 3px;
   display: flex;
@@ -331,7 +481,7 @@ body {
 .lang-toggle button {
   background: transparent;
   border: none;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 0.7rem;
   font-weight: 900;
   padding: 6px 14px;
@@ -342,7 +492,7 @@ body {
 }
 
 .lang-toggle button:hover {
-  color: #cbd5e1;
+  color: var(--text-primary);
 }
 
 .lang-toggle button.active {
@@ -447,7 +597,7 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: #020617;
+    background: var(--bg-primary);
     z-index: 999;
     padding: 40px 32px;
     transform: translateX(-100%);
@@ -585,11 +735,11 @@ body {
 
 /* Issue Detail Page Hydration Stability */
 .issue-detail-page-wrapper {
-  background: #020617;
+  background: var(--bg-primary);
   min-height: 100vh;
   padding: 90px 24px 80px;
   font-family: "Outfit", sans-serif;
-  color: #f8fafc;
+  color: var(--text-primary);
   position: relative;
 }
 
@@ -741,7 +891,7 @@ mark.hl-purple {
   padding-left: 24px;
   margin-bottom: 10px;
   line-height: 1.65;
-  color: rgba(255,255,255,0.85);
+  color: var(--text-primary);
 }
 .list-custom li::before {
   content: '◆';
@@ -754,8 +904,8 @@ mark.hl-purple {
 
 /* ── Disclosure Accordion ── */
 details.disclosure {
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.07);
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   margin: 14px 0;
   overflow: hidden;
@@ -769,8 +919,8 @@ details.disclosure summary {
   cursor: pointer;
   font-weight: 600;
   font-size: 0.88rem;
-  color: rgba(255,255,255,0.9);
-  background: rgba(255,255,255,0.02);
+  color: var(--text-primary);
+  background: var(--bg-card);
   list-style: none;
   display: flex;
   align-items: center;
@@ -796,10 +946,10 @@ details.disclosure summary::-webkit-details-marker {
 details.disclosure > div,
 details.disclosure > p {
   padding: 16px 20px;
-  color: rgba(255,255,255,0.78);
+  color: var(--text-secondary);
   line-height: 1.7;
   font-size: 0.87rem;
-  border-top: 1px solid rgba(255,255,255,0.05);
+  border-top: 1px solid var(--border-color);
 }
 
 /* ── Premium Table ── */
@@ -810,7 +960,7 @@ table.table-premium {
   font-size: 0.85rem;
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.07);
+  border: 1px solid var(--border-color);
 }
 table.table-premium thead th {
   background: rgba(99, 102, 241, 0.12);
@@ -825,12 +975,12 @@ table.table-premium thead th {
 }
 table.table-premium tbody td {
   padding: 11px 16px;
-  color: rgba(255,255,255,0.8);
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border-color);
   line-height: 1.55;
 }
 table.table-premium tbody tr:nth-child(even) {
-  background: rgba(255,255,255,0.015);
+  background: var(--bg-input);
 }
 table.table-premium tbody tr:hover {
   background: rgba(99, 102, 241, 0.04);
@@ -843,7 +993,7 @@ table.table-premium tbody tr:hover {
 }
 
 .hover-glow-card:hover {
-  background: rgba(15, 23, 42, 0.8) !important;
-  border-color: rgba(56, 189, 248, 0.3) !important;
+  background: var(--bg-hover) !important;
+  border-color: var(--border-hover) !important;
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }

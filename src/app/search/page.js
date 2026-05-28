@@ -9,6 +9,7 @@ import { useIsClient } from '../../lib/useIsClient';
 import './search.css';
 
 const TABS = [
+  { id: 'ALL', label: 'All Results', icon: '🔍' },
   { id: 'ANSWER', label: 'Answer', icon: '🧠' },
   { id: 'NOTE', label: 'Note', icon: '🏛️' },
   { id: 'PYQ', label: 'PYQ', icon: '🎯' },
@@ -65,8 +66,10 @@ function SearchResultsInner({ query, highlightText }) {
   const [nodes, setNodes] = useState([]);
   const [pyqs, setPyqs] = useState([]);
   const [news, setNews] = useState([]);
+  const [streaks, setStreaks] = useState([]);
+  const [editorials, setEditorials] = useState([]);
   const [loading, setLoading] = useState(Boolean(query));
-  const [activeTab, setActiveTab] = useState('ANSWER');
+  const [activeTab, setActiveTab] = useState('ALL');
 
   useEffect(() => {
     if (!query) return;
@@ -78,6 +81,8 @@ function SearchResultsInner({ query, highlightText }) {
         setNodes(data.nodes || []);
         setPyqs(data.pyqs || []);
         setNews(data.news || []);
+        setStreaks(data.streaks || []);
+        setEditorials(data.editorials || []);
         setLoading(false);
       })
       .catch(err => {
@@ -129,6 +134,188 @@ function SearchResultsInner({ query, highlightText }) {
         ) : query ? (
           <div className="tab-content-area">
             
+            {/* Tab: ALL (Unified SERP Layout) */}
+            {activeTab === 'ALL' && (
+              <div className="serp-layout">
+                {/* Left Column: Search Results List */}
+                <div className="serp-left-column">
+                  
+                  {/* Results: News Streaks */}
+                  {streaks.map(streak => (
+                    <div key={streak.id} className="serp-result-item">
+                      <div className="serp-item-meta">
+                        <span className="serp-item-tag streak">News Streak</span>
+                        <span className="serp-item-breadcrumb">upscgpt.com &gt; News &gt; Streaks</span>
+                      </div>
+                      <Link href={`/news?streakId=${streak.id}`} className="serp-item-title">
+                        {highlightText(streak.title, query)}
+                      </Link>
+                      <p className="serp-item-snippet">
+                        {streak.livingSummary ? (
+                          highlightText(streak.livingSummary.substring(0, 180) + '...', query)
+                        ) : (
+                          'Follow this evolving news streak detailing recent UPSC-relevant timeline updates and comprehensive mains questions.'
+                        )}
+                      </p>
+                    </div>
+                  ))}
+
+                  {/* Results: Editorials */}
+                  {editorials.map(item => (
+                    <div key={item.id} className="serp-result-item">
+                      <div className="serp-item-meta">
+                        <span className="serp-item-tag editorial">Editorial</span>
+                        <span className="serp-item-breadcrumb">upscgpt.com &gt; News &gt; {item.source || 'Editorials'}</span>
+                      </div>
+                      <Link href={`/news/article/${item.id}`} className="serp-item-title">
+                        {highlightText(item.title, query)}
+                      </Link>
+                      <p className="serp-item-snippet">
+                        {item.rawContent ? (
+                          highlightText(item.rawContent.substring(0, 180) + '...', query)
+                        ) : (
+                          'Read the full UPSC current affairs editorial analysis and structured outline highlights.'
+                        )}
+                      </p>
+                    </div>
+                  ))}
+
+                  {/* Results: News Articles */}
+                  {news.map(item => (
+                    <div key={item.id} className="serp-result-item">
+                      <div className="serp-item-meta">
+                        <span className="serp-item-tag news">News Article</span>
+                        <span className="serp-item-breadcrumb">upscgpt.com &gt; News &gt; {item.source || 'Articles'}</span>
+                      </div>
+                      <Link href={`/news/article/${item.id}`} className="serp-item-title">
+                        {highlightText(item.title, query)}
+                      </Link>
+                      <p className="serp-item-snippet">
+                        {item.rawContent ? (
+                          highlightText(item.rawContent.substring(0, 180) + '...', query)
+                        ) : (
+                          'Read the full current affairs summary briefing, micro-notes, and geographical context.'
+                        )}
+                      </p>
+                    </div>
+                  ))}
+
+                  {/* Results: Syllabus/Issue Nodes */}
+                  {nodes.map(node => (
+                    <div key={node.id} className="serp-result-item">
+                      <div className="serp-item-meta">
+                        <span className="serp-item-tag node">Syllabus Node</span>
+                        <span className="serp-item-breadcrumb">upscgpt.com &gt; Syllabus &gt; {node.gsPapers?.[0] || 'GS'} &gt; {node.domain}</span>
+                      </div>
+                      <Link href={`/node/${node.slug}`} className="serp-item-title">
+                        {highlightText(node.title, query)}
+                      </Link>
+                      <p className="serp-item-snippet">
+                        {node.metadata?.keyThemes ? (
+                          <span>Key Themes: <strong>{highlightText(node.metadata.keyThemes.join(' • '), query)}</strong>. Read structured topper-grade note outlines and geographical linkages.</span>
+                        ) : (
+                          'Access comprehensive topper-grade UPSC syllabus notes, value-addition cards, and key arguments.'
+                        )}
+                      </p>
+                    </div>
+                  ))}
+
+                  {/* Results: PYQs */}
+                  {pyqs.map(pyq => (
+                    <div key={pyq.id} className="serp-result-item">
+                      <div className="serp-item-meta">
+                        <span className="serp-item-tag pyq">Previous Year Q</span>
+                        <span className="serp-item-breadcrumb">upscgpt.com &gt; Prelims &gt; {pyq.year} &gt; Paper {pyq.paper}</span>
+                      </div>
+                      <Link href={`/prelims`} className="serp-item-title">
+                        UPSC Prelims {pyq.year} Question - Paper {pyq.paper}
+                      </Link>
+                      <p className="serp-item-snippet" style={{ fontStyle: 'italic' }}>
+                        &quot;{highlightText(pyq.question, query)}&quot;
+                      </p>
+                    </div>
+                  ))}
+
+                  {streaks.length === 0 && news.length === 0 && editorials.length === 0 && nodes.length === 0 && pyqs.length === 0 && (
+                    <div className="no-results-premium">
+                      <div className="no-results-icon">📡</div>
+                      <h2>No matches found for your search query</h2>
+                      <p>Try searching for a different term or syllabus topic.</p>
+                    </div>
+                  )}
+
+                </div>
+
+                {/* Right Column: Syllabus Knowledge Panel */}
+                <div className="serp-right-column">
+                  {topNode ? (
+                    <div className="serp-knowledge-panel">
+                      <div className="kp-header">
+                        <span className="kp-source-label">Syllabus Knowledge Base</span>
+                        <h3 className="kp-title">{topNode.title}</h3>
+                        <div className="kp-meta-tags">
+                          <span className="kp-tag">{topNode.gsPapers?.[0] || 'GS'}</span>
+                          <span className="kp-tag" style={{ textTransform: 'uppercase' }}>{topNode.nodeType}</span>
+                          <span className="kp-tag">{topNode.domain}</span>
+                        </div>
+                      </div>
+
+                      <div className="kp-section">
+                        <h4 className="kp-overview-title">Quick Overview</h4>
+                        <p className="kp-overview-text">
+                          This syllabus node is categorized under **{topNode.domain}** ({topNode.gsPapers?.[0] || 'General Studies'}). It represents a core conceptual theme frequently tested in both UPSC Prelims and Mains.
+                        </p>
+                      </div>
+
+                      {topNode.metadata?.keyThemes?.length > 0 && (
+                        <div className="kp-section">
+                          <h4 className="kp-section-title">Key Themes</h4>
+                          <ul className="kp-list">
+                            {topNode.metadata.keyThemes.slice(0, 4).map((theme, i) => (
+                              <li key={i}>{theme}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      {topNode.linkedPyqs?.length > 0 && (
+                        <div className="kp-section">
+                          <h4 className="kp-section-title">Linked PYQs</h4>
+                          <ul className="kp-list" style={{ listStyleType: 'circle' }}>
+                            {topNode.linkedPyqs.slice(0, 2).map((pyq, i) => (
+                              <li key={i} style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+                                <strong>{pyq.year} (Paper {pyq.paper}):</strong> &quot;{pyq.questionText?.substring(0, 60)}...&quot;
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+
+                      <div className="kp-actions">
+                        <Link href={`/node/${topNode.slug}`} className="kp-btn primary">
+                          Start Studying Outline →
+                        </Link>
+                        <Link href={`/atlas/graph?focus=${topNode.slug}`} className="kp-btn secondary">
+                          View Graphic Context 🕸️
+                        </Link>
+                        <Link href={`/atlas?node=${topNode.slug}`} className="kp-btn secondary">
+                          View Location on Map 🗺️
+                        </Link>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="serp-knowledge-panel" style={{ background: 'rgba(255,255,255,0.01)', borderStyle: 'dashed', textAlign: 'center', opacity: 0.7 }}>
+                      <span style={{ fontSize: '2rem', display: 'block', marginBottom: '12px' }}>💡</span>
+                      <h4 className="kp-title" style={{ fontSize: '1rem', color: 'var(--text-muted)' }}>No Specific Knowledge Panel</h4>
+                      <p className="kp-overview-text" style={{ fontSize: '0.78rem' }}>
+                        Search for a core UPSC syllabus topic like "Preamble", "Monsoon", or "Finance Commission" to display a dedicated study panel.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Tab: ANSWER */}
             {activeTab === 'ANSWER' && (
               <div className="answer-tab-prompt">
@@ -304,11 +491,11 @@ function SearchResultsInner({ query, highlightText }) {
         .tab-bar-discovery::-webkit-scrollbar { display: none; }
 
         .discovery-tab {
-          background: rgba(15, 23, 42, 0.6);
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
           padding: 10px 20px;
           border-radius: 100px;
-          color: rgba(255, 255, 255, 0.5);
+          color: var(--text-secondary);
           font-size: 0.85rem;
           font-weight: 700;
           cursor: pointer;
@@ -320,15 +507,15 @@ function SearchResultsInner({ query, highlightText }) {
         }
 
         .discovery-tab:hover {
-          background: rgba(255, 255, 255, 0.05);
-          color: white;
+          background: var(--bg-hover);
+          color: var(--text-primary);
         }
 
         .discovery-tab.active {
-          background: rgba(56, 189, 248, 0.1);
-          border-color: #38bdf8;
-          color: #38bdf8;
-          box-shadow: 0 0 15px rgba(56, 189, 248, 0.15);
+          background: var(--bg-active-tab, rgba(56, 189, 248, 0.1));
+          border-color: var(--color-link);
+          color: var(--color-link);
+          box-shadow: 0 0 15px var(--neural-glow);
         }
 
         .discovery-global-footer {
@@ -336,8 +523,8 @@ function SearchResultsInner({ query, highlightText }) {
           gap: 16px;
           margin-top: 40px;
           padding-top: 32px;
-          border-top: 1px solid rgba(255, 255, 255, 0.08);
-          background: linear-gradient(to top, rgba(15, 23, 42, 0.4), transparent);
+          border-top: 1px solid var(--border-color);
+          background: linear-gradient(to top, var(--bg-card), transparent);
           border-radius: 0 0 24px 24px;
         }
 
@@ -354,69 +541,69 @@ function SearchResultsInner({ query, highlightText }) {
         }
 
         .discovery-cta.primary {
-          background: #38bdf8;
-          color: #0f172a;
-          box-shadow: 0 4px 20px rgba(56, 189, 248, 0.3);
+          background: var(--btn-primary-bg);
+          color: var(--btn-primary-text);
+          box-shadow: 0 4px 20px var(--neural-glow);
         }
 
         .discovery-cta.primary:hover {
-          background: white;
+          background: var(--btn-primary-hover-bg);
           transform: translateY(-2px);
         }
 
         .discovery-cta.secondary {
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          color: white;
+          background: var(--bg-input);
+          border: 1px solid var(--border-color);
+          color: var(--text-primary);
         }
 
         .discovery-cta.secondary:hover {
-          background: rgba(255, 255, 255, 0.1);
+          background: var(--bg-hover);
           transform: translateY(-2px);
-          border-color: rgba(255, 255, 255, 0.3);
+          border-color: var(--border-hover);
         }
 
         .tab-icon { font-size: 1rem; }
 
         .search-meta-info {
           text-align: center;
-          color: rgba(255, 255, 255, 0.3);
+          color: var(--text-muted);
           font-size: 0.85rem;
           margin-bottom: 32px;
           font-weight: 600;
         }
-        .query-text { color: white; font-weight: 800; }
+        .query-text { color: var(--text-primary); font-weight: 800; }
 
         /* Ask Atlas Card */
         .ask-atlas-card {
-          background: linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(129, 140, 248, 0.1));
-          border: 1px solid rgba(56, 189, 248, 0.3);
+          background: linear-gradient(135deg, var(--bg-card), var(--bg-input));
+          border: 1px solid var(--border-color);
           padding: 40px;
           border-radius: 24px;
           text-align: center;
           animation: slideUp 0.4s ease-out;
         }
         .ask-icon { font-size: 3rem; margin-bottom: 20px; }
-        .ask-atlas-card h3 { font-size: 1.8rem; font-weight: 800; color: white; margin-bottom: 12px; }
-        .ask-atlas-card p { color: rgba(255, 255, 255, 0.6); margin-bottom: 32px; font-size: 1.1rem; }
+        .ask-atlas-card h3 { font-size: 1.8rem; font-weight: 800; color: var(--text-primary); margin-bottom: 12px; }
+        .ask-atlas-card p { color: var(--text-secondary); margin-bottom: 32px; font-size: 1.1rem; }
         .ask-btn {
           display: inline-block;
-          background: #38bdf8;
-          color: #0f172a;
+          background: var(--btn-primary-bg);
+          color: var(--btn-primary-text);
           padding: 14px 32px;
           border-radius: 12px;
           font-weight: 800;
           text-decoration: none;
           transition: all 0.3s;
         }
-        .ask-btn:hover { background: white; transform: translateY(-2px); }
+        .ask-btn:hover { background: var(--btn-primary-hover-bg); transform: translateY(-2px); }
 
         /* Mini Node Cards */
         .secondary-results-title {
           font-size: 0.75rem;
           font-weight: 900;
           text-transform: uppercase;
-          color: rgba(255, 255, 255, 0.3);
+          color: var(--text-muted);
           margin: 48px 0 16px 0;
           letter-spacing: 1px;
         }
@@ -424,8 +611,8 @@ function SearchResultsInner({ query, highlightText }) {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          background: rgba(15, 23, 42, 0.4);
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
           padding: 20px 24px;
           border-radius: 16px;
           text-decoration: none;
@@ -433,40 +620,40 @@ function SearchResultsInner({ query, highlightText }) {
           transition: all 0.3s;
         }
         .node-card-mini:hover {
-          background: rgba(255, 255, 255, 0.02);
-          border-color: rgba(56, 189, 248, 0.3);
+          background: var(--bg-hover);
+          border-color: var(--color-link);
           transform: translateX(8px);
         }
         .node-card-meta { display: flex; gap: 8px; margin-bottom: 8px; }
-        .gs-tag { font-size: 0.65rem; font-weight: 800; color: #38bdf8; }
-        .type-tag { font-size: 0.65rem; font-weight: 800; color: rgba(255, 255, 255, 0.3); text-transform: uppercase; }
-        .node-title-mini { font-size: 1.15rem; font-weight: 800; color: white; margin: 0; }
-        .node-themes-mini { font-size: 0.85rem; color: rgba(255, 255, 255, 0.4); margin: 4px 0 0 0; }
-        .arrow-icon { color: rgba(255, 255, 255, 0.1); font-size: 1.2rem; }
+        .gs-tag { font-size: 0.65rem; font-weight: 800; color: var(--color-link); }
+        .type-tag { font-size: 0.65rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
+        .node-title-mini { font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin: 0; }
+        .node-themes-mini { font-size: 0.85rem; color: var(--text-muted); margin: 4px 0 0 0; }
+        .arrow-icon { color: var(--text-muted); font-size: 1.2rem; }
 
         /* PYQ / News Stacks */
         .pyq-stack, .news-stack { display: flex; flex-direction: column; gap: 16px; }
         .pyq-result-card, .news-result-card {
-          background: rgba(15, 23, 42, 0.4);
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: var(--bg-card);
+          border: 1px solid var(--border-color);
           padding: 24px;
           border-radius: 20px;
         }
-        .pyq-year-tag { color: #38bdf8; font-weight: 800; margin-right: 12px; }
-        .pyq-paper-tag { color: rgba(255, 255, 255, 0.3); font-weight: 700; }
-        .pyq-text { color: rgba(255, 255, 255, 0.8); line-height: 1.6; margin: 16px 0; }
-        .pyq-analyze-btn { color: #38bdf8; text-decoration: none; font-weight: 700; font-size: 0.9rem; }
+        .pyq-year-tag { color: var(--color-link); font-weight: 800; margin-right: 12px; }
+        .pyq-paper-tag { color: var(--text-muted); font-weight: 700; }
+        .pyq-text { color: var(--text-primary); line-height: 1.6; margin: 16px 0; }
+        .pyq-analyze-btn { color: var(--color-link); text-decoration: none; font-weight: 700; font-size: 0.9rem; }
         
         .news-meta { display: flex; justify-content: space-between; margin-bottom: 12px; }
-        .news-source { color: #818cf8; font-weight: 800; font-size: 0.8rem; }
-        .news-date { color: rgba(255, 255, 255, 0.3); font-size: 0.8rem; }
-        .news-title { font-size: 1.15rem; font-weight: 800; color: white; margin-bottom: 16px; }
-        .news-link-placeholder { color: rgba(255, 255, 255, 0.4); font-size: 0.85rem; font-weight: 700; }
+        .news-source { color: var(--badge-editorial-text); font-weight: 800; font-size: 0.8rem; }
+        .news-date { color: var(--text-muted); font-size: 0.8rem; }
+        .news-title { font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin-bottom: 16px; }
+        .news-link-placeholder { color: var(--text-muted); font-size: 0.85rem; font-weight: 700; }
 
         .empty-state-tab {
           text-align: center;
           padding: 80px 20px;
-          color: rgba(255, 255, 255, 0.3);
+          color: var(--text-muted);
           font-style: italic;
         }
 

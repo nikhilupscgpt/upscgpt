@@ -38,8 +38,8 @@ export default function AtlasSelectorPage() {
       style={{
         minHeight: '100vh',
         fontFamily: "'Outfit', sans-serif",
-        background: 'linear-gradient(135deg, #020617 0%, #0f172a 45%, #1e293b 100%)',
-        color: 'white',
+        background: 'var(--hero-bg-gradient)',
+        color: 'var(--text-primary)',
       }}
     >
       <main style={{ maxWidth: '1120px', margin: '0 auto', padding: '60px 20px 70px' }}>
@@ -56,9 +56,9 @@ export default function AtlasSelectorPage() {
               letterSpacing: '1px',
               textTransform: 'uppercase',
               borderRadius: 999,
-              color: '#bfdbfe',
-              background: 'rgba(59,130,246,0.14)',
-              border: '1px solid rgba(59,130,246,0.28)',
+              color: 'var(--color-blue)',
+              background: 'var(--bg-input)',
+              border: '1px solid var(--border-color)',
             }}
           >
             Mapping Command Center
@@ -66,7 +66,7 @@ export default function AtlasSelectorPage() {
           <h1 style={{ margin: '16px 0 10px', fontSize: 'clamp(2rem, 4vw, 3rem)', letterSpacing: '-0.8px' }}>
             Choose Your Mapping Track
           </h1>
-          <p style={{ margin: 0, color: '#94a3b8', fontSize: '1rem', lineHeight: 1.7 }}>
+          <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: 1.7 }}>
             Start with global strategy or India-focused mapping. You can switch tracks anytime.
           </p>
         </div>
@@ -95,8 +95,8 @@ export default function AtlasSelectorPage() {
                     position: 'relative',
                     minHeight: 320,
                     borderRadius: 22,
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    background: 'rgba(15,23,42,0.58)',
+                    border: '1px solid var(--border-color)',
+                    background: 'var(--bg-card)',
                     padding: 24,
                     overflow: 'hidden',
                     boxShadow: '0 14px 40px rgba(2,6,23,0.35)',
@@ -138,19 +138,19 @@ export default function AtlasSelectorPage() {
                         fontWeight: 800,
                         letterSpacing: '0.6px',
                         textTransform: 'uppercase',
-                        border: '1px solid rgba(255,255,255,0.12)',
-                        color: option.status === 'live' ? '#86efac' : '#cbd5e1',
-                        background: option.status === 'live' ? 'rgba(22,163,74,0.16)' : 'rgba(148,163,184,0.14)',
+                        border: '1px solid var(--border-color)',
+                        color: option.status === 'live' ? 'var(--color-emerald)' : 'var(--text-secondary)',
+                        background: option.status === 'live' ? 'rgba(16,185,129,0.16)' : 'var(--bg-input)',
                       }}
                     >
                       {option.status === 'live' ? 'Live' : 'In Pipeline'}
                     </span>
                   </div>
-                  <p style={{ margin: '0 0 6px', color: '#a5b4fc', fontSize: '0.76rem', fontWeight: 700, letterSpacing: '0.8px', textTransform: 'uppercase' }}>
+                  <p style={{ margin: '0 0 6px', color: 'var(--color-blue)', fontSize: '0.76rem', fontWeight: 700, letterSpacing: '0.8px', textTransform: 'uppercase' }}>
                     {option.subtitle}
                   </p>
                   <h2 style={{ margin: '0 0 12px', fontSize: '1.7rem', letterSpacing: '-0.4px' }}>{option.title}</h2>
-                  <p style={{ margin: 0, color: '#cbd5e1', lineHeight: 1.62, fontSize: '0.93rem' }}>{option.description}</p>
+                  <p style={{ margin: 0, color: 'var(--text-secondary)', lineHeight: 1.62, fontSize: '0.93rem' }}>{option.description}</p>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 16 }}>
                     {option.highlights.map((item) => (
                       <span
@@ -160,9 +160,9 @@ export default function AtlasSelectorPage() {
                           borderRadius: 999,
                           fontSize: '0.7rem',
                           fontWeight: 700,
-                          color: '#cbd5e1',
-                          border: '1px solid rgba(255,255,255,0.1)',
-                          background: 'rgba(255,255,255,0.05)',
+                          color: 'var(--text-secondary)',
+                          border: '1px solid var(--border-color)',
+                          background: 'var(--bg-input)',
                         }}
                       >
                         {item}
@@ -179,12 +179,9 @@ export default function AtlasSelectorPage() {
                       fontWeight: 800,
                       letterSpacing: '0.55px',
                       textTransform: 'uppercase',
-                      border: option.status === 'live' ? '1px solid rgba(125,211,252,0.35)' : '1px solid rgba(148,163,184,0.22)',
-                      color: option.status === 'live' ? '#e0f2fe' : '#94a3b8',
-                      background:
-                        option.status === 'live'
-                          ? 'linear-gradient(135deg, rgba(15,23,42,0.9), rgba(30,64,175,0.58))'
-                          : 'rgba(71,85,105,0.24)',
+                      border: '1px solid var(--border-color)',
+                      color: option.status === 'live' ? 'var(--text-primary)' : 'var(--text-muted)',
+                      background: option.status === 'live' ? 'var(--bg-hover)' : 'var(--bg-input)',
                     }}
                   >
                     {option.cta}

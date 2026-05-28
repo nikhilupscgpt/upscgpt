@@ -69,10 +69,10 @@ export default function WorkspaceLayout({ children, sidebarContent, themeColor =
               right: '-16px',
               width: '32px',
               height: '32px',
-              background: '#0f172a',
-              border: `1px solid ${isOpen ? 'rgba(255, 255, 255, 0.08)' : accentColor}`,
+              background: 'var(--bg-secondary)',
+              border: `1px solid ${isOpen ? 'var(--border-color)' : accentColor}`,
               borderRadius: '50%',
-              color: isOpen ? '#94a3b8' : accentColor,
+              color: isOpen ? 'var(--text-secondary)' : accentColor,
               cursor: 'pointer',
               zIndex: 50,
               boxShadow: isOpen ? 'none' : `0 0 10px ${accentGlow}`,
@@ -113,8 +113,8 @@ export default function WorkspaceLayout({ children, sidebarContent, themeColor =
           }
           
           .sidebar-toggle-btn:hover {
-            color: white !important;
-            background: #1e293b !important;
+            color: var(--text-primary) !important;
+            background: var(--bg-hover) !important;
             transform: scale(1.05) !important;
           }
           

@@ -1,7 +1,7 @@
 .node-detail-page {
   min-height: 100vh;
-  background: #020617;
-  color: white;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   padding: 120px 20px 80px;
   font-family: 'Outfit', sans-serif;
 }
@@ -16,7 +16,7 @@
   align-items: center;
   gap: 12px;
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted);
   margin-bottom: 32px;
 }
 
@@ -46,8 +46,8 @@
 }
 
 .node-type-label {
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.5);
+  background: var(--border-color);
+  color: var(--text-secondary);
   padding: 4px 12px;
   border-radius: 6px;
   font-size: 0.75rem;
@@ -64,7 +64,7 @@
 
 .node-domain-subtitle {
   font-size: 1.1rem;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted);
   font-weight: 500;
 }
 
@@ -82,7 +82,7 @@
   font-size: 1.25rem;
   font-weight: 800;
   margin-bottom: 24px;
-  color: white;
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   gap: 12px;
@@ -92,7 +92,7 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--border-color);
 }
 
 .theme-grid {
@@ -102,12 +102,12 @@
 }
 
 .theme-card {
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   padding: 16px;
   border-radius: 12px;
   font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -132,7 +132,7 @@
 .subtopics-list li {
   padding-left: 24px;
   position: relative;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary);
   font-size: 1.05rem;
 }
 
@@ -144,15 +144,15 @@
 }
 
 .coming-soon-box {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px dashed rgba(255, 255, 255, 0.1);
+  background: var(--bg-input);
+  border: 1px dashed var(--border-color);
   padding: 32px;
   border-radius: 20px;
   text-align: center;
 }
 
 .coming-soon-box p {
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-secondary);
   margin-bottom: 20px;
 }
 
@@ -163,8 +163,8 @@
 }
 
 .sidebar-card {
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   padding: 24px;
   border-radius: 20px;
   margin-bottom: 20px;
@@ -174,7 +174,7 @@
   font-size: 0.8rem;
   font-weight: 800;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--text-muted);
   letter-spacing: 1px;
   margin-bottom: 20px;
 }
@@ -200,13 +200,13 @@
 
 .action-btn.atlas {
   background: #38bdf8;
-  color: #020617;
+  color: var(--bg-primary);
 }
 
 .action-btn.bookmark {
-  background: rgba(255, 255, 255, 0.05);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
 }
 
 .meta-stats {
@@ -222,12 +222,12 @@
 }
 
 .meta-stat .label {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted);
   font-size: 0.9rem;
 }
 
 .meta-stat .value {
-  color: white;
+  color: var(--text-primary);
   font-weight: 800;
 }
 

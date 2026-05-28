@@ -177,14 +177,14 @@ export function StrategicHubContent() {
   };
 
   const sidebar = (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'rgba(15, 23, 42, 0.3)', backdropFilter: 'blur(40px)', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--bg-card)', backdropFilter: 'blur(40px)', borderRight: '1px solid var(--border-color)' }}>
       <div style={{ padding: '32px 24px' }}>
-        <h2 style={{ fontSize: '0.7rem', fontWeight: 900, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.25em', marginBottom: '24px' }}>Strategic Command</h2>
+        <h2 style={{ fontSize: '0.7rem', fontWeight: 900, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.25em', marginBottom: '24px' }}>Strategic Command</h2>
         
         {/* Mode Switcher Pill */}
         <div className="mode-switcher-sidebar" style={{
-          background: 'rgba(15, 23, 42, 0.6)',
-          border: '1px solid rgba(255,255,255,0.08)',
+          background: 'var(--bg-input)',
+          border: '1px solid var(--border-color)',
           borderRadius: '16px',
           padding: '4px',
           display: 'flex',
@@ -196,7 +196,7 @@ export function StrategicHubContent() {
              flex: 1,
              background: currentFlow === 'prelims' ? 'rgba(251, 191, 36, 0.1)' : 'transparent',
              border: 'none',
-             color: currentFlow === 'prelims' ? '#fbbf24' : '#64748b',
+             color: currentFlow === 'prelims' ? 'var(--color-amber)' : 'var(--text-muted)',
              fontSize: '0.75rem',
              fontWeight: 800,
              padding: '8px 12px',
@@ -215,7 +215,7 @@ export function StrategicHubContent() {
              flex: 1,
              background: currentFlow === 'mains' ? 'rgba(16, 185, 129, 0.1)' : 'transparent',
              border: 'none',
-             color: currentFlow === 'mains' ? '#10b981' : '#64748b',
+             color: currentFlow === 'mains' ? 'var(--color-emerald)' : 'var(--text-muted)',
              fontSize: '0.75rem',
              fontWeight: 800,
              padding: '8px 12px',
@@ -233,14 +233,14 @@ export function StrategicHubContent() {
         </div>
 
         <div style={{ position: 'relative' }}>
-          <Search size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
+          <Search size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
           <input 
             placeholder="Search briefings..." 
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             style={{ 
-              width: '100%', padding: '12px 12px 12px 40px', background: 'rgba(30, 41, 59, 0.4)', 
-              border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', color: 'white', fontSize: '0.85rem', outline: 'none'
+              width: '100%', padding: '12px 12px 12px 40px', background: 'var(--bg-input)', 
+              border: '1px solid var(--border-color)', borderRadius: '16px', color: 'var(--text-primary)', fontSize: '0.85rem', outline: 'none'
             }}
           />
         </div>
@@ -265,8 +265,8 @@ export function StrategicHubContent() {
                   onClick={() => handleSubjectClick(subject, section.color)}
                   style={{
                     width: '100%', textAlign: 'left', padding: '12px 16px', borderRadius: '12px',
-                    background: activeSubject?.title === subject.title ? `rgba(255,255,255,0.05)` : 'transparent',
-                    border: 'none', color: activeSubject?.title === subject.title ? 'white' : '#94a3b8',
+                    background: activeSubject?.title === subject.title ? `var(--bg-hover)` : 'transparent',
+                    border: 'none', color: activeSubject?.title === subject.title ? 'var(--text-primary)' : 'var(--text-secondary)',
                     fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px'
                   }}
                 >
