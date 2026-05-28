@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { POST as processNews } from '../../news-engine/process/route';
 
 /**
  * PATCH /api/admin/ingest-queue/[id]
@@ -29,20 +30,60 @@ export async function PATCH(req, props) {
       return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
 
-    const updateData = { status: 'DONE' };
+    const updateData = {};
     if (issueId) updateData.issueId = issueId;
     if (title) updateData.title = title;
     if (contentType && type === 'ARTICLE') updateData.contentType = contentType;
 
     if (type === 'ARTICLE') {
       if (action === 'APPROVE') {
-        await prisma.article.update({ where: { id }, data: updateData });
+        // Set to PENDING first, so the news-engine processor can find it
+        await prisma.article.update({ 
+          where: { id }, 
+          data: { ...updateData, status: 'PENDING' } 
+        });
+        
+        // Trigger AI processing in-line synchronously
+        try {
+          const mockReq = new Request('http://localhost/api/admin/news-engine/process', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'cookie': req.headers.get('cookie') || '',
+            },
+            body: JSON.stringify({ articleId: id })
+          });
+          await processNews(mockReq);
+        } catch (err) {
+          console.error('[Ingest Queue Approval] AI Processing Failed:', err);
+          // Update status to DONE as fallback so it does not get stuck in PENDING
+          await prisma.article.update({ where: { id }, data: { status: 'DONE' } });
+        }
       } else {
         await prisma.article.delete({ where: { id } });
       }
     } else if (type === 'EDITORIAL') {
       if (action === 'APPROVE') {
-        await prisma.editorial.update({ where: { id }, data: updateData });
+        await prisma.editorial.update({ 
+          where: { id }, 
+          data: { ...updateData, status: 'PENDING' } 
+        });
+        
+        // Trigger AI processing in-line synchronously
+        try {
+          const mockReq = new Request('http://localhost/api/admin/news-engine/process', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'cookie': req.headers.get('cookie') || '',
+            },
+            body: JSON.stringify({ editorialId: id })
+          });
+          await processNews(mockReq);
+        } catch (err) {
+          console.error('[Ingest Queue Approval] AI Processing Failed:', err);
+          await prisma.editorial.update({ where: { id }, data: { status: 'DONE' } });
+        }
       } else {
         await prisma.editorial.delete({ where: { id } });
       }

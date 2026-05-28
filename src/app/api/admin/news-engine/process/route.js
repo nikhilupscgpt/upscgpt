@@ -20,7 +20,7 @@ const cleanJson = (text) => {
 };
 
 const translateNewsContent = async (aiClient, title, content, language) => {
-  if (!content) return { title: null, rawContent: null };
+  if (!content) return { title: null, content: null };
   const prompt = `You are an expert bilingual translator for UPSC civil services preparation.
 Translate the following English news article into formal, highly accurate ${language}.
 Ensure that technical terms, government schemes, and legal vocabulary are translated correctly as per UPSC standards.
@@ -36,15 +36,21 @@ Title: ${title}
 Content:
 ${content.substring(0, 4500)}`;
 
+  const translationSchema = {
+    type: 'object',
+    properties: {
+      title: { type: 'string' },
+      content: { type: 'string' }
+    },
+    required: ['title', 'content']
+  };
+
   try {
-    const res = await aiClient.generateContent(prompt);
-    let txt = typeof res.text === 'function' ? res.text() : res.text;
-    const match = txt.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-    const cleanStr = match ? match[1] : txt.replace(/```json/g, '').replace(/```/g, '').trim();
-    return JSON.parse(cleanStr);
+    const res = await aiClient.generateContentJson(prompt, translationSchema);
+    return res;
   } catch (e) {
     console.error(`Translation failed for ${language}:`, e);
-    return { title: null, rawContent: null };
+    return { title: null, content: null };
   }
 };
 
@@ -55,7 +61,12 @@ export async function POST(req) {
   }
 
   try {
-    const body = await req.json();
+    let body = {};
+    try {
+      body = await req.json();
+    } catch (e) {
+      // Empty or invalid body (e.g. from background triggers)
+    }
     const { mode, issueId, field, articleId, editorialId } = body;
 
     const batchAi = getGeminiModel('background');   // Gemma 26B for bulk article/editorial processing
@@ -135,29 +146,19 @@ export async function POST(req) {
         timelineData: timelineData.substring(0, 8000)
       });
 
-      // Use JSON mode to guarantee pure JSON output with no markdown fences or preamble
-      const response = await synthesisAi.generateContentJson(prompt);
-      let parsedJson = null;
+      // Define schema for news streak living summary
+      const streakSchema = {
+        type: 'object',
+        properties: {
+          causes: { type: 'string' },
+          impact: { type: 'string' },
+          tracker: { type: 'string' }
+        },
+        required: ['causes', 'impact', 'tracker']
+      };
 
-      if (response && typeof response === 'object' && (response.causes || response.impact)) {
-        // generateContentJson returned a parsed object directly
-        parsedJson = response;
-      } else {
-        // Fallback: response.text() and strip any stray fences
-        let outputText = typeof response?.text === 'function' ? response.text() : String(response || '');
-        const match = outputText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-        const cleanStr = match ? match[1] : outputText.replace(/```json/g, '').replace(/```/g, '').trim();
-        try {
-          parsedJson = JSON.parse(cleanStr);
-        } catch (jsonErr) {
-          console.error('[STREAK_REBUILD] JSON parse failed:', cleanStr.substring(0, 300));
-          parsedJson = {
-            causes: cleanStr || 'Failed to generate synthesis. Please retry.',
-            impact: 'Synthesis failed. Please retry.',
-            tracker: 'Synthesis failed. Please retry.'
-          };
-        }
-      }
+      // Use JSON mode with schema to guarantee pure JSON output conforming to the structure
+      const parsedJson = await synthesisAi.generateContentJson(prompt, streakSchema);
 
       const finalSummaryStr = JSON.stringify(parsedJson);
 
@@ -325,7 +326,7 @@ export async function POST(req) {
       });
 
       try {
-        const response = await ai.generateContent(prompt);
+        const response = await batchAi.generateContent(prompt);
         let htmlSummary = typeof response.text === 'function' ? response.text() : response.text;
         
         // Clean markdown backticks if AI included them
@@ -386,7 +387,16 @@ export async function POST(req) {
       });
 
       try {
-        const parsedJson = await synthesisAi.generateContentJson(prompt);
+        const streakSchema = {
+          type: 'object',
+          properties: {
+            causes: { type: 'string' },
+            impact: { type: 'string' },
+            tracker: { type: 'string' }
+          },
+          required: ['causes', 'impact', 'tracker']
+        };
+        const parsedJson = await synthesisAi.generateContentJson(prompt, streakSchema);
 
         const finalSummaryStr = JSON.stringify(parsedJson);
 
