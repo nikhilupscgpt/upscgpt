@@ -198,10 +198,18 @@ export async function POST(req) {
           console.log(`[Translating Article] ${article.title} to Marathi...`);
           const mrTranslation = await translateNewsContent(synthesisAi, article.title, article.rawContent, "Marathi");
 
+          const existing = article.structuredData || {};
+          const mergedData = {
+            ...structuredData,
+            seoTitle: existing.seoTitle || undefined,
+            seoDescription: existing.seoDescription || undefined,
+            seoKeywords: existing.seoKeywords || undefined,
+          };
+
           await prisma.article.update({
             where: { id: article.id },
             data: {
-              structuredData,
+              structuredData: mergedData,
               status: 'DONE',
               importanceScore: aiImportance,
               title_hi: hiTranslation.title,
@@ -256,10 +264,18 @@ export async function POST(req) {
           console.log(`[Translating Editorial] ${editorial.title} to Marathi...`);
           const mrTranslation = await translateNewsContent(synthesisAi, editorial.title, editorial.rawContent, "Marathi");
 
+          const existing = editorial.structuredData || {};
+          const mergedData = {
+            ...structuredData,
+            seoTitle: existing.seoTitle || undefined,
+            seoDescription: existing.seoDescription || undefined,
+            seoKeywords: existing.seoKeywords || undefined,
+          };
+
           await prisma.editorial.update({
             where: { id: editorial.id },
             data: {
-              structuredData,
+              structuredData: mergedData,
               status: 'DONE',
               importanceScore: aiImportance,
               title_hi: hiTranslation.title,

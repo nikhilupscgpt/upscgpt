@@ -14,12 +14,15 @@ export async function generateMetadata({ params }) {
     return { title: 'Article Not Found | UPSCGPT' };
   }
 
-  const crux = article.structuredData?.crux || 'Daily UPSC Current Affairs and Analysis.';
-  const title = `${article.title} | UPSCGPT News`;
+  const structured = article.structuredData || {};
+  const crux = structured.seoDescription || structured.crux || 'Daily UPSC Current Affairs and Analysis.';
+  const title = structured.seoTitle || `${article.title} | UPSCGPT News`;
+  const keywords = Array.isArray(structured.seoKeywords) ? structured.seoKeywords.join(', ') : (structured.seoKeywords || '');
 
   return {
     title,
     description: crux,
+    keywords,
     alternates: {
       canonical: `/news/article/${id}`,
     },

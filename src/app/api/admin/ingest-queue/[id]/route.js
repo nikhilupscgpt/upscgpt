@@ -24,7 +24,7 @@ export async function PATCH(req, props) {
 
   try {
     const body = await req.json();
-    const { action, type, issueId, title, contentType } = body;
+    const { action, type, issueId, title, contentType, seoTitle, seoDescription, seoKeywords } = body;
 
     if (action !== 'APPROVE' && action !== 'REJECT') {
       return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
@@ -34,6 +34,21 @@ export async function PATCH(req, props) {
     if (issueId) updateData.issueId = issueId;
     if (title) updateData.title = title;
     if (contentType && type === 'ARTICLE') updateData.contentType = contentType;
+
+    if (seoTitle || seoDescription || seoKeywords) {
+      const table = type === 'ARTICLE' ? prisma.article : prisma.editorial;
+      const record = await table.findUnique({
+        where: { id },
+        select: { structuredData: true }
+      });
+      const existingData = record?.structuredData || {};
+      updateData.structuredData = {
+        ...existingData,
+        seoTitle: seoTitle || undefined,
+        seoDescription: seoDescription || undefined,
+        seoKeywords: seoKeywords || undefined
+      };
+    }
 
     if (type === 'ARTICLE') {
       if (action === 'APPROVE') {

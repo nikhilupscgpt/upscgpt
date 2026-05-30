@@ -16,16 +16,25 @@ export async function generateMetadata({ params }) {
     return { title: 'News Streak Not Found | UPSCGPT' };
   }
 
-  const title = `Live Updates: ${streak.title} | UPSCGPT News Streak`;
+  let parsedJson = {};
+  if (streak.livingSummary) {
+    try {
+      parsedJson = JSON.parse(streak.livingSummary);
+    } catch (e) {}
+  }
+
   const parsed = parseLivingSummary(streak.livingSummary, streak.title);
   const cleanCauses = stripMarkdown(parsed.causes);
-  const desc = cleanCauses 
+  const title = parsedJson.seoTitle || `Live Updates: ${streak.title} | UPSCGPT News Streak`;
+  const desc = parsedJson.seoDescription || (cleanCauses 
     ? cleanCauses.substring(0, 160) + '...'
-    : `Follow continuous live updates on ${streak.title} for UPSC preparation.`;
+    : `Follow continuous live updates on ${streak.title} for UPSC preparation.`);
+  const keywords = Array.isArray(parsedJson.seoKeywords) ? parsedJson.seoKeywords.join(', ') : (parsedJson.seoKeywords || '');
 
   return {
     title,
     description: desc,
+    keywords,
     alternates: {
       canonical: `/news/streak/${id}`,
     },

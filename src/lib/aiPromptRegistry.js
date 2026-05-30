@@ -631,6 +631,33 @@ Instructions:
       'Return JSON array of questions with: id, text, options [{label, text}], correctLabel, explanation, difficulty',
     ].join('\n'),
   },
+  {
+    id: 'seo.generate.metadata',
+    label: 'SEO Metadata Optimizer',
+    area: 'Admin CMS',
+    location: 'src/lib/seo.js',
+    description: 'Generates UPSC exam-ready SEO Title, Meta Description, and Focus Keywords for Articles and Streaks.',
+    defaultValue: [
+      'You are an expert search engine optimization (SEO) specialist targeting UPSC Civil Services Examination candidates.',
+      'Analyze the following UPSC content (Article/News Streak title and text) and generate optimized SEO metadata.',
+      '',
+      'Rules:',
+      '1. Title: Under 60 characters. Professional, administrative, UPSC-centric.',
+      '2. Description: Under 155 characters. Compelling, summary of crux, includes syllabus GS papers or topic indicators if relevant, clear CTR trigger.',
+      '3. Keywords: Array of 3-5 focus keywords (e.g. UPSC, GS Paper, IAS study notes, etc.).',
+      '',
+      'Title: "{{title}}"',
+      'Content:',
+      '"{{content}}"',
+      '',
+      'Return strictly valid JSON with this exact structure:',
+      '{',
+      '  "seoTitle": "...",',
+      '  "seoDescription": "...",',
+      '  "seoKeywords": ["keyword1", "keyword2", ...]',
+      '}',
+    ].join('\n'),
+  },
 ]
 
 const PROMPT_DEFINITION_MAP = new Map(

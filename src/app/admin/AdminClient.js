@@ -7,7 +7,8 @@ import {
   Users, Map as MapIcon, RefreshCw, CreditCard, MessageSquare, 
   Send, ShieldCheck, TrendingUp, HelpCircle, LogOut, ChevronRight,
   Globe, Zap, ZapOff, Trash2, Edit3, PlusCircle, CheckCircle, BrainCircuit,
-  Newspaper, Search, FileText, Link2, Calendar, User, BookOpen, Filter, ChevronDown, ExternalLink, AlertCircle, Trophy, Book, PenTool, Sparkles, BarChart3, Layers
+  Newspaper, Search, FileText, Link2, Calendar, User, BookOpen, Filter, ChevronDown, ExternalLink, AlertCircle, Trophy, Book, PenTool, Sparkles, BarChart3, Layers,
+  X
 } from "lucide-react"
 
 export default function AdminClient({ session }) {
@@ -60,6 +61,12 @@ export default function AdminClient({ session }) {
   const [loadingQueue, setLoadingQueue] = useState(false)
   const [queueEdits, setQueueEdits] = useState({}) // { [id]: { issueId: '', title: '' } }
   const [selectedQueueItems, setSelectedQueueItems] = useState([]) // [id1, id2, ...]
+  const [generatingSeoIds, setGeneratingSeoIds] = useState({})
+
+  // Post-Approval Edit State
+  const [editingItem, setEditingItem] = useState(null)
+  const [savingItem, setSavingItem] = useState(false)
+  const [generatingItemSeo, setGeneratingItemSeo] = useState(false)
 
   // Test Admin State
   const [testPacks, setTestPacks] = useState([])
@@ -213,7 +220,10 @@ export default function AdminClient({ session }) {
           type,
           issueId: edits.issueId,
           title: edits.title,
-          contentType: edits.contentType
+          contentType: edits.contentType,
+          seoTitle: edits.seoTitle,
+          seoDescription: edits.seoDescription,
+          seoKeywords: edits.seoKeywords
         })
       });
       const data = await res.json();
@@ -230,6 +240,117 @@ export default function AdminClient({ session }) {
     } catch (e) { 
       console.error('Queue action fail', e); 
       return false;
+    }
+  }
+
+  const handleGenerateSeoForItem = async (id, type) => {
+    setGeneratingSeoIds(prev => ({ ...prev, [id]: true }));
+    try {
+      const res = await fetch('/api/admin/seo/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, id })
+      });
+      const data = await res.json();
+      if (data.success && data.seo) {
+        const edits = queueEdits[id] || {};
+        setQueueEdits({
+          ...queueEdits,
+          [id]: {
+            ...edits,
+            seoTitle: data.seo.seoTitle || '',
+            seoDescription: data.seo.seoDescription || '',
+            seoKeywords: Array.isArray(data.seo.seoKeywords) ? data.seo.seoKeywords.join(', ') : (data.seo.seoKeywords || '')
+          }
+        });
+        setStatus('SEO metadata generated successfully');
+      } else {
+        alert(data.error || 'Failed to generate SEO');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Failed to connect to SEO generation service');
+    } finally {
+      setGeneratingSeoIds(prev => ({ ...prev, [id]: false }));
+    }
+  };
+
+  const handleOpenEditModal = (item) => {
+    const type = item.contentType ? 'ARTICLE' : 'EDITORIAL';
+    const structured = item.structuredData || {};
+    setEditingItem({
+      id: item.id,
+      type,
+      title: item.title || '',
+      contentType: item.contentType || 'NEWS',
+      crux: structured.crux || '',
+      seoTitle: structured.seoTitle || '',
+      seoDescription: structured.seoDescription || '',
+      seoKeywords: Array.isArray(structured.seoKeywords) ? structured.seoKeywords.join(', ') : (structured.seoKeywords || '')
+    });
+  }
+
+  const handleSaveEditedItem = async () => {
+    if (!editingItem) return;
+    setSavingItem(true);
+    try {
+      const res = await fetch(`/api/admin/news-item/${editingItem.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: editingItem.type,
+          title: editingItem.title,
+          contentType: editingItem.contentType,
+          crux: editingItem.crux,
+          seoTitle: editingItem.seoTitle,
+          seoDescription: editingItem.seoDescription,
+          seoKeywords: editingItem.seoKeywords ? editingItem.seoKeywords.split(',').map(k => k.trim()).filter(Boolean) : []
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStatus(`${editingItem.type} updated successfully!`);
+        if (selectedIssue) {
+          fetchIssueDetails(selectedIssue.id);
+        }
+        setEditingItem(null);
+      } else {
+        alert(data.error || 'Failed to update item');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Network error while saving item');
+    } finally {
+      setSavingItem(false);
+    }
+  }
+
+  const handleGenerateSeoForEditedItem = async () => {
+    if (!editingItem) return;
+    setGeneratingItemSeo(true);
+    try {
+      const res = await fetch('/api/admin/seo/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: editingItem.type, id: editingItem.id })
+      });
+      const data = await res.json();
+      if (data.success && data.seo) {
+        setEditingItem(prev => ({
+          ...prev,
+          seoTitle: data.seo.seoTitle || '',
+          seoDescription: data.seo.seoDescription || '',
+          seoKeywords: Array.isArray(data.seo.seoKeywords) ? data.seo.seoKeywords.join(', ') : (data.seo.seoKeywords || '')
+        }));
+        setStatus('SEO metadata generated successfully');
+      } else {
+        alert(data.error || 'Failed to generate SEO');
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Network error while generating SEO');
+    } finally {
+      setGeneratingItemSeo(false);
     }
   }
 
@@ -1310,12 +1431,21 @@ export default function AdminClient({ session }) {
                           .sort((a, b) => new Date(b.publishedAt || b.createdAt) - new Date(a.publishedAt || a.createdAt))
                           .map(item => (
                           <div key={item.id} style={{ padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid var(--card-border)' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                              <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>{item.title}</div>
-                              <span style={{ fontSize: '0.65rem', background: item.contentType ? '#dbeafe' : '#fce7f3', color: item.contentType ? '#2563eb' : '#db2777', padding: '2px 6px', borderRadius: '6px' }}>{item.contentType || 'EDITORIAL'}</span>
-                            </div>
-                            <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                              {item.source} · {new Date(item.publishedAt || item.createdAt).toLocaleDateString()}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                              <div style={{ flex: 1 }}>
+                                <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>{item.title}</div>
+                                <div style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                                  {item.source} · {new Date(item.publishedAt || item.createdAt).toLocaleDateString()} · <span style={{ fontSize: '0.65rem', background: item.contentType ? 'rgba(59, 130, 246, 0.15)' : 'rgba(236, 72, 153, 0.15)', color: item.contentType ? '#60a5fa' : '#f472b6', padding: '2px 6px', borderRadius: '6px' }}>{item.contentType || 'EDITORIAL'}</span>
+                                </div>
+                              </div>
+                              <button 
+                                onClick={() => handleOpenEditModal(item)}
+                                style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#a855f7', padding: '4px 10px', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s' }}
+                                onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(168, 85, 247, 0.1)'; e.currentTarget.style.color = '#c084fc'; }}
+                                onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#a855f7'; }}
+                              >
+                                <Edit3 size={12} /> Edit
+                              </button>
                             </div>
                           </div>
                         ))}
@@ -2138,6 +2268,92 @@ export default function AdminClient({ session }) {
                               )}
                             </div>
                           </div>
+
+                          {/* SEO Optimization Container inside pending card */}
+                          <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '20px', marginTop: '16px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#a855f7' }}>SEO Preview & Customize Overrides</span>
+                              <button
+                                type="button"
+                                onClick={() => handleGenerateSeoForItem(item.id, item.type)}
+                                disabled={generatingSeoIds[item.id]}
+                                style={{
+                                  padding: '6px 14px',
+                                  background: 'linear-gradient(135deg, #a855f7, #7c3aed)',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '8px',
+                                  fontSize: '0.75rem',
+                                  fontWeight: 800,
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '6px',
+                                  boxShadow: '0 2px 8px rgba(168, 85, 247, 0.2)'
+                                }}
+                              >
+                                {generatingSeoIds[item.id] ? '✨ Generating...' : '✨ Auto-Generate SEO with AI'}
+                              </button>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '20px' }}>
+                              {/* Google Snippet preview */}
+                              <div style={{ background: '#050711', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                                <div style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Google SERP Snippet Preview</div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.7rem' }}>
+                                  <div style={{ background: '#1e293b', width: '16px', height: '16px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', color: '#3b82f6', fontWeight: 900 }}>U</div>
+                                  <span style={{ color: '#dadde1' }}>UPSC Atlas</span>
+                                  <span style={{ color: '#9aa0a6' }}>{`> news > ${item.type === 'ARTICLE' ? 'article' : 'editorial'}`}</span>
+                                </div>
+                                <div style={{ color: '#8ab4f8', fontSize: '1.05rem', fontWeight: 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '2px' }}>
+                                  {edit.seoTitle || currentTitle || 'UPSC News Analysis'}
+                                </div>
+                                <div style={{ color: '#bdc1c6', fontSize: '0.78rem', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                  {edit.seoDescription || item.structuredData?.crux || 'Read the analytical crux, background details and mains syllabus relevancy review.'}
+                                </div>
+                              </div>
+
+                              {/* SEO Inputs */}
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#cbd5e1' }}>SEO Title Override</span>
+                                    <span style={{ fontSize: '0.65rem', color: (edit.seoTitle?.length > 60) ? '#f59e0b' : '#10b981' }}>{edit.seoTitle?.length || 0}/60</span>
+                                  </div>
+                                  <input 
+                                    type="text"
+                                    value={edit.seoTitle || ''}
+                                    onChange={e => setQueueEdits({...queueEdits, [item.id]: {...edit, seoTitle: e.target.value}})}
+                                    placeholder="Default title used if blank"
+                                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '8px 12px', color: 'white', fontSize: '0.78rem' }}
+                                  />
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#cbd5e1' }}>Meta Description Override</span>
+                                    <span style={{ fontSize: '0.65rem', color: (edit.seoDescription?.length > 155) ? '#f59e0b' : '#10b981' }}>{edit.seoDescription?.length || 0}/155</span>
+                                  </div>
+                                  <textarea 
+                                    rows={2}
+                                    value={edit.seoDescription || ''}
+                                    onChange={e => setQueueEdits({...queueEdits, [item.id]: {...edit, seoDescription: e.target.value}})}
+                                    placeholder="Default crux used if blank"
+                                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '8px 12px', color: '#cbd5e1', fontSize: '0.78rem', resize: 'none', fontFamily: 'inherit' }}
+                                  />
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                  <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#cbd5e1' }}>Focus Keywords</span>
+                                  <input 
+                                    type="text"
+                                    value={edit.seoKeywords || ''}
+                                    onChange={e => setQueueEdits({...queueEdits, [item.id]: {...edit, seoKeywords: e.target.value}})}
+                                    placeholder="e.g. UPSC, Indian Rupee, Fiscal Policy (comma separated)"
+                                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '8px 12px', color: 'white', fontSize: '0.78rem' }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -2148,6 +2364,189 @@ export default function AdminClient({ session }) {
           </div>
         )}
       </main>
+
+      {/* Post-Approval Edit Modal */}
+      {editingItem && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(2, 6, 23, 0.85)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999,
+          padding: '24px'
+        }}>
+          <div style={{
+            background: '#0b1129',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: '24px',
+            width: '100%',
+            maxWidth: '850px',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            padding: '32px',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '24px'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '16px' }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 900, color: 'white', margin: 0, border: 'none', background: 'transparent' }}>
+                Edit Ingested {editingItem.type === 'ARTICLE' ? 'Article / News' : 'Editorial'}
+              </h3>
+              <button 
+                onClick={() => setEditingItem(null)}
+                style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <label style={{ fontSize: '0.68rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Title</label>
+                  <input 
+                    type="text"
+                    value={editingItem.title}
+                    onChange={e => setEditingItem({ ...editingItem, title: e.target.value })}
+                    style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '10px 14px', color: 'white', fontSize: '0.85rem' }}
+                  />
+                </div>
+                {editingItem.type === 'ARTICLE' && (
+                  <div style={{ width: '200px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '0.68rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Segment</label>
+                    <select
+                      value={editingItem.contentType}
+                      onChange={e => setEditingItem({ ...editingItem, contentType: e.target.value })}
+                      style={{ width: '100%', background: '#070a19', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '10px 14px', color: 'white', fontSize: '0.85rem', height: '42px' }}
+                    >
+                      <option value="NEWS">News / Current</option>
+                      <option value="PRELIMS">Prelims Fact</option>
+                      <option value="MAINS">Mains Master</option>
+                      <option value="PIB">PIB Release</option>
+                    </select>
+                  </div>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <label style={{ fontSize: '0.68rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Crux / Key Takeaway</label>
+                <textarea 
+                  rows={3}
+                  value={editingItem.crux}
+                  onChange={e => setEditingItem({ ...editingItem, crux: e.target.value })}
+                  placeholder="The main core point of this news piece for UPSC reference..."
+                  style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '10px 14px', color: '#cbd5e1', fontSize: '0.85rem', resize: 'vertical', fontFamily: 'inherit' }}
+                />
+              </div>
+
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '20px', marginTop: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#cbd5e1' }}>SEO Optimization</span>
+                  <button
+                    type="button"
+                    onClick={handleGenerateSeoForEditedItem}
+                    disabled={generatingItemSeo}
+                    style={{
+                      padding: '6px 14px',
+                      background: 'linear-gradient(135deg, #a855f7, #7c3aed)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '0.75rem',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      boxShadow: '0 2px 8px rgba(168, 85, 247, 0.2)'
+                    }}
+                  >
+                    {generatingItemSeo ? '✨ Generating...' : '✨ Optimize SEO with Gemma AI'}
+                  </button>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '20px' }}>
+                  {/* Google Snippet preview */}
+                  <div style={{ background: '#050711', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <div style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Google SERP Snippet Preview</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.7rem' }}>
+                      <div style={{ background: '#1e293b', width: '16px', height: '16px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', color: '#3b82f6', fontWeight: 900 }}>U</div>
+                      <span style={{ color: '#dadde1' }}>UPSC Atlas</span>
+                      <span style={{ color: '#9aa0a6' }}>{`> news > ${editingItem.type === 'ARTICLE' ? 'article' : 'editorial'}`}</span>
+                    </div>
+                    <div style={{ color: '#8ab4f8', fontSize: '1.05rem', fontWeight: 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '2px' }}>
+                      {editingItem.seoTitle || editingItem.title || 'UPSC News Analysis'}
+                    </div>
+                    <div style={{ color: '#bdc1c6', fontSize: '0.78rem', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {editingItem.seoDescription || editingItem.crux || 'Read the analytical crux, background details and mains syllabus relevancy review.'}
+                    </div>
+                  </div>
+
+                  {/* SEO Inputs */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#cbd5e1' }}>SEO Title Override</span>
+                        <span style={{ fontSize: '0.6rem', color: (editingItem.seoTitle?.length > 60) ? '#f59e0b' : '#10b981' }}>{editingItem.seoTitle?.length || 0}/60</span>
+                      </div>
+                      <input 
+                        type="text"
+                        value={editingItem.seoTitle}
+                        onChange={e => setEditingItem({ ...editingItem, seoTitle: e.target.value })}
+                        placeholder="Default title used if blank"
+                        style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '8px 12px', color: 'white', fontSize: '0.78rem' }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#cbd5e1' }}>Meta Description Override</span>
+                        <span style={{ fontSize: '0.6rem', color: (editingItem.seoDescription?.length > 155) ? '#f59e0b' : '#10b981' }}>{editingItem.seoDescription?.length || 0}/155</span>
+                      </div>
+                      <textarea 
+                        rows={2}
+                        value={editingItem.seoDescription}
+                        onChange={e => setEditingItem({ ...editingItem, seoDescription: e.target.value })}
+                        placeholder="Default crux used if blank"
+                        style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '8px 12px', color: '#cbd5e1', fontSize: '0.78rem', resize: 'none', fontFamily: 'inherit' }}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#cbd5e1' }}>Focus Keywords</span>
+                      <input 
+                        type="text"
+                        value={editingItem.seoKeywords}
+                        onChange={e => setEditingItem({ ...editingItem, seoKeywords: e.target.value })}
+                        placeholder="e.g. UPSC, Indian Rupee, Fiscal Policy (comma separated)"
+                        style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '8px 12px', color: 'white', fontSize: '0.78rem' }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '16px' }}>
+              <button 
+                onClick={() => setEditingItem(null)}
+                style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8', borderRadius: '10px', padding: '10px 20px', cursor: 'pointer', fontWeight: 700 }}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleSaveEditedItem}
+                disabled={savingItem}
+                style={{ ...btnPrimary, padding: '10px 24px' }}
+              >
+                {savingItem ? 'Saving...' : 'Save Changes'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

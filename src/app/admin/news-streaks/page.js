@@ -71,8 +71,12 @@ export default function NewsStreaksAdmin() {
   const [summaryForm, setSummaryForm] = useState({
     causes: '### Core Causes\n- Highlight core historical triggers here.',
     impact: '### Socio-Economic Impact\n- Highlight direct impacts here.',
-    tracker: '### Data Tracker\n- Metric tracker: USD/INR live trend, CPI rate etc.'
+    tracker: '### Data Tracker\n- Metric tracker: USD/INR live trend, CPI rate etc.',
+    seoTitle: '',
+    seoDescription: '',
+    seoKeywords: ''
   });
+  const [generatingSeo, setGeneratingSeo] = useState(false);
 
   // Fetch all news streaks, syllabus issues, and streak suggestions
   useEffect(() => {
@@ -170,12 +174,19 @@ export default function NewsStreaksAdmin() {
         let impact = '### Socio-Economic Impact\n- Highlight direct impacts here.';
         let tracker = '### Data Tracker\n- Metric tracker: USD/INR live trend, CPI rate etc.';
 
+        let seoTitle = '';
+        let seoDescription = '';
+        let seoKeywords = '';
+
         if (fullStreak.livingSummary) {
           try {
             const parsed = JSON.parse(fullStreak.livingSummary);
             causes = parsed.causes || causes;
             impact = parsed.impact || impact;
             tracker = parsed.tracker || tracker;
+            seoTitle = parsed.seoTitle || '';
+            seoDescription = parsed.seoDescription || '';
+            seoKeywords = Array.isArray(parsed.seoKeywords) ? parsed.seoKeywords.join(', ') : (parsed.seoKeywords || '');
           } catch (e) {
             causes = fullStreak.livingSummary;
           }
@@ -192,7 +203,7 @@ export default function NewsStreaksAdmin() {
           editorialIds: fullStreak.editorials?.map(e => e.id) || []
         });
 
-        setSummaryForm({ causes, impact, tracker });
+        setSummaryForm({ causes, impact, tracker, seoTitle, seoDescription, seoKeywords });
       }
     } catch (err) {
       toast.error('Failed to load news streak details');
@@ -214,7 +225,10 @@ export default function NewsStreaksAdmin() {
     setSummaryForm({
       causes: '### Core Causes\n- Highlight core historical triggers here.',
       impact: '### Socio-Economic Impact\n- Highlight direct impacts here.',
-      tracker: '### Data Tracker\n- Metric tracker: USD/INR live trend, CPI rate etc.'
+      tracker: '### Data Tracker\n- Metric tracker: USD/INR live trend, CPI rate etc.',
+      seoTitle: '',
+      seoDescription: '',
+      seoKeywords: ''
     });
     setAvailableArticles([]);
   };
@@ -234,7 +248,10 @@ export default function NewsStreaksAdmin() {
     setSummaryForm({
       causes: '### Core Causes\n- Highlight core historical triggers here.',
       impact: '### Socio-Economic Impact\n- Highlight direct impacts here.',
-      tracker: '### Data Tracker\n- Metric tracker: USD/INR live trend, CPI rate etc.'
+      tracker: '### Data Tracker\n- Metric tracker: USD/INR live trend, CPI rate etc.',
+      seoTitle: '',
+      seoDescription: '',
+      seoKeywords: ''
     });
     fetchArticlesForLinkedIssues([suggestion.issueId]);
     toast.success(`Streak template initialized for "${suggestion.title}"!`);
@@ -278,6 +295,38 @@ export default function NewsStreaksAdmin() {
     }
   };
 
+  const handleSeoGenerate = async () => {
+    if (!selectedStreak) {
+      toast.error('Please select an existing News Streak first to generate SEO metadata.');
+      return;
+    }
+    setGeneratingSeo(true);
+    const toastId = toast.loading('Generating UPSC SEO metadata using Gemma AI...');
+    try {
+      const res = await fetch('/api/admin/seo/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'STREAK', id: selectedStreak.id })
+      });
+      const data = await res.json();
+      if (data.success && data.seo) {
+        setSummaryForm(prev => ({
+          ...prev,
+          seoTitle: data.seo.seoTitle || '',
+          seoDescription: data.seo.seoDescription || '',
+          seoKeywords: Array.isArray(data.seo.seoKeywords) ? data.seo.seoKeywords.join(', ') : (data.seo.seoKeywords || '')
+        }));
+        toast.success('SEO metadata generated!', { id: toastId });
+      } else {
+        toast.error(data.error || 'Failed to generate SEO metadata', { id: toastId });
+      }
+    } catch (err) {
+      toast.error('Error connecting to SEO generation server', { id: toastId });
+    } finally {
+      setGeneratingSeo(false);
+    }
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
     if (!form.title) {
@@ -292,7 +341,10 @@ export default function NewsStreaksAdmin() {
     const livingSummaryJson = JSON.stringify({
       causes: summaryForm.causes,
       impact: summaryForm.impact,
-      tracker: summaryForm.tracker
+      tracker: summaryForm.tracker,
+      seoTitle: summaryForm.seoTitle || undefined,
+      seoDescription: summaryForm.seoDescription || undefined,
+      seoKeywords: summaryForm.seoKeywords ? summaryForm.seoKeywords.split(',').map(s => s.trim()).filter(Boolean) : undefined
     });
 
     const payload = {
@@ -801,6 +853,111 @@ export default function NewsStreaksAdmin() {
                       onChange={e => setSummaryForm(prev => ({ ...prev, tracker: e.target.value }))}
                       placeholder="Insert tables, metrics, stats, historical exchange rate lists..."
                     />
+                  </div>
+                </div>
+              </div>
+
+              {/* 6. SEO PREVIEW & OVERRIDES CONTAINER */}
+              <div className="form-group section-divider-box">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <label className="section-label" style={{ margin: 0 }}>SEO Snippet & Custom Metadata</label>
+                  {selectedStreak && (
+                    <button 
+                      type="button" 
+                      onClick={handleSeoGenerate}
+                      disabled={generatingSeo}
+                      className="ai-seo-btn"
+                      style={{
+                        padding: '6px 12px',
+                        background: 'linear-gradient(135deg, #a855f7, #7c3aed)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '0.72rem',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        boxShadow: '0 2px 8px rgba(168, 85, 247, 0.2)',
+                        transition: 'opacity 0.2s'
+                      }}
+                    >
+                      {generatingSeo ? '✨ Generating...' : '✨ Optimize SEO with Gemma AI'}
+                    </button>
+                  )}
+                </div>
+                <span className="helper-text">
+                  Visualize and override how this news streak appears in search engine results. Length metrics ensure optimal rendering on Google.
+                </span>
+
+                <div className="seo-block-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '10px' }}>
+                  {/* Google SERP Snippet Preview */}
+                  <div className="google-preview-container" style={{ background: '#090d1f', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ fontSize: '0.62rem', fontWeight: 900, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Google SERP Snippet Preview (Desktop)</div>
+                    <div className="google-preview-card" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                      <div className="google-preview-site" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div className="google-preview-favicon" style={{ background: '#1e293b', width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.58rem', fontWeight: 900, color: '#3b82f6' }}>U</div>
+                        <div className="google-preview-site-info" style={{ display: 'flex', flexDirection: 'column' }}>
+                          <span className="google-preview-domain" style={{ color: '#dadde1', fontSize: '0.72rem', fontWeight: 500 }}>UPSC Atlas</span>
+                          <span className="google-preview-url" style={{ color: '#9aa0a6', fontSize: '0.65rem' }}>
+                            {`https://upscatlas.com/news/streak/${selectedStreak?.slug || 'rupee-depreciation'}`}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="google-preview-title" style={{ color: '#8ab4f8', fontSize: '1.1rem', fontWeight: 400, margin: '2px 0 0 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {summaryForm.seoTitle || form.title || 'Depreciation of the Indian Rupee | UPSC Atlas'}
+                      </div>
+                      <div className="google-preview-snippet" style={{ color: '#bdc1c6', fontSize: '0.8rem', lineHeight: '1.4', margin: '2px 0 0 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        {summaryForm.seoDescription || (summaryForm.causes ? summaryForm.causes.replace(/[#*_\-\[\]]/g, '').substring(0, 155) : 'Read the live timeline, socio-economic impact, and analytical UPSC GS paper notes mapping this news streak.')}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Overrides Inputs */}
+                  <div className="seo-inputs-container" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div className="form-group">
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <label style={{ fontSize: '0.68rem', fontWeight: 800, color: '#94a3b8' }}>SEO Title Override</label>
+                        <span style={{ fontSize: '0.65rem', fontWeight: 700, color: (summaryForm.seoTitle?.length > 60 || summaryForm.seoTitle?.length < 30) ? '#f59e0b' : '#10b981' }}>
+                          {summaryForm.seoTitle?.length || 0} / 60 chars
+                        </span>
+                      </div>
+                      <input 
+                        type="text" 
+                        value={summaryForm.seoTitle} 
+                        onChange={e => setSummaryForm(prev => ({ ...prev, seoTitle: e.target.value }))}
+                        placeholder="Default is Streak Title + Brand (recommended 30-60 chars)"
+                        style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '8px 12px', color: 'white', fontSize: '0.78rem' }}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <label style={{ fontSize: '0.68rem', fontWeight: 800, color: '#94a3b8' }}>Meta Description Override</label>
+                        <span style={{ fontSize: '0.65rem', fontWeight: 700, color: (summaryForm.seoDescription?.length > 155 || summaryForm.seoDescription?.length < 110) ? '#f59e0b' : '#10b981' }}>
+                          {summaryForm.seoDescription?.length || 0} / 155 chars
+                        </span>
+                      </div>
+                      <textarea 
+                        rows={2}
+                        value={summaryForm.seoDescription} 
+                        onChange={e => setSummaryForm(prev => ({ ...prev, seoDescription: e.target.value }))}
+                        placeholder="Default is synthesized causes excerpt (recommended 110-155 chars)"
+                        style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '8px 12px', color: '#cbd5e1', fontSize: '0.78rem', resize: 'none', fontFamily: 'inherit' }}
+                      />
+                    </div>
+
+                    <div className="form-group">
+                      <label style={{ fontSize: '0.68rem', fontWeight: 800, color: '#94a3b8' }}>Focus Keywords</label>
+                      <input 
+                        type="text" 
+                        value={summaryForm.seoKeywords} 
+                        onChange={e => setSummaryForm(prev => ({ ...prev, seoKeywords: e.target.value }))}
+                        placeholder="e.g. UPSC, Indian Rupee, Capital Account Convertibility (comma separated)"
+                        style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '8px 12px', color: 'white', fontSize: '0.78rem' }}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
