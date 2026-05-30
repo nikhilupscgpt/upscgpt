@@ -7,11 +7,11 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
  * ─────────────────────────────────────────────
  * Task routing:
  *  ┌──────────────┬─────────────────────────────┬─────────────────────────┐
- *  │ synthesis     │ gemini-2.5-flash            │ Living Summary / Streak │
- *  │ background    │ gemma-4-26b-a4b-it          │ News enrichment         │
- *  │ extraction    │ gemma-4-26b-a4b-it          │ Metadata / Forge        │
- *  │ chat          │ gemma-4-26b-a4b-it          │ Nano assistant chat     │
- *  │ analysis      │ gemma-4-26b-a4b-it          │ Node/Detailed Forge     │
+ *  │ synthesis     │ gemma-4-31b-it              │ Living Summary / Streak │
+ *  │ background    │ gemma-4-31b-it              │ News enrichment         │
+ *  │ extraction    │ gemma-4-31b-it              │ Metadata / Forge        │
+ *  │ chat          │ gemma-4-31b-it              │ Nano assistant chat     │
+ *  │ analysis      │ gemma-4-31b-it              │ Node/Detailed Forge     │
  *  └──────────────┴─────────────────────────────┴─────────────────────────┘
  */
 
@@ -22,13 +22,13 @@ const getClient = () => {
 };
 
 const FALLBACK_MODEL_CHAIN = {
-  // synthesis: Use Gemma 26B for high daily quota, fallback to Flash 2.5
-  synthesis:  ['gemma-4-26b-a4b-it', 'gemini-2.5-flash', 'gemini-2.0-flash'],
-  // Batch processing: Gemma 26B for high RPD quota
-  background: ['gemma-4-26b-a4b-it', 'gemini-2.5-flash', 'gemini-2.0-flash'],
-  extraction: ['gemma-4-26b-a4b-it', 'gemini-2.5-flash', 'gemini-2.0-flash'],
-  chat:       ['gemma-4-26b-a4b-it', 'gemini-2.5-flash', 'gemini-2.0-flash'],
-  analysis:   ['gemma-4-26b-a4b-it', 'gemini-2.5-flash', 'gemini-2.0-flash'],
+  // synthesis: Use Gemma 31B for high daily quota, fallback to Flash 2.5
+  synthesis:  ['gemma-4-31b-it', 'gemini-2.5-flash', 'gemini-2.0-flash'],
+  // Batch processing: Gemma 31B for high RPD quota
+  background: ['gemma-4-31b-it', 'gemini-2.5-flash', 'gemini-2.0-flash'],
+  extraction: ['gemma-4-31b-it', 'gemini-2.5-flash', 'gemini-2.0-flash'],
+  chat:       ['gemma-4-31b-it', 'gemini-2.5-flash', 'gemini-2.0-flash'],
+  analysis:   ['gemma-4-31b-it', 'gemini-2.5-flash', 'gemini-2.0-flash'],
 };
 
 function uniqueNonEmpty(values) {
