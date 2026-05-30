@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { getRenderedPrompt } from '../src/lib/aiPromptRegistry.js';
 import 'dotenv/config';
 
 const prisma = new PrismaClient();
@@ -69,25 +70,10 @@ const cleanJson = (text) => {
 async function processItem(type, item, idx, total) {
   console.log(`\n[${type} ${idx+1}/${total}] "${item.title}"`);
   
-  const prompt = `You are an elite UPSC Strategic Analyst.
-Analyze the provided content to extract high-yield insights for the UPSC Civil Services Exam.
-
-Title: "${item.title}"
-Content: "${item.rawContent.substring(0, 6000)}"
-
-Return strictly valid JSON:
-{
-  "crux": "1-2 paragraph deep analytical synthesis of the core arguments/developments (150-200 words)",
-  "importanceScore": <an integer between 1 and 5 indicating the importance for UPSC: 1 = Normal daily updates/minor events, 3 = High relevance/recurrent syllabus themes, 5 = Critical landmark events/landmark judgment/major policy release>,
-  "prelimsFact": "A highly specific, testable factual point mentioned in the text, or null if none",
-  "mcq": {
-    "question": "A conceptual UPSC Prelims-style MCQ based on the text",
-    "options": ["A. ...", "B. ...", "C. ...", "D. ..."],
-    "answer": "Exact text of the correct option",
-    "explanation": "Why this option is correct"
-  }
-}
-If the text does not contain enough info for a Prelims Fact or MCQ, return null for those fields.`;
+  const prompt = await getRenderedPrompt('issue.article.extraction', {
+    title: item.title,
+    content: item.rawContent.substring(0, 6000),
+  });
 
   const rawText = await callWithSmartRetry(prompt);
   if (!rawText) {

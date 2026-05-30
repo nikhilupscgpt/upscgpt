@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getRenderedPrompt } from '../src/lib/aiPromptRegistry.js';
 import fs from 'fs';
 import path from 'path';
 
@@ -33,24 +34,10 @@ async function process() {
 
     console.log(`[Processing] ${article.title}`);
 
-    const prompt = `You are an elite UPSC Strategic Analyst.
-Analyze the provided content to extract high-yield insights for the UPSC Civil Services Exam.
-
-Title: "${article.title}"
-Content: "${article.rawContent.substring(0, 6000)}"
-
-Return strictly valid JSON:
-{
-  "crux": "1-2 paragraph deep analytical synthesis of the core arguments/developments (150-200 words)",
-  "prelimsFact": "A highly specific, testable factual point (e.g., a treaty, index, organization, or geographic location) mentioned in the text, or null if none",
-  "mcq": {
-    "question": "A conceptual UPSC Prelims-style MCQ based on the text",
-    "options": ["A. ...", "B. ...", "C. ...", "D. ..."],
-    "answer": "Exact text of the correct option",
-    "explanation": "Why this option is correct"
-  }
-}
-If the text does not contain enough info for a Prelims Fact or MCQ, return null for those fields.`;
+    const prompt = await getRenderedPrompt('issue.article.extraction', {
+      title: article.title,
+      content: article.rawContent.substring(0, 6000),
+    });
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
@@ -92,23 +79,12 @@ If the text does not contain enough info for a Prelims Fact or MCQ, return null 
       });
 
       const timelineData = timelineLines.join('\n');
-      const summaryPrompt = `You are a UPSC Mains examiner and strategic content synthesizer.
-Your task is to write a cohesive "Strategic Summary" for a UPSC Syllabus Topic (an "Issue Node"), using a provided timeline of recent developments.
-
-Issue: "${issue.title}"
-Domain: "${issue.domain}"
-Topic: "${issue.topic}"
-
-Recent Developments (Chronological):
-${timelineData}
-
-Instructions:
-1. Write 3 to 4 paragraphs synthesizing the overarching narrative of this issue.
-2. Incorporate the recent developments provided to show how the issue has evolved.
-3. Focus on: Core Challenge, Government/Policy Response, and the Way Forward.
-4. Format using HTML: use <b> for emphasis, <ul>/<li> for brief lists if needed, and wrap paragraphs in <p> tags.
-5. Do NOT include markdown blocks. Return raw HTML string only.
-6. Make it exam-ready for UPSC Mains GS papers.`;
+      const summaryPrompt = await getRenderedPrompt('issue.cumulative.synthesis', {
+        issueTitle: issue.title,
+        domain: issue.domain,
+        topic: issue.topic,
+        timelineData,
+      });
 
       const summaryResult = await model.generateContent(summaryPrompt);
       let htmlSummary = summaryResult.response.text();

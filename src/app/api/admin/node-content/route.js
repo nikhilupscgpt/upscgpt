@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import prisma from '@/lib/prisma';
 import { authOptions } from "@/lib/auth";
-import { getRenderedPrompt } from '@/lib/aiPromptRegistry';
+import { getRenderedPrompt, getPromptValue } from '@/lib/aiPromptRegistry';
 import { OpenAI } from 'openai';
 
 const openai = new OpenAI({
@@ -99,10 +99,11 @@ export async function POST(req) {
         topic: issue.topic
       });
 
+      const systemPrompt = await getPromptValue('cms.node.openai.system');
       const response = await openai.chat.completions.create({
         model: process.env.AI_REASONING_MODEL || 'gpt-4',
         messages: [
-          { role: 'system', content: 'You are a UPSC content specialist.' },
+          { role: 'system', content: systemPrompt },
           { role: 'user', content: prompt }
         ],
         temperature: 0.7,

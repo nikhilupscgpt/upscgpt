@@ -21,20 +21,11 @@ const cleanJson = (text) => {
 
 const translateNewsContent = async (aiClient, title, content, language) => {
   if (!content) return { title: null, content: null };
-  const prompt = `You are an expert bilingual translator for UPSC civil services preparation.
-Translate the following English news article into formal, highly accurate ${language}.
-Ensure that technical terms, government schemes, and legal vocabulary are translated correctly as per UPSC standards.
-
-Return a JSON object with this exact structure:
-{
-  "title": "Translated title here",
-  "content": "Translated content here (retain markdown formatting if any)"
-}
-
-English Original:
-Title: ${title}
-Content:
-${content.substring(0, 4500)}`;
+  const prompt = await getRenderedPrompt('news.translation.system', {
+    language,
+    title,
+    content: content.substring(0, 4500),
+  });
 
   const translationSchema = {
     type: 'object',

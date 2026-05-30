@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { generateEmbedding, searchSimilarContent, searchSimilarPYQs } from '@/lib/rag-utils';
 import { getTierStatus } from '@/lib/tier-gate';
-import { getPromptValue } from '@/lib/aiPromptRegistry';
+import { getPromptValue, getRenderedPrompt } from '@/lib/aiPromptRegistry';
 import prisma from '@/lib/prisma';
 
 const OLLAMA_HOST = process.env.OLLAMA_HOST || 'http://localhost:11434';
@@ -26,10 +26,10 @@ async function ollamaGenerate(model, prompt) {
  */
 async function getStandaloneQuery(history, currentQuery) {
   if (!history || history.length === 0) return currentQuery;
-  const prompt = `Rephrase the follow-up question to be a standalone search query for a UPSC database.
-History: ${history.map(m => `${m.role}: ${m.content}`).join('\n')}
-Follow-up: ${currentQuery}
-Standalone Query:`;
+  const prompt = await getRenderedPrompt('rag.query.rewrite', {
+    history: history.map(m => `${m.role}: ${m.content}`).join('\n'),
+    currentQuery,
+  });
   try {
     const result = await ollamaGenerate(OLLAMA_FAST_MODEL, prompt);
     return result.trim() || currentQuery;
@@ -82,33 +82,18 @@ export async function POST(req) {
     let promptId = optionalSlug ? 'rag.query.optional' : (examType === 'MAINS' ? 'rag.query.mains' : 'rag.query.prelims');
     const instruction = await getPromptValue(promptId);
 
-    const finalPrompt = `
-SYSTEM INSTRUCTION:
-${instruction}
+    const proactiveGuidance = matchingIssue
+      ? `PROACTIVE GUIDANCE:\nI found a comprehensive UPSC Content Page for "${matchingIssue.title}".\nBefore giving the answer, prefix your response with a 1-sentence note suggesting the student check out this content page for structured preparation.\nLink: /issues/${matchingIssue.slug}`
+      : '';
 
-CONTEXT LOCK: 
-1. Use ONLY the "REFERENCE MATERIAL" provided below to answer the question.
-2. If the answer is not explicitly contained in the reference material or your core UPSC strategic knowledge, state "I do not have specific data on this in my current vectors" rather than guessing.
-3. DO NOT invent dates, statistics, or names of committees.
-
-${matchingIssue ? `PROACTIVE GUIDANCE:
-I found a comprehensive UPSC Content Page for "${matchingIssue.title}". 
-Before giving the answer, prefix your response with a 1-sentence note suggesting the student check out this content page for structured preparation. 
-Link: /issues/${matchingIssue.slug}` : ''}
-
-REFERENCE MATERIAL:
-${contextStrs}
-
-UPSC EXAM HISTORY (PYQs):
-${pyqStrs}
-
-CONVERSATION MEMORY:
-${historyStrs}
-
-STUDENT QUESTION:
-${query}
-
-RESPONSE (Professional, scannable, and grounded):`;
+    const finalPrompt = await getRenderedPrompt('rag.query.wrapper', {
+      instruction,
+      proactiveGuidance,
+      contextStrs,
+      pyqStrs,
+      historyStrs,
+      query,
+    });
 
     const metadata = { sources, pyqs: pyqMeta, isMetadata: true, matchingIssue };
     const encoder = new TextEncoder();

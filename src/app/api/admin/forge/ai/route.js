@@ -2,6 +2,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { getGeminiModel } from '@/lib/gemini';
+import { getRenderedPrompt } from '@/lib/aiPromptRegistry';
 
 export async function POST(req) {
   const session = await getServerSession(authOptions);
@@ -25,23 +26,13 @@ export async function POST(req) {
     const isHindi = task.toUpperCase().includes('HINDI') || task.toUpperCase().includes('HI');
     const targetLang = isMarathi ? 'Marathi' : (isHindi ? 'Hindi' : 'English');
 
-    const prompt = `
-      [SYSTEM: UPSC MAINS EXAMINER MODE]
-      [STRICT_OUTPUT_ONLY: NO_META_TALK, NO_INSTRUCTIONS, NO_THINKING_BLOCKS]
-      
-      TASK: Generate ${task} for "${issue.title}" (${issue.domain}).
-      LANGUAGE: ${targetLang}
-      
-      EVIDENCE:
-      ${context}
-      
-      REQUIREMENTS:
-      1. Briefing: Context + PESTEL (no meta-titles) + Value Add.
-      2. Facts: Bulleted Data Anchors (years, figures, committees).
-      3. Tone: Administrative, neutral, topper-grade.
-      
-      COMMAND: Begin output immediately with the content. Do NOT include any introductory or process-oriented text.
-    `;
+    const prompt = await getRenderedPrompt('forge.ai.content.system', {
+      task,
+      issueTitle: issue.title,
+      domain: issue.domain,
+      targetLang,
+      context,
+    });
 
     const ai = getGeminiModel('analysis');
     const result = await ai.generateContent(prompt);
