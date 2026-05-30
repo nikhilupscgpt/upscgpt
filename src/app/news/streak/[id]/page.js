@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import Link from 'next/link';
 import { BookOpen } from 'lucide-react';
+import { parseLivingSummary, stripMarkdown } from '@/lib/seo';
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
@@ -16,13 +17,18 @@ export async function generateMetadata({ params }) {
   }
 
   const title = `Live Updates: ${streak.title} | UPSCGPT News Streak`;
-  const desc = streak.livingSummary 
-    ? streak.livingSummary.substring(0, 160) + '...'
+  const parsed = parseLivingSummary(streak.livingSummary, streak.title);
+  const cleanCauses = stripMarkdown(parsed.causes);
+  const desc = cleanCauses 
+    ? cleanCauses.substring(0, 160) + '...'
     : `Follow continuous live updates on ${streak.title} for UPSC preparation.`;
 
   return {
     title,
     description: desc,
+    alternates: {
+      canonical: `/news/streak/${id}`,
+    },
     openGraph: {
       title,
       description: desc,
@@ -45,6 +51,29 @@ export default async function NewsStreakPage({ params }) {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--hero-bg-gradient)', color: 'var(--text-primary)', padding: '120px 20px 40px' }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'LiveBlogPosting',
+            'headline': streak.title,
+            'description': stripMarkdown(parseLivingSummary(streak.livingSummary, streak.title).causes).substring(0, 160) || `Live tracking of ${streak.title}.`,
+            'datePublished': streak.createdAt.toISOString(),
+            'dateModified': streak.updatedAt.toISOString(),
+            'coverageStartTime': streak.createdAt.toISOString(),
+            'coverageEndTime': streak.updatedAt.toISOString(),
+            'publisher': {
+              '@type': 'Organization',
+              'name': 'UPSCGPT',
+              'logo': {
+                '@type': 'ImageObject',
+                'url': 'https://upscatlas.com/logo.png'
+              }
+            }
+          })
+        }}
+      />
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         
         <div style={{ marginBottom: '24px' }}>
@@ -65,18 +94,49 @@ export default async function NewsStreakPage({ params }) {
             {streak.title}
           </h1>
 
-          {streak.livingSummary && (
-            <div style={{ background: 'var(--bg-input)', padding: '24px', borderRadius: '16px' }}>
-              <h5 style={{ color: 'var(--color-amber)', fontSize: '0.85rem', margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                Living Summary
-              </h5>
-              <div style={{ fontSize: '1.15rem', color: 'var(--text-primary)', lineHeight: 1.8 }}>
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                  {streak.livingSummary}
-                </ReactMarkdown>
+          {streak.livingSummary && (() => {
+            const parsed = parseLivingSummary(streak.livingSummary, streak.title);
+            return (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginTop: '24px' }}>
+                {parsed.causes && (
+                  <div style={{ background: 'var(--bg-input)', padding: '24px', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
+                    <h5 style={{ color: 'var(--color-amber)', fontSize: '0.85rem', margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                      Context & Root Causes
+                    </h5>
+                    <div style={{ fontSize: '1.1rem', color: 'var(--text-primary)', lineHeight: 1.8 }}>
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {parsed.causes}
+                      </ReactMarkdown>
+                    </div>
+                  </div>
+                )}
+                {parsed.impact && (
+                  <div style={{ background: 'var(--bg-input)', padding: '24px', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
+                    <h5 style={{ color: 'var(--color-purple)', fontSize: '0.85rem', margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                      Economic & Policy Impact
+                    </h5>
+                    <div style={{ fontSize: '1.1rem', color: 'var(--text-primary)', lineHeight: 1.8 }}>
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {parsed.impact}
+                      </ReactMarkdown>
+                    </div>
+                  </div>
+                )}
+                {parsed.tracker && (
+                  <div style={{ background: 'var(--bg-input)', padding: '24px', borderRadius: '16px', border: '1px solid var(--border-color)' }}>
+                    <h5 style={{ color: 'var(--color-blue)', fontSize: '0.85rem', margin: '0 0 12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                      Strategic Data Tracker
+                    </h5>
+                    <div style={{ fontSize: '1.1rem', color: 'var(--text-primary)', lineHeight: 1.8 }}>
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                        {parsed.tracker}
+                      </ReactMarkdown>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
 
         <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '24px', color: 'var(--text-secondary)' }}>Timeline of Updates</h3>

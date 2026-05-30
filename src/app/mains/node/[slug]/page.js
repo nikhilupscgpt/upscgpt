@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import MainsNodeStudyClient from './MainsNodeStudyClient';
+import { stripHtml } from '@/lib/seo';
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
@@ -11,9 +12,13 @@ export async function generateMetadata({ params }) {
     select: { title: true, domain: true, topic: true, cumulativeSummary: true }
   });
   if (!issue) return { title: 'Node Not Found' };
+  const cleanDesc = stripHtml(issue.cumulativeSummary).substring(0, 160) || `Strategic Mains study guide for ${issue.title}.`;
   return {
     title: `${issue.title} — Mains Command Center`,
-    description: issue.cumulativeSummary?.slice(0, 160) || `Strategic Mains study guide for ${issue.title}.`
+    description: cleanDesc,
+    alternates: {
+      canonical: `/mains/node/${slug}`,
+    }
   };
 }
 

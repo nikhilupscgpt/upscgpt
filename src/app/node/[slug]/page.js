@@ -7,10 +7,16 @@ export async function generateMetadata({ params }) {
   const { slug } = await params;
   const issue = await prisma.issue.findUnique({
     where: { slug },
-    select: { title: true, domain: true }
+    select: { title: true, domain: true, topic: true }
   });
   if (!issue) return { title: 'Node Not Found' };
-  return { title: `${issue.title} | UPSC Atlas Intelligence` };
+  return { 
+    title: `${issue.title} | UPSC Atlas Intelligence`,
+    description: `Strategic study guide, key themes, subtopics, and previous year questions (PYQs) for UPSC syllabus node: ${issue.title} (${issue.domain} - ${issue.topic}).`,
+    alternates: {
+      canonical: `/node/${slug}`,
+    }
+  };
 }
 
 export default async function NodeDetailPage({ params }) {
@@ -33,6 +39,28 @@ export default async function NodeDetailPage({ params }) {
 
   return (
     <div className="node-detail-page">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Course',
+            'name': `${node.title} — UPSC Atlas Intelligence`,
+            'description': `Strategic study guide, key themes, and subtopics for UPSC syllabus node: ${node.title}.`,
+            'provider': {
+              '@type': 'Organization',
+              'name': 'UPSCGPT',
+              'url': 'https://upscatlas.com'
+            },
+            'about': {
+              '@type': 'Thing',
+              'name': node.topic,
+              'description': node.domain
+            },
+            'educationalLevel': 'UPSC Civil Services Examination (CSE)'
+          })
+        }}
+      />
       <div className="node-detail-container">
         {/* Breadcrumbs */}
         <nav className="breadcrumb">

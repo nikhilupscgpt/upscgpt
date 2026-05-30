@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { Lock } from 'lucide-react'
 import FloatingChatWrapper from '@/components/content-portal/FloatingChatWrapper'
 import IssueDetailClient from '@/components/IssueDetailClient'
+import { stripHtml } from '@/lib/seo'
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
@@ -14,9 +15,13 @@ export async function generateMetadata({ params }) {
     select: { title: true, domain: true, topic: true, cumulativeSummary: true }
   })
   if (!issue) return { title: 'Issue Not Found' }
+  const cleanDesc = stripHtml(issue.cumulativeSummary).substring(0, 160) || `Strategic analysis of ${issue.title}.`;
   return {
     title: `${issue.title} — UPSCGPT Intelligence Hub`,
-    description: issue.cumulativeSummary?.slice(0, 160) || `Strategic analysis of ${issue.title}.`,
+    description: cleanDesc,
+    alternates: {
+      canonical: `/issues/${slug}`,
+    },
   }
 }
 
@@ -52,6 +57,23 @@ export default async function IssuePage({ params, searchParams }) {
 
   return (
     <div style={{ background: 'var(--bg-primary)', minHeight: '100vh', padding: '90px 24px 80px', fontFamily: '"Outfit", sans-serif', color: 'var(--text-primary)', position: 'relative' }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'WebPage',
+            'name': `${issue.title} — UPSCGPT Intelligence Hub`,
+            'description': stripHtml(issue.cumulativeSummary).substring(0, 160) || `Strategic analysis of ${issue.title}.`,
+            'url': `https://upscatlas.com/issues/${issue.slug}`,
+            'about': {
+              '@type': 'Thing',
+              'name': issue.topic,
+              'description': issue.domain
+            }
+          })
+        }}
+      />
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.03), transparent), radial-gradient(circle at 20% 80%, rgba(139, 92, 246, 0.03), transparent)' }} />
 
       <div className="issue-study-layout with-assistant" style={{ maxWidth: '1440px', margin: '0 auto', display: 'grid', gap: '32px' }}>

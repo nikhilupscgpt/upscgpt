@@ -20,6 +20,9 @@ export async function generateMetadata({ params }) {
   return {
     title,
     description: crux,
+    alternates: {
+      canonical: `/news/article/${id}`,
+    },
     openGraph: {
       title,
       description: crux,
@@ -42,6 +45,32 @@ export default async function ArticlePage({ params }) {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--hero-bg-gradient)', color: 'var(--text-primary)', padding: '120px 20px 40px' }}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'NewsArticle',
+            'headline': article.title,
+            'description': article.structuredData?.crux || 'Daily UPSC Current Affairs and Analysis.',
+            'datePublished': article.publishedAt?.toISOString() || article.createdAt.toISOString(),
+            'dateModified': article.createdAt.toISOString(),
+            'author': {
+              '@type': 'Organization',
+              'name': 'UPSCGPT',
+              'url': 'https://upscatlas.com'
+            },
+            'publisher': {
+              '@type': 'Organization',
+              'name': 'UPSCGPT',
+              'logo': {
+                '@type': 'ImageObject',
+                'url': 'https://upscatlas.com/logo.png'
+              }
+            }
+          })
+        }}
+      />
       <div style={{ maxWidth: '800px', margin: '0 auto', background: 'var(--bg-card)', borderRadius: '24px', padding: '40px', border: '1px solid var(--border-color)' }}>
         
         <div style={{ marginBottom: '24px' }}>
