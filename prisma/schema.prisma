@@ -306,6 +306,7 @@ model Article {
   newsStreakId    String?
   newsStreak      NewsStreak?      @relation(fields: [newsStreakId], references: [id], onDelete: SetNull)
   timelineEvents  TimelineEvent[]
+  userNotes       UserNote[]
 
   @@index([issueId])
   @@index([status])
@@ -336,6 +337,7 @@ model Editorial {
   issue           Issue            @relation(fields: [issueId], references: [id], onDelete: Cascade)
   newsStreakId    String?
   newsStreak      NewsStreak?      @relation(fields: [newsStreakId], references: [id], onDelete: SetNull)
+  userNotes       UserNote[]
 
   @@index([issueId])
   @@index([status])
@@ -585,19 +587,34 @@ model IssueFollow {
   @@unique([userId, issueId])
 }
 
-/// AI-assisted or manual personal notes linked to an Issue.
+/// AI-assisted or manual personal notes, linked to any content entity.
 model UserNote {
-  id            String   @id @default(cuid())
+  id            String      @id @default(cuid())
   userId        String
-  issueId       String
-  content       String
-  isAiGenerated Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  issue         Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content       String      @db.Text
+  isAiGenerated Boolean     @default(false)
+  // Polymorphic parent — exactly one should be set
+  issueId       String?
+  articleId     String?
+  editorialId   String?
+  streakId      String?
+  // Auto-detected metadata
+  subject       String?
+  topic         String?
+  linkedNodeIds String[]    @default([])
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  // Relations
+  issue         Issue?      @relation(fields: [issueId], references: [id], onDelete: Cascade)
+  article       Article?    @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  editorial     Editorial?  @relation(fields: [editorialId], references: [id], onDelete: Cascade)
+  streak        NewsStreak? @relation(fields: [streakId], references: [id], onDelete: Cascade)
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, issueId])
+  @@index([userId, articleId])
+  @@index([userId, editorialId])
+  @@index([userId, streakId])
 }
 
 /// Generic bookmarking for specific Articles or Editorials within an Issue.
@@ -719,4 +736,5 @@ model NewsStreak {
   
   // Linkages to static syllabus Issues
   issues           Issue[]      @relation("NewsStreakIssues")
+  userNotes        UserNote[]
 }

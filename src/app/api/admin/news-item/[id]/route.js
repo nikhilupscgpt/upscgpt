@@ -22,7 +22,20 @@ export async function PATCH(req, props) {
 
   try {
     const body = await req.json();
-    const { type, title, contentType, crux, seoTitle, seoDescription, seoKeywords } = body;
+    const { 
+      type, 
+      title, 
+      title_hi, 
+      title_mr, 
+      rawContent, 
+      rawContent_hi, 
+      rawContent_mr, 
+      contentType, 
+      crux, 
+      seoTitle, 
+      seoDescription, 
+      seoKeywords 
+    } = body;
 
     if (!type || (type !== 'ARTICLE' && type !== 'EDITORIAL')) {
       return NextResponse.json({ error: 'Invalid or missing type (ARTICLE or EDITORIAL)' }, { status: 400 });
@@ -55,6 +68,11 @@ export async function PATCH(req, props) {
     };
 
     if (title) updateData.title = title;
+    if (title_hi !== undefined) updateData.title_hi = title_hi;
+    if (title_mr !== undefined) updateData.title_mr = title_mr;
+    if (rawContent !== undefined) updateData.rawContent = rawContent;
+    if (rawContent_hi !== undefined) updateData.rawContent_hi = rawContent_hi;
+    if (rawContent_mr !== undefined) updateData.rawContent_mr = rawContent_mr;
     if (contentType && type === 'ARTICLE') updateData.contentType = contentType;
 
     const updated = await table.update({

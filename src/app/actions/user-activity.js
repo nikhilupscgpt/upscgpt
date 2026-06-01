@@ -195,3 +195,37 @@ export async function toggleBookmark(itemId, itemType, note = null) {
 
   return { success: true, bookmarked: !existing };
 }
+
+export async function checkBookmarkStatus(itemId, itemType) {
+  "use server";
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return false;
+
+  const bookmark = await prisma.bookmark.findUnique({
+    where: {
+      userId_itemType_itemId: {
+        userId: session.user.id,
+        itemType,
+        itemId
+      }
+    }
+  });
+  return !!bookmark;
+}
+
+export async function checkIssueProgress(issueId) {
+  "use server";
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) return "UNSTARTED";
+
+  const progress = await prisma.issueProgress.findUnique({
+    where: {
+      userId_issueId: {
+        userId: session.user.id,
+        issueId
+      }
+    },
+    select: { status: true }
+  });
+  return progress?.status || "UNSTARTED";
+}

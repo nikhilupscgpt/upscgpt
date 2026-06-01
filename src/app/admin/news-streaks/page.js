@@ -76,6 +76,17 @@ export default function NewsStreaksAdmin() {
     seoDescription: '',
     seoKeywords: ''
   });
+  const [summaryFormHi, setSummaryFormHi] = useState({
+    causes: '### Core Causes (Hindi)\n- Highlight core historical triggers here in Hindi.',
+    impact: '### Socio-Economic Impact (Hindi)\n- Highlight direct impacts here in Hindi.',
+    tracker: '### Data Tracker (Hindi)\n- Metric tracker: USD/INR live trend, CPI rate etc. in Hindi.'
+  });
+  const [summaryFormMr, setSummaryFormMr] = useState({
+    causes: '### Core Causes (Marathi)\n- Highlight core historical triggers here in Marathi.',
+    impact: '### Socio-Economic Impact (Marathi)\n- Highlight direct impacts here in Marathi.',
+    tracker: '### Data Tracker (Marathi)\n- Metric tracker: USD/INR live trend, CPI rate etc. in Marathi.'
+  });
+  const [synthesisEditLang, setSynthesisEditLang] = useState('en'); // 'en', 'hi', 'mr'
   const [generatingSeo, setGeneratingSeo] = useState(false);
 
   // Fetch all news streaks, syllabus issues, and streak suggestions
@@ -174,6 +185,14 @@ export default function NewsStreaksAdmin() {
         let impact = '### Socio-Economic Impact\n- Highlight direct impacts here.';
         let tracker = '### Data Tracker\n- Metric tracker: USD/INR live trend, CPI rate etc.';
 
+        let causes_hi = '### Core Causes (Hindi)\n- Highlight core historical triggers here in Hindi.';
+        let impact_hi = '### Socio-Economic Impact (Hindi)\n- Highlight direct impacts here in Hindi.';
+        let tracker_hi = '### Data Tracker (Hindi)\n- Metric tracker: USD/INR live trend, CPI rate etc. in Hindi.';
+
+        let causes_mr = '### Core Causes (Marathi)\n- Highlight core historical triggers here in Marathi.';
+        let impact_mr = '### Socio-Economic Impact (Marathi)\n- Highlight direct impacts here in Marathi.';
+        let tracker_mr = '### Data Tracker (Marathi)\n- Metric tracker: USD/INR live trend, CPI rate etc. in Marathi.';
+
         let seoTitle = '';
         let seoDescription = '';
         let seoKeywords = '';
@@ -192,6 +211,28 @@ export default function NewsStreaksAdmin() {
           }
         }
 
+        if (fullStreak.livingSummary_hi) {
+          try {
+            const parsed = JSON.parse(fullStreak.livingSummary_hi);
+            causes_hi = parsed.causes || causes_hi;
+            impact_hi = parsed.impact || impact_hi;
+            tracker_hi = parsed.tracker || tracker_hi;
+          } catch (e) {
+            causes_hi = fullStreak.livingSummary_hi;
+          }
+        }
+
+        if (fullStreak.livingSummary_mr) {
+          try {
+            const parsed = JSON.parse(fullStreak.livingSummary_mr);
+            causes_mr = parsed.causes || causes_mr;
+            impact_mr = parsed.impact || impact_mr;
+            tracker_mr = parsed.tracker || tracker_mr;
+          } catch (e) {
+            causes_mr = fullStreak.livingSummary_mr;
+          }
+        }
+
         setForm({
           title: fullStreak.title || '',
           title_hi: fullStreak.title_hi || '',
@@ -204,6 +245,9 @@ export default function NewsStreaksAdmin() {
         });
 
         setSummaryForm({ causes, impact, tracker, seoTitle, seoDescription, seoKeywords });
+        setSummaryFormHi({ causes: causes_hi, impact: impact_hi, tracker: tracker_hi });
+        setSummaryFormMr({ causes: causes_mr, impact: impact_mr, tracker: tracker_mr });
+        setSynthesisEditLang('en');
       }
     } catch (err) {
       toast.error('Failed to load news streak details');
@@ -230,6 +274,17 @@ export default function NewsStreaksAdmin() {
       seoDescription: '',
       seoKeywords: ''
     });
+    setSummaryFormHi({
+      causes: '### Core Causes (Hindi)\n- Highlight core historical triggers here in Hindi.',
+      impact: '### Socio-Economic Impact (Hindi)\n- Highlight direct impacts here in Hindi.',
+      tracker: '### Data Tracker (Hindi)\n- Metric tracker: USD/INR live trend, CPI rate etc. in Hindi.'
+    });
+    setSummaryFormMr({
+      causes: '### Core Causes (Marathi)\n- Highlight core historical triggers here in Marathi.',
+      impact: '### Socio-Economic Impact (Marathi)\n- Highlight direct impacts here in Marathi.',
+      tracker: '### Data Tracker (Marathi)\n- Metric tracker: USD/INR live trend, CPI rate etc. in Marathi.'
+    });
+    setSynthesisEditLang('en');
     setAvailableArticles([]);
   };
 
@@ -253,6 +308,17 @@ export default function NewsStreaksAdmin() {
       seoDescription: '',
       seoKeywords: ''
     });
+    setSummaryFormHi({
+      causes: '### Core Causes (Hindi)\n- Highlight core historical triggers here in Hindi.',
+      impact: '### Socio-Economic Impact (Hindi)\n- Highlight direct impacts here in Hindi.',
+      tracker: '### Data Tracker (Hindi)\n- Metric tracker: USD/INR live trend, CPI rate etc. in Hindi.'
+    });
+    setSummaryFormMr({
+      causes: '### Core Causes (Marathi)\n- Highlight core historical triggers here in Marathi.',
+      impact: '### Socio-Economic Impact (Marathi)\n- Highlight direct impacts here in Marathi.',
+      tracker: '### Data Tracker (Marathi)\n- Metric tracker: USD/INR live trend, CPI rate etc. in Marathi.'
+    });
+    setSynthesisEditLang('en');
     fetchArticlesForLinkedIssues([suggestion.issueId]);
     toast.success(`Streak template initialized for "${suggestion.title}"!`);
   };
@@ -347,9 +413,23 @@ export default function NewsStreaksAdmin() {
       seoKeywords: summaryForm.seoKeywords ? summaryForm.seoKeywords.split(',').map(s => s.trim()).filter(Boolean) : undefined
     });
 
+    const livingSummaryHiJson = JSON.stringify({
+      causes: summaryFormHi.causes,
+      impact: summaryFormHi.impact,
+      tracker: summaryFormHi.tracker
+    });
+
+    const livingSummaryMrJson = JSON.stringify({
+      causes: summaryFormMr.causes,
+      impact: summaryFormMr.impact,
+      tracker: summaryFormMr.tracker
+    });
+
     const payload = {
       ...form,
-      livingSummary: livingSummaryJson
+      livingSummary: livingSummaryJson,
+      livingSummary_hi: livingSummaryHiJson,
+      livingSummary_mr: livingSummaryMrJson
     };
 
     try {
@@ -824,33 +904,77 @@ export default function NewsStreaksAdmin() {
                   The Living Summary represents the macro-level consolidated synthesis shown at the top of the frontend streaks view. It is structured into three contextual tabs: Core Causes, Impact Matrix, and Data Tracker.
                 </span>
 
+                <div className="synthesis-lang-tabs" style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+                  {['en', 'hi', 'mr'].map((lang) => (
+                    <button
+                      key={lang}
+                      type="button"
+                      onClick={() => setSynthesisEditLang(lang)}
+                      style={{
+                        padding: '6px 12px',
+                        background: synthesisEditLang === lang ? 'rgba(6, 182, 212, 0.15)' : 'rgba(255,255,255,0.02)',
+                        border: synthesisEditLang === lang ? '1px solid #06b6d4' : '1px solid rgba(255,255,255,0.08)',
+                        borderRadius: '6px',
+                        color: synthesisEditLang === lang ? '#06b6d4' : '#94a3b8',
+                        fontSize: '0.72rem',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      {lang === 'en' ? '🇬🇧 English Synthesis' : lang === 'hi' ? '🇮🇳 Hindi Synthesis' : '🇮🇳 Marathi Synthesis'}
+                    </button>
+                  ))}
+                </div>
+
                 <div className="summary-tab-editor-grid">
                   <div className="summary-editor-card causes">
-                    <div className="editor-title causes">Core Causes (Markdown)</div>
+                    <div className="editor-title causes">
+                      Core Causes (Markdown - {synthesisEditLang === 'hi' ? 'Hindi' : synthesisEditLang === 'mr' ? 'Marathi' : 'English'})
+                    </div>
                     <textarea 
                       rows={6}
-                      value={summaryForm.causes}
-                      onChange={e => setSummaryForm(prev => ({ ...prev, causes: e.target.value }))}
+                      value={synthesisEditLang === 'hi' ? summaryFormHi.causes : synthesisEditLang === 'mr' ? summaryFormMr.causes : summaryForm.causes}
+                      onChange={e => {
+                        const val = e.target.value;
+                        if (synthesisEditLang === 'hi') setSummaryFormHi(prev => ({ ...prev, causes: val }));
+                        else if (synthesisEditLang === 'mr') setSummaryFormMr(prev => ({ ...prev, causes: val }));
+                        else setSummaryForm(prev => ({ ...prev, causes: val }));
+                      }}
                       placeholder="Identify underlying structural triggers, background context..."
                     />
                   </div>
 
                   <div className="summary-editor-card impact">
-                    <div className="editor-title impact">Impact Matrix (Markdown)</div>
+                    <div className="editor-title impact">
+                      Impact Matrix (Markdown - {synthesisEditLang === 'hi' ? 'Hindi' : synthesisEditLang === 'mr' ? 'Marathi' : 'English'})
+                    </div>
                     <textarea 
                       rows={6}
-                      value={summaryForm.impact}
-                      onChange={e => setSummaryForm(prev => ({ ...prev, impact: e.target.value }))}
+                      value={synthesisEditLang === 'hi' ? summaryFormHi.impact : synthesisEditLang === 'mr' ? summaryFormMr.impact : summaryForm.impact}
+                      onChange={e => {
+                        const val = e.target.value;
+                        if (synthesisEditLang === 'hi') setSummaryFormHi(prev => ({ ...prev, impact: val }));
+                        else if (synthesisEditLang === 'mr') setSummaryFormMr(prev => ({ ...prev, impact: val }));
+                        else setSummaryForm(prev => ({ ...prev, impact: val }));
+                      }}
                       placeholder="Identify socio-economic consequences, implications..."
                     />
                   </div>
 
                   <div className="summary-editor-card tracker">
-                    <div className="editor-title tracker">Data Tracker (Markdown)</div>
+                    <div className="editor-title tracker">
+                      Data Tracker (Markdown - {synthesisEditLang === 'hi' ? 'Hindi' : synthesisEditLang === 'mr' ? 'Marathi' : 'English'})
+                    </div>
                     <textarea 
                       rows={6}
-                      value={summaryForm.tracker}
-                      onChange={e => setSummaryForm(prev => ({ ...prev, tracker: e.target.value }))}
+                      value={synthesisEditLang === 'hi' ? summaryFormHi.tracker : synthesisEditLang === 'mr' ? summaryFormMr.tracker : summaryForm.tracker}
+                      onChange={e => {
+                        const val = e.target.value;
+                        if (synthesisEditLang === 'hi') setSummaryFormHi(prev => ({ ...prev, tracker: val }));
+                        else if (synthesisEditLang === 'mr') setSummaryFormMr(prev => ({ ...prev, tracker: val }));
+                        else setSummaryForm(prev => ({ ...prev, tracker: val }));
+                      }}
                       placeholder="Insert tables, metrics, stats, historical exchange rate lists..."
                     />
                   </div>

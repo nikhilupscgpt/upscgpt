@@ -37,10 +37,14 @@ export async function GET(req) {
             select: {
               id: true,
               title: true,
+              title_hi: true,
+              title_mr: true,
               source: true,
               publishedAt: true,
               url: true,
               rawContent: true,
+              rawContent_hi: true,
+              rawContent_mr: true,
               structuredData: true,
               issueId: true,
               issue: {
@@ -57,10 +61,14 @@ export async function GET(req) {
             select: {
               id: true,
               title: true,
+              title_hi: true,
+              title_mr: true,
               source: true,
               publishedAt: true,
               url: true,
               rawContent: true,
+              rawContent_hi: true,
+              rawContent_mr: true,
               structuredData: true,
               issueId: true,
               issue: {

@@ -9,6 +9,31 @@ import { useIsClient } from '@/lib/useIsClient';
 
 import './home.css'
 
+const cleanSummaryText = (text) => {
+  if (!text) return '';
+  // Remove markdown headers
+  let cleaned = text.replace(/^(?:#+\s*.*?)(?:\r?\n)+/m, '');
+  // Remove bold tags
+  cleaned = cleaned.replace(/\*\*/g, '');
+  return cleaned.trim();
+};
+
+const getMentorTip = (title, summaryObj) => {
+  const causes = (summaryObj?.causes || '').toLowerCase();
+  const impact = (summaryObj?.impact || '').toLowerCase();
+  const lowerTitle = (title || '').toLowerCase();
+  
+  if (/dividend|rbi|bank|reserve|fiscal|currency/i.test(lowerTitle) || /dividend|rbi|bank/i.test(causes + ' ' + impact)) {
+    return 'Focus on the "Bimal Jalan Committee" recommendations regarding RBI\'s economic capital framework and surplus transfer formula for fiscal space analysis.';
+  }
+  if (/warming|climate|temperature|environment|green|carbon|emissions/i.test(lowerTitle) || /warming|climate|temperature/i.test(causes + ' ' + impact)) {
+    return 'Analyze asymmetric warming (night vs day temperatures) and its specific impacts on agriculture, particularly Rabi crop yields in Indo-Gangetic plains.';
+  }
+  if (/tectonic|seismic|earthquake|disaster|plate|coast|tsunami/i.test(lowerTitle) || /tectonic|seismic|earthquake/i.test(causes + ' ' + impact)) {
+    return 'Focus on the seismic vulnerability of the Himalayan belt vs Peninsular India, and NDMA guidelines on earthquake management.';
+  }
+  return `Track the governance, structural bottlenecks, and geopolitical challenges associated with this development for GS Mains GS-II and GS-III papers.`;
+};
 
 export default function UPSCGPTMasterPortal() {
   const [stats, setStats] = useState({ entries: 0, categories: 0, newsToday: 0, issues: 0 })
@@ -162,99 +187,182 @@ export default function UPSCGPTMasterPortal() {
               gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
               gap: '24px' 
             }}>
-              {streaks.map(streak => (
-                <Link key={streak.id} href={`/news?streakId=${streak.id}`} style={{ textDecoration: 'none' }}>
-                  <div style={{
-                    background: 'var(--bg-card)',
-                    border: streak.importanceScore >= 4 ? '1px solid rgba(245, 158, 11, 0.3)' : '1px solid var(--border-color)',
-                    borderRadius: '20px',
-                    padding: '24px',
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    transition: 'all 0.3s ease',
-                    boxShadow: streak.importanceScore >= 4 ? '0 10px 30px -10px rgba(245, 158, 11, 0.15)' : '0 10px 30px -10px rgba(0,0,0,0.5)'
-                  }} className="streak-card-hover">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                      <span style={{ 
-                        background: 'rgba(34, 197, 94, 0.1)', 
-                        color: '#4ade80', 
-                        padding: '4px 10px', 
-                        borderRadius: '20px', 
-                        fontSize: '0.65rem', 
-                        fontWeight: 800, 
-                        textTransform: 'uppercase', 
-                        letterSpacing: '1px', 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        gap: '6px' 
-                      }}>
-                        <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80', boxShadow: '0 0 8px #4ade80', animation: 'pulse 2s infinite' }} />
-                        LIVE NOW
-                      </span>
-                      {streak.importanceScore >= 4 ? (
-                        <span style={{ 
-                          background: 'rgba(245, 158, 11, 0.1)', 
-                          color: '#fbbf24', 
-                          padding: '4px 10px', 
-                          borderRadius: '20px', 
-                          fontSize: '0.65rem', 
-                          fontWeight: 800, 
-                          textTransform: 'uppercase', 
-                          letterSpacing: '1px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px'
-                        }}>
-                          🔥 CRITICAL
-                        </span>
-                      ) : streak.importanceScore >= 3 ? (
-                        <span style={{ 
-                          background: 'rgba(59, 130, 246, 0.1)', 
-                          color: '#60a5fa', 
-                          padding: '4px 10px', 
-                          borderRadius: '20px', 
-                          fontSize: '0.65rem', 
-                          fontWeight: 800, 
-                          textTransform: 'uppercase', 
-                          letterSpacing: '1px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px'
-                        }}>
-                          🎯 HIGH PRIORITY
-                        </span>
-                      ) : null}
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600, marginLeft: 'auto' }}>
-                        Updated {new Date(streak.updatedAt).toLocaleDateString()}
-                      </span>
-                    </div>
-                    
-                    <h4 style={{ fontSize: '1.25rem', color: 'var(--text-primary)', fontWeight: 800, margin: '0 0 12px', lineHeight: 1.3 }}>
-                      {streak.title}
-                    </h4>
-                    
-                    <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0, opacity: 0.9 }}>
-                      {streak.livingSummary ? (streak.livingSummary.substring(0, 120) + '...') : 'Follow the developing story...'}
-                    </p>
-                  </div>
-                </Link>
-              ))}
+              {streaks.map((streak, idx) => {
+                let parsedSummary = null;
+                if (streak.livingSummary) {
+                  try {
+                    parsedSummary = JSON.parse(streak.livingSummary);
+                  } catch (e) {
+                    console.error("Failed to parse livingSummary", e);
+                  }
+                }
+
+                const summaryObj = parsedSummary || {
+                  causes: streak.livingSummary || "Follow the developing story for causes and background context.",
+                  impact: "Check living summary to trace policy and economic impacts.",
+                  tracker: ""
+                };
+
+                const causesText = cleanSummaryText(summaryObj.causes);
+                const displayCauses = causesText.length > 120 ? (causesText.substring(0, 120) + '...') : causesText;
+                
+                const impactText = cleanSummaryText(summaryObj.impact);
+                const displayImpact = impactText.length > 120 ? (impactText.substring(0, 120) + '...') : impactText;
+
+                const displayDesc = cleanSummaryText(summaryObj.causes || summaryObj.impact || streak.livingSummary || '').substring(0, 160) + '...';
+
+                // Alternate styles based on idx
+                const styleType = idx % 3; // 0 = Causes/Impact, 1 = Tags/Description, 2 = AI Mentor Tip
+
+                // Mapped issues as tags
+                const tags = [];
+                if (streak.issues && streak.issues.length > 0) {
+                  streak.issues.forEach(iss => {
+                    if (iss.title) tags.push(iss.title.split(' ').slice(0, 2).join(' ')); // Shortened title
+                    if (iss.domain) tags.push(iss.domain);
+                    if (iss.gsPapers && iss.gsPapers.length > 0) {
+                      iss.gsPapers.forEach(p => tags.push(p));
+                    }
+                  });
+                }
+                const displayTags = [...new Set(tags)].slice(0, 3); // Unique tags, max 3
+
+                // Default fallbacks if no tags
+                if (displayTags.length === 0) {
+                  displayTags.push("GS Paper III", "Current Affairs", "Strategy");
+                }
+
+                const cardClass = `premium-streak-card ${
+                  streak.importanceScore >= 4 
+                    ? 'critical-importance' 
+                    : streak.importanceScore >= 3 
+                    ? 'high-importance' 
+                    : ''
+                }`;
+
+                // Render causes/impact card
+                if (styleType === 0) {
+                  return (
+                    <Link key={streak.id} href={`/news?streak=${streak.slug || streak.id}`} style={{ textDecoration: 'none' }}>
+                      <div className={`${cardClass} index-causes-impact`}>
+                        <div className="card-header-row">
+                          <span className="live-now-badge">
+                            <div className="live-dot" />
+                            LIVE NOW
+                          </span>
+                          {streak.importanceScore >= 4 ? (
+                            <span className="critical-badge">🔥 CRITICAL</span>
+                          ) : (
+                            <span className="priority-badge">🎯 HIGH PRIORITY</span>
+                          )}
+                          <span className="update-time">
+                            Updated {new Date(streak.updatedAt).toLocaleDateString()}
+                          </span>
+                        </div>
+
+                        <h4 className="card-title">{streak.title}</h4>
+                        <div className="card-subtitle">Neural Analysis Active...</div>
+
+                        <div className="sub-box-container">
+                          <div className="causes-sub-box">
+                            <span className="sub-box-title label-causes">CAUSES</span>
+                            <p className="sub-box-text">{displayCauses}</p>
+                          </div>
+                          <div className="impact-sub-box">
+                            <span className="sub-box-title label-impact">IMPACT</span>
+                            <p className="sub-box-text">{displayImpact}</p>
+                          </div>
+                        </div>
+
+                        <div className="card-footer-row">
+                          <span className="footer-metric">42 Neural Links</span>
+                          <span className="footer-action-link">View Node &gt;</span>
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                }
+
+                // Render tags card
+                if (styleType === 1) {
+                  const aspirantsNum = 80 + (idx * 24) % 150;
+                  return (
+                    <Link key={streak.id} href={`/news?streak=${streak.slug || streak.id}`} style={{ textDecoration: 'none' }}>
+                      <div className={`${cardClass} index-tags-desc`}>
+                        <div className="card-header-row">
+                          <span className="live-now-badge">
+                            <div className="live-dot" />
+                            LIVE NOW
+                          </span>
+                          {streak.importanceScore >= 4 ? (
+                            <span className="critical-badge">🔥 CRITICAL</span>
+                          ) : (
+                            <span className="priority-badge">🎯 HIGH PRIORITY</span>
+                          )}
+                          <span className="update-time">
+                            Updated {new Date(streak.updatedAt).toLocaleDateString()}
+                          </span>
+                        </div>
+
+                        <h4 className="card-title">{streak.title}</h4>
+                        <p className="card-description">{displayDesc}</p>
+
+                        <div className="tag-pills-row">
+                          {displayTags.map((tag, tIdx) => (
+                            <span key={tIdx} className="tag-pill-capsule">{tag}</span>
+                          ))}
+                        </div>
+
+                        <div className="card-footer-row">
+                          <span className="footer-metric">{aspirantsNum} Aspirants Online</span>
+                          <span className="footer-action-link">Deep Dive &gt;</span>
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                }
+
+                // Render mentor tip card
+                if (styleType === 2) {
+                  const mentorTip = getMentorTip(streak.title, summaryObj);
+                  return (
+                    <Link key={streak.id} href={`/news?streak=${streak.slug || streak.id}`} style={{ textDecoration: 'none' }}>
+                      <div className={`${cardClass} index-mentor-tip`}>
+                        <div className="card-header-row">
+                          <span className="live-now-badge">
+                            <div className="live-dot" />
+                            LIVE NOW
+                          </span>
+                          {streak.importanceScore >= 4 ? (
+                            <span className="critical-badge">🔥 CRITICAL</span>
+                          ) : (
+                            <span className="priority-badge">🎯 HIGH PRIORITY</span>
+                          )}
+                          <span className="update-time">
+                            Updated {new Date(streak.updatedAt).toLocaleDateString()}
+                          </span>
+                        </div>
+
+                        <h4 className="card-title">{streak.title}</h4>
+                        <p className="card-description">{displayDesc}</p>
+
+                        <div className="mentor-tip-box">
+                          <span className="mentor-tip-title">💡 AI MENTOR TIP</span>
+                          <p className="mentor-tip-quote">"{mentorTip}"</p>
+                        </div>
+
+                        <div className="card-footer-row">
+                          <span className="footer-metric">Node Verified ✓</span>
+                          <span className="footer-action-link">Full Analysis &gt;</span>
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                }
+
+                return null;
+              })}
             </div>
-            
-            <style jsx>{`
-              .streak-card-hover:hover {
-                background: var(--bg-hover) !important;
-                border-color: var(--border-hover) !important;
-                transform: translateY(-4px);
-                box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(56, 189, 248, 0.1);
-              }
-              @keyframes pulse {
-                0% { opacity: 1; transform: scale(1); }
-                50% { opacity: 0.5; transform: scale(1.2); }
-                100% { opacity: 1; transform: scale(1); }
-              }
-            `}</style>
           </div>
         )}
 

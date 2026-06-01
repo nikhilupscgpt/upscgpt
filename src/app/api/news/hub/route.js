@@ -94,7 +94,7 @@ export async function GET(req) {
         { createdAt: 'desc' },
       ],
       include: {
-        issue: { select: { id: true, title: true, category: true, slug: true } },
+        issue: { select: { id: true, title: true, title_hi: true, title_mr: true, category: true, slug: true, domain: true, topic: true } },
       },
     });
 
@@ -106,7 +106,7 @@ export async function GET(req) {
         { createdAt: 'desc' },
       ],
       include: {
-        issue: { select: { id: true, title: true, category: true, slug: true } },
+        issue: { select: { id: true, title: true, title_hi: true, title_mr: true, category: true, slug: true, domain: true, topic: true } },
       },
     });
 

@@ -9,22 +9,25 @@ const translations = { en, hi, mr };
 
 const TranslationContext = createContext();
 
-function getInitialLanguage() {
-  if (typeof window === "undefined") {
-    return "en";
-  }
-
-  const savedLang = window.localStorage.getItem("language");
-  return savedLang && translations[savedLang] ? savedLang : "en";
-}
-
 export function TranslationProvider({ children }) {
-  const [lang, setLang] = useState(getInitialLanguage);
+  // Always start with 'en' to match SSR — avoids hydration mismatch
+  const [lang, setLang] = useState('en');
+
+  React.useEffect(() => {
+    // After mount, read the saved language from localStorage
+    const savedLang = window.localStorage.getItem('language');
+    const resolvedLang = savedLang && translations[savedLang] ? savedLang : 'en';
+    if (resolvedLang !== 'en') {
+      setLang(resolvedLang);
+    }
+    document.cookie = `language=${resolvedLang}; path=/; max-age=31536000`;
+  }, []);
 
   const changeLanguage = (newLang) => {
     if (translations[newLang]) {
       setLang(newLang);
       localStorage.setItem("language", newLang);
+      document.cookie = `language=${newLang}; path=/; max-age=31536000`;
     }
   };
 

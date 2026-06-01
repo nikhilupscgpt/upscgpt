@@ -71,7 +71,7 @@ export async function POST(req) {
 
   try {
     const body = await req.json();
-    const { title, title_hi, title_mr, livingSummary, status, importanceScore = 1, issueIds = [], articleIds = [], editorialIds = [] } = body;
+    const { title, title_hi, title_mr, livingSummary, livingSummary_hi, livingSummary_mr, status, importanceScore = 1, issueIds = [], articleIds = [], editorialIds = [] } = body;
 
     if (!title) {
       return NextResponse.json({ error: 'Title is required' }, { status: 400 });
@@ -97,6 +97,8 @@ export async function POST(req) {
         title_mr,
         slug: finalSlug,
         livingSummary,
+        livingSummary_hi,
+        livingSummary_mr,
         status: status || 'ACTIVE',
         importanceScore: parseInt(importanceScore) || 1,
         issues: {

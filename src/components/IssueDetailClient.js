@@ -12,8 +12,9 @@ import {
 import { useTranslation } from '@/context/TranslationContext';
 import ZenCard from './ZenCard';
 import { useIsClient } from '@/lib/useIsClient';
+import NotesTrigger from './NotesTrigger';
 
-export default function IssueDetailClient({ issue, initialFlow }) {
+export default function IssueDetailClient({ issue, initialFlow, initialBookmarked, initialStatus }) {
   const { t, lang } = useTranslation();
   const isClient = useIsClient();
   const router = useRouter();
@@ -443,9 +444,18 @@ export default function IssueDetailClient({ issue, initialFlow }) {
         @media (max-width: 1024px) {
            .issue-grid-layout { grid-template-columns: 1fr; }
            .issue-title { font-size: 2.2rem; }
-           .analysis-grid { grid-template-columns: 1fr; }
+            .analysis-grid { grid-template-columns: 1fr; }
         }
       `}</style>
+      <NotesTrigger
+        entityType="issue"
+        entityId={issue.id}
+        entityTitle={issue.title}
+        entitySubject={issue.domain}
+        entityTopic={issue.topic}
+        initialBookmarked={initialBookmarked}
+        initialStatus={initialStatus}
+      />
     </div>
   );
 }

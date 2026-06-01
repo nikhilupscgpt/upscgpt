@@ -67,6 +67,7 @@ export default function AdminClient({ session }) {
   const [editingItem, setEditingItem] = useState(null)
   const [savingItem, setSavingItem] = useState(false)
   const [generatingItemSeo, setGeneratingItemSeo] = useState(false)
+  const [editModalTab, setEditModalTab] = useState("content") // content, hi, mr, seo
 
   // Test Admin State
   const [testPacks, setTestPacks] = useState([])
@@ -282,12 +283,18 @@ export default function AdminClient({ session }) {
       id: item.id,
       type,
       title: item.title || '',
+      title_hi: item.title_hi || '',
+      title_mr: item.title_mr || '',
+      rawContent: item.rawContent || '',
+      rawContent_hi: item.rawContent_hi || '',
+      rawContent_mr: item.rawContent_mr || '',
       contentType: item.contentType || 'NEWS',
       crux: structured.crux || '',
       seoTitle: structured.seoTitle || '',
       seoDescription: structured.seoDescription || '',
       seoKeywords: Array.isArray(structured.seoKeywords) ? structured.seoKeywords.join(', ') : (structured.seoKeywords || '')
     });
+    setEditModalTab('content');
   }
 
   const handleSaveEditedItem = async () => {
@@ -300,6 +307,11 @@ export default function AdminClient({ session }) {
         body: JSON.stringify({
           type: editingItem.type,
           title: editingItem.title,
+          title_hi: editingItem.title_hi,
+          title_mr: editingItem.title_mr,
+          rawContent: editingItem.rawContent,
+          rawContent_hi: editingItem.rawContent_hi,
+          rawContent_mr: editingItem.rawContent_mr,
           contentType: editingItem.contentType,
           crux: editingItem.crux,
           seoTitle: editingItem.seoTitle,
@@ -2404,129 +2416,227 @@ export default function AdminClient({ session }) {
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ display: 'flex', gap: '16px' }}>
-                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <label style={{ fontSize: '0.68rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Title</label>
-                  <input 
-                    type="text"
-                    value={editingItem.title}
-                    onChange={e => setEditingItem({ ...editingItem, title: e.target.value })}
-                    style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '10px 14px', color: 'white', fontSize: '0.85rem' }}
-                  />
-                </div>
-                {editingItem.type === 'ARTICLE' && (
-                  <div style={{ width: '200px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <label style={{ fontSize: '0.68rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Segment</label>
-                    <select
-                      value={editingItem.contentType}
-                      onChange={e => setEditingItem({ ...editingItem, contentType: e.target.value })}
-                      style={{ width: '100%', background: '#070a19', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '10px 14px', color: 'white', fontSize: '0.85rem', height: '42px' }}
+            {/* Tab Headers */}
+            <div style={{ display: 'flex', borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '2px', gap: '8px' }}>
+              {[
+                { id: 'content', label: 'English & Crux' },
+                { id: 'hi', label: 'Hindi Translation' },
+                { id: 'mr', label: 'Marathi Translation' },
+                { id: 'seo', label: 'SEO Metadata' }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setEditModalTab(tab.id)}
+                  style={{
+                    padding: '8px 16px',
+                    background: 'transparent',
+                    border: 'none',
+                    borderBottom: editModalTab === tab.id ? '2px solid #a855f7' : '2px solid transparent',
+                    color: editModalTab === tab.id ? 'white' : '#64748b',
+                    fontWeight: editModalTab === tab.id ? 800 : 500,
+                    fontSize: '0.85rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    paddingBottom: '10px'
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', minHeight: '380px' }}>
+              {editModalTab === 'content' && (
+                <>
+                  <div style={{ display: 'flex', gap: '16px' }}>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <label style={{ fontSize: '0.68rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Title</label>
+                      <input 
+                        type="text"
+                        value={editingItem.title}
+                        onChange={e => setEditingItem({ ...editingItem, title: e.target.value })}
+                        style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '10px 14px', color: 'white', fontSize: '0.85rem' }}
+                      />
+                    </div>
+                    {editingItem.type === 'ARTICLE' && (
+                      <div style={{ width: '200px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        <label style={{ fontSize: '0.68rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Segment</label>
+                        <select
+                          value={editingItem.contentType}
+                          onChange={e => setEditingItem({ ...editingItem, contentType: e.target.value })}
+                          style={{ width: '100%', background: '#070a19', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '10px 14px', color: 'white', fontSize: '0.85rem', height: '42px' }}
+                        >
+                          <option value="NEWS">News / Current</option>
+                          <option value="PRELIMS">Prelims Fact</option>
+                          <option value="MAINS">Mains Master</option>
+                          <option value="PIB">PIB Release</option>
+                        </select>
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '0.68rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Crux / Key Takeaway</label>
+                    <textarea 
+                      rows={3}
+                      value={editingItem.crux}
+                      onChange={e => setEditingItem({ ...editingItem, crux: e.target.value })}
+                      placeholder="The main core point of this news piece for UPSC reference..."
+                      style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '10px 14px', color: '#cbd5e1', fontSize: '0.85rem', resize: 'vertical', fontFamily: 'inherit' }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '0.68rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Full Content (English)</label>
+                    <textarea 
+                      rows={8}
+                      value={editingItem.rawContent || ''}
+                      onChange={e => setEditingItem({ ...editingItem, rawContent: e.target.value })}
+                      placeholder="English news item body..."
+                      style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '10px 14px', color: '#cbd5e1', fontSize: '0.85rem', resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6 }}
+                    />
+                  </div>
+                </>
+              )}
+
+              {editModalTab === 'hi' && (
+                <>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '0.68rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Hindi Title (शीर्षक)</label>
+                    <input 
+                      type="text"
+                      value={editingItem.title_hi || ''}
+                      onChange={e => setEditingItem({ ...editingItem, title_hi: e.target.value })}
+                      placeholder="Hindi title translation..."
+                      style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '10px 14px', color: 'white', fontSize: '0.85rem' }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '0.68rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Hindi Content (विषय-वस्तु)</label>
+                    <textarea 
+                      rows={12}
+                      value={editingItem.rawContent_hi || ''}
+                      onChange={e => setEditingItem({ ...editingItem, rawContent_hi: e.target.value })}
+                      placeholder="Hindi content body..."
+                      style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '10px 14px', color: '#cbd5e1', fontSize: '0.85rem', resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6 }}
+                    />
+                  </div>
+                </>
+              )}
+
+              {editModalTab === 'mr' && (
+                <>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '0.68rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Marathi Title (शीर्षक)</label>
+                    <input 
+                      type="text"
+                      value={editingItem.title_mr || ''}
+                      onChange={e => setEditingItem({ ...editingItem, title_mr: e.target.value })}
+                      placeholder="Marathi title translation..."
+                      style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '10px 14px', color: 'white', fontSize: '0.85rem' }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '0.68rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Marathi Content (विषय-वस्तु)</label>
+                    <textarea 
+                      rows={12}
+                      value={editingItem.rawContent_mr || ''}
+                      onChange={e => setEditingItem({ ...editingItem, rawContent_mr: e.target.value })}
+                      placeholder="Marathi content body..."
+                      style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '10px 14px', color: '#cbd5e1', fontSize: '0.85rem', resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.6 }}
+                    />
+                  </div>
+                </>
+              )}
+
+              {editModalTab === 'seo' && (
+                <div style={{ borderTop: 'none', paddingTop: '0px', marginTop: '0px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                    <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#cbd5e1' }}>SEO Optimization</span>
+                    <button
+                      type="button"
+                      onClick={handleGenerateSeoForEditedItem}
+                      disabled={generatingItemSeo}
+                      style={{
+                        padding: '6px 14px',
+                        background: 'linear-gradient(135deg, #a855f7, #7c3aed)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '0.75rem',
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        boxShadow: '0 2px 8px rgba(168, 85, 247, 0.2)'
+                      }}
                     >
-                      <option value="NEWS">News / Current</option>
-                      <option value="PRELIMS">Prelims Fact</option>
-                      <option value="MAINS">Mains Master</option>
-                      <option value="PIB">PIB Release</option>
-                    </select>
-                  </div>
-                )}
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <label style={{ fontSize: '0.68rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Crux / Key Takeaway</label>
-                <textarea 
-                  rows={3}
-                  value={editingItem.crux}
-                  onChange={e => setEditingItem({ ...editingItem, crux: e.target.value })}
-                  placeholder="The main core point of this news piece for UPSC reference..."
-                  style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px', padding: '10px 14px', color: '#cbd5e1', fontSize: '0.85rem', resize: 'vertical', fontFamily: 'inherit' }}
-                />
-              </div>
-
-              <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '20px', marginTop: '8px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                  <span style={{ fontSize: '0.9rem', fontWeight: 800, color: '#cbd5e1' }}>SEO Optimization</span>
-                  <button
-                    type="button"
-                    onClick={handleGenerateSeoForEditedItem}
-                    disabled={generatingItemSeo}
-                    style={{
-                      padding: '6px 14px',
-                      background: 'linear-gradient(135deg, #a855f7, #7c3aed)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '8px',
-                      fontSize: '0.75rem',
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      boxShadow: '0 2px 8px rgba(168, 85, 247, 0.2)'
-                    }}
-                  >
-                    {generatingItemSeo ? '✨ Generating...' : '✨ Optimize SEO with Gemma AI'}
-                  </button>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '20px' }}>
-                  {/* Google Snippet preview */}
-                  <div style={{ background: '#050711', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <div style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Google SERP Snippet Preview</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.7rem' }}>
-                      <div style={{ background: '#1e293b', width: '16px', height: '16px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', color: '#3b82f6', fontWeight: 900 }}>U</div>
-                      <span style={{ color: '#dadde1' }}>UPSC Atlas</span>
-                      <span style={{ color: '#9aa0a6' }}>{`> news > ${editingItem.type === 'ARTICLE' ? 'article' : 'editorial'}`}</span>
-                    </div>
-                    <div style={{ color: '#8ab4f8', fontSize: '1.05rem', fontWeight: 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '2px' }}>
-                      {editingItem.seoTitle || editingItem.title || 'UPSC News Analysis'}
-                    </div>
-                    <div style={{ color: '#bdc1c6', fontSize: '0.78rem', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                      {editingItem.seoDescription || editingItem.crux || 'Read the analytical crux, background details and mains syllabus relevancy review.'}
-                    </div>
+                      {generatingItemSeo ? '✨ Generating...' : '✨ Optimize SEO with Gemma AI'}
+                    </button>
                   </div>
 
-                  {/* SEO Inputs */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#cbd5e1' }}>SEO Title Override</span>
-                        <span style={{ fontSize: '0.6rem', color: (editingItem.seoTitle?.length > 60) ? '#f59e0b' : '#10b981' }}>{editingItem.seoTitle?.length || 0}/60</span>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '20px' }}>
+                    {/* Google Snippet preview */}
+                    <div style={{ background: '#050711', border: '1px solid rgba(255,255,255,0.04)', borderRadius: '12px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      <div style={{ fontSize: '0.6rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Google SERP Snippet Preview</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.7rem' }}>
+                        <div style={{ background: '#1e293b', width: '16px', height: '16px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', color: '#3b82f6', fontWeight: 900 }}>U</div>
+                        <span style={{ color: '#dadde1' }}>UPSC Atlas</span>
+                        <span style={{ color: '#9aa0a6' }}>{`> news > ${editingItem.type === 'ARTICLE' ? 'article' : 'editorial'}`}</span>
                       </div>
-                      <input 
-                        type="text"
-                        value={editingItem.seoTitle}
-                        onChange={e => setEditingItem({ ...editingItem, seoTitle: e.target.value })}
-                        placeholder="Default title used if blank"
-                        style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '8px 12px', color: 'white', fontSize: '0.78rem' }}
-                      />
-                    </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#cbd5e1' }}>Meta Description Override</span>
-                        <span style={{ fontSize: '0.6rem', color: (editingItem.seoDescription?.length > 155) ? '#f59e0b' : '#10b981' }}>{editingItem.seoDescription?.length || 0}/155</span>
+                      <div style={{ color: '#8ab4f8', fontSize: '1.05rem', fontWeight: 400, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: '2px' }}>
+                        {editingItem.seoTitle || editingItem.title || 'UPSC News Analysis'}
                       </div>
-                      <textarea 
-                        rows={2}
-                        value={editingItem.seoDescription}
-                        onChange={e => setEditingItem({ ...editingItem, seoDescription: e.target.value })}
-                        placeholder="Default crux used if blank"
-                        style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '8px 12px', color: '#cbd5e1', fontSize: '0.78rem', resize: 'none', fontFamily: 'inherit' }}
-                      />
+                      <div style={{ color: '#bdc1c6', fontSize: '0.78rem', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        {editingItem.seoDescription || editingItem.crux || 'Read the analytical crux, background details and mains syllabus relevancy review.'}
+                      </div>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#cbd5e1' }}>Focus Keywords</span>
-                      <input 
-                        type="text"
-                        value={editingItem.seoKeywords}
-                        onChange={e => setEditingItem({ ...editingItem, seoKeywords: e.target.value })}
-                        placeholder="e.g. UPSC, Indian Rupee, Fiscal Policy (comma separated)"
-                        style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '8px 12px', color: 'white', fontSize: '0.78rem' }}
-                      />
+
+                    {/* SEO Inputs */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#cbd5e1' }}>SEO Title Override</span>
+                          <span style={{ fontSize: '0.6rem', color: (editingItem.seoTitle?.length > 60) ? '#f59e0b' : '#10b981' }}>{editingItem.seoTitle?.length || 0}/60</span>
+                        </div>
+                        <input 
+                          type="text"
+                          value={editingItem.seoTitle}
+                          onChange={e => setEditingItem({ ...editingItem, seoTitle: e.target.value })}
+                          placeholder="Default title used if blank"
+                          style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '8px 12px', color: 'white', fontSize: '0.78rem' }}
+                        />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#cbd5e1' }}>Meta Description Override</span>
+                          <span style={{ fontSize: '0.6rem', color: (editingItem.seoDescription?.length > 155) ? '#f59e0b' : '#10b981' }}>{editingItem.seoDescription?.length || 0}/155</span>
+                        </div>
+                        <textarea 
+                          rows={2}
+                          value={editingItem.seoDescription}
+                          onChange={e => setEditingItem({ ...editingItem, seoDescription: e.target.value })}
+                          placeholder="Default crux used if blank"
+                          style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '8px 12px', color: '#cbd5e1', fontSize: '0.78rem', resize: 'none', fontFamily: 'inherit' }}
+                        />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <span style={{ fontSize: '0.65rem', fontWeight: 800, color: '#cbd5e1' }}>Focus Keywords</span>
+                        <input 
+                          type="text"
+                          value={editingItem.seoKeywords}
+                          onChange={e => setEditingItem({ ...editingItem, seoKeywords: e.target.value })}
+                          placeholder="e.g. UPSC, Indian Rupee, Fiscal Policy (comma separated)"
+                          style={{ width: '100%', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '8px', padding: '8px 12px', color: 'white', fontSize: '0.78rem' }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '16px' }}>

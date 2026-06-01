@@ -12,13 +12,14 @@ export async function GET() {
         { updatedAt: 'desc' }
       ],
       take: 3,
-      select: {
-        id: true,
-        title: true,
-        livingSummary: true,
-        importanceScore: true,
-        updatedAt: true,
-        createdAt: true,
+      include: {
+        issues: {
+          select: {
+            title: true,
+            domain: true,
+            gsPapers: true
+          }
+        }
       }
     });
 

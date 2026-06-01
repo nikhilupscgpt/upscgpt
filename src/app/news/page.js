@@ -6,6 +6,7 @@ import remarkGfm from 'remark-gfm';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useTranslation } from "@/context/TranslationContext";
+import NotesTrigger from '@/components/NotesTrigger';
 import { 
   Calendar, 
   Menu, 
@@ -29,6 +30,7 @@ export default function NewsHub() {
   const { lang } = useTranslation();
   const sessionExists = status === 'authenticated';
   const router = useRouter();
+
   const [feed, setFeed] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeItemId, setActiveItemId] = useState(null);
@@ -53,7 +55,6 @@ export default function NewsHub() {
   const [activeStreakWeek, setActiveStreakWeek] = useState('W2');
   const [activeSynthesisTab, setActiveSynthesisTab] = useState('causes');
   const [streakPracticeTab, setStreakPracticeTab] = useState('article');
-  const [showPractice, setShowPractice] = useState(false);
   const [showLivingSummary, setShowLivingSummary] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [articleModalItem, setArticleModalItem] = useState(null); // { item, structuredData }
@@ -61,7 +62,7 @@ export default function NewsHub() {
     setMounted(true);
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
-      const streakId = params.get('streakId');
+      const streakId = params.get('streak') || params.get('streakId');
       if (streakId) {
         setActiveFeedTab('streak');
         setActiveStreakId(streakId);
@@ -83,7 +84,7 @@ export default function NewsHub() {
       const loadedStreaks = data.streaks || [];
       setStreaks(loadedStreaks);
       if (loadedStreaks.length > 0 && !activeStreakId) {
-        setActiveStreakId(loadedStreaks[0].id);
+        setActiveStreakId(loadedStreaks[0].slug || loadedStreaks[0].id);
       }
     } catch (err) {
       console.error("Failed to fetch news streaks:", err);
@@ -95,7 +96,7 @@ export default function NewsHub() {
   async function fetchStreakDetails(streakId) {
     if (!streakId) return;
     try {
-      const res = await fetch(`/api/news-streaks?id=${streakId}`);
+      const res = await fetch(`/api/news-streaks?id=${streakId}&slug=${streakId}`);
       const data = await res.json();
       if (data.success && data.streak) {
         setActiveStreakDetails(data.streak);
@@ -226,6 +227,16 @@ export default function NewsHub() {
 
   const activeItem = feed.find(item => item.id === activeItemId);
 
+  const triggerType = activeFeedTab === 'streak' ? 'streak' : (activeItem?.contentType === 'EDITORIAL' ? 'editorial' : 'article');
+  const triggerId = activeFeedTab === 'streak' ? activeStreakDetails?.id : activeItem?.id;
+  const triggerTitle = activeFeedTab === 'streak' ? activeStreakDetails?.title : activeItem?.title;
+  const triggerSubject = activeFeedTab === 'streak' 
+    ? (activeStreakDetails?.issues?.[0]?.domain || 'General Studies') 
+    : (activeItem?.issue?.domain || 'General Studies');
+  const triggerTopic = activeFeedTab === 'streak' 
+    ? (activeStreakDetails?.issues?.[0]?.topic || 'Current Affairs') 
+    : (activeItem?.issue?.topic || 'Current Affairs');
+
   // Parse structured data safely (hoisted via standard function declaration)
   function getStructuredData(item) {
     if (!item?.structuredData) return null;
@@ -240,6 +251,38 @@ export default function NewsHub() {
   }
 
   const structured = getStructuredData(activeItem);
+
+  const triggerQuestions = [];
+  if (activeFeedTab === 'streak') {
+    if (activeStreakNodeStructured?.mcq) {
+      triggerQuestions.push({
+        id: `ai-streak-${activeStreakNode.id}`,
+        text: activeStreakNodeStructured.mcq.question,
+        options: activeStreakNodeStructured.mcq.options,
+        correctLabel: activeStreakNodeStructured.mcq.answer,
+        explanation: activeStreakNodeStructured.mcq.explanation || 'See details in the text.',
+        tags: ['prelims']
+      });
+    }
+    if (activeStreakNode?.questions) {
+      triggerQuestions.push(...activeStreakNode.questions);
+    }
+  } else {
+    if (structured?.mcq) {
+      triggerQuestions.push({
+        id: `ai-${activeItem?.id}`,
+        text: structured.mcq.question,
+        options: structured.mcq.options,
+        correctLabel: structured.mcq.answer,
+        explanation: structured.mcq.explanation || 'See details in the text.',
+        tags: ['prelims']
+      });
+    }
+    if (activeItem?.questions) {
+      triggerQuestions.push(...activeItem.questions);
+    }
+  }
+
 
   // Parse options for DB questions
   const getOptionsArray = (options) => {
@@ -1171,7 +1214,7 @@ export default function NewsHub() {
                         <span className="sidebar-time">{displayTime}</span>
                       </div>
                       <div className={`sidebar-item-title ${isActive ? 'active' : ''}`}>
-                        {item.title}
+                        {lang === 'hi' ? (item.title_hi || item.title) : lang === 'mr' ? (item.title_mr || item.title) : item.title}
                       </div>
                       {item.issue?.title && (
                         <div className="sidebar-issue-link">
@@ -1211,7 +1254,7 @@ export default function NewsHub() {
                   });
 
                   return filteredStreaksList.length > 0 ? filteredStreaksList.map(streak => {
-                    const isActive = activeStreakId === streak.id;
+                    const isActive = activeStreakId === streak.id || activeStreakId === streak.slug;
                     
                     const paper = streak.issues?.[0]?.gsPapers?.[0] || 'GS-III';
                     const domain = streak.issues?.[0]?.domain || 'ECONOMY';
@@ -1221,9 +1264,13 @@ export default function NewsHub() {
                       <div 
                         key={streak.id}
                         onClick={() => {
-                          setActiveStreakId(streak.id);
+                          setActiveStreakId(streak.slug || streak.id);
                           setMobileMenuOpen(false);
                           setSelectedAnswers({});
+                          if (typeof window !== 'undefined') {
+                            const newUrl = `${window.location.pathname}?streak=${streak.slug || streak.id}`;
+                            window.history.pushState(null, '', newUrl);
+                          }
                         }}
                         className={`sidebar-item streak-sidebar-card ${isActive ? 'active' : ''}`}
                         style={{
@@ -1234,7 +1281,9 @@ export default function NewsHub() {
                           <span className="streak-meta-paper">{paper} • {domain}</span>
                           <span className="streak-meta-status" style={{ color: streak.status === 'URGENT' ? '#fbbf24' : '#10b981' }}>{streak.status}</span>
                         </div>
-                        <div className="streak-card-title">{streak.title}</div>
+                        <div className="streak-card-title">
+                          {lang === 'hi' ? (streak.title_hi || streak.title) : lang === 'mr' ? (streak.title_mr || streak.title) : streak.title}
+                        </div>
                         
                         <div className="streak-card-graph-row">
                           <svg className="trendline-svg" viewBox="0 0 100 30" width="70" height="20">
@@ -1268,7 +1317,7 @@ export default function NewsHub() {
 
           {activeFeedTab === 'feed' ? (
             activeItem ? (
-              <div className={`workspace-main-wrapper ${showPractice ? 'practice-open' : ''}`}>
+              <div className="workspace-main-wrapper">
                 
                 {/* CENTER COLUMN: INTEL BRIEFING */}
                 <main className="news-center-canvas hide-scrollbar">
@@ -1364,35 +1413,8 @@ export default function NewsHub() {
                       )}
                     </div>
 
-                    {/* INLINE MOBILE PRACTICE PANEL */}
-                    <div className="practice-panel-inline-mobile">
-                      <div className="mobile-practice-header">
-                        <CheckSquare size={16} style={{ color: '#f59e0b' }} />
-                        <h3>Practice Questions & Evaluation</h3>
-                      </div>
-                      {renderPracticeBoard()}
-                    </div>
-
                   </div>
                 </main>
-
-                {/* RIGHT COLUMN: PRACTICE BOARD */}
-                <aside className={`news-right-panel hide-scrollbar ${showPractice ? 'open' : ''}`}>
-                  <div className="right-panel-sticky-wrapper">
-                    <div className="practice-panel-header">
-                      <CheckSquare size={16} style={{ color: '#10b981' }} />
-                      <h2>Neural Practice Board</h2>
-                      <button 
-                        onClick={() => setShowPractice(false)}
-                        className="practice-close-btn"
-                        style={{ marginLeft: 'auto', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
-                      >
-                        <X size={16} />
-                      </button>
-                    </div>
-                    {renderPracticeBoard()}
-                  </div>
-                </aside>
 
               </div>
             ) : (
@@ -1414,10 +1436,10 @@ export default function NewsHub() {
             )
           ) : (
             activeStreakDetails ? (
-              <div className={`workspace-main-wrapper ${showPractice ? 'practice-open' : ''}`} style={{ display: 'flex', width: '100%', height: '100%', overflow: 'hidden' }}>
+              <div className="workspace-main-wrapper" style={{ display: 'flex', width: '100%', height: '100%', overflow: 'hidden' }}>
                 
                 {/* MIDDLE COLUMN: NEWS STREAK EVOLVING CANVAS */}
-                <main className="news-center-canvas hide-scrollbar" style={{ flex: '1.2', borderRight: '1px solid var(--border-color)', height: '100%', overflowY: 'auto', padding: '24px 32px' }}>
+                <main className="news-center-canvas hide-scrollbar" style={{ flex: '1.8', height: '100%', overflowY: 'auto', padding: '24px 32px' }}>
                   <div className="streak-page-container animate-fade-in" style={{ width: '100%' }}>
                     
                     {/* Header & Synthesis Badge */}
@@ -1434,7 +1456,7 @@ export default function NewsHub() {
                         </span>
                       </div>
                       <h2 className="article-title" style={{ fontSize: '2.2rem', fontWeight: 900, color: 'var(--text-primary)', margin: '0 0 16px', lineHeight: 1.25, letterSpacing: '-0.5px' }}>
-                        {activeStreakDetails.title}
+                        {lang === 'hi' ? (activeStreakDetails.title_hi || activeStreakDetails.title) : lang === 'mr' ? (activeStreakDetails.title_mr || activeStreakDetails.title) : activeStreakDetails.title}
                       </h2>
 
                       {/* Toggle Living Summary Button */}
@@ -1492,14 +1514,26 @@ export default function NewsHub() {
                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
                               {(() => {
                                 try {
-                                  const parsed = JSON.parse(activeStreakDetails.livingSummary);
-                                  if (activeSynthesisTab === 'causes') return parsed.causes || parsed.background || activeStreakDetails.livingSummary;
-                                  if (activeSynthesisTab === 'impact') return parsed.impact || parsed.implications || "No impact matrix defined yet.";
-                                  if (activeSynthesisTab === 'tracker') return parsed.tracker || parsed.data || "No data tracking sets defined yet.";
+                                  let summaryRaw = activeStreakDetails.livingSummary;
+                                  if (lang === 'hi' && activeStreakDetails.livingSummary_hi) {
+                                    summaryRaw = activeStreakDetails.livingSummary_hi;
+                                  } else if (lang === 'mr' && activeStreakDetails.livingSummary_mr) {
+                                    summaryRaw = activeStreakDetails.livingSummary_mr;
+                                  }
+                                  const parsed = JSON.parse(summaryRaw);
+                                  if (activeSynthesisTab === 'causes') return parsed.causes || parsed.background || summaryRaw;
+                                  if (activeSynthesisTab === 'impact') return parsed.impact || parsed.implications || (lang === 'hi' ? "कोई प्रभाव मैट्रिक्स अभी तक परिभाषित नहीं है।" : lang === 'mr' ? "कोणताही प्रभाव मॅट्रिक्स अद्याप परिभाषित नाही." : "No impact matrix defined yet.");
+                                  if (activeSynthesisTab === 'tracker') return parsed.tracker || parsed.data || (lang === 'hi' ? "कोई डेटा ट्रैकिंग सेट अभी तक परिभाषित नहीं है।" : lang === 'mr' ? "कोणतेही डेटा ट्रॅकिंग संच अद्याप परिभाषित केलेले नाहीत." : "No data tracking sets defined yet.");
                                 } catch (e) {
-                                  if (activeSynthesisTab === 'causes') return activeStreakDetails.livingSummary || "No causes summary available.";
-                                  if (activeSynthesisTab === 'impact') return "No impact matrix defined yet.";
-                                  if (activeSynthesisTab === 'tracker') return "No data tracking sets defined yet.";
+                                  let summaryRaw = activeStreakDetails.livingSummary;
+                                  if (lang === 'hi' && activeStreakDetails.livingSummary_hi) {
+                                    summaryRaw = activeStreakDetails.livingSummary_hi;
+                                  } else if (lang === 'mr' && activeStreakDetails.livingSummary_mr) {
+                                    summaryRaw = activeStreakDetails.livingSummary_mr;
+                                  }
+                                  if (activeSynthesisTab === 'causes') return summaryRaw || (lang === 'hi' ? "कोई कारण सारांश उपलब्ध नहीं है।" : lang === 'mr' ? "कोणताही कारण सारांश उपलब्ध नाही." : "No causes summary available.");
+                                  if (activeSynthesisTab === 'impact') return (lang === 'hi' ? "कोई प्रभाव मैट्रिक्स अभी तक परिभाषित नहीं है।" : lang === 'mr' ? "कोणताही प्रभाव मॅट्रिक्स अद्याप परिभाषित नाही." : "No impact matrix defined yet.");
+                                  if (activeSynthesisTab === 'tracker') return (lang === 'hi' ? "कोई डेटा ट्रैकिंग सेट अभी तक परिभाषित नहीं है।" : lang === 'mr' ? "कोणतेही डेटा ट्रॅकिंग संच अद्याप परिभाषित केलेले नाहीत." : "No data tracking sets defined yet.");
                                 }
                                 return "";
                               })()}
@@ -1512,7 +1546,7 @@ export default function NewsHub() {
                 </main>
 
                 {/* RIGHT COLUMN: THREAD CHRONICLE TIMELINE (VERTICAL CHRONICLE) */}
-                <aside className="thread-chronicle-column hide-scrollbar" style={{ flex: '1', height: '100%', overflowY: 'auto', padding: '24px 32px' }}>
+                <aside className="thread-chronicle-column hide-scrollbar" style={{ flex: '0.8', height: '100%', overflowY: 'auto', padding: '24px 32px' }}>
                   <h3 style={{ fontSize: '0.8rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '0.5px', margin: '0 0 20px 0', textTransform: 'uppercase' }}>
                     Thread Chronicle
                   </h3>
@@ -1630,23 +1664,6 @@ export default function NewsHub() {
                   )}
                 </aside>
 
-                {/* RIGHT COLUMN: PRACTICE BOARD */}
-                <aside className={`news-right-panel hide-scrollbar ${showPractice ? 'open' : ''}`}>
-                  <div className="right-panel-sticky-wrapper">
-                    <div className="practice-panel-header">
-                      <CheckSquare size={16} style={{ color: '#10b981' }} />
-                      <h2>Neural Practice Board</h2>
-                      <button 
-                        onClick={() => setShowPractice(false)}
-                        className="practice-close-btn"
-                        style={{ marginLeft: 'auto', background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
-                      >
-                        <X size={16} />
-                      </button>
-                    </div>
-                    {renderStreakPracticeBoard()}
-                  </div>
-                </aside>
 
               </div>
             ) : (
@@ -1657,15 +1674,7 @@ export default function NewsHub() {
             )
           )}
 
-      {/* FLOATING ACTION BUTTON FOR PRACTICE */}
-      {!showPractice && (
-        <button 
-          className="floating-practice-trigger"
-          onClick={() => setShowPractice(true)}
-        >
-          <CheckSquare size={16} /> Neural Practice Board
-        </button>
-      )}
+
 
         </div>
       )}
@@ -1748,6 +1757,17 @@ export default function NewsHub() {
             
           </div>
         </div>
+      )}
+
+      {triggerId && (
+        <NotesTrigger
+          entityType={triggerType}
+          entityId={triggerId}
+          entityTitle={triggerTitle}
+          entitySubject={triggerSubject}
+          entityTopic={triggerTopic}
+          questions={triggerQuestions}
+        />
       )}
 
       <style jsx>{`
@@ -2381,7 +2401,6 @@ export default function NewsHub() {
           overflow-y: auto;
           padding: 1.5rem 2.5rem;
           height: 100%;
-          border-right: 1px solid var(--border-color);
           background: var(--bg-primary);
           transition: margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -2595,31 +2614,6 @@ export default function NewsHub() {
           padding: 1.25rem 1.5rem;
         }
 
-        .floating-practice-trigger {
-          position: fixed;
-          bottom: 24px;
-          right: 24px;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          background: linear-gradient(135deg, #06b6d4, #0891b2);
-          color: #0f172a;
-          border: none;
-          border-radius: 30px;
-          padding: 12px 24px;
-          font-family: inherit;
-          font-weight: 800;
-          font-size: 0.85rem;
-          cursor: pointer;
-          z-index: 1000;
-          box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4);
-          transition: all 0.2s ease;
-        }
-
-        .floating-practice-trigger:hover {
-          transform: scale(1.03) translateY(-2px);
-          box-shadow: 0 6px 24px rgba(6, 182, 212, 0.6);
-        }
 
         .practice-close-btn:hover {
           color: var(--text-primary) !important;

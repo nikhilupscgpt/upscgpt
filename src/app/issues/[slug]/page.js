@@ -52,6 +52,34 @@ export default async function IssuePage({ params, searchParams }) {
 
   const session = await getServerSession(authOptions);
 
+  let isBookmarked = false;
+  let progressStatus = "UNSTARTED";
+
+  if (session?.user?.id) {
+    const [bookmark, progress] = await Promise.all([
+      prisma.bookmark.findUnique({
+        where: {
+          userId_itemType_itemId: {
+            userId: session.user.id,
+            itemType: 'Issue',
+            itemId: issue.id
+          }
+        }
+      }),
+      prisma.issueProgress.findUnique({
+        where: {
+          userId_issueId: {
+            userId: session.user.id,
+            issueId: issue.id
+          }
+        },
+        select: { status: true }
+      })
+    ]);
+    isBookmarked = !!bookmark;
+    progressStatus = progress?.status || "UNSTARTED";
+  }
+
   // Clean serialization for Client Component
   const issueData = JSON.parse(JSON.stringify(issue));
 
@@ -78,7 +106,12 @@ export default async function IssuePage({ params, searchParams }) {
 
       <div className="issue-study-layout with-assistant" style={{ maxWidth: '1440px', margin: '0 auto', display: 'grid', gap: '32px' }}>
         <main className="issue-study-main">
-          <IssueDetailClient issue={issueData} initialFlow={activeFlow} />
+          <IssueDetailClient 
+            issue={issueData} 
+            initialFlow={activeFlow} 
+            initialBookmarked={isBookmarked}
+            initialStatus={progressStatus}
+          />
         </main>
 
         {!session ? (
