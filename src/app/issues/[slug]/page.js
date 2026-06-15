@@ -93,7 +93,7 @@ export default async function IssuePage({ params, searchParams }) {
             '@type': 'WebPage',
             'name': `${issue.title} — UPSCGPT Intelligence Hub`,
             'description': stripHtml(issue.cumulativeSummary).substring(0, 160) || `Strategic analysis of ${issue.title}.`,
-            'url': `https://upscatlas.com/issues/${issue.slug}`,
+            'url': `https://www.upscgpt.in/issues/${issue.slug}`,
             'about': {
               '@type': 'Thing',
               'name': issue.topic,

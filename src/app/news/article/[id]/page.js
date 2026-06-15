@@ -86,14 +86,14 @@ export default async function ArticlePage({ params }) {
             'author': {
               '@type': 'Organization',
               'name': 'UPSCGPT',
-              'url': 'https://upscatlas.com'
+              'url': 'https://www.upscgpt.in'
             },
             'publisher': {
               '@type': 'Organization',
               'name': 'UPSCGPT',
               'logo': {
                 '@type': 'ImageObject',
-                'url': 'https://upscatlas.com/logo.png'
+                'url': 'https://www.upscgpt.in/logo.png'
               }
             }
           })

@@ -117,7 +117,7 @@ export default async function NewsStreakPage({ params }) {
               'name': 'UPSCGPT',
               'logo': {
                 '@type': 'ImageObject',
-                'url': 'https://upscatlas.com/logo.png'
+                'url': 'https://www.upscgpt.in/logo.png'
               }
             }
           })

@@ -1,7 +1,7 @@
 import prisma from '@/lib/prisma'
 
 export default async function sitemap() {
-  const baseUrl = 'https://upscatlas.com'
+  const baseUrl = 'https://www.upscgpt.in'
 
   // Fetch all Issues (Syllabus Nodes)
   const issues = await prisma.issue.findMany({

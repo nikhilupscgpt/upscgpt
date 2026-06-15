@@ -1025,7 +1025,7 @@ export default function NewsStreaksAdmin() {
                         <div className="google-preview-site-info" style={{ display: 'flex', flexDirection: 'column' }}>
                           <span className="google-preview-domain" style={{ color: '#dadde1', fontSize: '0.72rem', fontWeight: 500 }}>UPSC Atlas</span>
                           <span className="google-preview-url" style={{ color: '#9aa0a6', fontSize: '0.65rem' }}>
-                            {`https://upscatlas.com/news/streak/${selectedStreak?.slug || 'rupee-depreciation'}`}
+                            {`https://www.upscgpt.in/news/streak/${selectedStreak?.slug || 'rupee-depreciation'}`}
                           </span>
                         </div>
                       </div>

@@ -23,14 +23,14 @@ export const metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://upscatlas.com'), // Replace with your production domain
+  metadataBase: new URL('https://www.upscgpt.in'), // Replace with your production domain
   alternates: {
     canonical: '/',
   },
   openGraph: {
     title: 'UPSC Intelligence Platform | UPSCGPT',
     description: 'Master UPSC Current Affairs and Geopolitics through high-performance neural tracking.',
-    url: 'https://upscatlas.com',
+    url: 'https://www.upscgpt.in',
     siteName: 'UPSCGPT',
     images: [
       {
@@ -107,8 +107,8 @@ export default function RootLayout({ children }) {
               '@context': 'https://schema.org',
               '@type': 'Organization',
               'name': 'UPSCGPT',
-              'url': 'https://upscatlas.com',
-              'logo': 'https://upscatlas.com/logo.png',
+              'url': 'https://www.upscgpt.in',
+              'logo': 'https://www.upscgpt.in/logo.png',
               'description': 'The definitive strategic intelligence platform for UPSC preparation.',
             })
           }}

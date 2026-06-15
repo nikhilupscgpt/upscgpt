@@ -50,7 +50,7 @@ export default async function NodeDetailPage({ params }) {
             'provider': {
               '@type': 'Organization',
               'name': 'UPSCGPT',
-              'url': 'https://upscatlas.com'
+              'url': 'https://www.upscgpt.in'
             },
             'about': {
               '@type': 'Thing',
