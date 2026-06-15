@@ -1,0 +1,13 @@
+# upscgpt.in
+
+> An AI-powered preparation platform for the UPSC (Union Public Service Commission) examination.
+
+## Core Features
+- [UPSC Syllabus Analyzer & Hub](/issues) - Navigate the dynamic and mapped civil services syllabus nodes.
+- [Mains Command Center & Neural Base](/mains/prepare) - Consolidated knowledge and pgvector RAG study chats for answer writing.
+- [Daily Current Affairs & news-streaks](/news) - AI-summarized insights and timeline events mapped to exam nodes.
+- [Interactive Map Atlas](/atlas) - Domestic and global spatial mapping portals designed for geography questions.
+
+## Strategic Resources
+- [Mains GATEWAY](/mains) - Gateway to syllabus prepare guides and AI answer evaluation tools.
+- [Prelims MCQ Practice Portal](/prelims) - AI-generated questions mapped to current affairs and maps.
