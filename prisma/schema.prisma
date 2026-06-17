@@ -231,7 +231,6 @@ model Issue {
   orderIndex             Int                    @default(0)
   lastUpdatedAt          DateTime               @updatedAt
   createdAt              DateTime               @default(now())
-  optionalId             String?
   parentIssueId          String?
   mainsFacts_hi          String?
   mainsFacts_mr          String?
@@ -241,7 +240,6 @@ model Issue {
   prelimsNote_mr         String?
   articles               Article[]
   editorials             Editorial[]
-  optionalSubject        OptionalSubject?       @relation(fields: [optionalId], references: [id])
   parentIssue            Issue?                 @relation("SubNodes", fields: [parentIssueId], references: [id])
   subNodes               Issue[]                @relation("SubNodes")
   followers              IssueFollow[]
@@ -475,6 +473,8 @@ model SubjectContent {
   createdAt       DateTime               @default(now())
   updatedAt       DateTime               @default(now()) @updatedAt
   isOptional      Boolean                @default(false)
+  language        String                 @default("en")
+  exam            String                 @default("BOTH")
   optionalId      String?
   optionalSubject OptionalSubject?       @relation(fields: [optionalId], references: [id])
 
@@ -490,7 +490,6 @@ model OptionalSubject {
   description String?
   createdAt   DateTime               @default(now())
   updatedAt   DateTime               @default(now()) @updatedAt
-  issues      Issue[]
   pyqs        PreviousYearQuestion[]
   contents    SubjectContent[]
 
@@ -642,6 +641,8 @@ model PreviousYearQuestion {
   embedding    Unsupported("vector")?
   searchVector   Unsupported("tsvector")?
   metadata       Json?
+  language     String                 @default("en")
+  exam         String                 @default("UPSC")
   createdAt    DateTime               @default(now())
   updatedAt    DateTime               @updatedAt
   optional     OptionalSubject?       @relation(fields: [optionalId], references: [id])

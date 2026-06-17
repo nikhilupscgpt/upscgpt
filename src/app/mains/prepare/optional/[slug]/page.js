@@ -16,8 +16,11 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default async function OptionalSubjectWorkspace({ params }) {
+export default async function OptionalSubjectWorkspace({ params, searchParams }) {
   const { slug } = await params;
+  const resolvedSearchParams = await searchParams;
+  const lang = resolvedSearchParams?.lang || 'en';
+  const exam = resolvedSearchParams?.exam || 'UPSC';
   
   const optional = await prisma.optionalSubject.findUnique({
     where: { slug }
@@ -31,7 +34,12 @@ export default async function OptionalSubjectWorkspace({ params }) {
   const contents = await prisma.subjectContent.findMany({
     where: {
       optionalId: optional.id,
-      isOptional: true
+      isOptional: true,
+      language: lang,
+      OR: [
+        { exam: exam },
+        { exam: 'BOTH' }
+      ]
     },
     select: {
       id: true,
@@ -49,7 +57,12 @@ export default async function OptionalSubjectWorkspace({ params }) {
   // Fetch previous year questions linked to this optional
   const pyqs = await prisma.previousYearQuestion.findMany({
     where: {
-      optionalId: optional.id
+      optionalId: optional.id,
+      language: lang,
+      OR: [
+        { exam: exam },
+        { exam: 'BOTH' }
+      ]
     },
     select: {
       id: true,

@@ -42,7 +42,8 @@ export async function POST(req) {
 
   try {
     const body = await req.json();
-    const { query, subject, examType, optionalSlug, history = [] } = body;
+    const { query, subject, examType, optionalSlug, history = [], lang = 'en', language = 'en', exam = 'UPSC' } = body;
+    const activeLanguage = lang || language;
     if (!query) return new Response(JSON.stringify({ error: 'Missing query' }), { status: 400 });
 
     let optionalId = null;
@@ -68,8 +69,8 @@ export async function POST(req) {
 
     const queryEmbedding = await generateEmbedding(standaloneQuery);
     const [results, pyqs] = await Promise.all([
-      searchSimilarContent(queryEmbedding, subject, examType, 4, optionalId),
-      searchSimilarPYQs(queryEmbedding, subject, optionalId, 3)
+      searchSimilarContent(queryEmbedding, subject, examType, 4, optionalId, activeLanguage, exam),
+      searchSimilarPYQs(queryEmbedding, subject, optionalId, 3, activeLanguage, exam)
     ]);
 
     const contextStrs = results.map(r => `[Source: ${r.title}]\n${r.contentMarkdown}`).join('\n\n---\n\n');

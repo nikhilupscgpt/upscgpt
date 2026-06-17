@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -12,9 +13,39 @@ import WorkspaceLayout from '@/components/WorkspaceLayout';
 import SubjectChat from '@/components/content-portal/SubjectChat';
 
 export default function OptionalStudyClient({ optional, contents = [], pyqs = [] }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const activeLang = searchParams.get('lang') || 'en';
+  const activeExam = searchParams.get('exam') || 'UPSC';
+
   const [activeTab, setActiveTab] = useState('notes'); // "notes" | "pyqs"
   const [selectedChunk, setSelectedChunk] = useState(contents[0] || null);
   const [searchTerm, setSearchTerm] = useState('');
+
+  const handleLangChange = (lang) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('lang', lang);
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleExamChange = (exam) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('exam', exam);
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  // Handle auto-selection reset when contents change (e.g. language/exam switches)
+  useEffect(() => {
+    if (contents.length > 0) {
+      if (!selectedChunk || !contents.some(c => c.id === selectedChunk.id)) {
+        setSelectedChunk(contents[0]);
+      }
+    } else {
+      setSelectedChunk(null);
+    }
+  }, [contents]);
 
   // Handle auto-selection reset when active tab switches
   useEffect(() => {
@@ -55,6 +86,45 @@ export default function OptionalStudyClient({ optional, contents = [], pyqs = []
             <span className="subject-pill">Optional Subject</span>
             <h1 className="subject-title">{optional.name}</h1>
             <p className="subject-desc">{optional.description || 'Neural syllabus workspace'}</p>
+          </div>
+
+          {/* Language & Exam Controls */}
+          <div className="workspace-filters">
+            <div className="filter-item">
+              <span className="filter-lbl">Language</span>
+              <div className="filter-buttons">
+                <button 
+                  onClick={() => handleLangChange('en')}
+                  className={`filter-btn ${activeLang === 'en' ? 'active' : ''}`}
+                >
+                  English
+                </button>
+                <button 
+                  onClick={() => handleLangChange('mr')}
+                  className={`filter-btn ${activeLang === 'mr' ? 'active' : ''}`}
+                >
+                  मराठी
+                </button>
+              </div>
+            </div>
+
+            <div className="filter-item">
+              <span className="filter-lbl">Exam</span>
+              <div className="filter-buttons">
+                <button 
+                  onClick={() => handleExamChange('UPSC')}
+                  className={`filter-btn ${activeExam === 'UPSC' ? 'active' : ''}`}
+                >
+                  UPSC
+                </button>
+                <button 
+                  onClick={() => handleExamChange('MPSC')}
+                  className={`filter-btn ${activeExam === 'MPSC' ? 'active' : ''}`}
+                >
+                  MPSC
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Search bar */}
@@ -290,6 +360,64 @@ export default function OptionalStudyClient({ optional, contents = [], pyqs = []
           color: var(--text-secondary);
           line-height: 1.4;
           margin: 0;
+        }
+
+        /* Workspace Filters (Lang & Exam) */
+        .workspace-filters {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          padding: 12px;
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid var(--border-color);
+          border-radius: 12px;
+          margin-bottom: 8px;
+        }
+
+        .filter-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 8px;
+        }
+
+        .filter-lbl {
+          font-size: 0.72rem;
+          font-weight: 700;
+          color: var(--text-muted);
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+
+        .filter-buttons {
+          display: flex;
+          background: var(--bg-input);
+          border: 1px solid var(--border-color);
+          border-radius: 8px;
+          padding: 2px;
+        }
+
+        .filter-btn {
+          padding: 4px 10px;
+          font-size: 0.75rem;
+          font-weight: 700;
+          border-radius: 6px;
+          background: transparent;
+          color: var(--text-secondary);
+          border: none;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover {
+          color: var(--text-primary);
+        }
+
+        .filter-btn.active {
+          background: var(--bg-card);
+          color: var(--text-primary);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+          border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
         /* Sidebar Tabs Toggle */

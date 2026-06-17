@@ -103,7 +103,7 @@ export async function generateEmbedding(text) {
  * @param {string|null} optionalId - Optional ID for optional subject filtering.
  * @returns {Promise<any[]>}
  */
-export async function searchSimilarContent(queryEmbedding, subject, examType, limit = 5, optionalId = null) {
+export async function searchSimilarContent(queryEmbedding, subject, examType, limit = 5, optionalId = null, language = 'en', exam = 'BOTH') {
   const vectorStr = `[${queryEmbedding.join(',')}]`;
   
   let query = `
@@ -132,6 +132,16 @@ export async function searchSimilarContent(queryEmbedding, subject, examType, li
     query += ` AND "isOptional" = false`;
   }
 
+  if (language) {
+    params.push(language);
+    query += ` AND language = $${params.length}`;
+  }
+
+  if (exam && exam !== 'BOTH') {
+    params.push(exam);
+    query += ` AND (exam = $${params.length} OR exam = 'BOTH')`;
+  }
+
   query += ` ORDER BY distance ASC LIMIT $${params.length + 1}`;
   params.push(limit);
 
@@ -146,7 +156,7 @@ export async function searchSimilarContent(queryEmbedding, subject, examType, li
 /**
  * Performs a vector similarity search for Previous Year Questions.
  */
-export async function searchSimilarPYQs(queryEmbedding, subject, optionalId = null, limit = 3) {
+export async function searchSimilarPYQs(queryEmbedding, subject, optionalId = null, limit = 3, language = 'en', exam = 'UPSC') {
   const vectorStr = `[${queryEmbedding.join(',')}]`;
   
   let query = `
@@ -163,6 +173,16 @@ export async function searchSimilarPYQs(queryEmbedding, subject, optionalId = nu
   } else if (subject && subject !== 'ALL') {
     params.push(subject);
     query += ` AND subject = $${params.length}`;
+  }
+
+  if (language) {
+    params.push(language);
+    query += ` AND language = $${params.length}`;
+  }
+
+  if (exam && exam !== 'BOTH') {
+    params.push(exam);
+    query += ` AND (exam = $${params.length} OR exam = 'BOTH')`;
   }
 
   // We use a slightly stricter threshold for PYQs to avoid irrelevant matches

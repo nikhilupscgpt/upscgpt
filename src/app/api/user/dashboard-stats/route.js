@@ -32,8 +32,7 @@ export async function GET() {
           select: {
             id: true,
             domain: true,
-            gsPapers: true,
-            optionalId: true
+            gsPapers: true
           }
         }
       }
@@ -71,12 +70,6 @@ export async function GET() {
         if (p.status === 'MASTERED') acc[gs].mastered++;
       });
 
-      // Selected Optional
-      if (selectedOptionalId && p.issue.optionalId === selectedOptionalId) {
-        if (!acc['OPTIONAL']) acc['OPTIONAL'] = { total: 0, mastered: 0 };
-        acc['OPTIONAL'].total++;
-        if (p.status === 'MASTERED') acc['OPTIONAL'].mastered++;
-      }
       return acc;
     }, {});
 

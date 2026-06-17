@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Send, Loader2, Focus, Zap, Lock, History, Award, Cpu } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -16,6 +17,9 @@ const PROGRESS_STEPS = [
 
 export default function SubjectChat({ subjectId, displayName, examType, optionalSlug }) {
   const { isPro } = useTier();
+  const searchParams = useSearchParams();
+  const lang = searchParams.get('lang') || 'en';
+  const exam = searchParams.get('exam') || 'UPSC';
   const [query, setQuery] = useState('');
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -56,7 +60,7 @@ export default function SubjectChat({ subjectId, displayName, examType, optional
       const response = await fetch('/api/rag/query', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: currentQuery, subject: subjectId, examType, optionalSlug, history })
+        body: JSON.stringify({ query: currentQuery, subject: subjectId, examType, optionalSlug, history, lang, exam })
       });
 
       if (!response.ok) throw new Error('Generation Failed');
