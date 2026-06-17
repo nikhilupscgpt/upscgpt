@@ -136,6 +136,8 @@ async function main() {
   const subject = args.find(a => a.startsWith('--subject='))?.split('=')[1] || 'GEOGRAPHY';
   const examType = args.find(a => a.startsWith('--examType='))?.split('=')[1] || 'MAINS';
   const optionalSlug = args.find(a => a.startsWith('--optional='))?.split('=')[1];
+  const language = args.find(a => a.startsWith('--language='))?.split('=')[1] || 'en';
+  const exam = args.find(a => a.startsWith('--exam='))?.split('=')[1] || 'BOTH';
 
   let optionalId = null;
   if (optionalSlug) {
@@ -148,7 +150,7 @@ async function main() {
   }
 
   if (!dirPath && !filePath) {
-    console.log('Usage: node scripts/ingest-subjects.mjs --file=path/to/file.pdf --optional=geography');
+    console.log('Usage: node scripts/ingest-subjects.mjs --file=path/to/file.pdf --optional=geography [--language=en] [--exam=BOTH]');
     process.exit(1);
   }
 
@@ -172,13 +174,14 @@ async function main() {
         const vectorStr = `[${embedding.join(',')}]`;
 
         await prisma.$executeRawUnsafe(`
-          INSERT INTO "SubjectContent" (id, subject, "examType", "isOptional", "optionalId", title, "contentMarkdown", "sourceUrl", "createdAt", "updatedAt", embedding)
+          INSERT INTO "SubjectContent" (id, subject, "examType", "isOptional", "optionalId", title, "contentMarkdown", "sourceUrl", "createdAt", "updatedAt", embedding, language, exam)
           VALUES (
-            gen_random_uuid()::text, $1, $2, $3, $4, $5, $6, $7, NOW(), NOW(), $8::vector
+            gen_random_uuid()::text, $1, $2, $3, $4, $5, $6, $7, NOW(), NOW(), $8::vector, $9, $10
           )
         `, 
           subject, examType, optionalId ? true : false, optionalId,
-          `${title} [Vision-${i+1}]`, chunk, path.basename(fPath), vectorStr
+          `${title} [Vision-${i+1}]`, chunk, path.basename(fPath), vectorStr,
+          language, exam
         );
         if (i % 10 === 0) process.stdout.write('.');
       }

@@ -34,9 +34,11 @@ async function main() {
   const args = process.argv.slice(2);
   const filePath = args.find(a => a.startsWith('--file='))?.split('=')[1];
   const optionalSlug = args.find(a => a.startsWith('--optional='))?.split('=')[1];
+  const language = args.find(a => a.startsWith('--language='))?.split('=')[1] || 'en';
+  const exam = args.find(a => a.startsWith('--exam='))?.split('=')[1] || 'UPSC';
 
   if (!filePath) {
-    console.log('Usage: node scripts/ingest-pyqs.mjs --file=pyqs.json [--optional=geography]');
+    console.log('Usage: node scripts/ingest-pyqs.mjs --file=pyqs.json [--optional=geography] [--language=en] [--exam=UPSC]');
     process.exit(1);
   }
 
@@ -57,9 +59,9 @@ async function main() {
       const vectorStr = `[${embedding.join(',')}]`;
 
       await prisma.$executeRawUnsafe(`
-        INSERT INTO "PreviousYearQuestion" (id, paper, "optionalId", subject, year, "questionText", marks, "modelAnswer", "createdAt", "updatedAt", embedding)
+        INSERT INTO "PreviousYearQuestion" (id, paper, "optionalId", subject, year, "questionText", marks, "modelAnswer", "createdAt", "updatedAt", embedding, language, exam)
         VALUES (
-          gen_random_uuid()::text, $1, $2, $3, $4, $5, $6, $7, NOW(), NOW(), $8::vector
+          gen_random_uuid()::text, $1, $2, $3, $4, $5, $6, $7, NOW(), NOW(), $8::vector, $9, $10
         )
       `, 
         q.paper || 'GS',
@@ -69,7 +71,9 @@ async function main() {
         q.question,
         parseInt(q.marks) || 10,
         q.modelAnswer || '',
-        vectorStr
+        vectorStr,
+        language,
+        exam
       );
       process.stdout.write('.');
     } catch (err) {
