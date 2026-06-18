@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import OptionalStudyClient from './OptionalStudyClient';
+import { seedOptionalSyllabus } from '@/lib/optional-seeder';
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
@@ -20,7 +21,6 @@ export default async function OptionalSubjectWorkspace({ params, searchParams })
   const { slug } = await params;
   const resolvedSearchParams = await searchParams;
   const lang = resolvedSearchParams?.lang || 'en';
-  const exam = resolvedSearchParams?.exam || 'UPSC';
   
   const optional = await prisma.optionalSubject.findUnique({
     where: { slug }
@@ -30,16 +30,25 @@ export default async function OptionalSubjectWorkspace({ params, searchParams })
     notFound();
   }
 
-  // Fetch syllabus content chunks linked to this optional
+  // Seed optional syllabus tree into database if not seeded yet
+  await seedOptionalSyllabus(slug, optional.id);
+
+  // Fetch optional syllabus tree nodes from database
+  const issues = await prisma.issue.findMany({
+    where: {
+      domain: `OPTIONAL_${slug.toUpperCase()}`
+    },
+    orderBy: {
+      orderIndex: 'asc'
+    }
+  });
+
+  // Fetch syllabus content chunks linked to this optional (include issueId for explicit node links)
   const contents = await prisma.subjectContent.findMany({
     where: {
       optionalId: optional.id,
       isOptional: true,
       language: lang,
-      OR: [
-        { exam: exam },
-        { exam: 'BOTH' }
-      ]
     },
     select: {
       id: true,
@@ -48,6 +57,7 @@ export default async function OptionalSubjectWorkspace({ params, searchParams })
       examType: true,
       contentMarkdown: true,
       sourceUrl: true,
+      issueId: true,
     },
     orderBy: {
       title: 'asc'
@@ -59,10 +69,6 @@ export default async function OptionalSubjectWorkspace({ params, searchParams })
     where: {
       optionalId: optional.id,
       language: lang,
-      OR: [
-        { exam: exam },
-        { exam: 'BOTH' }
-      ]
     },
     select: {
       id: true,
@@ -72,6 +78,8 @@ export default async function OptionalSubjectWorkspace({ params, searchParams })
       questionText: true,
       marks: true,
       modelAnswer: true,
+      exam: true,
+      metadata: true,
     },
     orderBy: {
       year: 'desc'
@@ -81,12 +89,14 @@ export default async function OptionalSubjectWorkspace({ params, searchParams })
   const serializedOptional = JSON.parse(JSON.stringify(optional));
   const serializedContents = JSON.parse(JSON.stringify(contents));
   const serializedPyqs = JSON.parse(JSON.stringify(pyqs));
+  const serializedIssues = JSON.parse(JSON.stringify(issues));
 
   return (
     <OptionalStudyClient 
       optional={serializedOptional}
       contents={serializedContents}
       pyqs={serializedPyqs}
+      issues={serializedIssues}
     />
   );
 }

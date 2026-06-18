@@ -731,6 +731,18 @@
 .chat-bubble ul { padding-left: 20px; margin-bottom: 12px; }
 .chat-bubble li { margin-bottom: 4px; }
 .chat-bubble strong { color: var(--text-primary); font-weight: 700; }
+.chat-bubble pre {
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+.chat-bubble code {
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+}
 
 .chat-sources {
   margin-top: 8px;

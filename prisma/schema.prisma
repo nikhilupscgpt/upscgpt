@@ -254,6 +254,7 @@ model Issue {
   newsStreaks            NewsStreak[]           @relation("NewsStreakIssues")
   Issue_IssueRelations_A Issue[]                @relation("IssueRelations")
   Issue_IssueRelations_B Issue[]                @relation("IssueRelations")
+  subjectContents        SubjectContent[]
 
   @@index([category])
   @@index([domain])
@@ -477,10 +478,13 @@ model SubjectContent {
   exam            String                 @default("BOTH")
   optionalId      String?
   optionalSubject OptionalSubject?       @relation(fields: [optionalId], references: [id])
+  issueId         String?
+  issue           Issue?                 @relation(fields: [issueId], references: [id])
 
   @@index([subject])
   @@index([examType])
   @@index([optionalId])
+  @@index([issueId])
 }
 
 model OptionalSubject {

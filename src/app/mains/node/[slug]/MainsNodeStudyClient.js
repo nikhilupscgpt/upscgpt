@@ -224,7 +224,7 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
 
         {hasPyqs && (
           <div className="questions-section">
-            <h4 className="questions-section-title">UPSC CSE Mains Archive (PYQs)</h4>
+            <h4 className="questions-section-title">UPSC CSE Mains PYQs</h4>
             <div className="pyqs-list">
               {issue.pyqLinks.map(pyq => (
                 <div key={pyq.id} className="pyq-card">

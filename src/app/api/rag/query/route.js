@@ -68,9 +68,11 @@ export async function POST(req) {
     });
 
     const queryEmbedding = await generateEmbedding(standaloneQuery);
+    // When studying in the optional workspace (optionalId is present), do not segregate content/PYQs by exam (search BOTH).
+    const examFilter = optionalId ? 'BOTH' : exam;
     const [results, pyqs] = await Promise.all([
-      searchSimilarContent(queryEmbedding, subject, examType, 4, optionalId, activeLanguage, exam),
-      searchSimilarPYQs(queryEmbedding, subject, optionalId, 3, activeLanguage, exam)
+      searchSimilarContent(queryEmbedding, subject, examType, 4, optionalId, activeLanguage, examFilter),
+      searchSimilarPYQs(queryEmbedding, subject, optionalId, 3, activeLanguage, examFilter)
     ]);
 
     const contextStrs = results.map(r => `[Source: ${r.title}]\n${r.contentMarkdown}`).join('\n\n---\n\n');
@@ -87,14 +89,33 @@ export async function POST(req) {
       ? `PROACTIVE GUIDANCE:\nI found a comprehensive UPSC Content Page for "${matchingIssue.title}".\nBefore giving the answer, prefix your response with a 1-sentence note suggesting the student check out this content page for structured preparation.\nLink: /issues/${matchingIssue.slug}`
       : '';
 
-    const finalPrompt = await getRenderedPrompt('rag.query.wrapper', {
+    // Decouple system instructions from user query payload to prevent prompt instruction leaking
+    const systemPrompt = [
       instruction,
-      proactiveGuidance,
+      '',
+      'CONTEXT LOCK:',
+      '1. Use ONLY the "REFERENCE MATERIAL" provided in the prompt to answer the question.',
+      '2. If the answer is not explicitly contained in the reference material or your core UPSC strategic knowledge, state "I do not have specific data on this in my current vectors" rather than guessing.',
+      '3. DO NOT invent dates, statistics, or names of committees.',
+      '',
+      proactiveGuidance
+    ].filter(Boolean).join('\n');
+
+    const userPrompt = [
+      'REFERENCE MATERIAL:',
       contextStrs,
+      '',
+      'UPSC EXAM HISTORY (PYQs):',
       pyqStrs,
+      '',
+      'CONVERSATION MEMORY:',
       historyStrs,
+      '',
+      'STUDENT QUESTION:',
       query,
-    });
+      '',
+      'RESPONSE (Professional, scannable, and grounded):'
+    ].filter(Boolean).join('\n');
 
     const metadata = { sources, pyqs: pyqMeta, isMetadata: true, matchingIssue };
     const encoder = new TextEncoder();
@@ -110,7 +131,12 @@ export async function POST(req) {
           const ollamaRes = await fetch(`${OLLAMA_HOST}/api/generate`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ model: OLLAMA_REASON_MODEL, prompt: finalPrompt, stream: true }),
+            body: JSON.stringify({ 
+              model: OLLAMA_REASON_MODEL, 
+              prompt: userPrompt, 
+              system: systemPrompt,
+              stream: true 
+            }),
             signal: AbortSignal.timeout(5000), // Timeout after 5s to trigger fallback
           });
 
@@ -134,8 +160,11 @@ export async function POST(req) {
           
           try {
             const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-            const model = genAI.getGenerativeModel({ model: "gemma-3n-e4b-it" });
-            const result = await model.generateContentStream(finalPrompt);
+            const model = genAI.getGenerativeModel({ 
+              model: "gemma-4-31b-it",
+              systemInstruction: systemPrompt
+            });
+            const result = await model.generateContentStream(userPrompt);
 
             for await (const chunk of result.stream) {
               const chunkText = chunk.text();

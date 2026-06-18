@@ -81,7 +81,7 @@ export async function generateEmbedding(text) {
 
   // 2. Secondary Path: Gemini 
   try {
-    const model = genAI.getGenerativeModel({ model: "models/text-embedding-004" });
+    const model = genAI.getGenerativeModel({ model: "models/gemini-embedding-2" });
     const result = await model.embedContent({
       content: { parts: [{ text: text }] },
       outputDimensionality: 768

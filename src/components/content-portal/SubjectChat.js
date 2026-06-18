@@ -15,7 +15,7 @@ const PROGRESS_STEPS = [
   "Synthesizing Professor-Grade Response..."
 ];
 
-export default function SubjectChat({ subjectId, displayName, examType, optionalSlug }) {
+export default function SubjectChat({ subjectId, displayName, examType, optionalSlug, suggestedQuery }) {
   const { isPro } = useTier();
   const searchParams = useSearchParams();
   const lang = searchParams.get('lang') || 'en';
@@ -25,6 +25,13 @@ export default function SubjectChat({ subjectId, displayName, examType, optional
   const [loading, setLoading] = useState(false);
   const [progressStep, setProgressStep] = useState(0);
   const scrollRef = useRef(null);
+
+  // Sync suggested query
+  useEffect(() => {
+    if (suggestedQuery) {
+      setQuery(suggestedQuery);
+    }
+  }, [suggestedQuery]);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
