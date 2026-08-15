@@ -131,6 +131,56 @@ export async function POST(req) {
       return NextResponse.json({ success: true, node });
     }
 
+    // --- Action: Batch Ingest parsed chunks ---
+    if (action === "batch_ingest") {
+      const { chunks = [], optionalId } = body;
+      if (!optionalId || !Array.isArray(chunks) || chunks.length === 0) {
+        return NextResponse.json({ error: "Missing optionalId or empty chunks list" }, { status: 400 });
+      }
+
+      const opt = await prisma.optionalSubject.findUnique({ where: { id: optionalId } });
+      if (!opt) return NextResponse.json({ error: `Optional Subject not found: ${optionalId}` }, { status: 404 });
+
+      const subjectName = opt.name.toUpperCase();
+      const results = [];
+
+      for (const chunk of chunks) {
+        if (!chunk.title || !chunk.contentMarkdown) continue;
+        try {
+          const embedding = await generateEmbedding(chunk.contentMarkdown);
+          const vectorStr = `[${embedding.join(",")}]`;
+
+          await prisma.$executeRawUnsafe(`
+            INSERT INTO "SubjectContent" (
+              id, subject, "examType", "isOptional", "optionalId", 
+              title, "contentMarkdown", "sourceUrl", "createdAt", "updatedAt", 
+              embedding, language, exam, "issueId"
+            )
+            VALUES (
+              gen_random_uuid()::text, $1, $2, $3, $4, $5, $6, $7, NOW(), NOW(), $8::vector, $9, $10, $11
+            )
+          `,
+            subjectName,
+            "MAINS",
+            true,
+            optionalId,
+            chunk.title,
+            chunk.contentMarkdown,
+            chunk.source || chunk.sourceUrl || "",
+            vectorStr,
+            chunk.language || "en",
+            chunk.exam || "BOTH",
+            chunk.issueId || chunk.suggestedNodeId || null
+          );
+          results.push(chunk.title);
+        } catch (itemErr) {
+          console.error("Error vectorizing batch chunk:", chunk.title, itemErr);
+        }
+      }
+
+      return NextResponse.json({ success: true, count: results.length, titles: results });
+    }
+
     // --- Action: Ingest content chunk ---
     const {
       optionalId,
