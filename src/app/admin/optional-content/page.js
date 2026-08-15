@@ -292,8 +292,20 @@ export default function OptionalIngestionPage() {
         body: formData
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to extract document layout");
+      const rawText = await res.text();
+      let data;
+      try {
+        data = JSON.parse(rawText);
+      } catch (jsonErr) {
+        if (res.status === 413 || rawText.includes("Request Entity Too Large")) {
+          throw new Error("File is too large for upload. Please upload a smaller section or compress the PDF.");
+        }
+        throw new Error(rawText || `Server error (${res.status} ${res.statusText})`);
+      }
+
+      if (!res.ok) {
+        throw new Error(data.error || `Failed to extract document layout (Status ${res.status})`);
+      }
 
       setParsedData(data);
       toast.success(`Successfully extracted ${data.chunks.length} structured chunks!`, { id: toastId });

@@ -3,6 +3,13 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleAIFileManager } from "@google/generative-ai/server";
+import fs from "fs";
+import path from "path";
+import os from "os";
+
+export const maxDuration = 120; // Allow up to 2 minutes for large PDF processing
+export const dynamic = "force-dynamic";
 
 async function requireAdmin() {
   const session = await getServerSession(authOptions);
@@ -17,11 +24,11 @@ function sanitizeJsonString(rawText) {
   let cleaned = rawText.trim();
 
   // Extract content from markdown code block if present
-  const match = cleaned.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+  const match = cleaned.match(/\`\`\`(?:json)?\\s*([\\s\\S]*?)\\s*\`\`\`/);
   if (match) {
     cleaned = match[1].trim();
   } else {
-    cleaned = cleaned.replace(/```json/g, "").replace(/```/g, "").trim();
+    cleaned = cleaned.replace(/\`\`\`json/g, "").replace(/\`\`\`/g, "").trim();
   }
 
   // Find first { and last }
@@ -38,6 +45,14 @@ export async function POST(req) {
   const session = await requireAdmin();
   if (!session) {
     return NextResponse.json({ error: "Unauthorized. Admin role required." }, { status: 401 });
+  }
+
+  let tempFilePath = null;
+  let uploadedGoogleFileName = null;
+  const apiKey = process.env.GEMINI_API_KEY;
+
+  if (!apiKey) {
+    return NextResponse.json({ error: "GEMINI_API_KEY is not configured on server." }, { status: 500 });
   }
 
   try {
@@ -85,13 +100,7 @@ export async function POST(req) {
     const mimeType = file.type || "application/pdf";
     const fileName = file.name || "uploaded_document.pdf";
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json({ error: "GEMINI_API_KEY is not configured on server." }, { status: 500 });
-    }
-
-    const client = new GoogleGenerativeAI(apiKey);
-    const modelCandidates = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+    const isBinaryDoc = mimeType.includes("pdf") || mimeType.includes("image") || fileName.endsWith(".pdf");
 
     const prompt = `
 You are an expert UPSC/MPSC Optional Subject Syllabus & Academic Notes Compiler.
@@ -136,37 +145,57 @@ You MUST output a valid JSON object matching EXACTLY this structure:
 Return ONLY the JSON object.
 `;
 
+    const client = new GoogleGenerativeAI(apiKey);
+    const fileManager = new GoogleAIFileManager(apiKey);
+    const modelCandidates = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
+
+    let contentsPayload = null;
+
+    if (isBinaryDoc) {
+      // Write buffer to temporary file for GoogleAIFileManager upload (handles arbitrarily large PDFs cleanly)
+      const tempDir = os.tmpdir();
+      const safeName = `pdf_${Date.now()}_${path.basename(fileName).replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+      tempFilePath = path.join(tempDir, safeName);
+      fs.writeFileSync(tempFilePath, buffer);
+
+      console.log(`[ParseDoc] Uploading ${fileName} (${(buffer.length / (1024*1024)).toFixed(2)} MB) to Google AI File Storage...`);
+      
+      const uploadResult = await fileManager.uploadFile(tempFilePath, {
+        mimeType: mimeType.includes("pdf") ? "application/pdf" : mimeType,
+        displayName: fileName,
+      });
+
+      uploadedGoogleFileName = uploadResult.file.name;
+      console.log(`[ParseDoc] Upload successful. Google File URI: ${uploadResult.file.uri}`);
+
+      contentsPayload = [
+        {
+          fileData: {
+            fileUri: uploadResult.file.uri,
+            mimeType: uploadResult.file.mimeType,
+          },
+        },
+        prompt,
+      ];
+    } else {
+      const textContent = buffer.toString("utf-8");
+      contentsPayload = [
+        `DOCUMENT CONTENT:\n${textContent.slice(0, 150000)}\n\n${prompt}`
+      ];
+    }
+
     let extractedData = null;
     let lastError = null;
 
-    const isBinaryDoc = mimeType.includes("pdf") || mimeType.includes("image");
-
     for (const modelName of modelCandidates) {
       try {
+        console.log(`[ParseDoc] Analyzing layout with model: ${modelName}...`);
         const model = client.getGenerativeModel({
           model: modelName,
           generationConfig: {
             responseMimeType: "application/json"
           }
         });
-
-        let contentsPayload;
-        if (isBinaryDoc) {
-          contentsPayload = [
-            {
-              inlineData: {
-                data: buffer.toString("base64"),
-                mimeType: mimeType.includes("pdf") ? "application/pdf" : mimeType,
-              },
-            },
-            prompt,
-          ];
-        } else {
-          const textContent = buffer.toString("utf-8");
-          contentsPayload = [
-            `DOCUMENT CONTENT:\n${textContent.slice(0, 100000)}\n\n${prompt}`
-          ];
-        }
 
         const result = await model.generateContent(contentsPayload);
         const responseText = result.response.text();
@@ -179,6 +208,7 @@ Return ONLY the JSON object.
         }
 
         if (extractedData && Array.isArray(extractedData.chunks)) {
+          console.log(`[ParseDoc] Extraction successful via ${modelName} (${extractedData.chunks.length} chunks)`);
           break;
         }
       } catch (err) {
@@ -210,5 +240,23 @@ Return ONLY the JSON object.
     return NextResponse.json({
       error: "Failed to process document: " + (error.message || "Unknown error")
     }, { status: 500 });
+  } finally {
+    // Clean up local temp file
+    if (tempFilePath && fs.existsSync(tempFilePath)) {
+      try {
+        fs.unlinkSync(tempFilePath);
+      } catch (e) {
+        console.warn("[ParseDoc] Temp file cleanup error:", e?.message);
+      }
+    }
+    // Clean up remote Google file asynchronously
+    if (uploadedGoogleFileName) {
+      try {
+        const fileManager = new GoogleAIFileManager(apiKey);
+        fileManager.deleteFile(uploadedGoogleFileName).catch(() => {});
+      } catch (e) {
+        // ignore
+      }
+    }
   }
 }
