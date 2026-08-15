@@ -8,7 +8,8 @@ import {
   Code, Eye, RefreshCw, X, FileCheck
 } from "lucide-react";
 import Link from "next/link";
-import ReactMarkdown from "react-markdown";
+import dynamic from "next/dynamic";
+const ReactMarkdown = dynamic(() => import("react-markdown"), { ssr: false });
 import remarkGfm from "remark-gfm";
 import "./../content-ingestion/admin-rag.css";
 
