@@ -1,4 +1,9 @@
 {
+  "functions": {
+    "src/app/api/admin/optional-content/parse-doc/route.js": {
+      "maxDuration": 60
+    }
+  },
   "crons": [
     {
       "path": "/api/cron/scrape",

@@ -4,11 +4,12 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { GoogleAIFileManager } from "@google/generative-ai/server";
+import { PDFParse } from "pdf-parse";
 import fs from "fs";
 import path from "path";
 import os from "os";
 
-export const maxDuration = 120; // Allow up to 2 minutes for large PDF processing
+export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
 async function requireAdmin() {
@@ -100,7 +101,22 @@ export async function POST(req) {
     const mimeType = file.type || "application/pdf";
     const fileName = file.name || "uploaded_document.pdf";
 
-    const isBinaryDoc = mimeType.includes("pdf") || mimeType.includes("image") || fileName.endsWith(".pdf");
+    let rawExtractedText = "";
+    const isPdf = mimeType.includes("pdf") || fileName.toLowerCase().endsWith(".pdf");
+
+    if (isPdf) {
+      try {
+        const parser = new PDFParse({ data: buffer });
+        await parser.load();
+        const parsedResult = await parser.getText();
+        rawExtractedText = (parsedResult?.text || "").trim();
+        console.log(`[ParseDoc] PDF text extracted via fast PDFParse: ${rawExtractedText.length} characters`);
+      } catch (pdfErr) {
+        console.warn("[ParseDoc] Fast PDF text extraction failed, will use Vision fallback:", pdfErr?.message);
+      }
+    } else {
+      rawExtractedText = buffer.toString("utf-8");
+    }
 
     const prompt = `
 You are an expert UPSC/MPSC Optional Subject Syllabus & Academic Notes Compiler.
@@ -146,28 +162,28 @@ Return ONLY the JSON object.
 `;
 
     const client = new GoogleGenerativeAI(apiKey);
-    const fileManager = new GoogleAIFileManager(apiKey);
     const modelCandidates = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"];
-
     let contentsPayload = null;
 
-    if (isBinaryDoc) {
-      // Write buffer to temporary file for GoogleAIFileManager upload (handles arbitrarily large PDFs cleanly)
+    if (rawExtractedText && rawExtractedText.length > 50) {
+      // Fast text path (1-3 seconds response time, avoids 504 timeouts)
+      contentsPayload = [
+        `DOCUMENT RAW CONTENT (Filename: ${fileName}):\n${rawExtractedText.slice(0, 120000)}\n\n${prompt}`
+      ];
+    } else {
+      // Scanned document / Visual fallback via GoogleAIFileManager
       const tempDir = os.tmpdir();
       const safeName = `pdf_${Date.now()}_${path.basename(fileName).replace(/[^a-zA-Z0-9.-]/g, "_")}`;
       tempFilePath = path.join(tempDir, safeName);
       fs.writeFileSync(tempFilePath, buffer);
 
-      console.log(`[ParseDoc] Uploading ${fileName} (${(buffer.length / (1024*1024)).toFixed(2)} MB) to Google AI File Storage...`);
-      
+      const fileManager = new GoogleAIFileManager(apiKey);
       const uploadResult = await fileManager.uploadFile(tempFilePath, {
         mimeType: mimeType.includes("pdf") ? "application/pdf" : mimeType,
         displayName: fileName,
       });
 
       uploadedGoogleFileName = uploadResult.file.name;
-      console.log(`[ParseDoc] Upload successful. Google File URI: ${uploadResult.file.uri}`);
-
       contentsPayload = [
         {
           fileData: {
@@ -176,11 +192,6 @@ Return ONLY the JSON object.
           },
         },
         prompt,
-      ];
-    } else {
-      const textContent = buffer.toString("utf-8");
-      contentsPayload = [
-        `DOCUMENT CONTENT:\n${textContent.slice(0, 150000)}\n\n${prompt}`
       ];
     }
 
@@ -246,7 +257,7 @@ Return ONLY the JSON object.
       try {
         fs.unlinkSync(tempFilePath);
       } catch (e) {
-        console.warn("[ParseDoc] Temp file cleanup error:", e?.message);
+        // ignore
       }
     }
     // Clean up remote Google file asynchronously
