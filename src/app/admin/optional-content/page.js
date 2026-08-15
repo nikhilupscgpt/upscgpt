@@ -4,8 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { toast, Toaster } from "react-hot-toast";
 import { 
   BookOpen, Plus, Save, Loader2, ArrowLeft, FileText, ExternalLink, Globe, Trash2, 
-  ChevronRight, ChevronDown, CheckSquare, FolderPlus, UploadCloud, FileUp, Sparkles, 
-  CheckCircle2, AlertCircle, Eye, Code, RefreshCw, X, Layers, FileCheck, ArrowRight
+  ChevronRight, ChevronDown, FolderPlus, UploadCloud, Sparkles, 
+  Code, Eye, RefreshCw, X, FileCheck
 } from "lucide-react";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
@@ -35,7 +35,7 @@ export default function OptionalIngestionPage() {
   const [parseProgressText, setParseProgressText] = useState("");
   const [parsedData, setParsedData] = useState(null);
   const [batchIngesting, setBatchIngesting] = useState(false);
-  const [previewModes, setPreviewModes] = useState({}); // { [chunkId]: 'preview' | 'raw' }
+  const [previewModes, setPreviewModes] = useState({});
   const fileInputRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -248,7 +248,7 @@ export default function OptionalIngestionPage() {
     }
   };
 
-  // --- Direct Document / PDF Ingestion Handlers ---
+  // Direct Document / PDF Ingestion Handlers
   const handleFileDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
@@ -275,8 +275,8 @@ export default function OptionalIngestionPage() {
     }
 
     setParsingDoc(true);
-    setParseProgressText("Uploading document & analyzing with Gemini Multimodal Vision...");
-    const toastId = toast.loading("Extracting layout, tables, and headings via Gemini Vision...");
+    setParseProgressText("Uploading document & analyzing layout with Gemini Vision...");
+    const toastId = toast.loading("Extracting layout, tables, and headings...");
 
     try {
       const formData = new FormData();
@@ -285,7 +285,7 @@ export default function OptionalIngestionPage() {
       formData.append("language", docLanguage);
       formData.append("exam", docExam);
 
-      setParseProgressText("Reconstructing layout, markdown tables & matching syllabus hierarchy...");
+      setParseProgressText("Reconstructing layout, tables & matching syllabus nodes...");
       
       const res = await fetch("/api/admin/optional-content/parse-doc", {
         method: "POST",
@@ -298,7 +298,7 @@ export default function OptionalIngestionPage() {
         data = JSON.parse(rawText);
       } catch (jsonErr) {
         if (res.status === 413 || rawText.includes("Request Entity Too Large")) {
-          throw new Error("File is too large for upload. Please upload a smaller section or compress the PDF.");
+          throw new Error("File is too large. Please upload a smaller section or compress the PDF.");
         }
         throw new Error(rawText || `Server error (${res.status} ${res.statusText})`);
       }
@@ -636,7 +636,7 @@ export default function OptionalIngestionPage() {
                 Optional Syllabus Ingestion Desk
               </h1>
               <p style={{ fontSize: "0.82rem", color: "var(--text-secondary)", margin: "4px 0 0" }}>
-                Vector chunking compiler & explicit node binder with multimodal layout preservation.
+                Vector chunking compiler & explicit node binder with layout preservation.
               </p>
             </div>
           </div>
