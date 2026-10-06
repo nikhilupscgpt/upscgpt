@@ -773,118 +773,250 @@ export default function PyqExplorerClient({ initialQuestions }) {
                     {isExpanded && (
                       <div>
                         {/* Options Section */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '22px' }}>
-                          {(q.options || []).map((opt) => {
-                            const isSelected = userSelectedOption[q.id] === opt.label;
-                            const isCorrect = (q.correctLabel || '').toLowerCase() === (opt.label || '').toLowerCase();
+                        {(() => {
+                          const isAnswerRevealed = !!revealed[q.id];
+                          const userChoice = userSelectedOption[q.id];
 
-                            return (
-                              <div
-                                key={opt.label}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setUserSelectedOption(prev => ({ ...prev, [q.id]: opt.label }));
-                                }}
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '12px',
-                                  padding: '12px 18px',
-                                  borderRadius: '10px',
-                                  background: isSelected ? 'rgba(56, 189, 248, 0.08)' : '#090d16',
-                                  border: '1px solid',
-                                  borderColor: isSelected ? '#38bdf8' : '#1e293b',
-                                  color: isSelected ? '#f8fafc' : '#cbd5e1',
-                                  cursor: 'pointer',
-                                  transition: 'all 0.15s ease'
-                                }}
-                              >
-                                <span style={{
-                                  width: '26px',
-                                  height: '26px',
-                                  borderRadius: '6px',
-                                  background: isSelected ? '#0284c7' : '#1e293b',
-                                  color: isSelected ? '#ffffff' : '#94a3b8',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  fontSize: '12px',
-                                  fontWeight: '800',
-                                  flexShrink: 0
-                                }}>
-                                  {opt.label.toUpperCase()}
-                                </span>
-                                <span style={{ fontSize: '14.5px', lineHeight: 1.5, flex: 1 }}>
-                                  {opt.text}
-                                </span>
+                          return (
+                            <>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
+                                {(q.options || []).map((opt) => {
+                                  const isSelected = userChoice === opt.label;
+                                  const isCorrect = (q.correctLabel || '').toLowerCase() === (opt.label || '').toLowerCase();
+
+                                  let optBg = '#090d16';
+                                  let optBorder = '#1e293b';
+                                  let optTextColor = '#cbd5e1';
+                                  let badgeBg = '#1e293b';
+                                  let badgeColor = '#94a3b8';
+
+                                  if (isAnswerRevealed) {
+                                    if (isCorrect) {
+                                      optBg = 'rgba(16, 185, 129, 0.14)';
+                                      optBorder = '#10b981';
+                                      optTextColor = '#a7f3d0';
+                                      badgeBg = '#10b981';
+                                      badgeColor = '#ffffff';
+                                    } else if (isSelected) {
+                                      optBg = 'rgba(239, 68, 68, 0.14)';
+                                      optBorder = '#ef4444';
+                                      optTextColor = '#fca5a5';
+                                      badgeBg = '#ef4444';
+                                      badgeColor = '#ffffff';
+                                    }
+                                  } else if (isSelected) {
+                                    optBg = 'rgba(56, 189, 248, 0.08)';
+                                    optBorder = '#38bdf8';
+                                    optTextColor = '#f8fafc';
+                                    badgeBg = '#0284c7';
+                                    badgeColor = '#ffffff';
+                                  }
+
+                                  return (
+                                    <div
+                                      key={opt.label}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setUserSelectedOption(prev => ({ ...prev, [q.id]: opt.label }));
+                                      }}
+                                      style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '12px',
+                                        padding: '12px 18px',
+                                        borderRadius: '10px',
+                                        background: optBg,
+                                        border: `1px solid ${optBorder}`,
+                                        color: optTextColor,
+                                        cursor: 'pointer',
+                                        transition: 'all 0.15s ease'
+                                      }}
+                                    >
+                                      <span style={{
+                                        width: '26px',
+                                        height: '26px',
+                                        borderRadius: '6px',
+                                        background: badgeBg,
+                                        color: badgeColor,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '12px',
+                                        fontWeight: '800',
+                                        flexShrink: 0
+                                      }}>
+                                        {opt.label.toUpperCase()}
+                                      </span>
+                                      <span style={{ fontSize: '14.5px', lineHeight: 1.5, flex: 1 }}>
+                                        {opt.text}
+                                      </span>
+
+                                      {isAnswerRevealed && isCorrect && (
+                                        <span style={{ 
+                                          background: 'rgba(16, 185, 129, 0.2)', 
+                                          color: '#34d399', 
+                                          padding: '2px 8px', 
+                                          borderRadius: '6px', 
+                                          fontSize: '11px', 
+                                          fontWeight: '800' 
+                                        }}>
+                                          ✓ Correct Answer
+                                        </span>
+                                      )}
+
+                                      {isAnswerRevealed && isSelected && !isCorrect && (
+                                        <span style={{ 
+                                          background: 'rgba(239, 68, 68, 0.2)', 
+                                          color: '#fca5a5', 
+                                          padding: '2px 8px', 
+                                          borderRadius: '6px', 
+                                          fontSize: '11px', 
+                                          fontWeight: '800' 
+                                        }}>
+                                          ✕ Your Choice
+                                        </span>
+                                      )}
+                                    </div>
+                                  );
+                                })}
                               </div>
-                            );
-                          })}
-                        </div>
 
-                        {/* Verified Solution Box */}
-                        <div style={{
-                          background: '#061a14',
-                          border: '1px solid rgba(16, 185, 129, 0.3)',
-                          borderRadius: '12px',
-                          padding: '18px 22px',
-                          marginBottom: '20px'
-                        }}>
-                          {/* Solution Header */}
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981' }} />
-                              <span style={{ fontSize: '11px', fontWeight: '800', color: '#10b981', letterSpacing: '0.06em' }}>
-                                OFFICIAL KEY VERIFIED
-                              </span>
-                              <span style={{
-                                background: 'rgba(16, 185, 129, 0.2)',
-                                color: '#34d399',
-                                border: '1px solid rgba(16, 185, 129, 0.4)',
-                                padding: '2px 8px',
-                                borderRadius: '6px',
-                                fontSize: '11px',
-                                fontWeight: '800'
-                              }}>
-                                Correct Option: ({(q.correctLabel || '').toUpperCase()})
-                              </span>
-                            </div>
+                              {/* Interactive Prompt & Reveal Toolbar */}
+                              {!isAnswerRevealed ? (
+                                <div style={{
+                                  display: 'flex',
+                                  justifyContent: 'space-between',
+                                  alignItems: 'center',
+                                  background: '#090d16',
+                                  border: '1px solid #1e293b',
+                                  borderRadius: '10px',
+                                  padding: '12px 18px',
+                                  marginBottom: '20px'
+                                }}>
+                                  <span style={{ fontSize: '13px', color: '#94a3b8' }}>
+                                    {userChoice ? (
+                                      <span>Selected Option <strong style={{ color: '#38bdf8' }}>({userChoice.toUpperCase()})</strong>. Ready to verify?</span>
+                                    ) : (
+                                      <span>Pick an option above to test your knowledge</span>
+                                    )}
+                                  </span>
 
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleCopyNote(q);
-                              }}
-                              style={{
-                                background: 'transparent',
-                                border: 'none',
-                                color: '#94a3b8',
-                                fontSize: '11.5px',
-                                fontWeight: '600',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '5px',
-                                cursor: 'pointer'
-                              }}
-                            >
-                              {copiedId === q.id ? (
-                                <><Check size={13} color="#10b981" /> Copied!</>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setRevealed(prev => ({ ...prev, [q.id]: true }));
+                                    }}
+                                    style={{
+                                      padding: '7px 18px',
+                                      borderRadius: '8px',
+                                      border: '1px solid',
+                                      borderColor: userChoice ? '#10b981' : '#334155',
+                                      background: userChoice ? '#059669' : '#1e293b',
+                                      color: userChoice ? '#ffffff' : '#cbd5e1',
+                                      fontSize: '13px',
+                                      fontWeight: '700',
+                                      cursor: 'pointer',
+                                      transition: 'all 0.15s ease'
+                                    }}
+                                  >
+                                    {userChoice ? 'Check Answer ✓' : 'Reveal Answer ⌄'}
+                                  </button>
+                                </div>
                               ) : (
-                                <><Copy size={13} /> Copy Note</>
-                              )}
-                            </button>
-                          </div>
+                                <div style={{ marginBottom: '20px' }}>
+                                  {/* Verified Solution Box */}
+                                  <div style={{
+                                    background: '#061a14',
+                                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                                    borderRadius: '12px',
+                                    padding: '18px 22px',
+                                    marginBottom: '10px'
+                                  }}>
+                                    {/* Solution Header */}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981' }} />
+                                        <span style={{ fontSize: '11px', fontWeight: '800', color: '#10b981', letterSpacing: '0.06em' }}>
+                                          OFFICIAL KEY VERIFIED
+                                        </span>
+                                        <span style={{
+                                          background: 'rgba(16, 185, 129, 0.2)',
+                                          color: '#34d399',
+                                          border: '1px solid rgba(16, 185, 129, 0.4)',
+                                          padding: '2px 8px',
+                                          borderRadius: '6px',
+                                          fontSize: '11px',
+                                          fontWeight: '800'
+                                        }}>
+                                          Correct Option: ({(q.correctLabel || '').toUpperCase()})
+                                        </span>
+                                      </div>
 
-                          {/* Explanation Body */}
-                          <div style={{ color: '#cbd5e1', fontSize: '13.5px', lineHeight: 1.6 }}>
-                            <p style={{ margin: '0 0 8px 0' }}>
-                              <strong>Explanation:</strong> Under official key verification for {q.examName} {q.examYear}, Option <strong>({(q.correctLabel || '').toUpperCase()})</strong> is the definitive answer.
-                            </p>
-                            <p style={{ margin: 0, color: '#38bdf8', fontSize: '12.5px', fontFamily: 'monospace' }}>
-                              Source: Official {q.examName} Key • Indian Polity Archive
-                            </p>
-                          </div>
-                        </div>
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleCopyNote(q);
+                                        }}
+                                        style={{
+                                          background: 'transparent',
+                                          border: 'none',
+                                          color: '#94a3b8',
+                                          fontSize: '11.5px',
+                                          fontWeight: '600',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          gap: '5px',
+                                          cursor: 'pointer'
+                                        }}
+                                      >
+                                        {copiedId === q.id ? (
+                                          <><Check size={13} color="#10b981" /> Copied!</>
+                                        ) : (
+                                          <><Copy size={13} /> Copy Note</>
+                                        )}
+                                      </button>
+                                    </div>
+
+                                    {/* Explanation Body */}
+                                    <div style={{ color: '#cbd5e1', fontSize: '13.5px', lineHeight: 1.6 }}>
+                                      <p style={{ margin: '0 0 8px 0' }}>
+                                        <strong>Explanation:</strong> Under official key verification for {q.examName} {q.examYear}, Option <strong>({(q.correctLabel || '').toUpperCase()})</strong> is the definitive answer.
+                                      </p>
+                                      <p style={{ margin: 0, color: '#38bdf8', fontSize: '12.5px', fontFamily: 'monospace' }}>
+                                        Source: Official {q.examName} Key • Indian Polity Archive
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  {/* Reset / Re-attempt button */}
+                                  <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setRevealed(prev => ({ ...prev, [q.id]: false }));
+                                        setUserSelectedOption(prev => {
+                                          const next = { ...prev };
+                                          delete next[q.id];
+                                          return next;
+                                        });
+                                      }}
+                                      style={{
+                                        background: 'transparent',
+                                        border: 'none',
+                                        color: '#64748b',
+                                        fontSize: '12px',
+                                        cursor: 'pointer',
+                                        textDecoration: 'underline'
+                                      }}
+                                    >
+                                      Hide Answer / Re-attempt
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
 
                         {/* Card Bottom Toolbar */}
                         <div style={{
