@@ -131,6 +131,59 @@ export async function POST(req) {
       return NextResponse.json({ success: true, node });
     }
 
+    if (action === 'delete_node') {
+      const { nodeId, optionalId } = body;
+      if (!nodeId || !optionalId) {
+        return NextResponse.json({ error: 'Missing nodeId or optionalId' }, { status: 400 });
+      }
+
+      // Verify node exists
+      const node = await prisma.issue.findUnique({ where: { id: nodeId } });
+      if (!node) {
+        return NextResponse.json({ error: 'Node not found' }, { status: 404 });
+      }
+
+      async function collectDescendantIds(parentId) {
+        const children = await prisma.issue.findMany({ where: { parentIssueId: parentId }, select: { id: true } });
+        let ids = children.map(c => c.id);
+        for (const child of children) {
+          ids = ids.concat(await collectDescendantIds(child.id));
+        }
+        return ids;
+      }
+
+      const descendantIds = await collectDescendantIds(nodeId);
+      const allIds = [nodeId, ...descendantIds];
+
+      await prisma.$transaction([
+        prisma.subjectContent.updateMany({
+          where: { issueId: { in: allIds } },
+          data: { issueId: null }
+        }),
+        prisma.issue.deleteMany({
+          where: { id: { in: allIds } }
+        })
+      ]);
+
+      return NextResponse.json({ success: true, deletedCount: allIds.length });
+    }
+
+    if (action === 'reorder_nodes') {
+      const { updates } = body;
+      if (!updates || !Array.isArray(updates) || updates.length === 0) {
+        return NextResponse.json({ error: 'Invalid updates payload' }, { status: 400 });
+      }
+
+      await prisma.$transaction(
+        updates.map(u => prisma.issue.update({
+          where: { id: u.id },
+          data: { orderIndex: u.orderIndex }
+        }))
+      );
+
+      return NextResponse.json({ success: true, updated: updates.length });
+    }
+
     // --- Action: Batch Ingest parsed chunks ---
     if (action === "batch_ingest") {
       const { chunks = [], optionalId } = body;

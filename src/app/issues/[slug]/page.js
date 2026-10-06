@@ -42,9 +42,7 @@ export default async function IssuePage({ params, searchParams }) {
         orderBy: { date: 'desc' },
         take: 15
       },
-      pyqLinks: {
-        orderBy: { year: 'desc' }
-      }
+      
     }
   })
 

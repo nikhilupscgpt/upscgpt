@@ -1,0 +1,20 @@
+#!/usr/bin/expect -f
+
+set timeout -1
+spawn npx prisma migrate dev --name init_prelimsgpt
+
+expect {
+    -re "\\? .*Do you want to continue.*\\(y/N\\)" {
+        send "y\r"
+        exp_continue
+    }
+    -re "\\? .*We need to reset the.*\\(y/N\\)" {
+        send "y\r"
+        exp_continue
+    }
+    -re "\\? .*Are you sure.*\\(y/N\\)" {
+        send "y\r"
+        exp_continue
+    }
+    eof
+}

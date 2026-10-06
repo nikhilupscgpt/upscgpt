@@ -21,6 +21,7 @@ export async function proxy(request) {
     pathname.startsWith("/news/") ||
     pathname === "/prelims" ||
     pathname === "/prelims/" ||
+    pathname.startsWith("/prelims/pyq") ||
     pathname.startsWith("/prelims/prepare") ||
     pathname.startsWith("/mains") ||
     pathname.startsWith("/atlas") ||

@@ -28,9 +28,7 @@ export async function GET(req, { params }) {
             }
           }
         },
-        pyqLinks: {
-          orderBy: { year: 'desc' }
-        },
+        
         articles: {
           select: {
             id: true,

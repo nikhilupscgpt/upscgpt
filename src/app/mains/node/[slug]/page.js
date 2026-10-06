@@ -37,9 +37,7 @@ export default async function MainsNodePage({ params }) {
         orderBy: { date: 'desc' },
         take: 15
       },
-      pyqLinks: {
-        orderBy: { year: 'desc' }
-      }
+      
     }
   });
 

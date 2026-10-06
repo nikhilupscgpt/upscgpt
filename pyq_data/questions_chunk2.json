@@ -1,0 +1,2499 @@
+[
+  {
+    "questionNo": 45,
+    "examName": "UPPCS Pre",
+    "examYear": 2019,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Right to Information",
+    "stem": "Mazdoor Kisan Shakti Sangathan (MKSS), a Social Movement has been associated with\nwhich of the following in India?",
+    "options": [
+      { "label": "a", "text": "RTE Act" },
+      { "label": "b", "text": "RTI Act" },
+      { "label": "c", "text": "MGNREGA" },
+      { "label": "d", "text": "National Health Mission (NHM)" }
+    ]
+  },
+  {
+    "questionNo": 46,
+    "examName": "UPPCS Pre",
+    "examYear": 2018,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "The Council of States has exclusive powers in relation to which of the following?",
+    "options": [
+      { "label": "a", "text": "To initiate proceedings for the removal of the President" },
+      { "label": "b", "text": "To initiate proceedings for the removal of a judges of the Supreme Court" },
+      { "label": "c", "text": "To recommend creation of a new All India Service" },
+      { "label": "d", "text": "None of the above" }
+    ]
+  },
+  {
+    "questionNo": 47,
+    "examName": "UPPCS Pre",
+    "examYear": 2018,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "What can be the maximum representation from the Union Territories to the Lok Sabha?",
+    "options": [
+      { "label": "a", "text": "15" },
+      { "label": "b", "text": "20" },
+      { "label": "c", "text": "25" },
+      { "label": "d", "text": "None of the above" }
+    ]
+  },
+  {
+    "questionNo": 48,
+    "examName": "UPPCS Pre",
+    "examYear": 2018,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "After how many days of absence from Parliament without permission can an M.P. be disqualified?",
+    "options": [
+      { "label": "a", "text": "30 days" },
+      { "label": "b", "text": "60 days" },
+      { "label": "c", "text": "90 days" },
+      { "label": "d", "text": "120 days" }
+    ]
+  },
+  {
+    "questionNo": 49,
+    "examName": "UPPCS Pre",
+    "examYear": 2017,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Procedure",
+    "stem": "What is the quorum to constitute a meeting of Lok Sabha?",
+    "options": [
+      { "label": "a", "text": "One sixth of the total members of the House." },
+      { "label": "b", "text": "One tenth of the total members of the House." },
+      { "label": "c", "text": "One fourth of the total members of the House" },
+      { "label": "d", "text": "One third of the total members of the House" }
+    ]
+  },
+  {
+    "questionNo": 50,
+    "examName": "UPPCS Pre",
+    "examYear": 2017,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Privileges",
+    "stem": "Which one of the following is not a collective privilege of the members of Parliament?",
+    "options": [
+      { "label": "a", "text": "Freedom of debates and proceedings." },
+      { "label": "b", "text": "The Rights to regulate the internal matters of the Parliament" },
+      { "label": "c", "text": "Freedom from attendance as Witness." },
+      { "label": "d", "text": "The privileges of excluding strangers from the house." }
+    ]
+  },
+  {
+    "questionNo": 51,
+    "examName": "UPPCS Mains",
+    "examYear": 2016,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Budget & Financial Procedure",
+    "stem": "A Bill which merely involves expenditure and does not include any of the matters specified in Article 110 can be:",
+    "options": [
+      { "label": "a", "text": "Initiated only in Lok Sabha" },
+      { "label": "b", "text": "Initiated in either House of Parliament" },
+      { "label": "c", "text": "Initiated only in Rajya Sabha" },
+      { "label": "d", "text": "Initiated only in joint session of both House of Parliament" }
+    ]
+  },
+  {
+    "questionNo": 52,
+    "examName": "UPPCS Mains",
+    "examYear": 2016,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Presiding Officers",
+    "stem": "In case the Deputy Speaker is presiding the Lok Sabha he has right to",
+    "options": [
+      { "label": "a", "text": "Take part in its deliberations" },
+      { "label": "b", "text": "Vote on any proposition before the house as a member" },
+      { "label": "c", "text": "Vote in the event of equality of votes" },
+      { "label": "d", "text": "No right to preside a joint sitting of the House of Parliament in case the Speaker is absent" }
+    ]
+  },
+  {
+    "questionNo": 53,
+    "examName": "UPPCS Mains",
+    "examYear": 2016,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "State Legislature",
+    "stem": "Who among the following is the final authority to decide any question relating to disqualification of a Member of a House of Legislature of a State?",
+    "options": [
+      { "label": "a", "text": "Governor" },
+      { "label": "b", "text": "Speaker of the Legislative Assembly" },
+      { "label": "c", "text": "Chief Minister" },
+      { "label": "d", "text": "High Court" }
+    ]
+  },
+  {
+    "questionNo": 54,
+    "examName": "UPPCS Pre (Re-Exam)",
+    "examYear": 2015,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Presiding Officers",
+    "stem": "Which one of the following Articles of the Constitution provides that the Speaker shall have and exercise a casting vote in the case of an equality of votes?",
+    "options": [
+      { "label": "a", "text": "Article 99" },
+      { "label": "b", "text": "Article 103" },
+      { "label": "c", "text": "Article 100" },
+      { "label": "d", "text": "Article 102" }
+    ]
+  },
+  {
+    "questionNo": 55,
+    "examName": "UPPCS Pre (Re-Exam)",
+    "examYear": 2015,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Centre-State Legislative Relations",
+    "stem": "Who can legislate on the subjects which are not included in any of the lists of subjects given in the Constitution?",
+    "options": [
+      { "label": "a", "text": "Supreme Court" },
+      { "label": "b", "text": "Parliament" },
+      { "label": "c", "text": "State Legislature" },
+      { "label": "d", "text": "Regional Councils" }
+    ]
+  },
+  {
+    "questionNo": 56,
+    "examName": "UPPCS Mains",
+    "examYear": 2015,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "The Union Territories get representation in",
+    "options": [
+      { "label": "a", "text": "Lok Sabha" },
+      { "label": "b", "text": "Rajya Sabha" },
+      { "label": "c", "text": "Both Houses of Parliament" },
+      { "label": "d", "text": "None of the above 1n(IJI" }
+    ]
+  },
+  {
+    "questionNo": 57,
+    "examName": "UPPCS Mains",
+    "examYear": 2015,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Procedure",
+    "stem": "Which one of the following is authorized to prorogue the session of the House of the People?",
+    "options": [
+      { "label": "a", "text": "Speaker" },
+      { "label": "b", "text": "Attorney General" },
+      { "label": "c", "text": "Minister of Parliamentary" },
+      { "label": "d", "text": "President" }
+    ]
+  },
+  {
+    "questionNo": 58,
+    "examName": "UPPCS Pre (Re-Exam)",
+    "examYear": 2015,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Right to Information",
+    "stem": "Which of the following is related to the Right to Information Act, 2005?",
+    "options": [
+      { "label": "a", "text": "Lily Thomas v/s Union of India" },
+      { "label": "b", "text": "Nandini Sundar v/s State of Chhattisgarh" },
+      { "label": "c", "text": "Namit Sharma v/s Union of India" },
+      { "label": "d", "text": "None of the above" }
+    ]
+  },
+  {
+    "questionNo": 59,
+    "examName": "UPPCS Pre",
+    "examYear": 2014,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "Which of the following are correct about the Rajya Sabha?\n1. It is not subject to dissolution.\n2. It has a term of five years.\n3. One-third of its members retire after every two years.\n4. Its members shall not be less than 25 years of age.\nSelect the correct answer using the code given below:",
+    "options": [
+      { "label": "a", "text": "1, 2 and 3" },
+      { "label": "b", "text": "2, 3 and 4" },
+      { "label": "c", "text": "1 and 3" },
+      { "label": "d", "text": "2 and 4" }
+    ]
+  },
+  {
+    "questionNo": 60,
+    "examName": "UPPCS Pre",
+    "examYear": 2014,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Presiding Officers",
+    "stem": "Who among the following presides over a joint sitting of two houses of Parliament?",
+    "options": [
+      { "label": "a", "text": "President" },
+      { "label": "b", "text": "Prime Minister" },
+      { "label": "c", "text": "Chairman of the Rajya Sabha" },
+      { "label": "d", "text": "Speaker of the Lok Sabha" }
+    ]
+  },
+  {
+    "questionNo": 61,
+    "examName": "UPPCS Pre",
+    "examYear": 2012,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Centre-State Legislative Relations",
+    "stem": "Parliament may legislate on any subject of State List when",
+    "options": [
+      { "label": "a", "text": "There is assent of President" },
+      { "label": "b", "text": "Resolution thereof has been passed by State" },
+      { "label": "c", "text": "In any situation" },
+      { "label": "d", "text": "General permission of State Legislative Assembly has been received" }
+    ]
+  },
+  {
+    "questionNo": 62,
+    "examName": "UPPCS Mains",
+    "examYear": 2012,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Committees",
+    "stem": "On which of the following, a Parliamentary Committee has not been set up?",
+    "options": [
+      { "label": "a", "text": "Public Undertakings" },
+      { "label": "b", "text": "Government Assurances" },
+      { "label": "c", "text": "Estimates" },
+      { "label": "d", "text": "Welfare of Minorities" }
+    ]
+  },
+  {
+    "questionNo": 63,
+    "examName": "UPPCS Pre",
+    "examYear": 2012,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "State Legislature",
+    "stem": "No Money Bill can be introduced in the Assembly of a State, except on the recommendations of",
+    "options": [
+      { "label": "a", "text": "The Parliament" },
+      { "label": "b", "text": "The Governor of the State" },
+      { "label": "c", "text": "The President of India" },
+      { "label": "d", "text": "A special Committee of Ministers" }
+    ]
+  },
+  {
+    "questionNo": 64,
+    "examName": "UPPCS Mains",
+    "examYear": 2011,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Elections",
+    "stem": "Which one of the following is not correct with regard to the elections to the Lok Sabha?",
+    "options": [
+      { "label": "a", "text": "The elections are on the basis of adult suffrage." },
+      { "label": "b", "text": "The Election Commission is required to conduct the elections." },
+      { "label": "c", "text": "The electoral rolls are prepared under the direction and control of the President of India." },
+      { "label": "d", "text": "On therequestoftheElection Commission, the President is required to make available to the Election Commission such staff as may be necessary for the discharge of its functions." }
+    ]
+  },
+  {
+    "questionNo": 65,
+    "examName": "UPPCS Mains",
+    "examYear": 2011,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Budget & Financial Procedure",
+    "stem": "Which one of the following terms does not appear in the Constitution of India?",
+    "options": [
+      { "label": "a", "text": "Annual Financial Statement I" },
+      { "label": "b", "text": "Appropriation Bill" },
+      { "label": "c", "text": "Budget" },
+      { "label": "d", "text": "Consolidated Fund of India" }
+    ]
+  },
+  {
+    "questionNo": 66,
+    "examName": "UPPCS Mains",
+    "examYear": 2011,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "Which one of the following statements about Rajya Sabha is correct?",
+    "options": [
+      { "label": "a", "text": "It is not subject to dissolution." },
+      { "label": "b", "text": "Its members are chosen by direct election from territorial constituencies in the States." },
+      { "label": "c", "text": "It is required to choose, as soon as may be a member of the Rajya Sabha to be the Chairman thereof." },
+      { "label": "d", "text": "The Attorney General of India does not have the right to speak in Rajya Sabha." }
+    ]
+  },
+  {
+    "questionNo": 67,
+    "examName": "UPPCS Mains",
+    "examYear": 2011,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Budget & Financial Procedure",
+    "stem": "Which one of the following expenditures is not charged on the Consolidated Fund of India?",
+    "options": [
+      { "label": "a", "text": "Salary and allowances of the Chief Justice of India" },
+      { "label": "b", "text": "Salary and allowances of the Comptroller and Auditor General of India" },
+      { "label": "c", "text": "Salary and allowances of the Prime Minister of India." },
+      { "label": "d", "text": "Salary and allowances of the Chairman of the Union Public Service Commission." }
+    ]
+  },
+  {
+    "questionNo": 68,
+    "examName": "UPPCS Mains",
+    "examYear": 2010,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Anti-Defection Law",
+    "stem": "Which one of the following is not covered by the Anti-Defection Law?",
+    "options": [
+      { "label": "a", "text": "An-bloc defections in a Party." },
+      { "label": "b", "text": "Large defections in a Party in various spells." },
+      { "label": "c", "text": "Smaller defection in a single spell." },
+      { "label": "d", "text": "Party members in Parliament casting vote either to topple or support a government." }
+    ]
+  },
+  {
+    "questionNo": 69,
+    "examName": "UPPCS Mains",
+    "examYear": 2009,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Social Justice Legislation",
+    "stem": "Which one of the following pairs is not correctly matched?",
+    "options": [
+      { "label": "a", "text": "Hindu Marriage Act: 1955" },
+      { "label": "b", "text": "Hindu Succession Act: 1956" },
+      { "label": "c", "text": "73rd Constitutional Amendment Act: Reservation of seats for women in the election of local bodies in urban areas" },
+      { "label": "d", "text": "Sati (Prevention) Act: 1987" }
+    ]
+  },
+  {
+    "questionNo": 70,
+    "examName": "UPPCS Mains",
+    "examYear": 2009,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Directive Principles of State Policy",
+    "stem": "Which is the only State in India to have the Common Civil Code?",
+    "options": [
+      { "label": "a", "text": "Jammu & Kashmir" },
+      { "label": "b", "text": "Mizoram" },
+      { "label": "c", "text": "Nagaland" },
+      { "label": "d", "text": "Goa" }
+    ]
+  },
+  {
+    "questionNo": 71,
+    "examName": "UPPCS (Spl) Mains",
+    "examYear": 2008,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Committees",
+    "stem": "Members of the Rajya Sabha are not associated with-\n1. Public Accounts Committee\n2. Estimates Committee\n3. Committee on Public Undertakings\nChoose your answer from the given code.",
+    "options": [
+      { "label": "a", "text": "1 and 2" },
+      { "label": "b", "text": "Only 3" },
+      { "label": "c", "text": "Only 2" },
+      { "label": "d", "text": "1 and 3" }
+    ]
+  },
+  {
+    "questionNo": 72,
+    "examName": "UPPCS Mains",
+    "examYear": 2007,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Budget & Financial Procedure",
+    "stem": "Which of the Constitutional Provision lays down that taxes can neither be levied nor collected without the authority of law?",
+    "options": [
+      { "label": "a", "text": "Article 265" },
+      { "label": "b", "text": "Article 266" },
+      { "label": "c", "text": "Article 300" },
+      { "label": "d", "text": "Article 368" }
+    ]
+  },
+  {
+    "questionNo": 73,
+    "examName": "UPPCS Mains",
+    "examYear": 2006,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Procedure",
+    "stem": "At which of the following stages general discussion on a Bill takes place in the Lok Sabha?",
+    "options": [
+      { "label": "a", "text": "During introduction of the Bill" },
+      { "label": "b", "text": "During second reading" },
+      { "label": "c", "text": "During report stage" },
+      { "label": "d", "text": "During third reading" }
+    ]
+  },
+  {
+    "questionNo": 74,
+    "examName": "UPPCS Mains",
+    "examYear": 2005,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Centre-State Legislative Relations",
+    "stem": "Union Parliament may legislate on any subject of State List-\n1. To Implement International Agreements\n2. By consent of State\n3. When Proclamation of Emergency is in operation.\n4. In national interest and after a resolution passed by Council of states with 2/3 majority.\nChoose the correct option using codes given below:",
+    "options": [
+      { "label": "a", "text": "1, 2 and 3" },
+      { "label": "b", "text": "2, 3 and 4" },
+      { "label": "c", "text": "1, 2 and 4" },
+      { "label": "d", "text": "All of the above" }
+    ]
+  },
+  {
+    "questionNo": 75,
+    "examName": "UPPCS Mains",
+    "examYear": 2005,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Committees",
+    "stem": "Match list-I with list-II and select the correct answer using the codes given below the lists: tist -I . List-II\nA. Public Accounts 1. Ad hoc Committee Committee\nB. Committee on 2. Standing Petitions Committee\nC. Joint Committee 3. Financial on Stock Market Committee Scam\nD. Departmental 4. Functional Committees Committee\nCode: A B C D",
+    "options": [
+      { "label": "a", "text": "1 4 3 2" },
+      { "label": "b", "text": "2 3 4 1" },
+      { "label": "c", "text": "3 4 1 2" },
+      { "label": "d", "text": "4 2 1 3" }
+    ]
+  },
+  {
+    "questionNo": 76,
+    "examName": "UPPCS Mains",
+    "examYear": 2005,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "Which one of the following States has the highest number of reserve seats for the Scheduled Tribes in the Lok Sabha?",
+    "options": [
+      { "label": "a", "text": "Bihar" },
+      { "label": "b", "text": "Uttar Pradesh" },
+      { "label": "c", "text": "Madhya Pradesh" },
+      { "label": "d", "text": "Gujarat" }
+    ]
+  },
+  {
+    "questionNo": 77,
+    "examName": "UPPCS Mains",
+    "examYear": 2005,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "State Legislature",
+    "stem": "Which one of the following is the period for the Legislative Council to detain the ordinary bills?",
+    "options": [
+      { "label": "a", "text": "3 months" },
+      { "label": "b", "text": "4 months" },
+      { "label": "c", "text": "6 months" },
+      { "label": "d", "text": "14 days lff" }
+    ]
+  },
+  {
+    "questionNo": 78,
+    "examName": "UPPCS (Spl) Mains",
+    "examYear": 2004,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "Which of the following are exclusive powers of Lok Sabha in comparison to the Rajya Sabha?\n1. A Money/Finance Bill can be introduced only in the House of the People.\n2. Regarding the rejection or amendment of the Money Bill.\n3. The accountability of the Council of Ministers.\n4. Concerning the creation of one or more All India Services.\nSelect the correct answer from the code given below:",
+    "options": [
+      { "label": "a", "text": "1, 2, 3, 4" },
+      { "label": "b", "text": "1, 2, 3" },
+      { "label": "c", "text": "1, 3, 4" },
+      { "label": "d", "text": "3, 4" }
+    ]
+  },
+  {
+    "questionNo": 79,
+    "examName": "UPPCS Mains",
+    "examYear": 2004,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Budget & Financial Procedure",
+    "stem": "Economic Survey is presented in Parliament every year",
+    "options": [
+      { "label": "a", "text": "Before presentation of the Budget for the coming year" },
+      { "label": "b", "text": "After presentation of the Budget for the coming year" },
+      { "label": "c", "text": "After presentation of Finance Bill" },
+      { "label": "d", "text": "And has no relation with presentation of the Budget" }
+    ]
+  },
+  {
+    "questionNo": 80,
+    "examName": "UPPCS (Spl) Mains",
+    "examYear": 2004,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Procedure",
+    "stem": "'Zero Hour' is the contribution of which country to the Parliamentary System?",
+    "options": [
+      { "label": "a", "text": "India" },
+      { "label": "b", "text": "America" },
+      { "label": "c", "text": "Britain" },
+      { "label": "d", "text": "Switzerland" }
+    ]
+  },
+  {
+    "questionNo": 81,
+    "examName": "UPPCS Pre",
+    "examYear": 2000,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Procedure",
+    "stem": "The sitting of House of the People may the terminated by:",
+    "options": [
+      { "label": "a", "text": "Adjournment sine die" },
+      { "label": "b", "text": "Prorogation" },
+      { "label": "c", "text": "Dissolution" },
+      { "label": "d", "text": "All of the above" }
+    ]
+  },
+  {
+    "questionNo": 82,
+    "examName": "UPPCS Pre",
+    "examYear": 2000,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Budget & Financial Procedure",
+    "stem": "Who has the right to issue money from the Consolidated Fund of India?",
+    "options": [
+      { "label": "a", "text": "Comptroller and Auditor General" },
+      { "label": "b", "text": "Finance Minister of India" },
+      { "label": "c", "text": "Authorized Minister" },
+      { "label": "d", "text": "None of the above" }
+    ]
+  },
+  {
+    "questionNo": 83,
+    "examName": "UPPCS Pre",
+    "examYear": 1998,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "Reservation of seats for Scheduled Tribes in the Lok Sabha does not exist in the states of:",
+    "options": [
+      { "label": "a", "text": "Kerala and Tamil Nadu" },
+      { "label": "b", "text": "Karnataka and Kerala" },
+      { "label": "c", "text": "Tamil Nadu and Karnataka" },
+      { "label": "d", "text": "All of the above" }
+    ]
+  },
+  {
+    "questionNo": 84,
+    "examName": "UPPCS Pre",
+    "examYear": 1991,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Social Justice Legislation",
+    "stem": "Which of the following is not a Social Act?",
+    "options": [
+      { "label": "a", "text": "MISA Act" },
+      { "label": "b", "text": "Anti-Dowry Act" },
+      { "label": "c", "text": "Protection of Civil Rights Act" },
+      { "label": "d", "text": "Prevention of Immoral Traffic Act" }
+    ]
+  },
+  {
+    "questionNo": 85,
+    "examName": "UPPCS Pre",
+    "examYear": 1991,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Budget & Financial Procedure",
+    "stem": "How can the President spend from Contingency Fund?",
+    "options": [
+      { "label": "a", "text": "In time of natural calamity" },
+      { "label": "b", "text": "After Authorization of parliament." },
+      { "label": "c", "text": "Before Authorization of Parliament." },
+      { "label": "d", "text": "Cannot spend." }
+    ]
+  },
+  {
+    "questionNo": 86,
+    "examName": "UPPCS Pre",
+    "examYear": 1990,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "The members of Council of States are elected by",
+    "options": [
+      { "label": "a", "text": "Members of Legislative Assembly of States." },
+      { "label": "b", "text": "Members of Legislative Council of States." },
+      { "label": "c", "text": "Members of both Legislative Assembly and Council." },
+      { "label": "d", "text": "Members of Municipalities and Gram Panchayat." }
+    ]
+  },
+  {
+    "questionNo": 87,
+    "examName": "67th BPSC Pre",
+    "examYear": 2021,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Committees",
+    "stem": "Which of the following is a Parliamentary Committee relating to delegation of power to make rules and regulations to the Executive?",
+    "options": [
+      { "label": "a", "text": "Committee on Executive Legislation" },
+      { "label": "b", "text": "Committee on Subordinate Legislation" },
+      { "label": "c", "text": "Committee on Administrative Legislation" },
+      { "label": "d", "text": "Committee on Delegated Legislation" },
+      { "label": "e", "text": "None of the above/More than one of the above" }
+    ]
+  },
+  {
+    "questionNo": 88,
+    "examName": "66th BPSC Pre (Re-Exam)",
+    "examYear": 2020,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Budget & Financial Procedure",
+    "stem": "What constitutes the definition of money bill under article 110 of the Indian Constitution?",
+    "options": [
+      { "label": "a", "text": "The imposition, abolition, alteration or regulation of any tax" },
+      { "label": "b", "text": "The regulation of borrowings of money" },
+      { "label": "c", "text": "The appropriation of money out of the consolidated fund of India" },
+      { "label": "d", "text": "Declaration of any expenditure to be charged on the consolidated fund of India" },
+      { "label": "e", "text": "None of the above / More than one of the above" }
+    ]
+  },
+  {
+    "questionNo": 89,
+    "examName": "64th BPSC Pre",
+    "examYear": 2018,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "In which Article of the Constitution of India was the provision for reservation of scheduled castes in the Lok Sabha made?",
+    "options": [
+      { "label": "a", "text": "Article 330" },
+      { "label": "b", "text": "Article 331" },
+      { "label": "c", "text": "Article 332" },
+      { "label": "d", "text": "Article 333" }
+    ]
+  },
+  {
+    "questionNo": 90,
+    "examName": "53rd to 55th BPSC Pre",
+    "examYear": 2011,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "The Rajya Sabha consists of",
+    "options": [
+      { "label": "a", "text": "280 members of which 20 members are nominated by the President of India." },
+      { "label": "b", "text": "275 members of which 18 members are nominated by the President of India." },
+      { "label": "c", "text": "250 members of which 12 members are nominated by the President of India." },
+      { "label": "d", "text": "252 members of which 12 members are nominated by the President of India." }
+    ]
+  },
+  {
+    "questionNo": 91,
+    "examName": "53rd to 55th BPSC Pre",
+    "examYear": 2011,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Committees",
+    "stem": "The Public Accounts Committee submits its reports to",
+    "options": [
+      { "label": "a", "text": "The Comptroller and Auditor General" },
+      { "label": "b", "text": "The Speaker of the Lok Sabha" },
+      { "label": "c", "text": "The Minister of Parliamentary Affairs" },
+      { "label": "d", "text": "The President of India" }
+    ]
+  },
+  {
+    "questionNo": 92,
+    "examName": "45th BPSC Pre",
+    "examYear": 2001,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "What is the minimum age laid down for a person to seek election to the Lok Sabha?",
+    "options": [
+      { "label": "a", "text": "18 years" },
+      { "label": "b", "text": "21 years" },
+      { "label": "c", "text": "25 years" },
+      { "label": "d", "text": "None of these" }
+    ]
+  },
+  {
+    "questionNo": 93,
+    "examName": "42nd BPSC Pre",
+    "examYear": 1997,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "Before completing its term, the Lok Sabha can be dissolved",
+    "options": [
+      { "label": "a", "text": "By the discretion of President" },
+      { "label": "b", "text": "By the discretion of Prime Minister" },
+      { "label": "c", "text": "By the discretion of the Speaker of the Lok Sabha" },
+      { "label": "d", "text": "By the President on the recommendation of Prime Minister" }
+    ]
+  },
+  {
+    "questionNo": 94,
+    "examName": "41st BPSC Pre",
+    "examYear": 1996,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "State Legislature",
+    "stem": "As per Indian Constitution, Legislature of States consists-\n1. Legislative Council and Governor\n2. Legislative Assembly and legislative Council\n3. Legislative Assembly and Governor\n4. Governor, Legislative Assembly and Legislative Council where it exists\nSelect your answer out of the following codes",
+    "options": [
+      { "label": "a", "text": "3 Only" },
+      { "label": "b", "text": "2 and 3 Only" },
+      { "label": "c", "text": "3 and 4 Only" },
+      { "label": "d", "text": "4 Only" }
+    ]
+  },
+  {
+    "questionNo": 95,
+    "examName": "40th BPSC Pre",
+    "examYear": 1995,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Elections",
+    "stem": "A candidate of Lok Sabha Poll loses his security amount if he/she does not get",
+    "options": [
+      { "label": "a", "text": "1/3 of valid votes" },
+      { "label": "b", "text": "1/ 4 of valid votes" },
+      { "label": "c", "text": "1/5 of valid votes" },
+      { "label": "d", "text": "None of the above" }
+    ]
+  },
+  {
+    "questionNo": 96,
+    "examName": "40th BPSC Pre",
+    "examYear": 1995,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "State Legislature",
+    "stem": "If the Speaker of Legislative Assembly of a State wants to resign, he will give his resignation to",
+    "options": [
+      { "label": "a", "text": "Chief Minister" },
+      { "label": "b", "text": "Governor" },
+      { "label": "c", "text": "Deputy Speaker" },
+      { "label": "d", "text": "President of India" }
+    ]
+  },
+  {
+    "questionNo": 97,
+    "examName": "40th BPSC Pre",
+    "examYear": 1995,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "State Legislature",
+    "stem": "Which of the following Articles of Indian Constitution consists of the provision of the election of Legislative Assemblies of States",
+    "options": [
+      { "label": "a", "text": "Article 170" },
+      { "label": "b", "text": "Article 176" },
+      { "label": "c", "text": "Article 178" },
+      { "label": "d", "text": "None of the above" }
+    ]
+  },
+  {
+    "questionNo": 98,
+    "examName": "42nd BPSC Pre",
+    "examYear": 1995,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "Who is the leader of the Lok Sabha?",
+    "options": [
+      { "label": "a", "text": "President" },
+      { "label": "b", "text": "Prime Minister" },
+      { "label": "c", "text": "Speaker" },
+      { "label": "d", "text": "None of the above" }
+    ]
+  },
+  {
+    "questionNo": 99,
+    "examName": "40th BPSC Pre",
+    "examYear": 1995,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Procedure",
+    "stem": "Joint Session of both the Houses of Parliament is concerned-\n1. For the election of the President of India\n2. For the election of the vice-President of India\n3. To pass the Bill relating to the amendment of Constitution\n4. To discuss and pass such a Bill where both Houses have different opinion\nSelect your answer from the following code",
+    "options": [
+      { "label": "a", "text": "1 and 4" },
+      { "label": "b", "text": "3 and 4" },
+      { "label": "c", "text": "1 and 2" },
+      { "label": "d", "text": "only 4" }
+    ]
+  },
+  {
+    "questionNo": 100,
+    "examName": "38th BPSC Pre",
+    "examYear": 1992,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "The Representation of States in Council of States is based on",
+    "options": [
+      { "label": "a", "text": "Equal for all States" },
+      { "label": "b", "text": "Ratio of their Population" },
+      { "label": "c", "text": "Ratio of their Area" },
+      { "label": "d", "text": "Ratio of their Revenue" }
+    ]
+  },
+  {
+    "questionNo": 101,
+    "examName": "MPPCS Pre",
+    "examYear": 2021,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Right to Information",
+    "stem": "Who among the following can impose the penalty under Section 20 of the Right to Information Act?",
+    "options": [
+      { "label": "a", "text": "Central Information Commission only" },
+      { "label": "b", "text": "State Information Commission only" },
+      { "label": "c", "text": "Central Information Commission or State Information Commission" },
+      { "label": "d", "text": "High Court or Central Information Commission or State Information Commission" }
+    ]
+  },
+  {
+    "questionNo": 102,
+    "examName": "MPPCS Pre",
+    "examYear": 2019,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Social Justice Legislation",
+    "stem": "An appeal under Scheduled Castes and Scheduled Tribes (Prevention of Atrocities) Act, 1989 shall lie from any Judgement, sentence or order to the high Court:",
+    "options": [
+      { "label": "a", "text": "Only on facts" },
+      { "label": "b", "text": "Only on law" },
+      { "label": "c", "text": "Both on facts and law" },
+      { "label": "d", "text": "None of the above" }
+    ]
+  },
+  {
+    "questionNo": 103,
+    "examName": "MPPCS Pre",
+    "examYear": 2018,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "How many seats are reserved for Scheduled Castes in the Lok Sabha?",
+    "options": [
+      { "label": "a", "text": "59" },
+      { "label": "b", "text": "69" },
+      { "label": "c", "text": "79" },
+      { "label": "d", "text": "84" }
+    ]
+  },
+  {
+    "questionNo": 104,
+    "examName": "MPPCS Pre",
+    "examYear": 2016,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Social Justice Legislation",
+    "stem": "Who has/had the power to make rules for carrying out the purposes of the Scheduled Castes and the Scheduled Tribes (Prevention of Atrocities) Act, 1989?",
+    "options": [
+      { "label": "a", "text": "The State Government" },
+      { "label": "b", "text": "The Central Government" },
+      { "label": "c", "text": "Both and" },
+      { "label": "d", "text": "The Supreme Court" }
+    ]
+  },
+  {
+    "questionNo": 105,
+    "examName": "MPPCS Pre",
+    "examYear": 2014,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Social Justice Legislation",
+    "stem": "Offences are tried under the Protection of Civil Rights Act, 1955 by the Courts of",
+    "options": [
+      { "label": "a", "text": "Sessions Court" },
+      { "label": "b", "text": "Judicial Magistrate First Class" },
+      { "label": "c", "text": "Judicial Magistrate Second Class" },
+      { "label": "d", "text": "Chief Judicial Magistrate" }
+    ]
+  },
+  {
+    "questionNo": 106,
+    "examName": "MPPCS Pre",
+    "examYear": 2014,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Social Justice Legislation",
+    "stem": "Who is empowered for imposition and realization of a collective fine under SC and ST (Prevention of Atrocities) Act, 1989",
+    "options": [
+      { "label": "a", "text": "District Magistrate" },
+      { "label": "b", "text": "State Government" },
+      { "label": "c", "text": "Special Court" },
+      { "label": "d", "text": "High Court" }
+    ]
+  },
+  {
+    "questionNo": 107,
+    "examName": "MPPCS Pre",
+    "examYear": 2014,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "State Legislature",
+    "stem": "Which Article of the Indian Constitution provides the provision of Vidhan Parishad in the State?",
+    "options": [
+      { "label": "a", "text": "Article 170" },
+      { "label": "b", "text": "Article 171" },
+      { "label": "c", "text": "Article 172" },
+      { "label": "d", "text": "Article 173" }
+    ]
+  },
+  {
+    "questionNo": 108,
+    "examName": "MPPCS Pre",
+    "examYear": 2013,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Social Justice Legislation",
+    "stem": "Under the Scheduled Castes and Scheduled Tribes (Prevention of Atrocities) Act 1989,\nwhich of the following is barred?",
+    "options": [
+      { "label": "a", "text": "Anticipatory Bail" },
+      { "label": "b", "text": "Post-arrest bail" },
+      { "label": "c", "text": "Benefit of probation" },
+      { "label": "d", "text": "All of the above" }
+    ]
+  },
+  {
+    "questionNo": 109,
+    "examName": "MPPCS Pre",
+    "examYear": 2013,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Social Justice Legislation",
+    "stem": "The State Government can specify a Court of Session to be a Special Court to try the offences under the Scheduled Castes and Scheduled Tribes (Prevention of Atrocities) Act, 1989 with the concurrence of the",
+    "options": [
+      { "label": "a", "text": "Governor" },
+      { "label": "b", "text": "Chief Justice of High Court" },
+      { "label": "c", "text": "Session Judge of concerned district" },
+      { "label": "d", "text": "Ministry of Law" }
+    ]
+  },
+  {
+    "questionNo": 110,
+    "examName": "MPPCS Pre",
+    "examYear": 2013,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Social Justice Legislation",
+    "stem": "A court can presume that any act constituting offence was committed on the ground of untouchability -if such offence is committed in relation to",
+    "options": [
+      { "label": "a", "text": "a member of Scheduled Castes" },
+      { "label": "b", "text": "a member of Scheduled Tribes" },
+      { "label": "c", "text": "a member of any community" },
+      { "label": "d", "text": "None of the above" }
+    ]
+  },
+  {
+    "questionNo": 111,
+    "examName": "MPPCS Pre",
+    "examYear": 2012,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Social Justice Legislation",
+    "stem": "The Scheduled Castes and Scheduled Tribes (Prevention of Atrocities) Act is a special provision for the advancement of Scheduled Castes and Scheduled Tribes which is based on which one of the following doctrines?",
+    "options": [
+      { "label": "a", "text": "Doctrine of Severability" },
+      { "label": "b", "text": "Doctrine of Preferred Position" },
+      { "label": "c", "text": "Doctrine of Protective discrimination" },
+      { "label": "d", "text": "Doctrine of Harmonious Construction" }
+    ]
+  },
+  {
+    "questionNo": 112,
+    "examName": "MPPCS Pre",
+    "examYear": 2012,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Presiding Officers",
+    "stem": "Who was the First Speaker of Lok Sabha?",
+    "options": [
+      { "label": "a", "text": "Mavalankar" },
+      { "label": "b", "text": "Hukum Singh" },
+      { "label": "c", "text": "B.D. Jatti" },
+      { "label": "d", "text": "V.V. Giri" }
+    ]
+  },
+  {
+    "questionNo": 113,
+    "examName": "MPPCS Pre",
+    "examYear": 2012,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Social Justice Legislation",
+    "stem": "All offences punishable under the Protection of Civil Rights Act, 1955 are:",
+    "options": [
+      { "label": "a", "text": "Cognizable and Non-bailable" },
+      { "label": "b", "text": "Cognizable and Non-compoundable" },
+      { "label": "c", "text": "Non-cognizable and Bailable" },
+      { "label": "d", "text": "Non-cognizable and Compoundable" }
+    ]
+  },
+  {
+    "questionNo": 114,
+    "examName": "MPPCS Pre",
+    "examYear": 2012,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Social Justice Legislation",
+    "stem": "The Protection of Civil Rights Act extends to:",
+    "options": [
+      { "label": "a", "text": "The whole of India" },
+      { "label": "b", "text": "The whole of India except the Scheduled areas" },
+      { "label": "c", "text": "The whole of India except the State of Jammu and Kashmir" },
+      { "label": "d", "text": "The whole of India except the Union Territories of Goa, Daman and Diu mJll,1" }
+    ]
+  },
+  {
+    "questionNo": 115,
+    "examName": "MPPCS Pre",
+    "examYear": 2008,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "Consider the following statements with respect to qualification to become the member of Rajya Sabha and select the correct answer from the code given below: ( 1) Should be at least 30 years of age (2) Should be registered as a voter on the\nlist of voters in the state from which the candidate is to be elected (3) Should not hold office of profit under the state\nCode:",
+    "options": [
+      { "label": "a", "text": "(1) and (2) are correct" },
+      { "label": "b", "text": "(1) and (3) are correct" },
+      { "label": "c", "text": "(2) and (3) are correct" },
+      { "label": "d", "text": "(1), (2) and (3) are correct" }
+    ]
+  },
+  {
+    "questionNo": 116,
+    "examName": "MPPCS Pre",
+    "examYear": 2002,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "State Legislature",
+    "stem": "Who prorogues the Vidhan Sabha of a State?",
+    "options": [
+      { "label": "a", "text": "Governor" },
+      { "label": "b", "text": "Vidhan Sabha Speaker" },
+      { "label": "c", "text": "Chief Minister" },
+      { "label": "d", "text": "Law Minister" }
+    ]
+  },
+  {
+    "questionNo": 117,
+    "examName": "MPPCS Mains",
+    "examYear": 1994,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Presiding Officers",
+    "stem": "How can the speaker of the Lok Sabha be removed?",
+    "options": [
+      { "label": "a", "text": "By a resolution of Lok Sabha passed by a two-third Majority of members present." },
+      { "label": "b", "text": "By a resolution of the Lok Sabha passed by a majority of all the members of the House." },
+      { "label": "c", "text": "By President on the advice of the Prime Minister." },
+      { "label": "d", "text": "None of these" }
+    ]
+  },
+  {
+    "questionNo": 118,
+    "examName": "MPPCS Pre",
+    "examYear": 1993,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "State Legislature",
+    "stem": "In which assembly of States, money Bills are proposed?",
+    "options": [
+      { "label": "a", "text": "Any one of the two" },
+      { "label": "b", "text": "Together in both" },
+      { "label": "c", "text": "Only in Legislative Assembly" },
+      { "label": "d", "text": "Only in upper chamber" }
+    ]
+  },
+  {
+    "questionNo": 119,
+    "examName": "MPPCS Pre",
+    "examYear": 1990,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "What is the consequence of the failure of Government in Rajya Sabha?",
+    "options": [
+      { "label": "a", "text": "Prime Minister gives his resignation" },
+      { "label": "b", "text": "Parliament will dissolve" },
+      { "label": "c", "text": "The operation of President Rule" },
+      { "label": "d", "text": "None of the above" }
+    ]
+  },
+  {
+    "questionNo": 120,
+    "examName": "UP Lower Sub (Spl) Pre",
+    "examYear": 2008,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "State Legislature",
+    "stem": "In any State of India, Legislative Council can be created or can be abolished by",
+    "options": [
+      { "label": "a", "text": "the President on the recommendation of the Governor of the State" },
+      { "label": "b", "text": "the Parliament" },
+      { "label": "c", "text": "the Parliament as per Resolution passed by the Legislative Assembly of the State" },
+      { "label": "d", "text": "The Governor on the recommendation of the Council of Ministers" }
+    ]
+  },
+  {
+    "questionNo": 121,
+    "examName": "UP Lower Sub (Spl) Pre",
+    "examYear": 2004,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Budget & Financial Procedure",
+    "stem": "The 'Contingency Fund' of the State is operated by",
+    "options": [
+      { "label": "a", "text": "The Governor of the State" },
+      { "label": "b", "text": "The Chief Minister of the State" },
+      { "label": "c", "text": "The State Finance Minister" },
+      { "label": "d", "text": "None of the above" }
+    ]
+  },
+  {
+    "questionNo": 122,
+    "examName": "RAS/RTS Pre",
+    "examYear": 2021,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Citizen Charter & Good Governance",
+    "stem": "Which one of the following is not basic element of the citizen charter?",
+    "options": [
+      { "label": "a", "text": "Description of services being provided by department of the agency" },
+      { "label": "b", "text": "Promotion of various methods to get benefit from the services available" },
+      { "label": "c", "text": "To expect any public record" },
+      { "label": "d", "text": "Provision for the inspection of the agency's work" }
+    ]
+  },
+  {
+    "questionNo": 123,
+    "examName": "RAS/RTS Pre",
+    "examYear": 2021,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Right to Information",
+    "stem": "Which of the following is not true about the objectives of the Right to Information Act?",
+    "options": [
+      { "label": "a", "text": "To promote transparency and accountability in the working of the government" },
+      { "label": "b", "text": "To make our democracy work for the people in real sense" },
+      { "label": "c", "text": "To empower the women and weaker sections of the society" },
+      { "label": "d", "text": "To empower citizens" }
+    ]
+  },
+  {
+    "questionNo": 124,
+    "examName": "RAS/RTS Pre",
+    "examYear": 2021,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "State Legislature",
+    "stem": "Which of the following statement about resolution adopted by a State Legislative Assembly under Article 169 of the Constitution of India for the abolition of the State Legislative Council is correct?",
+    "options": [
+      { "label": "a", "text": "It does impose an obligation on the Governor to reserve resolution for the consideration of the President." },
+      { "label": "b", "text": "It does not impose an obligation on the Union Government to take action for initiating legislative in Parliament." },
+      { "label": "c", "text": "It does not impose an obligation on the Governor to reserve resolution for the consideration of the President." },
+      { "label": "d", "text": "It does impose an obligation on the Union Government to take action for initiating legislation in Parliament." }
+    ]
+  },
+  {
+    "questionNo": 125,
+    "examName": "RAS/RTS Pre",
+    "examYear": 2018,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Procedure",
+    "stem": "The President of India addresses the Parliament under Article 87 of the Indian Constitution",
+    "options": [
+      { "label": "a", "text": "in a joint sitting of both Houses of Parliament." },
+      { "label": "b", "text": "in a joint meeting of both Houses of Parliament." },
+      { "label": "c", "text": "in a joint session of both Houses of Parliament." },
+      { "label": "d", "text": "both Houses of Parliament assembled together." }
+    ]
+  },
+  {
+    "questionNo": 126,
+    "examName": "RAS/RTS Pre",
+    "examYear": 2018,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Committees",
+    "stem": "Which of the following are Financial Committees of Indian Parliament?\n1. Estimates Committee\n2. Public Accounts Committee\n3. Committee on Public Undertakings\n4. Joint Committee on Salaries and Allowance for Members of Parliament\nSelect the correct answer using code given below:",
+    "options": [
+      { "label": "a", "text": "1, 3 and 4" },
+      { "label": "b", "text": "1, 2 and 4" },
+      { "label": "c", "text": "1, 2 and 3" },
+      { "label": "d", "text": "2, 3 and 4" }
+    ]
+  },
+  {
+    "questionNo": 127,
+    "examName": "RAS/RTS Pre",
+    "examYear": 2018,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Right to Information",
+    "stem": "Which of the following terminology is/are mentioned in the Preamble of the Right to Information Act, 2005?\n1. Transparency of Information\n2. Revelation of Information\n3. Informed Citizenry\n4. Paramountcy of the democratic ideal\nSelect the correct answer using code given below:",
+    "options": [
+      { "label": "a", "text": "l only" },
+      { "label": "b", "text": "1 and 2" },
+      { "label": "c", "text": "1, 2 and 3" },
+      { "label": "d", "text": "1, 2, 3 and 4" }
+    ]
+  },
+  {
+    "questionNo": 128,
+    "examName": "RAS/RTS Pre",
+    "examYear": 2018,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "State Legislature",
+    "stem": "Which of the following statements are correct in reference to rule of procedure for Motion for Adjournment on a matter of public importance in Rajasthan Legislative Assembly?\n1. Speaker's consent necessary to make motion.\n2. The motion raises a question of privilege.\n3. The motion shall be restricted to a specific matter of recent occurrence.\n4. Not more than one such motion shall be made at the same sitting.\nSelect the correct answer using code given below:",
+    "options": [
+      { "label": "a", "text": "l and 3" },
+      { "label": "b", "text": "1, 2 and 4" },
+      { "label": "c", "text": "1, 3 and 4" },
+      { "label": "d", "text": "1 and 2" }
+    ]
+  },
+  {
+    "questionNo": 129,
+    "examName": "RAS/RTS Pre",
+    "examYear": 2016,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "Which among the following group of States/ Union Territories has only one seat in the Lok Sabha?",
+    "options": [
+      { "label": "a", "text": "Goa, Meghalaya, Nagaland" },
+      { "label": "b", "text": "Manipur, Dadra and Nagar Haveli, Puducherry" },
+      { "label": "c", "text": "Arunachal Pradesh, Sikkim, Lakshadweep" },
+      { "label": "d", "text": "Chandigarh, Sikkim, Mizoram" }
+    ]
+  },
+  {
+    "questionNo": 130,
+    "examName": "RAS/RTS Pre",
+    "examYear": 2007,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Right to Information",
+    "stem": "The objective of Right to Information Act is to",
+    "options": [
+      { "label": "a", "text": "Secure access to information from public authorities." },
+      { "label": "b", "text": "Provide information to the public through a person who has the information." },
+      { "label": "c", "text": "Provide information by Government on a public place." },
+      { "label": "d", "text": "Secure information by police from culprits." }
+    ]
+  },
+  {
+    "questionNo": 131,
+    "examName": "Chhattisgarh PCS Pre",
+    "examYear": 2021,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Procedure",
+    "stem": "Which of the following statements is/ are true in reference to the joint sitting of Parliament for passage of bill? (i) Provision for Joint sitting is applicable for ordinary bills, financial bills and constitutional amendment bills (ii) In no situation, Deputy Chairman of Rajya Sabha can preside over the joint sitting (iii) Quorum of 1/6th of the total number of members of both houses to be maintained for joint sitting\nCode:",
+    "options": [
+      { "label": "a", "text": "(i), (ii) and (iii)" },
+      { "label": "b", "text": "(i) and (ii)" },
+      { "label": "c", "text": "(i) and (iii)" },
+      { "label": "d", "text": "None of these" }
+    ]
+  },
+  {
+    "questionNo": 132,
+    "examName": "Chhattisgarh PCS Pre",
+    "examYear": 2021,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Committees",
+    "stem": "Which of the following Committees does not come under the jurisdiction of Lok Sabha?",
+    "options": [
+      { "label": "a", "text": "Committee on Social Justice and Empowerment" },
+      { "label": "b", "text": "Committee on Urban Development" },
+      { "label": "c", "text": "Committee on Labour" },
+      { "label": "d", "text": "Committee on Health and Family Welfare" }
+    ]
+  },
+  {
+    "questionNo": 133,
+    "examName": "Chhattisgarh PCS Pre",
+    "examYear": 2021,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "State Executive",
+    "stem": "In the following questions, there are two\nstatements. One is labelled as Assertion and other is labelled as Reason (R):\nAssertion (A): The courts are barred from enquiring into the advice rendered by the ministers to the Governor.\nReason (R): There is no provision in the Indian Constitution for the system of legal responsibility of the ministers in the States. In the context of the above two statements\nwhich of the following is correct?",
+    "options": [
+      { "label": "a", "text": "Both Assertion and Reason (R) are true, and Reason (R) is correct explanation of Assertion" },
+      { "label": "b", "text": "Both Assertion and Reason (R) are true, but Reason (R) is not correct explanation of Assertion" },
+      { "label": "c", "text": "Assertion is true, but Reason (R) is false" },
+      { "label": "d", "text": "Assertion is false, but Reason (R) is true" }
+    ]
+  },
+  {
+    "questionNo": 134,
+    "examName": "Chhattisgarh PCS Pre",
+    "examYear": 2021,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "State Legislature",
+    "stem": "Match the articles related to State Legislature:\nList -I List-II\nA. Constitution of 1. Article legislature in States 178\nB. The Speaker and Deputy 2. Article Speaker of the Legislative 199 Assembly\nC. Salaries and allowances 3. Article of members 168\nD. Definition of 'Money 4. Article Bills' 195\nCode: A B C D",
+    "options": [
+      { "label": "a", "text": "1 2 3 4" },
+      { "label": "b", "text": "4 2 1 3" },
+      { "label": "c", "text": "3 1 4 2" },
+      { "label": "d", "text": "2 3 1 4" }
+    ]
+  },
+  {
+    "questionNo": 135,
+    "examName": "Chhattisgarh PCS Pre",
+    "examYear": 2019,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Anti-Defection Law",
+    "stem": "The merger of a political party with another political party in India is recognized in\nwhich of the following conditions?",
+    "options": [
+      { "label": "a", "text": "When not less than one-third members of the legislature party have agreed to such merger." },
+      { "label": "b", "text": "When not less than half members of the legislature party have agreed to such merger." },
+      { "label": "c", "text": "When not less than two-third members of the legislature party have agreed to such merger." },
+      { "label": "d", "text": "When not less than three-fourth members of the legislature party have agreed to such merger." }
+    ]
+  },
+  {
+    "questionNo": 136,
+    "examName": "Chhattisgarh PCS Pre",
+    "examYear": 2018,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Procedure",
+    "stem": "What will be happened if President summons for the joint session of Parliament and in the meantime, Lok Sabha dissolved? EIPor",
+    "options": [
+      { "label": "a", "text": "Joint session will be held in scheduled time" },
+      { "label": "b", "text": "Joint session will be cancelled" },
+      { "label": "c", "text": "Joint session will be held after composition of New Lok Sabha" },
+      { "label": "d", "text": "Bill will be lapsed" }
+    ]
+  },
+  {
+    "questionNo": 137,
+    "examName": "Chhattisgarh PCS Pre",
+    "examYear": 2017,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Union Executive",
+    "stem": "Which of the following doesn't take the oath of the office?",
+    "options": [
+      { "label": "a", "text": "President" },
+      { "label": "b", "text": "Vice-President" },
+      { "label": "c", "text": "Speaker" },
+      { "label": "d", "text": "Prime Minister" },
+      { "label": "e", "text": "Members of Council of Ministers" }
+    ]
+  },
+  {
+    "questionNo": 138,
+    "examName": "Chhattisgarh PCS Pre",
+    "examYear": 2015,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "State Legislature",
+    "stem": "What is correct about the State Legislative Council? (i) Its tenure is 6 years (ii) It is a permanent House (iii) It cannot be dissolved (iv) 1/6 members are elected by local institutions (v) 1/6 members are elected by legislative assembly (vi) Every two years 1/3 members are retired (vii) Deputy Governor is the Chairman of House (viii) The tenure of its members is 6 years\nCode:",
+    "options": [
+      { "label": "a", "text": "(i), (iii), (iv), (v)" },
+      { "label": "b", "text": "(iii), (vi), (vii), (viii)" },
+      { "label": "c", "text": "(ii), (iii), (vi), (viii)" },
+      { "label": "d", "text": "(ii), (iv), (i), (viii)" },
+      { "label": "e", "text": "(i), (iii), (v), (vii)" }
+    ]
+  },
+  {
+    "questionNo": 139,
+    "examName": "Chhattisgarh PCS Pre",
+    "examYear": 2014,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "The tenure of which Lok Sabha was about 6 years?",
+    "options": [
+      { "label": "a", "text": "5th Lok Sabha" },
+      { "label": "b", "text": "7th Lok Sabha" },
+      { "label": "c", "text": "9th Lok Sabha" },
+      { "label": "d", "text": "11th Lok Sabha" },
+      { "label": "e", "text": "13th Lok Sabha" }
+    ]
+  },
+  {
+    "questionNo": 140,
+    "examName": "Chhattisgarh PCS Pre",
+    "examYear": 2013,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "Who among the following can participate in the deliberations of Lok Sabha while being a member of Rajya Sabha?",
+    "options": [
+      { "label": "a", "text": "Nominated member of Rajya Sabha who is an expert in a field" },
+      { "label": "b", "text": "Deputy Chairperson of Rajya Sabha" },
+      { "label": "c", "text": "Minister who is a member of Rajya Sabha" },
+      { "label": "d", "text": "None of these" }
+    ]
+  },
+  {
+    "questionNo": 141,
+    "examName": "Chhattisgarh PCS Pre",
+    "examYear": 2011,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Privileges",
+    "stem": "Privilege motion can be raised against a Minister when he",
+    "options": [
+      { "label": "a", "text": "Loses confidence in the Government." },
+      { "label": "b", "text": "Absents himself for a long time." },
+      { "label": "c", "text": "Withholds facts of a case or gives distorted versions of Facts." },
+      { "label": "d", "text": "Limit value." }
+    ]
+  },
+  {
+    "questionNo": 142,
+    "examName": "Chhattisgarh PCS Pre",
+    "examYear": 2011,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Anti-Defection Law",
+    "stem": "Which of the following is not true about the Anti-Defection Bill?",
+    "options": [
+      { "label": "a", "text": "An M.P. or an M.L.A. will be disqualified if he has voluntarily given up the membership of the party to which he belonged." },
+      { "label": "b", "text": "In the event of a member's absence from voting in the House on a particular issue, an M.P. or M.L.A. will be disqualified." },
+      { "label": "c", "text": "A member shall not be disqualified if there is a merger of political parties." },
+      { "label": "d", "text": "The Speaker of the Lok Sabha will not be disqualified if he becomes a member of another political party later on." }
+    ]
+  },
+  {
+    "questionNo": 143,
+    "examName": "Chhattisgarh PCS Pre",
+    "examYear": 2011,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Privileges",
+    "stem": "Which one of the following provisions deals with the privileges and immunities of the Members of Parliament under the Constitution of India?",
+    "options": [
+      { "label": "a", "text": "Article 104" },
+      { "label": "b", "text": "Article 105" },
+      { "label": "c", "text": "Article 82" },
+      { "label": "d", "text": "Article 117" }
+    ]
+  },
+  {
+    "questionNo": 144,
+    "examName": "Chhattisgarh PCS Pre",
+    "examYear": 2005,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "The state wise seat allocation in Lok Sabha is based on",
+    "options": [
+      { "label": "a", "text": "Population" },
+      { "label": "b", "text": "Area" },
+      { "label": "c", "text": "Poverty" },
+      { "label": "d", "text": "Language" }
+    ]
+  },
+  {
+    "questionNo": 145,
+    "examName": "Uttarakhand PCS Pre",
+    "examYear": 2012,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Presiding Officers",
+    "stem": "The Lok Sabha Secretariat comes under the direct supervision of:",
+    "options": [
+      { "label": "a", "text": "Ministry of Home Affairs" },
+      { "label": "b", "text": "Ministry of Parliamentary Affairs" },
+      { "label": "c", "text": "President of India" },
+      { "label": "d", "text": "Lok Sabha Speaker" }
+    ]
+  },
+  {
+    "questionNo": 146,
+    "examName": "Uttarakhand PCS Pre",
+    "examYear": 2012,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "State Legislature",
+    "stem": "State Legislative Assembly can participate in the election of which of the following:\nI. President of India\nII. Vice-President of India\nIII. Members of Rajya Sabha\nIV. Members of Legislative Council\nSelect the correct answer:",
+    "options": [
+      { "label": "a", "text": "1, II and III" },
+      { "label": "b", "text": "1, III and IV" },
+      { "label": "c", "text": "1 and III" },
+      { "label": "d", "text": "1, II and IV" }
+    ]
+  },
+  {
+    "questionNo": 147,
+    "examName": "CAPF",
+    "examYear": 2022,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Committees",
+    "stem": "Which of the following statements about the Committee on Public Undertakings is/ are correct?\n1. There are more members from the Rajya Sabha than the Lok Sabha in the Committee.\n2. The Chairperson of the Committee is appointed by the Speaker of the Lok Sabha.\nSelect the correct answer using the code given below.",
+    "options": [
+      { "label": "a", "text": "1 only" },
+      { "label": "b", "text": "2 only" },
+      { "label": "c", "text": "Both 1 and 2" },
+      { "label": "d", "text": "Neither 1 nor 2" }
+    ]
+  },
+  {
+    "questionNo": 148,
+    "examName": "CAPF",
+    "examYear": 2022,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Procedure",
+    "stem": "Which one of the following statements is not correct?",
+    "options": [
+      { "label": "a", "text": "A censure motion can be moved. against a single Minister of the Council of Ministers." },
+      { "label": "b", "text": "A motion of no-confidence cannot be moved against the Prime Minister alone." },
+      { "label": "c", "text": "A censure motion cannot be moved against the entire Council of Ministers." },
+      { "label": "d", "text": "A censure motion can be moved against a group of Ministers." }
+    ]
+  },
+  {
+    "questionNo": 149,
+    "examName": "CAPF",
+    "examYear": 2021,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Committees",
+    "stem": "Which one of the following statements about Public Accounts committee is correct?",
+    "options": [
+      { "label": "a", "text": "The committee Consists of not more than 15 members from the Lok Sabha and 10 members from the Rajya Sabha." },
+      { "label": "b", "text": "The finance minister is an ex officio member of the Committee." },
+      { "label": "c", "text": "A member of the Committee is given a term for one year." },
+      { "label": "d", "text": "The term of the office of the members of the Committee from the Rajya Sabha is extended even when they retire from the Rajya Sabha." }
+    ]
+  },
+  {
+    "questionNo": 150,
+    "examName": "CAPF",
+    "examYear": 2021,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Making of the Constitution",
+    "stem": "Who among the following warned his colleagues that the Constituent Assembly was British made and was \"working the British plan as the British should like it to be worked out\"? inl&lB",
+    "options": [
+      { "label": "a", "text": "Somnath Lahiri" },
+      { "label": "b", "text": "B.R. Ambedkar" },
+      { "label": "c", "text": "Shyama Prasad Mukherjee" },
+      { "label": "d", "text": "B.N. Rau" }
+    ]
+  },
+  {
+    "questionNo": 151,
+    "examName": "CAPF",
+    "examYear": 2021,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Presiding Officers",
+    "stem": "Who among the following fixes the date of election of the Speaker of the Lok Sabha?",
+    "options": [
+      { "label": "a", "text": "The President of India" },
+      { "label": "b", "text": "The Minister of Parliamentary Affairs" },
+      { "label": "c", "text": "The Secretary General of the Lok Sabha" },
+      { "label": "d", "text": "The Deputy Speaker of the Lok Sabha" }
+    ]
+  },
+  {
+    "questionNo": 152,
+    "examName": "CAPF",
+    "examYear": 2020,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Procedure",
+    "stem": "Which one of the following statements with regard to Censure Motion is NOT correct?",
+    "options": [
+      { "label": "a", "text": "A leave of the House is required to move it" },
+      { "label": "b", "text": "The Government is free to fix time and date for its discussion" },
+      { "label": "c", "text": "It can also be moved against the entirety of the Council of Ministers" },
+      { "label": "d", "text": "The Speaker decides whether the motion is in order" }
+    ]
+  },
+  {
+    "questionNo": 153,
+    "examName": "CAPF",
+    "examYear": 2020,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Centre-State Legislative Relations",
+    "stem": "As per provisions of the Constitution of India which one of the following is correct?",
+    "options": [
+      { "label": "a", "text": "Only Parliament has the power to legislate over a subject under the Concurrent list" },
+      { "label": "b", "text": "Both Parliament and State Legislatures have the power to legislate over a subject under the Concurrent list." },
+      { "label": "c", "text": "A legislation made under the Concurrent list by Parliament should be ratified by half of the State Legislatures so as to become a law of the country" },
+      { "label": "d", "text": "Only State Legislatures are empowered to make laws under Concurrent list" }
+    ]
+  },
+  {
+    "questionNo": 154,
+    "examName": "CAPF",
+    "examYear": 2020,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Centre-State Legislative Relations",
+    "stem": "Which of the following statement(s) regarding passing a law under the State list is/are correct?\n1. Even in the sphere (State list) exclusively reserved for the States, Parliament can legislate under certain circumstances.\n2. Parliament cannot legislate a subject under the State list under any circumstances.\n3. A resolution supported by two-thirds of the members present and voting is required to be passed by Rajya Sabha to pass a law under the State list\nSelect the correct answer using the codes given below:",
+    "options": [
+      { "label": "a", "text": "1, 2 and 3" },
+      { "label": "b", "text": "2 and 3 only" },
+      { "label": "c", "text": "1 and 3 only" },
+      { "label": "d", "text": "1 Only" }
+    ]
+  },
+  {
+    "questionNo": 155,
+    "examName": "CAPF",
+    "examYear": 2020,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Presiding Officers",
+    "stem": "Which of the following statements are correct with regard to Speaker/Deputy Speaker of the Lok Sabha?\n1. On dissolution of the Lok Sabha, both the Speaker and Deputy Speaker cease to be members of the House.\n2. Both Speaker and Deputy Speaker vacate their office on dissolution of the Lok Sabha.\n3. Only Deputy Speaker vacates his office and Speaker shall not vacate his office until immediately before the first meeting of the Lok Sabha after dissolution.\nSelect the correct answer using the codes given below:",
+    "options": [
+      { "label": "a", "text": "1 only" },
+      { "label": "b", "text": "1, 2 and 3" },
+      { "label": "c", "text": "2 and 3 only" },
+      { "label": "d", "text": "1 and 3 only" }
+    ]
+  },
+  {
+    "questionNo": 156,
+    "examName": "CAPF",
+    "examYear": 2020,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Presiding Officers",
+    "stem": "With regard to Panel of Chairperson, Lok Sabha, which of the following statements is/ are correct?\n1. Panel of Chairperson is drawn from the ruling party only.\n2. Panel of Chairperson is nominated by different political parties and appointed by Speaker, Lok Sabha.\n3. Panel of Chairperson consists of 10 members and one of them presides over the House when both Speaker and Deputy Speaker are not there.\nSelect the correct answer using the codes given below:",
+    "options": [
+      { "label": "a", "text": "1 and 3" },
+      { "label": "b", "text": "2 and 3" },
+      { "label": "c", "text": "3 only" },
+      { "label": "d", "text": "2 only" }
+    ]
+  },
+  {
+    "questionNo": 157,
+    "examName": "CAPF",
+    "examYear": 2020,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Presiding Officers",
+    "stem": "A member giving notice of a resolution for removal of Speaker, Lok Sabha should be addressed to the",
+    "options": [
+      { "label": "a", "text": "Deputy Speaker, Lok Sabha" },
+      { "label": "b", "text": "Secretary General, Lok Sabha" },
+      { "label": "c", "text": "Prime Minister" },
+      { "label": "d", "text": "President" }
+    ]
+  },
+  {
+    "questionNo": 158,
+    "examName": "CAPF",
+    "examYear": 2020,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Committees",
+    "stem": "Which one of the following statements regarding Public Accounts Committee is correct?",
+    "options": [
+      { "label": "a", "text": "It consists of fifteen members from Lok Sabha and seven members from Rajya Sabha" },
+      { "label": "b", "text": "It consists of twenty members from Lok sabha and ten members from Rajya Sabha" },
+      { "label": "c", "text": "The term of members of Public Accounts Committee is five years" },
+      { "label": "d", "text": "Finance Minister is the Chairperson of the Public Accounts Committee" }
+    ]
+  },
+  {
+    "questionNo": 159,
+    "examName": "CAPF",
+    "examYear": 2020,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Presiding Officers",
+    "stem": "Which of the following statements with regard to the Speaker, Lok Sabha is/are correct?\n1. The election of the Speaker of Lok Sabha is conducted by the Election Commission of India.\n2. The Speaker on assuming his office is not required to make and subscribe oath or affirmation.\n3. The Speaker does not exercise a casting vote in case of equality of votes.\nSelect the correct answer using the codes given below:",
+    "options": [
+      { "label": "a", "text": "2 only" },
+      { "label": "b", "text": "1 and 3" },
+      { "label": "c", "text": "1 only" },
+      { "label": "d", "text": "2 and 3" }
+    ]
+  },
+  {
+    "questionNo": 160,
+    "examName": "CAPF",
+    "examYear": 2019,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Budget & Financial Procedure",
+    "stem": "Which one of the following does not fall under the definition of the Money Bill?",
+    "options": [
+      { "label": "a", "text": "Amendment of law with respect to any financial obligations undertaken by the government of India" },
+      { "label": "b", "text": "The payment of money into the Consolidated Fund of India" },
+      { "label": "c", "text": "Any financial bill as per requirements of Article-117" },
+      { "label": "d", "text": "Appropriation of money out of the Consolidated Fund of India" }
+    ]
+  },
+  {
+    "questionNo": 161,
+    "examName": "CAPF",
+    "examYear": 2019,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Procedure",
+    "stem": "Consider the following statements relating to short notice questions asked in the Legislature\n1. These relate to matters of urgent public importance and can be asked for oral answer at a notice less than 10 days.\n2. Short notice questions can be admissible if the Minister concerned agrees to answer to it.\n3. Short notice questions are asked during question hour.\nWhich of the statements given above are correct?",
+    "options": [
+      { "label": "a", "text": "1, 2 and 3" },
+      { "label": "b", "text": "1 and 2 only" },
+      { "label": "c", "text": "2 and 3 only" },
+      { "label": "d", "text": "1 and 3 only" }
+    ]
+  },
+  {
+    "questionNo": 162,
+    "examName": "CAPF",
+    "examYear": 2019,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Anti-Defection Law",
+    "stem": "Which one of the following is NOT true of the 10th Schedule of the Constitution of India pertaining to disqualification of members of the Parliament and State legislatures?",
+    "options": [
+      { "label": "a", "text": "The schedule lays down that elected members may be disqualified on the grounds of defection." },
+      { "label": "b", "text": "Disqualification on grounds of defection does not apply in cases of merger with another political party." },
+      { "label": "c", "text": "Cases of dispute are decided by the speaker or Chairman of the House concerned." },
+      { "label": "d", "text": "The Supreme Court of India is the final arbiter in cases which remain unresolved." }
+    ]
+  },
+  {
+    "questionNo": 163,
+    "examName": "CAPF",
+    "examYear": 2019,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Centre-State Legislative Relations",
+    "stem": "Which of the following pairs of list and contents is/are correctly matched?\n1. State List: Public health and sanitation\n2. Union List: Citizenship, naturalization and aliens\n3. Concurrent List: Legal, medical and other professions\nSelect the correct answer using the code given below:",
+    "options": [
+      { "label": "a", "text": "1 only" },
+      { "label": "b", "text": "1, 2 and 3" },
+      { "label": "c", "text": "2 and 3 only" },
+      { "label": "d", "text": "3 only" }
+    ]
+  },
+  {
+    "questionNo": 164,
+    "examName": "CAPF",
+    "examYear": 2018,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "The following item consists of two\nstatements, Statement I and Statement IL Examine these two statements carefully and\nselect the correct answer using the codes given below\nCodes:\nStatement I: In India, a majority of the members of the Rajya Sabha are elected by the elected members of the State Legislatures.\nStatement II: Members of the Rajya Sabha elected by the State Legislative Assemblies need to have their domicile in the concerned State.",
+    "options": [
+      { "label": "a", "text": "Both the statements are individually true and Statements II is the correct explanation of Statement I" },
+      { "label": "b", "text": "Both the statements are individually true but Statement II is not the correct explanation of Statement I" },
+      { "label": "c", "text": "Statement I is true but Statement II is false" },
+      { "label": "d", "text": "Statement I is false but Statement II is true" }
+    ]
+  },
+  {
+    "questionNo": 165,
+    "examName": "CAPF",
+    "examYear": 2018,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Anti-Defection Law",
+    "stem": "Which one of the following Constitutional Amendments has enormously strengthened the powers of the Speaker/Chairman of the 2 Houses of the Parliament/State Legislatures?",
+    "options": [
+      { "label": "a", "text": "61st Amendment which reduced the voting age from 21 to 18 years" },
+      { "label": "b", "text": "Anti-defection provisions of 52nd Amendment" },
+      { "label": "c", "text": "Repealing of many of the provisions of 42nd Amendment by 44th Amendment" },
+      { "label": "d", "text": "73rd Amendment that conferred extensive the powers on Panchayat Bodies" }
+    ]
+  },
+  {
+    "questionNo": 166,
+    "examName": "CAPF",
+    "examYear": 2018,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Committees",
+    "stem": "Which one of the following Committees of the Parliament has no Members from the Rajya Sabha?",
+    "options": [
+      { "label": "a", "text": "Public Accounts Committee" },
+      { "label": "b", "text": "Committee on Public Undertakings" },
+      { "label": "c", "text": "Estimates Committee" },
+      { "label": "d", "text": "Departmentally Related Standing Committee (DRSC) on Finance" }
+    ]
+  },
+  {
+    "questionNo": 167,
+    "examName": "CAPF",
+    "examYear": 2018,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Procedure",
+    "stem": "Over which of the following, the Lok Sabha and the Rajya Sabha held joint sittings to resolve their differences? l. The Dowry Prohibition Bill, 1959\n2. The Banking Service Commission (Repeal) Bill, 1978\n3. The Prevention of Terrorism Bill, 2002\n4. The Land Acquisition, Rehabilitation and Resettlement Act, 2013\nSelect the correct answer using the codes given below:",
+    "options": [
+      { "label": "a", "text": "1, 2, 3 and 4" },
+      { "label": "b", "text": "3 and 4 only" },
+      { "label": "c", "text": "1, 2 and 3 only" },
+      { "label": "d", "text": "2 and 4 only" }
+    ]
+  },
+  {
+    "questionNo": 168,
+    "examName": "CAPF",
+    "examYear": 2017,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Budget & Financial Procedure",
+    "stem": "Which of the following pair(s) is/are correctly matched?\n1. Rule of lapse: Part of grant that can be carried over to next year.\n2. Supplementary grant: An advance grant to meet expenditures.\n3. Vote on account: Additional funds granted in the course of financial year.\nSelect the correct answer using the code given below:",
+    "options": [
+      { "label": "a", "text": "1 only" },
+      { "label": "b", "text": "l and 2" },
+      { "label": "c", "text": "2 and 3" },
+      { "label": "d", "text": "None of the above" }
+    ]
+  },
+  {
+    "questionNo": 169,
+    "examName": "CAPF",
+    "examYear": 2017,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Budget & Financial Procedure",
+    "stem": "Which one of the following is the correct sequence of different stages a budget has to go through in the Parliament?\n1. Presentation of the Budget\n2. Scrutiny by Departmental Committees\n3. Passing of Finance Bill\n4. Passing of Appropriation Bill\nSelect the correct answer using the code given below:",
+    "options": [
+      { "label": "a", "text": "1-2-4-3" },
+      { "label": "b", "text": "1-3-2-4" },
+      { "label": "c", "text": "2-1-3-4" },
+      { "label": "d", "text": "4-3-2-1" }
+    ]
+  },
+  {
+    "questionNo": 170,
+    "examName": "CAPF",
+    "examYear": 2016,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Forms of Government",
+    "stem": "Which one of the following is a characteristic of Presidential form of government?",
+    "options": [
+      { "label": "a", "text": "President is not a part oflegislative body" },
+      { "label": "b", "text": "It does not separate Legislative and Executive functions" },
+      { "label": "c", "text": "President follows the principle of collective responsibility" },
+      { "label": "d", "text": "The tenure of the President depends on the legislature" }
+    ]
+  },
+  {
+    "questionNo": 171,
+    "examName": "CAPF",
+    "examYear": 2016,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "State Legislature",
+    "stem": "Which one of the following articles of the Constitution of India contains provisions for the abolition and creation of Legislative Councils?",
+    "options": [
+      { "label": "a", "text": "Article-171" },
+      { "label": "b", "text": "Article-169" },
+      { "label": "c", "text": "Article-356" },
+      { "label": "d", "text": "Article-182" }
+    ]
+  },
+  {
+    "questionNo": 172,
+    "examName": "CAPF",
+    "examYear": 2016,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Amendment of the Constitution",
+    "stem": "With regard to a Constitution Amendment Bill, which one of the following statements is not correct?",
+    "options": [
+      { "label": "a", "text": "The Speaker of the Lok Sabha can call a joint sitting of both the Houses to pass the Bill" },
+      { "label": "b", "text": "Each House needs to pass the Bill separately by a prescribed special majority end" },
+      { "label": "c", "text": "The Bill can be introduced in either House of Parliament" },
+      { "label": "d", "text": "The Bill can be sponsored by a Private Mem,ber" }
+    ]
+  },
+  {
+    "questionNo": 173,
+    "examName": "CAPF",
+    "examYear": 2016,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Budget & Financial Procedure",
+    "stem": "'Cut Motion' can be introduced after the presentation of",
+    "options": [
+      { "label": "a", "text": "any Bill introduced in the Parliament" },
+      { "label": "b", "text": "the Railway and General Budgets" },
+      { "label": "c", "text": "any Private Member's Bill" },
+      { "label": "d", "text": "a Constitution Amendment Bill um(rA," }
+    ]
+  },
+  {
+    "questionNo": 174,
+    "examName": "CAPF",
+    "examYear": 2015,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Union & its Territory",
+    "stem": "According to Article 3 of the Constitution of India, the Parliament may by law\n1. declare war on any country.\n2. alter the boundaries of any State.\n3. increase the area of any State\n4. establish an Autonomous Council within any State.\nSelect the correct answer using the code given below.",
+    "options": [
+      { "label": "a", "text": "Only 3" },
+      { "label": "b", "text": "1, 2 and 4" },
+      { "label": "c", "text": "2 and 3" },
+      { "label": "d", "text": "1, 2 and 3" }
+    ]
+  },
+  {
+    "questionNo": 175,
+    "examName": "CAPF",
+    "examYear": 2015,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Budget & Financial Procedure",
+    "stem": "The Rajya Sabha can withhold its consent to Money Bill for:",
+    "options": [
+      { "label": "a", "text": "14 days" },
+      { "label": "b", "text": "15 days" },
+      { "label": "c", "text": "30 days" },
+      { "label": "d", "text": "18 day'" }
+    ]
+  },
+  {
+    "questionNo": 176,
+    "examName": "CAPF",
+    "examYear": 2014,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "The following item consists of two\nStatements I and II. You are to examine these two statements carefully and select the answer to these items using the code given below. Statement I: The Rajya Sabha is not subject to dissolution and the members enjoy a tenure of six years. Statement II: According to Article 83 of the Constitution of India, one-third of members of Rajya Sabha retire every two years.\nCodes:",
+    "options": [
+      { "label": "a", "text": "Both the statements are individually true and Statement II is the correct explanation of Statement I" },
+      { "label": "b", "text": "Both the statements are individually true but Statement II is not the correct explanation of Statement I" },
+      { "label": "c", "text": "Statement I is true and Statement II is false" },
+      { "label": "d", "text": "Statement I is false but Statement II is true" }
+    ]
+  },
+  {
+    "questionNo": 177,
+    "examName": "CAPF",
+    "examYear": 2014,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Committees",
+    "stem": "The issue whether a commitment made by a Minister on the floor of the House has been fulfilled or not is decided by the",
+    "options": [
+      { "label": "a", "text": "Concerned Departmentally Related Committee" },
+      { "label": "b", "text": "Business Advisory Committee" },
+      { "label": "c", "text": "Committee on Public Assurances" },
+      { "label": "d", "text": "Political Affairs Committee of the Union Cabinet" }
+    ]
+  },
+  {
+    "questionNo": 178,
+    "examName": "CAPF",
+    "examYear": 2014,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Budget & Financial Procedure",
+    "stem": "Which of the following statements related to Money Bills is not correct?",
+    "options": [
+      { "label": "a", "text": "It cannot be introduced in the Council of States." },
+      { "label": "b", "text": "If any question arises whether the Bill is Money Bill or not, the decision of the Speaker is final." },
+      { "label": "c", "text": "In case of deadlock over a Money Bill, the President can summon a joint sitting of the Parliament." },
+      { "label": "d", "text": "A Money Bill cannot be introduced except on the recommendation of the President." }
+    ]
+  },
+  {
+    "questionNo": 179,
+    "examName": "CAPF",
+    "examYear": 2014,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Centre-State Legislative Relations",
+    "stem": "Which of the following statements regarding the residuary powers under the Constitution of India is/are correct?\n1. Residuary powers have been given to the Union Parliament.\n2. In the matter of residuary powers, the Constitution of India follows the Constitution of Australia.\n3. Schedule 7 of the Constitution of India provides a list of residuary powers.\n4. The Government of India Act, 1935 placed residuary powers in the hands of the Governor-General.\nSelect the correct answer using the codes given below:\nCodes:",
+    "options": [
+      { "label": "a", "text": "1 and 3" },
+      { "label": "b", "text": "2 and 3" },
+      { "label": "c", "text": "1 and 4" },
+      { "label": "d", "text": "Only 4" }
+    ]
+  },
+  {
+    "questionNo": 180,
+    "examName": "CAPF",
+    "examYear": 2014,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Forms of Government",
+    "stem": "Which of the following statements about the Presidential system is/are correct?\n1. The Head of Government is also the Head of State.\n2. The Executive can veto Legislative acts.\nSelect the correct answer using the codes given below.\nCodes:",
+    "options": [
+      { "label": "a", "text": "Only 1" },
+      { "label": "b", "text": "Only 2" },
+      { "label": "c", "text": "Both 1 and 2" },
+      { "label": "d", "text": "Neither 1 nor 2" }
+    ]
+  },
+  {
+    "questionNo": 181,
+    "examName": "CDS I",
+    "examYear": 2022,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Budget & Financial Procedure",
+    "stem": "Which one of the following is not a provision related to a Money Bill?",
+    "options": [
+      { "label": "a", "text": "Imposition, abolition, remission, alteration or regulation of any tax." },
+      { "label": "b", "text": "Appropriation of money out of the Consolidated Fund of India." },
+      { "label": "c", "text": "Imposition of fines by local authority for local purpose." },
+      { "label": "d", "text": "Custody of the Consolidated Fund of India or the Contingency Fund of India." }
+    ]
+  },
+  {
+    "questionNo": 182,
+    "examName": "CDS I",
+    "examYear": 2022,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Committees",
+    "stem": "Which of the following statements is/are correct?\n1. Committee on Estimates is an ad hoc committee of the Parliament.\n2. Committee on Railway Convention is a standing committee of the Parliament.\nSelect the correct answer using the code given below:",
+    "options": [
+      { "label": "a", "text": "1 only" },
+      { "label": "b", "text": "2 only" },
+      { "label": "c", "text": "Both 1 and 2" },
+      { "label": "d", "text": "Neither 1 nor 2" }
+    ]
+  },
+  {
+    "questionNo": 183,
+    "examName": "CDS I",
+    "examYear": 2022,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Presiding Officers",
+    "stem": "Which one of the following statements about the Speaker of Lok Sabha is not correct?",
+    "options": [
+      { "label": "a", "text": "He shall vacate his office if he ceases to be a member of the House of the People." },
+      { "label": "b", "text": "He may, at any time, resign by writing his resignation to the President of India." },
+      { "label": "c", "text": "He may be removed from his office by a resolution of the House of the People passed by majority of all the then members of the House." },
+      { "label": "d", "text": "While the office of the Speaker is vacant, the duties of the office shall be performed by the Deputy Speaker." }
+    ]
+  },
+  {
+    "questionNo": 184,
+    "examName": "CDS I",
+    "examYear": 2022,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Amendment of the Constitution",
+    "stem": "Which one of the following statements about a Bill for Amendment of the Constitution of India is not correct?",
+    "options": [
+      { "label": "a", "text": "It is governed by Article 368(2) of the Constitution of India." },
+      { "label": "b", "text": "Joint sitting can be resorted to for Passing a Bill amending the Constitution of India." },
+      { "label": "c", "text": "The State Legislatures cannot initiate any Bill or proposal for amendment of the Constitution of India." },
+      { "label": "d", "text": "The previous sanction of the President of India is not required for introducing any Bill in the Parliament for amendment of the Constitution of India." }
+    ]
+  },
+  {
+    "questionNo": 185,
+    "examName": "CDS II",
+    "examYear": 2022,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Committees",
+    "stem": "Which one of the following statements about the Public Accounts Committee (PAC) of the Parliament is not correct?",
+    "options": [
+      { "label": "a", "text": "It examines the Finance Accounts of the Government of India." },
+      { "label": "b", "text": "Fifteen members of the Committee are elected by the Lok Sabha from amongst its members." },
+      { "label": "c", "text": "The Chairperson of the Committee is elected by its members." },
+      { "label": "d", "text": "In case a member of any other Committee constituted by the Government is elected to the PAC, the Speaker of the Lok Sabha decides whether he should continue to be a member of the former Committee." }
+    ]
+  },
+  {
+    "questionNo": 186,
+    "examName": "CDS II",
+    "examYear": 2022,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Budget & Financial Procedure",
+    "stem": "Which one of the following statements about Money Bill is not correct?",
+    "options": [
+      { "label": "a", "text": "Money Bill cannot be introduced in the Council of States." },
+      { "label": "b", "text": "The Council of States has no power to reject or amend the Money Bill." },
+      { "label": "c", "text": "The Speaker of the Lok Sabha has the sole and final power in deciding whether a Bill is a Money Bill or otherwise." },
+      { "label": "d", "text": "The Council of States has no power to discuss the Money Bill." }
+    ]
+  },
+  {
+    "questionNo": 187,
+    "examName": "CDS II",
+    "examYear": 2022,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "Which one of the following is not a category under which the President of India nominates Members of Parliament?",
+    "options": [
+      { "label": "a", "text": "Literature" },
+      { "label": "b", "text": "Science" },
+      { "label": "c", "text": "Art" },
+      { "label": "d", "text": "State Service" }
+    ]
+  },
+  {
+    "questionNo": 188,
+    "examName": "CDS II",
+    "examYear": 2022,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "Which among the following is not the strength or chief benefit of Bicameralism?",
+    "options": [
+      { "label": "a", "text": "Second chambers check the first chambers and prevent majoritarian rule." },
+      { "label": "b", "text": "It checks the powers of the executive." },
+      { "label": "c", "text": "The second chambers can act as a constitutional safeguard." },
+      { "label": "d", "text": "It often acts as a check on democratic rule, particularly when their members are non-elected or indirectly elected." }
+    ]
+  },
+  {
+    "questionNo": 189,
+    "examName": "CDS I",
+    "examYear": 2021,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Presiding Officers",
+    "stem": "Which of the following statements regarding the 'casting vote' in the Parliament is/are correct?\n1. It is cast by the speaker or a person acting as such.\n2. It is cast in addition to voting in the first instance.\n3. It is cast in the case of equality of votes.\n4. It is always cast to maintain the status quo.\nSelect the correct answer using the codes given below:",
+    "options": [
+      { "label": "a", "text": "1, 2 and 3 only" },
+      { "label": "b", "text": "1 and 3 only" },
+      { "label": "c", "text": "2 and 4 only" },
+      { "label": "d", "text": "3 only" }
+    ]
+  },
+  {
+    "questionNo": 190,
+    "examName": "CDS I",
+    "examYear": 2021,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Procedure",
+    "stem": "Which one among the following motions cannot be made while introducing an ordinary Bill in the Parliament?",
+    "options": [
+      { "label": "a", "text": "That the Bill be taken into consideration" },
+      { "label": "b", "text": "That the Bill be circulated for the purpose of eliciting public opinion" },
+      { "label": "c", "text": "That the Bill be referred to a Select Committee" },
+      { "label": "d", "text": "That the Bill be referred to a Joint Committee of the House without the concurrence of the other House" }
+    ]
+  },
+  {
+    "questionNo": 191,
+    "examName": "CDS I",
+    "examYear": 2021,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "Which one of the following statements about the composition of the Parliament is not correct?",
+    "options": [
+      { "label": "a", "text": "Representatives of the states in Rajya Sabha are elected directly by the people." },
+      { "label": "b", "text": "Representatives from Union Territories in Lok Sabha are chosen by direct elections." },
+      { "label": "c", "text": "Rajya Sabha has 12 nominated members." },
+      { "label": "d", "text": "Lok Sabha has seats reserved for SCs and STs." }
+    ]
+  },
+  {
+    "questionNo": 192,
+    "examName": "CDS I",
+    "examYear": 2021,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Procedure",
+    "stem": "A motion of no-confidence is moved against",
+    "options": [
+      { "label": "a", "text": "an individual Minister." },
+      { "label": "b", "text": "the Council of Ministers." },
+      { "label": "c", "text": "the Prime Minister." },
+      { "label": "d", "text": "a political party." }
+    ]
+  },
+  {
+    "questionNo": 193,
+    "examName": "CDS II",
+    "examYear": 2021,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Procedure",
+    "stem": "Which of the following statements are correct?\n1. Speaker may permit any Member to address the House in his/her mother tongue, if he/she cannot adequately express in either Hindi or English.\n2. Business of the Parliamentary Committees is transacted either in Hindi or in English.\n3. The minutes of the Parliamentary Committees are prepared invariably in Hindi or English.\nSelect the correct answer using the codes given below:",
+    "options": [
+      { "label": "a", "text": "1, 2 and 3" },
+      { "label": "b", "text": "1 and 2" },
+      { "label": "c", "text": "2 and 3" },
+      { "label": "d", "text": "1 and 3" }
+    ]
+  },
+  {
+    "questionNo": 194,
+    "examName": "CDS II",
+    "examYear": 2021,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "Which one among the following is the largest State in terms of seats in the Rajya Sabha?",
+    "options": [
+      { "label": "a", "text": "Andhra Pradesh" },
+      { "label": "b", "text": "Bihar" },
+      { "label": "c", "text": "Rajasthan" },
+      { "label": "d", "text": "Karnataka" }
+    ]
+  },
+  {
+    "questionNo": 195,
+    "examName": "CDS II",
+    "examYear": 2021,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Amendment of the Constitution",
+    "stem": "Which of the following statements regarding constitutional amendment is/are correct?\n1. The procedure for amendment to the Constitution is provided in Article 368.\n2. A Bill to amend the Constitution can be introduced in either House of the Parliament.\n3. The special procedure in Article 368 vests constituent powers upon the ordinary legislation.\nSelect the correct answer using the codes given below: J",
+    "options": [
+      { "label": "a", "text": "Only 1" },
+      { "label": "b", "text": "1, 2 and 3" },
+      { "label": "c", "text": "2 and 3" },
+      { "label": "d", "text": "1 and 2" }
+    ]
+  },
+  {
+    "questionNo": 196,
+    "examName": "CDS II",
+    "examYear": 2021,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Centre-State Legislative Relations",
+    "stem": "Which one of the following is not correct?",
+    "options": [
+      { "label": "a", "text": "Taxes on agricultural income is a subject under the State List." },
+      { "label": "b", "text": "Price control is a subject under the Concurrent List." },
+      { "label": "c", "text": "Insurance does not come under the Union List." },
+      { "label": "d", "text": "'Forests' is a subject under the Concurrent List." }
+    ]
+  },
+  {
+    "questionNo": 197,
+    "examName": "CDS II",
+    "examYear": 2021,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "Which among the following is not a condition for the disqualification of a Member of Parliament?",
+    "options": [
+      { "label": "a", "text": "Voluntary acquisition of citizenship of a foreign country" },
+      { "label": "b", "text": "Holding the office of the Chairperson of the National Commission for Women" },
+      { "label": "c", "text": "The member abstains from voting in the House without prior permission" },
+      { "label": "d", "text": "The Member holds the office of the Chairman of the Board of Directors of the National Coal Development Corporation Ltd" }
+    ]
+  },
+  {
+    "questionNo": 198,
+    "examName": "CDS I",
+    "examYear": 2020,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "Overseas Indians can exercise franchise in an election to the Lok Sabha under which of the following conditions?\n1. They must be citizens of India.\n2. Their names must figure in the electoral roll.\n3. They must be present in India to vote.\nSelect the correct answer using the codes given below.",
+    "options": [
+      { "label": "a", "text": "1, 2 and 3" },
+      { "label": "b", "text": "2 and 3" },
+      { "label": "c", "text": "1 and 2" },
+      { "label": "d", "text": "Only 1" }
+    ]
+  },
+  {
+    "questionNo": 199,
+    "examName": "CDS II",
+    "examYear": 2020,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "Which one among the following is not correct about the Secretary General of the Lok Sabha?",
+    "options": [
+      { "label": "a", "text": "The Secretary General is the advisor to the Speaker." },
+      { "label": "b", "text": "The Secretarv General acts under the authority in the name of the Speaker." },
+      { "label": "c", "text": "The Secretary General works under the Speaker with delegated authority." },
+      { "label": "d", "text": "The Secretary General passes orders in the name of the Speaker." }
+    ]
+  },
+  {
+    "questionNo": 200,
+    "examName": "CDS II",
+    "examYear": 2020,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Privileges",
+    "stem": "Which of the following statements with regard to the privileges of the Members of the Parliament are correct?\n1. Privileges would not be fettered by the Article-19( 1) of the Constitution of India.\n2. Privileges must be read subject to the Articles 20-22 and Article-32 of the Constitution of India.\n3. Immunity is available in relation to both civil and criminal prosecution.\n4. Immunity is available in relation to freedom of speech even in his/her private or personal capacity.\nSelect the correct answer using codes given below",
+    "options": [
+      { "label": "a", "text": "1, 2 and 4 only" },
+      { "label": "b", "text": "1 and 2 only" },
+      { "label": "c", "text": "2 and 3 only" },
+      { "label": "d", "text": "1 and 4 only" }
+    ]
+  },
+  {
+    "questionNo": 201,
+    "examName": "CDS II",
+    "examYear": 2020,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Committees",
+    "stem": "Which one of the following statements with regard to the appointment of the Members of the Parliamentary Committees is correct?",
+    "options": [
+      { "label": "a", "text": "The Members are only appointed" },
+      { "label": "b", "text": "The Members are only elected" },
+      { "label": "c", "text": "The Members are only nominated." },
+      { "label": "d", "text": "The Members are appointed or elected on a motion made and adopted or nominated by the Speaker of the Lok Sabha or the Chairman of the Rajya Sabha" }
+    ]
+  },
+  {
+    "questionNo": 202,
+    "examName": "CDS I",
+    "examYear": 2019,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "State Legislature",
+    "stem": "Which one of the following is not a correct\nstatement regarding the provision of Legislative Council in the State Legislature?",
+    "options": [
+      { "label": "a", "text": "The States of Bihar and Telangana have Legislative Councils" },
+      { "label": "b", "text": "The total number of members in the Legislative Council of a State shall not exceed one third of the total number of members in the Legislative Assembly" },
+      { "label": "c", "text": "One-twelfth of all members shall be elected by electorates consisting of local bodes and authorities" },
+      { "label": "d", "text": "One-twelfth of all members shall be elected by graduates residing in the state." }
+    ]
+  },
+  {
+    "questionNo": 203,
+    "examName": "CDS II",
+    "examYear": 2019,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "Rajya Sabha has exclusive jurisdiction in",
+    "options": [
+      { "label": "a", "text": "creation of new states" },
+      { "label": "b", "text": "declaring a war" },
+      { "label": "c", "text": "financial emergency" },
+      { "label": "d", "text": "authorising Parliament to legislate on a subject in the state list" }
+    ]
+  },
+  {
+    "questionNo": 204,
+    "examName": "CDS II",
+    "examYear": 2018,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Procedure",
+    "stem": "Which one of the following regarding the procedure and conduct of business in the Parliament is not correct?",
+    "options": [
+      { "label": "a", "text": "To discuss state matters" },
+      { "label": "b", "text": "To discuss issues of the use of police force in suppressing the Scheduled Caste and Scheduled Tribe communities" },
+      { "label": "c", "text": "To discuss issues in dealing with violent disturbances in an undertaking under the control of the Union Government" },
+      { "label": "d", "text": "To discuss issues for putting down the demands of the industrial labour" }
+    ]
+  },
+  {
+    "questionNo": 205,
+    "examName": "CDS II",
+    "examYear": 2018,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "State Legislature",
+    "stem": "Which one of the following is not considered a part Legislature of States?",
+    "options": [
+      { "label": "a", "text": "The Governor" },
+      { "label": "b", "text": "The Legislative Assembly" },
+      { "label": "c", "text": "The Legislative Council" },
+      { "label": "d", "text": "The Chief Minister State" }
+    ]
+  },
+  {
+    "questionNo": 206,
+    "examName": "CDS II",
+    "examYear": 2017,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Procedure",
+    "stem": "A joint sitting of the Parliament is resorted to, for resolving the deadlock between two Houses of the Parliament for passing which of the following Bills?\n1. Money Bill\n2. Constitutional Amendment Bill\n3. Ordinary Bill\nSelect the correct answer using the codes given below",
+    "options": [
+      { "label": "a", "text": "1 and 2" },
+      { "label": "b", "text": "2 and 3" },
+      { "label": "c", "text": "1, 2 and 3" },
+      { "label": "d", "text": "Only 3" }
+    ]
+  },
+  {
+    "questionNo": 207,
+    "examName": "CDS II",
+    "examYear": 2017,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Budget & Financial Procedure",
+    "stem": "Which one of the following cannot be introduced first in the Rajya Sabha?",
+    "options": [
+      { "label": "a", "text": "Constitutional Amendment" },
+      { "label": "b", "text": "CAG Report" },
+      { "label": "c", "text": "Annual Financial Statement I" },
+      { "label": "d", "text": "Bill to alter the boundaries of any state" }
+    ]
+  },
+  {
+    "questionNo": 208,
+    "examName": "CDS II",
+    "examYear": 2017,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "Which one of the following Schedules of the Constitution of India has fixed the number of Members of the Rajya Sabha to be elected from each state?",
+    "options": [
+      { "label": "a", "text": "Fifth Schedule" },
+      { "label": "b", "text": "Third Schedule" },
+      { "label": "c", "text": "Sixth Schedule" },
+      { "label": "d", "text": "Fourth Schedule" }
+    ]
+  },
+  {
+    "questionNo": 209,
+    "examName": "CDS I",
+    "examYear": 2016,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "A Member of Lok Sabha does not become disqualified to continue as a Member of the House if the member",
+    "options": [
+      { "label": "a", "text": "voluntarily gives up his/her membership of the political party from which he/she was elected" },
+      { "label": "b", "text": "is expelled by the political party from which he/she had been elected to the House" },
+      { "label": "c", "text": "joins a political party after being elected as an independent candidate" },
+      { "label": "d", "text": "abstains from voting contrary to the direction by his/her political party" }
+    ]
+  },
+  {
+    "questionNo": 210,
+    "examName": "CDS II",
+    "examYear": 2015,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Presiding Officers",
+    "stem": "After the general elections, the Protem Speaker is",
+    "options": [
+      { "label": "a", "text": "elected by the Lok Sabha" },
+      { "label": "b", "text": "appointed by the President ofindia" },
+      { "label": "c", "text": "appointed by the Chief Justice of The Supreme Court" },
+      { "label": "d", "text": "the senior most member of the Lok Sabha" }
+    ]
+  },
+  {
+    "questionNo": 211,
+    "examName": "CDS I",
+    "examYear": 2014,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliament",
+    "stem": "Which of the following statement(s) in the context of structure of the Parliament is/are correct?\n1. The Parliament of India consists of the President, the Council of States and the House of People.\n2. The President of India is directly elected by an electoral college consisting of the elected members of both the Houses of the Parliament only.\nSelect the correct answer using the codes given below:",
+    "options": [
+      { "label": "a", "text": "Only 1" },
+      { "label": "b", "text": "Only 2" },
+      { "label": "c", "text": "Both 1 and 2" },
+      { "label": "d", "text": "Neither 1 nor 2" }
+    ]
+  },
+  {
+    "questionNo": 212,
+    "examName": "CDS I",
+    "examYear": 2014,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Budget & Financial Procedure",
+    "stem": "The Annual Financial Statement of the Government of India in respect of each financial year shall be presented to the House on such day as the",
+    "options": [
+      { "label": "a", "text": "Speaker may direct" },
+      { "label": "b", "text": "President of India may direct" },
+      { "label": "c", "text": "Parliament may decide" },
+      { "label": "d", "text": "Finance Minister may decide" }
+    ]
+  },
+  {
+    "questionNo": 213,
+    "examName": "CDS I",
+    "examYear": 2014,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Union Executive",
+    "stem": "The principle of 'collective responsibility' under parliamentary democracy implies that\n1. a motion of no-confidence can be moved in the Council of Ministers as a whole as well as an individual minister.\n2. no person shall be nominated to the cabinet except on the advice of the Prime Minister.\n3. no person shall be retained as a member of the Cabinet if the Prime minister says that he shall be dismissed.\nSelect the correct answer using the codes given below",
+    "options": [
+      { "label": "a", "text": "Only 1" },
+      { "label": "b", "text": "Only 2" },
+      { "label": "c", "text": "Only 3" },
+      { "label": "d", "text": "2 and 3 IJFotu" }
+    ]
+  },
+  {
+    "questionNo": 214,
+    "examName": "CDS I",
+    "examYear": 2014,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Procedure",
+    "stem": "The subject matter of an adjournment motion in the Parliament\n1. must be directly related to the conduct of the Union Government.\n2. may involve failure of the Government of India to perform its duties in accordance with the Constitution.\nSelect the correct answer using the codes given below",
+    "options": [
+      { "label": "a", "text": "Only 1" },
+      { "label": "b", "text": "Only 2" },
+      { "label": "c", "text": "Both 1 and 2" },
+      { "label": "d", "text": "Neither 1 nor 2" }
+    ]
+  },
+  {
+    "questionNo": 215,
+    "examName": "CDS I",
+    "examYear": 2014,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Procedure",
+    "stem": "Certain Bills cannot be introduced or proceeded with unless the recommendation of the President is received. However, no recommendation is required in some other cases. In which one of the following cases such recommendation is not required?",
+    "options": [
+      { "label": "a", "text": "For introduction of Bills and for moving amendments relating to financial matters." },
+      { "label": "b", "text": "For introduction of a Bill relating to formation of new states or of alternation of areas of existing states" },
+      { "label": "c", "text": "For moving of an amendment making provision for the reduction or abolition of any tax" },
+      { "label": "d", "text": "For introduction of a Bill or moving of an amendment affecting taxation in which states are interested" }
+    ]
+  },
+  {
+    "questionNo": 216,
+    "examName": "CDS I",
+    "examYear": 2014,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Committees",
+    "stem": "Which one of the following statements regarding the Departmental Committee of the Parliament of India on the empowerment of women is correct?",
+    "options": [
+      { "label": "a", "text": "The Committee will consist of members of the Lok Sabha only" },
+      { "label": "b", "text": "A Cabinet Minister can be a member of the Committees" },
+      { "label": "c", "text": "The term of office of the members of the Committee shall not exceed two years" },
+      { "label": "d", "text": "It reports on the working of welfare programmes for the women" }
+    ]
+  },
+  {
+    "questionNo": 217,
+    "examName": "CDS I",
+    "examYear": 2014,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Centre-State Legislative Relations",
+    "stem": "The legislative power of the Parliament includes making laws\n1. On matters not enumerated in the Concurrent List and State list.\n2. In respect of entries in State List if two or more State Legislatures consider it desirable\n3. For implementing any treaty agreement or convention with any country even if it falls in the State List.\nSelect the correct answer using the codes given below:",
+    "options": [
+      { "label": "a", "text": "Only 2" },
+      { "label": "b", "text": "1 and 2" },
+      { "label": "c", "text": "1 and 3" },
+      { "label": "d", "text": "All of these" }
+    ]
+  },
+  {
+    "questionNo": 218,
+    "examName": "CDS I",
+    "examYear": 2014,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Amendment of the Constitution",
+    "stem": "There are provisions in the Constitution of India which empower the Parliament to modify or annul the operation of certain provisions of the Constitution without actually amending them. They include\n1. any law made under Article 2 (relating to admission or establishment of new states).\n2. any law made under Article 3 (relating to formation of new states).\n3. amendment of First Schedule and Fourth Schedule.\nSelect the correct answer using the codes given below",
+    "options": [
+      { "label": "a", "text": "1 and 2" },
+      { "label": "b", "text": "2 and 3" },
+      { "label": "c", "text": "1, 2 and 3" },
+      { "label": "d", "text": "None of these" }
+    ]
+  },
+  {
+    "questionNo": 219,
+    "examName": "CDS I",
+    "examYear": 2014,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Presiding Officers",
+    "stem": "Which of the statements relating to the Deputy Speaker of the Lok Sabha is/are correct?\n1. The office of the Deputy Speaker acquired a more prominent position after the enforcement of the Constitution of India in 1950.\n2. He/She is elected from amongst the members.\n3. He/She holds office until he/she ceases to be a member of the House.\nSelect the correct answer using the codes given below",
+    "options": [
+      { "label": "a", "text": "Only 1" },
+      { "label": "b", "text": "1 and 2" },
+      { "label": "c", "text": "1, 2 and 3" },
+      { "label": "d", "text": "2 and 3" }
+    ]
+  },
+  {
+    "questionNo": 220,
+    "examName": "CDS I",
+    "examYear": 2014,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Committees",
+    "stem": "The Committee on Public Accounts under the Constitution of India is meant for\n1. The examination of accounts showing the appropriation of sums granted by the House for the expenditure of the Government of India.\n2. scrutinising the report of the Comptroller and Auditor General.\n3. suggesting the form in which estimates shall be presented to the Parliament.\nSelect the correct answer using the codes given below:",
+    "options": [
+      { "label": "a", "text": "Only 1" },
+      { "label": "b", "text": "Only 2" },
+      { "label": "c", "text": "1 and 2" },
+      { "label": "d", "text": "All of these" }
+    ]
+  },
+  {
+    "questionNo": 221,
+    "examName": "CDS I",
+    "examYear": 2014,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Committees",
+    "stem": "The functions of the committee on estimates, as incorporated in the Constitution of India, shall be to\n1. report what economies, improvements in organisation, efficiency or administrative reform may be effected.\n2. suggest alternative policies in order to bring about efficiency and economy in administration.\n3. examine whether the money is well laid out within the limits of the policy implied in the estimates.\n4. examine the reports, if any, of the Comptroller and Auditor General on the public undertakings.\nSelect the correct answer using the codes given below:",
+    "options": [
+      { "label": "a", "text": "1 and 2" },
+      { "label": "b", "text": "2 and 3" },
+      { "label": "c", "text": "1, 2 and 3" },
+      { "label": "d", "text": "3 and 4" }
+    ]
+  },
+  {
+    "questionNo": 222,
+    "examName": "CDS I",
+    "examYear": 2014,
+    "srcSubject": "Indian Polity",
+    "srcTopic": "Parliamentary Procedure",
+    "stem": "Which of the following statements are correct regarding Joint Session of the Houses of the Parliament in India?\n1. It is an enabling provision. empowering the President to take steps for resolving deadlock between the two Houses,\n2. It is not obligatory upon the President to summon the Houses to meet in a joint sitting.\n3. It is being notified by the President.\n4. It is frequently resorted to establish the supremacy of the Lok Sabha\nSelect the correct answer using the codes given below",
+    "options": [
+      { "label": "a", "text": "1 and 2" },
+      { "label": "b", "text": "1, 2 and 3" },
+      { "label": "c", "text": "2 and 3" },
+      { "label": "d", "text": "3 and 4 111111" }
+    ]
+  }
+]

@@ -16,19 +16,19 @@ datasource db {
 }
 
 model User {
-  id                 String          @id @default(cuid())
+  id                 String             @id @default(cuid())
   name               String?
-  email              String?         @unique
+  email              String?            @unique
   emailVerified      DateTime?
   image              String?
-  role               String?         @default("USER")
-  tier               String?         @default("FREE")
+  role               String?            @default("USER")
+  tier               String?            @default("FREE")
   validUntil         DateTime?
-  razorpayCustomerId String?         @unique
-  username           String?         @unique
+  razorpayCustomerId String?            @unique
+  username           String?            @unique
   password           String?
-  createdAt          DateTime        @default(now())
-  preferences        Json?           @default("{}")
+  createdAt          DateTime           @default(now())
+  preferences        Json?              @default("{}")
   examYear           Int?
   accounts           Account[]
   logs               ActionLog[]
@@ -37,9 +37,10 @@ model User {
   followedIssues     IssueFollow[]
   issueProgress      IssueProgress[]
   payments           PaymentLog[]
-  QuizAttempt        QuizAttempt[]
   sessions           Session[]
   notes              UserNote[]
+  attempts           Attempt[]
+  questionBookmarks  QuestionBookmark[]
 }
 
 model Account {
@@ -198,19 +199,19 @@ model Organization {
 /// News items and editorials attach TO Issues. Every new attachment triggers
 /// a background rebuild of cumulativeSummary.
 model Issue {
-  id                     String                 @id @default(cuid())
+  id                     String                   @id @default(cuid())
   title                  String
   title_hi               String?
   title_mr               String?
-  slug                   String                 @unique
+  slug                   String                   @unique
   domain                 String
   topic                  String
   topic_hi               String?
   topic_mr               String?
   category               IssueCategory
   gsPapers               String[]
-  nodeType               IssueNodeType          @default(NEWS)
-  status                 IssueStatus            @default(ACTIVE)
+  nodeType               IssueNodeType            @default(NEWS)
+  status                 IssueStatus              @default(ACTIVE)
   backgroundNote         String?
   backgroundNote_hi      String?
   backgroundNote_mr      String?
@@ -229,9 +230,9 @@ model Issue {
   mainsFacts             String?
   imageUrl               String?
   embedding              Unsupported("vector")?
-  orderIndex             Int                    @default(0)
-  lastUpdatedAt          DateTime               @updatedAt
-  createdAt              DateTime               @default(now())
+  orderIndex             Int                      @default(0)
+  lastUpdatedAt          DateTime                 @updatedAt
+  createdAt              DateTime                 @default(now())
   parentIssueId          String?
   mainsFacts_hi          String?
   mainsFacts_mr          String?
@@ -241,20 +242,17 @@ model Issue {
   prelimsNote_mr         String?
   articles               Article[]
   editorials             Editorial[]
-  parentIssue            Issue?                 @relation("SubNodes", fields: [parentIssueId], references: [id])
-  subNodes               Issue[]                @relation("SubNodes")
+  parentIssue            Issue?                   @relation("SubNodes", fields: [parentIssueId], references: [id])
+  subNodes               Issue[]                  @relation("SubNodes")
   followers              IssueFollow[]
   userProgress           IssueProgress[]
   nodeContent            NodeContent?
-  pyqLinks               PYQLink[]
-  testPacks              TestPack[]
   timelineEvents         TimelineEvent[]
   userNotes              UserNote[]
-  questions              Question[]
   metadata               Json?
-  newsStreaks            NewsStreak[]           @relation("NewsStreakIssues")
-  Issue_IssueRelations_A Issue[]                @relation("IssueRelations")
-  Issue_IssueRelations_B Issue[]                @relation("IssueRelations")
+  newsStreaks            NewsStreak[]             @relation("NewsStreakIssues")
+  Issue_IssueRelations_A Issue[]                  @relation("IssueRelations")
+  Issue_IssueRelations_B Issue[]                  @relation("IssueRelations")
   subjectContents        SubjectContent[]
 
   @@index([category])
@@ -363,26 +361,6 @@ model TimelineEvent {
   @@index([itemType])
 }
 
-/// Links Issues to Past Year Questions.
-/// Built via pgvector semantic search + Gemma 26B validation.
-model PYQLink {
-  id            String   @id @default(cuid())
-  issueId       String
-  paperType     String
-  year          Int
-  gsTag         String?
-  questionText  String
-  relevanceNote String?
-  howToUse      String?
-  score         Float?
-  createdAt     DateTime @default(now())
-  issue         Issue    @relation(fields: [issueId], references: [id], onDelete: Cascade)
-
-  @@index([issueId])
-  @@index([paperType])
-  @@index([year])
-}
-
 /// Logs all engine operations: ingestion, processing, summary rebuilds, errors.
 model ActionLog {
   id         String   @id @default(cuid())
@@ -415,24 +393,6 @@ model RegionInsightCache {
 
   @@unique([regionKey, mode])
   @@index([regionKey])
-  @@index([mode])
-}
-
-model QuizPack {
-  id                 String   @id @default(cuid())
-  scopeType          String
-  scopeId            String
-  mode               String
-  title              String
-  contextLabel       String
-  markdown           String
-  suggestedFollowups String?
-  sourceHash         String
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @default(now()) @updatedAt
-
-  @@unique([scopeType, scopeId, mode])
-  @@index([scopeType, scopeId])
   @@index([mode])
 }
 
@@ -489,13 +449,12 @@ model SubjectContent {
 }
 
 model OptionalSubject {
-  id          String                 @id @default(cuid())
-  name        String                 @unique
-  slug        String                 @unique
+  id          String           @id @default(cuid())
+  name        String           @unique
+  slug        String           @unique
   description String?
-  createdAt   DateTime               @default(now())
-  updatedAt   DateTime               @default(now()) @updatedAt
-  pyqs        PreviousYearQuestion[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @default(now()) @updatedAt
   contents    SubjectContent[]
 
   @@index([slug])
@@ -520,63 +479,6 @@ model IssueProgress {
 
   @@unique([userId, issueId])
   @@index([userId, status])
-}
-
-model Question {
-  id             String     @id @default(cuid())
-  text           String
-  text_hi        String?
-  text_mr        String?
-  options        Json
-  options_hi     Json?
-  options_mr     Json?
-  correctLabel   String
-  explanation    String
-  explanation_hi String?
-  explanation_mr String?
-  difficulty     String     @default("MEDIUM")
-  domain         String
-  gsPaper        String?
-  tags           String[]
-  issueId        String?
-  issue          Issue?     @relation(fields: [issueId], references: [id])
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
-  testPacks      TestPack[] @relation("TestPackQuestions")
-}
-
-model TestPack {
-  id               String        @id @default(cuid())
-  title            String
-  title_hi         String?
-  title_mr         String?
-  description      String?
-  description_hi   String?
-  description_mr   String?
-  type             String        @default("PRACTICE")
-  subType          String?       @default("FULL_LENGTH")
-  durationMins     Int           @default(0)
-  passingScore     Int           @default(70)
-  negativeMarking  Float         @default(0.33)
-  marksPerQuestion Float         @default(2.0)
-  issueId          String?
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-  attempts         QuizAttempt[]
-  issue            Issue?        @relation(fields: [issueId], references: [id])
-  questions        Question[]    @relation("TestPackQuestions")
-}
-
-model QuizAttempt {
-  id            String   @id @default(cuid())
-  userId        String
-  testPackId    String
-  score         Int
-  timeTakenSecs Int
-  breakdown     Json
-  createdAt     DateTime @default(now())
-  testPack      TestPack @relation(fields: [testPackId], references: [id], onDelete: Cascade)
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 /// Allows users to subscribe to real-time updates for an evolving issue.
@@ -632,29 +534,6 @@ model Bookmark {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, itemType, itemId])
-}
-
-model PreviousYearQuestion {
-  id           String                 @id @default(uuid())
-  paper        String
-  optionalId   String?
-  subject      String
-  year         Int
-  questionText String
-  marks        Int?
-  modelAnswer  String?
-  embedding    Unsupported("vector")?
-  searchVector   Unsupported("tsvector")?
-  metadata       Json?
-  language     String                 @default("en")
-  exam         String                 @default("UPSC")
-  createdAt    DateTime               @default(now())
-  updatedAt    DateTime               @updatedAt
-  optional     OptionalSubject?       @relation(fields: [optionalId], references: [id])
-
-  @@index([paper])
-  @@index([subject])
-  @@index([year])
 }
 
 enum IssueCategory {
@@ -723,24 +602,411 @@ enum ProgressStatus {
 }
 
 model NewsStreak {
-  id               String       @id @default(cuid())
+  id               String   @id @default(cuid())
   title            String
   title_hi         String?
   title_mr         String?
-  slug             String       @unique
-  livingSummary    String?      @db.Text
-  livingSummary_hi String?      @db.Text
-  livingSummary_mr String?      @db.Text
-  status           String       @default("ACTIVE") // ACTIVE, ARCHIVED
-  importanceScore  Int          @default(1)
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  slug             String   @unique
+  livingSummary    String?  @db.Text
+  livingSummary_hi String?  @db.Text
+  livingSummary_mr String?  @db.Text
+  status           String   @default("ACTIVE") // ACTIVE, ARCHIVED
+  importanceScore  Int      @default(1)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   // Relationships
-  articles         Article[]
-  editorials       Editorial[]
-  
+  articles   Article[]
+  editorials Editorial[]
+
   // Linkages to static syllabus Issues
-  issues           Issue[]      @relation("NewsStreakIssues")
-  userNotes        UserNote[]
+  issues    Issue[]    @relation("NewsStreakIssues")
+  userNotes UserNote[]
+}
+
+enum PaperType {
+  GS1
+  CSAT
+}
+
+enum QuestionOrigin {
+  PYQ
+  PRACTICE
+  MOCK
+}
+
+enum QuestionStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum DifficultySource {
+  SOURCE
+  AI
+  MANUAL
+  COMPUTED
+}
+
+enum QuestionType {
+  SINGLE_CORRECT
+  MULTI_STATEMENT
+  MATCH_FOLLOWING
+  ASSERTION_REASON
+  PASSAGE_BASED
+  OTHER
+}
+
+enum AnswerStatus {
+  UNVERIFIED
+  VERIFIED
+  CONFLICT
+}
+
+enum DocKind {
+  QUESTION_PAPER
+  ANSWER_KEY
+  PRACTICE_SET
+  MIXED
+}
+
+enum RunStatus {
+  QUEUED
+  RUNNING
+  DONE
+  FAILED
+}
+
+enum DraftStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  DUPLICATE
+  PUBLISHED
+}
+
+enum TaxLevel {
+  SUBJECT
+  TOPIC
+  THEME
+}
+
+enum AttemptMode {
+  PRACTICE
+  TEST
+}
+
+// ---------- Taxonomy (starts empty, fully editable) ----------
+model Subject {
+  id        String          @id @default(cuid())
+  paper     PaperType
+  name      String
+  slug      String
+  sortOrder Int             @default(0)
+  isActive  Boolean         @default(true)
+  topics    Topic[]
+  questions Question[]
+  aliases   TaxonomyAlias[]
+
+  @@unique([paper, slug])
+}
+
+model Topic {
+  id        String          @id @default(cuid())
+  subjectId String
+  name      String
+  slug      String
+  sortOrder Int             @default(0)
+  isActive  Boolean         @default(true)
+  subject   Subject         @relation(fields: [subjectId], references: [id])
+  themes    MicroTheme[]
+  questions Question[]
+  aliases   TaxonomyAlias[]
+
+  @@unique([subjectId, slug])
+  @@index([subjectId])
+}
+
+model MicroTheme {
+  id        String               @id @default(cuid())
+  topicId   String
+  name      String
+  slug      String
+  isActive  Boolean              @default(true)
+  topic     Topic                @relation(fields: [topicId], references: [id])
+  questions QuestionMicroTheme[]
+  aliases   TaxonomyAlias[]
+
+  @@unique([topicId, slug])
+  @@index([topicId])
+}
+
+// Maps a publisher's label to a canonical item
+model TaxonomyAlias {
+  id        String      @id @default(cuid())
+  level     TaxLevel
+  label     String // normalised source label
+  publisher String?
+  subjectId String?
+  topicId   String?
+  themeId   String?
+  subject   Subject?    @relation(fields: [subjectId], references: [id])
+  topic     Topic?      @relation(fields: [topicId], references: [id])
+  theme     MicroTheme? @relation(fields: [themeId], references: [id])
+  createdAt DateTime    @default(now())
+
+  @@unique([level, label, publisher])
+}
+
+// ---------- Sources and ingestion ----------
+model SourceDocument {
+  id         String           @id @default(cuid())
+  fileName   String
+  fileHash   String           @unique
+  storageUrl String
+  publisher  String?
+  kind       DocKind
+  yearHint   Int?
+  paperHint  PaperType?
+  pageCount  Int?
+  uploadedBy String
+  createdAt  DateTime         @default(now())
+  runs       IngestionRun[]
+  drafts     QuestionDraft[]
+  sources    QuestionSource[]
+}
+
+model IngestionRun {
+  id         String          @id @default(cuid())
+  documentId String
+  status     RunStatus       @default(QUEUED)
+  model      String?
+  stats      Json? // pages, parsed, flagged, failed
+  errorLog   Json?
+  startedAt  DateTime        @default(now())
+  finishedAt DateTime?
+  document   SourceDocument  @relation(fields: [documentId], references: [id])
+  drafts     QuestionDraft[]
+
+  @@index([documentId])
+}
+
+model QuestionDraft {
+  id         String      @id @default(cuid())
+  runId      String
+  documentId String
+  pageNo     Int?
+  rawText    String
+  status     DraftStatus @default(PENDING)
+  flags      String[] // MISSING_ANSWER, FEW_OPTIONS, PARSE_ERROR, DUPLICATE...
+  confidence Float?
+
+  examName     String?
+  examYear     Int?
+  paper        PaperType?
+  setCode      String?
+  questionNo   Int?
+  stem         String
+  options      Json // [{label, text}]
+  correctLabel String?
+  explanation  String?
+  questionType QuestionType?
+  difficulty   Difficulty?
+
+  srcSubject    String? // labels exactly as printed in the source
+  srcTopic      String?
+  srcTheme      String?
+  srcDifficulty String?
+
+  subjectId   String? // proposed or approved mapping
+  topicId     String?
+  themeIds    String[]
+  passageText String?
+  assets      Json?
+
+  dedupHash     String
+  duplicateOfId String?
+  publishedId   String?   @unique
+  reviewedBy    String?
+  reviewedAt    DateTime?
+  createdAt     DateTime  @default(now())
+
+  run      IngestionRun   @relation(fields: [runId], references: [id])
+  document SourceDocument @relation(fields: [documentId], references: [id])
+
+  @@index([runId, status])
+  @@index([dedupHash])
+}
+
+// ---------- Published question bank ----------
+model Passage {
+  id        String     @id @default(cuid())
+  text      String
+  assets    Json?
+  examYear  Int?
+  paper     PaperType?
+  questions Question[]
+}
+
+model Question {
+  id     String         @id @default(cuid())
+  origin QuestionOrigin
+  status QuestionStatus @default(PUBLISHED)
+
+  examName   String?   @default("UPSC")
+  examYear   Int?
+  paper      PaperType
+  setCode    String?
+  questionNo Int?
+
+  stem         String
+  options      Json // [{label, text}]
+  correctLabel String
+  answerStatus AnswerStatus @default(UNVERIFIED)
+  explanation  String?
+  analysis     Json? // concept, trap, elimination, reference
+  questionType QuestionType @default(SINGLE_CORRECT)
+  assets       Json?
+  passageId    String?
+
+  difficulty       Difficulty?
+  difficultySource DifficultySource?
+  subjectId        String?
+  topicId          String?
+
+  dedupHash String   @unique
+  version   Int      @default(1)
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  searchVector   Unsupported("tsvector")?
+  embedding      Unsupported("vector")?
+
+  subject   Subject?             @relation(fields: [subjectId], references: [id])
+  topic     Topic?               @relation(fields: [topicId], references: [id])
+  passage   Passage?             @relation(fields: [passageId], references: [id])
+  themes    QuestionMicroTheme[]
+  sources   QuestionSource[]
+  revisions QuestionRevision[]
+  testItems TestPaperQuestion[]
+  answers   AttemptAnswer[]
+  bookmarks QuestionBookmark[]
+
+  @@unique([examName, examYear, paper, setCode, questionNo])
+  @@index([paper, examYear])
+  @@index([subjectId])
+  @@index([topicId])
+  @@index([difficulty])
+  @@index([origin, status])
+}
+
+model QuestionMicroTheme {
+  questionId String
+  themeId    String
+  question   Question   @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  theme      MicroTheme @relation(fields: [themeId], references: [id])
+
+  @@id([questionId, themeId])
+  @@index([themeId])
+}
+
+// Provenance: one question may come from several PDFs
+model QuestionSource {
+  id           String         @id @default(cuid())
+  questionId   String
+  documentId   String
+  draftId      String?
+  pageNo       Int?
+  sourceLabels Json? // subject/topic/theme/difficulty as printed
+  question     Question       @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  document     SourceDocument @relation(fields: [documentId], references: [id])
+
+  @@index([questionId])
+  @@index([documentId])
+}
+
+model QuestionRevision {
+  id         String   @id @default(cuid())
+  questionId String
+  version    Int
+  snapshot   Json
+  changedBy  String?
+  note       String?
+  createdAt  DateTime @default(now())
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+}
+
+// ---------- Tests, practice, attempts ----------
+model TestPaper {
+  id               String              @id @default(cuid())
+  title            String
+  description      String?
+  durationMins     Int                 @default(0)
+  negativeMarking  Float               @default(0.33)
+  marksPerQuestion Float               @default(2.0)
+  isPublished      Boolean             @default(false)
+  createdAt        DateTime            @default(now())
+  questions        TestPaperQuestion[]
+  attempts         Attempt[]
+}
+
+model TestPaperQuestion {
+  testPaperId String
+  questionId  String
+  sortOrder   Int
+  testPaper   TestPaper @relation(fields: [testPaperId], references: [id], onDelete: Cascade)
+  question    Question  @relation(fields: [questionId], references: [id])
+
+  @@id([testPaperId, questionId])
+}
+
+model Attempt {
+  id          String          @id @default(cuid())
+  userId      String
+  mode        AttemptMode
+  testPaperId String?
+  filterSpec  Json? // snapshot of practice filters
+  startedAt   DateTime        @default(now())
+  submittedAt DateTime?
+  score       Float?
+  testPaper   TestPaper?      @relation(fields: [testPaperId], references: [id])
+  answers     AttemptAnswer[]
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, startedAt])
+}
+
+model AttemptAnswer {
+  id            String   @id @default(cuid())
+  attemptId     String
+  questionId    String
+  selectedLabel String?
+  isCorrect     Boolean?
+  timeSpentSec  Int?
+  flagged       Boolean  @default(false)
+  attempt       Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question      Question @relation(fields: [questionId], references: [id])
+
+  @@unique([attemptId, questionId])
+  @@index([questionId])
+}
+
+model QuestionBookmark {
+  userId     String
+  questionId String
+  note       String?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@id([userId, questionId])
 }

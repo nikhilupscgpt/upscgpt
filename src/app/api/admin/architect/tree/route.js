@@ -34,7 +34,7 @@ export async function GET() {
             articles: true,
             editorials: true,
             testPacks: true,
-            pyqLinks: true
+            
           }
         },
         subNodes: {

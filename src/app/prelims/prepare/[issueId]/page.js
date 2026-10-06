@@ -47,9 +47,7 @@ export default async function NodePreparePage(props) {
       ]
     },
     include: {
-      pyqLinks: {
-        orderBy: { year: 'desc' }
-      },
+      
       articles: {
         where: { status: 'DONE' },
         orderBy: { publishedAt: 'desc' },

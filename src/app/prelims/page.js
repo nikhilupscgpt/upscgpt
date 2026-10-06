@@ -132,6 +132,55 @@ export default function PrelimsGatewayPage() {
               </div>
             </div>
           </Link>
+
+          {/* Option 3: PYQ Topic Explorer */}
+          <Link href="/prelims/pyq" className="gateway-card" style={{ textDecoration: 'none' }}>
+            <div className="gateway-card-inner" style={{
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '32px',
+              padding: '40px',
+              height: '100%',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              position: 'relative',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
+              <div className="card-glow" style={{ position: 'absolute', top: '-20%', left: '-20%', width: '140%', height: '140%', background: 'radial-gradient(circle at center, rgba(168, 85, 247, 0.1), transparent 70%)', pointerEvents: 'none' }} />
+
+              <div style={{ 
+                width: '64px', 
+                height: '64px', 
+                borderRadius: '20px', 
+                background: 'linear-gradient(135deg, #a855f7, #6366f1)', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                color: 'white',
+                marginBottom: '32px',
+                boxShadow: '0 10px 20px -5px rgba(168, 85, 247, 0.4)'
+              }}>
+                <BookOpen size={32} />
+              </div>
+
+              <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'white', marginBottom: '16px' }}>PYQ Explorer</h2>
+              <p style={{ color: '#94a3b8', fontSize: '1rem', lineHeight: 1.6, marginBottom: '32px', flex: 1 }}>
+                Master previous year questions categorized topic-by-topic. Instant filter by exam, 
+                year (2011–2023), and specific sub-themes with answer verification.
+              </p>
+
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '32px' }}>
+                {['Topic-Wise', 'UPSC CSE (2011-23)', 'CDS (2014-23)', 'Interactive Quiz'].map(tag => (
+                  <span key={tag} style={{ fontSize: '0.7rem', fontWeight: 700, color: '#c084fc', background: 'rgba(168, 85, 247, 0.1)', padding: '4px 10px', borderRadius: '8px' }}>{tag}</span>
+                ))}
+              </div>
+
+              <div className="gateway-cta" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#c084fc', fontWeight: 800, fontSize: '0.95rem' }}>
+                Explore PYQ Bank <ChevronRight size={18} />
+              </div>
+            </div>
+          </Link>
         </div>
       </div>
       <style jsx>{`

@@ -106,7 +106,7 @@ export async function GET(req) {
 
     const recentNodes = await prisma.issue.findMany({
       where: { id: { in: recentLogs.map(l => l.entityId).filter(Boolean) } },
-      select: { id: true, title: true, gsPapers: true, _count: { select: { pyqLinks: true } } }
+      select: { id: true, title: true, gsPapers: true, _count: { select: {  } } }
     }).catch(() => []);
 
     // 4. TODAY'S NEWS (Dynamic)

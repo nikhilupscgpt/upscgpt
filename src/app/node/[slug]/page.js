@@ -25,7 +25,7 @@ export default async function NodeDetailPage({ params }) {
   const node = await prisma.issue.findUnique({
     where: { slug },
     include: {
-      pyqLinks: true,
+      
       nodeContent: true,
     }
   });
