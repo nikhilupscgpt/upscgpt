@@ -33,6 +33,7 @@ export default function PyqExplorerClient({ initialQuestions }) {
   // Interaction State
   const [expandedCards, setExpandedCards] = useState({}); // { [qId]: boolean }
   const [userSelectedOption, setUserSelectedOption] = useState({}); // { [qId]: 'a' }
+  const [revealed, setRevealed] = useState({}); // { [qId]: boolean }
   const [bookmarked, setBookmarked] = useState({});
   const [copiedId, setCopiedId] = useState(null);
 
