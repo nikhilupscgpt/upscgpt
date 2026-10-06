@@ -44,7 +44,7 @@ export default async function PyqExplorerPage() {
   });
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#090d16', color: '#e2e8f0', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: 'transparent', color: 'var(--text-primary)', fontFamily: 'var(--font-outfit), system-ui, -apple-system, sans-serif' }}>
       <PyqExplorerClient initialQuestions={questions} />
     </div>
   );
