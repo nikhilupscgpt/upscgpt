@@ -37,6 +37,8 @@ export default async function PyqExplorerPage() {
       stem: q.stem,
       options: opts,
       correctLabel: q.correctLabel,
+      explanation: q.explanation || null,
+      rawText: q.rawText || null,
       flags: q.flags || []
     };
   });
