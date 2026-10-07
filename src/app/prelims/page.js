@@ -167,11 +167,11 @@ export default function PrelimsGatewayPage() {
               <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'white', marginBottom: '16px' }}>PYQ Explorer</h2>
               <p style={{ color: '#94a3b8', fontSize: '1rem', lineHeight: 1.6, marginBottom: '32px', flex: 1 }}>
                 Master previous year questions categorized topic-by-topic. Instant filter by exam, 
-                year (2011–2023), and specific sub-themes with answer verification.
+                year (2011–2025), and specific sub-themes with answer verification.
               </p>
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '32px' }}>
-                {['Topic-Wise', 'UPSC CSE (2011-23)', 'CDS (2014-23)', 'Interactive Quiz'].map(tag => (
+                {['Topic-Wise', 'UPSC CSE (2011-25)', 'CDS (2014-23)', 'Interactive Quiz'].map(tag => (
                   <span key={tag} style={{ fontSize: '0.7rem', fontWeight: 700, color: '#c084fc', background: 'rgba(168, 85, 247, 0.1)', padding: '4px 10px', borderRadius: '8px' }}>{tag}</span>
                 ))}
               </div>

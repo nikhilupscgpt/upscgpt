@@ -94,6 +94,14 @@ export default function PyqExplorerClient({ initialQuestions }) {
     return Array.from(years).sort((a, b) => b - a);
   }, [initialQuestions]);
 
+  // Dynamic Year Range calculation
+  const yearRange = useMemo(() => {
+    if (!availableYears.length) return { min: 2011, max: 2025, span: 15 };
+    const min = Math.min(...availableYears);
+    const max = Math.max(...availableYears);
+    return { min, max, span: max - min + 1 };
+  }, [availableYears]);
+
   // Search input handler - CLEARS ALL FILTERS AUTOMATICALLY
   const handleSearchChange = (e) => {
     const val = e.target.value;
@@ -272,7 +280,7 @@ export default function PyqExplorerClient({ initialQuestions }) {
             Topic-Wise PYQ Explorer
           </h1>
           <p className="pyq-text-muted" style={{ fontSize: '0.98rem', margin: 0, maxWidth: '650px', lineHeight: 1.5 }}>
-            Filter and master real previous year questions from <strong>UPSC CSE & CDS</strong> (2011–2023). Test your conceptual clarity topic-by-topic with instant answer verification.
+            Filter and master real previous year questions from <strong>UPSC CSE & CDS</strong> ({yearRange.min}–{yearRange.max}). Test your conceptual clarity topic-by-topic with instant answer verification.
           </p>
         </div>
 
@@ -287,8 +295,8 @@ export default function PyqExplorerClient({ initialQuestions }) {
             <div className="pyq-text-muted" style={{ fontSize: '9px', fontWeight: '800', letterSpacing: '0.08em', marginTop: '2px' }}>CORE TOPICS</div>
           </div>
           <div className="pyq-card" style={{ borderRadius: '12px', padding: '10px 18px', textAlign: 'center', minWidth: '95px' }}>
-            <div style={{ fontSize: '1.4rem', fontWeight: '900', color: '#059669' }}>13 Yrs</div>
-            <div className="pyq-text-muted" style={{ fontSize: '9px', fontWeight: '800', letterSpacing: '0.08em', marginTop: '2px' }}>2011–2023</div>
+            <div style={{ fontSize: '1.4rem', fontWeight: '900', color: '#059669' }}>{yearRange.span} Yrs</div>
+            <div className="pyq-text-muted" style={{ fontSize: '9px', fontWeight: '800', letterSpacing: '0.08em', marginTop: '2px' }}>{yearRange.min}–{yearRange.max}</div>
           </div>
         </div>
       </div>
@@ -653,7 +661,7 @@ export default function PyqExplorerClient({ initialQuestions }) {
                       outline: 'none'
                     }}
                   >
-                    <option value="ALL">All Years (2011–2023)</option>
+                    <option value="ALL">All Years ({yearRange.min}–{yearRange.max})</option>
                     {availableYears.map(yr => (
                       <option key={yr} value={yr}>{yr}</option>
                     ))}

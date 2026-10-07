@@ -97,7 +97,7 @@ export default async function StandaloneQuestionPage({ params }) {
     dedupHash: q.dedupHash,
     questionNo: q.questionNo,
     examName: q.examName || 'UPSC CSE Pre',
-    examYear: q.examYear || 2023,
+    examYear: q.examYear || 2025,
     srcSubject: q.srcSubject || 'Indian Polity',
     srcTopic: q.srcTopic || 'General',
     stem: q.stem,
