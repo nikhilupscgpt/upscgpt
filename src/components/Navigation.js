@@ -75,9 +75,9 @@ export default function Navigation({ children }) {
                 <Image src="/logo.png" alt="logo" width={36} height={36} priority />
               </div>
               <span className="app-nav__brand-text" suppressHydrationWarning={true} style={{ fontFamily: 'monospace', letterSpacing: '-0.02em', fontSize: '1.25rem', fontWeight: 800 }}>
-                prelims<span style={{ color: 'var(--color-blue, #3b82f6)' }}>gpt</span>
+                upsc<span style={{ color: 'var(--color-blue, #3b82f6)' }}>gpt</span>
               </span>
-              <span className="beta-badge">Prelims</span>
+              <span className="beta-badge" style={{ background: 'rgba(59, 130, 246, 0.15)', color: 'var(--color-blue, #3b82f6)', border: '1px solid rgba(59, 130, 246, 0.3)', textTransform: 'lowercase' }}>prelimsgpt</span>
             </Link>
 
             <div className="app-nav__links">

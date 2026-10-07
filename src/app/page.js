@@ -158,7 +158,7 @@ export default function PrelimsGPTCommandCenter() {
             boxShadow: '0 4px 14px rgba(0,0,0,0.06)'
           }}>
             <Target size={15} style={{ color: 'var(--color-amber, #f59e0b)' }} />
-            <span>UPSC CSE 2025–2026 PRELIMS COMMAND CENTER</span>
+            <span>UPSC CSE 2025–2026 · PRELIMSGPT ACTIVE</span>
           </div>
 
           {/* Headline */}
@@ -677,10 +677,10 @@ export default function PrelimsGPTCommandCenter() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: '1.05rem', color: 'var(--text-primary)' }}>
-            prelims<span style={{ color: 'var(--color-blue, #3b82f6)' }}>gpt</span>
+            upsc<span style={{ color: 'var(--color-blue, #3b82f6)' }}>gpt</span>
           </span>
           <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            · Built for serious UPSC CSE aspirants
+            · PrelimsGPT Engine Active (MainsGPT Coming Post-Prelims)
           </span>
         </div>
 
