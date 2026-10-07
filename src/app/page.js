@@ -104,18 +104,53 @@ const SUBJECTS = [
   {
     title: "Environment & Ecology",
     subjectParam: "Environment",
-    badge: "Curated PYQs",
+    badge: "202 Qs Live",
     badgeColor: "#10b981",
     badgeBg: "rgba(16, 185, 129, 0.12)",
     icon: Globe2,
-    description: "Biodiversity conservation, climate agreements, wildlife protection laws, and IUCN species status.",
+    description: "Biodiversity conservation, climate change accords, ecosystems, pollution norms & environmental statutes.",
     topics: [
-      { name: "Protected Areas", param: "Protected Areas" },
-      { name: "Wildlife Protection Act", param: "Wildlife" },
-      { name: "Climate Summits", param: "Climate" },
-      { name: "Pollution Norms", param: "Pollution" }
+      { name: "Biodiversity", param: "Biodiversity & Conservation" },
+      { name: "Climate Change", param: "Climate Change" },
+      { name: "Ecosystems", param: "Ecology & Ecosystems" },
+      { name: "Pollution", param: "Environmental Pollution" },
+      { name: "Environmental Laws", param: "Environmental Laws, Policies & Institutions" }
     ],
-    primaryCta: "Drill Environment MCQs →"
+    primaryCta: "Drill 202 Environment MCQs →"
+  },
+  {
+    title: "Science & Technology",
+    subjectParam: "Science & Technology",
+    badge: "452 Qs Live",
+    badgeColor: "#8b5cf6",
+    badgeBg: "rgba(139, 92, 246, 0.12)",
+    icon: Sparkles,
+    description: "Biotechnology, genetics, space missions, health & diseases, nuclear energy, IT and basic sciences.",
+    topics: [
+      { name: "Biotech & Genetics", param: "Biotechnology & Genetics" },
+      { name: "Health & Diseases", param: "Health, Diseases & Medicine" },
+      { name: "Space Tech", param: "Space Technology" },
+      { name: "Physics & Chemistry", param: "Physics" },
+      { name: "IT & Computing", param: "IT, Communication & Computing" }
+    ],
+    primaryCta: "Drill 452 Sci-Tech MCQs →"
+  },
+  {
+    title: "History & Art & Culture",
+    subjectParam: "History",
+    badge: "High-Yield Themes",
+    badgeColor: "#8b5cf6",
+    badgeBg: "rgba(139, 92, 246, 0.12)",
+    icon: BookOpen,
+    description: "Ancient Indus Valley, Buddhism & Jainism, temple architecture, and Modern Indian freedom struggle.",
+    topics: [
+      { name: "Indus Valley", param: "Indus Valley" },
+      { name: "Buddhism & Jainism", param: "Buddhism" },
+      { name: "Temple Architecture", param: "Architecture" },
+      { name: "1857 Revolt", param: "1857" },
+      { name: "National Movement", param: "National Movement" }
+    ],
+    primaryCta: "Drill History MCQs →"
   },
   {
     title: "CSAT (Paper II)",

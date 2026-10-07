@@ -324,7 +324,11 @@ export default function PyqExplorerClient({ initialQuestions }) {
           All Subjects ({initialQuestions.length})
         </button>
         {subjectCounts.map(([sName, sCount]) => {
-          const icon = sName === 'Agriculture' ? '🌾' : sName === 'Economy' ? '📈' : '🏛️';
+          const icon = sName === 'Agriculture' ? '🌾' : 
+                       sName === 'Economy' ? '📈' : 
+                       sName === 'Environment' ? '🌍' : 
+                       sName === 'Science & Technology' ? '🔬' : 
+                       '🏛️';
           return (
             <button
               key={sName}
