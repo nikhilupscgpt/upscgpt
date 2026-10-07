@@ -130,7 +130,7 @@ export default function DashboardIntelligenceClient() {
   }
 
   return (
-    <div className={`dashboard-container ${theme}`} style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden' }}>
+    <div className={`dashboard-container ${theme}`} style={{ display: 'flex', height: 'calc(100vh - 72px)', width: '100vw', overflow: 'hidden' }}>
       <style jsx global>{`
         :root {
           --color-bg: #020617;
@@ -179,7 +179,7 @@ export default function DashboardIntelligenceClient() {
           --color-purple-highlight: #ede9fe;
         }
 
-        .dashboard-container { background: var(--color-bg); color: var(--color-text); font-family: 'Inter', sans-serif; padding-top: 72px; }
+        .dashboard-container { background: var(--color-bg); color: var(--color-text); font-family: 'Inter', sans-serif; padding-top: 0; }
         
         .sidebar { width: ${collapsed ? '70px' : '260px'}; background: var(--color-surface); border-right: 1px solid var(--color-divider); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; overflow: hidden; height: calc(100vh - 72px); }
         .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; height: calc(100vh - 72px); }

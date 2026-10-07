@@ -1155,13 +1155,13 @@ function MapPageInner() {
 
       <style jsx>{`
         .portal-container { 
-          height: 100vh; 
+          height: calc(100vh - 72px); 
           background: var(--bg-primary); 
           display: flex; 
           flex-direction: column; 
           overflow: hidden; 
           font-family: 'Outfit', sans-serif;
-          padding-top: 72px; /* Fix for fixed header overlap */
+          padding-top: 0;
         }
         .portal-layout { flex: 1; display: flex; position: relative; overflow: hidden; }
 

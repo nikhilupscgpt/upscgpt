@@ -1849,7 +1849,7 @@ export default function NewsHub() {
         }
 
         .news-hub-wrapper {
-          margin-top: 72px; /* Push layout below the 72px global nav */
+          margin-top: 0;
           height: calc(100vh - 72px);
           display: flex;
           flex-direction: column;
