@@ -33,7 +33,7 @@ const SUBJECTS = [
   {
     title: "Indian Polity & Governance",
     subjectParam: "Indian Polity",
-    badge: "305 Qs Live",
+    badge: "325 Qs Live",
     badgeColor: "#10b981",
     badgeBg: "rgba(16, 185, 129, 0.12)",
     icon: ShieldCheck,
@@ -46,12 +46,12 @@ const SUBJECTS = [
       { name: "Parliament", param: "Parliament" },
       { name: "Local Bodies", param: "Local Bodies" }
     ],
-    primaryCta: "Drill 305 Polity MCQs →"
+    primaryCta: "Drill 325 Polity MCQs →"
   },
   {
     title: "Economy & Development",
     subjectParam: "Economy",
-    badge: "304 Qs Live",
+    badge: "319 Qs Live",
     badgeColor: "#3b82f6",
     badgeBg: "rgba(59, 130, 246, 0.12)",
     icon: Flame,
@@ -64,30 +64,12 @@ const SUBJECTS = [
       { name: "International Trade", param: "International Economic Organisations & Trade" },
       { name: "Capital Markets", param: "Capital Markets & Financial Instruments" }
     ],
-    primaryCta: "Drill 304 Economy MCQs →"
-  },
-  {
-    title: "Agriculture (CSE & IFS)",
-    subjectParam: "Agriculture",
-    badge: "62 Qs Live",
-    badgeColor: "#10b981",
-    badgeBg: "rgba(16, 185, 129, 0.12)",
-    icon: Globe2,
-    description: "High-yield CSE & IFS focus: Major crops, cropping patterns, micro-irrigation, MSP, and agricultural trade.",
-    topics: [
-      { name: "Major Crops", param: "Major Crops" },
-      { name: "Agri Marketing", param: "Agricultural Marketing & Trade" },
-      { name: "Cropping Systems", param: "Cropping Patterns & Systems" },
-      { name: "Irrigation", param: "Irrigation & Water Management" },
-      { name: "MSP & Pricing", param: "Agricultural Pricing & Procurement (MSP)" },
-      { name: "Soil & Fertilizers", param: "Soil, Fertilizers & Farming Practices" }
-    ],
-    primaryCta: "Drill 62 Agriculture MCQs →"
+    primaryCta: "Drill 319 Economy MCQs →"
   },
   {
     title: "Geography & Mapping",
     subjectParam: "Geography",
-    badge: "329 Qs Live",
+    badge: "349 Qs Live",
     badgeColor: "#0284c7",
     badgeBg: "rgba(2, 132, 199, 0.12)",
     icon: Globe2,
@@ -100,12 +82,12 @@ const SUBJECTS = [
       { name: "Oceanography", param: "Oceanography" },
       { name: "Universe & Solar", param: "Universe & Solar System" }
     ],
-    primaryCta: "Drill 329 Geography MCQs →"
+    primaryCta: "Drill 349 Geography MCQs →"
   },
   {
     title: "Environment & Ecology",
     subjectParam: "Environment",
-    badge: "202 Qs Live",
+    badge: "216 Qs Live",
     badgeColor: "#10b981",
     badgeBg: "rgba(16, 185, 129, 0.12)",
     icon: Globe2,
@@ -117,12 +99,12 @@ const SUBJECTS = [
       { name: "Pollution", param: "Environmental Pollution" },
       { name: "Environmental Laws", param: "Environmental Laws, Policies & Institutions" }
     ],
-    primaryCta: "Drill 202 Environment MCQs →"
+    primaryCta: "Drill 216 Environment MCQs →"
   },
   {
     title: "Science & Technology",
     subjectParam: "Science & Technology",
-    badge: "452 Qs Live",
+    badge: "465 Qs Live",
     badgeColor: "#8b5cf6",
     badgeBg: "rgba(139, 92, 246, 0.12)",
     icon: Sparkles,
@@ -134,12 +116,12 @@ const SUBJECTS = [
       { name: "Physics & Chemistry", param: "Physics" },
       { name: "IT & Computing", param: "IT, Communication & Computing" }
     ],
-    primaryCta: "Drill 452 Sci-Tech MCQs →"
+    primaryCta: "Drill 465 Sci-Tech MCQs →"
   },
   {
     title: "Modern Indian History",
     subjectParam: "Modern History",
-    badge: "175 Qs Live",
+    badge: "179 Qs Live",
     badgeColor: "#f59e0b",
     badgeBg: "rgba(245, 158, 11, 0.12)",
     icon: BookOpen,
@@ -152,12 +134,12 @@ const SUBJECTS = [
       { name: "1857 & Tribal Revolts", param: "Revolt of 1857, Tribal & Peasant Movements" },
       { name: "European Advent", param: "Advent of Europeans & British Expansion" }
     ],
-    primaryCta: "Drill 175 Modern History MCQs →"
+    primaryCta: "Drill 179 Modern History MCQs →"
   },
   {
     title: "Art & Culture",
     subjectParam: "Art & Culture",
-    badge: "145 Qs Live",
+    badge: "149 Qs Live",
     badgeColor: "#ec4899",
     badgeBg: "rgba(236, 72, 153, 0.12)",
     icon: Sparkles,
@@ -170,12 +152,12 @@ const SUBJECTS = [
       { name: "Performing Arts", param: "Dance, Music, Theatre & Puppetry" },
       { name: "Paintings & Crafts", param: "Painting & Handicrafts" }
     ],
-    primaryCta: "Drill 145 Art & Culture MCQs →"
+    primaryCta: "Drill 149 Art & Culture MCQs →"
   },
   {
     title: "Ancient Indian History",
     subjectParam: "Ancient History",
-    badge: "39 Qs Live",
+    badge: "42 Qs Live",
     badgeColor: "#d97706",
     badgeBg: "rgba(217, 119, 6, 0.12)",
     icon: BookOpen,
@@ -188,12 +170,12 @@ const SUBJECTS = [
       { name: "Mauryan Empire", param: "Mahajanapadas & Mauryas" },
       { name: "Vedic Literature", param: "Vedic Age" }
     ],
-    primaryCta: "Drill 39 Ancient History MCQs →"
+    primaryCta: "Drill 42 Ancient History MCQs →"
   },
   {
     title: "Medieval Indian History",
     subjectParam: "Medieval History",
-    badge: "47 Qs Live",
+    badge: "48 Qs Live",
     badgeColor: "#b45309",
     badgeBg: "rgba(180, 83, 9, 0.12)",
     icon: BookOpen,
@@ -206,7 +188,25 @@ const SUBJECTS = [
       { name: "Marathas & Regional", param: "Marathas & Regional States" },
       { name: "General Administration", param: "Medieval History – General" }
     ],
-    primaryCta: "Drill 47 Medieval History MCQs →"
+    primaryCta: "Drill 48 Medieval History MCQs →"
+  },
+  {
+    title: "Agriculture (CSE & IFS)",
+    subjectParam: "Agriculture",
+    badge: "68 Qs Live",
+    badgeColor: "#10b981",
+    badgeBg: "rgba(16, 185, 129, 0.12)",
+    icon: Globe2,
+    description: "High-yield CSE & IFS focus: Major crops, cropping patterns, micro-irrigation, MSP, and agricultural trade.",
+    topics: [
+      { name: "Major Crops", param: "Major Crops" },
+      { name: "Agri Marketing", param: "Agricultural Marketing & Trade" },
+      { name: "Cropping Systems", param: "Cropping Patterns & Systems" },
+      { name: "Irrigation", param: "Irrigation & Water Management" },
+      { name: "MSP & Pricing", param: "Agricultural Pricing & Procurement (MSP)" },
+      { name: "Soil & Fertilizers", param: "Soil, Fertilizers & Farming Practices" }
+    ],
+    primaryCta: "Drill 68 Agriculture MCQs →"
   },
   {
     title: "CSAT (Paper II)",
@@ -227,6 +227,7 @@ const SUBJECTS = [
 ];
 
 const YEAR_PAPERS = [
+  { label: "UPSC CSE 2024", sub: "GS Paper 1 (Full 100 Qs)", exam: "UPSC CSE", year: 2024 },
   { label: "UPSC CSE 2023", sub: "GS Paper 1 (Polity & GS)", exam: "UPSC CSE", year: 2023 },
   { label: "UPSC CSE 2022", sub: "GS Paper 1", exam: "UPSC CSE", year: 2022 },
   { label: "UPSC CSE 2021", sub: "GS Paper 1", exam: "UPSC CSE", year: 2021 },
