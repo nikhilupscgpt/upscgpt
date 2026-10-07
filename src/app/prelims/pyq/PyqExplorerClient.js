@@ -326,8 +326,9 @@ export default function PyqExplorerClient({ initialQuestions }) {
         {subjectCounts.map(([sName, sCount]) => {
           const icon = sName === 'Agriculture' ? '🌾' : 
                        sName === 'Economy' ? '📈' : 
-                       sName === 'Environment' ? '🌍' : 
+                       sName === 'Environment' ? '🌿' : 
                        sName === 'Science & Technology' ? '🔬' : 
+                       sName === 'Geography' ? '🗺️' : 
                        '🏛️';
           return (
             <button

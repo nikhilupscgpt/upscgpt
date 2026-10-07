@@ -85,21 +85,22 @@ const SUBJECTS = [
     primaryCta: "Drill 62 Agriculture MCQs →"
   },
   {
-    title: "History & Art & Culture",
-    subjectParam: "History",
-    badge: "High-Yield Themes",
-    badgeColor: "#8b5cf6",
-    badgeBg: "rgba(139, 92, 246, 0.12)",
-    icon: BookOpen,
-    description: "Ancient Indus Valley, Buddhism & Jainism, temple architecture, and Modern Indian freedom struggle.",
+    title: "Geography & Mapping",
+    subjectParam: "Geography",
+    badge: "329 Qs Live",
+    badgeColor: "#0284c7",
+    badgeBg: "rgba(2, 132, 199, 0.12)",
+    icon: Globe2,
+    description: "Indian physiography, river systems, climatology, geomorphology, oceanography and world map locations.",
     topics: [
-      { name: "Indus Valley", param: "Indus Valley" },
-      { name: "Buddhism & Jainism", param: "Buddhism" },
-      { name: "Temple Architecture", param: "Architecture" },
-      { name: "1857 Revolt", param: "1857" },
-      { name: "National Movement", param: "National Movement" }
+      { name: "Rivers & Drainage", param: "Indian Physiography & Drainage" },
+      { name: "Climatology", param: "Climatology" },
+      { name: "Geomorphology", param: "Geomorphology" },
+      { name: "World Places", param: "World Geography & Places" },
+      { name: "Oceanography", param: "Oceanography" },
+      { name: "Universe & Solar", param: "Universe & Solar System" }
     ],
-    primaryCta: "Drill History MCQs →"
+    primaryCta: "Drill 329 Geography MCQs →"
   },
   {
     title: "Environment & Ecology",
