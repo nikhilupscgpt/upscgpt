@@ -1,1372 +1,534 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { 
-  Search, 
-  ChevronDown, 
-  ChevronUp, 
-  Copy, 
-  Bookmark, 
-  Share2, 
-  Sparkles, 
-  Lightbulb, 
-  Layers, 
-  Check
-} from 'lucide-react';
+import { Search, Bookmark, ArrowRight, ListFilter, X } from 'lucide-react';
+import StemView from './StemView';
+import { usePyqStore } from './pyqStore';
+import { groupTopics, SUBJECT_ORDER, SUBJECT_SHORT } from './topicGroups';
+import './pyq-ui.css';
+
+const PAGE_SIZE = 10;
+const PRACTICE_SIZES = [10, 20, 30];
+const YEAR_BUCKETS = [
+  ['ALL', 'All'],
+  ['2020-2025', '2020–25'],
+  ['2015-2019', '2015–19'],
+  ['2011-2014', '2011–14'],
+];
+const SHOW_OPTIONS = [
+  ['ALL', 'All'],
+  ['NEW', 'Not attempted'],
+  ['WRONG', 'Wrong'],
+  ['MARKED', 'Bookmarked'],
+];
+const TRY_DEFAULT = ['Article 21', 'Fifth Schedule', 'Money Bill', 'Ordinance', 'Biodiversity', 'Inflation', 'Monsoon'];
+const TRY_BY_SUBJECT = {
+  'Indian Polity': ['Article 17', 'Fifth Schedule', 'Money Bill', 'Leader of the Opposition', 'Citizenship'],
+  Economy: ['Repo rate', 'GST', 'Fiscal deficit', 'RBI', 'WTO'],
+  Geography: ['Monsoon', 'Tropic of Cancer', 'Western Ghats', 'Ocean currents', 'Soils'],
+  Environment: ['Ramsar', 'Biosphere reserve', 'Wildlife Protection Act', 'IUCN', 'Carbon credit'],
+  'Science & Technology': ['Vaccine', 'ISRO', 'CRISPR', 'Nuclear', 'Quantum'],
+  'Modern History': ['Non-Cooperation', 'Cabinet Mission', 'Revolt of 1857', 'Gandhi', 'Congress'],
+};
+
+function inBucket(year, bucket) {
+  if (bucket === 'ALL') return true;
+  if (/^\d{4}$/.test(bucket)) return year === Number(bucket);
+  const [lo, hi] = bucket.split('-').map(Number);
+  return year >= lo && year <= hi;
+}
+
+function difficultyOf(q) {
+  const s = q.stem || '';
+  if (/Statement[\s-]*(I|1)\b|How many of the (above|following)/i.test(s)) return { label: 'Moderate', cls: 'pq-tag-mod' };
+  if (s.length > 260) return { label: 'Tricky', cls: 'pq-tag-hard' };
+  return { label: 'Easy', cls: 'pq-tag-easy' };
+}
 
 export default function PyqExplorerClient({ initialQuestions }) {
-  // Filters State
-  const [selectedSubject, setSelectedSubject] = useState('ALL');
-  const [selectedTopic, setSelectedTopic] = useState('ALL');
-  const [selectedExam, setSelectedExam] = useState('ALL');
-  const [selectedYear, setSelectedYear] = useState('ALL');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [sidebarTopicSearch, setSidebarTopicSearch] = useState('');
+  const [subject, setSubject] = useState('ALL');
+  const [topic, setTopic] = useState('ALL');
+  const [exam, setExam] = useState('ALL');
+  const [years, setYears] = useState('ALL');
+  const [show, setShow] = useState('ALL');
+  const [query, setQuery] = useState('');
+  const [sideQuery, setSideQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [practiceN, setPracticeN] = useState(20);
+  const [revealed, setRevealed] = useState({});
+  const [topicsOpen, setTopicsOpen] = useState(false);
+  const [urlReady, setUrlReady] = useState(false);
+  const searchRef = useRef(null);
+  const feedTopRef = useRef(null);
 
-  // Read URL query params on mount
+  const { attempts, bookmarks, recordAttempt, clearAttempt, toggleBookmark } = usePyqStore();
+
+  /* ---- URL <-> state ---- */
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      const q = params.get('q');
-      const subject = params.get('subject');
-      const topic = params.get('topic');
-      const exam = params.get('exam');
-      const year = params.get('year');
-
-      if (q) {
-        setSearchQuery(q);
-        setSelectedSubject('ALL');
-        setSelectedTopic('ALL');
-        setSelectedExam('ALL');
-        setSelectedYear('ALL');
-      } else {
-        if (subject) setSelectedSubject(subject);
-        if (topic) setSelectedTopic(topic);
-        if (exam) setSelectedExam(exam);
-        if (year) setSelectedYear(year);
-      }
+    const p = new URLSearchParams(window.location.search);
+    const q = p.get('q');
+    if (q) {
+      setQuery(q);
+    } else {
+      if (p.get('subject')) setSubject(p.get('subject'));
+      if (p.get('topic')) setTopic(p.get('topic'));
+      if (p.get('exam')) setExam(p.get('exam'));
+      if (p.get('year')) setYears(p.get('year'));
     }
+    setUrlReady(true);
   }, []);
 
-  // Pagination State
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
-
-  // Interaction State
-  const [expandedCards, setExpandedCards] = useState({}); // { [qId]: boolean }
-  const [userSelectedOption, setUserSelectedOption] = useState({}); // { [qId]: 'a' }
-  const [revealed, setRevealed] = useState({}); // { [qId]: boolean }
-  const [bookmarked, setBookmarked] = useState({});
-  const [copiedId, setCopiedId] = useState(null);
-
-  // Extract all unique subjects and counts
-  const subjectCounts = useMemo(() => {
-    const counts = {};
-    for (const q of initialQuestions) {
-      const s = q.srcSubject || 'Indian Polity';
-      counts[s] = (counts[s] || 0) + 1;
+  useEffect(() => {
+    if (!urlReady) return;
+    const p = new URLSearchParams();
+    if (query.trim()) p.set('q', query.trim());
+    else {
+      if (subject !== 'ALL') p.set('subject', subject);
+      if (topic !== 'ALL') p.set('topic', topic);
+      if (exam !== 'ALL') p.set('exam', exam);
+      if (years !== 'ALL') p.set('year', years);
     }
-    return Object.entries(counts).sort((a, b) => b[1] - a[1]);
-  }, [initialQuestions]);
+    const qs = p.toString();
+    window.history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
+  }, [urlReady, query, subject, topic, exam, years]);
 
-  // Extract all unique topics and counts (scoped to selectedSubject if active)
-  const topicCounts = useMemo(() => {
-    const counts = {};
-    for (const q of initialQuestions) {
-      if (selectedSubject !== 'ALL' && q.srcSubject !== selectedSubject) continue;
-      const t = q.srcTopic || 'General';
-      counts[t] = (counts[t] || 0) + 1;
-    }
-    return Object.entries(counts).sort((a, b) => b[1] - a[1]);
-  }, [initialQuestions, selectedSubject]);
+  /* ⌘K / Ctrl+K focuses search */
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        searchRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
-  // Filter topics inside the sidebar search
-  const filteredSidebarTopics = useMemo(() => {
-    if (!sidebarTopicSearch.trim()) return topicCounts;
-    const q = sidebarTopicSearch.toLowerCase();
-    return topicCounts.filter(([name]) => name.toLowerCase().includes(q));
-  }, [topicCounts, sidebarTopicSearch]);
-
-  // Extract all unique years
-  const availableYears = useMemo(() => {
-    const years = new Set(initialQuestions.map(q => q.examYear).filter(Boolean));
-    return Array.from(years).sort((a, b) => b - a);
-  }, [initialQuestions]);
-
-  // Dynamic Year Range calculation
+  /* ---- Derived data ---- */
   const yearRange = useMemo(() => {
-    if (!availableYears.length) return { min: 2011, max: 2025, span: 15 };
-    const min = Math.min(...availableYears);
-    const max = Math.max(...availableYears);
-    return { min, max, span: max - min + 1 };
-  }, [availableYears]);
+    const ys = initialQuestions.map(q => q.examYear).filter(Boolean);
+    return ys.length ? { min: Math.min(...ys), max: Math.max(...ys) } : { min: 2011, max: 2025 };
+  }, [initialQuestions]);
 
-  // Search input handler - CLEARS ALL FILTERS AUTOMATICALLY
-  const handleSearchChange = (e) => {
-    const val = e.target.value;
-    setSearchQuery(val);
-    if (val.trim()) {
-      setSelectedSubject('ALL');
-      setSelectedTopic('ALL');
-      setSelectedExam('ALL');
-      setSelectedYear('ALL');
-    }
-    setCurrentPage(1);
-  };
+  const subjectCounts = useMemo(() => {
+    const m = new Map();
+    for (const q of initialQuestions) m.set(q.srcSubject, (m.get(q.srcSubject) || 0) + 1);
+    const known = SUBJECT_ORDER.filter(s => m.has(s)).map(s => [s, m.get(s)]);
+    const extra = [...m.entries()].filter(([s]) => !SUBJECT_ORDER.includes(s));
+    return [...known, ...extra];
+  }, [initialQuestions]);
 
-  // Filter questions based on active criteria
-  const filteredQuestions = useMemo(() => {
+  const searching = query.trim().length > 0;
+
+  // Everything except the "Show" filter — used for the review counters
+  const scope = useMemo(() => {
+    const needle = query.trim().toLowerCase();
     return initialQuestions.filter(q => {
-      // Keyword Search filter (highest priority)
-      if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase();
-        const inStem = (q.stem || '').toLowerCase().includes(query);
-        const inTopic = (q.srcTopic || '').toLowerCase().includes(query);
-        const inExam = (q.examName || '').toLowerCase().includes(query);
-        const inSubject = (q.srcSubject || '').toLowerCase().includes(query);
-        const inOptions = (q.options || []).some(o => (o.text || '').toLowerCase().includes(query));
-        return inStem || inTopic || inExam || inSubject || inOptions;
+      if (needle) {
+        return (
+          (q.stem || '').toLowerCase().includes(needle) ||
+          (q.srcTopic || '').toLowerCase().includes(needle) ||
+          (q.srcSubject || '').toLowerCase().includes(needle) ||
+          (q.options || []).some(o => (o.text || '').toLowerCase().includes(needle))
+        );
       }
-
-      // Subject filter
-      if (selectedSubject !== 'ALL' && q.srcSubject !== selectedSubject) {
-        return false;
-      }
-
-      // Exam filter
-      if (selectedExam !== 'ALL') {
-        if (selectedExam === 'UPSC CSE' && !q.examName.includes('CSE')) return false;
-        if (selectedExam === 'CDS' && !q.examName.includes('CDS')) return false;
-      }
-
-      // Topic filter
-      if (selectedTopic !== 'ALL' && q.srcTopic !== selectedTopic) {
-        return false;
-      }
-
-      // Year filter
-      if (selectedYear !== 'ALL' && q.examYear !== Number(selectedYear)) {
-        return false;
-      }
-
+      if (subject !== 'ALL' && q.srcSubject !== subject) return false;
+      if (topic !== 'ALL' && q.srcTopic !== topic) return false;
+      if (exam !== 'ALL' && !(q.examName || '').includes(exam === 'UPSC CSE' ? 'CSE' : 'CDS')) return false;
+      if (!inBucket(q.examYear, years)) return false;
       return true;
     });
-  }, [initialQuestions, selectedSubject, selectedExam, selectedTopic, selectedYear, searchQuery]);
+  }, [initialQuestions, query, subject, topic, exam, years]);
 
-  // Pagination calculation
-  const totalPages = Math.ceil(filteredQuestions.length / pageSize) || 1;
-  const paginatedQuestions = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filteredQuestions.slice(start, start + pageSize);
-  }, [filteredQuestions, currentPage]);
+  const reviewCounts = useMemo(() => {
+    let wrong = 0, marked = 0, fresh = 0;
+    for (const q of scope) {
+      const a = attempts[q.id];
+      if (!a) fresh++;
+      else if (!a.ok) wrong++;
+      if (bookmarks[q.id]) marked++;
+    }
+    return { wrong, marked, fresh };
+  }, [scope, attempts, bookmarks]);
 
-  // Toggle card expansion
-  const toggleCard = (qId) => {
-    setExpandedCards(prev => ({
-      ...prev,
-      [qId]: !prev[qId]
-    }));
+  const filtered = useMemo(() => {
+    if (show === 'ALL') return scope;
+    return scope.filter(q => {
+      const a = attempts[q.id];
+      if (show === 'NEW') return !a;
+      if (show === 'WRONG') return a && !a.ok;
+      if (show === 'MARKED') return !!bookmarks[q.id];
+      return true;
+    });
+  }, [scope, show, attempts, bookmarks]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const pageItems = useMemo(
+    () => filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [filtered, page]
+  );
+
+  // Sidebar: topics of the subject (grouped), or the subject list when "All"
+  const topicCounts = useMemo(() => {
+    const m = new Map();
+    for (const q of initialQuestions) {
+      if (subject !== 'ALL' && q.srcSubject !== subject) continue;
+      m.set(q.srcTopic, (m.get(q.srcTopic) || 0) + 1);
+    }
+    return [...m.entries()].sort((a, b) => b[1] - a[1]);
+  }, [initialQuestions, subject]);
+
+  const sideGroups = useMemo(() => {
+    const needle = sideQuery.trim().toLowerCase();
+    if (subject === 'ALL') {
+      const items = subjectCounts.filter(([n]) => !needle || n.toLowerCase().includes(needle));
+      return [{ label: null, items }];
+    }
+    const items = topicCounts.filter(([n]) => !needle || n.toLowerCase().includes(needle));
+    return groupTopics(subject, items);
+  }, [subject, subjectCounts, topicCounts, sideQuery]);
+
+  const attemptStats = useMemo(() => {
+    const ids = new Set(initialQuestions.map(q => q.id));
+    let done = 0, ok = 0;
+    for (const [id, a] of Object.entries(attempts)) {
+      if (!ids.has(id)) continue;
+      done++;
+      if (a.ok) ok++;
+    }
+    const viewDone = filtered.filter(q => attempts[q.id]).length;
+    return { done, ok, acc: done ? Math.round((ok / done) * 100) : 0, viewDone };
+  }, [attempts, initialQuestions, filtered]);
+
+  /* ---- Handlers ---- */
+  const resetPage = () => setPage(1);
+  const pickSubject = (s) => { setSubject(s); setTopic('ALL'); setSideQuery(''); setShow('ALL'); setQuery(''); resetPage(); };
+  const pickTopic = (t) => { setTopic(t); setShow('ALL'); resetPage(); setTopicsOpen(false); };
+  const onSearch = (v) => {
+    setQuery(v);
+    if (v.trim()) { setSubject('ALL'); setTopic('ALL'); setExam('ALL'); setYears('ALL'); setShow('ALL'); }
+    resetPage();
+  };
+  const goPage = (n) => {
+    setPage(n);
+    feedTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  // Expand / Collapse all on current page
-  const allCurrentExpanded = paginatedQuestions.length > 0 && paginatedQuestions.every(q => expandedCards[q.id]);
-  const toggleCollapseAll = () => {
-    if (allCurrentExpanded) {
-      setExpandedCards({});
+  const onPick = useCallback((q, label) => {
+    if (attempts[q.id]) return;
+    if (!q.correctLabel) {
+      setRevealed(r => ({ ...r, [q.id]: true }));
+      return;
+    }
+    recordAttempt(q.id, label, label === q.correctLabel);
+  }, [attempts, recordAttempt]);
+
+  const tryAgain = (q) => {
+    clearAttempt(q.id);
+    setRevealed(r => { const n = { ...r }; delete n[q.id]; return n; });
+  };
+
+  /* ---- Practice link ---- */
+  const practiceCount = Math.min(practiceN, filtered.length);
+  const practiceMinutes = Math.max(1, Math.ceil(practiceCount * 1.2));
+  const practiceHref = useMemo(() => {
+    const p = new URLSearchParams();
+    p.set('n', String(practiceN));
+    if (show !== 'ALL' || searching) {
+      p.set('ids', filtered.slice(0, 60).map(q => q.id).join(','));
     } else {
-      const newExpanded = { ...expandedCards };
-      paginatedQuestions.forEach(q => { newExpanded[q.id] = true; });
-      setExpandedCards(newExpanded);
+      if (subject !== 'ALL') p.set('subject', subject);
+      if (topic !== 'ALL') p.set('topic', topic);
+      if (exam !== 'ALL') p.set('exam', exam);
+      if (years !== 'ALL') p.set('years', years);
     }
-  };
+    return `/prelims/pyq/practice?${p.toString()}`;
+  }, [practiceN, show, searching, filtered, subject, topic, exam, years]);
 
-  // Copy note handler
-  const handleCopyNote = (q) => {
-    const text = `Question (${q.examName} ${q.examYear} Q#${q.questionNo}):\n${q.stem}\n\nCorrect Answer: (${(q.correctLabel || '').toUpperCase()})`;
-    navigator.clipboard.writeText(text);
-    setCopiedId(q.id);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
+  const scopeLabel = searching
+    ? `“${query.trim()}”`
+    : topic !== 'ALL' ? topic : subject !== 'ALL' ? subject : 'all subjects';
 
-  // Helper to get difficulty tag
-  const getDifficulty = (q) => {
-    if (q.stem && (q.stem.includes('Statement-I') || q.stem.includes('How many of the above'))) return { label: 'Moderate', color: '#f59e0b', bg: 'rgba(245, 158, 11, 0.1)', border: 'rgba(245, 158, 11, 0.3)' };
-    if (q.stem && q.stem.length > 250) return { label: 'Tricky', color: '#ec4899', bg: 'rgba(236, 72, 153, 0.1)', border: 'rgba(236, 72, 153, 0.3)' };
-    return { label: 'Easy', color: '#10b981', bg: 'rgba(16, 185, 129, 0.1)', border: 'rgba(16, 185, 129, 0.3)' };
-  };
-
-  // Format question stem if it contains paired statements
-  const renderFormattedStem = (stem) => {
-    if (!stem) return null;
-
-    const hasPairedStatements = stem.includes('Statement-I:') || stem.includes('Statement-I') || stem.includes('Statement 1:');
-    const hasNumberedList = /\n\s*[1-4]\.\s+/.test(stem);
-
-    if (hasPairedStatements || hasNumberedList) {
-      const lines = stem.split('\n').map(l => l.trim()).filter(Boolean);
-      const intro = lines[0];
-      const middleStatements = lines.slice(1, -1);
-      const conclusion = lines.length > 2 ? lines[lines.length - 1] : '';
-
-      return (
-        <div>
-          <p className="pyq-text-title" style={{ fontSize: '16px', fontWeight: '600', marginBottom: '14px', lineHeight: 1.5 }}>
-            {intro}
-          </p>
-          <div className="pyq-statement-box pyq-inset" style={{
-            borderRadius: '10px',
-            padding: '16px 20px',
-            marginBottom: '16px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '10px'
-          }}>
-            {middleStatements.map((stmt, idx) => (
-              <div key={idx} style={{ fontSize: '15px', lineHeight: '1.6' }}>
-                {stmt.startsWith('Statement-I:') || stmt.startsWith('Statement-II:') ? (
-                  <>
-                    <strong style={{ color: '#38bdf8', marginRight: '6px' }}>{stmt.split(':')[0]}:</strong>
-                    <span className="pyq-text-body">{stmt.substring(stmt.indexOf(':') + 1)}</span>
-                  </>
-                ) : (
-                  <span className="pyq-text-body">{stmt}</span>
-                )}
-              </div>
-            ))}
-          </div>
-          {conclusion && (
-            <p className="pyq-text-body" style={{ fontSize: '15px', fontWeight: '500', marginTop: '10px', lineHeight: 1.5 }}>
-              {conclusion}
-            </p>
-          )}
-        </div>
-      );
-    }
-
-    return (
-      <p className="pyq-text-title" style={{ fontSize: '16px', lineHeight: '1.65', whiteSpace: 'pre-line', margin: 0, fontWeight: '500' }}>
-        {stem}
-      </p>
-    );
-  };
+  const tryChips = TRY_BY_SUBJECT[subject] || TRY_DEFAULT;
 
   return (
-    <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '32px 24px 80px 24px', fontFamily: 'var(--font-outfit), system-ui, -apple-system, sans-serif' }}>
-      
-      {/* Top Header Row with Title and 3 Stat Boxes */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '24px', marginBottom: '32px' }}>
-        <div>
-          {/* Badge */}
-          <div style={{ 
-            display: 'inline-flex', 
-            alignItems: 'center', 
-            gap: '6px', 
-            padding: '4px 12px', 
-            background: 'rgba(56, 189, 248, 0.1)', 
-            border: '1px solid rgba(56, 189, 248, 0.25)', 
-            borderRadius: '20px', 
-            color: '#0284c7', 
-            fontSize: '11px', 
-            fontWeight: '800', 
-            letterSpacing: '0.06em', 
-            marginBottom: '10px' 
-          }}>
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#0284c7' }} />
-            PRELIMS PYQ ARCHIVE & TOPIC ENGINE
-          </div>
+    <div className="pq-root">
+      <div className="pq-page">
+        {/* ---------- Hero ---------- */}
+        <div className="pq-eyebrow">
+          Prelims · {subject === 'ALL' ? 'All subjects' : subject} · CSE &amp; CDS {yearRange.min}–{yearRange.max}
+        </div>
+        <h1 className="pq-h1">Find any PYQ. <em>Attempt it right here.</em></h1>
 
-          <h1 className="pyq-text-title" style={{ fontSize: '2.4rem', fontWeight: '900', margin: '0 0 8px 0', letterSpacing: '-0.02em' }}>
-            Topic-Wise PYQ Explorer
-          </h1>
-          <p className="pyq-text-muted" style={{ fontSize: '0.98rem', margin: 0, maxWidth: '650px', lineHeight: 1.5 }}>
-            Filter and master real previous year questions from <strong>UPSC CSE & CDS</strong> ({yearRange.min}–{yearRange.max}). Test your conceptual clarity topic-by-topic with instant answer verification.
-          </p>
+        <div className="pq-search">
+          <Search size={18} />
+          <input
+            ref={searchRef}
+            value={query}
+            onChange={e => onSearch(e.target.value)}
+            placeholder="Search a keyword, article or topic — e.g. citizenship, Article 17, Fifth Schedule"
+            aria-label="Search previous year questions"
+          />
+          {query && (
+            <button className="pq-search-clear" onClick={() => onSearch('')} aria-label="Clear search"><X size={14} /></button>
+          )}
         </div>
 
-        {/* 3 Stat Counter Boxes */}
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <div className="pyq-card" style={{ borderRadius: '12px', padding: '10px 18px', textAlign: 'center', minWidth: '95px' }}>
-            <div className="pyq-text-title" style={{ fontSize: '1.4rem', fontWeight: '900' }}>{initialQuestions.length}</div>
-            <div className="pyq-text-muted" style={{ fontSize: '9px', fontWeight: '800', letterSpacing: '0.08em', marginTop: '2px' }}>QUESTIONS</div>
-          </div>
-          <div className="pyq-card" style={{ borderRadius: '12px', padding: '10px 18px', textAlign: 'center', minWidth: '95px' }}>
-            <div style={{ fontSize: '1.4rem', fontWeight: '900', color: '#0284c7' }}>{topicCounts.length}</div>
-            <div className="pyq-text-muted" style={{ fontSize: '9px', fontWeight: '800', letterSpacing: '0.08em', marginTop: '2px' }}>CORE TOPICS</div>
-          </div>
-          <div className="pyq-card" style={{ borderRadius: '12px', padding: '10px 18px', textAlign: 'center', minWidth: '95px' }}>
-            <div style={{ fontSize: '1.4rem', fontWeight: '900', color: '#059669' }}>{yearRange.span} Yrs</div>
-            <div className="pyq-text-muted" style={{ fontSize: '9px', fontWeight: '800', letterSpacing: '0.08em', marginTop: '2px' }}>{yearRange.min}–{yearRange.max}</div>
-          </div>
+        <div className="pq-try">
+          <span>Try:</span>
+          {tryChips.map(t => (
+            <button key={t} className="pq-chip-btn" onClick={() => onSearch(t)}>{t}</button>
+          ))}
+        </div>
+
+        <div className="pq-subjects" role="tablist" aria-label="Subjects">
+          <button className={`pq-pill ${subject === 'ALL' && !searching ? 'is-active' : ''}`} onClick={() => pickSubject('ALL')}>
+            All<small>{initialQuestions.length}</small>
+          </button>
+          {subjectCounts.map(([s, n]) => (
+            <button key={s} className={`pq-pill ${subject === s && !searching ? 'is-active' : ''}`} onClick={() => pickSubject(s)}>
+              {SUBJECT_SHORT[s] || s}<small>{n}</small>
+            </button>
+          ))}
+        </div>
+
+        {/* ---------- 3-column workspace ---------- */}
+        <div className="pq-grid">
+          {/* Sidebar */}
+          <aside className={`pq-card pq-side ${topicsOpen ? 'is-open' : ''}`}>
+            <div className="pq-side-head">
+              <span className="pq-side-title">{subject === 'ALL' ? 'Subjects' : 'Topics'}</span>
+              <span className="pq-side-count">
+                {subject === 'ALL' ? subjectCounts.length : topicCounts.length} {subject === 'ALL' ? 'subjects' : 'topics'}
+              </span>
+            </div>
+            <div className="pq-side-filter">
+              <input value={sideQuery} onChange={e => setSideQuery(e.target.value)} placeholder="Filter topics…" aria-label="Filter topics" />
+            </div>
+            <div className="pq-side-scroll">
+              {subject !== 'ALL' && (
+                <button className={`pq-topic is-all ${topic === 'ALL' ? 'is-active' : ''}`} onClick={() => pickTopic('ALL')}>
+                  <span className="pq-topic-name">All {SUBJECT_SHORT[subject] || subject} topics</span>
+                  <span className="pq-topic-n">{initialQuestions.filter(q => q.srcSubject === subject).length}</span>
+                </button>
+              )}
+              {sideGroups.map((g, gi) => (
+                <div key={gi}>
+                  {g.label && <div className="pq-group-label">{g.label}</div>}
+                  {g.items.map(([name, n]) => (
+                    <button
+                      key={name}
+                      className={`pq-topic ${subject !== 'ALL' && topic === name ? 'is-active' : ''}`}
+                      onClick={() => (subject === 'ALL' ? pickSubject(name) : pickTopic(name))}
+                      title={name}
+                    >
+                      <span className="pq-topic-name">{name}</span>
+                      <span className="pq-topic-n">{n}</span>
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </aside>
+
+          {/* Feed */}
+          <main ref={feedTopRef} style={{ scrollMarginTop: 80 }}>
+            <div className="pq-card pq-filters">
+              <button className="pq-chip-btn pq-topics-toggle" onClick={() => setTopicsOpen(o => !o)}>
+                <ListFilter size={13} /> {topic === 'ALL' ? 'All topics' : topic}
+              </button>
+              <div className="pq-fgroup">
+                <span className="pq-flabel">Exam</span>
+                <div className="pq-seg">
+                  {[['ALL', 'All'], ['UPSC CSE', 'UPSC CSE'], ['CDS', 'CDS']].map(([v, l]) => (
+                    <button key={v} className={exam === v ? 'is-active' : ''} onClick={() => { setExam(v); resetPage(); }}>{l}</button>
+                  ))}
+                </div>
+              </div>
+              <div className="pq-fgroup">
+                <span className="pq-flabel">Years</span>
+                <div className="pq-seg">
+                  {YEAR_BUCKETS.map(([v, l]) => (
+                    <button key={v} className={years === v ? 'is-active' : ''} onClick={() => { setYears(v); resetPage(); }}>{l}</button>
+                  ))}
+                  {/^\d{4}$/.test(years) && <button className="is-active" onClick={() => { setYears('ALL'); resetPage(); }}>{years} ✕</button>}
+                </div>
+              </div>
+              <div className="pq-fgroup">
+                <span className="pq-flabel">Show</span>
+                <div className="pq-seg">
+                  {SHOW_OPTIONS.map(([v, l]) => (
+                    <button key={v} className={show === v ? 'is-active' : ''} onClick={() => { setShow(v); resetPage(); }}>{l}</button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="pq-status">
+              <span><strong>{filtered.length}</strong> question{filtered.length === 1 ? '' : 's'} · {scopeLabel}</span>
+              <span>Tap an option to check your answer instantly</span>
+            </div>
+
+            {pageItems.length === 0 ? (
+              <div className="pq-card pq-empty">
+                <h3>No questions match</h3>
+                <p>Try a different topic, widen the years, or clear the search.</p>
+                <button className="pq-btn" onClick={() => { onSearch(''); pickSubject('ALL'); setExam('ALL'); setYears('ALL'); }}>Reset filters</button>
+              </div>
+            ) : (
+              pageItems.map(q => (
+                <QuestionCard
+                  key={q.id}
+                  q={q}
+                  attempt={attempts[q.id]}
+                  revealedOnly={!!revealed[q.id]}
+                  bookmarked={!!bookmarks[q.id]}
+                  onPick={onPick}
+                  onReveal={() => setRevealed(r => ({ ...r, [q.id]: true }))}
+                  onTryAgain={() => tryAgain(q)}
+                  onBookmark={() => toggleBookmark(q.id)}
+                />
+              ))
+            )}
+
+            {filtered.length > PAGE_SIZE && (
+              <div className="pq-pager">
+                <button className="pq-btn" disabled={page <= 1} onClick={() => goPage(page - 1)}>← Previous</button>
+                <span style={{ fontSize: 13, fontWeight: 700 }}>Page {page} of {totalPages}</span>
+                <button className="pq-btn" disabled={page >= totalPages} onClick={() => goPage(page + 1)}>Next →</button>
+              </div>
+            )}
+          </main>
+
+          {/* Right rail */}
+          <aside className="pq-rail">
+            <div className="pq-practice">
+              <div className="pq-practice-k">PRACTICE MODE</div>
+              <h3>Turn these {filtered.length} questions into a timed test</h3>
+              <p>One question at a time, real UPSC marking (+2 / −⅓) and a full review at the end. Pick a set size:</p>
+              <div className="pq-nseg">
+                {PRACTICE_SIZES.map(n => (
+                  <button key={n} className={practiceN === n ? 'is-active' : ''} onClick={() => setPracticeN(n)}>{n} Qs</button>
+                ))}
+              </div>
+              <Link href={practiceHref} className={`pq-go ${filtered.length === 0 ? 'is-disabled' : ''}`}>
+                Start practice <ArrowRight size={15} />
+              </Link>
+              <p style={{ margin: '9px 0 0', textAlign: 'center' }}>
+                {practiceCount} question{practiceCount === 1 ? '' : 's'} · ~{practiceMinutes} min
+              </p>
+            </div>
+
+            <div className="pq-card pq-panel">
+              <h4>This session</h4>
+              <div className="pq-stats">
+                <div className="pq-stat"><b>{attemptStats.done}</b><span>Attempted</span></div>
+                <div className="pq-stat"><b>{attemptStats.ok}</b><span>Correct</span></div>
+                <div className="pq-stat"><b>{attemptStats.acc}%</b><span>Accuracy</span></div>
+              </div>
+              <div className="pq-bar"><i style={{ width: `${attemptStats.acc}%` }} /></div>
+              <small>{attemptStats.viewDone} of {filtered.length} in this view attempted</small>
+            </div>
+
+            <div className="pq-card pq-panel">
+              <h4>Review</h4>
+              <button className={`pq-review-row ${show === 'WRONG' ? 'is-active' : ''}`} onClick={() => { setShow(show === 'WRONG' ? 'ALL' : 'WRONG'); resetPage(); }}>
+                <span><i className="pq-dot" style={{ background: 'var(--pq-bad)' }} />Got wrong</span>
+                <span className="pq-review-n">{reviewCounts.wrong}</span>
+              </button>
+              <button className={`pq-review-row ${show === 'MARKED' ? 'is-active' : ''}`} onClick={() => { setShow(show === 'MARKED' ? 'ALL' : 'MARKED'); resetPage(); }}>
+                <span><i className="pq-dot" style={{ background: 'var(--pq-accent)' }} />Bookmarked</span>
+                <span className="pq-review-n">{reviewCounts.marked}</span>
+              </button>
+              <button className={`pq-review-row ${show === 'NEW' ? 'is-active' : ''}`} onClick={() => { setShow(show === 'NEW' ? 'ALL' : 'NEW'); resetPage(); }}>
+                <span><i className="pq-dot" style={{ background: 'var(--pq-muted)' }} />Not attempted</span>
+                <span className="pq-review-n">{reviewCounts.fresh}</span>
+              </button>
+            </div>
+          </aside>
         </div>
       </div>
 
-      {/* Subject Filter Tabs Bar */}
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: '10px', 
-        overflowX: 'auto', 
-        paddingBottom: '12px', 
-        marginBottom: '24px',
-        borderBottom: '1px solid var(--border-color, rgba(255,255,255,0.08))'
-      }}>
-        <span className="pyq-text-muted" style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', marginRight: '4px', flexShrink: 0 }}>
-          SUBJECT:
-        </span>
-        <button
-          onClick={() => { setSelectedSubject('ALL'); setSelectedTopic('ALL'); setCurrentPage(1); }}
-          style={{ 
-            padding: '7px 16px', 
-            borderRadius: '10px', 
-            fontSize: '13px', 
-            fontWeight: 700, 
-            cursor: 'pointer', 
-            flexShrink: 0,
-            transition: 'all 0.15s ease',
-            background: selectedSubject === 'ALL' ? 'var(--btn-primary-bg, #3b82f6)' : 'var(--bg-card, rgba(15, 23, 42, 0.6))',
-            color: selectedSubject === 'ALL' ? 'var(--btn-primary-text, #ffffff)' : 'var(--text-secondary, #94a3b8)',
-            border: selectedSubject === 'ALL' ? 'none' : '1px solid var(--border-color, rgba(255,255,255,0.1))'
-          }}
-        >
-          All Subjects ({initialQuestions.length})
+      {/* Mobile sticky practice bar */}
+      <div className="pq-mobile-bar">
+        <span>{filtered.length} questions · {practiceCount} in a test</span>
+        <Link href={practiceHref} className={`pq-go ${filtered.length === 0 ? 'is-disabled' : ''}`}>Practice <ArrowRight size={14} /></Link>
+      </div>
+    </div>
+  );
+}
+
+/* ====================================================================== */
+
+function QuestionCard({ q, attempt, revealedOnly, bookmarked, onPick, onReveal, onTryAgain, onBookmark }) {
+  const diff = difficultyOf(q);
+  const options = q.options || [];
+  const twoCol = options.length === 4 && options.every(o => (o.text || '').length <= 70);
+  const done = !!attempt || revealedOnly;
+  const dropped = !q.correctLabel;
+  const correctOpt = options.find(o => o.label === q.correctLabel);
+
+  return (
+    <article className={`pq-card pq-qcard ${attempt ? (attempt.ok ? 'is-ok' : 'is-bad') : ''}`}>
+      <div className="pq-qhead">
+        <div className="pq-tags">
+          <span className="pq-tag pq-tag-exam">{q.examName} {q.examYear}</span>
+          {q.questionNo ? <span className="pq-tag pq-tag-q">Q{q.questionNo}</span> : null}
+          <span className="pq-tag pq-tag-topic" title={q.srcTopic}>{q.srcTopic}</span>
+          <span className={`pq-tag ${diff.cls}`}>{diff.label}</span>
+        </div>
+        <button className={`pq-icon-btn ${bookmarked ? 'is-on' : ''}`} onClick={onBookmark} aria-label={bookmarked ? 'Remove bookmark' : 'Bookmark'} aria-pressed={bookmarked}>
+          <Bookmark size={17} fill={bookmarked ? 'currentColor' : 'none'} />
         </button>
-        {subjectCounts.map(([sName, sCount]) => {
-          const icon = sName === 'Agriculture' ? '🌾' : 
-                       sName === 'Economy' ? '📈' : 
-                       sName === 'Environment' ? '🌿' : 
-                       sName === 'Science & Technology' ? '🔬' : 
-                       sName === 'Geography' ? '🗺️' : 
-                       sName === 'Modern History' ? '📜' : 
-                       sName === 'Art & Culture' ? '🎨' : 
-                       sName === 'Ancient History' ? '🏺' : 
-                       sName === 'Medieval History' ? '🏰' : 
-                       '🏛️';
+      </div>
+
+      <StemView stem={q.stem} />
+
+      <div className={`pq-opts ${twoCol ? 'is-2col' : ''}`} role="group" aria-label="Answer options">
+        {options.map(o => {
+          let cls = 'pq-opt';
+          if (done && !dropped) {
+            if (o.label === q.correctLabel) cls += ' is-correct';
+            else if (attempt && o.label === attempt.sel) cls += ' is-wrong';
+            else cls += ' is-faded';
+          }
           return (
-            <button
-              key={sName}
-              onClick={() => { setSelectedSubject(sName); setSelectedTopic('ALL'); setCurrentPage(1); }}
-              style={{ 
-                padding: '7px 16px', 
-                borderRadius: '10px', 
-                fontSize: '13px', 
-                fontWeight: 700, 
-                cursor: 'pointer', 
-                flexShrink: 0,
-                transition: 'all 0.15s ease',
-                background: selectedSubject === sName ? 'var(--btn-primary-bg, #3b82f6)' : 'var(--bg-card, rgba(15, 23, 42, 0.6))',
-                color: selectedSubject === sName ? 'var(--btn-primary-text, #ffffff)' : 'var(--text-secondary, #94a3b8)',
-                border: selectedSubject === sName ? 'none' : '1px solid var(--border-color, rgba(255,255,255,0.1))'
-              }}
-            >
-              {icon} {sName} ({sCount})
+            <button key={o.label} className={cls} disabled={done} onClick={() => onPick(q, o.label)}>
+              <span className="pq-opt-l">{String(o.label).toUpperCase()}</span>
+              <span className="pq-opt-t">{o.text}</span>
             </button>
           );
         })}
       </div>
 
-      {/* Main 2-Column Grid Layout: Left Sidebar + Right Feed */}
-      <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '28px', alignItems: 'start' }}>
-        
-        {/* ==================== LEFT SIDEBAR ==================== */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', position: 'sticky', top: '24px' }}>
-          
-          {/* Topics Card */}
-          <div className="pyq-card" style={{
-            borderRadius: '16px',
-            padding: '18px',
-            display: 'flex',
-            flexDirection: 'column',
-            maxHeight: 'calc(100vh - 160px)',
-            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)'
-          }}>
-            {/* Sidebar Title */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Layers size={18} color="#0284c7" />
-                <span className="pyq-text-title" style={{ fontSize: '14px', fontWeight: '800' }}>Topics & Syllabus</span>
-              </div>
-              <span style={{ 
-                background: 'rgba(56, 189, 248, 0.15)', 
-                color: '#0284c7', 
-                border: '1px solid rgba(56, 189, 248, 0.3)', 
-                padding: '2px 8px', 
-                borderRadius: '10px', 
-                fontSize: '11px', 
-                fontWeight: '700' 
-              }}>
-                {topicCounts.length} Available
-              </span>
-            </div>
-
-            {/* Filter Syllabus Topics Search Input */}
-            <div style={{ position: 'relative', marginBottom: '14px' }}>
-              <Search size={14} className="pyq-text-muted" style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)' }} />
-              <input 
-                type="text"
-                placeholder="Filter syllabus topics..."
-                value={sidebarTopicSearch}
-                onChange={e => setSidebarTopicSearch(e.target.value)}
-                className="pyq-inset pyq-text-body"
-                style={{
-                  width: '100%',
-                  padding: '7px 10px 7px 30px',
-                  borderRadius: '8px',
-                  fontSize: '12px',
-                  outline: 'none'
-                }}
-              />
-            </div>
-
-            {/* Scrollable Topics List */}
-            <div style={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              gap: '4px', 
-              overflowY: 'auto', 
-              paddingRight: '4px',
-              flex: 1
-            }}>
-              {/* All Topics Item */}
-              <button
-                onClick={() => { setSelectedTopic('ALL'); setCurrentPage(1); }}
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  padding: '9px 12px',
-                  borderRadius: '8px',
-                  border: '1px solid',
-                  borderColor: selectedTopic === 'ALL' ? '#0284c7' : 'transparent',
-                  background: selectedTopic === 'ALL' ? 'rgba(56, 189, 248, 0.14)' : 'transparent',
-                  color: selectedTopic === 'ALL' ? '#0284c7' : 'inherit',
-                  fontSize: '13px',
-                  fontWeight: selectedTopic === 'ALL' ? '700' : '500',
-                  cursor: 'pointer',
-                  textAlign: 'left',
-                  transition: 'all 0.15s ease'
-                }}
-              >
-                <span className="pyq-text-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ 
-                    width: '6px', 
-                    height: '6px', 
-                    borderRadius: '50%', 
-                    background: selectedTopic === 'ALL' ? '#0284c7' : '#94a3b8' 
-                  }} />
-                  All Topics
-                </span>
-                <span className="pyq-badge-dark" style={{ 
-                  padding: '2px 7px', 
-                  borderRadius: '6px', 
-                  fontSize: '11px', 
-                  fontWeight: '700' 
-                }}>
-                  {initialQuestions.length}
-                </span>
-              </button>
-
-              {/* Individual Topics */}
-              {filteredSidebarTopics.map(([topic, count]) => {
-                const isActive = selectedTopic === topic;
-                return (
-                  <button
-                    key={topic}
-                    onClick={() => { setSelectedTopic(topic); setCurrentPage(1); }}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      border: '1px solid',
-                      borderColor: isActive ? '#0284c7' : 'transparent',
-                      background: isActive ? 'rgba(56, 189, 248, 0.14)' : 'transparent',
-                      color: isActive ? '#0284c7' : 'inherit',
-                      fontSize: '12.5px',
-                      fontWeight: isActive ? '700' : '500',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      transition: 'all 0.12s ease'
-                    }}
-                  >
-                    <span className="pyq-text-body" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginRight: '8px' }}>
-                      {topic}
-                    </span>
-                    <span className="pyq-badge-dark" style={{ 
-                      padding: '2px 6px', 
-                      borderRadius: '6px', 
-                      fontSize: '10.5px', 
-                      fontWeight: '700',
-                      flexShrink: 0
-                    }}>
-                      {count}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Sidebar Bottom Reset Link */}
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center', 
-              borderTop: '1px solid var(--border-color)', 
-              paddingTop: '12px', 
-              marginTop: '12px',
-              fontSize: '11px'
-            }}>
-              <span className="pyq-text-muted" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#10b981' }} />
-                Syllabus mapped
-              </span>
-              <button
-                onClick={() => { setSelectedTopic('ALL'); setCurrentPage(1); }}
-                style={{ 
-                  background: 'transparent', 
-                  border: 'none', 
-                  color: '#0284c7', 
-                  fontSize: '11px', 
-                  fontWeight: '600', 
-                  cursor: 'pointer',
-                  padding: 0
-                }}
-              >
-                Reset Topics
-              </button>
-            </div>
-          </div>
-
-          {/* PYQ Strategy Tip Card */}
-          <div className="pyq-card" style={{
-            borderRadius: '14px',
-            padding: '16px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', color: '#d97706', fontSize: '12px', fontWeight: '800' }}>
-              <Lightbulb size={14} />
-              PYQ Strategy Tip
-            </div>
-            <p className="pyq-text-muted" style={{ fontSize: '12px', lineHeight: 1.55, margin: 0 }}>
-              In Prelims 2023, paired statement questions dominated. Practice Statement I & II type logic regularly.
-            </p>
-          </div>
-        </div>
-
-        {/* ==================== RIGHT MAIN FEED ==================== */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          
-          {/* Top Search & Filter Bar */}
-          <div className="pyq-card" style={{
-            borderRadius: '16px',
-            padding: '18px 20px',
-            boxShadow: '0 8px 20px rgba(0, 0, 0, 0.15)'
-          }}>
-            {/* Search Input Row */}
-            <div style={{ position: 'relative', marginBottom: '16px' }}>
-              <Search size={16} className="pyq-text-muted" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
-              <input 
-                type="text"
-                placeholder="Search concepts, questions, or topics (e.g. anti-defection, money bill, Article 21)..."
-                value={searchQuery}
-                onChange={handleSearchChange}
-                className="pyq-inset pyq-text-title"
-                style={{
-                  width: '100%',
-                  padding: '11px 48px 11px 40px',
-                  borderRadius: '10px',
-                  fontSize: '13.5px',
-                  outline: 'none'
-                }}
-              />
-              <div style={{ 
-                position: 'absolute', 
-                right: '12px', 
-                top: '50%', 
-                transform: 'translateY(-50%)', 
-                display: 'flex', 
-                alignItems: 'center',
-                gap: '6px'
-              }}>
-                {searchQuery ? (
-                  <button 
-                    onClick={() => { setSearchQuery(''); setCurrentPage(1); }}
-                    className="pyq-text-muted"
-                    style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '13px' }}
-                  >
-                    ✕
-                  </button>
-                ) : (
-                  <span className="pyq-badge-dark" style={{ 
-                    padding: '2px 6px', 
-                    borderRadius: '4px', 
-                    fontSize: '10px', 
-                    fontWeight: '700' 
-                  }}>
-                    ⌘K
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Filter Buttons & Range Selector Row */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
-              
-              {/* Left Exam Toggle */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span className="pyq-text-muted" style={{ fontSize: '12px', fontWeight: '700' }}>Exam:</span>
-                <div style={{ display: 'flex', gap: '6px' }}>
-                  {[
-                    { id: 'ALL', label: 'All Exams' },
-                    { id: 'UPSC CSE', label: 'UPSC CSE' },
-                    { id: 'CDS', label: 'CDS' }
-                  ].map(ex => {
-                    const isSelected = selectedExam === ex.id;
-                    return (
-                      <button
-                        key={ex.id}
-                        onClick={() => { setSelectedExam(ex.id); setCurrentPage(1); }}
-                        className={isSelected ? 'pyq-btn-active' : 'pyq-inset'}
-                        style={{
-                          padding: '6px 12px',
-                          borderRadius: '8px',
-                          fontSize: '12px',
-                          fontWeight: '700',
-                          cursor: 'pointer',
-                          transition: 'all 0.15s ease'
-                        }}
-                      >
-                        {ex.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Right Year Range & Collapse All */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span className="pyq-text-muted" style={{ fontSize: '12px', fontWeight: '700' }}>Range:</span>
-                  <select 
-                    value={selectedYear}
-                    onChange={e => { setSelectedYear(e.target.value); setCurrentPage(1); }}
-                    className="pyq-inset pyq-text-body"
-                    style={{
-                      padding: '6px 12px',
-                      borderRadius: '8px',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      outline: 'none'
-                    }}
-                  >
-                    <option value="ALL">All Years ({yearRange.min}–{yearRange.max})</option>
-                    {availableYears.map(yr => (
-                      <option key={yr} value={yr}>{yr}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <button
-                  onClick={toggleCollapseAll}
-                  className="pyq-inset pyq-text-muted"
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: '8px',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {allCurrentExpanded ? 'Collapse All' : 'Expand All'}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Subheader Status Line */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 4px', fontSize: '12.5px' }}>
-            <div className="pyq-text-muted">
-              Showing <strong className="pyq-text-title">{filteredQuestions.length}</strong> {selectedSubject === 'ALL' ? 'practice' : selectedSubject.toLowerCase()} questions
-              {selectedSubject !== 'ALL' && <span> • <span style={{ color: '#10b981', fontWeight: 'bold' }}>{selectedSubject}</span></span>}
-              {selectedTopic !== 'ALL' && <span> • <span style={{ color: '#0284c7', fontWeight: 'bold' }}>{selectedTopic}</span></span>}
-              {selectedExam !== 'ALL' && <span> • <span style={{ color: '#2563eb', fontWeight: 'bold' }}>{selectedExam}</span></span>}
-              {searchQuery && <span> • matching <span style={{ color: '#d97706', fontWeight: 'bold' }}>"{searchQuery}"</span></span>}
-            </div>
-            <span className="pyq-text-muted" style={{ fontSize: '11.5px' }}>
-              Tip: Click any question card to expand options & verified answer
-            </span>
-          </div>
-
-          {/* Question Cards Feed */}
-          {paginatedQuestions.length === 0 ? (
-            <div className="pyq-card" style={{
-              textAlign: 'center',
-              padding: '64px 20px',
-              borderRadius: '16px'
-            }}>
-              <p className="pyq-text-title" style={{ fontSize: '1.2rem', marginBottom: '8px' }}>No questions match your criteria</p>
-              <p className="pyq-text-muted" style={{ fontSize: '13px', margin: 0 }}>Try clearing your search or picking "All Topics" from the sidebar.</p>
-            </div>
+      {done && (
+        <div className={`pq-verdict ${attempt ? (attempt.ok ? 'is-ok' : 'is-bad') : ''}`}>
+          {dropped ? (
+            <b>UPSC dropped this question — there is no official answer key.</b>
+          ) : attempt ? (
+            attempt.ok ? (
+              <b>✓ Correct — ({q.correctLabel.toUpperCase()})</b>
+            ) : (
+              <><b>✗ Not quite.</b> You chose ({attempt.sel.toUpperCase()}); the answer is <b>({q.correctLabel.toUpperCase()})</b>{correctOpt ? ` — ${correctOpt.text}` : ''}.</>
+            )
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              {paginatedQuestions.map((q) => {
-                const isExpanded = !!expandedCards[q.id];
-                const diff = getDifficulty(q);
-                const userChoice = userSelectedOption[q.id];
-                const isAnswerRevealed = !!revealed[q.id];
-                const isBookmarked = !!bookmarked[q.id];
-
-                return (
-                  <div
-                    key={q.id}
-                    className="pyq-card"
-                    style={{
-                      borderRadius: '16px',
-                      padding: '22px 26px',
-                      boxShadow: isExpanded ? '0 8px 30px rgba(0, 0, 0, 0.2)' : '0 4px 12px rgba(0, 0, 0, 0.08)',
-                      transition: 'all 0.2s ease',
-                      cursor: isExpanded ? 'default' : 'pointer',
-                      borderColor: isExpanded ? 'rgba(56, 189, 248, 0.5)' : undefined
-                    }}
-                    onClick={() => {
-                      if (!isExpanded) toggleCard(q.id);
-                    }}
-                  >
-                    {/* Top Badges Row */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                        {/* Exam Badge */}
-                        <span style={{
-                          background: 'rgba(59, 130, 246, 0.12)',
-                          color: '#2563eb',
-                          border: '1px solid rgba(59, 130, 246, 0.3)',
-                          padding: '3px 9px',
-                          borderRadius: '6px',
-                          fontSize: '11.5px',
-                          fontWeight: '800'
-                        }}>
-                          {q.examName} {q.examYear}
-                        </span>
-
-                        {/* Question Number */}
-                        <span className="pyq-badge-dark" style={{
-                          padding: '3px 8px',
-                          borderRadius: '6px',
-                          fontSize: '11px',
-                          fontWeight: '700'
-                        }}>
-                          Q#{q.questionNo || '?'}
-                        </span>
-
-                        {/* Topic Badge */}
-                        <span style={{
-                          background: 'rgba(20, 184, 166, 0.12)',
-                          color: '#0d9488',
-                          border: '1px solid rgba(20, 184, 166, 0.3)',
-                          padding: '3px 10px',
-                          borderRadius: '6px',
-                          fontSize: '11.5px',
-                          fontWeight: '700'
-                        }}>
-                          {q.srcTopic}
-                        </span>
-
-                        {/* Difficulty Badge */}
-                        <span style={{
-                          background: diff.bg,
-                          color: diff.color,
-                          border: `1px solid ${diff.border}`,
-                          padding: '3px 8px',
-                          borderRadius: '6px',
-                          fontSize: '11px',
-                          fontWeight: '700'
-                        }}>
-                          {diff.label}
-                        </span>
-                      </div>
-
-                      {/* Expand / Collapse Indicator */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleCard(q.id);
-                        }}
-                        style={{
-                          background: 'transparent',
-                          border: 'none',
-                          color: isExpanded ? '#0284c7' : 'inherit',
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        {isExpanded ? (
-                          <>Click to collapse <ChevronUp size={16} /></>
-                        ) : (
-                          <>Click to expand <ChevronDown size={16} /></>
-                        )}
-                      </button>
-                    </div>
-
-                    {/* Question Stem */}
-                    <div style={{ marginBottom: isExpanded ? '20px' : '8px' }}>
-                      {isExpanded ? (
-                        renderFormattedStem(q.stem)
-                      ) : (
-                        <div>
-                          <p className="pyq-text-title" style={{
-                            fontSize: '15.5px',
-                            fontWeight: '600',
-                            lineHeight: 1.55,
-                            margin: '0 0 10px 0',
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden'
-                          }}>
-                            {q.stem}
-                          </p>
-                          <div className="pyq-text-muted" style={{ fontSize: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span>{q.options?.length || 4} Options available</span>
-                            <span>•</span>
-                            <span style={{ color: '#0284c7', fontWeight: '600' }}>Click card to solve & check answer</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Expanded Content (Options + Solution Box + Footer Toolbar) */}
-                    {isExpanded && (
-                      <div>
-                        {/* Options Section */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '16px' }}>
-                          {(q.options || []).map((opt) => {
-                            const isSelected = userChoice === opt.label;
-                            const isCorrect = (q.correctLabel || '').toLowerCase() === (opt.label || '').toLowerCase();
-
-                            let optionClass = 'pyq-option-item';
-                            if (isAnswerRevealed) {
-                              if (isCorrect) optionClass = 'pyq-option-correct';
-                              else if (isSelected) optionClass = 'pyq-option-incorrect';
-                            } else if (isSelected) {
-                              optionClass = 'pyq-option-selected';
-                            }
-
-                            return (
-                              <div
-                                key={opt.label}
-                                className={optionClass}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setUserSelectedOption(prev => ({ ...prev, [q.id]: opt.label }));
-                                }}
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '12px',
-                                  padding: '12px 18px',
-                                  borderRadius: '10px',
-                                  cursor: 'pointer',
-                                  transition: 'all 0.15s ease'
-                                }}
-                              >
-                                <span style={{
-                                  width: '26px',
-                                  height: '26px',
-                                  borderRadius: '6px',
-                                  background: isSelected ? '#0284c7' : 'rgba(128, 128, 128, 0.2)',
-                                  color: isSelected ? '#ffffff' : 'inherit',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  fontSize: '12px',
-                                  fontWeight: '800',
-                                  flexShrink: 0
-                                }}>
-                                  {opt.label.toUpperCase()}
-                                </span>
-                                <span style={{ fontSize: '14.5px', lineHeight: 1.5, flex: 1 }}>
-                                  {opt.text}
-                                </span>
-
-                                {isAnswerRevealed && isCorrect && (
-                                  <span style={{ 
-                                    background: 'rgba(16, 185, 129, 0.2)', 
-                                    color: '#059669', 
-                                    padding: '2px 8px', 
-                                    borderRadius: '6px', 
-                                    fontSize: '11px', 
-                                    fontWeight: '800' 
-                                  }}>
-                                    ✓ Correct Answer
-                                  </span>
-                                )}
-
-                                {isAnswerRevealed && isSelected && !isCorrect && (
-                                  <span style={{ 
-                                    background: 'rgba(239, 68, 68, 0.2)', 
-                                    color: '#dc2626', 
-                                    padding: '2px 8px', 
-                                    borderRadius: '6px', 
-                                    fontSize: '11px', 
-                                    fontWeight: '800' 
-                                  }}>
-                                    ✕ Your Choice
-                                  </span>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-
-                        {/* Interactive Verification Prompt Bar */}
-                        {!isAnswerRevealed ? (
-                          <div className="pyq-inset" style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            borderRadius: '10px',
-                            padding: '12px 18px',
-                            marginBottom: '20px'
-                          }}>
-                            <span className="pyq-text-muted" style={{ fontSize: '13px' }}>
-                              {userChoice ? (
-                                <span>Selected Option <strong style={{ color: '#0284c7' }}>({userChoice.toUpperCase()})</strong>. Ready to verify?</span>
-                              ) : (
-                                <span>Pick an option above to test your knowledge</span>
-                              )}
-                            </span>
-
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setRevealed(prev => ({ ...prev, [q.id]: true }));
-                              }}
-                              style={{
-                                padding: '7px 18px',
-                                borderRadius: '8px',
-                                border: 'none',
-                                background: userChoice ? '#059669' : '#0284c7',
-                                color: '#ffffff',
-                                fontSize: '13px',
-                                fontWeight: '700',
-                                cursor: 'pointer',
-                                transition: 'all 0.15s ease'
-                              }}
-                            >
-                              {userChoice ? 'Check Answer ✓' : 'Reveal Answer ⌄'}
-                            </button>
-                          </div>
-                        ) : (
-                          <div style={{ marginBottom: '20px' }}>
-                            {/* Verified Solution Box */}
-                            <div className="pyq-solution-box" style={{
-                              borderRadius: '12px',
-                              padding: '18px 22px',
-                              marginBottom: '10px'
-                            }}>
-                              {/* Solution Header */}
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981' }} />
-                                  <span style={{ fontSize: '11px', fontWeight: '800', color: '#059669', letterSpacing: '0.06em' }}>
-                                    OFFICIAL KEY VERIFIED
-                                  </span>
-                                  <span style={{
-                                    background: 'rgba(16, 185, 129, 0.2)',
-                                    color: '#059669',
-                                    border: '1px solid rgba(16, 185, 129, 0.4)',
-                                    padding: '2px 8px',
-                                    borderRadius: '6px',
-                                    fontSize: '11px',
-                                    fontWeight: '800'
-                                  }}>
-                                    Correct Option: ({(q.correctLabel || '').toUpperCase()})
-                                  </span>
-                                </div>
-
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleCopyNote(q);
-                                  }}
-                                  style={{
-                                    background: 'transparent',
-                                    border: 'none',
-                                    color: 'inherit',
-                                    fontSize: '11.5px',
-                                    fontWeight: '600',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '5px',
-                                    cursor: 'pointer'
-                                  }}
-                                >
-                                  {copiedId === q.id ? (
-                                    <><Check size={13} color="#10b981" /> Copied!</>
-                                  ) : (
-                                    <><Copy size={13} /> Copy Note</>
-                                  )}
-                                </button>
-                              </div>
-
-                              {/* Explanation Body */}
-                              <div style={{ fontSize: '13.5px', lineHeight: 1.6 }}>
-                                <p style={{ margin: '0 0 8px 0' }}>
-                                  <strong>Explanation:</strong> Under official key verification for {q.examName} {q.examYear}, Option <strong>({(q.correctLabel || '').toUpperCase()})</strong> is the definitive answer.
-                                </p>
-                                <p style={{ margin: 0, color: '#0284c7', fontSize: '12.5px', fontFamily: 'monospace' }}>
-                                  Source: Official {q.examName} Key • Indian Polity Archive
-                                </p>
-                              </div>
-                            </div>
-
-                            {/* Reset / Re-attempt button */}
-                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setRevealed(prev => ({ ...prev, [q.id]: false }));
-                                  setUserSelectedOption(prev => {
-                                    const next = { ...prev };
-                                    delete next[q.id];
-                                    return next;
-                                  });
-                                }}
-                                className="pyq-text-muted"
-                                style={{
-                                  background: 'transparent',
-                                  border: 'none',
-                                  fontSize: '12px',
-                                  cursor: 'pointer',
-                                  textDecoration: 'underline'
-                                }}
-                              >
-                                Hide Answer / Re-attempt
-                              </button>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Card Bottom Toolbar */}
-                        <div style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          borderTop: '1px solid var(--border-color)',
-                          paddingTop: '16px',
-                          fontSize: '12px'
-                        }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span className="pyq-text-muted">Subject:</span>
-                            <span className="pyq-badge-dark" style={{ padding: '3px 8px', borderRadius: '6px', fontWeight: '600' }}>
-                              {q.srcSubject || 'Indian Polity'}
-                            </span>
-                          </div>
-
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                alert(`Ask Nano AI: Exploring concept "${q.srcTopic}" for question #${q.questionNo}`);
-                              }}
-                              style={{
-                                background: 'rgba(56, 189, 248, 0.1)',
-                                border: '1px solid rgba(56, 189, 248, 0.3)',
-                                color: '#0284c7',
-                                padding: '5px 12px',
-                                borderRadius: '6px',
-                                fontSize: '12px',
-                                fontWeight: '700',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px',
-                                cursor: 'pointer'
-                              }}
-                            >
-                              <Sparkles size={13} /> Ask Nano AI
-                            </button>
-
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setBookmarked(prev => ({ ...prev, [q.id]: !prev[q.id] }));
-                              }}
-                              className="pyq-inset"
-                              style={{
-                                color: isBookmarked ? '#f59e0b' : 'inherit',
-                                padding: '6px',
-                                borderRadius: '6px',
-                                cursor: 'pointer'
-                              }}
-                              title="Bookmark question"
-                            >
-                              <Bookmark size={15} fill={isBookmarked ? '#f59e0b' : 'none'} />
-                            </button>
-
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                navigator.clipboard.writeText(window.location.href);
-                                alert('Link copied to clipboard!');
-                              }}
-                              className="pyq-inset"
-                              style={{
-                                padding: '6px',
-                                borderRadius: '6px',
-                                cursor: 'pointer'
-                              }}
-                              title="Share question"
-                            >
-                              <Share2 size={15} />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+            <><b>Answer: ({q.correctLabel.toUpperCase()})</b>{correctOpt ? ` — ${correctOpt.text}` : ''}</>
           )}
-
-          {/* Pagination Controls at Bottom */}
-          {totalPages > 1 && (
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginTop: '16px',
-              padding: '16px 4px',
-              fontSize: '13px'
-            }}>
-              <div className="pyq-text-muted">
-                Showing <strong>{(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, filteredQuestions.length)}</strong> of <strong>{filteredQuestions.length}</strong> questions
-              </div>
-
-              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
-                <button
-                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                  disabled={currentPage === 1}
-                  className="pyq-card"
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: '8px',
-                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                    fontWeight: '600',
-                    opacity: currentPage === 1 ? 0.5 : 1
-                  }}
-                >
-                  Previous
-                </button>
-
-                {/* Page Number Pills */}
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let pageNum;
-                  if (totalPages <= 5) pageNum = i + 1;
-                  else if (currentPage <= 3) pageNum = i + 1;
-                  else if (currentPage >= totalPages - 2) pageNum = totalPages - 4 + i;
-                  else pageNum = currentPage - 2 + i;
-
-                  const isActive = currentPage === pageNum;
-                  return (
-                    <button
-                      key={pageNum}
-                      onClick={() => setCurrentPage(pageNum)}
-                      className={isActive ? 'pyq-btn-active' : 'pyq-card'}
-                      style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '8px',
-                        fontSize: '12px',
-                        fontWeight: '700',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {pageNum}
-                    </button>
-                  );
-                })}
-
-                {totalPages > 5 && currentPage < totalPages - 2 && (
-                  <>
-                    <span className="pyq-text-muted">...</span>
-                    <button
-                      onClick={() => setCurrentPage(totalPages)}
-                      className="pyq-card"
-                      style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '8px',
-                        fontSize: '12px',
-                        fontWeight: '700',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {totalPages}
-                    </button>
-                  </>
-                )}
-
-                <button
-                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                  disabled={currentPage === totalPages}
-                  className="pyq-card"
-                  style={{
-                    padding: '6px 12px',
-                    borderRadius: '8px',
-                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                    fontWeight: '600',
-                    opacity: currentPage === totalPages ? 0.5 : 1
-                  }}
-                >
-                  Next
-                </button>
-              </div>
-            </div>
-          )}
-
+          {q.explanation && <div className="pq-verdict-exp">{q.explanation}</div>}
         </div>
+      )}
+
+      <div className="pq-qfoot">
+        {done ? (
+          <button className="pq-reveal" onClick={onTryAgain}>↺ Try again</button>
+        ) : (
+          <>
+            <span>Tap an option — you’ll see the answer and explanation instantly.</span>
+            <button className="pq-reveal" onClick={onReveal}>Just show the answer</button>
+          </>
+        )}
       </div>
-
-      {/* Styled JSX Theme Engine (Supports Dark & Sepia Modes) */}
-      <style jsx global>{`
-        /* Default: Dark Theme */
-        .pyq-card {
-          background: #0f172a;
-          border: 1px solid #1e293b;
-          color: #f8fafc;
-        }
-        .pyq-inset {
-          background: #090d16;
-          border: 1px solid #1e293b;
-          color: #f8fafc;
-        }
-        .pyq-text-title {
-          color: #f8fafc;
-        }
-        .pyq-text-body {
-          color: #cbd5e1;
-        }
-        .pyq-text-muted {
-          color: #94a3b8;
-        }
-        .pyq-badge-dark {
-          background: #1e293b;
-          color: #94a3b8;
-        }
-        .pyq-btn-active {
-          background: #0284c7;
-          border: 1px solid #0284c7;
-          color: #ffffff;
-        }
-        .pyq-solution-box {
-          background: #061a14;
-          border: 1px solid rgba(16, 185, 129, 0.3);
-          color: #cbd5e1;
-        }
-        .pyq-option-item {
-          background: #090d16;
-          border: 1px solid #1e293b;
-          color: #cbd5e1;
-        }
-        .pyq-option-item:hover {
-          border-color: #38bdf8;
-          color: #f8fafc;
-        }
-        .pyq-option-selected {
-          background: rgba(56, 189, 248, 0.08);
-          border: 1px solid #38bdf8;
-          color: #f8fafc;
-        }
-        .pyq-option-correct {
-          background: rgba(16, 185, 129, 0.14);
-          border: 1px solid #10b981;
-          color: #a7f3d0;
-        }
-        .pyq-option-incorrect {
-          background: rgba(239, 68, 68, 0.14);
-          border: 1px solid #ef4444;
-          color: #fca5a5;
-        }
-        .pyq-statement-box strong {
-          color: #38bdf8;
-        }
-
-        /* Sepia Theme Overrides (Warm Paper & Dark Ink) */
-        [data-theme='sepia'] .pyq-card {
-          background: #ebdcb9 !important;
-          border: 1px solid rgba(139, 115, 85, 0.35) !important;
-          color: #433422 !important;
-          box-shadow: 0 4px 14px rgba(139, 115, 85, 0.12) !important;
-        }
-        [data-theme='sepia'] .pyq-inset {
-          background: rgba(225, 215, 195, 0.75) !important;
-          border: 1px solid rgba(139, 115, 85, 0.3) !important;
-          color: #433422 !important;
-        }
-        [data-theme='sepia'] .pyq-text-title {
-          color: #433422 !important;
-        }
-        [data-theme='sepia'] .pyq-text-body {
-          color: #5c4731 !important;
-        }
-        [data-theme='sepia'] .pyq-text-muted {
-          color: #8c7a6b !important;
-        }
-        [data-theme='sepia'] .pyq-badge-dark {
-          background: rgba(139, 115, 85, 0.25) !important;
-          color: #433422 !important;
-        }
-        [data-theme='sepia'] .pyq-btn-active {
-          background: #7c2d12 !important;
-          border: 1px solid #7c2d12 !important;
-          color: #ffffff !important;
-        }
-        [data-theme='sepia'] .pyq-solution-box {
-          background: #e2d8bd !important;
-          border: 1px solid rgba(22, 101, 52, 0.45) !important;
-          color: #14532d !important;
-        }
-        [data-theme='sepia'] .pyq-solution-box p {
-          color: #272017 !important;
-        }
-        [data-theme='sepia'] .pyq-option-item {
-          background: rgba(225, 215, 195, 0.65) !important;
-          border: 1px solid rgba(139, 115, 85, 0.25) !important;
-          color: #433422 !important;
-        }
-        [data-theme='sepia'] .pyq-option-item:hover {
-          border-color: #7c2d12 !important;
-          color: #291a0c !important;
-        }
-        [data-theme='sepia'] .pyq-option-selected {
-          background: rgba(124, 45, 18, 0.12) !important;
-          border: 1px solid #7c2d12 !important;
-          color: #431407 !important;
-        }
-        [data-theme='sepia'] .pyq-option-correct {
-          background: rgba(22, 101, 52, 0.15) !important;
-          border: 1px solid #15803d !important;
-          color: #14532d !important;
-        }
-        [data-theme='sepia'] .pyq-option-incorrect {
-          background: rgba(220, 38, 38, 0.12) !important;
-          border: 1px solid #b91c1c !important;
-          color: #7f1d1d !important;
-        }
-        [data-theme='sepia'] .pyq-statement-box strong {
-          color: #7c2d12 !important;
-        }
-        [data-theme='sepia'] .pyq-statement-box span {
-          color: #433422 !important;
-        }
-      `}</style>
-    </div>
+    </article>
   );
 }

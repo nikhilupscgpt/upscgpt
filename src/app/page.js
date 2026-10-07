@@ -41,10 +41,10 @@ const SUBJECTS = [
     topics: [
       { name: "Preamble", param: "Preamble" },
       { name: "Fundamental Rights", param: "Fundamental Rights" },
-      { name: "Directive Principles", param: "Directive Principles" },
-      { name: "Judiciary", param: "Judiciary" },
+      { name: "Directive Principles", param: "Directive Principles of State Policy" },
+      { name: "Supreme Court", param: "Supreme Court" },
       { name: "Parliament", param: "Parliament" },
-      { name: "Local Bodies", param: "Local Bodies" }
+      { name: "Panchayati Raj", param: "Panchayati Raj" }
     ],
     primaryCta: "Drill 342 Polity MCQs →"
   },
