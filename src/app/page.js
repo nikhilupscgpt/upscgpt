@@ -51,19 +51,38 @@ const SUBJECTS = [
   {
     title: "Economy & Development",
     subjectParam: "Economy",
-    badge: "Ingestion Ready",
-    badgeColor: "#f59e0b",
-    badgeBg: "rgba(245, 158, 11, 0.12)",
+    badge: "304 Qs Live",
+    badgeColor: "#3b82f6",
+    badgeBg: "rgba(59, 130, 246, 0.12)",
     icon: Flame,
-    description: "Monetary policy, fiscal budgets, banking sector, balance of payments, inflation & social development.",
+    description: "Monetary policy, fiscal budgets, banking & RBI, balance of payments, inflation & social development.",
     topics: [
-      { name: "Monetary Policy", param: "Monetary Policy" },
-      { name: "Fiscal Policy", param: "Fiscal Policy" },
-      { name: "Banking & RBI", param: "Banking" },
-      { name: "External Sector", param: "External Sector" },
-      { name: "Inflation", param: "Inflation" }
+      { name: "Banking & RBI", param: "Banking & RBI" },
+      { name: "Basic Concepts", param: "Basic Economic Concepts" },
+      { name: "Fiscal & Budget", param: "Fiscal Policy & Budget" },
+      { name: "Inflation", param: "Inflation" },
+      { name: "International Trade", param: "International Economic Organisations & Trade" },
+      { name: "Capital Markets", param: "Capital Markets & Financial Instruments" }
     ],
-    primaryCta: "Preview Economy MCQs →"
+    primaryCta: "Drill 304 Economy MCQs →"
+  },
+  {
+    title: "Agriculture (CSE & IFS)",
+    subjectParam: "Agriculture",
+    badge: "62 Qs Live",
+    badgeColor: "#10b981",
+    badgeBg: "rgba(16, 185, 129, 0.12)",
+    icon: Globe2,
+    description: "High-yield CSE & IFS focus: Major crops, cropping patterns, micro-irrigation, MSP, and agricultural trade.",
+    topics: [
+      { name: "Major Crops", param: "Major Crops" },
+      { name: "Agri Marketing", param: "Agricultural Marketing & Trade" },
+      { name: "Cropping Systems", param: "Cropping Patterns & Systems" },
+      { name: "Irrigation", param: "Irrigation & Water Management" },
+      { name: "MSP & Pricing", param: "Agricultural Pricing & Procurement (MSP)" },
+      { name: "Soil & Fertilizers", param: "Soil, Fertilizers & Farming Practices" }
+    ],
+    primaryCta: "Drill 62 Agriculture MCQs →"
   },
   {
     title: "History & Art & Culture",

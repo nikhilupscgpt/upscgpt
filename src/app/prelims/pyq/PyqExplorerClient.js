@@ -323,42 +323,29 @@ export default function PyqExplorerClient({ initialQuestions }) {
         >
           All Subjects ({initialQuestions.length})
         </button>
-        {subjectCounts.map(([sName, sCount]) => (
-          <button
-            key={sName}
-            onClick={() => { setSelectedSubject(sName); setSelectedTopic('ALL'); setCurrentPage(1); }}
-            style={{ 
-              padding: '7px 16px', 
-              borderRadius: '10px', 
-              fontSize: '13px', 
-              fontWeight: 700, 
-              cursor: 'pointer', 
-              flexShrink: 0,
-              transition: 'all 0.15s ease',
-              background: selectedSubject === sName ? 'var(--btn-primary-bg, #3b82f6)' : 'var(--bg-card, rgba(15, 23, 42, 0.6))',
-              color: selectedSubject === sName ? 'var(--btn-primary-text, #ffffff)' : 'var(--text-secondary, #94a3b8)',
-              border: selectedSubject === sName ? 'none' : '1px solid var(--border-color, rgba(255,255,255,0.1))'
-            }}
-          >
-            🏛️ {sName} ({sCount})
-          </button>
-        ))}
-        {/* Visual Cue for Incoming Subjects */}
-        <div style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          gap: '6px',
-          padding: '6px 14px',
-          borderRadius: '10px',
-          fontSize: '12px',
-          fontWeight: 600,
-          background: 'rgba(245, 158, 11, 0.08)',
-          border: '1px dashed rgba(245, 158, 11, 0.3)',
-          color: 'var(--color-amber, #f59e0b)',
-          flexShrink: 0
-        }}>
-          <span>📈 Economy (Ingestion Active)</span>
-        </div>
+        {subjectCounts.map(([sName, sCount]) => {
+          const icon = sName === 'Agriculture' ? '🌾' : sName === 'Economy' ? '📈' : '🏛️';
+          return (
+            <button
+              key={sName}
+              onClick={() => { setSelectedSubject(sName); setSelectedTopic('ALL'); setCurrentPage(1); }}
+              style={{ 
+                padding: '7px 16px', 
+                borderRadius: '10px', 
+                fontSize: '13px', 
+                fontWeight: 700, 
+                cursor: 'pointer', 
+                flexShrink: 0,
+                transition: 'all 0.15s ease',
+                background: selectedSubject === sName ? 'var(--btn-primary-bg, #3b82f6)' : 'var(--bg-card, rgba(15, 23, 42, 0.6))',
+                color: selectedSubject === sName ? 'var(--btn-primary-text, #ffffff)' : 'var(--text-secondary, #94a3b8)',
+                border: selectedSubject === sName ? 'none' : '1px solid var(--border-color, rgba(255,255,255,0.1))'
+              }}
+            >
+              {icon} {sName} ({sCount})
+            </button>
+          );
+        })}
       </div>
 
       {/* Main 2-Column Grid Layout: Left Sidebar + Right Feed */}
@@ -684,7 +671,8 @@ export default function PyqExplorerClient({ initialQuestions }) {
           {/* Subheader Status Line */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 4px', fontSize: '12.5px' }}>
             <div className="pyq-text-muted">
-              Showing <strong className="pyq-text-title">{filteredQuestions.length}</strong> polity questions
+              Showing <strong className="pyq-text-title">{filteredQuestions.length}</strong> {selectedSubject === 'ALL' ? 'practice' : selectedSubject.toLowerCase()} questions
+              {selectedSubject !== 'ALL' && <span> • <span style={{ color: '#10b981', fontWeight: 'bold' }}>{selectedSubject}</span></span>}
               {selectedTopic !== 'ALL' && <span> • <span style={{ color: '#0284c7', fontWeight: 'bold' }}>{selectedTopic}</span></span>}
               {selectedExam !== 'ALL' && <span> • <span style={{ color: '#2563eb', fontWeight: 'bold' }}>{selectedExam}</span></span>}
               {searchQuery && <span> • matching <span style={{ color: '#d97706', fontWeight: 'bold' }}>"{searchQuery}"</span></span>}
