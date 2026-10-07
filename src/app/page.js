@@ -137,21 +137,76 @@ const SUBJECTS = [
     primaryCta: "Drill 452 Sci-Tech MCQs →"
   },
   {
-    title: "History & Art & Culture",
-    subjectParam: "History",
-    badge: "High-Yield Themes",
-    badgeColor: "#8b5cf6",
-    badgeBg: "rgba(139, 92, 246, 0.12)",
+    title: "Modern Indian History",
+    subjectParam: "Modern History",
+    badge: "175 Qs Live",
+    badgeColor: "#f59e0b",
+    badgeBg: "rgba(245, 158, 11, 0.12)",
     icon: BookOpen,
-    description: "Ancient Indus Valley, Buddhism & Jainism, temple architecture, and Modern Indian freedom struggle.",
+    description: "Gandhian era, Indian National Congress, 1857 revolt, constitutional acts, socio-religious reforms & freedom struggle.",
     topics: [
-      { name: "Indus Valley", param: "Indus Valley" },
-      { name: "Buddhism & Jainism", param: "Buddhism" },
-      { name: "Temple Architecture", param: "Architecture" },
-      { name: "1857 Revolt", param: "1857" },
-      { name: "National Movement", param: "National Movement" }
+      { name: "Gandhian Era", param: "Gandhian Era & Mass Movements (1915-1947)" },
+      { name: "Constitutional Acts", param: "Constitutional & Administrative Developments" },
+      { name: "Early Nationalism", param: "Early Nationalism & Congress (1885-1919)" },
+      { name: "Social Reforms", param: "Socio-Religious Reform Movements" },
+      { name: "1857 & Tribal Revolts", param: "Revolt of 1857, Tribal & Peasant Movements" },
+      { name: "European Advent", param: "Advent of Europeans & British Expansion" }
     ],
-    primaryCta: "Drill History MCQs →"
+    primaryCta: "Drill 175 Modern History MCQs →"
+  },
+  {
+    title: "Art & Culture",
+    subjectParam: "Art & Culture",
+    badge: "145 Qs Live",
+    badgeColor: "#ec4899",
+    badgeBg: "rgba(236, 72, 153, 0.12)",
+    icon: Sparkles,
+    description: "Architecture, classical dances, music, schools of Indian philosophy, UNESCO heritage sites, festivals & paintings.",
+    topics: [
+      { name: "Architecture & Sculpture", param: "Architecture & Sculpture" },
+      { name: "Literature & Languages", param: "Literature & Languages" },
+      { name: "Festivals & Heritage", param: "Festivals, Martial Arts & Miscellaneous Culture" },
+      { name: "Philosophy & Religion", param: "Philosophy & Religion" },
+      { name: "Performing Arts", param: "Dance, Music, Theatre & Puppetry" },
+      { name: "Paintings & Crafts", param: "Painting & Handicrafts" }
+    ],
+    primaryCta: "Drill 145 Art & Culture MCQs →"
+  },
+  {
+    title: "Ancient Indian History",
+    subjectParam: "Ancient History",
+    badge: "39 Qs Live",
+    badgeColor: "#d97706",
+    badgeBg: "rgba(217, 119, 6, 0.12)",
+    icon: BookOpen,
+    description: "Indus Valley Civilization, Vedic literature, Buddhism & Jainism, Mahajanapadas, Mauryan & Gupta Empire.",
+    topics: [
+      { name: "Indus Valley (IVC)", param: "Prehistory & Indus Valley Civilisation" },
+      { name: "Buddhism & Jainism", param: "Buddhism & Jainism" },
+      { name: "Guptas & Harsha", param: "Guptas & Post-Guptas" },
+      { name: "Sangam & Satavahanas", param: "Post-Mauryan & Sangam Age" },
+      { name: "Mauryan Empire", param: "Mahajanapadas & Mauryas" },
+      { name: "Vedic Literature", param: "Vedic Age" }
+    ],
+    primaryCta: "Drill 39 Ancient History MCQs →"
+  },
+  {
+    title: "Medieval Indian History",
+    subjectParam: "Medieval History",
+    badge: "47 Qs Live",
+    badgeColor: "#b45309",
+    badgeBg: "rgba(180, 83, 9, 0.12)",
+    icon: BookOpen,
+    description: "Delhi Sultanate, Mughal empire administration, Vijayanagara & Bahmani kingdoms, Cholas and regional states.",
+    topics: [
+      { name: "Mughal Empire", param: "Mughal Empire" },
+      { name: "Vijayanagara Empire", param: "Vijayanagara & Bahmani" },
+      { name: "Delhi Sultanate", param: "Delhi Sultanate" },
+      { name: "Early Medieval", param: "Early Medieval Kingdoms" },
+      { name: "Marathas & Regional", param: "Marathas & Regional States" },
+      { name: "General Administration", param: "Medieval History – General" }
+    ],
+    primaryCta: "Drill 47 Medieval History MCQs →"
   },
   {
     title: "CSAT (Paper II)",

@@ -329,6 +329,10 @@ export default function PyqExplorerClient({ initialQuestions }) {
                        sName === 'Environment' ? '🌿' : 
                        sName === 'Science & Technology' ? '🔬' : 
                        sName === 'Geography' ? '🗺️' : 
+                       sName === 'Modern History' ? '📜' : 
+                       sName === 'Art & Culture' ? '🎨' : 
+                       sName === 'Ancient History' ? '🏺' : 
+                       sName === 'Medieval History' ? '🏰' : 
                        '🏛️';
           return (
             <button
