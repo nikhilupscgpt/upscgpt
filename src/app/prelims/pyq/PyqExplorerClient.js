@@ -17,6 +17,7 @@ import {
 
 export default function PyqExplorerClient({ initialQuestions }) {
   // Filters State
+  const [selectedSubject, setSelectedSubject] = useState('ALL');
   const [selectedTopic, setSelectedTopic] = useState('ALL');
   const [selectedExam, setSelectedExam] = useState('ALL');
   const [selectedYear, setSelectedYear] = useState('ALL');
@@ -28,14 +29,22 @@ export default function PyqExplorerClient({ initialQuestions }) {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const q = params.get('q');
+      const subject = params.get('subject');
       const topic = params.get('topic');
+      const exam = params.get('exam');
+      const year = params.get('year');
+
       if (q) {
         setSearchQuery(q);
+        setSelectedSubject('ALL');
         setSelectedTopic('ALL');
         setSelectedExam('ALL');
         setSelectedYear('ALL');
-      } else if (topic) {
-        setSelectedTopic(topic);
+      } else {
+        if (subject) setSelectedSubject(subject);
+        if (topic) setSelectedTopic(topic);
+        if (exam) setSelectedExam(exam);
+        if (year) setSelectedYear(year);
       }
     }
   }, []);
@@ -51,15 +60,26 @@ export default function PyqExplorerClient({ initialQuestions }) {
   const [bookmarked, setBookmarked] = useState({});
   const [copiedId, setCopiedId] = useState(null);
 
-  // Extract all unique topics and counts
+  // Extract all unique subjects and counts
+  const subjectCounts = useMemo(() => {
+    const counts = {};
+    for (const q of initialQuestions) {
+      const s = q.srcSubject || 'Indian Polity';
+      counts[s] = (counts[s] || 0) + 1;
+    }
+    return Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  }, [initialQuestions]);
+
+  // Extract all unique topics and counts (scoped to selectedSubject if active)
   const topicCounts = useMemo(() => {
     const counts = {};
     for (const q of initialQuestions) {
+      if (selectedSubject !== 'ALL' && q.srcSubject !== selectedSubject) continue;
       const t = q.srcTopic || 'General';
       counts[t] = (counts[t] || 0) + 1;
     }
     return Object.entries(counts).sort((a, b) => b[1] - a[1]);
-  }, [initialQuestions]);
+  }, [initialQuestions, selectedSubject]);
 
   // Filter topics inside the sidebar search
   const filteredSidebarTopics = useMemo(() => {
@@ -79,6 +99,7 @@ export default function PyqExplorerClient({ initialQuestions }) {
     const val = e.target.value;
     setSearchQuery(val);
     if (val.trim()) {
+      setSelectedSubject('ALL');
       setSelectedTopic('ALL');
       setSelectedExam('ALL');
       setSelectedYear('ALL');
@@ -95,8 +116,14 @@ export default function PyqExplorerClient({ initialQuestions }) {
         const inStem = (q.stem || '').toLowerCase().includes(query);
         const inTopic = (q.srcTopic || '').toLowerCase().includes(query);
         const inExam = (q.examName || '').toLowerCase().includes(query);
+        const inSubject = (q.srcSubject || '').toLowerCase().includes(query);
         const inOptions = (q.options || []).some(o => (o.text || '').toLowerCase().includes(query));
-        return inStem || inTopic || inExam || inOptions;
+        return inStem || inTopic || inExam || inSubject || inOptions;
+      }
+
+      // Subject filter
+      if (selectedSubject !== 'ALL' && q.srcSubject !== selectedSubject) {
+        return false;
       }
 
       // Exam filter
@@ -117,7 +144,7 @@ export default function PyqExplorerClient({ initialQuestions }) {
 
       return true;
     });
-  }, [initialQuestions, selectedExam, selectedTopic, selectedYear, searchQuery]);
+  }, [initialQuestions, selectedSubject, selectedExam, selectedTopic, selectedYear, searchQuery]);
 
   // Pagination calculation
   const totalPages = Math.ceil(filteredQuestions.length / pageSize) || 1;
@@ -263,6 +290,74 @@ export default function PyqExplorerClient({ initialQuestions }) {
             <div style={{ fontSize: '1.4rem', fontWeight: '900', color: '#059669' }}>13 Yrs</div>
             <div className="pyq-text-muted" style={{ fontSize: '9px', fontWeight: '800', letterSpacing: '0.08em', marginTop: '2px' }}>2011–2023</div>
           </div>
+        </div>
+      </div>
+
+      {/* Subject Filter Tabs Bar */}
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '10px', 
+        overflowX: 'auto', 
+        paddingBottom: '12px', 
+        marginBottom: '24px',
+        borderBottom: '1px solid var(--border-color, rgba(255,255,255,0.08))'
+      }}>
+        <span className="pyq-text-muted" style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', marginRight: '4px', flexShrink: 0 }}>
+          SUBJECT:
+        </span>
+        <button
+          onClick={() => { setSelectedSubject('ALL'); setSelectedTopic('ALL'); setCurrentPage(1); }}
+          style={{ 
+            padding: '7px 16px', 
+            borderRadius: '10px', 
+            fontSize: '13px', 
+            fontWeight: 700, 
+            cursor: 'pointer', 
+            flexShrink: 0,
+            transition: 'all 0.15s ease',
+            background: selectedSubject === 'ALL' ? 'var(--btn-primary-bg, #3b82f6)' : 'var(--bg-card, rgba(15, 23, 42, 0.6))',
+            color: selectedSubject === 'ALL' ? 'var(--btn-primary-text, #ffffff)' : 'var(--text-secondary, #94a3b8)',
+            border: selectedSubject === 'ALL' ? 'none' : '1px solid var(--border-color, rgba(255,255,255,0.1))'
+          }}
+        >
+          All Subjects ({initialQuestions.length})
+        </button>
+        {subjectCounts.map(([sName, sCount]) => (
+          <button
+            key={sName}
+            onClick={() => { setSelectedSubject(sName); setSelectedTopic('ALL'); setCurrentPage(1); }}
+            style={{ 
+              padding: '7px 16px', 
+              borderRadius: '10px', 
+              fontSize: '13px', 
+              fontWeight: 700, 
+              cursor: 'pointer', 
+              flexShrink: 0,
+              transition: 'all 0.15s ease',
+              background: selectedSubject === sName ? 'var(--btn-primary-bg, #3b82f6)' : 'var(--bg-card, rgba(15, 23, 42, 0.6))',
+              color: selectedSubject === sName ? 'var(--btn-primary-text, #ffffff)' : 'var(--text-secondary, #94a3b8)',
+              border: selectedSubject === sName ? 'none' : '1px solid var(--border-color, rgba(255,255,255,0.1))'
+            }}
+          >
+            🏛️ {sName} ({sCount})
+          </button>
+        ))}
+        {/* Visual Cue for Incoming Subjects */}
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '6px',
+          padding: '6px 14px',
+          borderRadius: '10px',
+          fontSize: '12px',
+          fontWeight: 600,
+          background: 'rgba(245, 158, 11, 0.08)',
+          border: '1px dashed rgba(245, 158, 11, 0.3)',
+          color: 'var(--color-amber, #f59e0b)',
+          flexShrink: 0
+        }}>
+          <span>📈 Economy (Ingestion Active)</span>
         </div>
       </div>
 
