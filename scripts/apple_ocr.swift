@@ -3,7 +3,7 @@ import PDFKit
 import Vision
 import AppKit
 
-func extractTextFromPDF(at path: String) {
+func extractTextFromPDF(at path: String, twoColumns: Bool = true) {
     let url = URL(fileURLWithPath: path)
     guard let pdfDocument = PDFDocument(url: url) else {
         print("❌ Could not load PDF at \(path)")
@@ -11,7 +11,7 @@ func extractTextFromPDF(at path: String) {
     }
 
     let pageCount = pdfDocument.pageCount
-    print("📄 Found \(pageCount) pages. Starting Apple Vision OCR...")
+    print("📄 Found \(pageCount) pages. Starting Apple Vision OCR (Mode: \(twoColumns ? "2-Column Split" : "Standard Single Column"))...")
     
     var fullText = ""
 
@@ -20,7 +20,7 @@ func extractTextFromPDF(at path: String) {
             guard let page = pdfDocument.page(at: i) else { return }
             let pageRect = page.bounds(for: .mediaBox)
             
-            // Create a bitmap image representation at 2x resolution for better OCR accuracy
+            // Create a bitmap image representation at 2x resolution for high accuracy
             let rep = NSBitmapImageRep(
                 bitmapDataPlanes: nil,
                 pixelsWide: Int(pageRect.width * 2),
@@ -58,11 +58,36 @@ func extractTextFromPDF(at path: String) {
                 guard let observations = request.results as? [VNRecognizedTextObservation] else { return }
                 
                 var pageText = ""
-                for observation in observations {
-                    if let topCandidate = observation.topCandidates(1).first {
-                        pageText += topCandidate.string + "\n"
+
+                if twoColumns {
+                    // Split into left and right columns using 0.48 horizontal boundary
+                    let leftColumn = observations.filter { $0.boundingBox.origin.x < 0.48 }
+                        .sorted { $0.boundingBox.origin.y > $1.boundingBox.origin.y }
+                    
+                    let rightColumn = observations.filter { $0.boundingBox.origin.x >= 0.48 }
+                        .sorted { $0.boundingBox.origin.y > $1.boundingBox.origin.y }
+                    
+                    // Column 1 (Left)
+                    for obs in leftColumn {
+                        if let top = obs.topCandidates(1).first {
+                            pageText += top.string + "\n"
+                        }
+                    }
+                    
+                    // Column 2 (Right)
+                    for obs in rightColumn {
+                        if let top = obs.topCandidates(1).first {
+                            pageText += top.string + "\n"
+                        }
+                    }
+                } else {
+                    for obs in observations {
+                        if let top = obs.topCandidates(1).first {
+                            pageText += top.string + "\n"
+                        }
                     }
                 }
+
                 fullText += "--- PAGE \(i + 1) ---\n" + pageText + "\n\n"
             }
             
@@ -88,10 +113,12 @@ func extractTextFromPDF(at path: String) {
     }
 }
 
-if CommandLine.arguments.count < 2 {
-    print("Usage: swift apple_ocr.swift <path_to_pdf>")
+let args = CommandLine.arguments
+if args.count < 2 {
+    print("Usage: swift scripts/apple_ocr.swift <path_to_pdf> [--single-column]")
     exit(1)
 }
 
-let pdfPath = CommandLine.arguments[1]
-extractTextFromPDF(at: pdfPath)
+let pdfPath = args[1]
+let isSingleColumn = args.contains("--single-column")
+extractTextFromPDF(at: pdfPath, twoColumns: !isSingleColumn)

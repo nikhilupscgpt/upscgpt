@@ -26,6 +26,11 @@ export default async function sitemap() {
     select: { id: true, updatedAt: true }
   })
 
+  // Fetch all Questions (PYQ Archive)
+  const questions = await prisma.questionDraft.findMany({
+    select: { id: true, dedupHash: true, createdAt: true }
+  })
+
   const issueUrls = issues.map((issue) => ({
     url: `${baseUrl}/issues/${issue.slug}`,
     lastModified: issue.lastUpdatedAt,
@@ -68,12 +73,25 @@ export default async function sitemap() {
     priority: 0.6,
   }))
 
+  const pyqUrls = questions.map((q) => ({
+    url: `${baseUrl}/prelims/pyq/${encodeURIComponent(q.dedupHash || q.id)}`,
+    lastModified: q.createdAt || new Date(),
+    changeFrequency: 'monthly',
+    priority: 0.7,
+  }))
+
   return [
     {
       url: baseUrl,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 1,
+    },
+    {
+      url: `${baseUrl}/prelims/pyq`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.9,
     },
     {
       url: `${baseUrl}/atlas`,
@@ -99,5 +117,6 @@ export default async function sitemap() {
     ...articleUrls,
     ...streakUrls,
     ...atlasUrls,
+    ...pyqUrls,
   ]
 }
