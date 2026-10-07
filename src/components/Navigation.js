@@ -74,16 +74,16 @@ export default function Navigation({ children }) {
               <div className="app-nav__logo">
                 <Image src="/logo.png" alt="logo" width={36} height={36} priority />
               </div>
-              <span className="app-nav__brand-text" suppressHydrationWarning={true} style={{ fontFamily: 'monospace', letterSpacing: '-0.02em', fontSize: '1.2rem', textTransform: 'lowercase' }}>upscgpt</span>
-              <span className="beta-badge">Beta</span>
+              <span className="app-nav__brand-text" suppressHydrationWarning={true} style={{ fontFamily: 'monospace', letterSpacing: '-0.02em', fontSize: '1.25rem', fontWeight: 800 }}>
+                prelims<span style={{ color: 'var(--color-blue, #3b82f6)' }}>gpt</span>
+              </span>
+              <span className="beta-badge">Prelims</span>
             </Link>
 
             <div className="app-nav__links">
-              <Link href="/dashboard" className="app-nav__link">Dashboard</Link>
-              <Link href="/atlas" className="app-nav__link">Atlas</Link>
-              <Link href="/issues" className="app-nav__link">Hub</Link>
-              <Link href="/prelims" className="app-nav__link">Prelims</Link>
-              <Link href="/mains" className="app-nav__link">Mains</Link>
+              <Link href="/prelims/pyq" className="app-nav__link">PYQ Explorer</Link>
+              <Link href="/prelims/mocks" className="app-nav__link">Mock Tests</Link>
+              <Link href="/atlas" className="app-nav__link">Atlas Maps</Link>
             </div>
           </div>
 
@@ -133,7 +133,9 @@ export default function Navigation({ children }) {
 
         <div className="app-nav__mobile-panel">
           <div className="app-nav__mobile-links">
-            <Link href="/atlas" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>Atlas</Link>
+            <Link href="/prelims/pyq" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>PYQ Explorer</Link>
+            <Link href="/prelims/mocks" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>Mock Tests</Link>
+            <Link href="/atlas" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>Atlas Maps</Link>
             <Link href="/profile" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>Profile</Link>
           </div>
           {session && (

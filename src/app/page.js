@@ -1,580 +1,696 @@
-"use client"
+"use client";
 
-import Link from 'next/link'
-import { useEffect, useState } from 'react'
-import { useTranslation } from "@/context/TranslationContext";
+import React, { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import UniversalSearchBar from '@/components/UniversalSearchBar';
-import { useIsClient } from '@/lib/useIsClient';
+import { 
+  Search, 
+  BookOpen, 
+  Target, 
+  Globe2, 
+  Sparkles, 
+  ArrowRight, 
+  CheckCircle2, 
+  Layers, 
+  Flame, 
+  ShieldCheck, 
+  Compass, 
+  GraduationCap
+} from 'lucide-react';
 
-import './home.css'
+const SUGGESTED_SEARCHES = [
+  "Preamble",
+  "Fundamental Rights",
+  "Monetary Policy",
+  "Bab-el-Mandeb Strait",
+  "Panchayati Raj",
+  "Biodiversity Hotspots",
+  "Inflation Targeting",
+  "Judicial Review"
+];
 
-const cleanSummaryText = (text) => {
-  if (!text) return '';
-  // Remove markdown headers
-  let cleaned = text.replace(/^(?:#+\s*.*?)(?:\r?\n)+/m, '');
-  // Remove bold tags
-  cleaned = cleaned.replace(/\*\*/g, '');
-  return cleaned.trim();
-};
-
-const getMentorTip = (title, summaryObj) => {
-  const causes = (summaryObj?.causes || '').toLowerCase();
-  const impact = (summaryObj?.impact || '').toLowerCase();
-  const lowerTitle = (title || '').toLowerCase();
-  
-  if (/dividend|rbi|bank|reserve|fiscal|currency/i.test(lowerTitle) || /dividend|rbi|bank/i.test(causes + ' ' + impact)) {
-    return 'Focus on the "Bimal Jalan Committee" recommendations regarding RBI\'s economic capital framework and surplus transfer formula for fiscal space analysis.';
+const SUBJECTS = [
+  {
+    title: "Indian Polity & Governance",
+    badge: "305 Qs Live",
+    badgeColor: "#10b981",
+    badgeBg: "rgba(16, 185, 129, 0.12)",
+    icon: ShieldCheck,
+    description: "Constitutional framework, Fundamental Rights, Parliament, Judiciary & Constitutional Bodies.",
+    topics: ["Preamble", "Fundamental Rights", "Directive Principles", "Judiciary", "Local Bodies"],
+    link: "/prelims/pyq?topic=ALL"
+  },
+  {
+    title: "Economy & Development",
+    badge: "Ingestion Ready",
+    badgeColor: "#f59e0b",
+    badgeBg: "rgba(245, 158, 11, 0.12)",
+    icon: Flame,
+    description: "Monetary policy, fiscal budgets, banking sector, balance of payments, inflation & social development.",
+    topics: ["Monetary Policy", "Fiscal Policy", "Banking & Finance", "External Sector", "Poverty & Schemes"],
+    link: "/prelims/pyq?q=Economy"
+  },
+  {
+    title: "Geography & Mapping",
+    badge: "Atlas Integrated",
+    badgeColor: "#3b82f6",
+    badgeBg: "rgba(59, 130, 246, 0.12)",
+    icon: Compass,
+    description: "Interactive location engine for world straits, conflict zones, Indian drainage systems & mountain passes.",
+    topics: ["World Straits", "West Asia Theatres", "Himalayan Rivers", "National Parks", "Resource Belts"],
+    link: "/atlas"
+  },
+  {
+    title: "Environment & Ecology",
+    badge: "Curated PYQs",
+    badgeColor: "#10b981",
+    badgeBg: "rgba(16, 185, 129, 0.12)",
+    icon: Globe2,
+    description: "Biodiversity conservation, climate agreements, wildlife protection laws, and IUCN species status.",
+    topics: ["Protected Areas", "Wildlife Protection Act", "Climate Summits", "Pollution Norms", "Ecosystems"],
+    link: "/prelims/pyq?q=Environment"
+  },
+  {
+    title: "History & Art & Culture",
+    badge: "High-Yield Themes",
+    badgeColor: "#8b5cf6",
+    badgeBg: "rgba(139, 92, 246, 0.12)",
+    icon: BookOpen,
+    description: "Ancient Indus Valley, Buddhism & Jainism, temple architecture, and Modern Indian freedom struggle.",
+    topics: ["Indus Valley", "Buddhism & Jainism", "Mughal Architecture", "Revolt of 1857", "National Movement"],
+    link: "/prelims/pyq?q=History"
+  },
+  {
+    title: "CSAT (Paper II)",
+    badge: "Qualifying Engine",
+    badgeColor: "#ec4899",
+    badgeBg: "rgba(236, 72, 153, 0.12)",
+    icon: GraduationCap,
+    description: "Precision practice for Reading Comprehension passages, analytical syllogisms, and basic numeracy.",
+    topics: ["Reading Comprehension", "Syllogisms & Logic", "Number Systems", "Percentages & Ratios", "Data Interpretation"],
+    link: "/prelims/mocks"
   }
-  if (/warming|climate|temperature|environment|green|carbon|emissions/i.test(lowerTitle) || /warming|climate|temperature/i.test(causes + ' ' + impact)) {
-    return 'Analyze asymmetric warming (night vs day temperatures) and its specific impacts on agriculture, particularly Rabi crop yields in Indo-Gangetic plains.';
-  }
-  if (/tectonic|seismic|earthquake|disaster|plate|coast|tsunami/i.test(lowerTitle) || /tectonic|seismic|earthquake/i.test(causes + ' ' + impact)) {
-    return 'Focus on the seismic vulnerability of the Himalayan belt vs Peninsular India, and NDMA guidelines on earthquake management.';
-  }
-  return `Track the governance, structural bottlenecks, and geopolitical challenges associated with this development for GS Mains GS-II and GS-III papers.`;
-};
+];
 
-export default function UPSCGPTMasterPortal() {
-  const [stats, setStats] = useState({ entries: 0, categories: 0, newsToday: 0, issues: 0 })
-  const [streaks, setStreaks] = useState([])
-  const { t } = useTranslation();
-  const isClient = useIsClient();
-  const [searchTerm, setSearchTerm] = useState('');
-  // handleSearch removed, handled by component
+export default function PrelimsGPTCommandCenter() {
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
 
-  useEffect(() => {
-    // Parallel fetch for better performance
-    Promise.all([
-      fetch('/api/entries').then(res => res.json()),
-      fetch('/api/issues').then(res => res.json()).catch(() => []), // Fallback if no issues yet
-      fetch('/api/news/streaks/active').then(res => res.json()).catch(() => [])
-    ]).then(([entriesData, issuesData, streaksData]) => {
-      const entries = Array.isArray(entriesData) ? entriesData : []
-      const issues = Array.isArray(issuesData) ? issuesData : []
-      const activeStreaks = Array.isArray(streaksData) ? streaksData : []
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/prelims/pyq?q=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      router.push('/prelims/pyq');
+    }
+  };
 
-      const now = new Date()
-      const todayCount = entries.filter((entry) => {
-        if (!entry.lastNewsDate) return false
-        return (now - new Date(entry.lastNewsDate)) / (1000 * 60 * 60 * 24) <= 1
-      }).length
-
-      setStats({
-        entries: entries.length,
-        categories: [...new Set(entries.map((entry) => entry.category))].length,
-        newsToday: todayCount,
-        issues: issues.length
-      })
-      setStreaks(activeStreaks)
-    }).catch(() => { })
-  }, [])
-
-  if (!isClient) return <div style={{ minHeight: '100vh', background: 'var(--hero-bg-gradient)' }} />;
-
-  const commandCenters = [
-    {
-      id: 'mapping',
-      title: 'Mapping Command Center',
-      subtitle: 'World + India Strategic Mapping',
-      description:
-        'Map intelligence now starts with two tracks. Use World Atlas for global theatres and India Atlas for domestic strategy, geography, and policy-linked map revision.',
-      icon: '🧭',
-      gradient: 'linear-gradient(135deg, #3b82f6, #8b5cf6)',
-      accentColor: '#8b5cf6',
-      href: '/atlas/select',
-      status: 'live',
-      features: ['World Theatre Mapping', 'India-Focused Drilldown', 'AI Map Tutor', 'Revision Layers'],
-      stat: { value: stats.entries, label: 'Map Nodes' },
-    },
-    {
-      id: 'current-affairs',
-      title: 'Current Affairs Command Center',
-      subtitle: 'Daily Intelligence Loop',
-      description:
-        'Retention-first current affairs flow with daily briefs, map-linked developments, and quick revision hooks designed to pull aspirants back every day.',
-      icon: '🗞️',
-      gradient: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
-      accentColor: '#22d3ee',
-      href: '/news',
-      status: 'live',
-      features: ['Daily Briefing', 'Map-Linked News', 'Revision Hooks', 'Streak-Ready Flow'],
-      stat: { value: stats.newsToday, label: 'News in 24h' },
-    },
-    {
-      id: 'prelims',
-      title: 'Prelims Command Center',
-      subtitle: 'MCQ Intelligence System',
-      description:
-        'A precision-engineered MCQ practice stack powered by current affairs + static mapping and PYQ pattern framing, calibrated to the latest UPSC Prelims rubric.',
-      icon: '🎯',
-      gradient: 'linear-gradient(135deg, #f59e0b, #ef4444)',
-      accentColor: '#f59e0b',
-      href: '/prelims',
-      status: 'live',
-      features: ['AI-Generated MCQs', 'PYQ Pattern Analysis', 'Difficulty Calibration', 'Performance Analytics'],
-      stat: { value: 100, label: 'Prelims Tests' },
-    },
-    {
-      id: 'mains',
-      title: 'Mains Command Center',
-      subtitle: 'Neural Intelligence Base',
-      description:
-        'Consolidated GS Paper nodes with AI-synthesized material, strategic mapping evaluation, and topper-grade answer evaluators.',
-      icon: '✍️',
-      gradient: 'linear-gradient(135deg, #10b981, #0ea5e9)',
-      accentColor: '#10b981',
-      href: '/mains',
-      status: 'live',
-      features: ['Neural Base Grid', 'GS/Optional Content Node', 'Essay Guidance', 'Mains Evaluators'],
-      stat: { value: stats.issues || 0, label: 'Syllabus Nodes' },
-    },
-  ]
+  const handleQuickChip = (term) => {
+    router.push(`/prelims/pyq?q=${encodeURIComponent(term)}`);
+  };
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        fontFamily: "'Outfit', sans-serif",
-        background: 'transparent',
-        color: 'var(--text-primary)',
-        overflow: 'hidden',
-        position: 'relative',
-        transition: 'background 0.3s ease, color 0.3s ease'
-      }}
-    >
-      <div style={{ display: 'none' }} />
+    <div style={{ 
+      minHeight: '100vh', 
+      backgroundColor: 'var(--bg-primary, #020617)', 
+      color: 'var(--text-primary, #ffffff)',
+      paddingBottom: '80px',
+      fontFamily: 'var(--font-outfit), system-ui, -apple-system, sans-serif'
+    }}>
+      {/* Background Glow Accents */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '100%',
+        maxWidth: '1200px',
+        height: '450px',
+        background: 'radial-gradient(circle at 50% 10%, rgba(59, 130, 246, 0.12), transparent 70%)',
+        pointerEvents: 'none',
+        zIndex: 0
+      }} />
 
+      <main style={{ 
+        position: 'relative', 
+        zIndex: 1, 
+        maxWidth: '1200px', 
+        margin: '0 auto', 
+        padding: '50px 24px 40px' 
+      }}>
+        
+        {/* HERO SECTION */}
+        <div style={{ textAlign: 'center', marginBottom: '48px', maxWidth: '860px', margin: '0 auto 48px' }}>
+          {/* Top Pill */}
+          <div style={{ 
+            display: 'inline-flex', 
+            alignItems: 'center', 
+            gap: '8px', 
+            padding: '6px 16px', 
+            background: 'var(--bg-card, rgba(15, 23, 42, 0.6))', 
+            border: '1px solid var(--border-color, rgba(255, 255, 255, 0.1))',
+            borderRadius: '999px', 
+            color: 'var(--color-amber, #f59e0b)', 
+            fontSize: '0.8rem', 
+            fontWeight: 800, 
+            marginBottom: '22px', 
+            letterSpacing: '0.04em',
+            boxShadow: '0 4px 14px rgba(0,0,0,0.06)'
+          }}>
+            <Target size={15} style={{ color: 'var(--color-amber, #f59e0b)' }} />
+            <span>UPSC CSE 2025–2026 PRELIMS COMMAND CENTER</span>
+          </div>
 
+          {/* Headline */}
+          <h1 style={{ 
+            fontSize: 'clamp(2.4rem, 5vw, 3.8rem)', 
+            fontWeight: 900, 
+            letterSpacing: '-0.03em', 
+            lineHeight: 1.15, 
+            marginBottom: '18px',
+            color: 'var(--text-primary, #ffffff)'
+          }}>
+            Master Prelims with <span style={{ 
+              background: 'linear-gradient(135deg, var(--color-blue, #3b82f6), #60a5fa)', 
+              WebkitBackgroundClip: 'text', 
+              WebkitTextFillColor: 'transparent' 
+            }}>Zero Clutter</span>.
+          </h1>
 
-      <main style={{ position: 'relative', zIndex: 10, maxWidth: '1400px', margin: '0 auto' }} className="main-responsive-padding">
-        <div style={{ textAlign: 'center', marginBottom: '64px', marginTop: '120px' }} className="hero-section">
-          <h2 className="main-title" style={{ color: 'var(--text-primary)' }}>
-            {t('home.heroTitle')}
-            <br />
-            <span
-              style={{
-                background: 'linear-gradient(135deg, #38bdf8 0%, #8b5cf6 40%, #f59e0b 100%)',
-                backgroundSize: '200% auto',
-                animation: 'shimmer 6s linear infinite',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
+          {/* Subtitle */}
+          <p style={{ 
+            fontSize: 'clamp(1rem, 2vw, 1.18rem)', 
+            color: 'var(--text-secondary, #94a3b8)', 
+            lineHeight: 1.6, 
+            maxWidth: '720px', 
+            margin: '0 auto 36px' 
+          }}>
+            Strictly high-yield. Topic-wise Previous Year Questions mapped to granular micro-themes, 
+            instant semantic concept retrieval, and an interactive spatial mapping atlas.
+          </p>
+
+          {/* SEARCH BAR (Prelims RAG Engine) */}
+          <form 
+            onSubmit={handleSearchSubmit} 
+            style={{ 
+              maxWidth: '680px', 
+              margin: '0 auto',
+              position: 'relative'
+            }}
+          >
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              backgroundColor: 'var(--bg-card, rgba(15, 23, 42, 0.8))',
+              border: '1.5px solid var(--border-color, rgba(255, 255, 255, 0.15))',
+              borderRadius: '16px',
+              padding: '6px 8px 6px 18px',
+              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.15)',
+              transition: 'border-color 0.2s ease, box-shadow 0.2s ease'
+            }}>
+              <Search size={22} style={{ color: 'var(--text-muted, #64748b)', marginRight: '12px', flexShrink: 0 }} />
+              <input 
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search any PYQ topic (e.g. Fundamental Rights, Money Bill, Inflation)..."
+                style={{
+                  flex: 1,
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  color: 'var(--text-primary, #ffffff)',
+                  fontSize: '1rem',
+                  fontWeight: 500
+                }}
+              />
+              <button 
+                type="submit"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  backgroundColor: 'var(--btn-primary-bg, #3b82f6)',
+                  color: 'var(--btn-primary-text, #ffffff)',
+                  border: 'none',
+                  borderRadius: '12px',
+                  padding: '10px 20px',
+                  fontSize: '0.9rem',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'opacity 0.2s ease',
+                  flexShrink: 0
+                }}
+              >
+                <span>Search</span>
+                <ArrowRight size={16} />
+              </button>
+            </div>
+          </form>
+
+          {/* Quick Filter Chips */}
+          <div style={{ 
+            display: 'flex', 
+            flexWrap: 'wrap', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            gap: '8px', 
+            marginTop: '16px' 
+          }}>
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted, #64748b)', fontWeight: 600 }}>
+              Quick Jumps:
+            </span>
+            {SUGGESTED_SEARCHES.map((term) => (
+              <button
+                key={term}
+                onClick={() => handleQuickChip(term)}
+                style={{
+                  background: 'var(--bg-input, rgba(255, 255, 255, 0.04))',
+                  border: '1px solid var(--border-color, rgba(255, 255, 255, 0.08))',
+                  borderRadius: '999px',
+                  padding: '4px 12px',
+                  fontSize: '0.75rem',
+                  fontWeight: 600,
+                  color: 'var(--text-secondary, #94a3b8)',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseOver={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--color-blue, #3b82f6)';
+                  e.currentTarget.style.color = 'var(--text-primary, #ffffff)';
+                }}
+                onMouseOut={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--border-color, rgba(255, 255, 255, 0.08))';
+                  e.currentTarget.style.color = 'var(--text-secondary, #94a3b8)';
+                }}
+              >
+                {term}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* 3 CORE PILLARS (Primary Launch Deck) */}
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
+          gap: '24px', 
+          marginBottom: '56px' 
+        }}>
+          
+          {/* Pillar 1: Topic-Wise PYQ Bank */}
+          <Link href="/prelims/pyq" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <div style={{
+              background: 'var(--bg-card, rgba(15, 23, 42, 0.7))',
+              border: '1.5px solid var(--border-color, rgba(255, 255, 255, 0.08))',
+              borderRadius: '24px',
+              padding: '32px',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              transition: 'transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.06)'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)';
+              e.currentTarget.style.borderColor = 'var(--color-blue, #3b82f6)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.borderColor = 'var(--border-color, rgba(255, 255, 255, 0.08))';
+            }}
+            >
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                  <div style={{
+                    width: '52px',
+                    height: '52px',
+                    borderRadius: '16px',
+                    background: 'rgba(59, 130, 246, 0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'var(--color-blue, #3b82f6)'
+                  }}>
+                    <BookOpen size={26} />
+                  </div>
+                  <span style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 800,
+                    padding: '4px 10px',
+                    borderRadius: '20px',
+                    background: 'rgba(16, 185, 129, 0.12)',
+                    color: '#10b981'
+                  }}>
+                    305+ Verified MCQs
+                  </span>
+                </div>
+
+                <h3 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '8px', color: 'var(--text-primary)' }}>
+                  Topic-Wise PYQ Explorer
+                </h3>
+                <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: 1.55, marginBottom: '20px' }}>
+                  Drill down into 44+ granular micro-themes. Collapsible cards with active recall mode (hidden answers until attempted), official UPSC rationale, and full Sepia reader support.
+                </p>
+              </div>
+
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px', 
+                fontWeight: 700, 
+                fontSize: '0.9rem', 
+                color: 'var(--color-blue, #3b82f6)' 
+              }}>
+                <span>Launch PYQ Bank</span>
+                <ArrowRight size={16} />
+              </div>
+            </div>
+          </Link>
+
+          {/* Pillar 2: Mock Tests */}
+          <Link href="/prelims/mocks" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <div style={{
+              background: 'var(--bg-card, rgba(15, 23, 42, 0.7))',
+              border: '1.5px solid var(--border-color, rgba(255, 255, 255, 0.08))',
+              borderRadius: '24px',
+              padding: '32px',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              transition: 'transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.06)'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)';
+              e.currentTarget.style.borderColor = 'var(--color-amber, #f59e0b)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.borderColor = 'var(--border-color, rgba(255, 255, 255, 0.08))';
+            }}
+            >
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                  <div style={{
+                    width: '52px',
+                    height: '52px',
+                    borderRadius: '16px',
+                    background: 'rgba(245, 158, 11, 0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'var(--color-amber, #f59e0b)'
+                  }}>
+                    <Target size={26} />
+                  </div>
+                  <span style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 800,
+                    padding: '4px 10px',
+                    borderRadius: '20px',
+                    background: 'rgba(245, 158, 11, 0.12)',
+                    color: '#f59e0b'
+                  }}>
+                    Exam Simulator
+                  </span>
+                </div>
+
+                <h3 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '8px', color: 'var(--text-primary)' }}>
+                  Prelims Mock Simulator
+                </h3>
+                <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: 1.55, marginBottom: '20px' }}>
+                  Simulate the actual UPSC Prelims battleground. Strict -0.33 negative marking, countdown timer, question palette navigation, and real-time sectional cutoff scorecards.
+                </p>
+              </div>
+
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px', 
+                fontWeight: 700, 
+                fontSize: '0.9rem', 
+                color: 'var(--color-amber, #f59e0b)' 
+              }}>
+                <span>Start Mock Test</span>
+                <ArrowRight size={16} />
+              </div>
+            </div>
+          </Link>
+
+          {/* Pillar 3: Mapping Atlas */}
+          <Link href="/atlas" style={{ textDecoration: 'none', color: 'inherit' }}>
+            <div style={{
+              background: 'var(--bg-card, rgba(15, 23, 42, 0.7))',
+              border: '1.5px solid var(--border-color, rgba(255, 255, 255, 0.08))',
+              borderRadius: '24px',
+              padding: '32px',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              transition: 'transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.06)'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)';
+              e.currentTarget.style.borderColor = '#10b981';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.borderColor = 'var(--border-color, rgba(255, 255, 255, 0.08))';
+            }}
+            >
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                  <div style={{
+                    width: '52px',
+                    height: '52px',
+                    borderRadius: '16px',
+                    background: 'rgba(16, 185, 129, 0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#10b981'
+                  }}>
+                    <Globe2 size={26} />
+                  </div>
+                  <span style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 800,
+                    padding: '4px 10px',
+                    borderRadius: '20px',
+                    background: 'rgba(16, 185, 129, 0.12)',
+                    color: '#10b981'
+                  }}>
+                    Spatial Engine
+                  </span>
+                </div>
+
+                <h3 style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '8px', color: 'var(--text-primary)' }}>
+                  Interactive Spatial Atlas
+                </h3>
+                <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: 1.55, marginBottom: '20px' }}>
+                  Master the 5–10 map-based Prelims questions every year. Interactive 2D/3D maps covering global choke-points, conflict corridors (Red Sea, Sahel), and Indian national parks.
+                </p>
+              </div>
+
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px', 
+                fontWeight: 700, 
+                fontSize: '0.9rem', 
+                color: '#10b981' 
+              }}>
+                <span>Explore Atlas Maps</span>
+                <ArrowRight size={16} />
+              </div>
+            </div>
+          </Link>
+
+        </div>
+
+        {/* SUBJECT COVERAGE MATRIX */}
+        <div style={{ marginBottom: '56px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+            <div>
+              <h2 style={{ fontSize: '1.75rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
+                Prelims Subject Deck
+              </h2>
+              <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                Complete syllabus coverage with source-faithful classification.
+              </p>
+            </div>
+            <Link 
+              href="/prelims/pyq" 
+              style={{ 
+                fontSize: '0.88rem', 
+                fontWeight: 700, 
+                color: 'var(--color-blue, #3b82f6)', 
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
               }}
             >
-              {t('home.heroSubtitle')}
-            </span>
-          </h2>
-          <p className="main-subtitle" style={{ color: 'var(--text-secondary)' }}>
-            {t('home.heroDesc')}
-          </p>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '12px', fontWeight: 500 }}>
-            This platform is currently in Beta. Features are actively being improved.
-          </p>
-        </div>
-
-        {/* Universal Search Bar with Autocomplete */}
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '32px' }}>
-          <UniversalSearchBar placeholder="Search across nodes..." />
-        </div>
-
-         {streaks.length > 0 && (
-          <div style={{ marginTop: '20px', marginBottom: '60px' }}>
-            <h3 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '24px', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '2rem' }}>🔥</span> Most Important Issues This Week
-            </h3>
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
-              gap: '24px' 
-            }}>
-              {streaks.map((streak, idx) => {
-                let parsedSummary = null;
-                if (streak.livingSummary) {
-                  try {
-                    parsedSummary = JSON.parse(streak.livingSummary);
-                  } catch (e) {
-                    console.error("Failed to parse livingSummary", e);
-                  }
-                }
-
-                const summaryObj = parsedSummary || {
-                  causes: streak.livingSummary || "Follow the developing story for causes and background context.",
-                  impact: "Check living summary to trace policy and economic impacts.",
-                  tracker: ""
-                };
-
-                const causesText = cleanSummaryText(summaryObj.causes);
-                const displayCauses = causesText.length > 120 ? (causesText.substring(0, 120) + '...') : causesText;
-                
-                const impactText = cleanSummaryText(summaryObj.impact);
-                const displayImpact = impactText.length > 120 ? (impactText.substring(0, 120) + '...') : impactText;
-
-                const displayDesc = cleanSummaryText(summaryObj.causes || summaryObj.impact || streak.livingSummary || '').substring(0, 160) + '...';
-
-                // Alternate styles based on idx
-                const styleType = idx % 3; // 0 = Causes/Impact, 1 = Tags/Description, 2 = AI Mentor Tip
-
-                // Mapped issues as tags
-                const tags = [];
-                if (streak.issues && streak.issues.length > 0) {
-                  streak.issues.forEach(iss => {
-                    if (iss.title) tags.push(iss.title.split(' ').slice(0, 2).join(' ')); // Shortened title
-                    if (iss.domain) tags.push(iss.domain);
-                    if (iss.gsPapers && iss.gsPapers.length > 0) {
-                      iss.gsPapers.forEach(p => tags.push(p));
-                    }
-                  });
-                }
-                const displayTags = [...new Set(tags)].slice(0, 3); // Unique tags, max 3
-
-                // Default fallbacks if no tags
-                if (displayTags.length === 0) {
-                  displayTags.push("GS Paper III", "Current Affairs", "Strategy");
-                }
-
-                const cardClass = `premium-streak-card ${
-                  streak.importanceScore >= 4 
-                    ? 'critical-importance' 
-                    : streak.importanceScore >= 3 
-                    ? 'high-importance' 
-                    : ''
-                }`;
-
-                // Render causes/impact card
-                if (styleType === 0) {
-                  return (
-                    <Link key={streak.id} href={`/news?streak=${streak.slug || streak.id}`} style={{ textDecoration: 'none' }}>
-                      <div className={`${cardClass} index-causes-impact`}>
-                        <div className="card-header-row">
-                          <span className="live-now-badge">
-                            <div className="live-dot" />
-                            LIVE NOW
-                          </span>
-                          {streak.importanceScore >= 4 ? (
-                            <span className="critical-badge">🔥 CRITICAL</span>
-                          ) : (
-                            <span className="priority-badge">🎯 HIGH PRIORITY</span>
-                          )}
-                          <span className="update-time">
-                            Updated {new Date(streak.updatedAt).toLocaleDateString()}
-                          </span>
-                        </div>
-
-                        <h4 className="card-title">{streak.title}</h4>
-                        <div className="card-subtitle">Neural Analysis Active...</div>
-
-                        <div className="sub-box-container">
-                          <div className="causes-sub-box">
-                            <span className="sub-box-title label-causes">CAUSES</span>
-                            <p className="sub-box-text">{displayCauses}</p>
-                          </div>
-                          <div className="impact-sub-box">
-                            <span className="sub-box-title label-impact">IMPACT</span>
-                            <p className="sub-box-text">{displayImpact}</p>
-                          </div>
-                        </div>
-
-                        <div className="card-footer-row">
-                          <span className="footer-metric">42 Neural Links</span>
-                          <span className="footer-action-link">View Node &gt;</span>
-                        </div>
-                      </div>
-                    </Link>
-                  );
-                }
-
-                // Render tags card
-                if (styleType === 1) {
-                  const aspirantsNum = 80 + (idx * 24) % 150;
-                  return (
-                    <Link key={streak.id} href={`/news?streak=${streak.slug || streak.id}`} style={{ textDecoration: 'none' }}>
-                      <div className={`${cardClass} index-tags-desc`}>
-                        <div className="card-header-row">
-                          <span className="live-now-badge">
-                            <div className="live-dot" />
-                            LIVE NOW
-                          </span>
-                          {streak.importanceScore >= 4 ? (
-                            <span className="critical-badge">🔥 CRITICAL</span>
-                          ) : (
-                            <span className="priority-badge">🎯 HIGH PRIORITY</span>
-                          )}
-                          <span className="update-time">
-                            Updated {new Date(streak.updatedAt).toLocaleDateString()}
-                          </span>
-                        </div>
-
-                        <h4 className="card-title">{streak.title}</h4>
-                        <p className="card-description">{displayDesc}</p>
-
-                        <div className="tag-pills-row">
-                          {displayTags.map((tag, tIdx) => (
-                            <span key={tIdx} className="tag-pill-capsule">{tag}</span>
-                          ))}
-                        </div>
-
-                        <div className="card-footer-row">
-                          <span className="footer-metric">{aspirantsNum} Aspirants Online</span>
-                          <span className="footer-action-link">Deep Dive &gt;</span>
-                        </div>
-                      </div>
-                    </Link>
-                  );
-                }
-
-                // Render mentor tip card
-                if (styleType === 2) {
-                  const mentorTip = getMentorTip(streak.title, summaryObj);
-                  return (
-                    <Link key={streak.id} href={`/news?streak=${streak.slug || streak.id}`} style={{ textDecoration: 'none' }}>
-                      <div className={`${cardClass} index-mentor-tip`}>
-                        <div className="card-header-row">
-                          <span className="live-now-badge">
-                            <div className="live-dot" />
-                            LIVE NOW
-                          </span>
-                          {streak.importanceScore >= 4 ? (
-                            <span className="critical-badge">🔥 CRITICAL</span>
-                          ) : (
-                            <span className="priority-badge">🎯 HIGH PRIORITY</span>
-                          )}
-                          <span className="update-time">
-                            Updated {new Date(streak.updatedAt).toLocaleDateString()}
-                          </span>
-                        </div>
-
-                        <h4 className="card-title">{streak.title}</h4>
-                        <p className="card-description">{displayDesc}</p>
-
-                        <div className="mentor-tip-box">
-                          <span className="mentor-tip-title">💡 AI MENTOR TIP</span>
-                          <p className="mentor-tip-quote">"{mentorTip}"</p>
-                        </div>
-
-                        <div className="card-footer-row">
-                          <span className="footer-metric">Node Verified ✓</span>
-                          <span className="footer-action-link">Full Analysis &gt;</span>
-                        </div>
-                      </div>
-                    </Link>
-                  );
-                }
-
-                return null;
-              })}
-            </div>
+              <span>View All 44+ Micro-Themes</span>
+              <ArrowRight size={14} />
+            </Link>
           </div>
-        )}
 
-
-        <div className="command-grid" style={{ alignItems: 'stretch' }}>
-          {commandCenters.map((center) => {
-            const isLive = center.status === 'live'
-            const isCardLinked = Boolean(isLive && center.href)
-            const Wrapper = isCardLinked ? Link : 'div'
-
-            return (
-              <Wrapper
-                key={center.id}
-                {...(isCardLinked ? { href: center.href, style: { textDecoration: 'none', color: 'inherit', display: 'flex' } } : { style: { display: 'flex' } })}
-              >
-                <div
-                  className="module-card"
-                  style={{
-                    position: 'relative',
-                    background: 'var(--bg-card)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '24px',
-                    padding: '28px 24px 24px',
-                    cursor: isCardLinked ? 'pointer' : 'default',
-                    opacity: isLive ? 1 : 0.75,
-                    overflow: 'hidden',
-                    minHeight: '320px',
-                    width: '100%',
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
+            gap: '20px' 
+          }}>
+            {SUBJECTS.map((sub, idx) => {
+              const IconComponent = sub.icon;
+              return (
+                <Link key={idx} href={sub.link} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <div style={{
+                    background: 'var(--bg-card, rgba(15, 23, 42, 0.6))',
+                    border: '1px solid var(--border-color, rgba(255, 255, 255, 0.08))',
+                    borderRadius: '18px',
+                    padding: '24px',
+                    height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
-                    boxShadow: `0 20px 40px -15px rgba(0,0,0,0.8), 0 0 25px ${center.accentColor}33, inset 0 0 20px ${center.accentColor}05`,
-                    transition: 'all 0.4s ease'
+                    justifyContent: 'space-between',
+                    transition: 'all 0.2s ease',
                   }}
-                >
-                  <div className="card-glow" style={{ background: center.gradient, filter: 'blur(60px)', opacity: 0.15 }} />
-                  <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: '4px',
-                    background: center.gradient,
-                    boxShadow: `0 0 20px ${center.accentColor}, 0 0 40px ${center.accentColor}88`
-                  }} />
-
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-start',
-                      marginBottom: '20px',
-                      position: 'relative',
-                      zIndex: 1,
-                    }}
+                  onMouseOver={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--border-hover, rgba(255, 255, 255, 0.2))';
+                    e.currentTarget.style.backgroundColor = 'var(--bg-hover, rgba(15, 23, 42, 0.85))';
+                  }}
+                  onMouseOut={(e) => {
+                    e.currentTarget.style.borderColor = 'var(--border-color, rgba(255, 255, 255, 0.08))';
+                    e.currentTarget.style.backgroundColor = 'var(--bg-card, rgba(15, 23, 42, 0.6))';
+                  }}
                   >
-                    <div
-                      style={{
-                        width: '48px',
-                        height: '48px',
-                        borderRadius: '12px',
-                        background: center.gradient,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '1.5rem',
-                        boxShadow: `0 8px 20px ${center.accentColor}33`,
-                        filter: isLive ? 'none' : 'grayscale(0.5)',
-                      }}
-                    >
-                      {center.icon}
-                    </div>
-                    <span
-                      className="stat-chip"
-                      style={{
-                        background: isLive ? `${center.accentColor}22` : 'rgba(255,255,255,0.05)',
-                        color: isLive ? center.accentColor : '#64748b',
-                        border: `1px solid ${isLive ? `${center.accentColor}44` : 'rgba(255,255,255,0.08)'}`,
-                      }}
-                    >
-                      <span
-                        style={{
-                          width: '6px',
-                          height: '6px',
-                          borderRadius: '50%',
-                          background: isLive ? '#22c55e' : '#475569',
-                          boxShadow: isLive ? '0 0 6px #22c55e' : 'none',
-                        }}
-                      />
-                      {isLive ? 'LIVE' : 'IN PIPELINE'}
-                    </span>
-                  </div>
-
-                  <div style={{ position: 'relative', zIndex: 1, minHeight: '60px', overflow: 'hidden', marginBottom: '8px' }}>
-                    <p
-                      style={{
-                        fontSize: '0.65rem',
-                        color: center.accentColor,
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        letterSpacing: '1px',
-                        margin: '0 0 4px',
-                      }}
-                    >
-                      {center.subtitle}
-                    </p>
-                    <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: '0', color: 'var(--text-primary)', letterSpacing: '-0.2px' }}>
-                      {center.title}
-                    </h3>
-                  </div>
-
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', position: 'relative', zIndex: 1, minHeight: '64px', marginBottom: '16px' }}>
-                    {center.features.map((feature) => (
-                      <span key={feature} className="feature-tag">
-                        {feature}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div style={{ marginTop: 'auto', position: 'relative', zIndex: 1 }}>
-                    <div className="mapping-primary-cta" style={{ marginBottom: '12px', padding: '8px 12px' }}>
-                      Open {center.title.split(' ')[0]} Hub
-                    </div>
-
-                    {center.stat && (
-                      <div
-                        style={{
-                          paddingTop: '16px',
-                          borderTop: '1px solid rgba(255,255,255,0.06)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                        }}
-                      >
-                        <span style={{ fontSize: '1.2rem', fontWeight: 900, color: 'var(--text-primary)' }}>{center.stat.value || 0}</span>
-                        <span
-                          style={{
-                            fontSize: '0.6rem',
-                            fontWeight: 800,
-                            color: '#64748b',
-                            textTransform: 'uppercase',
-                            letterSpacing: '1px',
-                          }}
-                        >
-                          {center.stat.label}
+                    <div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <IconComponent size={20} style={{ color: sub.badgeColor }} />
+                          <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+                            {sub.title}
+                          </h4>
+                        </div>
+                        <span style={{
+                          fontSize: '0.7rem',
+                          fontWeight: 700,
+                          padding: '3px 8px',
+                          borderRadius: '12px',
+                          background: sub.badgeBg,
+                          color: sub.badgeColor
+                        }}>
+                          {sub.badge}
                         </span>
                       </div>
-                    )}
-                  </div>
-                </div>
-              </Wrapper>
-            )
-          })}
 
+                      <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '16px' }}>
+                        {sub.description}
+                      </p>
+                    </div>
+
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                      {sub.topics.map((t, tidx) => (
+                        <span 
+                          key={tidx}
+                          style={{
+                            fontSize: '0.72rem',
+                            fontWeight: 600,
+                            padding: '2px 8px',
+                            borderRadius: '8px',
+                            background: 'var(--bg-input, rgba(255, 255, 255, 0.04))',
+                            color: 'var(--text-muted, #94a3b8)',
+                            border: '1px solid var(--border-color, rgba(255, 255, 255, 0.05))'
+                          }}
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </div>
 
+        {/* WHY PRELIMSGPT? (3 Principles) */}
+        <div style={{
+          background: 'var(--bg-card, rgba(15, 23, 42, 0.4))',
+          border: '1px solid var(--border-color, rgba(255, 255, 255, 0.06))',
+          borderRadius: '24px',
+          padding: '36px 32px',
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+          gap: '28px'
+        }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+              <CheckCircle2 size={18} style={{ color: 'var(--color-blue, #3b82f6)' }} />
+              <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>Zero Distractions</h4>
+            </div>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+              Stripped of daily news streaks, off-season Mains evaluators, and complex graphs. Strictly focused on Prelims question solving.
+            </p>
+          </div>
+
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+              <CheckCircle2 size={18} style={{ color: 'var(--color-emerald, #10b981)' }} />
+              <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>Active Recall UI</h4>
+            </div>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+              Questions are collapsed by default. Answers and explanations remain hidden until you attempt the MCQ or choose to reveal it.
+            </p>
+          </div>
+
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+              <CheckCircle2 size={18} style={{ color: 'var(--color-amber, #f59e0b)' }} />
+              <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>Study-Grade Themes</h4>
+            </div>
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+              Full support for OLED Dark Mode and warm Sepia parchment mode for sustained reading sessions without eye strain.
+            </p>
+          </div>
+        </div>
 
       </main>
 
-      <footer
-        style={{
-          position: 'relative',
-          zIndex: 10,
-          textAlign: 'center',
-          padding: '40px 20px',
-          borderTop: '1px solid rgba(255,255,255,0.04)',
-        }}
-      >
-        <p style={{ fontSize: '0.82rem', color: '#64748b', fontWeight: 600, marginBottom: '16px' }}>
-          UPSCGPT · © 2026 Stara AI PVT LTD · Built with care for serious aspirants
-        </p>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
-          <Link
-            href="/admin-login"
-            style={{
-              color: 'var(--text-muted)',
-              fontSize: '0.7rem',
-              textDecoration: 'none',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '1px',
-            }}
-          >
-            Instructor Vault
-          </Link>
-          <span style={{ color: 'var(--text-muted)' }}>•</span>
-          <Link
-            href="/sitemap.xml"
-            style={{
-              color: 'var(--text-muted)',
-              fontSize: '0.7rem',
-              textDecoration: 'none',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '1px',
-            }}
-          >
-            Sitemap
-          </Link>
-          <span style={{ color: 'var(--text-muted)' }}>•</span>
-          <span
-            style={{
-              color: 'var(--text-muted)',
-              fontSize: '0.7rem',
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '1px',
-            }}
-          >
-            Privacy Policy
+      {/* FOOTER */}
+      <footer style={{
+        maxWidth: '1200px',
+        margin: '60px auto 0',
+        padding: '32px 24px 0',
+        borderTop: '1px solid var(--border-color, rgba(255, 255, 255, 0.08))',
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: '16px'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: '1.05rem', color: 'var(--text-primary)' }}>
+            prelims<span style={{ color: 'var(--color-blue, #3b82f6)' }}>gpt</span>
           </span>
+          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+            · Built for serious UPSC CSE aspirants
+          </span>
+        </div>
+
+        <div style={{ display: 'flex', gap: '20px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+          <Link href="/prelims/pyq" style={{ color: 'inherit', textDecoration: 'none' }}>PYQ Explorer</Link>
+          <Link href="/prelims/mocks" style={{ color: 'inherit', textDecoration: 'none' }}>Mock Tests</Link>
+          <Link href="/atlas" style={{ color: 'inherit', textDecoration: 'none' }}>Atlas</Link>
+          <Link href="/sitemap.xml" style={{ color: 'inherit', textDecoration: 'none' }}>Sitemap</Link>
         </div>
       </footer>
     </div>
-  )
+  );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   Search, 
@@ -22,6 +22,23 @@ export default function PyqExplorerClient({ initialQuestions }) {
   const [selectedYear, setSelectedYear] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [sidebarTopicSearch, setSidebarTopicSearch] = useState('');
+
+  // Read URL query params on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const q = params.get('q');
+      const topic = params.get('topic');
+      if (q) {
+        setSearchQuery(q);
+        setSelectedTopic('ALL');
+        setSelectedExam('ALL');
+        setSelectedYear('ALL');
+      } else if (topic) {
+        setSelectedTopic(topic);
+      }
+    }
+  }, []);
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
