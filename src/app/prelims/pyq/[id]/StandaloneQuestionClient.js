@@ -11,6 +11,8 @@ import {
   ArrowLeft,
   Compass
 } from 'lucide-react';
+import StemView from '../StemView';
+import '../pyq-ui.css';
 
 export default function StandaloneQuestionClient({ question: q }) {
   const [userChoice, setUserChoice] = useState(null);
@@ -25,61 +27,8 @@ export default function StandaloneQuestionClient({ question: q }) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const renderFormattedStem = (stem) => {
-    if (!stem) return null;
-    const hasPairedStatements = stem.includes('Statement-I:') || stem.includes('Statement-I') || stem.includes('Statement 1:');
-    const hasNumberedList = /\n\s*[1-4]\.\s+/.test(stem);
-
-    if (hasPairedStatements || hasNumberedList) {
-      const lines = stem.split('\n').map(l => l.trim()).filter(Boolean);
-      const intro = lines[0];
-      const middleStatements = lines.slice(1, -1);
-      const conclusion = lines.length > 2 ? lines[lines.length - 1] : '';
-
-      return (
-        <div>
-          <p className="pyq-text-title" style={{ fontSize: '18px', fontWeight: '600', marginBottom: '16px', lineHeight: 1.5 }}>
-            {intro}
-          </p>
-          <div className="pyq-statement-box pyq-inset" style={{
-            borderRadius: '12px',
-            padding: '18px 24px',
-            marginBottom: '18px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px'
-          }}>
-            {middleStatements.map((stmt, idx) => (
-              <div key={idx} style={{ fontSize: '16px', lineHeight: '1.6' }}>
-                {stmt.startsWith('Statement-I:') || stmt.startsWith('Statement-II:') ? (
-                  <>
-                    <strong style={{ color: '#38bdf8', marginRight: '6px' }}>{stmt.split(':')[0]}:</strong>
-                    <span className="pyq-text-body">{stmt.substring(stmt.indexOf(':') + 1)}</span>
-                  </>
-                ) : (
-                  <span className="pyq-text-body">{stmt}</span>
-                )}
-              </div>
-            ))}
-          </div>
-          {conclusion && (
-            <p className="pyq-text-body" style={{ fontSize: '16px', fontWeight: '500', marginTop: '12px', lineHeight: 1.5 }}>
-              {conclusion}
-            </p>
-          )}
-        </div>
-      );
-    }
-
-    return (
-      <p className="pyq-text-title" style={{ fontSize: '18px', lineHeight: '1.65', whiteSpace: 'pre-line', margin: 0, fontWeight: '500' }}>
-        {stem}
-      </p>
-    );
-  };
-
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto', padding: '40px 24px 80px 24px', fontFamily: 'var(--font-outfit), system-ui, -apple-system, sans-serif' }}>
+    <div className="pq-root" style={{ maxWidth: '900px', margin: '0 auto', padding: '40px 24px 80px 24px' }}>
       
       {/* Top Navigation */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px', flexWrap: 'wrap', gap: '12px' }}>
@@ -182,7 +131,7 @@ export default function StandaloneQuestionClient({ question: q }) {
 
         {/* Question Stem */}
         <div style={{ marginBottom: '28px' }}>
-          {renderFormattedStem(q.stem)}
+          <StemView stem={q.stem} size="lg" />
         </div>
 
         {/* Options */}

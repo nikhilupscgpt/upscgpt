@@ -3,6 +3,8 @@ import PyqExplorerClient from './PyqExplorerClient';
 
 const prisma = new PrismaClient();
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = {
   title: 'PYQ Explorer — UPSC & CDS Previous Year Questions | PrelimsGPT',
   description: 'Find any previous year question, attempt it right here, and turn any topic into a timed practice test.',

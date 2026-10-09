@@ -3,9 +3,18 @@
 import React from 'react';
 
 const STATEMENT_RE = /^(Statement[\s-]*(?:I{1,3}|IV|[1-4])|I{1,3}|IV|V|VI|[1-6]|[A-D])\s*[.:)]\s*(.*)$/i;
+const PROMPT_RE = /\s+((?:Which\s+(?:one\s+of\s+the|of\s+the|pairs?|statements?|of\s+these)|How\s+many\s+of\s+the|Select\s+the\s+correct).*)$/i;
 
 function parseStem(stem) {
-  const lines = String(stem || '').split('\n').map(l => l.trim()).filter(Boolean);
+  let raw = String(stem || '').trim();
+
+  // Pre-normalization:
+  // 1. Split inline Statement-I: / Statement-II:
+  raw = raw.replace(/([.:])\s*(Statement[\s-]*(?:I{1,3}|IV|[1-4])\s*[.:])/gi, '$1\n$2');
+  // 2. Detach closing question prompts if stuck on the same line
+  raw = raw.replace(PROMPT_RE, '\n$1');
+
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
   const blocks = [];
   let i = 0;
   while (i < lines.length) {
@@ -60,7 +69,20 @@ export default function StemView({ stem, size = 'md' }) {
               {b.items.map((s, k) => (
                 <div className="pq-stmt" key={k}>
                   <span className="pq-stmt-key">{s.key}</span>
-                  <span className="pq-stmt-text">{s.text}</span>
+                  {s.text.includes(' : ') ? (
+                    (() => {
+                      const [left, ...rest] = s.text.split(' : ');
+                      return (
+                        <span className="pq-stmt-text pq-stmt-pair">
+                          <strong className="pq-pair-term">{left}</strong>
+                          <span className="pq-pair-sep"> : </span>
+                          <span className="pq-pair-val">{rest.join(' : ')}</span>
+                        </span>
+                      );
+                    })()
+                  ) : (
+                    <span className="pq-stmt-text">{s.text}</span>
+                  )}
                 </div>
               ))}
             </div>

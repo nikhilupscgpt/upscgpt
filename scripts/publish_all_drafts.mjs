@@ -47,7 +47,7 @@ async function main() {
             update: {
                 stem: draft.stem,
                 options: draft.options,
-                correctLabel: draft.correctLabel,
+                correctLabel: draft.correctLabel || 'X',
                 examName: draft.examName || 'UPSC',
                 examYear: draft.examYear,
                 questionNo: draft.questionNo,
@@ -63,7 +63,7 @@ async function main() {
                 questionNo: draft.questionNo,
                 stem: draft.stem,
                 options: draft.options,
-                correctLabel: draft.correctLabel,
+                correctLabel: draft.correctLabel || 'X',
                 subjectId,
                 topicId,
                 dedupHash: draft.dedupHash

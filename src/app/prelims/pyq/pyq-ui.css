@@ -145,6 +145,10 @@
   font-size: 11px; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; margin-top: 1px;
 }
 .pq-stmt-text { font-size: 14.5px; line-height: 1.55; }
+.pq-stmt-pair { display: inline-flex; flex-wrap: wrap; gap: 4px; align-items: baseline; }
+.pq-pair-term { font-weight: 700; color: var(--pq-ink); }
+.pq-pair-sep { color: var(--pq-muted); font-weight: 700; margin: 0 4px; }
+.pq-pair-val { color: var(--pq-sub); }
 .pq-table-wrap { overflow-x: auto; margin: 6px 0; }
 .pq-table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
 .pq-table th, .pq-table td { border: 1px solid var(--pq-line); padding: 7px 10px; text-align: left; }

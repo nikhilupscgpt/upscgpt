@@ -5,11 +5,24 @@ import StandaloneQuestionClient from './StandaloneQuestionClient';
 
 const prisma = new PrismaClient();
 
-export async function generateMetadata({ params }) {
-  const { id } = await params;
-  const decodedId = decodeURIComponent(id);
-
-  const q = await prisma.questionDraft.findFirst({
+async function findQuestion(decodedId) {
+  const published = await prisma.question.findFirst({
+    where: {
+      OR: [
+        { dedupHash: decodedId },
+        { id: decodedId }
+      ]
+    },
+    include: { subject: true, topic: true }
+  });
+  if (published) {
+    return {
+      ...published,
+      srcSubject: published.subject?.name,
+      srcTopic: published.topic?.name
+    };
+  }
+  return await prisma.questionDraft.findFirst({
     where: {
       OR: [
         { dedupHash: decodedId },
@@ -17,12 +30,19 @@ export async function generateMetadata({ params }) {
       ]
     }
   });
+}
+
+export async function generateMetadata({ params }) {
+  const { id } = await params;
+  const decodedId = decodeURIComponent(id);
+
+  const q = await findQuestion(decodedId);
 
   if (!q) {
     return { title: 'Question Not Found | UPSCGPT' };
   }
 
-  const cleanStem = q.stem.replace(/\n+/g, ' ').slice(0, 120);
+  const cleanStem = (q.stem || '').replace(/\n+/g, ' ').slice(0, 120);
   const title = `Q: ${cleanStem}... | ${q.examName} ${q.examYear} PYQ`;
   const description = `Solve this ${q.examName} (${q.examYear}) Previous Year Question on ${q.srcTopic} with verified official answer key and explanation on UPSCGPT.`;
 
@@ -47,14 +67,7 @@ export default async function StandaloneQuestionPage({ params }) {
   const { id } = await params;
   const decodedId = decodeURIComponent(id);
 
-  const q = await prisma.questionDraft.findFirst({
-    where: {
-      OR: [
-        { dedupHash: decodedId },
-        { id: decodedId }
-      ]
-    }
-  });
+  const q = await findQuestion(decodedId);
 
   if (!q) {
     notFound();
