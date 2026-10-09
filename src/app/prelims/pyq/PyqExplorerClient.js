@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { Search, Bookmark, ArrowRight, ListFilter, X } from 'lucide-react';
+import { Search, Bookmark, ArrowRight, ListFilter, X, ExternalLink } from 'lucide-react';
 import StemView from './StemView';
 import { usePyqStore } from './pyqStore';
 import { groupTopics, SUBJECT_ORDER, SUBJECT_SHORT } from './topicGroups';
@@ -478,9 +478,19 @@ function QuestionCard({ q, attempt, revealedOnly, bookmarked, onPick, onReveal, 
           <span className="pq-tag pq-tag-topic" title={q.srcTopic}>{q.srcTopic}</span>
           <span className={`pq-tag ${diff.cls}`}>{diff.label}</span>
         </div>
-        <button className={`pq-icon-btn ${bookmarked ? 'is-on' : ''}`} onClick={onBookmark} aria-label={bookmarked ? 'Remove bookmark' : 'Bookmark'} aria-pressed={bookmarked}>
-          <Bookmark size={17} fill={bookmarked ? 'currentColor' : 'none'} />
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <Link 
+            href={`/prelims/pyq/${q.dedupHash || q.id}`} 
+            className="pq-icon-btn" 
+            title="Open dedicated question view" 
+            aria-label="Open dedicated question view"
+          >
+            <ExternalLink size={15} />
+          </Link>
+          <button className={`pq-icon-btn ${bookmarked ? 'is-on' : ''}`} onClick={onBookmark} aria-label={bookmarked ? 'Remove bookmark' : 'Bookmark'} aria-pressed={bookmarked}>
+            <Bookmark size={17} fill={bookmarked ? 'currentColor' : 'none'} />
+          </button>
+        </div>
       </div>
 
       <StemView stem={q.stem} />

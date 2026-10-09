@@ -12,9 +12,15 @@ import {
   Compass
 } from 'lucide-react';
 import StemView from '../StemView';
+import PyqDeepDive from '../PyqDeepDive';
+import PyqPrecisionView from '../PyqPrecisionView';
 import '../pyq-ui.css';
 
 export default function StandaloneQuestionClient({ question: q }) {
+  if (q.analysis && q.analysis.whyCorrect) {
+    return <PyqPrecisionView question={q} />;
+  }
+
   const [userChoice, setUserChoice] = useState(null);
   const [isRevealed, setIsRevealed] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -312,6 +318,9 @@ export default function StandaloneQuestionClient({ question: q }) {
             Practice more "{q.srcTopic}" questions →
           </Link>
         </div>
+
+        {/* Lecture-Grade Micro Deep-Dive */}
+        {q.analysis && <PyqDeepDive analysis={q.analysis} />}
       </div>
 
       {/* Styled JSX theme rules */}

@@ -69,6 +69,7 @@ import { NavProvider } from '../context/NavContext'
 import Navigation from '../components/Navigation'
 import { TranslationProvider } from '../context/TranslationContext'
 import { ThemeProvider } from '../components/ThemeProvider'
+import { Contentsquare } from './contentsquare'
 
 export default function RootLayout({ children }) {
   return (
@@ -99,21 +100,8 @@ export default function RootLayout({ children }) {
           `}
         </Script>
 
-        {/* Hotjar Tracking Code */}
-        {process.env.NEXT_PUBLIC_HOTJAR_ID && (
-          <Script id="hotjar-analytics" strategy="afterInteractive">
-            {`
-              (function(h,o,t,j,a,r){
-                  h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
-                  h._hjSettings={hjid:${process.env.NEXT_PUBLIC_HOTJAR_ID},hjsv:${process.env.NEXT_PUBLIC_HOTJAR_SV || 6}};
-                  a=o.getElementsByTagName('head')[0];
-                  r=o.createElement('script');r.async=1;
-                  r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
-                  a.appendChild(r);
-              })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
-            `}
-          </Script>
-        )}
+        {/* Contentsquare (Hotjar) Tracking Tag */}
+        <Contentsquare />
 
         {/* Global SEO Schema */}
         <script

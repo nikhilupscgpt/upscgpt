@@ -1,4 +1,5 @@
 import prisma from '@/lib/prisma'
+import { generateQuestionSlug } from '@/lib/pyqSlug'
 
 export default async function sitemap() {
   const baseUrl = 'https://www.upscgpt.in'
@@ -26,9 +27,17 @@ export default async function sitemap() {
     select: { id: true, updatedAt: true }
   })
 
-  // Fetch all Questions (PYQ Archive)
-  const questions = await prisma.questionDraft.findMany({
-    select: { id: true, dedupHash: true, createdAt: true }
+  // Fetch all Published Questions (PYQ Archive)
+  const questions = await prisma.question.findMany({
+    select: { 
+      id: true, 
+      dedupHash: true, 
+      stem: true, 
+      examName: true, 
+      examYear: true, 
+      updatedAt: true,
+      createdAt: true 
+    }
   })
 
   const issueUrls = issues.map((issue) => ({
@@ -74,10 +83,10 @@ export default async function sitemap() {
   }))
 
   const pyqUrls = questions.map((q) => ({
-    url: `${baseUrl}/prelims/pyq/${encodeURIComponent(q.dedupHash || q.id)}`,
-    lastModified: q.createdAt || new Date(),
+    url: `${baseUrl}/prelims/pyq/${generateQuestionSlug(q)}`,
+    lastModified: q.updatedAt || q.createdAt || new Date(),
     changeFrequency: 'monthly',
-    priority: 0.7,
+    priority: 0.85,
   }))
 
   return [
