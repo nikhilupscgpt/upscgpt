@@ -14,6 +14,7 @@ export default async function PyqExplorerPage() {
   const drafts = await prisma.questionDraft.findMany({
     select: {
       id: true,
+      dedupHash: true,
       questionNo: true,
       examName: true,
       examYear: true,
@@ -36,6 +37,7 @@ export default async function PyqExplorerPage() {
     }
     return {
       id: q.id,
+      dedupHash: q.dedupHash,
       questionNo: q.questionNo,
       examName: q.examName || 'UPSC CSE Pre',
       examYear: q.examYear || 2025,

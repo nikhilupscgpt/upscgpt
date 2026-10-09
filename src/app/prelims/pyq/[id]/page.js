@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import Link from 'next/link';
 import StandaloneQuestionClient from './StandaloneQuestionClient';
 import { generateQuestionSlug, extractQuestionIdFromSlug } from '@/lib/pyqSlug';
@@ -92,6 +92,12 @@ export default async function StandaloneQuestionPage({ params }) {
   }
 
   const canonicalSlug = generateQuestionSlug(q);
+
+  // Automatically redirect raw IDs or old hashes to the full SEO/GEO semantic slug
+  if (decodedId !== canonicalSlug) {
+    redirect(`/prelims/pyq/${canonicalSlug}`);
+  }
+
   const canonicalUrl = `https://www.upscgpt.in/prelims/pyq/${canonicalSlug}`;
 
   // Parse options

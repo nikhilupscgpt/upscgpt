@@ -6,6 +6,7 @@ import { Search, Bookmark, ArrowRight, ListFilter, X, ExternalLink } from 'lucid
 import StemView from './StemView';
 import { usePyqStore } from './pyqStore';
 import { groupTopics, SUBJECT_ORDER, SUBJECT_SHORT } from './topicGroups';
+import { generateQuestionSlug } from '@/lib/pyqSlug';
 import './pyq-ui.css';
 
 const PAGE_SIZE = 10;
@@ -480,7 +481,7 @@ function QuestionCard({ q, attempt, revealedOnly, bookmarked, onPick, onReveal, 
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <Link 
-            href={`/prelims/pyq/${q.dedupHash || q.id}`} 
+            href={`/prelims/pyq/${generateQuestionSlug(q)}`} 
             className="pq-icon-btn" 
             title="Open dedicated question view" 
             aria-label="Open dedicated question view"
