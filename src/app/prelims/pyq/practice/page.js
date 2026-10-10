@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 export const dynamic = 'force-dynamic';
 export const metadata = {
   title: 'PYQ Practice | PrelimsGPT',
-  description: 'Timed practice from real UPSC & CDS previous year questions.',
+  description: 'Timed practice and step-by-step interactive mode from real UPSC & CDS previous year questions.',
 };
 
 function shuffle(arr) {
@@ -22,8 +22,11 @@ export default async function PracticePage({ searchParams }) {
   const sp = await searchParams;
   const get = (k) => (Array.isArray(sp?.[k]) ? sp[k][0] : sp?.[k]) || '';
 
+  const mode = get('mode') === 'practice' ? 'practice' : 'exam';
   const subject = get('subject');
+  const subjects = get('subjects').split(',').map(s => s.trim()).filter(Boolean);
   const topic = get('topic');
+  const topics = get('topics').split(',').map(s => s.trim()).filter(Boolean);
   const exam = get('exam');
   const years = get('years');
   const ids = get('ids').split(',').map(s => s.trim()).filter(Boolean);
@@ -34,8 +37,18 @@ export default async function PracticePage({ searchParams }) {
   if (ids.length) {
     where.id = { in: ids };
   } else {
-    if (subject) where.srcSubject = subject;
-    if (topic) where.srcTopic = topic;
+    if (subjects.length > 0) {
+      where.srcSubject = { in: subjects };
+    } else if (subject) {
+      where.srcSubject = subject;
+    }
+
+    if (topics.length > 0) {
+      where.srcTopic = { in: topics };
+    } else if (topic) {
+      where.srcTopic = topic;
+    }
+
     if (exam === 'UPSC CSE') where.examName = { contains: 'CSE' };
     if (exam === 'CDS') where.examName = { contains: 'CDS' };
     if (/^\d{4}-\d{4}$/.test(years)) {
@@ -67,9 +80,14 @@ export default async function PracticePage({ searchParams }) {
     explanation: q.explanation || null,
   }));
 
-  const title = ids.length
-    ? 'Custom set'
-    : [subject || 'All subjects', topic].filter(Boolean).join(' · ');
+  let title = 'Custom set';
+  if (ids.length) {
+    title = 'Selected questions';
+  } else if (subjects.length > 0) {
+    title = `${subjects.join(' + ')}${topics.length > 0 ? ` (${topics.length} topics)` : ''}`;
+  } else {
+    title = [subject || 'All subjects', topic].filter(Boolean).join(' · ');
+  }
 
   const yearsLabel = years
     ? years.replace('-', '–')
@@ -79,7 +97,8 @@ export default async function PracticePage({ searchParams }) {
   return (
     <PracticeClient
       questions={picked}
-      title={`${title} — PYQ practice`}
+      mode={mode}
+      title={`${title} — ${mode === 'practice' ? 'Practice mode' : 'Exam mode'}`}
       meta={`${examLabel} ${yearsLabel}`}
       backHref={`/prelims/pyq?${new URLSearchParams({
         ...(subject && { subject }),

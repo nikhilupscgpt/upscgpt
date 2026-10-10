@@ -2,8 +2,9 @@
 
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { Search, Bookmark, ArrowRight, ListFilter, X, ExternalLink } from 'lucide-react';
+import { Search, Bookmark, ArrowRight, ListFilter, X, ExternalLink, Sparkles, BookOpen, RotateCcw } from 'lucide-react';
 import StemView from './StemView';
+import QuizSetupModal from './QuizSetupModal';
 import { usePyqStore } from './pyqStore';
 import { groupTopics, SUBJECT_ORDER, SUBJECT_SHORT } from './topicGroups';
 import { generateQuestionSlug } from '@/lib/pyqSlug';
@@ -17,12 +18,7 @@ const YEAR_BUCKETS = [
   ['2015-2019', '2015–19'],
   ['2011-2014', '2011–14'],
 ];
-const SHOW_OPTIONS = [
-  ['ALL', 'All'],
-  ['NEW', 'Not attempted'],
-  ['WRONG', 'Wrong'],
-  ['MARKED', 'Bookmarked'],
-];
+
 const TRY_DEFAULT = ['Article 21', 'Fifth Schedule', 'Money Bill', 'Ordinance', 'Biodiversity', 'Inflation', 'Monsoon'];
 const TRY_BY_SUBJECT = {
   'Indian Polity': ['Article 17', 'Fifth Schedule', 'Money Bill', 'Leader of the Opposition', 'Citizenship'],
@@ -57,18 +53,21 @@ export default function PyqExplorerClient({ initialQuestions }) {
   const [sideQuery, setSideQuery] = useState('');
   const [page, setPage] = useState(1);
   const [practiceN, setPracticeN] = useState(20);
+  const [selectedPracticeMode, setSelectedPracticeMode] = useState('practice'); // 'practice' | 'exam'
+  const [quizModalOpen, setQuizModalOpen] = useState(false);
   const [revealed, setRevealed] = useState({});
   const [topicsOpen, setTopicsOpen] = useState(false);
   const [urlReady, setUrlReady] = useState(false);
   const searchRef = useRef(null);
   const feedTopRef = useRef(null);
 
-  const { attempts, bookmarks, recordAttempt, clearAttempt, toggleBookmark } = usePyqStore();
+  const { attempts, bookmarks, mistakes, recordAttempt, clearAttempt, toggleBookmark } = usePyqStore();
 
   /* ---- URL <-> state ---- */
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);
     const q = p.get('q');
+    const s = p.get('show');
     if (q) {
       setQuery(q);
     } else {
@@ -77,22 +76,25 @@ export default function PyqExplorerClient({ initialQuestions }) {
       if (p.get('exam')) setExam(p.get('exam'));
       if (p.get('year')) setYears(p.get('year'));
     }
+    if (s) setShow(s);
     setUrlReady(true);
   }, []);
 
   useEffect(() => {
     if (!urlReady) return;
     const p = new URLSearchParams();
-    if (query.trim()) p.set('q', query.trim());
-    else {
+    if (query.trim()) {
+      p.set('q', query.trim());
+    } else {
       if (subject !== 'ALL') p.set('subject', subject);
       if (topic !== 'ALL') p.set('topic', topic);
       if (exam !== 'ALL') p.set('exam', exam);
       if (years !== 'ALL') p.set('year', years);
+      if (show !== 'ALL') p.set('show', show);
     }
     const qs = p.toString();
     window.history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
-  }, [urlReady, query, subject, topic, exam, years]);
+  }, [urlReady, query, subject, topic, exam, years, show]);
 
   /* ⌘K / Ctrl+K focuses search */
   useEffect(() => {
@@ -121,6 +123,16 @@ export default function PyqExplorerClient({ initialQuestions }) {
   }, [initialQuestions]);
 
   const searching = query.trim().length > 0;
+
+  const mistakeCount = Object.keys(mistakes).length;
+
+  const showOptions = useMemo(() => [
+    ['ALL', 'All'],
+    ['NEW', 'Not attempted'],
+    ['WRONG', 'Wrong'],
+    ['MISTAKES', `Notebook (${mistakeCount})`],
+    ['MARKED', 'Bookmarked'],
+  ], [mistakeCount]);
 
   // Everything except the "Show" filter — used for the review counters
   const scope = useMemo(() => {
@@ -159,10 +171,11 @@ export default function PyqExplorerClient({ initialQuestions }) {
       const a = attempts[q.id];
       if (show === 'NEW') return !a;
       if (show === 'WRONG') return a && !a.ok;
+      if (show === 'MISTAKES') return !!mistakes[q.id];
       if (show === 'MARKED') return !!bookmarks[q.id];
       return true;
     });
-  }, [scope, show, attempts, bookmarks]);
+  }, [scope, show, attempts, mistakes, bookmarks]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const pageItems = useMemo(
@@ -236,6 +249,7 @@ export default function PyqExplorerClient({ initialQuestions }) {
   const practiceHref = useMemo(() => {
     const p = new URLSearchParams();
     p.set('n', String(practiceN));
+    p.set('mode', selectedPracticeMode);
     if (show !== 'ALL' || searching) {
       p.set('ids', filtered.slice(0, 60).map(q => q.id).join(','));
     } else {
@@ -245,7 +259,7 @@ export default function PyqExplorerClient({ initialQuestions }) {
       if (years !== 'ALL') p.set('years', years);
     }
     return `/prelims/pyq/practice?${p.toString()}`;
-  }, [practiceN, show, searching, filtered, subject, topic, exam, years]);
+  }, [practiceN, selectedPracticeMode, show, searching, filtered, subject, topic, exam, years]);
 
   const scopeLabel = searching
     ? `“${query.trim()}”`
@@ -257,10 +271,22 @@ export default function PyqExplorerClient({ initialQuestions }) {
     <div className="pq-root">
       <div className="pq-page">
         {/* ---------- Hero ---------- */}
-        <div className="pq-eyebrow">
-          Prelims · {subject === 'ALL' ? 'All subjects' : subject} · CSE &amp; CDS {yearRange.min}–{yearRange.max}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12 }}>
+          <div>
+            <div className="pq-eyebrow">
+              Prelims · {subject === 'ALL' ? 'All subjects' : subject} · CSE &amp; CDS {yearRange.min}–{yearRange.max}
+            </div>
+            <h1 className="pq-h1">Find any PYQ. <em>Attempt it right here.</em></h1>
+          </div>
+
+          <button
+            className="pq-btn pq-btn-primary"
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 18px', fontWeight: 800, fontSize: 13.5 }}
+            onClick={() => setQuizModalOpen(true)}
+          >
+            <Sparkles size={16} /> Custom Quiz Builder
+          </button>
         </div>
-        <h1 className="pq-h1">Find any PYQ. <em>Attempt it right here.</em></h1>
 
         <div className="pq-search">
           <Search size={18} />
@@ -359,7 +385,7 @@ export default function PyqExplorerClient({ initialQuestions }) {
               <div className="pq-fgroup">
                 <span className="pq-flabel">Show</span>
                 <div className="pq-seg">
-                  {SHOW_OPTIONS.map(([v, l]) => (
+                  {showOptions.map(([v, l]) => (
                     <button key={v} className={show === v ? 'is-active' : ''} onClick={() => { setShow(v); resetPage(); }}>{l}</button>
                   ))}
                 </div>
@@ -375,7 +401,7 @@ export default function PyqExplorerClient({ initialQuestions }) {
               <div className="pq-card pq-empty">
                 <h3>No questions match</h3>
                 <p>Try a different topic, widen the years, or clear the search.</p>
-                <button className="pq-btn" onClick={() => { onSearch(''); pickSubject('ALL'); setExam('ALL'); setYears('ALL'); }}>Reset filters</button>
+                <button className="pq-btn" onClick={() => { onSearch(''); pickSubject('ALL'); setExam('ALL'); setYears('ALL'); setShow('ALL'); }}>Reset filters</button>
               </div>
             ) : (
               pageItems.map(q => (
@@ -404,23 +430,94 @@ export default function PyqExplorerClient({ initialQuestions }) {
 
           {/* Right rail */}
           <aside className="pq-rail">
+            {/* Mistake Notebook Panel */}
+            <div className="pq-notebook-panel">
+              <div className="pq-nb-head">
+                <span className="pq-nb-badge"><BookOpen size={13} /> Mistake Notebook</span>
+                <span className="pq-nb-count">{mistakeCount} Qs</span>
+              </div>
+              <p className="pq-nb-desc">
+                {mistakeCount > 0
+                  ? `${mistakeCount} question${mistakeCount === 1 ? '' : 's'} saved for revision. They stay here until you get them right in a smart test.`
+                  : 'Zero active mistakes! Incorrect answers in tests & quizzes automatically accumulate here for revision.'}
+              </p>
+              <div className="pq-nb-btns">
+                {mistakeCount > 0 ? (
+                  <>
+                    <Link
+                      href={`/prelims/pyq/practice?ids=${Object.keys(mistakes).slice(0, 50).join(',')}&mode=practice`}
+                      className="pq-go"
+                      style={{ textDecoration: 'none' }}
+                    >
+                      <RotateCcw size={14} /> Revise {Math.min(50, mistakeCount)} Mistakes
+                    </Link>
+                    <button
+                      className={`pq-btn ${show === 'MISTAKES' ? 'pq-btn-primary' : ''}`}
+                      onClick={() => { setShow(show === 'MISTAKES' ? 'ALL' : 'MISTAKES'); resetPage(); }}
+                    >
+                      {show === 'MISTAKES' ? 'Viewing Notebook' : 'Filter in Explorer'}
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    className="pq-btn"
+                    onClick={() => { setShow('MISTAKES'); resetPage(); }}
+                  >
+                    Open Notebook
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Timed / Interactive Test Launcher */}
             <div className="pq-practice">
-              <div className="pq-practice-k">PRACTICE MODE</div>
-              <h3>Turn these {filtered.length} questions into a timed test</h3>
-              <p>One question at a time, real UPSC marking (+2 / −⅓) and a full review at the end. Pick a set size:</p>
+              <div className="pq-practice-k">TEST BUILDER</div>
+              <h3>Turn {filtered.length} questions into a test</h3>
+
+              {/* Mode Toggle */}
+              <div style={{ display: 'flex', gap: 6, margin: '8px 0 10px' }}>
+                <button
+                  type="button"
+                  className={`pq-chip-btn ${selectedPracticeMode === 'practice' ? 'is-active' : ''}`}
+                  style={{ flex: 1, padding: '5px 0', fontSize: 11, textAlign: 'center', background: selectedPracticeMode === 'practice' ? 'var(--pq-ok)' : 'var(--pq-navy-2)', color: '#fff', borderColor: 'transparent' }}
+                  onClick={() => setSelectedPracticeMode('practice')}
+                >
+                  🟢 Practice Mode
+                </button>
+                <button
+                  type="button"
+                  className={`pq-chip-btn ${selectedPracticeMode === 'exam' ? 'is-active' : ''}`}
+                  style={{ flex: 1, padding: '5px 0', fontSize: 11, textAlign: 'center', background: selectedPracticeMode === 'exam' ? '#2563eb' : 'var(--pq-navy-2)', color: '#fff', borderColor: 'transparent' }}
+                  onClick={() => setSelectedPracticeMode('exam')}
+                >
+                  🔵 Exam Mode
+                </button>
+              </div>
+
               <div className="pq-nseg">
                 {PRACTICE_SIZES.map(n => (
                   <button key={n} className={practiceN === n ? 'is-active' : ''} onClick={() => setPracticeN(n)}>{n} Qs</button>
                 ))}
               </div>
+
               <Link href={practiceHref} className={`pq-go ${filtered.length === 0 ? 'is-disabled' : ''}`}>
-                Start practice <ArrowRight size={15} />
+                Start {selectedPracticeMode === 'practice' ? 'practice' : 'exam'} <ArrowRight size={15} />
               </Link>
               <p style={{ margin: '9px 0 0', textAlign: 'center' }}>
                 {practiceCount} question{practiceCount === 1 ? '' : 's'} · ~{practiceMinutes} min
               </p>
+
+              <button
+                className="pq-btn"
+                style={{ width: '100%', marginTop: 10, fontSize: 12, fontWeight: 700, background: 'var(--pq-navy-2)', color: '#c9d2ee', borderColor: 'rgba(255,255,255,0.1)' }}
+                onClick={() => setQuizModalOpen(true)}
+              >
+                <Sparkles size={13} style={{ marginRight: 5, verticalAlign: -2 }} />
+                Custom Quiz Builder...
+              </button>
             </div>
 
+            {/* Session Stats */}
             <div className="pq-card pq-panel">
               <h4>This session</h4>
               <div className="pq-stats">
@@ -432,11 +529,16 @@ export default function PyqExplorerClient({ initialQuestions }) {
               <small>{attemptStats.viewDone} of {filtered.length} in this view attempted</small>
             </div>
 
+            {/* Review shortcuts */}
             <div className="pq-card pq-panel">
               <h4>Review</h4>
               <button className={`pq-review-row ${show === 'WRONG' ? 'is-active' : ''}`} onClick={() => { setShow(show === 'WRONG' ? 'ALL' : 'WRONG'); resetPage(); }}>
                 <span><i className="pq-dot" style={{ background: 'var(--pq-bad)' }} />Got wrong</span>
                 <span className="pq-review-n">{reviewCounts.wrong}</span>
+              </button>
+              <button className={`pq-review-row ${show === 'MISTAKES' ? 'is-active' : ''}`} onClick={() => { setShow(show === 'MISTAKES' ? 'ALL' : 'MISTAKES'); resetPage(); }}>
+                <span><i className="pq-dot" style={{ background: 'var(--pq-gold)' }} />Mistake notebook</span>
+                <span className="pq-review-n">{mistakeCount}</span>
               </button>
               <button className={`pq-review-row ${show === 'MARKED' ? 'is-active' : ''}`} onClick={() => { setShow(show === 'MARKED' ? 'ALL' : 'MARKED'); resetPage(); }}>
                 <span><i className="pq-dot" style={{ background: 'var(--pq-accent)' }} />Bookmarked</span>
@@ -456,6 +558,13 @@ export default function PyqExplorerClient({ initialQuestions }) {
         <span>{filtered.length} questions · {practiceCount} in a test</span>
         <Link href={practiceHref} className={`pq-go ${filtered.length === 0 ? 'is-disabled' : ''}`}>Practice <ArrowRight size={14} /></Link>
       </div>
+
+      {/* Custom Quiz Modal */}
+      <QuizSetupModal
+        isOpen={quizModalOpen}
+        onClose={() => setQuizModalOpen(false)}
+        questions={initialQuestions}
+      />
     </div>
   );
 }
