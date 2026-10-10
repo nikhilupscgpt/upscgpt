@@ -2,16 +2,26 @@
 
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
-import { Search, Bookmark, ArrowRight, ListFilter, X, ExternalLink, Sparkles, BookOpen, RotateCcw } from 'lucide-react';
+import {
+  Search,
+  Bookmark,
+  ArrowRight,
+  ArrowLeft,
+  X,
+  ExternalLink,
+  Sparkles,
+  BookOpen,
+  Play,
+  RotateCcw,
+} from 'lucide-react';
 import StemView from './StemView';
 import QuizSetupModal from './QuizSetupModal';
 import { usePyqStore } from './pyqStore';
-import { groupTopics, SUBJECT_ORDER, SUBJECT_SHORT } from './topicGroups';
+import { SUBJECT_ORDER, SUBJECT_SHORT } from './topicGroups';
 import { generateQuestionSlug } from '@/lib/pyqSlug';
 import './pyq-ui.css';
 
 const PAGE_SIZE = 10;
-const PRACTICE_SIZES = [10, 20, 30];
 const YEAR_BUCKETS = [
   ['ALL', 'All'],
   ['2020-2026', '2020–26'],
@@ -19,14 +29,17 @@ const YEAR_BUCKETS = [
   ['2011-2014', '2011–14'],
 ];
 
-const TRY_DEFAULT = ['Article 21', 'Fifth Schedule', 'Money Bill', 'Ordinance', 'Biodiversity', 'Inflation', 'Monsoon'];
-const TRY_BY_SUBJECT = {
-  'Indian Polity': ['Article 17', 'Fifth Schedule', 'Money Bill', 'Leader of the Opposition', 'Citizenship'],
-  Economy: ['Repo rate', 'GST', 'Fiscal deficit', 'RBI', 'WTO'],
-  Geography: ['Monsoon', 'Tropic of Cancer', 'Western Ghats', 'Ocean currents', 'Soils'],
-  Environment: ['Ramsar', 'Biosphere reserve', 'Wildlife Protection Act', 'IUCN', 'Carbon credit'],
-  'Science & Technology': ['Vaccine', 'ISRO', 'CRISPR', 'Nuclear', 'Quantum'],
-  'Modern History': ['Non-Cooperation', 'Cabinet Mission', 'Revolt of 1857', 'Gandhi', 'Congress'],
+const SUBJECT_META = {
+  'Indian Polity': { icon: '🏛️', color: '#3b82f6' },
+  'Economy': { icon: '📈', color: '#10b981' },
+  'Geography': { icon: '🌍', color: '#06b6d4' },
+  'Environment': { icon: '🌿', color: '#22c55e' },
+  'Science & Technology': { icon: '🔬', color: '#8b5cf6' },
+  'Modern History': { icon: '📜', color: '#f59e0b' },
+  'Ancient History': { icon: '🏺', color: '#d97706' },
+  'Medieval History': { icon: '🏰', color: '#b45309' },
+  'Art & Culture': { icon: '🎨', color: '#ec4899' },
+  'Agriculture': { icon: '🌾', color: '#84cc16' },
 };
 
 function inBucket(year, bucket) {
@@ -50,13 +63,9 @@ export default function PyqExplorerClient({ initialQuestions }) {
   const [years, setYears] = useState('ALL');
   const [show, setShow] = useState('ALL');
   const [query, setQuery] = useState('');
-  const [sideQuery, setSideQuery] = useState('');
   const [page, setPage] = useState(1);
-  const [practiceN, setPracticeN] = useState(20);
-  const [selectedPracticeMode, setSelectedPracticeMode] = useState('practice'); // 'practice' | 'exam'
   const [quizModalOpen, setQuizModalOpen] = useState(false);
   const [revealed, setRevealed] = useState({});
-  const [topicsOpen, setTopicsOpen] = useState(false);
   const [urlReady, setUrlReady] = useState(false);
   const searchRef = useRef(null);
   const feedTopRef = useRef(null);
@@ -109,21 +118,38 @@ export default function PyqExplorerClient({ initialQuestions }) {
   }, []);
 
   /* ---- Derived data ---- */
-  const yearRange = useMemo(() => {
-    const ys = initialQuestions.map(q => q.examYear).filter(Boolean);
-    return ys.length ? { min: Math.min(...ys), max: Math.max(...ys) } : { min: 2011, max: 2025 };
-  }, [initialQuestions]);
+  const subjectStats = useMemo(() => {
+    const map = new Map();
+    for (const q of initialQuestions) {
+      if (!map.has(q.srcSubject)) {
+        map.set(q.srcSubject, { count: 0, topics: new Map() });
+      }
+      const entry = map.get(q.srcSubject);
+      entry.count++;
+      if (q.srcTopic) {
+        entry.topics.set(q.srcTopic, (entry.topics.get(q.srcTopic) || 0) + 1);
+      }
+    }
 
-  const subjectCounts = useMemo(() => {
-    const m = new Map();
-    for (const q of initialQuestions) m.set(q.srcSubject, (m.get(q.srcSubject) || 0) + 1);
-    const known = SUBJECT_ORDER.filter(s => m.has(s)).map(s => [s, m.get(s)]);
-    const extra = [...m.entries()].filter(([s]) => !SUBJECT_ORDER.includes(s));
-    return [...known, ...extra];
+    const order = SUBJECT_ORDER.filter(s => map.has(s));
+    const extra = [...map.keys()].filter(s => !SUBJECT_ORDER.includes(s));
+    return [...order, ...extra].map(s => {
+      const data = map.get(s);
+      const topTopics = [...data.topics.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 4)
+        .map(([t]) => t);
+      return {
+        name: s,
+        short: SUBJECT_SHORT[s] || s,
+        count: data.count,
+        topTopics,
+        meta: SUBJECT_META[s] || { icon: '📚', color: '#64748b' },
+      };
+    });
   }, [initialQuestions]);
 
   const searching = query.trim().length > 0;
-
   const mistakeCount = Object.keys(mistakes).length;
 
   const showOptions = useMemo(() => [
@@ -134,7 +160,7 @@ export default function PyqExplorerClient({ initialQuestions }) {
     ['MARKED', 'Bookmarked'],
   ], [mistakeCount]);
 
-  // Everything except the "Show" filter — used for the review counters
+  // Questions matching active subject & search
   const scope = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return initialQuestions.filter(q => {
@@ -154,17 +180,6 @@ export default function PyqExplorerClient({ initialQuestions }) {
     });
   }, [initialQuestions, query, subject, topic, exam, years]);
 
-  const reviewCounts = useMemo(() => {
-    let wrong = 0, marked = 0, fresh = 0;
-    for (const q of scope) {
-      const a = attempts[q.id];
-      if (!a) fresh++;
-      else if (!a.ok) wrong++;
-      if (bookmarks[q.id]) marked++;
-    }
-    return { wrong, marked, fresh };
-  }, [scope, attempts, bookmarks]);
-
   const filtered = useMemo(() => {
     if (show === 'ALL') return scope;
     return scope.filter(q => {
@@ -183,47 +198,53 @@ export default function PyqExplorerClient({ initialQuestions }) {
     [filtered, page]
   );
 
-  // Sidebar: topics of the subject (grouped), or the subject list when "All"
-  const topicCounts = useMemo(() => {
+  // Topics for the active subject dropdown
+  const activeSubjectTopics = useMemo(() => {
+    if (subject === 'ALL') return [];
     const m = new Map();
     for (const q of initialQuestions) {
-      if (subject !== 'ALL' && q.srcSubject !== subject) continue;
-      m.set(q.srcTopic, (m.get(q.srcTopic) || 0) + 1);
+      if (q.srcSubject === subject && q.srcTopic) {
+        m.set(q.srcTopic, (m.get(q.srcTopic) || 0) + 1);
+      }
     }
     return [...m.entries()].sort((a, b) => b[1] - a[1]);
   }, [initialQuestions, subject]);
 
-  const sideGroups = useMemo(() => {
-    const needle = sideQuery.trim().toLowerCase();
-    if (subject === 'ALL') {
-      const items = subjectCounts.filter(([n]) => !needle || n.toLowerCase().includes(needle));
-      return [{ label: null, items }];
-    }
-    const items = topicCounts.filter(([n]) => !needle || n.toLowerCase().includes(needle));
-    return groupTopics(subject, items);
-  }, [subject, subjectCounts, topicCounts, sideQuery]);
-
-  const attemptStats = useMemo(() => {
-    const ids = new Set(initialQuestions.map(q => q.id));
-    let done = 0, ok = 0;
-    for (const [id, a] of Object.entries(attempts)) {
-      if (!ids.has(id)) continue;
-      done++;
-      if (a.ok) ok++;
-    }
-    const viewDone = filtered.filter(q => attempts[q.id]).length;
-    return { done, ok, acc: done ? Math.round((ok / done) * 100) : 0, viewDone };
-  }, [attempts, initialQuestions, filtered]);
+  const activeSubjectMistakesCount = useMemo(() => {
+    if (subject === 'ALL') return mistakeCount;
+    return initialQuestions.filter(q => q.srcSubject === subject && mistakes[q.id]).length;
+  }, [initialQuestions, subject, mistakes, mistakeCount]);
 
   /* ---- Handlers ---- */
   const resetPage = () => setPage(1);
-  const pickSubject = (s) => { setSubject(s); setTopic('ALL'); setSideQuery(''); setShow('ALL'); setQuery(''); resetPage(); };
-  const pickTopic = (t) => { setTopic(t); setShow('ALL'); resetPage(); setTopicsOpen(false); };
-  const onSearch = (v) => {
-    setQuery(v);
-    if (v.trim()) { setSubject('ALL'); setTopic('ALL'); setExam('ALL'); setYears('ALL'); setShow('ALL'); }
+
+  const selectSubject = (s) => {
+    setSubject(s);
+    setTopic('ALL');
+    setShow('ALL');
+    setQuery('');
     resetPage();
   };
+
+  const backToAllSubjects = () => {
+    setSubject('ALL');
+    setTopic('ALL');
+    setShow('ALL');
+    setQuery('');
+    resetPage();
+  };
+
+  const onSearch = (v) => {
+    setQuery(v);
+    if (v.trim()) {
+      setTopic('ALL');
+      setExam('ALL');
+      setYears('ALL');
+      setShow('ALL');
+    }
+    resetPage();
+  };
+
   const goPage = (n) => {
     setPage(n);
     feedTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -243,323 +264,256 @@ export default function PyqExplorerClient({ initialQuestions }) {
     setRevealed(r => { const n = { ...r }; delete n[q.id]; return n; });
   };
 
-  /* ---- Practice link ---- */
-  const practiceCount = Math.min(practiceN, filtered.length);
-  const practiceMinutes = Math.max(1, Math.ceil(practiceCount * 1.2));
-  const practiceHref = useMemo(() => {
+  /* URL for instant practice mode */
+  const practiceUrl = useMemo(() => {
     const p = new URLSearchParams();
-    p.set('n', String(practiceN));
-    p.set('mode', selectedPracticeMode);
-    if (show !== 'ALL' || searching) {
-      p.set('ids', filtered.slice(0, 60).map(q => q.id).join(','));
-    } else {
-      if (subject !== 'ALL') p.set('subject', subject);
-      if (topic !== 'ALL') p.set('topic', topic);
-      if (exam !== 'ALL') p.set('exam', exam);
-      if (years !== 'ALL') p.set('years', years);
-    }
+    p.set('mode', 'practice');
+    p.set('n', '20');
+    if (subject !== 'ALL') p.set('subject', subject);
+    if (topic !== 'ALL') p.set('topic', topic);
+    if (exam !== 'ALL') p.set('exam', exam);
+    if (years !== 'ALL') p.set('years', years);
     return `/prelims/pyq/practice?${p.toString()}`;
-  }, [practiceN, selectedPracticeMode, show, searching, filtered, subject, topic, exam, years]);
+  }, [subject, topic, exam, years]);
 
-  const scopeLabel = searching
-    ? `“${query.trim()}”`
-    : topic !== 'ALL' ? topic : subject !== 'ALL' ? subject : 'all subjects';
+  // =========================================================================
+  // VIEW 1: SUBJECT HUB (When no subject is picked and not searching)
+  // =========================================================================
+  if (subject === 'ALL' && !searching) {
+    return (
+      <div className="pq-root">
+        <div className="pq-hub-shell">
+          <header className="pq-hub-header">
+            <div className="pq-hub-badge">
+              <Sparkles size={13} /> Prelims PYQ Explorer · CSE &amp; CDS 2011–2026
+            </div>
+            <h1 className="pq-hub-title">Select a Subject to Practice</h1>
+            <p className="pq-hub-sub">
+              2,528 authentic UPSC questions organized topic-by-topic. Pick a subject to study distraction-free, or build a customized test.
+            </p>
 
-  const tryChips = TRY_BY_SUBJECT[subject] || TRY_DEFAULT;
+            <div className="pq-hub-toolbar">
+              <div className="pq-search" style={{ flex: 1, maxWidth: 520, margin: 0 }}>
+                <Search size={18} />
+                <input
+                  ref={searchRef}
+                  value={query}
+                  onChange={e => onSearch(e.target.value)}
+                  placeholder="Search any keyword or article — e.g. Article 21, Money Bill, Ramsar"
+                  aria-label="Search previous year questions"
+                />
+              </div>
+
+              <button
+                className="pq-btn pq-btn-primary"
+                style={{ fontWeight: 800, padding: '11px 18px', display: 'inline-flex', alignItems: 'center', gap: 7 }}
+                onClick={() => setQuizModalOpen(true)}
+              >
+                <Sparkles size={15} /> Custom Quiz Builder
+              </button>
+
+              {mistakeCount > 0 && (
+                <Link
+                  href={`/prelims/pyq/practice?ids=${Object.keys(mistakes).slice(0, 50).join(',')}&mode=practice`}
+                  className="pq-btn"
+                  style={{ textDecoration: 'none', fontWeight: 800, padding: '11px 18px', display: 'inline-flex', alignItems: 'center', gap: 7, borderColor: 'var(--pq-gold)', color: 'var(--pq-gold)' }}
+                >
+                  <RotateCcw size={15} /> Revise {mistakeCount} Mistakes
+                </Link>
+              )}
+            </div>
+          </header>
+
+          {/* Subject Cards Grid */}
+          <div className="pq-hub-grid">
+            {subjectStats.map(s => (
+              <div key={s.name} className="pq-subject-card">
+                <div className="pq-sc-top">
+                  <div className="pq-sc-info">
+                    <h2 className="pq-sc-name">{s.name}</h2>
+                    <span className="pq-sc-count">{s.count} Previous Year Questions</span>
+                  </div>
+                  <span className="pq-sc-icon" aria-hidden="true">{s.meta.icon}</span>
+                </div>
+
+                <div className="pq-sc-topics">
+                  {s.topTopics.map(t => (
+                    <span key={t} className="pq-sc-topic-chip">{t}</span>
+                  ))}
+                </div>
+
+                <div className="pq-sc-actions">
+                  <button
+                    className="pq-sc-btn"
+                    onClick={() => selectSubject(s.name)}
+                  >
+                    Browse Questions
+                  </button>
+                  <Link
+                    href={`/prelims/pyq/practice?subject=${encodeURIComponent(s.name)}&mode=practice&n=20`}
+                    className="pq-sc-btn pq-sc-btn-primary"
+                  >
+                    <Play size={13} fill="currentColor" /> Practice (1 by 1)
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <QuizSetupModal
+          isOpen={quizModalOpen}
+          onClose={() => setQuizModalOpen(false)}
+          questions={initialQuestions}
+        />
+      </div>
+    );
+  }
+
+  // =========================================================================
+  // VIEW 2: FOCUSED SUBJECT VIEW (Simple, clutter-free single column!)
+  // =========================================================================
+  const subjectMeta = SUBJECT_META[subject] || { icon: '📚', color: '#64748b' };
+  const totalSubjectQs = initialQuestions.filter(q => q.srcSubject === subject).length;
 
   return (
     <div className="pq-root">
-      <div className="pq-page">
-        {/* ---------- Hero ---------- */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 12 }}>
-          <div>
-            <div className="pq-eyebrow">
-              Prelims · {subject === 'ALL' ? 'All subjects' : subject} · CSE &amp; CDS {yearRange.min}–{yearRange.max}
-            </div>
-            <h1 className="pq-h1">Find any PYQ. <em>Attempt it right here.</em></h1>
+      <div className="pq-focus-shell">
+        {/* Header */}
+        <div className="pq-focus-head">
+          <div className="pq-focus-top">
+            <button className="pq-back-btn" onClick={backToAllSubjects}>
+              <ArrowLeft size={14} /> Back to All Subjects
+            </button>
+            <span className="pq-focus-meta">UPSC CSE &amp; CDS 2011–2026</span>
           </div>
 
-          <button
-            className="pq-btn pq-btn-primary"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 18px', fontWeight: 800, fontSize: 13.5 }}
-            onClick={() => setQuizModalOpen(true)}
-          >
-            <Sparkles size={16} /> Custom Quiz Builder
-          </button>
-        </div>
-
-        <div className="pq-search">
-          <Search size={18} />
-          <input
-            ref={searchRef}
-            value={query}
-            onChange={e => onSearch(e.target.value)}
-            placeholder="Search a keyword, article or topic — e.g. citizenship, Article 17, Fifth Schedule"
-            aria-label="Search previous year questions"
-          />
-          {query && (
-            <button className="pq-search-clear" onClick={() => onSearch('')} aria-label="Clear search"><X size={14} /></button>
-          )}
-        </div>
-
-        <div className="pq-try">
-          <span>Try:</span>
-          {tryChips.map(t => (
-            <button key={t} className="pq-chip-btn" onClick={() => onSearch(t)}>{t}</button>
-          ))}
-        </div>
-
-        <div className="pq-subjects" role="tablist" aria-label="Subjects">
-          <button className={`pq-pill ${subject === 'ALL' && !searching ? 'is-active' : ''}`} onClick={() => pickSubject('ALL')}>
-            All<small>{initialQuestions.length}</small>
-          </button>
-          {subjectCounts.map(([s, n]) => (
-            <button key={s} className={`pq-pill ${subject === s && !searching ? 'is-active' : ''}`} onClick={() => pickSubject(s)}>
-              {SUBJECT_SHORT[s] || s}<small>{n}</small>
-            </button>
-          ))}
-        </div>
-
-        {/* ---------- 3-column workspace ---------- */}
-        <div className="pq-grid">
-          {/* Sidebar */}
-          <aside className={`pq-card pq-side ${topicsOpen ? 'is-open' : ''}`}>
-            <div className="pq-side-head">
-              <span className="pq-side-title">{subject === 'ALL' ? 'Subjects' : 'Topics'}</span>
-              <span className="pq-side-count">
-                {subject === 'ALL' ? subjectCounts.length : topicCounts.length} {subject === 'ALL' ? 'subjects' : 'topics'}
+          <div className="pq-focus-title-row">
+            <div>
+              <h1 className="pq-focus-title">
+                <span>{subjectMeta.icon}</span>
+                {searching ? `Search: “${query}”` : subject}
+              </h1>
+              <span style={{ fontSize: 13, color: 'var(--pq-muted)', fontWeight: 600, display: 'block', marginTop: 4 }}>
+                {filtered.length} questions {topic !== 'ALL' ? `· Topic: ${topic}` : ''}
               </span>
             </div>
-            <div className="pq-side-filter">
-              <input value={sideQuery} onChange={e => setSideQuery(e.target.value)} placeholder="Filter topics…" aria-label="Filter topics" />
-            </div>
-            <div className="pq-side-scroll">
-              {subject !== 'ALL' && (
-                <button className={`pq-topic is-all ${topic === 'ALL' ? 'is-active' : ''}`} onClick={() => pickTopic('ALL')}>
-                  <span className="pq-topic-name">All {SUBJECT_SHORT[subject] || subject} topics</span>
-                  <span className="pq-topic-n">{initialQuestions.filter(q => q.srcSubject === subject).length}</span>
-                </button>
-              )}
-              {sideGroups.map((g, gi) => (
-                <div key={gi}>
-                  {g.label && <div className="pq-group-label">{g.label}</div>}
-                  {g.items.map(([name, n]) => (
-                    <button
-                      key={name}
-                      className={`pq-topic ${subject !== 'ALL' && topic === name ? 'is-active' : ''}`}
-                      onClick={() => (subject === 'ALL' ? pickSubject(name) : pickTopic(name))}
-                      title={name}
-                    >
-                      <span className="pq-topic-name">{name}</span>
-                      <span className="pq-topic-n">{n}</span>
-                    </button>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </aside>
 
-          {/* Feed */}
-          <main ref={feedTopRef} style={{ scrollMarginTop: 80 }}>
-            <div className="pq-card pq-filters">
-              <button className="pq-chip-btn pq-topics-toggle" onClick={() => setTopicsOpen(o => !o)}>
-                <ListFilter size={13} /> {topic === 'ALL' ? 'All topics' : topic}
-              </button>
-              <div className="pq-fgroup">
-                <span className="pq-flabel">Exam</span>
-                <div className="pq-seg">
-                  {[['ALL', 'All'], ['UPSC CSE', 'UPSC CSE'], ['CDS', 'CDS']].map(([v, l]) => (
-                    <button key={v} className={exam === v ? 'is-active' : ''} onClick={() => { setExam(v); resetPage(); }}>{l}</button>
-                  ))}
-                </div>
-              </div>
-              <div className="pq-fgroup">
-                <span className="pq-flabel">Years</span>
-                <div className="pq-seg">
-                  {YEAR_BUCKETS.map(([v, l]) => (
-                    <button key={v} className={years === v ? 'is-active' : ''} onClick={() => { setYears(v); resetPage(); }}>{l}</button>
-                  ))}
-                  {/^\d{4}$/.test(years) && <button className="is-active" onClick={() => { setYears('ALL'); resetPage(); }}>{years} ✕</button>}
-                </div>
-              </div>
-              <div className="pq-fgroup">
-                <span className="pq-flabel">Show</span>
-                <div className="pq-seg">
-                  {showOptions.map(([v, l]) => (
-                    <button key={v} className={show === v ? 'is-active' : ''} onClick={() => { setShow(v); resetPage(); }}>{l}</button>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="pq-status">
-              <span><strong>{filtered.length}</strong> question{filtered.length === 1 ? '' : 's'} · {scopeLabel}</span>
-              <span>Tap an option to check your answer instantly</span>
-            </div>
-
-            {pageItems.length === 0 ? (
-              <div className="pq-card pq-empty">
-                <h3>No questions match</h3>
-                <p>Try a different topic, widen the years, or clear the search.</p>
-                <button className="pq-btn" onClick={() => { onSearch(''); pickSubject('ALL'); setExam('ALL'); setYears('ALL'); setShow('ALL'); }}>Reset filters</button>
-              </div>
-            ) : (
-              pageItems.map(q => (
-                <QuestionCard
-                  key={q.id}
-                  q={q}
-                  attempt={attempts[q.id]}
-                  revealedOnly={!!revealed[q.id]}
-                  bookmarked={!!bookmarks[q.id]}
-                  onPick={onPick}
-                  onReveal={() => setRevealed(r => ({ ...r, [q.id]: true }))}
-                  onTryAgain={() => tryAgain(q)}
-                  onBookmark={() => toggleBookmark(q.id)}
-                />
-              ))
-            )}
-
-            {filtered.length > PAGE_SIZE && (
-              <div className="pq-pager">
-                <button className="pq-btn" disabled={page <= 1} onClick={() => goPage(page - 1)}>← Previous</button>
-                <span style={{ fontSize: 13, fontWeight: 700 }}>Page {page} of {totalPages}</span>
-                <button className="pq-btn" disabled={page >= totalPages} onClick={() => goPage(page + 1)}>Next →</button>
-              </div>
-            )}
-          </main>
-
-          {/* Right rail */}
-          <aside className="pq-rail">
-            {/* Mistake Notebook Panel */}
-            <div className="pq-notebook-panel">
-              <div className="pq-nb-head">
-                <span className="pq-nb-badge"><BookOpen size={13} /> Mistake Notebook</span>
-                <span className="pq-nb-count">{mistakeCount} Qs</span>
-              </div>
-              <p className="pq-nb-desc">
-                {mistakeCount > 0
-                  ? `${mistakeCount} question${mistakeCount === 1 ? '' : 's'} saved for revision. They stay here until you get them right in a smart test.`
-                  : 'Zero active mistakes! Incorrect answers in tests & quizzes automatically accumulate here for revision.'}
-              </p>
-              <div className="pq-nb-btns">
-                {mistakeCount > 0 ? (
-                  <>
-                    <Link
-                      href={`/prelims/pyq/practice?ids=${Object.keys(mistakes).slice(0, 50).join(',')}&mode=practice`}
-                      className="pq-go"
-                      style={{ textDecoration: 'none' }}
-                    >
-                      <RotateCcw size={14} /> Revise {Math.min(50, mistakeCount)} Mistakes
-                    </Link>
-                    <button
-                      className={`pq-btn ${show === 'MISTAKES' ? 'pq-btn-primary' : ''}`}
-                      onClick={() => { setShow(show === 'MISTAKES' ? 'ALL' : 'MISTAKES'); resetPage(); }}
-                    >
-                      {show === 'MISTAKES' ? 'Viewing Notebook' : 'Filter in Explorer'}
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    className="pq-btn"
-                    onClick={() => { setShow('MISTAKES'); resetPage(); }}
-                  >
-                    Open Notebook
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Timed / Interactive Test Launcher */}
-            <div className="pq-practice">
-              <div className="pq-practice-k">TEST BUILDER</div>
-              <h3>Turn {filtered.length} questions into a test</h3>
-
-              {/* Mode Toggle */}
-              <div style={{ display: 'flex', gap: 6, margin: '8px 0 10px' }}>
-                <button
-                  type="button"
-                  className={`pq-chip-btn ${selectedPracticeMode === 'practice' ? 'is-active' : ''}`}
-                  style={{ flex: 1, padding: '5px 0', fontSize: 11, textAlign: 'center', background: selectedPracticeMode === 'practice' ? 'var(--pq-ok)' : 'var(--pq-navy-2)', color: '#fff', borderColor: 'transparent' }}
-                  onClick={() => setSelectedPracticeMode('practice')}
-                >
-                  🟢 Practice Mode
-                </button>
-                <button
-                  type="button"
-                  className={`pq-chip-btn ${selectedPracticeMode === 'exam' ? 'is-active' : ''}`}
-                  style={{ flex: 1, padding: '5px 0', fontSize: 11, textAlign: 'center', background: selectedPracticeMode === 'exam' ? '#2563eb' : 'var(--pq-navy-2)', color: '#fff', borderColor: 'transparent' }}
-                  onClick={() => setSelectedPracticeMode('exam')}
-                >
-                  🔵 Exam Mode
-                </button>
-              </div>
-
-              <div className="pq-nseg">
-                {PRACTICE_SIZES.map(n => (
-                  <button key={n} className={practiceN === n ? 'is-active' : ''} onClick={() => setPracticeN(n)}>{n} Qs</button>
-                ))}
-              </div>
-
-              <Link href={practiceHref} className={`pq-go ${filtered.length === 0 ? 'is-disabled' : ''}`}>
-                Start {selectedPracticeMode === 'practice' ? 'practice' : 'exam'} <ArrowRight size={15} />
+            <div className="pq-focus-actions">
+              <Link
+                href={practiceUrl}
+                className="pq-btn pq-btn-primary"
+                style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 800 }}
+              >
+                <Play size={14} fill="currentColor" /> Attempt in Practice Mode
               </Link>
-              <p style={{ margin: '9px 0 0', textAlign: 'center' }}>
-                {practiceCount} question{practiceCount === 1 ? '' : 's'} · ~{practiceMinutes} min
-              </p>
 
               <button
                 className="pq-btn"
-                style={{ width: '100%', marginTop: 10, fontSize: 12, fontWeight: 700, background: 'var(--pq-navy-2)', color: '#c9d2ee', borderColor: 'rgba(255,255,255,0.1)' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 700 }}
                 onClick={() => setQuizModalOpen(true)}
               >
-                <Sparkles size={13} style={{ marginRight: 5, verticalAlign: -2 }} />
-                Custom Quiz Builder...
+                <Sparkles size={14} /> Build Quiz
               </button>
-            </div>
 
-            {/* Session Stats */}
-            <div className="pq-card pq-panel">
-              <h4>This session</h4>
-              <div className="pq-stats">
-                <div className="pq-stat"><b>{attemptStats.done}</b><span>Attempted</span></div>
-                <div className="pq-stat"><b>{attemptStats.ok}</b><span>Correct</span></div>
-                <div className="pq-stat"><b>{attemptStats.acc}%</b><span>Accuracy</span></div>
-              </div>
-              <div className="pq-bar"><i style={{ width: `${attemptStats.acc}%` }} /></div>
-              <small>{attemptStats.viewDone} of {filtered.length} in this view attempted</small>
+              {activeSubjectMistakesCount > 0 && (
+                <button
+                  className={`pq-btn ${show === 'MISTAKES' ? 'is-active' : ''}`}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, borderColor: 'var(--pq-gold)', color: 'var(--pq-gold)' }}
+                  onClick={() => { setShow(show === 'MISTAKES' ? 'ALL' : 'MISTAKES'); resetPage(); }}
+                >
+                  <BookOpen size={14} /> Notebook ({activeSubjectMistakesCount})
+                </button>
+              )}
             </div>
-
-            {/* Review shortcuts */}
-            <div className="pq-card pq-panel">
-              <h4>Review</h4>
-              <button className={`pq-review-row ${show === 'WRONG' ? 'is-active' : ''}`} onClick={() => { setShow(show === 'WRONG' ? 'ALL' : 'WRONG'); resetPage(); }}>
-                <span><i className="pq-dot" style={{ background: 'var(--pq-bad)' }} />Got wrong</span>
-                <span className="pq-review-n">{reviewCounts.wrong}</span>
-              </button>
-              <button className={`pq-review-row ${show === 'MISTAKES' ? 'is-active' : ''}`} onClick={() => { setShow(show === 'MISTAKES' ? 'ALL' : 'MISTAKES'); resetPage(); }}>
-                <span><i className="pq-dot" style={{ background: 'var(--pq-gold)' }} />Mistake notebook</span>
-                <span className="pq-review-n">{mistakeCount}</span>
-              </button>
-              <button className={`pq-review-row ${show === 'MARKED' ? 'is-active' : ''}`} onClick={() => { setShow(show === 'MARKED' ? 'ALL' : 'MARKED'); resetPage(); }}>
-                <span><i className="pq-dot" style={{ background: 'var(--pq-accent)' }} />Bookmarked</span>
-                <span className="pq-review-n">{reviewCounts.marked}</span>
-              </button>
-              <button className={`pq-review-row ${show === 'NEW' ? 'is-active' : ''}`} onClick={() => { setShow(show === 'NEW' ? 'ALL' : 'NEW'); resetPage(); }}>
-                <span><i className="pq-dot" style={{ background: 'var(--pq-muted)' }} />Not attempted</span>
-                <span className="pq-review-n">{reviewCounts.fresh}</span>
-              </button>
-            </div>
-          </aside>
+          </div>
         </div>
+
+        {/* Compact Single-Row Filter Bar */}
+        <div className="pq-focus-filters">
+          {activeSubjectTopics.length > 0 && (
+            <div className="pq-fgroup" style={{ flex: 1, minWidth: 200 }}>
+              <span className="pq-flabel">Topic</span>
+              <select
+                className="pq-topic-select"
+                value={topic}
+                onChange={e => { setTopic(e.target.value); resetPage(); }}
+              >
+                <option value="ALL">All {subject} topics ({totalSubjectQs})</option>
+                {activeSubjectTopics.map(([t, count]) => (
+                  <option key={t} value={t}>{t} ({count})</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div className="pq-fgroup">
+            <span className="pq-flabel">Exam</span>
+            <div className="pq-seg">
+              {[['ALL', 'All'], ['UPSC CSE', 'CSE'], ['CDS', 'CDS']].map(([v, l]) => (
+                <button key={v} className={exam === v ? 'is-active' : ''} onClick={() => { setExam(v); resetPage(); }}>{l}</button>
+              ))}
+            </div>
+          </div>
+
+          <div className="pq-fgroup">
+            <span className="pq-flabel">Years</span>
+            <div className="pq-seg">
+              {YEAR_BUCKETS.map(([v, l]) => (
+                <button key={v} className={years === v ? 'is-active' : ''} onClick={() => { setYears(v); resetPage(); }}>{l}</button>
+              ))}
+            </div>
+          </div>
+
+          <div className="pq-fgroup">
+            <span className="pq-flabel">Filter</span>
+            <div className="pq-seg">
+              {showOptions.map(([v, l]) => (
+                <button key={v} className={show === v ? 'is-active' : ''} onClick={() => { setShow(v); resetPage(); }}>{l}</button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Question Feed */}
+        <main ref={feedTopRef}>
+          {pageItems.length === 0 ? (
+            <div className="pq-card pq-empty" style={{ padding: 40, textAlign: 'center' }}>
+              <h3 style={{ margin: '0 0 8px' }}>No questions match this filter</h3>
+              <p style={{ margin: '0 0 16px', color: 'var(--pq-muted)' }}>Try resetting topic, year, or review filters.</p>
+              <button
+                className="pq-btn pq-btn-primary"
+                onClick={() => { setTopic('ALL'); setExam('ALL'); setYears('ALL'); setShow('ALL'); resetPage(); }}
+              >
+                Reset filters
+              </button>
+            </div>
+          ) : (
+            pageItems.map(q => (
+              <QuestionCard
+                key={q.id}
+                q={q}
+                attempt={attempts[q.id]}
+                revealedOnly={!!revealed[q.id]}
+                bookmarked={!!bookmarks[q.id]}
+                onPick={onPick}
+                onReveal={() => setRevealed(r => ({ ...r, [q.id]: true }))}
+                onTryAgain={() => tryAgain(q)}
+                onBookmark={() => toggleBookmark(q.id)}
+              />
+            ))
+          )}
+
+          {filtered.length > PAGE_SIZE && (
+            <div className="pq-pager" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 20 }}>
+              <button className="pq-btn" disabled={page <= 1} onClick={() => goPage(page - 1)}>← Previous</button>
+              <span style={{ fontSize: 13, fontWeight: 700 }}>Page {page} of {totalPages}</span>
+              <button className="pq-btn" disabled={page >= totalPages} onClick={() => goPage(page + 1)}>Next →</button>
+            </div>
+          )}
+        </main>
       </div>
 
-      {/* Mobile sticky practice bar */}
-      <div className="pq-mobile-bar">
-        <span>{filtered.length} questions · {practiceCount} in a test</span>
-        <Link href={practiceHref} className={`pq-go ${filtered.length === 0 ? 'is-disabled' : ''}`}>Practice <ArrowRight size={14} /></Link>
-      </div>
-
-      {/* Custom Quiz Modal */}
       <QuizSetupModal
         isOpen={quizModalOpen}
         onClose={() => setQuizModalOpen(false)}
@@ -589,15 +543,20 @@ function QuestionCard({ q, attempt, revealedOnly, bookmarked, onPick, onReveal, 
           <span className={`pq-tag ${diff.cls}`}>{diff.label}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <Link 
-            href={`/prelims/pyq/${generateQuestionSlug(q)}`} 
-            className="pq-icon-btn" 
-            title="Open dedicated question view" 
+          <Link
+            href={`/prelims/pyq/${generateQuestionSlug(q)}`}
+            className="pq-icon-btn"
+            title="Open dedicated question view"
             aria-label="Open dedicated question view"
           >
             <ExternalLink size={15} />
           </Link>
-          <button className={`pq-icon-btn ${bookmarked ? 'is-on' : ''}`} onClick={onBookmark} aria-label={bookmarked ? 'Remove bookmark' : 'Bookmark'} aria-pressed={bookmarked}>
+          <button
+            className={`pq-icon-btn ${bookmarked ? 'is-on' : ''}`}
+            onClick={onBookmark}
+            aria-label={bookmarked ? 'Remove bookmark' : 'Bookmark'}
+            aria-pressed={bookmarked}
+          >
             <Bookmark size={17} fill={bookmarked ? 'currentColor' : 'none'} />
           </button>
         </div>
@@ -644,8 +603,8 @@ function QuestionCard({ q, attempt, revealedOnly, bookmarked, onPick, onReveal, 
           <button className="pq-reveal" onClick={onTryAgain}>↺ Try again</button>
         ) : (
           <>
-            <span>Tap an option — you’ll see the answer and explanation instantly.</span>
-            <button className="pq-reveal" onClick={onReveal}>Just show the answer</button>
+            <span>Tap an option to check your answer instantly.</span>
+            <button className="pq-reveal" onClick={onReveal}>Show answer</button>
           </>
         )}
       </div>
