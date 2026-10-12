@@ -301,7 +301,7 @@
 .pp-legend i { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; border: 1.5px solid var(--pq-line); }
 .pp-note { margin-top: 14px; font-size: 11.5px; line-height: 1.5; color: var(--pq-muted); background: var(--pq-inset); border-radius: 10px; padding: 10px 12px; }
 
-.pp-modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 80; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.pp-modal-bg { position: fixed; inset: 0; background: rgba(2, 6, 23, 0.82); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 999; display: flex; align-items: center; justify-content: center; padding: 20px; }
 .pp-modal { background: var(--bg-primary); border: 1px solid var(--pq-line); border-radius: 16px; padding: 22px; max-width: 400px; width: 100%; }
 .pp-modal h3 { margin: 0 0 8px; font-size: 18px; }
 .pp-modal p { margin: 0 0 14px; font-size: 13.5px; color: var(--pq-sub); line-height: 1.55; }
@@ -1608,7 +1608,7 @@
 
 /* Quiz Setup Modal */
 .pq-quiz-modal {
-  background: var(--bg-card, #0f172a);
+  background: #0f172a;
   border: 1.5px solid var(--pq-line);
   border-radius: 20px;
   max-width: 660px;
@@ -1616,9 +1616,19 @@
   max-height: 88vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85);
   overflow: hidden;
   color: var(--pq-ink);
+  position: relative;
+  z-index: 1000;
+}
+
+[data-theme="sepia"] .pq-quiz-modal {
+  background: #fbf6ec;
+}
+
+[data-theme="light"] .pq-quiz-modal {
+  background: #ffffff;
 }
 
 .pq-qm-head {
