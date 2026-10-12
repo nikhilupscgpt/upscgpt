@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 const ATTEMPTS_KEY = 'pyq_attempts_v1';
 const BOOKMARKS_KEY = 'pyq_bookmarks_v1';
 const MISTAKES_KEY = 'pyq_mistakes_v1';
+const STREAK_KEY = 'pyq_streak_v1';
 
 function read(key) {
   if (typeof window === 'undefined') return {};
@@ -23,22 +24,43 @@ function write(key, value) {
   }
 }
 
+function getTodayStr() {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function getYesterdayStr() {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 /**
- * Persistent attempt + bookmark + mistake notebook store shared across Explorer and Practice.
- * attempts: { [questionId]: { sel: 'a', ok: boolean } }
- * mistakes: { [questionId]: { timestamp: number, lastWrongSel?: string } }
- * bookmarks: { [questionId]: true }
+ * Persistent attempt + bookmark + mistake notebook + daily streak store.
  */
 export function usePyqStore() {
   const [attempts, setAttempts] = useState({});
   const [bookmarks, setBookmarks] = useState({});
   const [mistakes, setMistakes] = useState({});
+  const [streak, setStreak] = useState({ current: 0, best: 0, lastDate: null });
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     setAttempts(read(ATTEMPTS_KEY));
     setBookmarks(read(BOOKMARKS_KEY));
     setMistakes(read(MISTAKES_KEY));
+    const rawStreak = read(STREAK_KEY);
+    setStreak({
+      current: rawStreak.current || 0,
+      best: rawStreak.best || 0,
+      lastDate: rawStreak.lastDate || null,
+    });
     setReady(true);
   }, []);
 
@@ -125,10 +147,40 @@ export function usePyqStore() {
     });
   }, []);
 
+  const completeDailyStreak = useCallback(() => {
+    const today = getTodayStr();
+    const yesterday = getYesterdayStr();
+
+    setStreak(prev => {
+      if (prev.lastDate === today) {
+        // Already recorded today
+        return prev;
+      }
+
+      let newCurrent = 1;
+      if (prev.lastDate === yesterday) {
+        // Maintained streak!
+        newCurrent = (prev.current || 0) + 1;
+      }
+
+      const next = {
+        current: newCurrent,
+        best: Math.max(prev.best || 0, newCurrent),
+        lastDate: today,
+      };
+      write(STREAK_KEY, next);
+      return next;
+    });
+  }, []);
+
+  const isStreakCompletedToday = streak.lastDate === getTodayStr();
+
   return {
     attempts,
     bookmarks,
     mistakes,
+    streak,
+    isStreakCompletedToday,
     ready,
     recordAttempt,
     recordMany,
@@ -137,5 +189,6 @@ export function usePyqStore() {
     clearMistake,
     clearAllMistakes,
     toggleBookmark,
+    completeDailyStreak,
   };
 }

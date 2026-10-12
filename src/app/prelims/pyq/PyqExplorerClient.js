@@ -13,12 +13,14 @@ import {
   BookOpen,
   Play,
   RotateCcw,
+  Flame,
 } from 'lucide-react';
 import StemView from './StemView';
 import QuizSetupModal from './QuizSetupModal';
 import { usePyqStore } from './pyqStore';
 import { SUBJECT_ORDER, SUBJECT_SHORT } from './topicGroups';
 import { generateQuestionSlug } from '@/lib/pyqSlug';
+import { isNewPatternQuestion, isPairQuestion, isStatementQuestion } from '@/lib/pyqPattern';
 import './pyq-ui.css';
 
 const PAGE_SIZE = 10;
@@ -62,6 +64,7 @@ export default function PyqExplorerClient({ initialQuestions }) {
   const [exam, setExam] = useState('ALL');
   const [years, setYears] = useState('ALL');
   const [show, setShow] = useState('ALL');
+  const [patternFilter, setPatternFilter] = useState('ALL'); // 'ALL' | 'NEW'
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
   const [quizModalOpen, setQuizModalOpen] = useState(false);
@@ -70,13 +73,14 @@ export default function PyqExplorerClient({ initialQuestions }) {
   const searchRef = useRef(null);
   const feedTopRef = useRef(null);
 
-  const { attempts, bookmarks, mistakes, recordAttempt, clearAttempt, toggleBookmark } = usePyqStore();
+  const { attempts, bookmarks, mistakes, streak, isStreakCompletedToday, recordAttempt, clearAttempt, toggleBookmark } = usePyqStore();
 
   /* ---- URL <-> state ---- */
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);
     const q = p.get('q');
     const s = p.get('show');
+    const pat = p.get('pattern');
     if (q) {
       setQuery(q);
     } else {
@@ -86,6 +90,7 @@ export default function PyqExplorerClient({ initialQuestions }) {
       if (p.get('year')) setYears(p.get('year'));
     }
     if (s) setShow(s);
+    if (pat === 'new') setPatternFilter('NEW');
     setUrlReady(true);
   }, []);
 
@@ -100,10 +105,11 @@ export default function PyqExplorerClient({ initialQuestions }) {
       if (exam !== 'ALL') p.set('exam', exam);
       if (years !== 'ALL') p.set('year', years);
       if (show !== 'ALL') p.set('show', show);
+      if (patternFilter === 'NEW') p.set('pattern', 'new');
     }
     const qs = p.toString();
     window.history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
-  }, [urlReady, query, subject, topic, exam, years, show]);
+  }, [urlReady, query, subject, topic, exam, years, show, patternFilter]);
 
   /* ⌘K / Ctrl+K focuses search */
   useEffect(() => {
@@ -152,6 +158,10 @@ export default function PyqExplorerClient({ initialQuestions }) {
   const searching = query.trim().length > 0;
   const mistakeCount = Object.keys(mistakes).length;
 
+  const totalNewPatternCount = useMemo(() => {
+    return initialQuestions.filter(isNewPatternQuestion).length;
+  }, [initialQuestions]);
+
   const showOptions = useMemo(() => [
     ['ALL', 'All'],
     ['NEW', 'Not attempted'],
@@ -172,13 +182,14 @@ export default function PyqExplorerClient({ initialQuestions }) {
           (q.options || []).some(o => (o.text || '').toLowerCase().includes(needle))
         );
       }
+      if (patternFilter === 'NEW' && !isNewPatternQuestion(q)) return false;
       if (subject !== 'ALL' && q.srcSubject !== subject) return false;
       if (topic !== 'ALL' && q.srcTopic !== topic) return false;
       if (exam !== 'ALL' && !(q.examName || '').includes(exam === 'UPSC CSE' ? 'CSE' : 'CDS')) return false;
       if (!inBucket(q.examYear, years)) return false;
       return true;
     });
-  }, [initialQuestions, query, subject, topic, exam, years]);
+  }, [initialQuestions, query, subject, topic, exam, years, patternFilter]);
 
   const filtered = useMemo(() => {
     if (show === 'ALL') return scope;
@@ -215,6 +226,11 @@ export default function PyqExplorerClient({ initialQuestions }) {
     return initialQuestions.filter(q => q.srcSubject === subject && mistakes[q.id]).length;
   }, [initialQuestions, subject, mistakes, mistakeCount]);
 
+  const activeSubjectNewPatternCount = useMemo(() => {
+    if (subject === 'ALL') return totalNewPatternCount;
+    return initialQuestions.filter(q => q.srcSubject === subject && isNewPatternQuestion(q)).length;
+  }, [initialQuestions, subject, totalNewPatternCount]);
+
   /* ---- Handlers ---- */
   const resetPage = () => setPage(1);
 
@@ -222,6 +238,7 @@ export default function PyqExplorerClient({ initialQuestions }) {
     setSubject(s);
     setTopic('ALL');
     setShow('ALL');
+    setPatternFilter('ALL');
     setQuery('');
     resetPage();
   };
@@ -230,6 +247,7 @@ export default function PyqExplorerClient({ initialQuestions }) {
     setSubject('ALL');
     setTopic('ALL');
     setShow('ALL');
+    setPatternFilter('ALL');
     setQuery('');
     resetPage();
   };
@@ -241,6 +259,7 @@ export default function PyqExplorerClient({ initialQuestions }) {
       setExam('ALL');
       setYears('ALL');
       setShow('ALL');
+      setPatternFilter('ALL');
     }
     resetPage();
   };
@@ -269,12 +288,13 @@ export default function PyqExplorerClient({ initialQuestions }) {
     const p = new URLSearchParams();
     p.set('mode', 'practice');
     p.set('n', '20');
+    if (patternFilter === 'NEW') p.set('pattern', 'new');
     if (subject !== 'ALL') p.set('subject', subject);
     if (topic !== 'ALL') p.set('topic', topic);
     if (exam !== 'ALL') p.set('exam', exam);
     if (years !== 'ALL') p.set('years', years);
     return `/prelims/pyq/practice?${p.toString()}`;
-  }, [subject, topic, exam, years]);
+  }, [subject, topic, exam, years, patternFilter]);
 
   // =========================================================================
   // VIEW 1: SUBJECT HUB (When no subject is picked and not searching)
@@ -283,6 +303,36 @@ export default function PyqExplorerClient({ initialQuestions }) {
     return (
       <div className="pq-root">
         <div className="pq-hub-shell">
+          {/* 🔥 Daily PYQ Streak Hero Card */}
+          <div className="pq-streak-hero-card">
+            <div className="pq-shc-left">
+              <div className="pq-shc-flame-box">
+                <Flame size={24} className="pq-flame-animated" />
+                <span className="pq-shc-days">{streak.current || 0}d</span>
+              </div>
+              <div className="pq-shc-info">
+                <span className={`pq-shc-tag ${isStreakCompletedToday ? 'is-done' : ''}`}>
+                  {isStreakCompletedToday ? '✓ TODAY COMPLETED' : 'PENDING FOR TODAY'}
+                </span>
+                <h3 className="pq-shc-title">Daily 10-Question Prelims Streak</h3>
+                <p className="pq-shc-sub">
+                  {isStreakCompletedToday
+                    ? `Great job! Current streak: ${streak.current} day${streak.current === 1 ? '' : 's'} (Best: ${streak.best}d). Tomorrow's drill unlocks at midnight.`
+                    : '10 curated questions across core subjects. Maintain your daily problem-solving discipline.'}
+                </p>
+              </div>
+            </div>
+            <div className="pq-shc-action">
+              <Link
+                href="/prelims/pyq/practice?drill=daily&mode=practice"
+                className="pq-btn pq-btn-primary pq-shc-btn"
+              >
+                <Flame size={15} />
+                {isStreakCompletedToday ? 'Review Today\'s Drill' : '▶ Start Today\'s Drill (10 Qs)'}
+              </Link>
+            </div>
+          </div>
+
           <header className="pq-hub-header">
             <div className="pq-hub-badge">
               <Sparkles size={13} /> Prelims PYQ Explorer · CSE &amp; CDS 2011–2026
@@ -293,20 +343,29 @@ export default function PyqExplorerClient({ initialQuestions }) {
             </p>
 
             <div className="pq-hub-toolbar">
-              <div className="pq-search" style={{ flex: 1, maxWidth: 520, margin: 0 }}>
+              <div className="pq-search" style={{ flex: 1, maxWidth: 440, margin: 0 }}>
                 <Search size={18} />
                 <input
                   ref={searchRef}
                   value={query}
                   onChange={e => onSearch(e.target.value)}
-                  placeholder="Search any keyword or article — e.g. Article 21, Money Bill, Ramsar"
+                  placeholder="Search any keyword or article — e.g. Article 21, Money Bill"
                   aria-label="Search previous year questions"
                 />
               </div>
 
               <button
-                className="pq-btn pq-btn-primary"
-                style={{ fontWeight: 800, padding: '11px 18px', display: 'inline-flex', alignItems: 'center', gap: 7 }}
+                className={`pq-btn ${patternFilter === 'NEW' ? 'pq-btn-primary' : ''}`}
+                style={{ fontWeight: 800, padding: '11px 16px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                onClick={() => setPatternFilter(p => p === 'NEW' ? 'ALL' : 'NEW')}
+              >
+                <Flame size={15} />
+                {patternFilter === 'NEW' ? 'Showing New Pattern' : `🔥 New Pattern (${totalNewPatternCount} Qs)`}
+              </button>
+
+              <button
+                className="pq-btn"
+                style={{ fontWeight: 800, padding: '11px 16px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
                 onClick={() => setQuizModalOpen(true)}
               >
                 <Sparkles size={15} /> Custom Quiz Builder
@@ -316,7 +375,7 @@ export default function PyqExplorerClient({ initialQuestions }) {
                 <Link
                   href={`/prelims/pyq/practice?ids=${Object.keys(mistakes).slice(0, 50).join(',')}&mode=practice`}
                   className="pq-btn"
-                  style={{ textDecoration: 'none', fontWeight: 800, padding: '11px 18px', display: 'inline-flex', alignItems: 'center', gap: 7, borderColor: 'var(--pq-gold)', color: 'var(--pq-gold)' }}
+                  style={{ textDecoration: 'none', fontWeight: 800, padding: '11px 16px', display: 'inline-flex', alignItems: 'center', gap: 6, borderColor: 'var(--pq-gold)', color: 'var(--pq-gold)' }}
                 >
                   <RotateCcw size={15} /> Revise {mistakeCount} Mistakes
                 </Link>
@@ -395,7 +454,7 @@ export default function PyqExplorerClient({ initialQuestions }) {
                 {searching ? `Search: “${query}”` : subject}
               </h1>
               <span style={{ fontSize: 13, color: 'var(--pq-muted)', fontWeight: 600, display: 'block', marginTop: 4 }}>
-                {filtered.length} questions {topic !== 'ALL' ? `· Topic: ${topic}` : ''}
+                {filtered.length} questions {topic !== 'ALL' ? `· Topic: ${topic}` : ''} {patternFilter === 'NEW' ? '· 🔥 New Pattern Only' : ''}
               </span>
             </div>
 
@@ -432,7 +491,7 @@ export default function PyqExplorerClient({ initialQuestions }) {
         {/* Compact Single-Row Filter Bar */}
         <div className="pq-focus-filters">
           {activeSubjectTopics.length > 0 && (
-            <div className="pq-fgroup" style={{ flex: 1, minWidth: 200 }}>
+            <div className="pq-fgroup" style={{ flex: 1, minWidth: 190 }}>
               <span className="pq-flabel">Topic</span>
               <select
                 className="pq-topic-select"
@@ -444,6 +503,26 @@ export default function PyqExplorerClient({ initialQuestions }) {
                   <option key={t} value={t}>{t} ({count})</option>
                 ))}
               </select>
+            </div>
+          )}
+
+          {activeSubjectNewPatternCount > 0 && (
+            <div className="pq-fgroup">
+              <span className="pq-flabel">Format</span>
+              <div className="pq-seg">
+                <button
+                  className={patternFilter === 'ALL' ? 'is-active' : ''}
+                  onClick={() => { setPatternFilter('ALL'); resetPage(); }}
+                >
+                  All
+                </button>
+                <button
+                  className={patternFilter === 'NEW' ? 'is-active' : ''}
+                  onClick={() => { setPatternFilter(patternFilter === 'NEW' ? 'ALL' : 'NEW'); resetPage(); }}
+                >
+                  🔥 New Pattern ({activeSubjectNewPatternCount})
+                </button>
+              </div>
             </div>
           )}
 
@@ -480,10 +559,10 @@ export default function PyqExplorerClient({ initialQuestions }) {
           {pageItems.length === 0 ? (
             <div className="pq-card pq-empty" style={{ padding: 40, textAlign: 'center' }}>
               <h3 style={{ margin: '0 0 8px' }}>No questions match this filter</h3>
-              <p style={{ margin: '0 0 16px', color: 'var(--pq-muted)' }}>Try resetting topic, year, or review filters.</p>
+              <p style={{ margin: '0 0 16px', color: 'var(--pq-muted)' }}>Try resetting format, topic, year, or review filters.</p>
               <button
                 className="pq-btn pq-btn-primary"
-                onClick={() => { setTopic('ALL'); setExam('ALL'); setYears('ALL'); setShow('ALL'); resetPage(); }}
+                onClick={() => { setTopic('ALL'); setExam('ALL'); setYears('ALL'); setShow('ALL'); setPatternFilter('ALL'); resetPage(); }}
               >
                 Reset filters
               </button>
@@ -532,6 +611,8 @@ function QuestionCard({ q, attempt, revealedOnly, bookmarked, onPick, onReveal, 
   const done = !!attempt || revealedOnly;
   const dropped = !q.correctLabel;
   const correctOpt = options.find(o => o.label === q.correctLabel);
+  const isPair = isPairQuestion(q);
+  const isStmt = isStatementQuestion(q);
 
   return (
     <article className={`pq-card pq-qcard ${attempt ? (attempt.ok ? 'is-ok' : 'is-bad') : ''}`}>
@@ -540,6 +621,8 @@ function QuestionCard({ q, attempt, revealedOnly, bookmarked, onPick, onReveal, 
           <span className="pq-tag pq-tag-exam">{q.examName} {q.examYear}</span>
           {q.questionNo ? <span className="pq-tag pq-tag-q">Q{q.questionNo}</span> : null}
           <span className="pq-tag pq-tag-topic" title={q.srcTopic}>{q.srcTopic}</span>
+          {isPair && <span className="pq-tag pq-tag-new-pattern">🔥 Pair-Based</span>}
+          {isStmt && <span className="pq-tag pq-tag-new-pattern">🔥 Statement I &amp; II</span>}
           <span className={`pq-tag ${diff.cls}`}>{diff.label}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>

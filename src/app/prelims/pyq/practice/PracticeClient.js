@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Flag, CheckCircle2, XCircle, BookOpen, RotateCcw, Award, Clock, Target, HelpCircle } from 'lucide-react';
+import { ArrowLeft, Flag, CheckCircle2, XCircle, BookOpen, RotateCcw, Award, Clock, Target, HelpCircle, Flame } from 'lucide-react';
 import StemView from '../StemView';
 import { usePyqStore } from '../pyqStore';
+import { isPairQuestion, isStatementQuestion } from '@/lib/pyqPattern';
 import '../pyq-ui.css';
 
 const MARKS_RIGHT = 2;
@@ -16,7 +17,7 @@ function fmt(sec) {
   return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
-export default function PracticeClient({ questions, mode: initialMode = 'exam', title, meta, backHref }) {
+export default function PracticeClient({ questions, mode: initialMode = 'exam', isDailyDrill = false, title, meta, backHref }) {
   const total = questions.length;
   const [activeMode, setActiveMode] = useState(initialMode); // 'practice' | 'exam'
   const [idx, setIdx] = useState(0);
@@ -29,7 +30,7 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
   const [confirm, setConfirm] = useState(false);
   const [reviewFilter, setReviewFilter] = useState('ALL');
 
-  const { recordAttempt, recordMany } = usePyqStore();
+  const { recordAttempt, recordMany, streak, completeDailyStreak } = usePyqStore();
 
   const q = questions[idx];
   const answeredCount = Object.keys(answers).length;
@@ -114,6 +115,9 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
       if (sel) entries[qq.id] = { sel, ok: sel === qq.correctLabel };
     }
     recordMany(entries);
+    if (isDailyDrill) {
+      completeDailyStreak();
+    }
     setConfirm(false);
     setPhase('result');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -130,6 +134,9 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
     }
     if (Object.keys(entries).length > 0) {
       recordMany(entries);
+    }
+    if (isDailyDrill) {
+      completeDailyStreak();
     }
     setPhase('result');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -199,6 +206,17 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
               <div className="pr-tile"><b>{result.accuracy}%</b><span>Accuracy</span></div>
               <div className="pr-tile"><b>{fmt(elapsed)}</b><span>Time</span></div>
             </div>
+
+            {/* Daily Streak Celebration Banner */}
+            {isDailyDrill && (
+              <div className="pr-streak-banner">
+                <div className="pr-streak-flame">🔥</div>
+                <div className="pr-streak-content">
+                  <b>Daily Streak Maintained! You're on Day {streak.current || 1} 🔥</b>
+                  <span>Awesome work finishing today's 10-Question Drill. Return tomorrow at midnight for your next workout!</span>
+                </div>
+              </div>
+            )}
 
             {/* Mistake Notebook Banner */}
             {wrongIds.length > 0 && (
@@ -271,6 +289,8 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
             const ok = sel === qq.correctLabel;
             const num = questions.indexOf(qq) + 1;
             const correctOpt = qq.options.find(o => o.label === qq.correctLabel);
+            const isPair = isPairQuestion(qq);
+            const isStmt = isStatementQuestion(qq);
 
             return (
               <article key={qq.id} className={`pq-card pq-qcard ${sel ? (ok ? 'is-ok' : 'is-bad') : ''}`}>
@@ -279,6 +299,8 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
                     <span className="pq-tag pq-tag-q">Q{num}</span>
                     <span className="pq-tag pq-tag-exam">{qq.examName} {qq.examYear}</span>
                     <span className="pq-tag pq-tag-topic">{qq.srcTopic}</span>
+                    {isPair && <span className="pq-tag pq-tag-new-pattern">🔥 Pair-Based</span>}
+                    {isStmt && <span className="pq-tag pq-tag-new-pattern">🔥 Statement I &amp; II</span>}
                   </div>
                   <span className={`pr-verdict-tag ${sel ? (ok ? 'ok' : 'bad') : 'skip'}`}>
                     {sel ? (ok ? `+${MARKS_RIGHT}` : `−${MARKS_WRONG.toFixed(2)}`) : 'Skipped'}
@@ -320,6 +342,8 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
   const isCurrentChecked = isPractice && !!checked[q?.id];
   const isCurrentOk = isCurrentChecked && answers[q?.id] === q?.correctLabel;
   const correctOpt = q?.options.find(o => o.label === q?.correctLabel);
+  const isCurrentPair = q ? isPairQuestion(q) : false;
+  const isCurrentStmt = q ? isStatementQuestion(q) : false;
 
   const statusOf = (i) => {
     const item = questions[i];
@@ -347,8 +371,13 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
           <Link href={backHref} className="pp-back"><ArrowLeft size={15} /> Explorer</Link>
 
           <div className="pp-title">
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
               <b>{title}</b>
+              {isDailyDrill && (
+                <span className="pp-mode-badge" style={{ background: 'rgba(249, 115, 22, 0.2)', color: '#fb923c', border: '1px solid rgba(249, 115, 22, 0.4)' }}>
+                  🔥 Day {streak.current || 1} Streak
+                </span>
+              )}
               <span className={`pp-mode-badge ${isPractice ? 'is-practice' : 'is-exam'}`}>
                 {isPractice ? 'Practice Mode' : 'Exam Simulation'}
               </span>
@@ -373,6 +402,8 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
               <div className="pq-tags">
                 <span className="pq-tag pq-tag-exam">{q.examName} {q.examYear}</span>
                 <span className="pq-tag pq-tag-topic" title={q.srcTopic}>{q.srcTopic}</span>
+                {isCurrentPair && <span className="pq-tag pq-tag-new-pattern">🔥 Pair-Based</span>}
+                {isCurrentStmt && <span className="pq-tag pq-tag-new-pattern">🔥 Statement I &amp; II</span>}
               </div>
             </div>
 
@@ -509,7 +540,11 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
             )}
 
             <div className="pp-note">
-              {isPractice ? (
+              {isDailyDrill ? (
+                <>
+                  <b>🔥 Daily Streak Challenge:</b> Complete all 10 questions to maintain your daily streak flame!
+                </>
+              ) : isPractice ? (
                 <>
                   <b>Practice Mode:</b> Select an option and click <b>Check Answer</b> for instant solutions.
                   <br />Shortcuts: <b>A–D</b> to pick, <b>Enter</b> to verify, <b>←/→</b> to navigate.

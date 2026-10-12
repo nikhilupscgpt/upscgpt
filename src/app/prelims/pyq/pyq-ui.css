@@ -2264,3 +2264,148 @@
   .pq-focus-actions { width: 100%; }
   .pq-focus-actions .pq-btn { flex: 1; text-align: center; }
 }
+
+/* ==========================================================================
+   Daily PYQ Streak & New UPSC Pattern UI Styles
+   ========================================================================== */
+
+.pq-streak-hero-card {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.12) 0%, rgba(245, 158, 11, 0.14) 50%, rgba(249, 115, 22, 0.1) 100%);
+  border: 1.5px solid rgba(249, 115, 22, 0.4);
+  border-radius: 18px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  box-shadow: 0 10px 30px -10px rgba(249, 115, 22, 0.15);
+}
+
+.pq-shc-left {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex: 1;
+  min-width: 280px;
+}
+
+.pq-shc-flame-box {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  background: rgba(249, 115, 22, 0.2);
+  border: 1.5px solid rgba(249, 115, 22, 0.5);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #f97316;
+}
+
+.pq-flame-animated {
+  filter: drop-shadow(0 0 6px rgba(249, 115, 22, 0.6));
+}
+
+.pq-shc-days {
+  font-size: 11px;
+  font-weight: 900;
+  color: #fb923c;
+  line-height: 1;
+  margin-top: 1px;
+}
+
+.pq-shc-info {
+  flex: 1;
+}
+
+.pq-shc-tag {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #f97316;
+  margin-bottom: 4px;
+}
+
+.pq-shc-tag.is-done {
+  color: #4ade80;
+}
+
+.pq-shc-title {
+  font-size: 18px;
+  font-weight: 850;
+  margin: 0 0 4px;
+  color: var(--pq-ink);
+  letter-spacing: -0.01em;
+}
+
+.pq-shc-sub {
+  font-size: 12.5px;
+  color: var(--pq-sub);
+  margin: 0;
+  line-height: 1.45;
+}
+
+.pq-shc-action {
+  flex-shrink: 0;
+}
+
+.pq-shc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 20px;
+  font-weight: 850;
+  font-size: 13.5px;
+  text-decoration: none;
+  border-radius: 11px;
+}
+
+/* Streak Celebration on Results Screen */
+.pr-streak-banner {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.12) 0%, rgba(234, 88, 12, 0.16) 100%);
+  border: 1.5px solid rgba(249, 115, 22, 0.45);
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin: 10px 0;
+}
+
+.pr-streak-flame {
+  font-size: 32px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.pr-streak-content {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.pr-streak-content b {
+  font-size: 15px;
+  color: #fb923c;
+  font-weight: 850;
+}
+
+.pr-streak-content span {
+  font-size: 12px;
+  color: var(--pq-sub);
+  line-height: 1.4;
+}
+
+/* New Pattern Tag */
+.pq-tag-new-pattern {
+  background: rgba(249, 115, 22, 0.16) !important;
+  color: #fb923c !important;
+  border: 1px solid rgba(249, 115, 22, 0.35) !important;
+  font-weight: 850 !important;
+}

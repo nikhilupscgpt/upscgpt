@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { X, Check, ChevronDown, ChevronUp, Sparkles, BookOpen, Clock, Settings, ArrowRight } from 'lucide-react';
 import { SUBJECT_ORDER, SUBJECT_SHORT } from './topicGroups';
+import { isNewPatternQuestion } from '@/lib/pyqPattern';
 
 const PRESET_SIZES = [10, 20, 30, 50];
 const EXAM_OPTIONS = [
@@ -28,6 +29,7 @@ export default function QuizSetupModal({ isOpen, onClose, questions }) {
   const [mode, setMode] = useState('practice'); // 'practice' | 'exam'
   const [exam, setExam] = useState('ALL');
   const [years, setYears] = useState('ALL');
+  const [pattern, setPattern] = useState('ALL'); // 'ALL' | 'NEW'
 
   // Compute subject question counts
   const subjectStats = useMemo(() => {
@@ -73,7 +75,7 @@ export default function QuizSetupModal({ isOpen, onClose, questions }) {
         return nextSubs;
       } else {
         if (prev.length >= 3) {
-          // Replace last or reject
+          // Replace last or keep first 2 and add new
           return [...prev.slice(1), s];
         }
         return [...prev, s];
@@ -104,6 +106,7 @@ export default function QuizSetupModal({ isOpen, onClose, questions }) {
   // Calculate live matching questions
   const availableCount = useMemo(() => {
     return questions.filter(q => {
+      if (pattern === 'NEW' && !isNewPatternQuestion(q)) return false;
       if (selectedSubjects.length > 0 && !selectedSubjects.includes(q.srcSubject)) return false;
       if (selectedTopics.length > 0 && !selectedTopics.includes(q.srcTopic)) return false;
       if (exam === 'UPSC CSE' && !(q.examName || '').includes('CSE')) return false;
@@ -114,12 +117,13 @@ export default function QuizSetupModal({ isOpen, onClose, questions }) {
       }
       return true;
     }).length;
-  }, [questions, selectedSubjects, selectedTopics, exam, years]);
+  }, [questions, pattern, selectedSubjects, selectedTopics, exam, years]);
 
   const handleLaunch = () => {
     const p = new URLSearchParams();
     p.set('mode', mode);
     p.set('n', String(numQuestions));
+    if (pattern === 'NEW') p.set('pattern', 'new');
     if (selectedSubjects.length > 0) p.set('subjects', selectedSubjects.join(','));
     if (selectedTopics.length > 0) p.set('topics', selectedTopics.join(','));
     if (exam !== 'ALL') p.set('exam', exam);
@@ -274,6 +278,14 @@ export default function QuizSetupModal({ isOpen, onClose, questions }) {
               </div>
 
               <div>
+                <label className="pq-qm-label">Format / Pattern</label>
+                <select value={pattern} onChange={e => setPattern(e.target.value)} className="pq-qm-select">
+                  <option value="ALL">All Formats</option>
+                  <option value="NEW">🔥 New Pattern (Pairs &amp; Stmts)</option>
+                </select>
+              </div>
+
+              <div>
                 <label className="pq-qm-label">Exam</label>
                 <select value={exam} onChange={e => setExam(e.target.value)} className="pq-qm-select">
                   {EXAM_OPTIONS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
@@ -294,6 +306,7 @@ export default function QuizSetupModal({ isOpen, onClose, questions }) {
         <div className="pq-qm-foot">
           <div className="pq-qm-foot-stat">
             <b>{availableCount}</b> question{availableCount === 1 ? '' : 's'} available
+            {pattern === 'NEW' && ' (New Pattern Pairs & Statements)'}
             {selectedSubjects.length > 0 && ` across ${selectedSubjects.length} subject${selectedSubjects.length === 1 ? '' : 's'}`}
           </div>
           <div className="pq-qm-foot-actions">

@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import PracticeClient from './PracticeClient';
+import { isNewPatternQuestion } from '@/lib/pyqPattern';
 
 const prisma = new PrismaClient();
 
@@ -18,10 +19,30 @@ function shuffle(arr) {
   return a;
 }
 
+function seededShuffle(arr, seedStr) {
+  let seed = 0;
+  for (let i = 0; i < seedStr.length; i++) {
+    seed = (seed * 31 + seedStr.charCodeAt(i)) >>> 0;
+  }
+  function pseudoRandom() {
+    seed = (seed * 1664525 + 1013904223) >>> 0;
+    return seed / 4294967296;
+  }
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(pseudoRandom() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 export default async function PracticePage({ searchParams }) {
   const sp = await searchParams;
   const get = (k) => (Array.isArray(sp?.[k]) ? sp[k][0] : sp?.[k]) || '';
 
+  const drill = get('drill'); // 'daily'
+  const isDailyDrill = drill === 'daily';
+  const pattern = get('pattern'); // 'new'
   const mode = get('mode') === 'practice' ? 'practice' : 'exam';
   const subject = get('subject');
   const subjects = get('subjects').split(',').map(s => s.trim()).filter(Boolean);
@@ -30,7 +51,7 @@ export default async function PracticePage({ searchParams }) {
   const exam = get('exam');
   const years = get('years');
   const ids = get('ids').split(',').map(s => s.trim()).filter(Boolean);
-  const n = Math.min(Math.max(parseInt(get('n'), 10) || 20, 5), 100);
+  const n = isDailyDrill ? 10 : Math.min(Math.max(parseInt(get('n'), 10) || 20, 5), 100);
 
   // Dropped questions (no official key) can't be graded — exclude them from tests
   const where = { correctLabel: { not: null } };
@@ -59,7 +80,7 @@ export default async function PracticePage({ searchParams }) {
     }
   }
 
-  const rows = await prisma.questionDraft.findMany({
+  let rows = await prisma.questionDraft.findMany({
     where,
     select: {
       id: true, questionNo: true, examName: true, examYear: true, srcSubject: true,
@@ -67,7 +88,20 @@ export default async function PracticePage({ searchParams }) {
     },
   });
 
-  const picked = shuffle(rows).slice(0, n).map(q => ({
+  // If user requested New UPSC Pattern (Pairs / Statements)
+  if (pattern === 'new') {
+    rows = rows.filter(isNewPatternQuestion);
+  }
+
+  let picked = [];
+  if (isDailyDrill) {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    picked = seededShuffle(rows, todayStr).slice(0, 10);
+  } else {
+    picked = shuffle(rows).slice(0, n);
+  }
+
+  const formattedQuestions = picked.map(q => ({
     id: q.id,
     questionNo: q.questionNo,
     examName: q.examName || 'UPSC CSE Pre',
@@ -81,7 +115,11 @@ export default async function PracticePage({ searchParams }) {
   }));
 
   let title = 'Custom set';
-  if (ids.length) {
+  if (isDailyDrill) {
+    title = '🔥 Daily PYQ Streak Drill';
+  } else if (pattern === 'new') {
+    title = '🔥 New UPSC Pattern (Pairs & Statements)';
+  } else if (ids.length) {
     title = 'Selected questions';
   } else if (subjects.length > 0) {
     title = `${subjects.join(' + ')}${topics.length > 0 ? ` (${topics.length} topics)` : ''}`;
@@ -93,13 +131,17 @@ export default async function PracticePage({ searchParams }) {
     ? years.replace('-', '–')
     : '2011–2025';
   const examLabel = exam || 'UPSC CSE & CDS';
+  const metaLabel = isDailyDrill
+    ? '10 Curated High-Yield Questions · Daily Streak Challenge'
+    : `${examLabel} ${yearsLabel}`;
 
   return (
     <PracticeClient
-      questions={picked}
+      questions={formattedQuestions}
       mode={mode}
+      isDailyDrill={isDailyDrill}
       title={`${title} — ${mode === 'practice' ? 'Practice mode' : 'Exam mode'}`}
-      meta={`${examLabel} ${yearsLabel}`}
+      meta={metaLabel}
       backHref={`/prelims/pyq?${new URLSearchParams({
         ...(subject && { subject }),
         ...(topic && { topic }),
