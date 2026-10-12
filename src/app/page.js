@@ -17,6 +17,7 @@ import {
   Layers,
   Sparkles
 } from 'lucide-react';
+import { usePyqStore } from '@/app/prelims/pyq/pyqStore';
 
 const SUGGESTED_SEARCHES = [
   "Preamble",
@@ -239,6 +240,7 @@ const YEAR_PAPERS = [
 export default function PrelimsGPTCommandCenter() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
+  const { streak, isStreakCompletedToday, ready } = usePyqStore();
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -431,6 +433,118 @@ export default function PrelimsGPTCommandCenter() {
                 {term}
               </button>
             ))}
+          </div>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* DAILY PYQ STREAK HERO CARD (DAILY 10-QUESTION DISCIPLINE)                 */}
+        {/* ========================================================================= */}
+        <div style={{
+          marginBottom: '52px',
+          background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.09) 0%, rgba(239, 68, 68, 0.05) 50%, rgba(59, 130, 246, 0.06) 100%)',
+          border: '1.5px solid rgba(245, 158, 11, 0.35)',
+          borderRadius: '22px',
+          padding: '24px 28px',
+          boxShadow: '0 12px 36px rgba(0, 0, 0, 0.22), 0 0 40px rgba(245, 158, 11, 0.05)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '24px',
+          flexWrap: 'wrap',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          {/* Subtle warm glow circle */}
+          <div style={{
+            position: 'absolute',
+            top: '-50px',
+            right: '-50px',
+            width: '180px',
+            height: '180px',
+            background: 'radial-gradient(circle, rgba(245, 158, 11, 0.16) 0%, transparent 70%)',
+            pointerEvents: 'none'
+          }} />
+
+          {/* Left Block: Flame Counter + Description */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: 1, minWidth: '280px', position: 'relative', zIndex: 1 }}>
+            {/* Animated Flame Badge */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '76px',
+              height: '76px',
+              borderRadius: '20px',
+              background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(239, 68, 68, 0.15) 100%)',
+              border: '1.5px solid rgba(245, 158, 11, 0.45)',
+              boxShadow: '0 6px 20px rgba(245, 158, 11, 0.18)',
+              flexShrink: 0
+            }}>
+              <Flame size={32} style={{ color: '#f59e0b', filter: 'drop-shadow(0 2px 8px rgba(245, 158, 11, 0.6))' }} />
+              <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#f59e0b', marginTop: '2px', letterSpacing: '-0.01em' }}>
+                {ready ? streak.current || 0 : 0}d
+              </span>
+            </div>
+
+            {/* Info */}
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '6px' }}>
+                <span style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  letterSpacing: '0.06em',
+                  padding: '3px 10px',
+                  borderRadius: '999px',
+                  background: isStreakCompletedToday ? 'rgba(16, 185, 129, 0.16)' : 'rgba(245, 158, 11, 0.16)',
+                  color: isStreakCompletedToday ? '#10b981' : '#f59e0b',
+                  border: isStreakCompletedToday ? '1px solid rgba(16, 185, 129, 0.35)' : '1px solid rgba(245, 158, 11, 0.35)'
+                }}>
+                  {isStreakCompletedToday ? '✓ TODAY COMPLETED' : '🔥 DAILY PRELIMS HABIT'}
+                </span>
+                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)', fontWeight: 600 }}>
+                  Best: {ready ? streak.best || 0 : 0}d streak
+                </span>
+              </div>
+
+              <h2 style={{ fontSize: '1.35rem', fontWeight: 900, margin: '0 0 6px 0', color: 'var(--text-primary, #ffffff)', letterSpacing: '-0.02em' }}>
+                Daily 10-Question Prelims Streak
+              </h2>
+
+              <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary, #94a3b8)', margin: 0, lineHeight: 1.55 }}>
+                {isStreakCompletedToday
+                  ? `Great job! You've logged today's 10-question drill. Current streak: ${streak.current} day${streak.current === 1 ? '' : 's'} (Best: ${streak.best}d). Tomorrow's drill unlocks at midnight.`
+                  : '10 curated authentic UPSC questions across core subjects · 12 minutes · Build unbeatable problem-solving discipline.'}
+              </p>
+            </div>
+          </div>
+
+          {/* Right Action: CTA Button */}
+          <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+            <Link
+              href="/prelims/pyq/practice?drill=daily&mode=practice"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '13px 24px',
+                borderRadius: '14px',
+                background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
+                color: '#ffffff',
+                fontWeight: 800,
+                fontSize: '0.92rem',
+                textDecoration: 'none',
+                boxShadow: '0 8px 24px rgba(245, 158, 11, 0.35)',
+                transition: 'transform 0.15s ease, box-shadow 0.15s ease',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              <Flame size={18} />
+              <span>{isStreakCompletedToday ? "Review Today's Drill" : "▶ Start Today's Drill (10 Qs)"}</span>
+            </Link>
           </div>
         </div>
 

@@ -82,6 +82,9 @@ export default function Navigation({ children }) {
 
             <div className="app-nav__links">
               <Link href="/prelims/pyq" className="app-nav__link">PYQ Explorer</Link>
+              <Link href="/prelims/pyq/practice?drill=daily&mode=practice" className="app-nav__link" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ color: '#f59e0b' }}>🔥</span> Daily Drill
+              </Link>
               <Link href="/prelims/mocks" className="app-nav__link">Mock Tests</Link>
               <Link href="/atlas" className="app-nav__link">Atlas Maps</Link>
             </div>
