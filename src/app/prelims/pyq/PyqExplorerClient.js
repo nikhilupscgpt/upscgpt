@@ -14,6 +14,7 @@ import {
   Play,
   RotateCcw,
   Flame,
+  Globe2,
 } from 'lucide-react';
 import StemView from './StemView';
 import QuizSetupModal from './QuizSetupModal';
@@ -81,14 +82,11 @@ export default function PyqExplorerClient({ initialQuestions }) {
     const q = p.get('q');
     const s = p.get('show');
     const pat = p.get('pattern');
-    if (q) {
-      setQuery(q);
-    } else {
-      if (p.get('subject')) setSubject(p.get('subject'));
-      if (p.get('topic')) setTopic(p.get('topic'));
-      if (p.get('exam')) setExam(p.get('exam'));
-      if (p.get('year')) setYears(p.get('year'));
-    }
+    if (q) setQuery(q);
+    if (p.get('subject')) setSubject(p.get('subject'));
+    if (p.get('topic')) setTopic(p.get('topic'));
+    if (p.get('exam')) setExam(p.get('exam'));
+    if (p.get('year')) setYears(p.get('year'));
     if (s) setShow(s);
     if (pat === 'new') setPatternFilter('NEW');
     setUrlReady(true);
@@ -97,16 +95,13 @@ export default function PyqExplorerClient({ initialQuestions }) {
   useEffect(() => {
     if (!urlReady) return;
     const p = new URLSearchParams();
-    if (query.trim()) {
-      p.set('q', query.trim());
-    } else {
-      if (subject !== 'ALL') p.set('subject', subject);
-      if (topic !== 'ALL') p.set('topic', topic);
-      if (exam !== 'ALL') p.set('exam', exam);
-      if (years !== 'ALL') p.set('year', years);
-      if (show !== 'ALL') p.set('show', show);
-      if (patternFilter === 'NEW') p.set('pattern', 'new');
-    }
+    if (query.trim()) p.set('q', query.trim());
+    if (subject !== 'ALL') p.set('subject', subject);
+    if (topic !== 'ALL') p.set('topic', topic);
+    if (exam !== 'ALL') p.set('exam', exam);
+    if (years !== 'ALL') p.set('year', years);
+    if (show !== 'ALL') p.set('show', show);
+    if (patternFilter === 'NEW') p.set('pattern', 'new');
     const qs = p.toString();
     window.history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
   }, [urlReady, query, subject, topic, exam, years, show, patternFilter]);
@@ -174,19 +169,23 @@ export default function PyqExplorerClient({ initialQuestions }) {
   const scope = useMemo(() => {
     const needle = query.trim().toLowerCase();
     return initialQuestions.filter(q => {
-      if (needle) {
-        return (
-          (q.stem || '').toLowerCase().includes(needle) ||
-          (q.srcTopic || '').toLowerCase().includes(needle) ||
-          (q.srcSubject || '').toLowerCase().includes(needle) ||
-          (q.options || []).some(o => (o.text || '').toLowerCase().includes(needle))
-        );
-      }
       if (patternFilter === 'NEW' && !isNewPatternQuestion(q)) return false;
       if (subject !== 'ALL' && q.srcSubject !== subject) return false;
       if (topic !== 'ALL' && q.srcTopic !== topic) return false;
       if (exam !== 'ALL' && !(q.examName || '').includes(exam === 'UPSC CSE' ? 'CSE' : 'CDS')) return false;
       if (!inBucket(q.examYear, years)) return false;
+
+      if (needle) {
+        const inStem = (q.stem || '').toLowerCase().includes(needle);
+        const inTopic = (q.srcTopic || '').toLowerCase().includes(needle);
+        const inSubject = (q.srcSubject || '').toLowerCase().includes(needle);
+        const inOptions = (q.options || []).some(o => (o.text || '').toLowerCase().includes(needle));
+        const inExplanation = (q.explanation || '').toLowerCase().includes(needle);
+        if (!inStem && !inTopic && !inSubject && !inOptions && !inExplanation) {
+          return false;
+        }
+      }
+
       return true;
     });
   }, [initialQuestions, query, subject, topic, exam, years, patternFilter]);
@@ -254,13 +253,11 @@ export default function PyqExplorerClient({ initialQuestions }) {
 
   const onSearch = (v) => {
     setQuery(v);
-    if (v.trim()) {
-      setTopic('ALL');
-      setExam('ALL');
-      setYears('ALL');
-      setShow('ALL');
-      setPatternFilter('ALL');
-    }
+    resetPage();
+  };
+
+  const clearSearch = () => {
+    setQuery('');
     resetPage();
   };
 
@@ -288,13 +285,14 @@ export default function PyqExplorerClient({ initialQuestions }) {
     const p = new URLSearchParams();
     p.set('mode', 'practice');
     p.set('n', '20');
+    if (query.trim()) p.set('q', query.trim());
     if (patternFilter === 'NEW') p.set('pattern', 'new');
     if (subject !== 'ALL') p.set('subject', subject);
     if (topic !== 'ALL') p.set('topic', topic);
     if (exam !== 'ALL') p.set('exam', exam);
     if (years !== 'ALL') p.set('years', years);
     return `/prelims/pyq/practice?${p.toString()}`;
-  }, [subject, topic, exam, years, patternFilter]);
+  }, [query, subject, topic, exam, years, patternFilter]);
 
   // =========================================================================
   // VIEW 1: SUBJECT HUB (When no subject is picked and not searching)
@@ -352,6 +350,16 @@ export default function PyqExplorerClient({ initialQuestions }) {
                   placeholder="Search any keyword or article — e.g. Article 21, Money Bill"
                   aria-label="Search previous year questions"
                 />
+                {query && (
+                  <button
+                    type="button"
+                    className="pq-search-clear"
+                    onClick={clearSearch}
+                    aria-label="Clear search"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
 
               <button
@@ -451,10 +459,10 @@ export default function PyqExplorerClient({ initialQuestions }) {
             <div>
               <h1 className="pq-focus-title">
                 <span>{subjectMeta.icon}</span>
-                {searching ? `Search: “${query}”` : subject}
+                {subject !== 'ALL' ? subject : (searching ? `Search: “${query}”` : 'All Questions')}
               </h1>
               <span style={{ fontSize: 13, color: 'var(--pq-muted)', fontWeight: 600, display: 'block', marginTop: 4 }}>
-                {filtered.length} questions {topic !== 'ALL' ? `· Topic: ${topic}` : ''} {patternFilter === 'NEW' ? '· 🔥 New Pattern Only' : ''}
+                {filtered.length} questions {subject !== 'ALL' ? `in ${subject}` : ''} {searching ? `· matching “${query}”` : ''} {topic !== 'ALL' ? `· Topic: ${topic}` : ''} {patternFilter === 'NEW' ? '· 🔥 New Pattern Only' : ''}
               </span>
             </div>
 
@@ -485,6 +493,53 @@ export default function PyqExplorerClient({ initialQuestions }) {
                 </button>
               )}
             </div>
+          </div>
+
+          {/* Universal Search Bar */}
+          <div style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <div className="pq-search" style={{ flex: 1, minWidth: '280px', margin: 0 }}>
+              <Search size={18} />
+              <input
+                ref={searchRef}
+                value={query}
+                onChange={e => onSearch(e.target.value)}
+                placeholder={subject !== 'ALL'
+                  ? `Search keywords in ${subject} (e.g. Article 21, Money Bill, Preamble)...`
+                  : "Search any keyword, article or theme across all subjects..."}
+                aria-label="Search previous year questions"
+              />
+              {query && (
+                <button
+                  type="button"
+                  className="pq-search-clear"
+                  onClick={clearSearch}
+                  aria-label="Clear search"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {subject !== 'ALL' && (
+              <button
+                type="button"
+                className="pq-btn"
+                onClick={() => { setSubject('ALL'); resetPage(); }}
+                style={{
+                  padding: '9px 14px',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  whiteSpace: 'nowrap'
+                }}
+                title="Search across all 2,528 questions"
+              >
+                <Globe2 size={13} style={{ color: 'var(--color-blue, #3b82f6)' }} />
+                <span>Search all subjects</span>
+              </button>
+            )}
           </div>
         </div>
 
