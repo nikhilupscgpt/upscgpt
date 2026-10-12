@@ -59,7 +59,9 @@ function difficultyOf(q) {
   return { label: 'Easy', cls: 'pq-tag-easy' };
 }
 
-export default function PyqExplorerClient({ initialQuestions }) {
+export default function PyqExplorerClient({ initialQuestions = [], initialMetadata = null }) {
+  const [questions, setQuestions] = useState(initialQuestions || []);
+  const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [subject, setSubject] = useState('ALL');
   const [topic, setTopic] = useState('ALL');
   const [exam, setExam] = useState('ALL');
@@ -118,10 +120,54 @@ export default function PyqExplorerClient({ initialQuestions }) {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
+  /* Background hydration of full PYQ database */
+  useEffect(() => {
+    if (questions.length >= 1000) return;
+
+    let isMounted = true;
+
+    // Check sessionStorage cache first for instant hydration
+    try {
+      const cached = sessionStorage.getItem('upscgpt_pyq_store_v1');
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 500) {
+          setQuestions(parsed);
+          return;
+        }
+      }
+    } catch (e) {}
+
+    setLoadingQuestions(true);
+    fetch('/api/pyq')
+      .then(res => res.json())
+      .then(data => {
+        if (!isMounted) return;
+        if (data.success && Array.isArray(data.questions) && data.questions.length > 0) {
+          setQuestions(data.questions);
+          try {
+            sessionStorage.setItem('upscgpt_pyq_store_v1', JSON.stringify(data.questions));
+          } catch (e) {}
+        }
+      })
+      .catch(err => {
+        console.error('Failed to load full question database:', err);
+      })
+      .finally(() => {
+        if (isMounted) setLoadingQuestions(false);
+      });
+
+    return () => { isMounted = false; };
+  }, []);
+
   /* ---- Derived data ---- */
   const subjectStats = useMemo(() => {
+    if (initialMetadata?.subjectStats && initialMetadata.subjectStats.length > 0) {
+      return initialMetadata.subjectStats;
+    }
+
     const map = new Map();
-    for (const q of initialQuestions) {
+    for (const q of questions) {
       if (!map.has(q.srcSubject)) {
         map.set(q.srcSubject, { count: 0, topics: new Map() });
       }
@@ -148,14 +194,17 @@ export default function PyqExplorerClient({ initialQuestions }) {
         meta: SUBJECT_META[s] || { icon: '📚', color: '#64748b' },
       };
     });
-  }, [initialQuestions]);
+  }, [questions, initialMetadata]);
 
   const searching = query.trim().length > 0;
   const mistakeCount = Object.keys(mistakes).length;
 
   const totalNewPatternCount = useMemo(() => {
-    return initialQuestions.filter(isNewPatternQuestion).length;
-  }, [initialQuestions]);
+    if (initialMetadata?.totalNewPattern !== undefined) {
+      return initialMetadata.totalNewPattern;
+    }
+    return questions.filter(isNewPatternQuestion).length;
+  }, [questions, initialMetadata]);
 
   const showOptions = useMemo(() => [
     ['ALL', 'All'],
@@ -168,7 +217,7 @@ export default function PyqExplorerClient({ initialQuestions }) {
   // Questions matching active subject & search
   const scope = useMemo(() => {
     const needle = query.trim().toLowerCase();
-    return initialQuestions.filter(q => {
+    return questions.filter(q => {
       if (patternFilter === 'NEW' && !isNewPatternQuestion(q)) return false;
       if (subject !== 'ALL' && q.srcSubject !== subject) return false;
       if (topic !== 'ALL' && q.srcTopic !== topic) return false;
@@ -188,7 +237,7 @@ export default function PyqExplorerClient({ initialQuestions }) {
 
       return true;
     });
-  }, [initialQuestions, query, subject, topic, exam, years, patternFilter]);
+  }, [questions, query, subject, topic, exam, years, patternFilter]);
 
   const filtered = useMemo(() => {
     if (show === 'ALL') return scope;
@@ -211,24 +260,46 @@ export default function PyqExplorerClient({ initialQuestions }) {
   // Topics for the active subject dropdown
   const activeSubjectTopics = useMemo(() => {
     if (subject === 'ALL') return [];
+    if (initialMetadata?.subjectStats) {
+      const match = initialMetadata.subjectStats.find(s => s.name === subject);
+      if (match?.allTopics && match.allTopics.length > 0) {
+        return match.allTopics;
+      }
+    }
     const m = new Map();
-    for (const q of initialQuestions) {
+    for (const q of questions) {
       if (q.srcSubject === subject && q.srcTopic) {
         m.set(q.srcTopic, (m.get(q.srcTopic) || 0) + 1);
       }
     }
     return [...m.entries()].sort((a, b) => b[1] - a[1]);
-  }, [initialQuestions, subject]);
+  }, [questions, subject, initialMetadata]);
 
   const activeSubjectMistakesCount = useMemo(() => {
     if (subject === 'ALL') return mistakeCount;
-    return initialQuestions.filter(q => q.srcSubject === subject && mistakes[q.id]).length;
-  }, [initialQuestions, subject, mistakes, mistakeCount]);
+    return questions.filter(q => q.srcSubject === subject && mistakes[q.id]).length;
+  }, [questions, subject, mistakes, mistakeCount]);
 
   const activeSubjectNewPatternCount = useMemo(() => {
     if (subject === 'ALL') return totalNewPatternCount;
-    return initialQuestions.filter(q => q.srcSubject === subject && isNewPatternQuestion(q)).length;
-  }, [initialQuestions, subject, totalNewPatternCount]);
+    if (initialMetadata?.subjectStats) {
+      const match = initialMetadata.subjectStats.find(s => s.name === subject);
+      if (match?.newPatternCount !== undefined) {
+        return match.newPatternCount;
+      }
+    }
+    return questions.filter(q => q.srcSubject === subject && isNewPatternQuestion(q)).length;
+  }, [questions, subject, totalNewPatternCount, initialMetadata]);
+
+  const totalSubjectQs = useMemo(() => {
+    if (initialMetadata?.subjectStats) {
+      const match = initialMetadata.subjectStats.find(s => s.name === subject);
+      if (match?.count !== undefined) {
+        return match.count;
+      }
+    }
+    return questions.filter(q => q.srcSubject === subject).length;
+  }, [questions, subject, initialMetadata]);
 
   /* ---- Handlers ---- */
   const resetPage = () => setPage(1);
@@ -431,7 +502,7 @@ export default function PyqExplorerClient({ initialQuestions }) {
         <QuizSetupModal
           isOpen={quizModalOpen}
           onClose={() => setQuizModalOpen(false)}
-          questions={initialQuestions}
+          questions={questions}
         />
       </div>
     );
@@ -441,7 +512,6 @@ export default function PyqExplorerClient({ initialQuestions }) {
   // VIEW 2: FOCUSED SUBJECT VIEW (Simple, clutter-free single column!)
   // =========================================================================
   const subjectMeta = SUBJECT_META[subject] || { icon: '📚', color: '#64748b' };
-  const totalSubjectQs = initialQuestions.filter(q => q.srcSubject === subject).length;
 
   return (
     <div className="pq-root">
@@ -612,16 +682,39 @@ export default function PyqExplorerClient({ initialQuestions }) {
         {/* Question Feed */}
         <main ref={feedTopRef}>
           {pageItems.length === 0 ? (
-            <div className="pq-card pq-empty" style={{ padding: 40, textAlign: 'center' }}>
-              <h3 style={{ margin: '0 0 8px' }}>No questions match this filter</h3>
-              <p style={{ margin: '0 0 16px', color: 'var(--pq-muted)' }}>Try resetting format, topic, year, or review filters.</p>
-              <button
-                className="pq-btn pq-btn-primary"
-                onClick={() => { setTopic('ALL'); setExam('ALL'); setYears('ALL'); setShow('ALL'); setPatternFilter('ALL'); resetPage(); }}
-              >
-                Reset filters
-              </button>
-            </div>
+            loadingQuestions ? (
+              <div className="pq-skeleton-list">
+                {[1, 2, 3].map(i => (
+                  <div key={i} className="pq-card pq-qcard pq-skeleton-card">
+                    <div className="pq-skeleton-tags">
+                      <div className="pq-skeleton-pill" style={{ width: 120 }}></div>
+                      <div className="pq-skeleton-pill" style={{ width: 60 }}></div>
+                      <div className="pq-skeleton-pill" style={{ width: 100 }}></div>
+                    </div>
+                    <div className="pq-skeleton-line" style={{ width: '92%', height: 18, margin: '14px 0 8px' }}></div>
+                    <div className="pq-skeleton-line" style={{ width: '85%', height: 18, marginBottom: 8 }}></div>
+                    <div className="pq-skeleton-line" style={{ width: '60%', height: 18, marginBottom: 20 }}></div>
+                    <div className="pq-skeleton-opts">
+                      <div className="pq-skeleton-opt"></div>
+                      <div className="pq-skeleton-opt"></div>
+                      <div className="pq-skeleton-opt"></div>
+                      <div className="pq-skeleton-opt"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="pq-card pq-empty" style={{ padding: 40, textAlign: 'center' }}>
+                <h3 style={{ margin: '0 0 8px' }}>No questions match this filter</h3>
+                <p style={{ margin: '0 0 16px', color: 'var(--pq-muted)' }}>Try resetting format, topic, year, or review filters.</p>
+                <button
+                  className="pq-btn pq-btn-primary"
+                  onClick={() => { setTopic('ALL'); setExam('ALL'); setYears('ALL'); setShow('ALL'); setPatternFilter('ALL'); resetPage(); }}
+                >
+                  Reset filters
+                </button>
+              </div>
+            )
           ) : (
             pageItems.map(q => (
               <QuestionCard
@@ -651,7 +744,7 @@ export default function PyqExplorerClient({ initialQuestions }) {
       <QuizSetupModal
         isOpen={quizModalOpen}
         onClose={() => setQuizModalOpen(false)}
-        questions={initialQuestions}
+        questions={questions}
       />
     </div>
   );

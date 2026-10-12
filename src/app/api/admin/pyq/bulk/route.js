@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { PrismaClient } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
@@ -177,6 +178,13 @@ export async function POST(req) {
       } catch (err) {
         errors.push(`${indexStr}: ${err.message}`);
       }
+    }
+
+    try {
+      revalidatePath('/prelims/pyq');
+      revalidatePath('/api/pyq');
+    } catch (e) {
+      console.warn('Revalidation error:', e);
     }
 
     return NextResponse.json({

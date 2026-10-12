@@ -2419,3 +2419,65 @@
   border: 1px solid rgba(249, 115, 22, 0.35) !important;
   font-weight: 850 !important;
 }
+
+/* Skeleton Loading Shimmer */
+@keyframes pq-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.pq-skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pq-skeleton-card {
+  padding: 24px;
+  border: 1px solid var(--pq-line);
+  background: var(--pq-card);
+  border-radius: 14px;
+}
+
+.pq-skeleton-tags {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.pq-skeleton-pill {
+  height: 22px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--pq-inset) 25%, var(--pq-line) 50%, var(--pq-inset) 75%);
+  background-size: 200% 100%;
+  animation: pq-shimmer 1.5s infinite;
+}
+
+.pq-skeleton-line {
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--pq-inset) 25%, var(--pq-line) 50%, var(--pq-inset) 75%);
+  background-size: 200% 100%;
+  animation: pq-shimmer 1.5s infinite;
+}
+
+.pq-skeleton-opts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+@media (max-width: 640px) {
+  .pq-skeleton-opts {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pq-skeleton-opt {
+  height: 44px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--pq-inset) 25%, var(--pq-line) 50%, var(--pq-inset) 75%);
+  background-size: 200% 100%;
+  animation: pq-shimmer 1.5s infinite;
+}
+
