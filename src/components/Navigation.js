@@ -81,6 +81,11 @@ export default function Navigation({ children }) {
             </Link>
 
             <div className="app-nav__links">
+              {session && (
+                <Link href="/dashboard" className="app-nav__link" style={{ fontWeight: 800, color: 'var(--color-blue, #3b82f6)' }}>
+                  Dashboard
+                </Link>
+              )}
               <Link href="/prelims/pyq" className="app-nav__link">PYQ Explorer</Link>
               <Link href="/prelims/pyq/practice?drill=daily&mode=practice" className="app-nav__link" style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                 <span style={{ color: '#f59e0b' }}>🔥</span> Daily Drill
@@ -121,6 +126,9 @@ export default function Navigation({ children }) {
                     {session.user.tier} TIER
                   </Link>
                 </div>
+                <Link href="/dashboard" className="btn-secondary" style={{ padding: '6px 10px', fontWeight: 700 }}>
+                  📊 <span className="nav-desktop-text">Dashboard</span>
+                </Link>
                 <Link href="/profile" className="btn-secondary" style={{ padding: '6px 10px' }}>
                   👤 <span className="nav-desktop-text">Profile</span>
                 </Link>
@@ -136,6 +144,9 @@ export default function Navigation({ children }) {
 
         <div className="app-nav__mobile-panel">
           <div className="app-nav__mobile-links">
+            {session && (
+              <Link href="/dashboard" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>📊 Dashboard</Link>
+            )}
             <Link href="/prelims/pyq" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>PYQ Explorer</Link>
             <Link href="/prelims/mocks" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>Mock Tests</Link>
             <Link href="/atlas" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>Atlas Maps</Link>

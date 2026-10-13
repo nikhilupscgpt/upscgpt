@@ -1,25 +1,25 @@
 export const dynamic = 'force-dynamic';
 
-import DashboardIntelligenceClient from '@/components/dashboard/DashboardIntelligenceClient';
+import DashboardPrelimsClient from '@/components/dashboard/DashboardPrelimsClient';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 
 export const metadata = {
-  title: 'Intelligence Dashboard | UPSCGPT',
-  description: 'Manage your UPSC syllabus progress and neural study metrics.',
+  title: 'Prelims Dashboard | PrelimsGPT',
+  description: 'Your Prelims Mission Control: track PYQ attempts, accuracy, mistake notebook, and subject mastery.',
 };
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
-  
+
   if (!session) {
     redirect('/login?callbackUrl=/dashboard');
   }
 
   return (
-    <div style={{ height: '100vh', width: '100vw', overflow: 'hidden' }}>
-      <DashboardIntelligenceClient />
+    <div style={{ minHeight: '100vh', width: '100%', background: 'transparent' }}>
+      <DashboardPrelimsClient />
     </div>
   );
 }
