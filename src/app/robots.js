@@ -1,8 +1,10 @@
 export default function robots() {
   const disallowedPaths = ['/admin/', '/api/', '/profile/', '/_next/'];
 
-  // AI model training scrapers that extract bulk datasets with 0 referral traffic
-  const trainingScrapers = [
+  // SEO bots and AI scrapers that consume high bandwidth & compute with 0 benefit
+  const blockedCrawlers = [
+    'AhrefsBot',
+    'SemrushBot',
     'GPTBot',
     'ClaudeBot',
     'Amazonbot',
@@ -25,8 +27,8 @@ export default function robots() {
 
   return {
     rules: [
-      // 1. Block bulk training extractors from consuming bandwidth & compute
-      ...trainingScrapers.map(bot => ({
+      // 1. Block SEO scrapers and bulk extractors from consuming bandwidth & compute
+      ...blockedCrawlers.map(bot => ({
         userAgent: bot,
         disallow: '/',
       })),
