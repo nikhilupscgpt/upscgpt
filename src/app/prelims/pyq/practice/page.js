@@ -51,7 +51,9 @@ export default async function PracticePage({ searchParams }) {
   const exam = get('exam');
   const years = get('years');
   const ids = get('ids').split(',').map(s => s.trim()).filter(Boolean);
-  const n = isDailyDrill ? 10 : Math.min(Math.max(parseInt(get('n'), 10) || 20, 5), 100);
+  const n = isDailyDrill 
+    ? Math.min(Math.max(parseInt(get('n'), 10) || 10, 5), 35) 
+    : Math.min(Math.max(parseInt(get('n'), 10) || 20, 5), 100);
 
   // Dropped questions (no official key) can't be graded — exclude them from tests
   const where = { correctLabel: { not: null } };
@@ -94,9 +96,12 @@ export default async function PracticePage({ searchParams }) {
   }
 
   let picked = [];
-  if (isDailyDrill) {
+  if (ids.length > 0) {
+    // Keep order of ids or rows
+    picked = rows.slice(0, n);
+  } else if (isDailyDrill) {
     const todayStr = new Date().toISOString().slice(0, 10);
-    picked = seededShuffle(rows, todayStr).slice(0, 10);
+    picked = seededShuffle(rows, todayStr).slice(0, n);
   } else {
     picked = shuffle(rows).slice(0, n);
   }
