@@ -775,48 +775,7 @@ export default function PrelimsGPTCommandCenter() {
           </div>
         </div>
 
-        {/* ========================================================================= */}
-        {/* SECTION 4: WHY PRELIMSGPT? (3 KEY STUDY PRINCIPLES)                       */}
-        {/* ========================================================================= */}
-        <div style={{
-          background: 'var(--bg-card, rgba(15, 23, 42, 0.4))',
-          border: '1px solid var(--border-color, rgba(255, 255, 255, 0.06))',
-          borderRadius: '24px',
-          padding: '36px 32px',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-          gap: '28px'
-        }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-              <CheckCircle2 size={18} style={{ color: 'var(--color-blue, #3b82f6)' }} />
-              <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Zero Distractions</h4>
-            </div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5, margin: 0 }}>
-              Stripped of daily news streaks, off-season Mains evaluators, and complex graphs. Strictly focused on Prelims question solving.
-            </p>
-          </div>
 
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-              <CheckCircle2 size={18} style={{ color: 'var(--color-emerald, #10b981)' }} />
-              <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Active Recall UI</h4>
-            </div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5, margin: 0 }}>
-              Questions are collapsed by default. Answers and explanations remain hidden until you attempt the MCQ or choose to reveal it.
-            </p>
-          </div>
-
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-              <CheckCircle2 size={18} style={{ color: 'var(--color-amber, #f59e0b)' }} />
-              <h4 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)', margin: 0 }}>Study-Grade Themes</h4>
-            </div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5, margin: 0 }}>
-              Full support for OLED Dark Mode and warm Sepia parchment mode for sustained reading sessions without eye strain.
-            </p>
-          </div>
-        </div>
 
       </main>
 
