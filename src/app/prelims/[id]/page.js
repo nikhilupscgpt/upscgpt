@@ -4,6 +4,9 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
+
+export const dynamic = 'force-dynamic';
 
 export default async function MockTestPage({ params }) {
   const { id } = await params;
@@ -12,34 +15,65 @@ export default async function MockTestPage({ params }) {
     redirect('/login?callbackUrl=/prelims/' + id);
   }
 
-  const testPack = await prisma.testPack.findUnique({
-    where: { id: id },
-    include: {
-      questions: {
-        select: {
-          id: true,
-          text: true,
-          options: true,
-          difficulty: true,
-        }
-      }
-    }
-  });
+  let testPaper = null;
 
-  if (!testPack) {
+  try {
+    if (prisma?.testPaper) {
+      testPaper = await prisma.testPaper.findUnique({
+        where: { id: id },
+        include: {
+          questions: {
+            include: {
+              question: true
+            },
+            orderBy: { sortOrder: 'asc' }
+          }
+        }
+      });
+    }
+  } catch (err) {
+    console.error('Error fetching test paper:', err);
+  }
+
+  if (!testPaper) {
     return (
-      <div className="flex items-center justify-center h-screen bg-slate-900 text-white">
-        <div className="text-center">
-          <h1 className="text-4xl font-black mb-4">404</h1>
-          <p className="text-slate-400">Mock Test Not Found</p>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+        <div style={{ textAlign: 'center', maxWidth: '440px', padding: '32px' }}>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: 900, marginBottom: '12px' }}>404</h1>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>Mock Test paper not found or not yet published.</p>
+          <Link 
+            href="/prelims/mocks"
+            style={{
+              padding: '10px 20px',
+              borderRadius: '10px',
+              background: 'var(--btn-primary-bg)',
+              color: 'var(--btn-primary-text)',
+              textDecoration: 'none',
+              fontWeight: 700,
+              fontSize: '0.9rem'
+            }}
+          >
+            Back to Mocks Catalog
+          </Link>
         </div>
       </div>
     );
   }
 
+  // Transform to format expected by MockTestPortal
+  const formattedTest = {
+    ...testPaper,
+    questions: testPaper.questions.map(tq => ({
+      id: tq.question.id,
+      text: tq.question.stem,
+      options: tq.question.options,
+      difficulty: tq.question.difficulty
+    }))
+  };
+
   return (
     <MockTestPortal 
-      testPack={JSON.parse(JSON.stringify(testPack))} 
+      testPack={JSON.parse(JSON.stringify(formattedTest))} 
       userId={session.user.id} 
     />
   );
