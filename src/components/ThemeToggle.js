@@ -28,12 +28,12 @@ export default function ThemeToggle() {
         <span>Dark</span>
       </button>
       <button
-        onClick={() => setTheme('sepia')}
-        className={`theme-btn ${theme === 'sepia' ? 'active' : ''}`}
-        aria-label="Sepia Mode"
+        onClick={() => setTheme('light')}
+        className={`theme-btn ${theme === 'light' || theme === 'sepia' ? 'active' : ''}`}
+        aria-label="Light Mode"
       >
-        <Coffee size={14} />
-        <span>Sepia</span>
+        <Sun size={14} />
+        <span>Light</span>
       </button>
 
       <style jsx>{`

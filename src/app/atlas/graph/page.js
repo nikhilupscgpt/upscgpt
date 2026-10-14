@@ -31,7 +31,7 @@ export default function AtlasGraphPage() {
   }, []);
 
   const activeTheme = mounted ? theme : 'dark';
-  const isSepia = activeTheme === 'sepia';
+  const isLight = activeTheme === 'light' || activeTheme === 'sepia';
   
   const fgRef = useRef();
 
@@ -158,12 +158,12 @@ export default function AtlasGraphPage() {
               const textWidth = ctx.measureText(label).width;
               const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2); 
               
-              ctx.fillStyle = isSepia ? 'rgba(235, 225, 205, 0.95)' : 'rgba(2, 6, 23, 0.8)';
+              ctx.fillStyle = isLight ? 'rgba(255, 255, 255, 0.95)' : 'rgba(2, 6, 23, 0.8)';
               ctx.fillRect(node.x - bckgDimensions[0] / 2, node.y + radius + 2, bckgDimensions[0], bckgDimensions[1]);
 
               ctx.textAlign = 'center';
               ctx.textBaseline = 'middle';
-              ctx.fillStyle = highlightNodes.has(node.id) ? (isSepia ? '#433422' : '#fff') : (isSepia ? '#705e49' : '#94a3b8');
+              ctx.fillStyle = highlightNodes.has(node.id) ? (isLight ? '#0f172a' : '#fff') : (isLight ? '#475569' : '#94a3b8');
               ctx.fillText(label, node.x, node.y + radius + 2 + bckgDimensions[1] / 2);
             }
           }}

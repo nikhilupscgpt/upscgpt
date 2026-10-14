@@ -381,67 +381,84 @@ export default function StandaloneQuestionClient({ question: q }) {
           color: #38bdf8;
         }
 
+        [data-theme='light'] .pyq-card,
         [data-theme='sepia'] .pyq-card {
-          background: #ebdcb9 !important;
-          border: 1px solid rgba(139, 115, 85, 0.35) !important;
-          color: #433422 !important;
-          box-shadow: 0 4px 14px rgba(139, 115, 85, 0.12) !important;
+          background: #ffffff !important;
+          border: 1px solid #e2e8f0 !important;
+          color: #0f172a !important;
+          box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04) !important;
         }
+        [data-theme='light'] .pyq-inset,
         [data-theme='sepia'] .pyq-inset {
-          background: rgba(225, 215, 195, 0.75) !important;
-          border: 1px solid rgba(139, 115, 85, 0.3) !important;
-          color: #433422 !important;
+          background: #f8fafc !important;
+          border: 1px solid #e2e8f0 !important;
+          color: #0f172a !important;
         }
+        [data-theme='light'] .pyq-text-title,
         [data-theme='sepia'] .pyq-text-title {
-          color: #433422 !important;
+          color: #0f172a !important;
         }
+        [data-theme='light'] .pyq-text-body,
         [data-theme='sepia'] .pyq-text-body {
-          color: #5c4731 !important;
+          color: #334155 !important;
         }
+        [data-theme='light'] .pyq-text-muted,
         [data-theme='sepia'] .pyq-text-muted {
-          color: #8c7a6b !important;
+          color: #64748b !important;
         }
+        [data-theme='light'] .pyq-badge-dark,
         [data-theme='sepia'] .pyq-badge-dark {
-          background: rgba(139, 115, 85, 0.25) !important;
-          color: #433422 !important;
+          background: #f1f5f9 !important;
+          border: 1px solid #e2e8f0 !important;
+          color: #334155 !important;
         }
+        [data-theme='light'] .pyq-solution-box,
         [data-theme='sepia'] .pyq-solution-box {
-          background: #e2d8bd !important;
-          border: 1px solid rgba(22, 101, 52, 0.45) !important;
-          color: #14532d !important;
+          background: #f0fdf4 !important;
+          border: 1px solid #86efac !important;
+          color: #166534 !important;
         }
+        [data-theme='light'] .pyq-solution-box p,
         [data-theme='sepia'] .pyq-solution-box p {
-          color: #272017 !important;
+          color: #166534 !important;
         }
+        [data-theme='light'] .pyq-option-item,
         [data-theme='sepia'] .pyq-option-item {
-          background: rgba(225, 215, 195, 0.65) !important;
-          border: 1px solid rgba(139, 115, 85, 0.25) !important;
-          color: #433422 !important;
+          background: #ffffff !important;
+          border: 1.5px solid #e2e8f0 !important;
+          color: #334155 !important;
         }
+        [data-theme='light'] .pyq-option-item:hover,
         [data-theme='sepia'] .pyq-option-item:hover {
-          border-color: #7c2d12 !important;
-          color: #291a0c !important;
+          border-color: #94a3b8 !important;
+          background: #f8fafc !important;
+          color: #0f172a !important;
         }
+        [data-theme='light'] .pyq-option-selected,
         [data-theme='sepia'] .pyq-option-selected {
-          background: rgba(124, 45, 18, 0.12) !important;
-          border: 1px solid #7c2d12 !important;
-          color: #431407 !important;
+          background: rgba(2, 132, 199, 0.08) !important;
+          border: 1.5px solid #0284c7 !important;
+          color: #0369a1 !important;
         }
+        [data-theme='light'] .pyq-option-correct,
         [data-theme='sepia'] .pyq-option-correct {
-          background: rgba(22, 101, 52, 0.15) !important;
-          border: 1px solid #15803d !important;
-          color: #14532d !important;
+          background: #f0fdf4 !important;
+          border: 1.5px solid #10b981 !important;
+          color: #15803d !important;
         }
+        [data-theme='light'] .pyq-option-incorrect,
         [data-theme='sepia'] .pyq-option-incorrect {
-          background: rgba(220, 38, 38, 0.12) !important;
-          border: 1px solid #b91c1c !important;
-          color: #7f1d1d !important;
+          background: #fef2f2 !important;
+          border: 1.5px solid #ef4444 !important;
+          color: #b91c1c !important;
         }
+        [data-theme='light'] .pyq-statement-box strong,
         [data-theme='sepia'] .pyq-statement-box strong {
-          color: #7c2d12 !important;
+          color: #0f172a !important;
         }
+        [data-theme='light'] .pyq-statement-box span,
         [data-theme='sepia'] .pyq-statement-box span {
-          color: #433422 !important;
+          color: #334155 !important;
         }
       `}</style>
     </div>

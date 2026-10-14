@@ -9,9 +9,10 @@
   --neon-rose: #f43f5e;
 }
 
+[data-theme='light'] .cms-container,
 [data-theme='sepia'] .cms-container {
-  --bg-secondary: #ebdcb9; /* Warm darker sepia sidebar/card backplate */
-  --card-border: rgba(139, 115, 85, 0.25);
+  --bg-secondary: #f1f5f9;
+  --card-border: #e2e8f0;
 }
 
 .cms-container {

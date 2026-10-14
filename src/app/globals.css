@@ -58,33 +58,34 @@
   --badge-pyq-text: #f87171;
 }
 
-[data-theme='light'] {
-  /* Light Theme overrides */
+[data-theme='light'],
+[data-theme='sepia'] {
+  /* Crisp Editorial Light Theme */
   --bg-primary: #f8fafc;
   --bg-secondary: #f1f5f9;
-  --bg-card: rgba(255, 255, 255, 0.85);
-  --bg-hover: rgba(241, 245, 249, 0.9);
-  --bg-input: rgba(241, 245, 249, 0.5);
+  --bg-card: #ffffff;
+  --bg-hover: #f1f5f9;
+  --bg-input: #f8fafc;
   --border-color: #e2e8f0;
   --border-hover: #cbd5e1;
   --text-primary: #0f172a;
-  --text-secondary: #475569;
+  --text-secondary: #334155;
   --text-muted: #64748b;
   --hero-bg-gradient: radial-gradient(circle at 50% -20%, #e2e8f0 0%, #f8fafc 80%);
   
-  --neural-glow: rgba(59, 130, 246, 0.1);
+  --neural-glow: rgba(59, 130, 246, 0.08);
 
   /* Semantic tokens for links, highlights, tags, and glow */
-  --color-link: #0284c7; /* Ocean blue link */
+  --color-link: #0284c7;
   --color-link-hover: #0369a1;
-  --bg-highlight: #fef08a; /* Soft yellow highlight */
-  --text-highlight: #854d0e; /* Dark amber text */
-  --bg-glow-1: rgba(139, 92, 246, 0.05);
-  --bg-glow-2: rgba(59, 130, 246, 0.05);
+  --bg-highlight: #fef08a;
+  --text-highlight: #854d0e;
+  --bg-glow-1: rgba(139, 92, 246, 0.04);
+  --bg-glow-2: rgba(59, 130, 246, 0.04);
 
-  --btn-primary-bg: #0284c7;
+  --btn-primary-bg: #0f172a;
   --btn-primary-text: #ffffff;
-  --btn-primary-hover-bg: #0369a1;
+  --btn-primary-hover-bg: #1e293b;
 
   /* Badge colors */
   --badge-streak-bg: rgba(22, 163, 74, 0.1);
@@ -99,80 +100,47 @@
   --badge-pyq-text: #991b1b;
 }
 
-[data-theme='sepia'] {
-  /* Sepia Theme overrides */
-  --bg-primary: #f4ecd8; /* Warm paper color */
-  --bg-secondary: #ebdcb9; /* Warm darker sepia sidebar/card backplate */
-  --bg-card: rgba(235, 225, 205, 0.85); /* Slightly darker paper */
-  --bg-hover: rgba(225, 215, 195, 0.9);
-  --bg-input: rgba(225, 215, 195, 0.5);
-  --border-color: rgba(139, 115, 85, 0.2);
-  --border-hover: rgba(139, 115, 85, 0.3);
-  --text-primary: #433422; /* Dark brown ink */
-  --text-secondary: #705e49;
-  --text-muted: #8c7a6b;
-  --hero-bg-gradient: radial-gradient(circle at 50% -20%, #e6d7b8 0%, #f4ecd8 80%);
-  
-  /* Tone down accents slightly for sepia */
-  --neural-glow: rgba(59, 130, 246, 0.15);
-
-  /* Semantic tokens for links, highlights, tags, and glow */
-  --color-link: #1e3a8a; /* Deep blue link */
-  --color-link-hover: #0f172a;
-  --bg-highlight: #fed7aa; /* Soft orange highlight */
-  --text-highlight: #7c2d12; /* Burnt orange text */
-  --bg-glow-1: rgba(139, 92, 246, 0.04);
-  --bg-glow-2: rgba(59, 130, 246, 0.04);
-
-  --btn-primary-bg: #7c2d12; /* Dark burnt orange primary button */
-  --btn-primary-text: #fdfaf7;
-  --btn-primary-hover-bg: #431407;
-
-  /* Badge colors */
-  --badge-streak-bg: rgba(22, 163, 74, 0.1);
-  --badge-streak-text: #14532d;
-  --badge-editorial-bg: rgba(79, 70, 229, 0.1);
-  --badge-editorial-text: #312e81;
-  --badge-news-bg: rgba(2, 132, 199, 0.1);
-  --badge-news-text: #1e3a8a;
-  --badge-node-bg: rgba(217, 119, 6, 0.1);
-  --badge-node-text: #7c2d12;
-  --badge-pyq-bg: rgba(220, 38, 38, 0.15);
-  --badge-pyq-text: #7f1d1d;
-}
-
+[data-theme='light'] mark.hl-yellow,
 [data-theme='sepia'] mark.hl-yellow {
   color: #78350f;
 }
+[data-theme='light'] mark.hl-green,
 [data-theme='sepia'] mark.hl-green {
   color: #064e3b;
 }
+[data-theme='light'] mark.hl-blue,
 [data-theme='sepia'] mark.hl-blue {
   color: #1e3a8a;
 }
+[data-theme='light'] mark.hl-purple,
 [data-theme='sepia'] mark.hl-purple {
   color: #581c87;
 }
 
+[data-theme='light'] .card-info,
 [data-theme='sepia'] .card-info {
-  background: rgba(59, 130, 246, 0.1);
+  background: rgba(59, 130, 246, 0.08);
   color: #1e3a8a;
 }
+[data-theme='light'] .card-warning,
 [data-theme='sepia'] .card-warning {
-  background: rgba(245, 158, 11, 0.1);
+  background: rgba(245, 158, 11, 0.08);
   color: #78350f;
 }
+[data-theme='light'] .card-success,
 [data-theme='sepia'] .card-success {
-  background: rgba(16, 185, 129, 0.1);
-  color: #064e3b;
+  background: #f0fdf4;
+  color: #166534;
 }
+[data-theme='light'] .card-tip,
 [data-theme='sepia'] .card-tip {
-  background: rgba(168, 85, 247, 0.1);
+  background: rgba(168, 85, 247, 0.08);
   color: #581c87;
 }
 
+[data-theme='light'] table.table-premium thead th,
 [data-theme='sepia'] table.table-premium thead th {
-  color: #312e81;
+  color: #0f172a;
 }
 
 
