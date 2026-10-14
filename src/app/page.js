@@ -32,199 +32,93 @@ const SUGGESTED_SEARCHES = [
 
 const SUBJECTS = [
   {
-    title: "Indian Polity & Governance",
+    title: "Indian Polity",
     subjectParam: "Indian Polity",
-    badge: "342 Qs Live",
-    badgeColor: "#10b981",
-    badgeBg: "rgba(16, 185, 129, 0.12)",
+    count: 342,
     icon: ShieldCheck,
-    description: "Constitutional framework, Fundamental Rights, Parliament, Judiciary & Constitutional Bodies.",
-    topics: [
-      { name: "Preamble", param: "Preamble" },
-      { name: "Fundamental Rights", param: "Fundamental Rights" },
-      { name: "Directive Principles", param: "Directive Principles of State Policy" },
-      { name: "Supreme Court", param: "Supreme Court" },
-      { name: "Parliament", param: "Parliament" },
-      { name: "Panchayati Raj", param: "Panchayati Raj" }
-    ],
-    primaryCta: "Drill 342 Polity MCQs →"
+    color: "#3b82f6",
+    bg: "rgba(59, 130, 246, 0.12)",
   },
   {
-    title: "Economy & Development",
+    title: "Economy",
     subjectParam: "Economy",
-    badge: "334 Qs Live",
-    badgeColor: "#3b82f6",
-    badgeBg: "rgba(59, 130, 246, 0.12)",
+    count: 334,
     icon: Flame,
-    description: "Monetary policy, fiscal budgets, banking & RBI, balance of payments, inflation & social development.",
-    topics: [
-      { name: "Banking & RBI", param: "Banking & RBI" },
-      { name: "Basic Concepts", param: "Basic Economic Concepts" },
-      { name: "Fiscal & Budget", param: "Fiscal Policy & Budget" },
-      { name: "Inflation", param: "Inflation" },
-      { name: "International Trade", param: "International Economic Organisations & Trade" },
-      { name: "Capital Markets", param: "Capital Markets & Financial Instruments" }
-    ],
-    primaryCta: "Drill 334 Economy MCQs →"
+    color: "#10b981",
+    bg: "rgba(16, 185, 129, 0.12)",
   },
   {
-    title: "Geography & Mapping",
+    title: "Geography",
     subjectParam: "Geography",
-    badge: "366 Qs Live",
-    badgeColor: "#0284c7",
-    badgeBg: "rgba(2, 132, 199, 0.12)",
+    count: 366,
     icon: Globe2,
-    description: "Indian physiography, river systems, climatology, geomorphology, oceanography and world map locations.",
-    topics: [
-      { name: "Rivers & Drainage", param: "Indian Physiography & Drainage" },
-      { name: "Climatology", param: "Climatology" },
-      { name: "Geomorphology", param: "Geomorphology" },
-      { name: "World Places", param: "World Geography & Places" },
-      { name: "Oceanography", param: "Oceanography" },
-      { name: "Universe & Solar", param: "Universe & Solar System" }
-    ],
-    primaryCta: "Drill 366 Geography MCQs →"
+    color: "#0284c7",
+    bg: "rgba(2, 132, 199, 0.12)",
   },
   {
-    title: "Environment & Ecology",
+    title: "Environment",
     subjectParam: "Environment",
-    badge: "227 Qs Live",
-    badgeColor: "#10b981",
-    badgeBg: "rgba(16, 185, 129, 0.12)",
+    count: 227,
     icon: Globe2,
-    description: "Biodiversity conservation, climate change accords, ecosystems, pollution norms & environmental statutes.",
-    topics: [
-      { name: "Biodiversity", param: "Biodiversity & Conservation" },
-      { name: "Climate Change", param: "Climate Change" },
-      { name: "Ecosystems", param: "Ecology & Ecosystems" },
-      { name: "Pollution", param: "Environmental Pollution" },
-      { name: "Environmental Laws", param: "Environmental Laws, Policies & Institutions" }
-    ],
-    primaryCta: "Drill 227 Environment MCQs →"
+    color: "#22c55e",
+    bg: "rgba(34, 197, 94, 0.12)",
   },
   {
     title: "Science & Technology",
     subjectParam: "Science & Technology",
-    badge: "481 Qs Live",
-    badgeColor: "#8b5cf6",
-    badgeBg: "rgba(139, 92, 246, 0.12)",
+    count: 481,
     icon: Sparkles,
-    description: "Biotechnology, genetics, space missions, health & diseases, nuclear energy, IT and basic sciences.",
-    topics: [
-      { name: "Biotech & Genetics", param: "Biotechnology & Genetics" },
-      { name: "Health & Diseases", param: "Health, Diseases & Medicine" },
-      { name: "Space Tech", param: "Space Technology" },
-      { name: "Physics & Chemistry", param: "Physics" },
-      { name: "IT & Computing", param: "IT, Communication & Computing" }
-    ],
-    primaryCta: "Drill 481 Sci-Tech MCQs →"
+    color: "#8b5cf6",
+    bg: "rgba(139, 92, 246, 0.12)",
   },
   {
-    title: "Modern Indian History",
+    title: "Modern History",
     subjectParam: "Modern History",
-    badge: "189 Qs Live",
-    badgeColor: "#f59e0b",
-    badgeBg: "rgba(245, 158, 11, 0.12)",
+    count: 189,
     icon: BookOpen,
-    description: "Gandhian era, Indian National Congress, 1857 revolt, constitutional acts, socio-religious reforms & freedom struggle.",
-    topics: [
-      { name: "Gandhian Era", param: "Gandhian Era & Mass Movements (1915-1947)" },
-      { name: "Constitutional Acts", param: "Constitutional & Administrative Developments" },
-      { name: "Early Nationalism", param: "Early Nationalism & Congress (1885-1919)" },
-      { name: "Social Reforms", param: "Socio-Religious Reform Movements" },
-      { name: "1857 & Tribal Revolts", param: "Revolt of 1857, Tribal & Peasant Movements" },
-      { name: "European Advent", param: "Advent of Europeans & British Expansion" }
-    ],
-    primaryCta: "Drill 189 Modern History MCQs →"
+    color: "#f59e0b",
+    bg: "rgba(245, 158, 11, 0.12)",
+  },
+  {
+    title: "Ancient History",
+    subjectParam: "Ancient History",
+    count: 48,
+    icon: BookOpen,
+    color: "#d97706",
+    bg: "rgba(217, 119, 6, 0.12)",
+  },
+  {
+    title: "Medieval History",
+    subjectParam: "Medieval History",
+    count: 49,
+    icon: BookOpen,
+    color: "#b45309",
+    bg: "rgba(180, 83, 9, 0.12)",
   },
   {
     title: "Art & Culture",
     subjectParam: "Art & Culture",
-    badge: "150 Qs Live",
-    badgeColor: "#ec4899",
-    badgeBg: "rgba(236, 72, 153, 0.12)",
+    count: 150,
     icon: Sparkles,
-    description: "Architecture, classical dances, music, schools of Indian philosophy, UNESCO heritage sites, festivals & paintings.",
-    topics: [
-      { name: "Architecture & Sculpture", param: "Architecture & Sculpture" },
-      { name: "Literature & Languages", param: "Literature & Languages" },
-      { name: "Festivals & Heritage", param: "Festivals, Martial Arts & Miscellaneous Culture" },
-      { name: "Philosophy & Religion", param: "Philosophy & Religion" },
-      { name: "Performing Arts", param: "Dance, Music, Theatre & Puppetry" },
-      { name: "Paintings & Crafts", param: "Painting & Handicrafts" }
-    ],
-    primaryCta: "Drill 150 Art & Culture MCQs →"
+    color: "#ec4899",
+    bg: "rgba(236, 72, 153, 0.12)",
   },
   {
-    title: "Ancient Indian History",
-    subjectParam: "Ancient History",
-    badge: "48 Qs Live",
-    badgeColor: "#d97706",
-    badgeBg: "rgba(217, 119, 6, 0.12)",
-    icon: BookOpen,
-    description: "Indus Valley Civilization, Vedic literature, Buddhism & Jainism, Mahajanapadas, Mauryan & Gupta Empire.",
-    topics: [
-      { name: "Indus Valley (IVC)", param: "Prehistory & Indus Valley Civilisation" },
-      { name: "Buddhism & Jainism", param: "Buddhism & Jainism" },
-      { name: "Guptas & Harsha", param: "Guptas & Post-Guptas" },
-      { name: "Sangam & Satavahanas", param: "Post-Mauryan & Sangam Age" },
-      { name: "Mauryan Empire", param: "Mahajanapadas & Mauryas" },
-      { name: "Vedic Literature", param: "Vedic Age" }
-    ],
-    primaryCta: "Drill 48 Ancient History MCQs →"
-  },
-  {
-    title: "Medieval Indian History",
-    subjectParam: "Medieval History",
-    badge: "49 Qs Live",
-    badgeColor: "#b45309",
-    badgeBg: "rgba(180, 83, 9, 0.12)",
-    icon: BookOpen,
-    description: "Delhi Sultanate, Mughal empire administration, Vijayanagara & Bahmani kingdoms, Cholas and regional states.",
-    topics: [
-      { name: "Mughal Empire", param: "Mughal Empire" },
-      { name: "Vijayanagara Empire", param: "Vijayanagara & Bahmani" },
-      { name: "Delhi Sultanate", param: "Delhi Sultanate" },
-      { name: "Early Medieval", param: "Early Medieval Kingdoms" },
-      { name: "Marathas & Regional", param: "Marathas & Regional States" },
-      { name: "General Administration", param: "Medieval History – General" }
-    ],
-    primaryCta: "Drill 49 Medieval History MCQs →"
-  },
-  {
-    title: "Agriculture (CSE & IFS)",
+    title: "Agriculture",
     subjectParam: "Agriculture",
-    badge: "74 Qs Live",
-    badgeColor: "#10b981",
-    badgeBg: "rgba(16, 185, 129, 0.12)",
+    count: 74,
     icon: Globe2,
-    description: "High-yield CSE & IFS focus: Major crops, cropping patterns, micro-irrigation, MSP, and agricultural trade.",
-    topics: [
-      { name: "Major Crops", param: "Major Crops" },
-      { name: "Agri Marketing", param: "Agricultural Marketing & Trade" },
-      { name: "Cropping Systems", param: "Cropping Patterns & Systems" },
-      { name: "Irrigation", param: "Irrigation & Water Management" },
-      { name: "MSP & Pricing", param: "Agricultural Pricing & Procurement (MSP)" },
-      { name: "Soil & Fertilizers", param: "Soil, Fertilizers & Farming Practices" }
-    ],
-    primaryCta: "Drill 74 Agriculture MCQs →"
+    color: "#84cc16",
+    bg: "rgba(132, 204, 22, 0.12)",
   },
   {
     title: "CSAT (Paper II)",
     subjectParam: "CSAT",
-    badge: "Qualifying Engine",
-    badgeColor: "#ec4899",
-    badgeBg: "rgba(236, 72, 153, 0.12)",
+    count: 80,
     icon: GraduationCap,
-    description: "Precision practice for Reading Comprehension passages, analytical syllogisms, and basic numeracy.",
-    topics: [
-      { name: "Reading Comprehension", param: "Comprehension" },
-      { name: "Syllogisms & Logic", param: "Reasoning" },
-      { name: "Number Systems", param: "Numeracy" },
-      { name: "Data Interpretation", param: "Data" }
-    ],
-    primaryCta: "Drill CSAT MCQs →"
-  }
+    color: "#a855f7",
+    bg: "rgba(168, 85, 247, 0.12)",
+  },
 ];
 
 const YEAR_PAPERS = [
@@ -549,27 +443,23 @@ export default function PrelimsGPTCommandCenter() {
         </div>
 
         {/* ========================================================================= */}
-        {/* SECTION 1: TOPIC-WISE QUESTION BANK (THE CORE SUBJECT MATRIX)             */}
+        {/* SECTION 1: QUESTIONS BY SUBJECT                                           */}
         {/* ========================================================================= */}
-        <div style={{ marginBottom: '64px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ marginBottom: '56px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
             <div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--color-blue, #3b82f6)', fontSize: '0.78rem', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '6px' }}>
-                <Layers size={14} />
-                <span>PRACTICE MODE 1</span>
-              </div>
-              <h2 style={{ fontSize: '1.85rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: 0 }}>
-                Topic-Wise Question Bank
+              <h2 style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: 0 }}>
+                Questions by Subject
               </h2>
-              <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginTop: '4px', margin: '4px 0 0 0' }}>
-                Drill questions chapter-by-chapter. Select a subject or jump straight into a micro-theme.
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '4px', margin: '4px 0 0 0' }}>
+                Select a subject to view and practice past UPSC Prelims questions.
               </p>
             </div>
             
             <Link 
               href="/prelims/pyq" 
               style={{ 
-                fontSize: '0.88rem', 
+                fontSize: '0.85rem', 
                 fontWeight: 700, 
                 color: 'var(--color-blue, #3b82f6)', 
                 textDecoration: 'none',
@@ -578,162 +468,89 @@ export default function PrelimsGPTCommandCenter() {
                 gap: '6px'
               }}
             >
-              <span>Open Full PYQ Explorer</span>
+              <span>View all questions</span>
               <ArrowRight size={14} />
             </Link>
           </div>
 
           <div style={{ 
             display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', 
-            gap: '24px' 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', 
+            gap: '14px' 
           }}>
             {SUBJECTS.map((sub, idx) => {
               const IconComponent = sub.icon;
               return (
-                <div 
-                  key={idx} 
+                <Link
+                  key={idx}
+                  href={`/prelims/pyq?subject=${encodeURIComponent(sub.subjectParam)}`}
                   style={{
+                    textDecoration: 'none',
                     background: 'var(--bg-card, rgba(15, 23, 42, 0.6))',
-                    border: '1.5px solid var(--border-color, rgba(255, 255, 255, 0.08))',
-                    borderRadius: '20px',
-                    padding: '26px',
+                    border: '1px solid var(--border-color, rgba(255, 255, 255, 0.08))',
+                    borderRadius: '14px',
+                    padding: '16px 18px',
                     display: 'flex',
-                    flexDirection: 'column',
+                    alignItems: 'center',
                     justifyContent: 'space-between',
-                    transition: 'border-color 0.2s ease, transform 0.2s ease',
-                    boxShadow: '0 4px 16px rgba(0,0,0,0.04)'
+                    gap: '14px',
+                    transition: 'all 0.15s ease',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                    cursor: 'pointer',
                   }}
                   onMouseOver={(e) => {
-                    e.currentTarget.style.borderColor = 'var(--border-hover, rgba(255, 255, 255, 0.2))';
+                    e.currentTarget.style.borderColor = sub.color;
                     e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.background = 'var(--bg-hover, rgba(15, 23, 42, 0.85))';
                   }}
                   onMouseOut={(e) => {
                     e.currentTarget.style.borderColor = 'var(--border-color, rgba(255, 255, 255, 0.08))';
                     e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.background = 'var(--bg-card, rgba(15, 23, 42, 0.6))';
                   }}
                 >
-                  <div>
-                    {/* Header */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <div style={{ 
-                          width: '38px', 
-                          height: '38px', 
-                          borderRadius: '10px', 
-                          background: sub.badgeBg, 
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'center',
-                          color: sub.badgeColor
-                        }}>
-                          <IconComponent size={20} />
-                        </div>
-                        <h4 style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
-                          {sub.title}
-                        </h4>
-                      </div>
-                      <span style={{
-                        fontSize: '0.72rem',
-                        fontWeight: 700,
-                        padding: '4px 9px',
-                        borderRadius: '12px',
-                        background: sub.badgeBg,
-                        color: sub.badgeColor
-                      }}>
-                        {sub.badge}
-                      </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+                    <div style={{ 
+                      width: '40px', 
+                      height: '40px', 
+                      borderRadius: '10px', 
+                      background: sub.bg, 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      color: sub.color,
+                      flexShrink: 0
+                    }}>
+                      <IconComponent size={20} />
                     </div>
-
-                    <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '20px' }}>
-                      {sub.description}
-                    </p>
-
-                    {/* Clickable Topic Chips */}
-                    <div style={{ marginBottom: '22px' }}>
-                      <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '8px' }}>
-                        High-Yield Chapters (Click to drill):
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: '0.98rem', fontWeight: 800, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {sub.title}
                       </div>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                        {sub.topics.map((t, tidx) => (
-                          <Link
-                            key={tidx}
-                            href={`/prelims/pyq?subject=${encodeURIComponent(sub.subjectParam)}&topic=${encodeURIComponent(t.param)}`}
-                            style={{
-                              textDecoration: 'none',
-                              fontSize: '0.76rem',
-                              fontWeight: 600,
-                              padding: '4px 10px',
-                              borderRadius: '8px',
-                              background: 'var(--bg-input, rgba(255, 255, 255, 0.05))',
-                              color: 'var(--text-secondary, #94a3b8)',
-                              border: '1px solid var(--border-color, rgba(255, 255, 255, 0.08))',
-                              transition: 'all 0.15s ease'
-                            }}
-                            onMouseOver={(e) => {
-                              e.currentTarget.style.borderColor = 'var(--color-blue, #3b82f6)';
-                              e.currentTarget.style.color = 'var(--text-primary, #ffffff)';
-                            }}
-                            onMouseOut={(e) => {
-                              e.currentTarget.style.borderColor = 'var(--border-color, rgba(255, 255, 255, 0.08))';
-                              e.currentTarget.style.color = 'var(--text-secondary, #94a3b8)';
-                            }}
-                          >
-                            {t.name}
-                          </Link>
-                        ))}
+                      <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary, #94a3b8)', fontWeight: 600, marginTop: '2px' }}>
+                        {sub.count} Questions
                       </div>
                     </div>
                   </div>
 
-                  {/* Primary CTA */}
-                  <Link 
-                    href={`/prelims/pyq?subject=${encodeURIComponent(sub.subjectParam)}`}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '10px 14px',
-                      borderRadius: '10px',
-                      background: 'var(--bg-input, rgba(255, 255, 255, 0.04))',
-                      border: '1px solid var(--border-color, rgba(255, 255, 255, 0.08))',
-                      color: 'var(--color-blue, #3b82f6)',
-                      fontSize: '0.85rem',
-                      fontWeight: 700,
-                      textDecoration: 'none',
-                      transition: 'all 0.15s ease'
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.background = 'var(--btn-primary-bg, #3b82f6)';
-                      e.currentTarget.style.color = 'var(--btn-primary-text, #ffffff)';
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.background = 'var(--bg-input, rgba(255, 255, 255, 0.04))';
-                      e.currentTarget.style.color = 'var(--color-blue, #3b82f6)';
-                    }}
-                  >
-                    <span>{sub.primaryCta}</span>
-                    <ArrowRight size={14} />
-                  </Link>
-                </div>
+                  <div style={{ color: 'var(--text-muted, #64748b)', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                    <ArrowRight size={16} />
+                  </div>
+                </Link>
               );
             })}
           </div>
         </div>
 
         {/* ========================================================================= */}
-        {/* SECTION 2: YEAR-WISE OFFICIAL PAPERS (ACTUAL EXAM SEQUENCE)               */}
+        {/* SECTION 2: YEAR-WISE OFFICIAL PAPERS                                      */}
         {/* ========================================================================= */}
         <div style={{ marginBottom: '64px' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--color-emerald, #10b981)', fontSize: '0.78rem', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '6px' }}>
-            <Calendar size={14} />
-            <span>PRACTICE MODE 2</span>
-          </div>
-          <h2 style={{ fontSize: '1.85rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: '0 0 4px 0' }}>
-            Solve by Actual Exam Year
+          <h2 style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: '0 0 4px 0' }}>
+            Previous Years Official Papers
           </h2>
-          <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', margin: '0 0 24px 0' }}>
-            Experience the real exam question sequence for full paper revision.
+          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '0 0 24px 0' }}>
+            Practice complete UPSC question papers from 2011 to 2025.
           </p>
 
           <div style={{ 
@@ -858,15 +675,15 @@ export default function PrelimsGPTCommandCenter() {
                       background: 'rgba(16, 185, 129, 0.12)',
                       color: '#10b981'
                     }}>
-                      Spatial Engine
+                      Maps
                     </span>
                   </div>
 
                   <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '8px', color: 'var(--text-primary)' }}>
-                    Interactive Spatial Atlas
+                    Interactive Maps & Atlas
                   </h3>
                   <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: 1.55, marginBottom: '20px' }}>
-                    Master the 5–10 map-based Prelims questions every year. Interactive 2D/3D maps covering global choke-points, conflict corridors (Red Sea, Sahel, West Asia), and Indian national parks.
+                    Practice map-based questions for Prelims. Interactive maps covering important global locations, waterways, conflict areas, and Indian national parks.
                   </p>
                 </div>
 
@@ -878,7 +695,7 @@ export default function PrelimsGPTCommandCenter() {
                   fontSize: '0.9rem', 
                   color: '#10b981' 
                 }}>
-                  <span>Launch Spatial Atlas</span>
+                  <span>Open Atlas</span>
                   <ArrowRight size={16} />
                 </div>
               </div>
@@ -1020,7 +837,7 @@ export default function PrelimsGPTCommandCenter() {
             upsc<span style={{ color: 'var(--color-blue, #3b82f6)' }}>gpt</span>
           </span>
           <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            · PrelimsGPT Engine Active (MainsGPT Coming Post-Prelims)
+            · UPSC Prelims Preparation Platform
           </span>
         </div>
 
