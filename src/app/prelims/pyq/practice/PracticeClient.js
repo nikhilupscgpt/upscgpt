@@ -6,6 +6,7 @@ import { ArrowLeft, Flag, CheckCircle2, XCircle, BookOpen, RotateCcw, Award, Clo
 import StemView from '../StemView';
 import { usePyqStore } from '../pyqStore';
 import { isPairQuestion, isStatementQuestion } from '@/lib/pyqPattern';
+import { triggerNativeHaptic } from '@/lib/capacitorBridge';
 import '../pyq-ui.css';
 
 const MARKS_RIGHT = 2;
@@ -62,6 +63,7 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
     // In practice mode, if already checked, do not allow changing
     if (activeMode === 'practice' && checked[q.id]) return;
 
+    triggerNativeHaptic('light');
     setAnswers(a => ({ ...a, [q.id]: label }));
   }, [q, activeMode, checked]);
 
@@ -74,6 +76,7 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
   const checkPracticeAnswer = () => {
     if (!q || !answers[q.id] || checked[q.id]) return;
     const isOk = answers[q.id] === q.correctLabel;
+    triggerNativeHaptic(isOk ? 'success' : 'error');
     setChecked(prev => ({ ...prev, [q.id]: true }));
     recordAttempt(q.id, answers[q.id], isOk);
   };

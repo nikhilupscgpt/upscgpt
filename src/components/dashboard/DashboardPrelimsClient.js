@@ -31,6 +31,7 @@ import {
 import { usePyqStore } from '@/app/prelims/pyq/pyqStore';
 import StreakCalendar from '@/components/dashboard/StreakCalendar';
 import SubjectPriorityModal from '@/components/dashboard/SubjectPriorityModal';
+import { initMobileNativeUI } from '@/lib/capacitorBridge';
 import '@/app/prelims/pyq/pyq-ui.css';
 
 export default function DashboardPrelimsClient() {
@@ -55,6 +56,7 @@ export default function DashboardPrelimsClient() {
   } = usePyqStore();
 
   useEffect(() => {
+    initMobileNativeUI();
     let isMounted = true;
     fetch('/api/user/prelims-dashboard')
       .then(res => res.json())
