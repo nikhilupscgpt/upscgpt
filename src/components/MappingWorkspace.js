@@ -10,16 +10,16 @@ const MappingCanvas = dynamic(() => import('./MappingCanvas'), {
       style={{
         width: '100%',
         height: '100%',
-        background: '#0b0f19',
+        background: '#e2e8f0',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        color: '#94a3b8',
+        color: '#475569',
         fontSize: 14,
-        fontWeight: 500,
+        fontWeight: 600,
       }}
     >
-      Loading map...
+      Loading interactive map...
     </div>
   ),
 });
@@ -28,43 +28,49 @@ const STATIC_INDIA_FOLDERS = [
   {
     id: 'india-rivers',
     title: 'Rivers & Drainage Systems',
+    shortLabel: 'Rivers & Lakes',
     emoji: '🏞️',
-    color: '#0ea5e9',
+    color: '#0284c7',
     categories: ['India – rivers, lakes, reservoirs & glaciers'],
   },
   {
     id: 'india-relief',
     title: 'Mountain Ranges, Passes & Islands',
+    shortLabel: 'Relief & Passes',
     emoji: '⛰️',
-    color: '#8b5cf6',
+    color: '#7c3aed',
     categories: ['India – relief, hills, coasts & islands'],
   },
   {
     id: 'india-protected',
     title: 'National Parks & Tiger Reserves',
+    shortLabel: 'Protected Areas',
     emoji: '🐅',
     color: '#10b981',
     categories: ['Protected areas (NPs, WLS, tiger reserves)'],
   },
   {
     id: 'india-wetlands',
-    title: 'Ramsar Wetlands & Lakes',
+    title: 'Wetlands & Ramsar Sites',
+    shortLabel: 'Wetlands',
     emoji: '🦩',
-    color: '#14b8a6',
+    color: '#0d9488',
     categories: ['Wetlands & Ramsar sites'],
   },
   {
     id: 'india-ports',
     title: 'Ports & Strategic Corridors',
+    shortLabel: 'Ports & Corridors',
     emoji: '⚓',
-    color: '#3b82f6',
+    color: '#2563eb',
     categories: ['Ports, highways & corridors'],
   },
   {
     id: 'india-minerals-heritage',
     title: 'Minerals, Energy & Heritage',
+    shortLabel: 'Minerals & Heritage',
     emoji: '⛏️',
-    color: '#f59e0b',
+    color: '#d97706',
     categories: [
       'Minerals & resources by place',
       'Energy & industrial sites',
@@ -78,13 +84,15 @@ const STATIC_WORLD_FOLDERS = [
   {
     id: 'world-physical',
     title: 'Major Rivers, Mountains & Lakes',
+    shortLabel: 'Physical Features',
     emoji: '🏔️',
-    color: '#0ea5e9',
+    color: '#0284c7',
     categories: ['World – physical features'],
   },
   {
     id: 'world-landforms',
     title: 'Volcanoes, Deserts & Plateaus',
+    shortLabel: 'Landforms',
     emoji: '🌋',
     color: '#e11d48',
     categories: ['Landforms & volcanoes'],
@@ -92,8 +100,9 @@ const STATIC_WORLD_FOLDERS = [
   {
     id: 'world-minerals',
     title: 'Global Mineral & Resource Belts',
+    shortLabel: 'Minerals',
     emoji: '⛏️',
-    color: '#f59e0b',
+    color: '#d97706',
     categories: ['Minerals & resources by place'],
   },
 ];
@@ -102,54 +111,61 @@ const IR_FOLDERS = [
   {
     id: 'ir-groupings',
     title: 'International Groupings & Blocs',
+    shortLabel: 'IR Groupings',
     emoji: '🏛️',
-    color: '#f59e0b',
+    color: '#d97706',
     isOrgFolder: true,
     categories: [],
   },
   {
     id: 'ir-chokepoints',
     title: 'Maritime Chokepoints, Straits & Seas',
+    shortLabel: 'Borders & Seas',
     emoji: '🌊',
-    color: '#6366f1',
+    color: '#2563eb',
     categories: ['World – countries, borders & seas'],
   },
   {
     id: 'ir-projects',
     title: 'Strategic Projects & Ports Abroad',
+    shortLabel: 'Strategic Projects',
     emoji: '🛰️',
-    color: '#f97316',
+    color: '#ea580c',
     categories: ['Strategic projects abroad'],
   },
   {
     id: 'ir-flashpoints',
     title: 'Conflict Zones & Flashpoints',
+    shortLabel: 'Flashpoints',
     emoji: '⚔️',
-    color: '#ef4444',
+    color: '#dc2626',
     categories: ['World – places in news'],
   },
 ];
 
 const PIN_THEMATIC_FOLDERS = [
   {
+    id: 'pin-wetlands',
+    title: 'Wetlands & Ramsar Sites',
+    shortLabel: 'Wetlands',
+    emoji: '🦩',
+    color: '#0d9488',
+    categories: ['Wetlands & Ramsar sites'],
+  },
+  {
     id: 'pin-protected',
     title: 'Protected Areas & Corridors',
+    shortLabel: 'Protected Areas',
     emoji: '🐅',
     color: '#10b981',
     categories: ['Protected areas (NPs, WLS, tiger reserves)'],
   },
   {
-    id: 'pin-wetlands',
-    title: 'Wetlands & Ramsar Sites',
-    emoji: '🦩',
-    color: '#14b8a6',
-    categories: ['Wetlands & Ramsar sites'],
-  },
-  {
     id: 'pin-india-phys',
     title: 'India Rivers, Dams & Relief',
+    shortLabel: 'India Physical',
     emoji: '🏞️',
-    color: '#0ea5e9',
+    color: '#0284c7',
     categories: [
       'India – rivers, lakes, reservoirs & glaciers',
       'India – relief, hills, coasts & islands',
@@ -161,8 +177,9 @@ const PIN_THEMATIC_FOLDERS = [
   {
     id: 'pin-world-seas',
     title: 'World Borders, Seas & Landforms',
+    shortLabel: 'Borders & Seas',
     emoji: '🌊',
-    color: '#6366f1',
+    color: '#2563eb',
     categories: [
       'World – countries, borders & seas',
       'World – physical features',
@@ -171,22 +188,168 @@ const PIN_THEMATIC_FOLDERS = [
   },
   {
     id: 'pin-world-news',
-    title: 'Global Flashpoints & Strategic Projects',
+    title: 'Global Flashpoints',
+    shortLabel: 'Flashpoints',
     emoji: '⚔️',
-    color: '#ef4444',
+    color: '#dc2626',
     categories: ['World – places in news', 'Strategic projects abroad'],
   },
   {
     id: 'pin-heritage',
     title: 'Heritage, Cultural & Tribal Sites',
+    shortLabel: 'Heritage & Tribes',
     emoji: '🏛️',
-    color: '#ec4899',
+    color: '#db2777',
     categories: [
       'Historical & archaeological sites',
       'Tribes, communities & cultural places',
     ],
   },
 ];
+
+const MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
+const MONTH_SHORT = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+];
+const WEEKDAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+function getNodeDateStr(node) {
+  const raw = node?.date || node?.newsTriggers?.[0]?.date || '';
+  if (!raw || typeof raw !== 'string') return null;
+  const m = raw.trim().match(/^(\d{4})-(\d{2})-(\d{2})/);
+  return m ? `${m[1]}-${m[2]}-${m[3]}` : null;
+}
+
+function formatDayLabel(dateStr) {
+  if (!dateStr) return '';
+  const m = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return dateStr;
+  const year = parseInt(m[1], 10);
+  const monthIdx = parseInt(m[2], 10) - 1;
+  const day = parseInt(m[3], 10);
+  const dt = new Date(year, monthIdx, day);
+  const wkDay = WEEKDAY_SHORT[dt.getDay()] || '';
+  return `${wkDay ? `${wkDay}, ` : ''}${day} ${MONTH_SHORT[monthIdx] || m[2]} ${year}`;
+}
+
+function formatDayShort(dateStr) {
+  if (!dateStr) return '';
+  const m = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return dateStr;
+  const year = m[1];
+  const monthIdx = parseInt(m[2], 10) - 1;
+  const day = parseInt(m[3], 10);
+  return `${day} ${MONTH_SHORT[monthIdx] || m[2]} ${year}`;
+}
+
+function getMonthKey(dateStr) {
+  if (!dateStr) return null;
+  const m = dateStr.match(/^(\d{4})-(\d{2})/);
+  return m ? `${m[1]}-${m[2]}` : null;
+}
+
+function formatMonthLabel(monthKey) {
+  if (!monthKey) return '';
+  const m = monthKey.match(/^(\d{4})-(\d{2})/);
+  if (!m) return monthKey;
+  const year = m[1];
+  const monthIdx = parseInt(m[2], 10) - 1;
+  return `${MONTH_NAMES[monthIdx] || m[2]} ${year}`;
+}
+
+function formatMonthShort(monthKey) {
+  if (!monthKey) return '';
+  const m = monthKey.match(/^(\d{4})-(\d{2})/);
+  if (!m) return monthKey;
+  const year = m[1];
+  const monthIdx = parseInt(m[2], 10) - 1;
+  return `${MONTH_SHORT[monthIdx] || m[2]} ${year}`;
+}
+
+function getWeekInfo(dateStr) {
+  if (!dateStr) return null;
+  const m = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (!m) return null;
+  const year = parseInt(m[1], 10);
+  const monthIdx = parseInt(m[2], 10) - 1;
+  const day = parseInt(m[3], 10);
+  const wk = Math.min(5, Math.ceil(day / 7));
+  const lastDayOfMonth = new Date(year, monthIdx + 1, 0).getDate();
+  const startDay = (wk - 1) * 7 + 1;
+  const endDay = wk === 5 ? lastDayOfMonth : Math.min(wk * 7, lastDayOfMonth);
+  const monShort = MONTH_SHORT[monthIdx] || m[2];
+  return {
+    key: `${m[1]}-${m[2]}-W${wk}`,
+    label: `${monShort} ${year} · Week ${wk} (${startDay}–${endDay} ${monShort})`,
+    shortLabel: `${monShort} Wk ${wk} (${startDay}–${endDay})`,
+  };
+}
+
+function deriveExaminerTrap(node) {
+  if (!node) return null;
+  if (typeof node.upscAngle === 'string' && node.upscAngle.trim()) {
+    return node.upscAngle.trim();
+  }
+  if (node.upscAngle && typeof node.upscAngle === 'object') {
+    const candidate =
+      node.upscAngle.trap ||
+      node.upscAngle.examinerTrap ||
+      node.upscAngle.prelimsAngle ||
+      node.upscAngle.whyImportant ||
+      node.upscAngle.note;
+    if (candidate && typeof candidate === 'string') return candidate;
+  }
+  const facts = Array.isArray(node.staticFacts) ? node.staticFacts : [];
+  const trapFact = facts.find((f) =>
+    /only|first|largest|smallest|endemic|border|tributary|doab|confluenc|ramsar|not|unlike|distinct|between/i.test(
+      f
+    )
+  );
+  if (trapFact) return trapFact;
+  if (facts.length > 0) return facts[0];
+  if (Array.isArray(node.neighbours) && node.neighbours.length > 0) {
+    return `UPSC often tests spatial adjacency here — verify surrounding entities: ${node.neighbours.slice(0, 4).join(', ')}.`;
+  }
+  return null;
+}
+
+function buildSynthesizedMcq(node) {
+  if (!node) return null;
+  const loc =
+    node.locatedIn?.stateOrProvince ||
+    node.locatedIn?.country ||
+    node.regionScope ||
+    'India';
+  const fact1 =
+    node.staticFacts?.[0] ||
+    `${node.place} is classified as a ${node.placeType || 'key geographical feature'} located in ${loc}.`;
+  const fact2 =
+    node.staticFacts?.[1] ||
+    (node.neighbours?.length
+      ? `Its immediate geographical neighbourhood includes ${node.neighbours.slice(0, 3).join(', ')}.`
+      : `It was recently in news in connection with ${node.subject || 'Geography & Environment'}.`);
+
+  return {
+    id: `SYNTH-MCQ-${node.id}`,
+    exam: 'UPSC Prelims Practice Drill',
+    examYear: node.targetExamYear || 2026,
+    isSynthesized: true,
+    stem: `With reference to '${node.place}', recently seen in the news, consider the following statements:\n1. ${fact1}\n2. ${fact2}\nWhich of the statements given above is/are correct?`,
+    options: [
+      { label: 'a', text: '1 only' },
+      { label: 'b', text: '2 only' },
+      { label: 'c', text: 'Both 1 and 2' },
+      { label: 'd', text: 'Neither 1 nor 2' },
+    ],
+    correctLabel: 'c',
+    answerText: 'Both 1 and 2',
+    explanation: `Both statements accurately describe ${node.place} (${node.placeType}, ${loc}).`,
+  };
+}
 
 export default function MappingWorkspace({
   initialMode = null, // null (Landing) | 'STATIC_INDIA' | 'STATIC_WORLD' | 'PIN' | 'IR'
@@ -195,11 +358,14 @@ export default function MappingWorkspace({
   const [staticExpanded, setStaticExpanded] = useState(false);
 
   // Filters inside the map view
-  const [pinScope, setPinScope] = useState('ALL'); // ALL | India | World
-  const [activeFolderId, setActiveFolderId] = useState(null);
-  const [spatialSort, setSpatialSort] = useState('DEFAULT'); // DEFAULT | N_TO_S | S_TO_N | E_TO_W | W_TO_E
+  const [pinScope, setPinScope] = useState('ALL'); // 'ALL' | 'India' | 'World'
+  const [pinTimeMode, setPinTimeMode] = useState('DAY'); // 'DAY' | 'WEEK' | 'MONTH' | 'ALL'
+  const [selectedPinPeriod, setSelectedPinPeriod] = useState('ALL');
+  const [selectedThemeFilter, setSelectedThemeFilter] = useState('ALL'); // 'ALL' or folder.id
+  const [collapsedFolders, setCollapsedFolders] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
-  const [basemap, setBasemap] = useState('topo');
+  const [basemap, setBasemap] = useState('light'); // 'light' (Clean) | 'topo' (Terrain) | 'satellite' (Satellite)
+  const [panelMode, setPanelMode] = useState('STUDY'); // 'STUDY' | 'PRACTICE'
 
   // Data
   const [allNodes, setAllNodes] = useState([]);
@@ -207,16 +373,18 @@ export default function MappingWorkspace({
   const [organizations, setOrganizations] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Selection & Progressive Disclosure states
-  const [selectedNode, setSelectedNode] = useState(null); // NULL by default -> drawer closed!
+  // Selection & Study Progress
+  const [selectedNode, setSelectedNode] = useState(null);
   const [activeOrg, setActiveOrg] = useState(null);
-  const [pyqExpanded, setPyqExpanded] = useState(false); // Collapsed by default inside drawer
+  const [studiedIds, setStudiedIds] = useState(() => new Set());
+  const [bookmarkedIds, setBookmarkedIds] = useState(() => new Set());
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [revealedQuestions, setRevealedQuestions] = useState({});
 
   const [cameraTarget, setCameraTarget] = useState({
-    center: [22.5, 80.5],
+    center: [23.5, 79.5],
     zoom: 5,
+    ts: 0,
   });
 
   useEffect(() => {
@@ -227,7 +395,17 @@ export default function MappingWorkspace({
         const res = await fetch('/api/mapping/workspace');
         const data = await res.json();
         if (!cancelled && res.ok) {
-          setAllNodes(Array.isArray(data.nodes) ? data.nodes : []);
+          const rawNodes = Array.isArray(data.nodes) ? data.nodes : [];
+          const seenIds = new Set();
+          const uniqueNodes = rawNodes.map((n, idx) => {
+            let uid = n.id || n.dbId || `node-${idx}`;
+            if (seenIds.has(uid)) {
+              uid = `${uid}-${n.dbId || n.slug || idx}`;
+            }
+            seenIds.add(uid);
+            return uid === n.id ? n : { ...n, id: uid };
+          });
+          setAllNodes(uniqueNodes);
           setAllPyqs(Array.isArray(data.pyqs) ? data.pyqs : []);
           setOrganizations(Array.isArray(data.organizations) ? data.organizations : []);
         }
@@ -243,7 +421,110 @@ export default function MappingWorkspace({
     };
   }, []);
 
-  // Base nodes belonging strictly to the active mode (no cross-pillar bleed!)
+  // All PIN nodes (before scope or period filtering)
+  const allPinNodes = useMemo(() => allNodes.filter((n) => n.isPin), [allNodes]);
+
+  // PIN nodes matching the active Day / Week / Month / All period (across ALL scopes so we can compute All / India / World counts!)
+  const periodMatchedPinNodes = useMemo(() => {
+    if (pinTimeMode === 'ALL' || selectedPinPeriod === 'ALL') {
+      return allPinNodes;
+    }
+    return allPinNodes.filter((n) => {
+      const dStr = getNodeDateStr(n);
+      if (!dStr) return false;
+      if (pinTimeMode === 'DAY') return dStr === selectedPinPeriod;
+      if (pinTimeMode === 'WEEK') return getWeekInfo(dStr)?.key === selectedPinPeriod;
+      if (pinTimeMode === 'MONTH') return getMonthKey(dStr) === selectedPinPeriod;
+      return true;
+    });
+  }, [allPinNodes, pinTimeMode, selectedPinPeriod]);
+
+  // Live Scope Counts (All X | India Y | World Z) for the current period
+  const scopeCounts = useMemo(() => {
+    let india = 0;
+    let world = 0;
+    for (const n of periodMatchedPinNodes) {
+      if ((n.regionScope || '').toLowerCase() === 'world') world++;
+      else india++;
+    }
+    return {
+      all: periodMatchedPinNodes.length,
+      india,
+      world,
+    };
+  }, [periodMatchedPinNodes]);
+
+  // Available Day / Week / Month periods computed from allPinNodes (or scope-filtered if needed)
+  const availablePinPeriods = useMemo(() => {
+    if (pinTimeMode === 'ALL') return [];
+    const map = new Map();
+
+    for (const n of allPinNodes) {
+      if (pinScope !== 'ALL' && (n.regionScope || '').toLowerCase() !== pinScope.toLowerCase()) {
+        continue;
+      }
+      const dStr = getNodeDateStr(n);
+      if (!dStr) continue;
+
+      if (pinTimeMode === 'DAY') {
+        if (!map.has(dStr)) {
+          map.set(dStr, {
+            key: dStr,
+            label: formatDayLabel(dStr),
+            shortLabel: formatDayShort(dStr),
+            count: 0,
+          });
+        }
+        map.get(dStr).count++;
+      } else if (pinTimeMode === 'WEEK') {
+        const wkInfo = getWeekInfo(dStr);
+        if (wkInfo) {
+          if (!map.has(wkInfo.key)) {
+            map.set(wkInfo.key, {
+              key: wkInfo.key,
+              label: wkInfo.label,
+              shortLabel: wkInfo.shortLabel,
+              count: 0,
+            });
+          }
+          map.get(wkInfo.key).count++;
+        }
+      } else if (pinTimeMode === 'MONTH') {
+        const mKey = getMonthKey(dStr);
+        if (mKey) {
+          if (!map.has(mKey)) {
+            map.set(mKey, {
+              key: mKey,
+              label: formatMonthLabel(mKey),
+              shortLabel: formatMonthShort(mKey),
+              count: 0,
+            });
+          }
+          map.get(mKey).count++;
+        }
+      }
+    }
+
+    return Array.from(map.values()).sort((a, b) => b.key.localeCompare(a.key));
+  }, [allPinNodes, pinScope, pinTimeMode]);
+
+  // Auto-select latest available period when in DAY / WEEK / MONTH mode
+  useEffect(() => {
+    if (pinTimeMode === 'ALL') {
+      setSelectedPinPeriod('ALL');
+      return;
+    }
+    if (availablePinPeriods.length === 0) {
+      setSelectedPinPeriod('ALL');
+      return;
+    }
+    const exists = availablePinPeriods.some((p) => p.key === selectedPinPeriod);
+    if (!exists) {
+      setSelectedPinPeriod(availablePinPeriods[0].key);
+    }
+  }, [pinTimeMode, availablePinPeriods, selectedPinPeriod]);
+
+  // Base nodes belonging to the active mode + scope + time period
   const modeBaseNodes = useMemo(() => {
     if (!activeMode) return [];
     if (activeMode === 'STATIC_INDIA') {
@@ -257,8 +538,7 @@ export default function MappingWorkspace({
       );
     }
     if (activeMode === 'PIN') {
-      return allNodes.filter((n) => {
-        if (!n.isPin) return false;
+      return periodMatchedPinNodes.filter((n) => {
         if (pinScope === 'ALL') return true;
         return (n.regionScope || '').toLowerCase() === pinScope.toLowerCase();
       });
@@ -267,154 +547,170 @@ export default function MappingWorkspace({
       return allNodes.filter((n) => !n.isPin && n.pillar === 'IR');
     }
     return [];
-  }, [allNodes, activeMode, pinScope]);
+  }, [allNodes, activeMode, periodMatchedPinNodes, pinScope]);
 
-  const sortNodes = (list) => {
-    const copy = [...list];
-    copy.sort((a, b) => {
-      if (spatialSort === 'N_TO_S') return (b.lat ?? -999) - (a.lat ?? -999);
-      if (spatialSort === 'S_TO_N') return (a.lat ?? 999) - (b.lat ?? 999);
-      if (spatialSort === 'E_TO_W') return (b.lng ?? -999) - (a.lng ?? -999);
-      if (spatialSort === 'W_TO_E') return (a.lng ?? 999) - (b.lng ?? 999);
-      return (a.place || '').localeCompare(b.place || '');
-    });
-    return copy;
-  };
+  // Build Thematic Containers (Layer 2) with sequential numbering (1, 2, 3...)
+  const { folders, numberedNodes } = useMemo(() => {
+    if (!activeMode) return { folders: [], numberedNodes: [] };
 
-  // Build Thematic Folders for the Left Sidebar Accordion ("One Layer at a Time")
-  const folders = useMemo(() => {
-    if (!activeMode) return [];
+    const q = searchQuery.trim().toLowerCase();
+    const matchesSearch = (n) => {
+      if (!q) return true;
+      return (
+        (n.place || '').toLowerCase().includes(q) ||
+        (n.placeType || '').toLowerCase().includes(q) ||
+        (n.locatedIn?.stateOrProvince || '').toLowerCase().includes(q) ||
+        (n.locatedIn?.district || '').toLowerCase().includes(q) ||
+        (n.locatedIn?.country || '').toLowerCase().includes(q)
+      );
+    };
 
-    if (activeMode === 'STATIC_INDIA') {
-      return STATIC_INDIA_FOLDERS.map((f) => ({
-        ...f,
-        items: sortNodes(
-          modeBaseNodes.filter((n) =>
-            (n.mapCategory || []).some((c) => f.categories.includes(c))
-          )
-        ),
-      })).filter((f) => f.items.length > 0);
-    }
+    const filteredBase = modeBaseNodes.filter(matchesSearch);
 
-    if (activeMode === 'STATIC_WORLD') {
-      return STATIC_WORLD_FOLDERS.map((f) => ({
-        ...f,
-        items: sortNodes(
-          modeBaseNodes.filter((n) =>
-            (n.mapCategory || []).some((c) => f.categories.includes(c))
-          )
-        ),
-      })).filter((f) => f.items.length > 0);
-    }
+    let folderDefs = PIN_THEMATIC_FOLDERS;
+    if (activeMode === 'STATIC_INDIA') folderDefs = STATIC_INDIA_FOLDERS;
+    else if (activeMode === 'STATIC_WORLD') folderDefs = STATIC_WORLD_FOLDERS;
+    else if (activeMode === 'IR') folderDefs = IR_FOLDERS;
 
-    if (activeMode === 'IR') {
-      return IR_FOLDERS.map((f) => {
+    const knownCats = new Set(folderDefs.flatMap((f) => f.categories));
+    let runningIndex = 1;
+    const flatList = [];
+    const assignedNodeIds = new Set();
+
+    const builtFolders = folderDefs
+      .map((f) => {
         if (f.isOrgFolder) {
           return {
             ...f,
             items: organizations,
           };
         }
+        const matchedItems = filteredBase
+          .filter((n) => {
+            if (assignedNodeIds.has(n.id)) return false;
+            const cats = n.mapCategory || [];
+            const primaryCat = cats[0] || '';
+            // Match primary category first; or secondary if primary is not a known category
+            const isMatch =
+              f.categories.includes(primaryCat) ||
+              (!knownCats.has(primaryCat) && cats.some((c) => f.categories.includes(c))) ||
+              (activeMode === 'PIN' &&
+                !cats.some((c) => knownCats.has(c)) &&
+                ((n.regionScope || '').toLowerCase() === 'world'
+                  ? f.id === 'pin-world-news'
+                  : f.id === 'pin-india-phys'));
+
+            if (isMatch) {
+              assignedNodeIds.add(n.id);
+              return true;
+            }
+            return false;
+          })
+          .sort((a, b) => (a.place || '').localeCompare(b.place || ''));
+
+        const itemsWithIndex = matchedItems.map((item) => {
+          const shouldNumber = selectedThemeFilter === 'ALL' || selectedThemeFilter === f.id;
+          const idx = shouldNumber ? runningIndex++ : null;
+          const enriched = {
+            ...item,
+            displayIndex: idx,
+            folderId: f.id,
+            folderTitle: f.title,
+            folderShortLabel: f.shortLabel,
+            folderColor: f.color,
+          };
+          if (shouldNumber) {
+            flatList.push(enriched);
+          }
+          return enriched;
+        });
+
         return {
           ...f,
-          items: sortNodes(
-            modeBaseNodes.filter((n) =>
-              (n.mapCategory || []).some((c) => f.categories.includes(c))
-            )
-          ),
+          items: itemsWithIndex,
         };
-      }).filter((f) => f.items.length > 0);
-    }
+      })
+      .filter((f) => f.items.length > 0);
 
-    if (activeMode === 'PIN') {
-      return PIN_THEMATIC_FOLDERS.map((f) => ({
-        ...f,
-        items: sortNodes(
-          modeBaseNodes.filter((n) => {
-            const primaryCat = (n.mapCategory || [])[0] || '';
-            return f.categories.includes(primaryCat);
-          })
-        ),
-      })).filter((f) => f.items.length > 0);
-    }
+    return { folders: builtFolders, numberedNodes: flatList };
+  }, [activeMode, modeBaseNodes, organizations, searchQuery, selectedThemeFilter]);
 
-    return [];
-  }, [activeMode, modeBaseNodes, organizations, spatialSort]);
-
-  // Keep a valid single folder active when entering a mode or changing scope
+  // Reset theme filter if the selected theme has no items in the newly chosen period
   useEffect(() => {
-    if (!activeMode || folders.length === 0) return;
-    const exists = folders.some((f) => f.id === activeFolderId);
-    if (!exists) {
-      // In IR mode, default to Maritime Chokepoints or Groupings
-      const defaultFolder =
-        activeMode === 'IR'
-          ? folders.find((f) => f.id === 'ir-chokepoints') || folders[0]
-          : folders[0];
-      setActiveFolderId(defaultFolder.id);
+    if (selectedThemeFilter === 'ALL') return;
+    const stillExists = folders.some((f) => f.id === selectedThemeFilter);
+    if (!stillExists) {
+      setSelectedThemeFilter('ALL');
     }
-  }, [activeMode, folders, activeFolderId]);
+  }, [folders, selectedThemeFilter]);
 
-  const enterMode = (mode) => {
+  // Auto-select #1 place in the current feed so the 3-column layout and glowing red pin are immediately active
+  useEffect(() => {
+    if (!activeMode || activeOrg) return;
+    if (numberedNodes.length === 0) {
+      setSelectedNode(null);
+      return;
+    }
+    const currentMatch = selectedNode
+      ? numberedNodes.find((n) => n.id === selectedNode.id)
+      : null;
+    if (!currentMatch) {
+      setSelectedNode(numberedNodes[0]);
+    } else if (currentMatch.displayIndex !== selectedNode.displayIndex) {
+      setSelectedNode(currentMatch);
+    }
+  }, [activeMode, numberedNodes, activeOrg, selectedNode]);
+
+  // Mark a node as studied when selected
+  useEffect(() => {
+    if (!selectedNode?.id) return;
+    setStudiedIds((prev) => {
+      if (prev.has(selectedNode.id)) return prev;
+      const next = new Set(prev);
+      next.add(selectedNode.id);
+      return next;
+    });
+  }, [selectedNode?.id]);
+
+  const enterMode = (mode, initialPinTime = 'DAY') => {
     setActiveMode(mode);
     setSelectedNode(null);
     setActiveOrg(null);
     setSearchQuery('');
-    setPyqExpanded(false);
-    setActiveFolderId(null); // useEffect will pick the first folder of this mode
+    setSelectedThemeFilter('ALL');
+    setPanelMode('STUDY');
+    if (mode === 'PIN') {
+      setPinTimeMode(initialPinTime);
+      setPinScope('ALL');
+    }
 
     if (mode === 'STATIC_INDIA') {
-      setCameraTarget({ center: [22.5, 80.5], zoom: 5 });
+      setCameraTarget({ center: [22.5, 80.5], zoom: 5, ts: Date.now() });
     } else if (mode === 'STATIC_WORLD') {
-      setCameraTarget({ center: [20.0, 18.0], zoom: 2.4 });
+      setCameraTarget({ center: [20.0, 18.0], zoom: 2.4, ts: Date.now() });
     } else if (mode === 'PIN') {
-      setCameraTarget({ center: [24.0, 65.0], zoom: 3.5 });
+      setCameraTarget({ center: [24.0, 78.0], zoom: 4.8, ts: Date.now() });
     } else if (mode === 'IR') {
-      setCameraTarget({ center: [24.0, 48.0], zoom: 3 });
+      setCameraTarget({ center: [24.0, 48.0], zoom: 3, ts: Date.now() });
     }
   };
 
-  // Active folder object
-  const activeFolder = useMemo(
-    () => folders.find((f) => f.id === activeFolderId) || folders[0] || null,
-    [folders, activeFolderId]
-  );
-
-  // Nodes plotted on the map:
-  // - If searching, show matching nodes across the active mode.
-  // - Otherwise, plot ONLY the nodes inside the single active folder!
-  const plottedNodes = useMemo(() => {
-    if (!activeMode) return [];
-
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      return sortNodes(
-        modeBaseNodes.filter(
-          (n) =>
-            (n.place || '').toLowerCase().includes(q) ||
-            (n.placeType || '').toLowerCase().includes(q) ||
-            (n.locatedIn?.stateOrProvince || '').toLowerCase().includes(q) ||
-            (n.locatedIn?.country || '').toLowerCase().includes(q)
-        )
-      );
-    }
-
-    if (!activeFolder || activeFolder.isOrgFolder) {
-      return [];
-    }
-
-    return activeFolder.items || [];
-  }, [activeMode, searchQuery, modeBaseNodes, activeFolder, spatialSort]);
-
-  const pyqsForSelected = useMemo(() => {
+  // Questions for the selected node (real PYQs + synthesized Prelims practice MCQ fallback)
+  const practiceQuestionsForSelected = useMemo(() => {
     if (!selectedNode) return [];
-    return selectedNode.resolvedSimilarPYQs || [];
+    const realPyqs = Array.isArray(selectedNode.resolvedSimilarPYQs)
+      ? selectedNode.resolvedSimilarPYQs
+      : [];
+    const synth = buildSynthesizedMcq(selectedNode);
+    if (realPyqs.length > 0) {
+      return realPyqs;
+    }
+    return synth ? [synth] : [];
   }, [selectedNode]);
 
   const handleSelectNode = (node) => {
     setActiveOrg(null);
     setSelectedNode(node);
-    setPyqExpanded(false);
   };
 
   const handleSelectOrg = (org) => {
@@ -427,12 +723,19 @@ export default function MappingWorkspace({
     setRevealedQuestions((prev) => ({ ...prev, [qId]: true }));
   };
 
+  const toggleBookmark = (nodeId) => {
+    setBookmarkedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(nodeId)) next.delete(nodeId);
+      else next.add(nodeId);
+      return next;
+    });
+  };
+
   // =========================================================================
   // STEP 1: CALM 3-OPTION LANDING SCREEN (When activeMode === null)
   // =========================================================================
   if (!activeMode) {
-    const pinCount = allNodes.filter((n) => n.isPin).length;
-
     return (
       <div
         style={{
@@ -578,7 +881,7 @@ export default function MappingWorkspace({
 
             {/* Card 2: PIN (Places in News) */}
             <div
-              onClick={() => enterMode('PIN')}
+              onClick={() => enterMode('PIN', 'DAY')}
               style={{
                 background: '#111827',
                 border: '1px solid rgba(255,255,255,0.09)',
@@ -597,7 +900,7 @@ export default function MappingWorkspace({
                     width: 44,
                     height: 44,
                     borderRadius: 12,
-                    background: 'rgba(56, 189, 248, 0.12)',
+                    background: 'rgba(239, 68, 68, 0.14)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -611,18 +914,61 @@ export default function MappingWorkspace({
                   PIN (Places in News)
                 </h2>
                 <p style={{ fontSize: 13.5, color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>
-                  Curated current-affairs locations enriched with static geographical pointers and linked UPSC PYQs.
+                  Daily, weekly, and monthly current-affairs places with examiner traps, high-yield GS pointers, and linked PYQs.
                 </p>
               </div>
-              <div
-                style={{
-                  marginTop: 22,
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: '#38bdf8',
-                }}
-              >
-                Explore {pinCount > 0 ? `${pinCount} Places in News` : 'Places in News'} →
+
+              <div onClick={(e) => e.stopPropagation()} style={{ marginTop: 20 }}>
+                <div
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: '#64748b',
+                    marginBottom: 8,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                  }}
+                >
+                  Browse Timeline By:
+                </div>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(4, 1fr)',
+                    gap: 6,
+                  }}
+                >
+                  {[
+                    { id: 'DAY', label: 'Day' },
+                    { id: 'WEEK', label: 'Week' },
+                    { id: 'MONTH', label: 'Month' },
+                    { id: 'ALL', label: 'All' },
+                  ].map((tm) => (
+                    <button
+                      key={tm.id}
+                      type="button"
+                      onClick={() => enterMode('PIN', tm.id)}
+                      style={{
+                        padding: '8px 6px',
+                        borderRadius: 8,
+                        border:
+                          tm.id === 'DAY'
+                            ? '1px solid rgba(239,68,68,0.5)'
+                            : '1px solid rgba(255,255,255,0.12)',
+                        background:
+                          tm.id === 'DAY'
+                            ? 'rgba(239,68,68,0.16)'
+                            : 'rgba(255,255,255,0.04)',
+                        color: tm.id === 'DAY' ? '#f87171' : '#e2e8f0',
+                        fontWeight: 700,
+                        fontSize: 12,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {tm.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -682,16 +1028,34 @@ export default function MappingWorkspace({
   }
 
   // =========================================================================
-  // STEP 2: CALM, LAYER-BY-LAYER INTERACTIVE MAP VIEW
+  // STEP 2: UNIFIED 3-COLUMN MAPPING WORKSPACE (Matching Approved UI Design)
   // =========================================================================
-  const modeTitle =
-    activeMode === 'STATIC_INDIA'
-      ? '🇮🇳 India Static Mapping'
-      : activeMode === 'STATIC_WORLD'
-        ? '🌍 World Static Mapping'
-        : activeMode === 'PIN'
-          ? '📍 Places in News (PIN)'
-          : '🌐 IR Mapping';
+  const currentPeriodIndex = availablePinPeriods.findIndex((p) => p.key === selectedPinPeriod);
+  const currentPeriodObj = currentPeriodIndex >= 0 ? availablePinPeriods[currentPeriodIndex] : null;
+
+  const selectedIndexInFeed = selectedNode
+    ? numberedNodes.findIndex((n) => n.id === selectedNode.id)
+    : -1;
+
+  const studiedInCurrentFeed = numberedNodes.filter((n) => studiedIds.has(n.id)).length;
+  const examinerTrapText = deriveExaminerTrap(selectedNode);
+
+  const visibleFolders =
+    selectedThemeFilter === 'ALL'
+      ? folders
+      : folders.filter((f) => f.id === selectedThemeFilter);
+
+  const selectedLocationSubtitle = selectedNode
+    ? [
+        selectedNode.locatedIn?.district
+          ? `${selectedNode.locatedIn.district} district`
+          : null,
+        selectedNode.locatedIn?.stateOrProvince,
+        selectedNode.locatedIn?.country,
+      ]
+        .filter(Boolean)
+        .join(', ') || selectedNode.regionScope
+    : 'All mapped regions';
 
   return (
     <div
@@ -700,27 +1064,32 @@ export default function MappingWorkspace({
         flexDirection: 'column',
         height: 'calc(100vh - 64px)',
         width: '100%',
-        background: '#0b0f19',
-        color: '#f8fafc',
+        background: '#f8fafc',
+        color: '#0f172a',
         overflow: 'hidden',
         fontFamily: 'Inter, system-ui, sans-serif',
       }}
     >
-      {/* Clean Minimal Top Bar (50px) */}
+      {/* =================================================================== */}
+      {/* UNIFIED TOP CONTROL RIBBON (Secondary Header Bar)                   */}
+      {/* =================================================================== */}
       <div
         style={{
-          height: 50,
+          minHeight: 54,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '0 18px',
-          background: '#0f172a',
-          borderBottom: '1px solid rgba(255,255,255,0.07)',
-          zIndex: 20,
+          flexWrap: 'wrap',
+          gap: 10,
+          padding: '6px 16px',
+          background: '#ffffff',
+          borderBottom: '1px solid #e2e8f0',
+          zIndex: 25,
         }}
       >
-        {/* Left: Back to Mapping + Current Track Title */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+        {/* Left & Center Controls */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          {/* Back to Tracks Pill */}
           <button
             type="button"
             onClick={() => {
@@ -728,428 +1097,730 @@ export default function MappingWorkspace({
               setSelectedNode(null);
               setActiveOrg(null);
             }}
+            title="Switch Mapping Track (PIN / Static / IR)"
             style={{
-              padding: '6px 12px',
+              padding: '6px 10px',
               borderRadius: 8,
-              border: '1px solid rgba(255,255,255,0.12)',
-              background: 'rgba(255,255,255,0.04)',
-              color: '#cbd5e1',
-              fontSize: 12.5,
+              border: '1px solid #e2e8f0',
+              background: '#f8fafc',
+              color: '#475569',
+              fontSize: 12,
               fontWeight: 600,
               cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 5,
             }}
           >
-            ← All Mapping Tracks
+            <span>←</span>
+            <span>Tracks</span>
           </button>
 
-          <span style={{ fontSize: 15, fontWeight: 700, color: '#f8fafc' }}>
-            {modeTitle}
-          </span>
-
-          {/* Quick India/World switch if inside Static Mapping */}
-          {(activeMode === 'STATIC_INDIA' || activeMode === 'STATIC_WORLD') && (
+          {/* 1. Scope Segmented Control: All 6 | India 2 | World 4 (in PIN mode) or India | World (in Static) */}
+          {activeMode === 'PIN' ? (
             <div
               style={{
                 display: 'inline-flex',
-                background: '#090d16',
-                padding: 2,
-                borderRadius: 7,
-                border: '1px solid rgba(255,255,255,0.1)',
+                alignItems: 'center',
+                background: '#f1f5f9',
+                padding: 3,
+                borderRadius: 9,
+                border: '1px solid #e2e8f0',
+                gap: 2,
+              }}
+            >
+              {[
+                { id: 'ALL', label: 'All', count: scopeCounts.all },
+                { id: 'India', label: 'India', count: scopeCounts.india },
+                { id: 'World', label: 'World', count: scopeCounts.world },
+              ].map((sc) => {
+                const isActive = pinScope === sc.id;
+                return (
+                  <button
+                    key={sc.id}
+                    type="button"
+                    onClick={() => {
+                      setPinScope(sc.id);
+                      if (sc.id === 'India') {
+                        setCameraTarget({ center: [22.8, 79.5], zoom: 5, ts: Date.now() });
+                      } else if (sc.id === 'World') {
+                        setCameraTarget({ center: [24.0, 22.0], zoom: 2.5, ts: Date.now() });
+                      }
+                    }}
+                    style={{
+                      padding: '5px 11px',
+                      borderRadius: 6,
+                      border: 'none',
+                      background: isActive ? '#0f172a' : 'transparent',
+                      color: isActive ? '#ffffff' : '#475569',
+                      fontSize: 12.5,
+                      fontWeight: isActive ? 700 : 600,
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    <span>{sc.label}</span>
+                    <span
+                      style={{
+                        fontSize: 11.5,
+                        opacity: isActive ? 0.85 : 0.7,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {sc.count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (activeMode === 'STATIC_INDIA' || activeMode === 'STATIC_WORLD') ? (
+            <div
+              style={{
+                display: 'inline-flex',
+                background: '#f1f5f9',
+                padding: 3,
+                borderRadius: 9,
+                border: '1px solid #e2e8f0',
               }}
             >
               <button
                 type="button"
                 onClick={() => enterMode('STATIC_INDIA')}
                 style={{
-                  padding: '4px 10px',
-                  borderRadius: 5,
+                  padding: '5px 12px',
+                  borderRadius: 6,
                   border: 'none',
-                  background: activeMode === 'STATIC_INDIA' ? '#1e293b' : 'transparent',
-                  color: activeMode === 'STATIC_INDIA' ? '#34d399' : '#64748b',
-                  fontSize: 12,
-                  fontWeight: 600,
+                  background: activeMode === 'STATIC_INDIA' ? '#0f172a' : 'transparent',
+                  color: activeMode === 'STATIC_INDIA' ? '#ffffff' : '#475569',
+                  fontSize: 12.5,
+                  fontWeight: 700,
                   cursor: 'pointer',
                 }}
               >
-                India
+                🇮🇳 India Static
               </button>
               <button
                 type="button"
                 onClick={() => enterMode('STATIC_WORLD')}
                 style={{
-                  padding: '4px 10px',
-                  borderRadius: 5,
+                  padding: '5px 12px',
+                  borderRadius: 6,
                   border: 'none',
-                  background: activeMode === 'STATIC_WORLD' ? '#1e293b' : 'transparent',
-                  color: activeMode === 'STATIC_WORLD' ? '#38bdf8' : '#64748b',
-                  fontSize: 12,
-                  fontWeight: 600,
+                  background: activeMode === 'STATIC_WORLD' ? '#0f172a' : 'transparent',
+                  color: activeMode === 'STATIC_WORLD' ? '#ffffff' : '#475569',
+                  fontSize: 12.5,
+                  fontWeight: 700,
                   cursor: 'pointer',
                 }}
               >
-                World
+                🌍 World Static
               </button>
             </div>
+          ) : (
+            <span
+              style={{
+                fontSize: 13.5,
+                fontWeight: 700,
+                color: '#0f172a',
+                padding: '4px 10px',
+                background: '#f1f5f9',
+                borderRadius: 8,
+              }}
+            >
+              🌐 IR Mapping & Groupings
+            </span>
           )}
 
-          {/* Simple All / India / World toggle if inside PIN mode */}
+          {/* Divider */}
+          {activeMode === 'PIN' && (
+            <div style={{ width: 1, height: 22, background: '#e2e8f0' }} />
+          )}
+
+          {/* 2. Time Horizon Segmented Control: Day | Week | Month | All */}
           {activeMode === 'PIN' && (
             <div
               style={{
                 display: 'inline-flex',
-                background: '#090d16',
-                padding: 2,
-                borderRadius: 7,
-                border: '1px solid rgba(255,255,255,0.1)',
+                alignItems: 'center',
+                background: '#f1f5f9',
+                padding: 3,
+                borderRadius: 9,
+                border: '1px solid #e2e8f0',
+                gap: 2,
               }}
             >
-              {['ALL', 'India', 'World'].map((sc) => (
-                <button
-                  key={sc}
-                  type="button"
-                  onClick={() => {
-                    setPinScope(sc);
-                    setSelectedNode(null);
-                    if (sc === 'India') setCameraTarget({ center: [22.5, 80.5], zoom: 5 });
-                    else if (sc === 'World') setCameraTarget({ center: [20.0, 18.0], zoom: 2.4 });
+              {[
+                { id: 'DAY', label: 'Day' },
+                { id: 'WEEK', label: 'Week' },
+                { id: 'MONTH', label: 'Month' },
+                { id: 'ALL', label: 'All' },
+              ].map((tm) => {
+                const isActive = pinTimeMode === tm.id;
+                return (
+                  <button
+                    key={tm.id}
+                    type="button"
+                    onClick={() => {
+                      setPinTimeMode(tm.id);
+                      setSelectedThemeFilter('ALL');
+                    }}
+                    style={{
+                      padding: '5px 12px',
+                      borderRadius: 6,
+                      border: 'none',
+                      background: isActive ? '#ffffff' : 'transparent',
+                      color: isActive ? '#0f172a' : '#64748b',
+                      boxShadow: isActive ? '0 1px 2px rgba(15,23,42,0.08)' : 'none',
+                      fontSize: 12.5,
+                      fontWeight: isActive ? 700 : 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    {tm.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* 3. Date / Period Stepper: < Thu, 15 Oct 2026 (6 places) > */}
+          {activeMode === 'PIN' && pinTimeMode !== 'ALL' && availablePinPeriods.length > 0 && (
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <button
+                type="button"
+                disabled={
+                  currentPeriodIndex >= availablePinPeriods.length - 1 ||
+                  currentPeriodIndex === -1
+                }
+                onClick={() => {
+                  if (currentPeriodIndex < availablePinPeriods.length - 1) {
+                    setSelectedPinPeriod(availablePinPeriods[currentPeriodIndex + 1].key);
+                    setSelectedThemeFilter('ALL');
+                  }
+                }}
+                title="Previous (older) period"
+                style={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: 7,
+                  border: '1px solid #e2e8f0',
+                  background: '#ffffff',
+                  color:
+                    currentPeriodIndex >= availablePinPeriods.length - 1 ||
+                    currentPeriodIndex === -1
+                      ? '#cbd5e1'
+                      : '#334155',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor:
+                    currentPeriodIndex >= availablePinPeriods.length - 1 ||
+                    currentPeriodIndex === -1
+                      ? 'not-allowed'
+                      : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                ‹
+              </button>
+
+              <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+                <select
+                  value={selectedPinPeriod}
+                  onChange={(e) => {
+                    setSelectedPinPeriod(e.target.value);
+                    setSelectedThemeFilter('ALL');
                   }}
+                  aria-label="Select time period"
                   style={{
-                    padding: '4px 10px',
-                    borderRadius: 5,
-                    border: 'none',
-                    background: pinScope === sc ? '#1e293b' : 'transparent',
-                    color: pinScope === sc ? '#38bdf8' : '#64748b',
-                    fontSize: 12,
-                    fontWeight: 600,
+                    appearance: 'none',
+                    WebkitAppearance: 'none',
+                    padding: '5px 26px 5px 12px',
+                    borderRadius: 8,
+                    border: '1px solid transparent',
+                    background: 'transparent',
+                    color: '#0f172a',
+                    fontSize: 13,
+                    fontWeight: 700,
                     cursor: 'pointer',
+                    textAlign: 'center',
                   }}
                 >
-                  {sc === 'ALL' ? 'All' : sc}
-                </button>
-              ))}
+                  {availablePinPeriods.map((p) => (
+                    <option key={p.key} value={p.key}>
+                      {p.label} ({p.count} {p.count === 1 ? 'place' : 'places'})
+                    </option>
+                  ))}
+                  <option value="ALL">
+                    All {pinTimeMode === 'DAY' ? 'Days' : pinTimeMode === 'WEEK' ? 'Weeks' : 'Months'} ({allPinNodes.length} places)
+                  </option>
+                </select>
+                <span
+                  style={{
+                    position: 'absolute',
+                    right: 8,
+                    pointerEvents: 'none',
+                    fontSize: 10,
+                    color: '#64748b',
+                  }}
+                >
+                  ▾
+                </span>
+              </div>
+
+              <button
+                type="button"
+                disabled={currentPeriodIndex <= 0}
+                onClick={() => {
+                  if (currentPeriodIndex > 0) {
+                    setSelectedPinPeriod(availablePinPeriods[currentPeriodIndex - 1].key);
+                    setSelectedThemeFilter('ALL');
+                  }
+                }}
+                title="Next (newer) period"
+                style={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: 7,
+                  border: '1px solid #e2e8f0',
+                  background: '#ffffff',
+                  color: currentPeriodIndex <= 0 ? '#cbd5e1' : '#334155',
+                  fontSize: 14,
+                  fontWeight: 700,
+                  cursor: currentPeriodIndex <= 0 ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                ›
+              </button>
             </div>
           )}
         </div>
 
-        {/* Right: Active Layer Indicator + Compass Sort + Basemap */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          {activeFolder && !searchQuery.trim() && (
-            <span
-              style={{
-                fontSize: 12,
-                color: '#94a3b8',
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                padding: '4px 10px',
-                borderRadius: 999,
-              }}
-            >
-              Active Layer: <strong style={{ color: '#f8fafc' }}>{activeFolder.emoji} {activeFolder.title}</strong>
-            </span>
-          )}
+        {/* Right Controls: Studied X of Y mapped + Study | Practice Toggle */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div style={{ fontSize: 12.5, color: '#64748b', fontWeight: 500 }}>
+            Studied{' '}
+            <strong style={{ color: '#0f172a', fontWeight: 700 }}>
+              {studiedInCurrentFeed} of {numberedNodes.length}
+            </strong>{' '}
+            mapped
+          </div>
 
-          <select
-            value={spatialSort}
-            onChange={(e) => setSpatialSort(e.target.value)}
+          <div
             style={{
-              padding: '6px 10px',
-              borderRadius: 7,
-              background: '#090d16',
-              border: '1px solid rgba(255,255,255,0.1)',
-              color: '#cbd5e1',
-              fontSize: 12,
+              display: 'inline-flex',
+              alignItems: 'center',
+              background: '#f1f5f9',
+              padding: 3,
+              borderRadius: 9,
+              border: '1px solid #e2e8f0',
+              gap: 2,
             }}
           >
-            <option value="DEFAULT">Order: Alphabetical</option>
-            <option value="N_TO_S">North → South</option>
-            <option value="S_TO_N">South → North</option>
-            <option value="E_TO_W">East → West</option>
-            <option value="W_TO_E">West → East</option>
-          </select>
-
-          <select
-            value={basemap}
-            onChange={(e) => setBasemap(e.target.value)}
-            style={{
-              padding: '6px 10px',
-              borderRadius: 7,
-              background: '#090d16',
-              border: '1px solid rgba(255,255,255,0.1)',
-              color: '#cbd5e1',
-              fontSize: 12,
-            }}
-          >
-            <option value="topo">Topographic Map</option>
-            <option value="natgeo">National Geographic</option>
-            <option value="satellite">Satellite</option>
-            <option value="light">Minimal Light</option>
-          </select>
+            {[
+              { id: 'STUDY', label: 'Study' },
+              { id: 'PRACTICE', label: 'Practice' },
+            ].map((pm) => {
+              const isActive = panelMode === pm.id;
+              return (
+                <button
+                  key={pm.id}
+                  type="button"
+                  onClick={() => setPanelMode(pm.id)}
+                  style={{
+                    padding: '5px 13px',
+                    borderRadius: 6,
+                    border: 'none',
+                    background: isActive ? '#0f172a' : 'transparent',
+                    color: isActive ? '#ffffff' : '#475569',
+                    fontSize: 12.5,
+                    fontWeight: isActive ? 700 : 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  {pm.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Main Body: Left Thematic Folder Accordion (290px) + Map Canvas + Slide-Over Drawer */}
+      {/* =================================================================== */}
+      {/* 3-COLUMN WORKSPACE: Left Feed + Center Map + Right Study Sheet      */}
+      {/* =================================================================== */}
       <div style={{ display: 'flex', flex: 1, minHeight: 0, position: 'relative' }}>
-        {/* Left Sidebar: Thematic Folder Accordion ("One Layer at a Time") */}
+        {/* ================================================================= */}
+        {/* COLUMN 1: LEFT SIDEBAR (Search + Theme Chips + Numbered Sections) */}
+        {/* ================================================================= */}
         <div
           style={{
-            width: 295,
-            minWidth: 295,
-            background: '#0f172a',
-            borderRight: '1px solid rgba(255,255,255,0.07)',
+            width: 315,
+            minWidth: 300,
+            background: '#ffffff',
+            borderRight: '1px solid #e2e8f0',
             display: 'flex',
             flexDirection: 'column',
             height: '100%',
+            zIndex: 15,
           }}
         >
           {/* Search Input */}
-          <div
-            style={{
-              padding: '12px 12px 10px',
-              borderBottom: '1px solid rgba(255,255,255,0.06)',
-            }}
-          >
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search place in this track..."
+          <div style={{ padding: '12px 12px 8px' }}>
+            <div
               style={{
-                width: '100%',
-                padding: '8px 11px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '7px 11px',
                 borderRadius: 8,
-                background: '#090d16',
-                border: '1px solid rgba(255,255,255,0.1)',
-                color: '#f8fafc',
-                fontSize: 12.5,
-                boxSizing: 'border-box',
+                background: '#f8fafc',
+                border: '1px solid #e2e8f0',
               }}
-            />
-          </div>
-
-          {/* Folder Accordion OR Search Results */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: '10px 10px 18px' }}>
-            {loading ? (
-              <div style={{ fontSize: 12, color: '#64748b', padding: 8 }}>Loading layers...</div>
-            ) : searchQuery.trim() ? (
-              /* Search Results View */
-              <div>
-                <div
+            >
+              <span style={{ fontSize: 13, color: '#94a3b8' }}>🔍</span>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder={
+                  activeMode === 'PIN' && pinTimeMode === 'DAY'
+                    ? "Filter today's places..."
+                    : 'Filter places in this view...'
+                }
+                style={{
+                  width: '100%',
+                  border: 'none',
+                  outline: 'none',
+                  background: 'transparent',
+                  color: '#0f172a',
+                  fontSize: 12.5,
+                }}
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
                   style={{
-                    fontSize: 11,
-                    color: '#94a3b8',
-                    padding: '2px 4px 8px',
-                    display: 'flex',
-                    justifyContent: 'space-between',
+                    border: 'none',
+                    background: 'none',
+                    color: '#64748b',
+                    fontSize: 12,
+                    cursor: 'pointer',
+                    padding: 0,
                   }}
                 >
-                  <span>{plottedNodes.length} matching places</span>
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Quick Thematic Category Filter Chips */}
+          {folders.length > 0 && (
+            <div
+              style={{
+                padding: '2px 12px 10px',
+                borderBottom: '1px solid #f1f5f9',
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 6,
+              }}
+            >
+              {folders.map((folder) => {
+                const isChipActive = selectedThemeFilter === folder.id;
+                return (
                   <button
+                    key={folder.id}
                     type="button"
-                    onClick={() => setSearchQuery('')}
+                    onClick={() =>
+                      setSelectedThemeFilter((prev) =>
+                        prev === folder.id ? 'ALL' : folder.id
+                      )
+                    }
                     style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#38bdf8',
-                      fontSize: 11,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      padding: '4px 9px',
+                      borderRadius: 999,
+                      border: isChipActive
+                        ? `1px solid ${folder.color}`
+                        : '1px solid #e2e8f0',
+                      background: isChipActive ? `${folder.color}14` : '#ffffff',
+                      color: isChipActive ? folder.color : '#334155',
+                      fontSize: 11.5,
+                      fontWeight: 600,
                       cursor: 'pointer',
-                      padding: 0,
+                      transition: 'all 0.15s ease',
                     }}
                   >
-                    Clear
+                    <span
+                      style={{
+                        width: 7,
+                        height: 7,
+                        borderRadius: '50%',
+                        background: folder.color,
+                        display: 'inline-block',
+                      }}
+                    />
+                    <span>{folder.shortLabel}</span>
+                    <span style={{ color: '#64748b', fontWeight: 700 }}>
+                      {folder.items.length}
+                    </span>
                   </button>
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                  {plottedNodes.map((node) => {
-                    const isSelected = selectedNode?.id === node.id;
-                    const locationLabel =
-                      node.locatedIn?.stateOrProvince ||
-                      node.locatedIn?.country ||
-                      node.regionScope;
-                    return (
-                      <div
-                        key={node.id}
-                        onClick={() => handleSelectNode(node)}
-                        style={{
-                          padding: '8px 10px',
-                          borderRadius: 8,
-                          cursor: 'pointer',
-                          background: isSelected ? 'rgba(56, 189, 248, 0.14)' : 'rgba(255,255,255,0.02)',
-                          border: isSelected
-                            ? '1px solid rgba(56, 189, 248, 0.45)'
-                            : '1px solid transparent',
-                        }}
-                      >
-                        <div style={{ fontSize: 13, fontWeight: 600, color: isSelected ? '#38bdf8' : '#f1f5f9' }}>
-                          {node.place}
-                        </div>
-                        <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
-                          {node.placeType} • {locationLabel}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Grouped Thematic Sections & Numbered Place Items */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '10px 10px 18px', background: '#f8fafc' }}>
+            {loading ? (
+              <div style={{ fontSize: 12.5, color: '#64748b', padding: '12px 6px' }}>
+                Loading mapped places...
+              </div>
+            ) : visibleFolders.length === 0 ? (
+              <div style={{ fontSize: 12.5, color: '#64748b', padding: '16px', textAlign: 'center' }}>
+                No mapped places match the current filter.
               </div>
             ) : (
-              /* Thematic Folders Accordion (One Open Layer at a Time) */
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <div style={{ fontSize: 11, color: '#64748b', padding: '0 4px 2px' }}>
-                  Select a layer folder to plot on the map:
-                </div>
-
-                {folders.map((folder) => {
-                  const isOpen = activeFolder?.id === folder.id;
-
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {visibleFolders.map((folder) => {
+                  const isCollapsed = Boolean(collapsedFolders[folder.id]);
                   return (
                     <div
                       key={folder.id}
                       style={{
-                        borderRadius: 10,
-                        background: isOpen ? '#111827' : 'rgba(255,255,255,0.02)',
-                        border: isOpen
-                          ? `1px solid ${folder.color}66`
-                          : '1px solid rgba(255,255,255,0.06)',
-                        overflow: 'hidden',
-                        transition: 'all 0.15s ease',
+                        background: '#ffffff',
+                        border: '1px solid #cbd5e1',
+                        borderRadius: 12,
+                        padding: '6px 8px 8px',
+                        boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)',
                       }}
                     >
-                      {/* Folder Header Button */}
+                      {/* Uppercase Section Header */}
                       <button
                         type="button"
-                        onClick={() => {
-                          setActiveFolderId(folder.id);
-                          setSelectedNode(null);
-                          if (!folder.isOrgFolder) {
-                            setActiveOrg(null);
-                          }
-                        }}
+                        onClick={() =>
+                          setCollapsedFolders((prev) => ({
+                            ...prev,
+                            [folder.id]: !prev[folder.id],
+                          }))
+                        }
                         style={{
                           width: '100%',
-                          padding: '10px 12px',
-                          background: isOpen ? 'rgba(255,255,255,0.03)' : 'transparent',
+                          padding: '5px 6px 7px',
+                          background: 'transparent',
                           border: 'none',
+                          borderBottom: isCollapsed ? 'none' : '1px solid #f1f5f9',
+                          marginBottom: isCollapsed ? 0 : 6,
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
                           cursor: 'pointer',
                           textAlign: 'left',
-                          color: '#f8fafc',
                         }}
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 9, minWidth: 0 }}>
-                          <span style={{ fontSize: 15 }}>{folder.emoji}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
                           <span
                             style={{
-                              fontSize: 12.5,
-                              fontWeight: isOpen ? 700 : 600,
-                              color: isOpen ? '#ffffff' : '#cbd5e1',
-                              whiteSpace: 'nowrap',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
+                              width: 8,
+                              height: 8,
+                              borderRadius: '50%',
+                              background: folder.color,
+                              display: 'inline-block',
+                            }}
+                          />
+                          <span
+                            style={{
+                              fontSize: 10.5,
+                              fontWeight: 800,
+                              letterSpacing: '0.06em',
+                              textTransform: 'uppercase',
+                              color: '#475569',
                             }}
                           >
                             {folder.title}
                           </span>
                         </div>
-
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-                          <span
-                            style={{
-                              fontSize: 11,
-                              fontWeight: 700,
-                              padding: '2px 7px',
-                              borderRadius: 999,
-                              background: isOpen ? `${folder.color}26` : 'rgba(255,255,255,0.06)',
-                              color: isOpen ? folder.color : '#94a3b8',
-                            }}
-                          >
-                            {folder.items.length}
-                          </span>
-                          <span style={{ fontSize: 11, color: '#64748b' }}>
-                            {isOpen ? '▾' : '▸'}
-                          </span>
-                        </div>
-                      </button>
-
-                      {/* Folder Entries (Shown ONLY for the single active folder) */}
-                      {isOpen && (
-                        <div
+                        <span
                           style={{
-                            padding: '4px 8px 8px',
-                            borderTop: '1px solid rgba(255,255,255,0.05)',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: 3,
+                            fontSize: 11,
+                            fontWeight: 800,
+                            padding: '1px 7px',
+                            borderRadius: 999,
+                            background: `${folder.color}15`,
+                            color: folder.color,
+                            border: `1px solid ${folder.color}35`,
                           }}
                         >
+                          {folder.items.length}
+                        </span>
+                      </button>
+
+                      {/* Section Items (Each Entry Has a Crisp Card Border) */}
+                      {!isCollapsed && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                           {folder.isOrgFolder
-                            ? folder.items.map((org) => {
+                            ? folder.items.map((org, idx) => {
                                 const isOrgSelected = activeOrg?.id === org.id;
                                 return (
                                   <div
                                     key={org.id}
                                     onClick={() => handleSelectOrg(org)}
                                     style={{
-                                      padding: '8px 10px',
-                                      borderRadius: 7,
+                                      padding: '9px 11px',
+                                      borderRadius: 9,
                                       cursor: 'pointer',
-                                      background: isOrgSelected
-                                        ? 'rgba(245, 158, 11, 0.16)'
-                                        : 'transparent',
+                                      background: isOrgSelected ? '#fffbeb' : '#ffffff',
                                       border: isOrgSelected
-                                        ? '1px solid rgba(245, 158, 11, 0.5)'
-                                        : '1px solid transparent',
+                                        ? '1.5px solid #d97706'
+                                        : '1px solid #cbd5e1',
+                                      borderLeft: isOrgSelected
+                                        ? '4px solid #d97706'
+                                        : '1px solid #cbd5e1',
+                                      boxShadow: isOrgSelected
+                                        ? '0 3px 10px rgba(217, 119, 6, 0.12)'
+                                        : '0 1px 2px rgba(15, 23, 42, 0.03)',
+                                      display: 'flex',
+                                      alignItems: 'flex-start',
+                                      gap: 10,
                                     }}
                                   >
-                                    <div
+                                    <span
                                       style={{
-                                        fontSize: 12.5,
-                                        fontWeight: 700,
-                                        color: isOrgSelected ? '#fbbf24' : '#f1f5f9',
+                                        width: 22,
+                                        height: 22,
+                                        borderRadius: '50%',
+                                        background: isOrgSelected ? '#d97706' : '#fef3c7',
+                                        color: isOrgSelected ? '#ffffff' : '#b45309',
+                                        border: isOrgSelected
+                                          ? '1.5px solid #ffffff'
+                                          : '1px solid #fde68a',
+                                        fontSize: 11,
+                                        fontWeight: 800,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        flexShrink: 0,
+                                        marginTop: 1,
                                       }}
                                     >
-                                      {org.shortName}
-                                    </div>
-                                    <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 1 }}>
-                                      {org.name}
+                                      {idx + 1}
+                                    </span>
+                                    <div>
+                                      <div
+                                        style={{
+                                          fontSize: 13,
+                                          fontWeight: 700,
+                                          color: '#0f172a',
+                                        }}
+                                      >
+                                        {org.shortName}
+                                      </div>
+                                      <div style={{ fontSize: 11.5, color: '#64748b', marginTop: 1 }}>
+                                        {org.name}
+                                      </div>
                                     </div>
                                   </div>
                                 );
                               })
                             : folder.items.map((node) => {
                                 const isSelected = selectedNode?.id === node.id;
-                                const locationLabel =
-                                  node.locatedIn?.stateOrProvince ||
-                                  node.locatedIn?.country ||
-                                  node.regionScope;
+                                const locParts = [
+                                  node.locatedIn?.district,
+                                  node.locatedIn?.stateOrProvince,
+                                  node.locatedIn?.country || node.regionScope,
+                                ].filter(Boolean);
+                                const subLocation =
+                                  locParts.slice(0, 2).join(', ') +
+                                  (locParts.length > 2 ? ` · ${locParts[locParts.length - 1]}` : '');
 
                                 return (
                                   <div
                                     key={node.id}
                                     onClick={() => handleSelectNode(node)}
                                     style={{
-                                      padding: '8px 10px',
-                                      borderRadius: 7,
+                                      padding: '9px 11px',
+                                      borderRadius: 9,
                                       cursor: 'pointer',
-                                      background: isSelected
-                                        ? 'rgba(56, 189, 248, 0.14)'
-                                        : 'transparent',
+                                      background: isSelected ? '#fff1f2' : '#ffffff',
                                       border: isSelected
-                                        ? '1px solid rgba(56, 189, 248, 0.45)'
-                                        : '1px solid transparent',
+                                        ? '1.5px solid #ef4444'
+                                        : '1px solid #cbd5e1',
+                                      borderLeft: isSelected
+                                        ? '4px solid #ef4444'
+                                        : `3px solid ${folder.color}88`,
+                                      boxShadow: isSelected
+                                        ? '0 3px 10px rgba(239, 68, 68, 0.14)'
+                                        : '0 1px 2px rgba(15, 23, 42, 0.03)',
+                                      display: 'flex',
+                                      alignItems: 'flex-start',
+                                      gap: 10,
+                                      transition: 'all 0.12s ease',
                                     }}
                                   >
-                                    <div
+                                    {/* Numbered Badge (Crimson Red when selected, Theme Tinted with Border when unselected) */}
+                                    <span
                                       style={{
-                                        fontSize: 12.5,
-                                        fontWeight: 600,
-                                        color: isSelected ? '#38bdf8' : '#f1f5f9',
+                                        width: 23,
+                                        height: 23,
+                                        borderRadius: '50%',
+                                        background: isSelected
+                                          ? '#ef4444'
+                                          : `${folder.color}18`,
+                                        color: isSelected ? '#ffffff' : folder.color,
+                                        border: isSelected
+                                          ? '1.5px solid #ffffff'
+                                          : `1.5px solid ${folder.color}66`,
+                                        boxShadow: isSelected
+                                          ? '0 0 0 2.5px rgba(239,68,68,0.28)'
+                                          : 'none',
+                                        fontSize: 11,
+                                        fontWeight: 800,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        flexShrink: 0,
+                                        marginTop: 1,
                                       }}
                                     >
-                                      {node.place}
-                                    </div>
-                                    <div style={{ fontSize: 11, color: '#64748b', marginTop: 1 }}>
-                                      {node.placeType} • {locationLabel}
+                                      {node.displayIndex || '•'}
+                                    </span>
+
+                                    <div style={{ minWidth: 0, flex: 1 }}>
+                                      <div
+                                        style={{
+                                          fontSize: 13.2,
+                                          fontWeight: isSelected ? 700 : 600,
+                                          color: '#0f172a',
+                                          lineHeight: 1.32,
+                                        }}
+                                      >
+                                        {node.place}
+                                      </div>
+                                      <div
+                                        style={{
+                                          fontSize: 11.5,
+                                          color: isSelected ? '#9f1239' : '#64748b',
+                                          marginTop: 3,
+                                          whiteSpace: 'nowrap',
+                                          overflow: 'hidden',
+                                          textOverflow: 'ellipsis',
+                                        }}
+                                      >
+                                        {subLocation || node.placeType}
+                                      </div>
                                     </div>
                                   </div>
                                 );
@@ -1164,48 +1835,238 @@ export default function MappingWorkspace({
           </div>
         </div>
 
-        {/* Center Map Canvas (Plots ONLY the active folder's layer or active IR Grouping!) */}
-        <div style={{ flex: 1, position: 'relative', height: '100%' }}>
+        {/* ================================================================= */}
+        {/* COLUMN 2: CENTER MAP CANVAS + FLOATING CONTROLS                   */}
+        {/* ================================================================= */}
+        <div style={{ flex: 1, position: 'relative', height: '100%', minWidth: 0 }}>
+          {/* Top-Left Floating Context Pill: Zoomed to ... | All-India view */}
+          <div
+            style={{
+              position: 'absolute',
+              top: 14,
+              left: 14,
+              zIndex: 500,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 10,
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid #e2e8f0',
+              borderRadius: 9,
+              padding: '6px 12px',
+              boxShadow: '0 4px 14px rgba(15, 23, 42, 0.08)',
+              fontSize: 12,
+              color: '#475569',
+            }}
+          >
+            <span>
+              {selectedNode ? (
+                <>
+                  Zoomed to{' '}
+                  <strong style={{ color: '#0f172a' }}>{selectedLocationSubtitle}</strong>
+                </>
+              ) : (
+                <strong style={{ color: '#0f172a' }}>
+                  Showing {numberedNodes.length} mapped places
+                </strong>
+              )}
+            </span>
+            <span style={{ width: 1, height: 14, background: '#cbd5e1' }} />
+            <button
+              type="button"
+              onClick={() =>
+                setCameraTarget({
+                  center: [22.8, 79.5],
+                  zoom: 4.8,
+                  ts: Date.now(),
+                })
+              }
+              style={{
+                border: 'none',
+                background: 'none',
+                color: '#2563eb',
+                fontWeight: 700,
+                fontSize: 12,
+                cursor: 'pointer',
+                padding: 0,
+              }}
+            >
+              All-India view
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                setCameraTarget({
+                  center: [22.0, 25.0],
+                  zoom: 2.3,
+                  ts: Date.now(),
+                })
+              }
+              style={{
+                border: 'none',
+                background: 'none',
+                color: '#64748b',
+                fontWeight: 600,
+                fontSize: 12,
+                cursor: 'pointer',
+                padding: 0,
+              }}
+            >
+              World view
+            </button>
+          </div>
+
+          {/* Top-Right Floating Basemap Switcher: Clean | Terrain | Satellite */}
+          <div
+            style={{
+              position: 'absolute',
+              top: 14,
+              right: 14,
+              zIndex: 500,
+              display: 'inline-flex',
+              alignItems: 'center',
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid #e2e8f0',
+              borderRadius: 9,
+              padding: 3,
+              boxShadow: '0 4px 14px rgba(15, 23, 42, 0.08)',
+              gap: 2,
+            }}
+          >
+            {[
+              { id: 'light', label: 'Clean' },
+              { id: 'topo', label: 'Terrain' },
+              { id: 'satellite', label: 'Satellite' },
+            ].map((bm) => {
+              const isActive = basemap === bm.id;
+              return (
+                <button
+                  key={bm.id}
+                  type="button"
+                  onClick={() => setBasemap(bm.id)}
+                  style={{
+                    padding: '5px 11px',
+                    borderRadius: 6,
+                    border: 'none',
+                    background: isActive ? '#0f172a' : 'transparent',
+                    color: isActive ? '#ffffff' : '#475569',
+                    fontSize: 12,
+                    fontWeight: isActive ? 700 : 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  {bm.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Bottom-Left Floating Legend Pill */}
+          <div
+            style={{
+              position: 'absolute',
+              bottom: 16,
+              left: 14,
+              zIndex: 500,
+              display: 'inline-flex',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 12,
+              background: 'rgba(255, 255, 255, 0.95)',
+              backdropFilter: 'blur(8px)',
+              border: '1px solid #e2e8f0',
+              borderRadius: 9,
+              padding: '6px 12px',
+              boxShadow: '0 4px 14px rgba(15, 23, 42, 0.08)',
+              fontSize: 11.5,
+              color: '#334155',
+              fontWeight: 600,
+            }}
+          >
+            {folders.slice(0, 4).map((f) => (
+              <span
+                key={f.id}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}
+              >
+                <span
+                  style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    background: f.color,
+                    display: 'inline-block',
+                  }}
+                />
+                <span>{f.shortLabel}</span>
+              </span>
+            ))}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+              <span
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  background: '#ef4444',
+                  boxShadow: '0 0 0 3px rgba(239,68,68,0.28)',
+                  display: 'inline-block',
+                }}
+              />
+              <span style={{ color: '#dc2626', fontWeight: 700 }}>Active Pin</span>
+            </span>
+          </div>
+
           <MappingCanvas
-            nodes={plottedNodes}
+            nodes={numberedNodes}
             selectedNode={selectedNode}
             onSelectNode={handleSelectNode}
             basemap={basemap}
-            showIndiaStates={activeMode === 'STATIC_INDIA' || pinScope === 'India'}
+            showIndiaStates={true}
             showGraticules={true}
             cameraTarget={cameraTarget}
             activeOrg={activeOrg}
           />
         </div>
 
-        {/* Step 3A: Slide-Over Card for Active IR Grouping (When an Organization is clicked) */}
+        {/* ================================================================= */}
+        {/* COLUMN 3A: IR ORGANIZATION CARD (When an IR Grouping is selected) */}
+        {/* ================================================================= */}
         {activeOrg && !selectedNode && (
           <div
             style={{
-              width: 380,
-              minWidth: 350,
-              background: '#0f172a',
-              borderLeft: '1px solid rgba(255,255,255,0.09)',
+              width: 400,
+              minWidth: 370,
+              background: '#ffffff',
+              borderLeft: '1px solid #e2e8f0',
               height: '100%',
               overflowY: 'auto',
-              padding: '20px 20px 28px',
+              padding: '18px 20px 28px',
               boxSizing: 'border-box',
               display: 'flex',
               flexDirection: 'column',
               gap: 16,
-              zIndex: 30,
-              boxShadow: '-8px 0 24px rgba(0,0,0,0.35)',
+              zIndex: 20,
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#fbbf24', textTransform: 'uppercase' }}>
+                <span
+                  style={{
+                    fontSize: 11,
+                    fontWeight: 700,
+                    color: '#b45309',
+                    background: '#fef3c7',
+                    padding: '3px 9px',
+                    borderRadius: 999,
+                  }}
+                >
                   International Grouping
-                </div>
-                <h2 style={{ fontSize: 19, fontWeight: 700, margin: '4px 0 0', color: '#ffffff' }}>
+                </span>
+                <h2 style={{ fontSize: 21, fontWeight: 800, margin: '8px 0 4px', color: '#0f172a' }}>
                   {activeOrg.shortName} — {activeOrg.name}
                 </h2>
-                <div style={{ fontSize: 12.5, color: '#94a3b8', marginTop: 4 }}>
+                <div style={{ fontSize: 12.5, color: '#64748b' }}>
                   HQ: {activeOrg.hq || 'N/A'} • Est. {activeOrg.established || 'N/A'}
                 </div>
               </div>
@@ -1215,12 +2076,11 @@ export default function MappingWorkspace({
                 style={{
                   width: 30,
                   height: 30,
-                  borderRadius: 8,
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  background: 'rgba(255,255,255,0.04)',
-                  color: '#94a3b8',
+                  borderRadius: 7,
+                  border: '1px solid #e2e8f0',
+                  background: '#ffffff',
+                  color: '#64748b',
                   cursor: 'pointer',
-                  fontSize: 14,
                 }}
               >
                 ✕
@@ -1229,31 +2089,36 @@ export default function MappingWorkspace({
 
             <div
               style={{
-                background: '#111827',
-                border: '1px solid rgba(245,158,11,0.25)',
+                background: '#fffbeb',
+                border: '1px solid #fde68a',
                 borderRadius: 12,
-                padding: '14px 16px',
+                padding: '12px 14px',
                 fontSize: 13,
-                color: '#e2e8f0',
+                color: '#92400e',
                 lineHeight: 1.6,
               }}
             >
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#fbbf24', textTransform: 'uppercase', marginBottom: 6 }}>
-                India&apos;s Position
-              </div>
-              {activeOrg.indiaStatus || 'Key strategic partner'}
+              <strong>India&apos;s Position:</strong> {activeOrg.indiaStatus || 'Key strategic partner'}
             </div>
 
             <div
               style={{
-                background: '#111827',
-                border: '1px solid rgba(255,255,255,0.07)',
+                background: '#f8fafc',
+                border: '1px solid #e2e8f0',
                 borderRadius: 12,
                 padding: '14px 16px',
               }}
             >
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 8 }}>
-                Member Countries (Shaded on Map)
+              <div
+                style={{
+                  fontSize: 11,
+                  fontWeight: 800,
+                  color: '#64748b',
+                  textTransform: 'uppercase',
+                  marginBottom: 8,
+                }}
+              >
+                Member Countries (Highlighted on Map)
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {(activeOrg.members || '')
@@ -1267,9 +2132,10 @@ export default function MappingWorkspace({
                         fontSize: 12,
                         padding: '4px 9px',
                         borderRadius: 6,
-                        background: 'rgba(245, 158, 11, 0.12)',
-                        border: '1px solid rgba(245, 158, 11, 0.3)',
-                        color: '#fde68a',
+                        background: '#ffffff',
+                        border: '1px solid #cbd5e1',
+                        color: '#0f172a',
+                        fontWeight: 600,
                       }}
                     >
                       {member}
@@ -1277,293 +2143,694 @@ export default function MappingWorkspace({
                   ))}
               </div>
             </div>
-
-            {activeOrg.upscRelevance && (
-              <div
-                style={{
-                  background: '#111827',
-                  border: '1px solid rgba(255,255,255,0.07)',
-                  borderRadius: 12,
-                  padding: '14px 16px',
-                  fontSize: 13,
-                  color: '#cbd5e1',
-                  lineHeight: 1.6,
-                }}
-              >
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 6 }}>
-                  UPSC Prelims Relevance
-                </div>
-                {activeOrg.upscRelevance}
-              </div>
-            )}
           </div>
         )}
 
-        {/* Step 3B: Calm Slide-Over Place Card (Renders ONLY when selectedNode is non-null!) */}
+        {/* ================================================================= */}
+        {/* COLUMN 3B: RIGHT STUDY & PRACTICE SHEET (Matches Approved UI)     */}
+        {/* ================================================================= */}
         {selectedNode && (
           <div
             style={{
-              width: 390,
-              minWidth: 360,
-              background: '#0f172a',
-              borderLeft: '1px solid rgba(255,255,255,0.09)',
+              width: 405,
+              minWidth: 375,
+              background: '#ffffff',
+              borderLeft: '1px solid #e2e8f0',
               height: '100%',
-              overflowY: 'auto',
-              padding: '20px 20px 28px',
-              boxSizing: 'border-box',
               display: 'flex',
               flexDirection: 'column',
-              gap: 16,
-              zIndex: 30,
-              boxShadow: '-8px 0 24px rgba(0,0,0,0.35)',
+              zIndex: 20,
             }}
           >
-            {/* Header with Close Button */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-              <div>
-                <h2 style={{ fontSize: 19, fontWeight: 700, margin: 0, color: '#ffffff', lineHeight: 1.3 }}>
-                  {selectedNode.place}
-                </h2>
-                <div style={{ fontSize: 12.5, color: '#94a3b8', marginTop: 4 }}>
-                  {selectedNode.placeType} •{' '}
-                  {[
-                    selectedNode.locatedIn?.stateOrProvince,
-                    selectedNode.locatedIn?.country,
-                  ]
-                    .filter(Boolean)
-                    .join(', ') || selectedNode.regionScope}
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setSelectedNode(null)}
-                title="Close panel"
-                style={{
-                  width: 30,
-                  height: 30,
-                  borderRadius: 8,
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  background: 'rgba(255,255,255,0.04)',
-                  color: '#94a3b8',
-                  cursor: 'pointer',
-                  fontSize: 14,
-                  flexShrink: 0,
-                }}
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* 1. Why in News (Only if newsTriggers exist) */}
-            {Array.isArray(selectedNode.newsTriggers) && selectedNode.newsTriggers.length > 0 && (
-              <div
-                style={{
-                  background: 'rgba(56, 189, 248, 0.07)',
-                  borderLeft: '3px solid #38bdf8',
-                  borderRadius: '0 8px 8px 0',
-                  padding: '10px 12px',
-                  fontSize: 13,
-                  color: '#e2e8f0',
-                  lineHeight: 1.55,
-                }}
-              >
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase', marginBottom: 4 }}>
-                  Why in News
-                </div>
-                {selectedNode.newsTriggers[0].newsHook}{' '}
-                {selectedNode.newsTriggers[0].url && (
-                  <a
-                    href={selectedNode.newsTriggers[0].url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: '#38bdf8', fontSize: 12 }}
-                  >
-                    Source ↗
-                  </a>
-                )}
-              </div>
-            )}
-
-            {/* 2. Key Map Pointers (Static Facts + Neighbours cleanly combined) */}
+            {/* Scrollable Body */}
             <div
               style={{
-                background: '#111827',
-                border: '1px solid rgba(255,255,255,0.07)',
-                borderRadius: 12,
-                padding: '14px 16px',
+                flex: 1,
+                overflowY: 'auto',
+                padding: '16px 20px 24px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 16,
               }}
             >
+              {/* Top Row: #1 · Theme Badge + Bookmark + < > Prev/Next Stepper */}
               <div
                 style={{
-                  fontSize: 11,
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  color: '#94a3b8',
-                  letterSpacing: '0.05em',
-                  marginBottom: 8,
-                }}
-              >
-                Key Map Pointers
-              </div>
-              <ul
-                style={{
-                  margin: 0,
-                  paddingLeft: 18,
-                  fontSize: 13,
-                  color: '#e2e8f0',
-                  lineHeight: 1.65,
                   display: 'flex',
-                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
                   gap: 8,
                 }}
               >
-                {(selectedNode.staticFacts || []).map((fact, idx) => (
-                  <li key={idx}>{fact}</li>
-                ))}
-                {selectedNode.neighbours?.length > 0 && (
-                  <li style={{ color: '#94a3b8' }}>
-                    <strong style={{ color: '#cbd5e1' }}>Surrounding / Neighbours:</strong>{' '}
-                    {selectedNode.neighbours.join(' • ')}
-                  </li>
-                )}
-              </ul>
-            </div>
-
-            {/* 3. Progressive Disclosure PYQ Accordion */}
-            {pyqsForSelected.length > 0 && (
-              <div>
-                <button
-                  type="button"
-                  onClick={() => setPyqExpanded((v) => !v)}
+                <span
                   style={{
-                    width: '100%',
-                    padding: '11px 14px',
-                    borderRadius: 10,
-                    border: '1px solid rgba(16, 185, 129, 0.35)',
-                    background: 'rgba(16, 185, 129, 0.1)',
-                    color: '#34d399',
-                    fontWeight: 700,
-                    fontSize: 13,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    justifyContent: 'space-between',
+                    display: 'inline-flex',
                     alignItems: 'center',
+                    gap: 5,
+                    padding: '4px 10px',
+                    borderRadius: 999,
+                    background: `${selectedNode.folderColor || '#0d9488'}16`,
+                    color: selectedNode.folderColor || '#0d9488',
+                    fontSize: 12,
+                    fontWeight: 700,
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span>📖 Practice Related PYQs</span>
-                    <span
-                      style={{
-                        fontSize: 11,
-                        padding: '2px 8px',
-                        borderRadius: 999,
-                        background: 'rgba(16, 185, 129, 0.25)',
-                        color: '#34d399',
-                        fontWeight: 700,
-                      }}
-                    >
-                      {pyqsForSelected.length}
-                    </span>
-                  </div>
-                  <span>{pyqExpanded ? '▴' : '▾'}</span>
-                </button>
+                  <span>
+                    #{selectedNode.displayIndex || 1} ·{' '}
+                    {selectedNode.folderShortLabel || selectedNode.placeType}
+                  </span>
+                </span>
 
-                {pyqExpanded && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 12 }}>
-                    {pyqsForSelected.map((q) => {
-                      const chosen = selectedAnswers[q.id];
-                      const isRevealed = revealedQuestions[q.id];
-                      return (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <button
+                    type="button"
+                    onClick={() => toggleBookmark(selectedNode.id)}
+                    title="Bookmark this place"
+                    style={{
+                      width: 30,
+                      height: 30,
+                      borderRadius: 7,
+                      border: '1px solid #e2e8f0',
+                      background: bookmarkedIds.has(selectedNode.id) ? '#fef3c7' : '#ffffff',
+                      color: bookmarkedIds.has(selectedNode.id) ? '#d97706' : '#64748b',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 13,
+                    }}
+                  >
+                    🔖
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={selectedIndexInFeed <= 0}
+                    onClick={() => {
+                      if (selectedIndexInFeed > 0) {
+                        handleSelectNode(numberedNodes[selectedIndexInFeed - 1]);
+                      }
+                    }}
+                    title="Previous place"
+                    style={{
+                      width: 30,
+                      height: 30,
+                      borderRadius: 7,
+                      border: '1px solid #e2e8f0',
+                      background: '#ffffff',
+                      color: selectedIndexInFeed <= 0 ? '#cbd5e1' : '#334155',
+                      cursor: selectedIndexInFeed <= 0 ? 'not-allowed' : 'pointer',
+                      fontSize: 14,
+                      fontWeight: 700,
+                    }}
+                  >
+                    ‹
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={
+                      selectedIndexInFeed === -1 ||
+                      selectedIndexInFeed >= numberedNodes.length - 1
+                    }
+                    onClick={() => {
+                      if (
+                        selectedIndexInFeed !== -1 &&
+                        selectedIndexInFeed < numberedNodes.length - 1
+                      ) {
+                        handleSelectNode(numberedNodes[selectedIndexInFeed + 1]);
+                      }
+                    }}
+                    title="Next place"
+                    style={{
+                      width: 30,
+                      height: 30,
+                      borderRadius: 7,
+                      border: '1px solid #e2e8f0',
+                      background: '#ffffff',
+                      color:
+                        selectedIndexInFeed === -1 ||
+                        selectedIndexInFeed >= numberedNodes.length - 1
+                          ? '#cbd5e1'
+                          : '#334155',
+                      cursor:
+                        selectedIndexInFeed === -1 ||
+                        selectedIndexInFeed >= numberedNodes.length - 1
+                          ? 'not-allowed'
+                          : 'pointer',
+                      fontSize: 14,
+                      fontWeight: 700,
+                    }}
+                  >
+                    ›
+                  </button>
+                </div>
+              </div>
+
+              {/* Place Heading + Location Subtitle */}
+              <div>
+                <h2
+                  style={{
+                    fontSize: 22,
+                    fontWeight: 800,
+                    margin: 0,
+                    color: '#0f172a',
+                    letterSpacing: '-0.01em',
+                    lineHeight: 1.25,
+                  }}
+                >
+                  {selectedNode.place}
+                </h2>
+                <div
+                  style={{
+                    fontSize: 13,
+                    color: '#64748b',
+                    marginTop: 5,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 5,
+                  }}
+                >
+                  <span style={{ color: '#ef4444', fontSize: 12 }}>📍</span>
+                  <span>{selectedLocationSubtitle}</span>
+                </div>
+              </div>
+
+              {panelMode === 'STUDY' ? (
+                <>
+                  {/* 1. WHY IN NEWS Card (Blue Callout Card) */}
+                  {Array.isArray(selectedNode.newsTriggers) &&
+                    selectedNode.newsTriggers.length > 0 && (
+                      <div
+                        style={{
+                          background: '#eff6ff',
+                          border: '1px solid #bfdbfe',
+                          borderRadius: 12,
+                          padding: '13px 15px',
+                        }}
+                      >
                         <div
-                          key={q.id}
                           style={{
-                            background: '#111827',
-                            border: '1px solid rgba(16, 185, 129, 0.25)',
-                            borderRadius: 10,
-                            padding: 13,
-                            fontSize: 12.5,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: 8,
+                            marginBottom: 6,
                           }}
                         >
-                          <div
+                          <span
                             style={{
-                              fontSize: 11.5,
-                              fontWeight: 700,
-                              color: '#34d399',
-                              marginBottom: 6,
-                              display: 'flex',
-                              justifyContent: 'space-between',
+                              fontSize: 10.5,
+                              fontWeight: 800,
+                              letterSpacing: '0.06em',
+                              textTransform: 'uppercase',
+                              color: '#1d4ed8',
                             }}
                           >
-                            <span>{q.exam} ({q.examYear})</span>
+                            WHY IN NEWS
+                          </span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            {selectedNode.newsTriggers[0].source && (
+                              <span
+                                style={{
+                                  fontSize: 10.5,
+                                  fontWeight: 700,
+                                  padding: '2px 7px',
+                                  borderRadius: 5,
+                                  background: '#dbeafe',
+                                  color: '#1e40af',
+                                }}
+                              >
+                                {selectedNode.newsTriggers[0].source}
+                              </span>
+                            )}
+                            {getNodeDateStr(selectedNode) && (
+                              <span style={{ fontSize: 11, color: '#3b82f6', fontWeight: 600 }}>
+                                {formatDayShort(getNodeDateStr(selectedNode))}
+                              </span>
+                            )}
                           </div>
-                          <div
-                            style={{
-                              whiteSpace: 'pre-line',
-                              color: '#f1f5f9',
-                              lineHeight: 1.55,
-                              marginBottom: 10,
-                            }}
-                          >
-                            {q.stem}
-                          </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                            {(q.options || []).map((opt) => {
-                              const isCorrect =
-                                (opt.label || '').toLowerCase() ===
-                                (q.correctLabel || '').toLowerCase();
-                              const isSelected = chosen === opt.label;
-                              let border = 'rgba(255,255,255,0.1)';
-                              let bg = '#090d16';
-                              if (isRevealed) {
-                                if (isCorrect) {
-                                  border = '#10b981';
-                                  bg = 'rgba(16,185,129,0.15)';
-                                } else if (isSelected) {
-                                  border = '#ef4444';
-                                  bg = 'rgba(239,68,68,0.15)';
-                                }
-                              }
-                              return (
-                                <button
-                                  key={opt.label}
-                                  type="button"
-                                  onClick={() => handleOptionClick(q.id, opt.label)}
-                                  style={{
-                                    textAlign: 'left',
-                                    padding: '7px 10px',
-                                    borderRadius: 7,
-                                    border: `1px solid ${border}`,
-                                    background: bg,
-                                    color: '#e2e8f0',
-                                    fontSize: 12,
-                                    cursor: 'pointer',
-                                  }}
-                                >
-                                  <strong>({opt.label})</strong> {opt.text}
-                                </button>
-                              );
-                            })}
-                          </div>
-                          {isRevealed && (
-                            <div
+                        </div>
+
+                        <div
+                          style={{
+                            fontSize: 13.5,
+                            color: '#1e3a8a',
+                            lineHeight: 1.55,
+                            fontWeight: 500,
+                          }}
+                        >
+                          {selectedNode.newsTriggers[0].newsHook}
+                        </div>
+
+                        {selectedNode.newsTriggers[0].url && (
+                          <div style={{ marginTop: 8 }}>
+                            <a
+                              href={selectedNode.newsTriggers[0].url}
+                              target="_blank"
+                              rel="noopener noreferrer"
                               style={{
-                                marginTop: 8,
-                                color: '#34d399',
-                                fontWeight: 700,
                                 fontSize: 12,
+                                fontWeight: 700,
+                                color: '#2563eb',
+                                textDecoration: 'none',
                               }}
                             >
-                              ✓ Answer: ({q.correctLabel?.toUpperCase()}) {q.answerText}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                              Open source ↗
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                  {/* 2. 2×2 Structured Geography Metadata Grid */}
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1fr',
+                      gap: 8,
+                    }}
+                  >
+                    <div
+                      style={{
+                        background: '#f8fafc',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: 10,
+                        padding: '9px 12px',
+                      }}
+                    >
+                      <div style={{ fontSize: 11, color: '#64748b', fontWeight: 500 }}>
+                        {selectedNode.regionScope === 'World' ? 'Region / Continent' : 'State / UT'}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 700,
+                          color: '#0f172a',
+                          marginTop: 2,
+                        }}
+                      >
+                        {selectedNode.locatedIn?.stateOrProvince ||
+                          selectedNode.locatedIn?.region ||
+                          selectedNode.locatedIn?.country ||
+                          selectedNode.regionScope}
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        background: '#f8fafc',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: 10,
+                        padding: '9px 12px',
+                      }}
+                    >
+                      <div style={{ fontSize: 11, color: '#64748b', fontWeight: 500 }}>
+                        {selectedNode.locatedIn?.district ? 'District' : 'Country / Scope'}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 700,
+                          color: '#0f172a',
+                          marginTop: 2,
+                        }}
+                      >
+                        {selectedNode.locatedIn?.district ||
+                          selectedNode.locatedIn?.country ||
+                          selectedNode.regionScope}
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        background: '#f8fafc',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: 10,
+                        padding: '9px 12px',
+                      }}
+                    >
+                      <div style={{ fontSize: 11, color: '#64748b', fontWeight: 500 }}>
+                        Basin / Belt
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 700,
+                          color: '#0f172a',
+                          marginTop: 2,
+                        }}
+                      >
+                        {selectedNode.locatedIn?.riverBasin ||
+                          selectedNode.locatedIn?.basin ||
+                          selectedNode.locatedIn?.physiography ||
+                          selectedNode.neighbours?.[0] ||
+                          selectedNode.subject ||
+                          'Key Geography Zone'}
+                      </div>
+                    </div>
+
+                    <div
+                      style={{
+                        background: '#f8fafc',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: 10,
+                        padding: '9px 12px',
+                      }}
+                    >
+                      <div style={{ fontSize: 11, color: '#64748b', fontWeight: 500 }}>
+                        Type
+                      </div>
+                      <div
+                        style={{
+                          fontSize: 13,
+                          fontWeight: 700,
+                          color: '#0f172a',
+                          marginTop: 2,
+                        }}
+                      >
+                        {selectedNode.placeType || 'Geographical Feature'}
+                      </div>
+                    </div>
                   </div>
-                )}
-              </div>
-            )}
+
+                  {/* 3. Warm Amber Examiner's Trap Callout Box */}
+                  {examinerTrapText && (
+                    <div
+                      style={{
+                        background: '#fffbeb',
+                        border: '1px solid #fde68a',
+                        borderRadius: 12,
+                        padding: '12px 14px',
+                        fontSize: 13,
+                        color: '#92400e',
+                        lineHeight: 1.55,
+                      }}
+                    >
+                      <strong style={{ color: '#b45309', fontWeight: 800 }}>
+                        ⚠️ Examiner&apos;s trap:{' '}
+                      </strong>
+                      <span>{examinerTrapText}</span>
+                    </div>
+                  )}
+
+                  {/* 4. HIGH-YIELD FACTS (GS-I · GS-III) */}
+                  <div>
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        marginBottom: 10,
+                      }}
+                    >
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 800,
+                          letterSpacing: '0.06em',
+                          textTransform: 'uppercase',
+                          color: '#64748b',
+                        }}
+                      >
+                        HIGH-YIELD FACTS
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 600,
+                          color: '#94a3b8',
+                        }}
+                      >
+                        GS-I · GS-III
+                      </span>
+                    </div>
+
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 10,
+                      }}
+                    >
+                      {(selectedNode.staticFacts || []).map((fact, idx) => (
+                        <div
+                          key={idx}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            gap: 10,
+                            paddingBottom: 10,
+                            borderBottom:
+                              idx < (selectedNode.staticFacts?.length || 0) - 1 ||
+                              selectedNode.neighbours?.length > 0
+                                ? '1px solid #f1f5f9'
+                                : 'none',
+                            fontSize: 13.5,
+                            color: '#1e293b',
+                            lineHeight: 1.55,
+                          }}
+                        >
+                          <span
+                            style={{
+                              width: 6,
+                              height: 6,
+                              borderRadius: '50%',
+                              background: '#94a3b8',
+                              marginTop: 7,
+                              flexShrink: 0,
+                            }}
+                          />
+                          <span>{fact}</span>
+                        </div>
+                      ))}
+
+                      {selectedNode.neighbours?.length > 0 && (
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            gap: 10,
+                            fontSize: 13,
+                            color: '#334155',
+                            lineHeight: 1.55,
+                          }}
+                        >
+                          <span
+                            style={{
+                              width: 6,
+                              height: 6,
+                              borderRadius: '50%',
+                              background: '#0d9488',
+                              marginTop: 7,
+                              flexShrink: 0,
+                            }}
+                          />
+                          <span>
+                            <strong style={{ color: '#0f172a' }}>
+                              Surrounding / Borders:
+                            </strong>{' '}
+                            {selectedNode.neighbours.join(' · ')}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                /* PRACTICE MODE VIEW */
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      paddingBottom: 8,
+                      borderBottom: '1px solid #e2e8f0',
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 11.5,
+                        fontWeight: 800,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        color: '#0f172a',
+                      }}
+                    >
+                      Prelims PYQs & MCQs ({practiceQuestionsForSelected.length})
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setPanelMode('STUDY')}
+                      style={{
+                        border: 'none',
+                        background: 'none',
+                        color: '#2563eb',
+                        fontSize: 12,
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        padding: 0,
+                      }}
+                    >
+                      ← Back to Study Notes
+                    </button>
+                  </div>
+
+                  {practiceQuestionsForSelected.map((q) => {
+                    const chosen = selectedAnswers[q.id];
+                    const isRevealed = revealedQuestions[q.id];
+                    return (
+                      <div
+                        key={q.id}
+                        style={{
+                          background: '#f8fafc',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: 12,
+                          padding: 14,
+                          fontSize: 13,
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontSize: 11,
+                            fontWeight: 800,
+                            color: q.isSynthesized ? '#2563eb' : '#0d9488',
+                            marginBottom: 6,
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                          }}
+                        >
+                          <span>
+                            {q.exam} ({q.examYear})
+                          </span>
+                        </div>
+                        <div
+                          style={{
+                            whiteSpace: 'pre-line',
+                            color: '#0f172a',
+                            lineHeight: 1.55,
+                            marginBottom: 12,
+                            fontWeight: 500,
+                          }}
+                        >
+                          {q.stem}
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                          {(q.options || []).map((opt) => {
+                            const isCorrect =
+                              (opt.label || '').toLowerCase() ===
+                              (q.correctLabel || '').toLowerCase();
+                            const isSelected = chosen === opt.label;
+                            let border = '#cbd5e1';
+                            let bg = '#ffffff';
+                            let textColor = '#1e293b';
+                            if (isRevealed) {
+                              if (isCorrect) {
+                                border = '#10b981';
+                                bg = '#ecfdf5';
+                                textColor = '#065f46';
+                              } else if (isSelected) {
+                                border = '#ef4444';
+                                bg = '#fef2f2';
+                                textColor = '#991b1b';
+                              }
+                            }
+                            return (
+                              <button
+                                key={opt.label}
+                                type="button"
+                                onClick={() => handleOptionClick(q.id, opt.label)}
+                                style={{
+                                  textAlign: 'left',
+                                  padding: '8px 11px',
+                                  borderRadius: 8,
+                                  border: `1.5px solid ${border}`,
+                                  background: bg,
+                                  color: textColor,
+                                  fontSize: 12.5,
+                                  cursor: 'pointer',
+                                  fontWeight: isRevealed && isCorrect ? 700 : 500,
+                                }}
+                              >
+                                <strong>({opt.label})</strong> {opt.text}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {isRevealed && (
+                          <div
+                            style={{
+                              marginTop: 10,
+                              padding: '8px 10px',
+                              borderRadius: 8,
+                              background: '#ecfdf5',
+                              color: '#065f46',
+                              fontWeight: 700,
+                              fontSize: 12,
+                            }}
+                          >
+                            ✓ Correct Answer: ({q.correctLabel?.toUpperCase()}) {q.answerText}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Sticky Bottom CTA Button */}
+            <div
+              style={{
+                padding: '12px 20px',
+                borderTop: '1px solid #e2e8f0',
+                background: '#ffffff',
+              }}
+            >
+              <button
+                type="button"
+                onClick={() =>
+                  setPanelMode((prev) => (prev === 'STUDY' ? 'PRACTICE' : 'STUDY'))
+                }
+                style={{
+                  width: '100%',
+                  padding: '11px 16px',
+                  borderRadius: 10,
+                  border: 'none',
+                  background: '#0f172a',
+                  color: '#ffffff',
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <span>
+                  {panelMode === 'STUDY'
+                    ? 'Practice related PYQs & MCQs'
+                    : 'Return to Study Notes'}
+                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span
+                    style={{
+                      fontSize: 11.5,
+                      padding: '2px 8px',
+                      borderRadius: 999,
+                      background: 'rgba(255,255,255,0.16)',
+                      color: '#ffffff',
+                      fontWeight: 700,
+                    }}
+                  >
+                    {practiceQuestionsForSelected.length}{' '}
+                    {practiceQuestionsForSelected.length === 1 ? 'question' : 'questions'}
+                  </span>
+                  <span>→</span>
+                </div>
+              </button>
+            </div>
           </div>
         )}
       </div>

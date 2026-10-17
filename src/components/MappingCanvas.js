@@ -41,6 +41,8 @@ const COUNTRY_ALIASES = {
   turkey: 'Turkey',
   türkiye: 'Turkey',
   eswatini: 'eSwatini',
+  palestine: 'Palestine',
+  'west bank': 'Palestine',
 };
 
 function normalizeCountryName(name) {
@@ -52,109 +54,196 @@ export function getCategoryVisual(node) {
   const cats = node?.mapCategory || [];
   const primary = cats[0] || '';
 
-  if (node?.isPin && node?.pillar === 'PIN') {
-    return { color: '#ef4444', emoji: '📍', isRiver: false, isMountain: false };
-  }
-  if (primary.includes('rivers, lakes')) {
-    return { color: '#0ea5e9', emoji: '🏞️', isRiver: true, isMountain: false };
-  }
-  if (primary.includes('relief, hills')) {
-    return { color: '#8b5cf6', emoji: '⛰️', isRiver: false, isMountain: true };
+  if (primary.includes('Wetlands & Ramsar')) {
+    return {
+      color: '#0d9488',
+      shortTheme: 'Wetlands',
+      emoji: '🦩',
+      isRiver: false,
+      isMountain: false,
+    };
   }
   if (primary.includes('Protected areas')) {
-    return { color: '#10b981', emoji: '🐅', isRiver: false, isMountain: false };
+    return {
+      color: '#10b981',
+      shortTheme: 'Protected Areas',
+      emoji: '🐅',
+      isRiver: false,
+      isMountain: false,
+    };
   }
-  if (primary.includes('Wetlands & Ramsar')) {
-    return { color: '#14b8a6', emoji: '🦩', isRiver: false, isMountain: false };
+  if (primary.includes('rivers, lakes')) {
+    return {
+      color: '#0284c7',
+      shortTheme: 'Rivers & Lakes',
+      emoji: '🏞️',
+      isRiver: true,
+      isMountain: false,
+    };
+  }
+  if (primary.includes('relief, hills')) {
+    return {
+      color: '#7c3aed',
+      shortTheme: 'Relief & Hills',
+      emoji: '⛰️',
+      isRiver: false,
+      isMountain: true,
+    };
   }
   if (primary.includes('Ports, highways')) {
-    return { color: '#3b82f6', emoji: '⚓', isRiver: false, isMountain: false };
+    return {
+      color: '#2563eb',
+      shortTheme: 'Ports & Corridors',
+      emoji: '⚓',
+      isRiver: false,
+      isMountain: false,
+    };
   }
   if (primary.includes('Minerals') || primary.includes('Energy')) {
-    return { color: '#f59e0b', emoji: '⛏️', isRiver: false, isMountain: false };
+    return {
+      color: '#d97706',
+      shortTheme: 'Minerals & Energy',
+      emoji: '⛏️',
+      isRiver: false,
+      isMountain: false,
+    };
   }
   if (primary.includes('Historical') || primary.includes('Tribes')) {
-    return { color: '#ec4899', emoji: '🏛️', isRiver: false, isMountain: false };
+    return {
+      color: '#db2777',
+      shortTheme: 'Heritage & Culture',
+      emoji: '🏛️',
+      isRiver: false,
+      isMountain: false,
+    };
   }
   if (primary.includes('Strategic projects abroad')) {
-    return { color: '#f97316', emoji: '🛰️', isRiver: false, isMountain: false };
+    return {
+      color: '#ea580c',
+      shortTheme: 'Strategic Projects',
+      emoji: '🛰️',
+      isRiver: false,
+      isMountain: false,
+    };
   }
   if (primary.includes('World – places in news')) {
-    return { color: '#ef4444', emoji: '⚔️', isRiver: false, isMountain: false };
+    return {
+      color: '#dc2626',
+      shortTheme: 'Flashpoints',
+      emoji: '⚔️',
+      isRiver: false,
+      isMountain: false,
+    };
   }
   if (primary.includes('World – countries, borders & seas')) {
-    return { color: '#6366f1', emoji: '🌊', isRiver: false, isMountain: false };
+    return {
+      color: '#2563eb',
+      shortTheme: 'Borders & Seas',
+      emoji: '🌊',
+      isRiver: false,
+      isMountain: false,
+    };
   }
   if (primary.includes('Landforms & volcanoes')) {
-    return { color: '#e11d48', emoji: '🌋', isRiver: false, isMountain: false };
+    return {
+      color: '#e11d48',
+      shortTheme: 'Landforms',
+      emoji: '🌋',
+      isRiver: false,
+      isMountain: false,
+    };
   }
   if (primary.includes('World – physical features')) {
     const isRiv = /river|nile|congo|mekong|danube|amazon/i.test(node?.place || '');
     const isMtn = /mountain|andes|alps|atlas|ural|rocky/i.test(node?.place || '');
     return {
-      color: isRiv ? '#0ea5e9' : '#8b5cf6',
+      color: isRiv ? '#0284c7' : '#7c3aed',
+      shortTheme: 'Physical Features',
       emoji: isRiv ? '🏞️' : '🏔️',
       isRiver: isRiv,
       isMountain: isMtn,
     };
   }
-  return { color: '#38bdf8', emoji: '📍', isRiver: false, isMountain: false };
+  return {
+    color: '#0284c7',
+    shortTheme: 'Places in News',
+    emoji: '📍',
+    isRiver: false,
+    isMountain: false,
+  };
 }
 
 /**
- * Compact circular map pin by default; expands to a label pill ONLY when actively selected.
- * This prevents rectangular text boxes from overlapping and cluttering the map.
+ * Numbered circular map badge with crisp double-ring border; when selected, transforms into a
+ * crimson-red glowing & pulsating beacon with dual radar rings + floating title pill.
  */
 function createNodeIcon(node, isSelected) {
   const { color, emoji } = getCategoryVisual(node);
-  const isPin = Boolean(node.isPin);
+  const idxNum = node?.displayIndex;
 
   if (!isSelected) {
+    const badgeContent = idxNum
+      ? `<span style="font-family:Inter,system-ui,sans-serif;font-size:12px;font-weight:800;color:#ffffff;line-height:1;">${idxNum}</span>`
+      : `<span style="font-size:13px;line-height:1;">${emoji}</span>`;
+
     return L.divIcon({
       html: `
         <div style="
-          position:absolute;bottom:0;left:50%;transform:translate(-50%, 50%);
+          position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);
           width:28px;height:28px;border-radius:50%;
-          background:#0f172a;border:2.2px solid ${color};
+          background:${idxNum ? color : '#0f172a'};
+          border:2.5px solid #ffffff;
+          outline:1.5px solid ${color};
           display:flex;align-items:center;justify-content:center;
-          box-shadow:0 3px 10px rgba(0,0,0,0.55);cursor:pointer;
+          box-shadow:0 3px 10px rgba(15,23,42,0.45);cursor:pointer;
           transition:transform 0.15s ease;
         ">
-          <span style="font-size:13px;line-height:1;">${emoji}</span>
-          ${
-            isPin
-              ? `<span style="position:absolute;top:-3px;right:-3px;width:8px;height:8px;border-radius:50%;background:#ef4444;border:1.5px solid #fff;"></span>`
-              : ''
-          }
+          ${badgeContent}
         </div>`,
-      iconSize: [0, 0],
-      iconAnchor: [0, 0],
+      iconSize: [28, 28],
+      iconAnchor: [14, 14],
       className: '',
     });
   }
 
   const shortTitle =
-    (node.place || '').length > 28
-      ? `${node.place.slice(0, 26)}…`
+    (node.place || '').length > 30
+      ? `${node.place.slice(0, 28)}…`
       : node.place;
+
+  const activeBadgeContent = idxNum
+    ? `<span style="font-family:Inter,system-ui,sans-serif;font-size:13px;font-weight:800;color:#ffffff;line-height:1;">${idxNum}</span>`
+    : `<span style="font-size:14px;line-height:1;">📍</span>`;
 
   return L.divIcon({
     html: `
-      <div style="
-        position:absolute;bottom:0;left:50%;transform:translate(-50%, 50%);
-        display:flex;align-items:center;gap:6px;
-        background:${color};border:2px solid #ffffff;
-        border-radius:999px;padding:5px 11px;
-        box-shadow:0 0 18px ${color}, 0 4px 12px rgba(0,0,0,0.6);
-        white-space:nowrap;cursor:pointer;z-index:999;
-      ">
-        <span style="font-size:13px;">${emoji}</span>
-        <span style="font-family:Inter,system-ui,sans-serif;font-size:12px;font-weight:700;color:#ffffff;">
+      <div style="position:relative;width:34px;height:34px;pointer-events:auto;">
+        <span class="pin-red-ring-1"></span>
+        <span class="pin-red-ring-2"></span>
+        <div class="pin-red-core" style="
+          position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);
+          width:32px;height:32px;border-radius:50%;
+          background:linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+          border:2.5px solid #ffffff;
+          display:flex;align-items:center;justify-content:center;
+          cursor:pointer;z-index:10;
+        ">
+          ${activeBadgeContent}
+        </div>
+        <div style="
+          position:absolute;top:50%;left:38px;transform:translateY(-50%);
+          background:#0f172a;color:#ffffff;
+          border:1.5px solid rgba(239,68,68,0.75);
+          border-radius:7px;padding:4px 10px;
+          font-family:Inter,system-ui,sans-serif;font-size:12px;font-weight:700;
+          white-space:nowrap;box-shadow:0 6px 18px rgba(15,23,42,0.45), 0 0 12px rgba(239,68,68,0.35);
+          pointer-events:none;z-index:11;
+        ">
           ${shortTitle}
-        </span>
+        </div>
       </div>`,
-    iconSize: [0, 0],
-    iconAnchor: [0, 0],
+    iconSize: [34, 34],
+    iconAnchor: [17, 17],
     className: '',
   });
 }
@@ -163,7 +252,7 @@ function createClusterIcon(cluster) {
   const count = cluster.getChildCount();
   const size = count < 10 ? 32 : count < 40 ? 38 : 44;
   return L.divIcon({
-    html: `<div style="width:${size}px;height:${size}px;background:linear-gradient(135deg,#0284c7,#4f46e5);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px;border:2px solid #fff;box-shadow:0 4px 12px rgba(2,132,199,0.5);">${count}</div>`,
+    html: `<div style="width:${size}px;height:${size}px;background:linear-gradient(135deg,#0284c7,#4f46e5);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:12px;border:2.5px solid #fff;outline:1.5px solid #0284c7;box-shadow:0 4px 12px rgba(2,132,199,0.5);">${count}</div>`,
     className: '',
     iconSize: L.point(size, size, true),
   });
@@ -176,12 +265,12 @@ function CameraController({ cameraTarget, selectedNode }) {
 
   useEffect(() => {
     if (!map || !cameraTarget) return;
-    const key = `${cameraTarget.center?.[0]}-${cameraTarget.center?.[1]}-${cameraTarget.zoom}`;
+    const key = `${cameraTarget.center?.[0]}-${cameraTarget.center?.[1]}-${cameraTarget.zoom}-${cameraTarget.ts || ''}`;
     if (key === lastCameraKey.current) return;
     lastCameraKey.current = key;
     map.flyTo(cameraTarget.center, cameraTarget.zoom, {
       animate: true,
-      duration: 1.0,
+      duration: 0.9,
     });
   }, [cameraTarget, map]);
 
@@ -193,17 +282,23 @@ function CameraController({ cameraTarget, selectedNode }) {
     if (selectedNode.lat == null || selectedNode.lng == null) return;
     if (lastNodeId.current === selectedNode.id) return;
     lastNodeId.current = selectedNode.id;
-    const nextZoom = Math.max(map.getZoom(), selectedNode.regionScope === 'India' ? 5.5 : 4.5);
-    map.flyTo([selectedNode.lat, selectedNode.lng], nextZoom, {
+    const targetZoom = selectedNode.regionScope === 'India' ? 6 : 4.5;
+    map.flyTo([Number(selectedNode.lat), Number(selectedNode.lng)], targetZoom, {
       animate: true,
-      duration: 1.0,
+      duration: 0.95,
     });
   }, [selectedNode, map]);
 
   return null;
 }
 
-function IndiaAndOrgGeoLayers({ showIndiaStates, activeOrg, onStateClick }) {
+function WorldAndIndiaGeoBorders({
+  showIndiaStates,
+  activeOrg,
+  selectedNode,
+  onStateClick,
+  basemap,
+}) {
   const [indiaGeo, setIndiaGeo] = useState(() => cachedIndiaGeoJson);
   const [worldGeo, setWorldGeo] = useState(() => cachedWorldGeoJson);
   const map = useMap();
@@ -218,7 +313,7 @@ function IndiaAndOrgGeoLayers({ showIndiaStates, activeOrg, onStateClick }) {
         })
         .catch(() => {});
     }
-    if (!cachedWorldGeoJson && activeOrg) {
+    if (!cachedWorldGeoJson) {
       fetch(WORLD_COUNTRIES_GEOJSON_URL)
         .then((r) => r.json())
         .then((d) => {
@@ -227,7 +322,26 @@ function IndiaAndOrgGeoLayers({ showIndiaStates, activeOrg, onStateClick }) {
         })
         .catch(() => {});
     }
-  }, [activeOrg]);
+  }, []);
+
+  // World countries excluding India (so India always uses the official Survey of India boundary from indiaGeo)
+  const worldCountriesWithoutIndia = useMemo(() => {
+    if (!worldGeo?.features) return null;
+    return {
+      type: 'FeatureCollection',
+      features: worldGeo.features.filter((f) => {
+        const gName = (
+          f.properties?.ADMIN ||
+          f.properties?.name ||
+          f.properties?.NAME ||
+          ''
+        )
+          .trim()
+          .toLowerCase();
+        return gName !== 'india';
+      }),
+    };
+  }, [worldGeo]);
 
   const orgMemberFeatures = useMemo(() => {
     if (!worldGeo || !activeOrg?.members) return null;
@@ -265,6 +379,25 @@ function IndiaAndOrgGeoLayers({ showIndiaStates, activeOrg, onStateClick }) {
       .includes('india');
   }, [activeOrg]);
 
+  // Match active selectedNode's host state or country so its border highlights clearly
+  const selectedStateNames = useMemo(() => {
+    const raw = selectedNode?.locatedIn?.stateOrProvince || '';
+    if (!raw) return [];
+    return raw
+      .split(/[,/&]| and /i)
+      .map((s) => s.trim().toLowerCase())
+      .filter((s) => s.length >= 3);
+  }, [selectedNode]);
+
+  const selectedCountryNames = useMemo(() => {
+    const raw = selectedNode?.locatedIn?.country || '';
+    if (!raw) return [];
+    return raw
+      .split(/[,/&–-]| and /i)
+      .map((c) => normalizeCountryName(c).toLowerCase())
+      .filter((c) => c.length >= 3 && c !== 'india');
+  }, [selectedNode]);
+
   useEffect(() => {
     if (!map || !activeOrg || !orgMemberFeatures) return;
     try {
@@ -282,8 +415,64 @@ function IndiaAndOrgGeoLayers({ showIndiaStates, activeOrg, onStateClick }) {
     } catch (_) {}
   }, [activeOrg, orgMemberFeatures, hasIndiaInOrg, indiaGeo, map]);
 
+  const isSatellite = basemap === 'satellite';
+
   return (
     <>
+      {/* 1. Crisp International Country Borders */}
+      {worldCountriesWithoutIndia && (
+        <GeoJSON
+          key={`world-borders-${basemap}-${selectedNode?.id || 'none'}`}
+          data={worldCountriesWithoutIndia}
+          style={(feature) => {
+            const cName = (
+              feature.properties?.ADMIN ||
+              feature.properties?.name ||
+              feature.properties?.NAME ||
+              ''
+            )
+              .trim()
+              .toLowerCase();
+
+            const isHighlightedCountry =
+              selectedCountryNames.length > 0 &&
+              selectedCountryNames.some(
+                (sc) => cName === sc || cName.includes(sc) || sc.includes(cName)
+              );
+
+            if (isHighlightedCountry) {
+              return {
+                fillColor: '#ef4444',
+                fillOpacity: 0.11,
+                color: '#dc2626',
+                weight: 2.2,
+                opacity: 0.9,
+              };
+            }
+
+            return {
+              fillColor: '#64748b',
+              fillOpacity: 0.01,
+              color: isSatellite ? 'rgba(255,255,255,0.45)' : '#64748b',
+              weight: 1.05,
+              opacity: isSatellite ? 0.55 : 0.55,
+            };
+          }}
+          onEachFeature={(feature, layer) => {
+            const cName =
+              feature.properties?.ADMIN ||
+              feature.properties?.name ||
+              feature.properties?.NAME ||
+              'Country';
+            layer.bindTooltip(`<strong>${cName}</strong>`, {
+              sticky: true,
+              direction: 'top',
+            });
+          }}
+        />
+      )}
+
+      {/* 2. Active IR Organization Shaded Member Polygons */}
       {activeOrg && orgMemberFeatures && orgMemberFeatures.features.length > 0 && (
         <GeoJSON
           key={`org-${activeOrg.id}`}
@@ -291,9 +480,9 @@ function IndiaAndOrgGeoLayers({ showIndiaStates, activeOrg, onStateClick }) {
           style={() => ({
             fillColor: '#f59e0b',
             fillOpacity: 0.28,
-            color: '#f59e0b',
-            weight: 2,
-            opacity: 0.85,
+            color: '#d97706',
+            weight: 2.2,
+            opacity: 0.9,
           })}
           onEachFeature={(feature, layer) => {
             const cName =
@@ -302,31 +491,69 @@ function IndiaAndOrgGeoLayers({ showIndiaStates, activeOrg, onStateClick }) {
               feature.properties?.NAME ||
               'Member';
             layer.bindTooltip(
-              `<strong>${cName}</strong><br/><span style="font-size:11px;color:#fbbf24">${activeOrg.shortName} Member</span>`,
+              `<strong>${cName}</strong><br/><span style="font-size:11px;color:#d97706">${activeOrg.shortName} Member</span>`,
               { sticky: true, direction: 'top' }
             );
           }}
         />
       )}
 
+      {/* 3. Official India State & UT Borders (with Active State Highlight) */}
       {(showIndiaStates || hasIndiaInOrg) && indiaGeo && (
         <GeoJSON
-          key={`india-states-${activeOrg?.id || 'base'}-${showIndiaStates}`}
+          key={`india-states-${activeOrg?.id || 'base'}-${showIndiaStates}-${basemap}-${selectedNode?.id || 'none'}`}
           data={indiaGeo}
-          style={() => ({
-            fillColor: hasIndiaInOrg ? '#f59e0b' : '#38bdf8',
-            fillOpacity: hasIndiaInOrg ? 0.26 : 0.05,
-            color: hasIndiaInOrg ? '#f59e0b' : '#38bdf8',
-            weight: hasIndiaInOrg ? 2 : 1.1,
-            opacity: 0.65,
-          })}
+          style={(feature) => {
+            const stName = (
+              feature.properties?.st_nm ||
+              feature.properties?.NAME_1 ||
+              feature.properties?.name ||
+              ''
+            )
+              .trim()
+              .toLowerCase();
+
+            const isHighlightedState =
+              selectedStateNames.length > 0 &&
+              selectedStateNames.some(
+                (sn) => stName === sn || stName.includes(sn) || sn.includes(stName)
+              );
+
+            if (hasIndiaInOrg) {
+              return {
+                fillColor: '#f59e0b',
+                fillOpacity: 0.26,
+                color: '#d97706',
+                weight: 2,
+                opacity: 0.85,
+              };
+            }
+
+            if (isHighlightedState) {
+              return {
+                fillColor: '#ef4444',
+                fillOpacity: 0.12,
+                color: '#dc2626',
+                weight: 2.3,
+                opacity: 0.95,
+              };
+            }
+
+            return {
+              fillColor: '#0ea5e9',
+              fillOpacity: 0.03,
+              color: isSatellite ? 'rgba(255,255,255,0.6)' : '#475569',
+              weight: 1.25,
+              opacity: 0.72,
+            };
+          }}
           onEachFeature={(feature, layer) => {
             const stName =
               feature.properties?.st_nm ||
               feature.properties?.NAME_1 ||
               feature.properties?.name ||
               'India';
-            layer.bindTooltip(`<strong>${stName}</strong>`, {
+            layer.bindTooltip(`<strong>${stName}</strong> (India)`, {
               sticky: true,
               direction: 'top',
             });
@@ -343,21 +570,21 @@ function IndiaAndOrgGeoLayers({ showIndiaStates, activeOrg, onStateClick }) {
 }
 
 const TILE_LAYERS = {
+  light: {
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+    attr: '&copy; Esri Clean Base',
+  },
   topo: {
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
     attr: '&copy; Esri Topographic',
-  },
-  natgeo: {
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}',
-    attr: '&copy; Esri, National Geographic',
   },
   satellite: {
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     attr: '&copy; Esri Satellite',
   },
-  light: {
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
-    attr: '&copy; Esri Academic Gray',
+  natgeo: {
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/{z}/{y}/{x}',
+    attr: '&copy; Esri, National Geographic',
   },
 };
 
@@ -400,12 +627,74 @@ export default function MappingCanvas({
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      <style>{`
+        @keyframes pinRedPulseRing1 {
+          0% {
+            transform: translate(-50%, -50%) scale(0.85);
+            opacity: 0.9;
+          }
+          75% {
+            transform: translate(-50%, -50%) scale(2.55);
+            opacity: 0;
+          }
+          100% {
+            transform: translate(-50%, -50%) scale(2.55);
+            opacity: 0;
+          }
+        }
+        @keyframes pinRedPulseRing2 {
+          0% {
+            transform: translate(-50%, -50%) scale(0.85);
+            opacity: 0.7;
+          }
+          75% {
+            transform: translate(-50%, -50%) scale(2.15);
+            opacity: 0;
+          }
+        }
+        @keyframes pinRedCoreGlow {
+          0%, 100% {
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.32), 0 0 18px 4px rgba(239, 68, 68, 0.75), 0 4px 12px rgba(0, 0, 0, 0.45);
+          }
+          50% {
+            box-shadow: 0 0 0 7px rgba(239, 68, 68, 0.48), 0 0 28px 8px rgba(239, 68, 68, 0.95), 0 4px 14px rgba(0, 0, 0, 0.5);
+          }
+        }
+        .pin-red-ring-1 {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: rgba(239, 68, 68, 0.42);
+          border: 2px solid #ef4444;
+          pointer-events: none;
+          animation: pinRedPulseRing1 1.9s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+        }
+        .pin-red-ring-2 {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: rgba(220, 38, 38, 0.28);
+          border: 1.5px solid #f87171;
+          pointer-events: none;
+          animation: pinRedPulseRing2 1.9s cubic-bezier(0.16, 1, 0.3, 1) 0.55s infinite;
+        }
+        .pin-red-core {
+          animation: pinRedCoreGlow 1.9s ease-in-out infinite;
+        }
+      `}</style>
+
       <MapContainer
         center={cameraTarget?.center || [22.5, 80.5]}
         zoom={cameraTarget?.zoom || 5}
         minZoom={2}
         zoomControl={false}
-        style={{ width: '100%', height: '100%', background: '#0b0f19' }}
+        style={{ width: '100%', height: '100%', background: '#dde6ef' }}
         preferCanvas={true}
       >
         <ZoomControl position="bottomright" />
@@ -413,11 +702,13 @@ export default function MappingCanvas({
 
         <TileLayer key={basemap} url={tile.url} attribution={tile.attr} crossOrigin={true} />
 
-        {/* Official India State Boundaries & Active IR Organization Polygons */}
-        <IndiaAndOrgGeoLayers
+        {/* International Country Borders, Official India State Boundaries & Active Host Region Highlight */}
+        <WorldAndIndiaGeoBorders
           showIndiaStates={showIndiaStates}
           activeOrg={activeOrg}
+          selectedNode={selectedNode}
           onStateClick={onStateClick}
+          basemap={basemap}
         />
 
         {/* Reference Graticules (Equator, Tropics, IST 82.5°E) */}
@@ -428,8 +719,8 @@ export default function MappingCanvas({
               positions={g.pts}
               pathOptions={{
                 color: '#64748b',
-                weight: 1.1,
-                opacity: 0.4,
+                weight: 1.0,
+                opacity: 0.32,
                 dashArray: '6,6',
               }}
             >
@@ -439,12 +730,12 @@ export default function MappingCanvas({
             </Polyline>
           ))}
 
-        {/* River & Mountain GIS Polylines (Clean subtle stroke; glowing only when selected) */}
+        {/* River & Mountain GIS Polylines */}
         {polylineNodes.map((node) => {
           const isSelected = selectedNode?.id === node.id;
           const vis = getCategoryVisual(node);
           const strokeColor = vis.isRiver ? '#0284c7' : '#7c3aed';
-          const glowColor = vis.isRiver ? '#38bdf8' : '#a78bfa';
+          const glowColor = isSelected ? '#ef4444' : vis.isRiver ? '#38bdf8' : '#a78bfa';
 
           return (
             <React.Fragment key={`poly-${node.id}`}>
@@ -463,7 +754,7 @@ export default function MappingCanvas({
               <Polyline
                 positions={node.shape}
                 pathOptions={{
-                  color: isSelected ? '#ffffff' : strokeColor,
+                  color: isSelected ? '#dc2626' : strokeColor,
                   weight: isSelected ? 4 : 2.5,
                   opacity: isSelected ? 1 : 0.78,
                   dashArray: vis.isMountain ? '7,4' : undefined,
@@ -486,10 +777,10 @@ export default function MappingCanvas({
         <MarkerClusterGroup
           chunkedLoading
           iconCreateFunction={createClusterIcon}
-          maxClusterRadius={32}
+          maxClusterRadius={28}
           showCoverageOnHover={false}
           spiderfyOnMaxZoom={true}
-          disableClusteringAtZoom={5}
+          disableClusteringAtZoom={4}
         >
           {validNodes.map((node) => {
             const isSelected = selectedNode?.id === node.id;
@@ -504,9 +795,12 @@ export default function MappingCanvas({
                   click: () => onSelectNode && onSelectNode(node),
                 }}
               >
-                <Tooltip direction="top" offset={[0, -14]}>
+                <Tooltip direction="top" offset={[0, -16]}>
                   <div style={{ fontSize: 12 }}>
-                    <strong>{node.place}</strong>
+                    <strong>
+                      {node.displayIndex ? `#${node.displayIndex} · ` : ''}
+                      {node.place}
+                    </strong>
                     <div style={{ fontSize: 11, color: '#475569' }}>
                       {node.placeType} •{' '}
                       {node.locatedIn?.stateOrProvince ||
