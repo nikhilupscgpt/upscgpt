@@ -7,41 +7,44 @@ export const revalidate = 86400
 export default async function sitemap() {
   const baseUrl = 'https://www.upscgpt.in'
 
-  // Fetch all Issues (Syllabus Nodes)
-  const issues = await prisma.issue.findMany({
-    select: { slug: true, lastUpdatedAt: true },
-    where: { status: 'ACTIVE' }
-  })
+  let issues = []
+  let articles = []
+  let streaks = []
+  let entries = []
+  let questions = []
 
-  // Fetch all Articles (Daily Current Affairs)
-  const articles = await prisma.article.findMany({
-    select: { id: true, publishedAt: true, createdAt: true },
-    where: { status: 'DONE' }
-  })
-
-  // Fetch all News Streaks
-  const streaks = await prisma.newsStreak.findMany({
-    select: { id: true, updatedAt: true },
-    where: { status: 'ACTIVE' }
-  })
-
-  // Fetch all Atlas Entries
-  const entries = await prisma.mapEntry.findMany({
-    select: { id: true, updatedAt: true }
-  })
-
-  // Fetch all Master PYQ Questions (from QuestionDraft, which powers /prelims/pyq & /admin/pyq)
-  const questions = await prisma.questionDraft.findMany({
-    select: { 
-      id: true, 
-      dedupHash: true, 
-      stem: true, 
-      examName: true, 
-      examYear: true, 
-      updatedAt: true,
-      createdAt: true 
-    }
-  })
+  try {
+    ;[issues, articles, streaks, entries, questions] = await Promise.all([
+      prisma.issue.findMany({
+        select: { slug: true, lastUpdatedAt: true },
+        where: { status: 'ACTIVE' },
+      }),
+      prisma.article.findMany({
+        select: { id: true, publishedAt: true, createdAt: true },
+        where: { status: 'DONE' },
+      }),
+      prisma.newsStreak.findMany({
+        select: { id: true, updatedAt: true },
+        where: { status: 'ACTIVE' },
+      }),
+      prisma.mapEntry.findMany({
+        select: { id: true, updatedAt: true },
+      }),
+      prisma.questionDraft.findMany({
+        select: {
+          id: true,
+          dedupHash: true,
+          stem: true,
+          examName: true,
+          examYear: true,
+          reviewedAt: true,
+          createdAt: true,
+        },
+      }),
+    ])
+  } catch (err) {
+    console.error('[sitemap] Database fetch warning:', err?.message || err)
+  }
 
   const issueUrls = issues.map((issue) => ({
     url: `${baseUrl}/issues/${issue.slug}`,
@@ -87,7 +90,7 @@ export default async function sitemap() {
 
   const pyqUrls = questions.map((q) => ({
     url: `${baseUrl}/prelims/pyq/${generateQuestionSlug(q)}`,
-    lastModified: q.updatedAt || q.createdAt || new Date(),
+    lastModified: q.reviewedAt || q.createdAt || new Date(),
     changeFrequency: 'monthly',
     priority: 0.85,
   }))
