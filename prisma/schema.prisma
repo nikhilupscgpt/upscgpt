@@ -886,18 +886,27 @@ model Question {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // Mapping PYQ enrichment
+  isMapping        Boolean  @default(false)
+  mapCategory      String[] @default([])
+  affairsType      String?
+  newsLagMonths    Int?
+  mappingSelection String?
+  answerText       String?
+
   searchVector   Unsupported("tsvector")?
   embedding      Unsupported("vector")?
 
-  subject   Subject?             @relation(fields: [subjectId], references: [id])
-  topic     Topic?               @relation(fields: [topicId], references: [id])
-  passage   Passage?             @relation(fields: [passageId], references: [id])
-  themes    QuestionMicroTheme[]
-  sources   QuestionSource[]
-  revisions QuestionRevision[]
-  testItems TestPaperQuestion[]
-  answers   AttemptAnswer[]
-  bookmarks QuestionBookmark[]
+  subject    Subject?             @relation(fields: [subjectId], references: [id])
+  topic      Topic?               @relation(fields: [topicId], references: [id])
+  passage    Passage?             @relation(fields: [passageId], references: [id])
+  themes     QuestionMicroTheme[]
+  sources    QuestionSource[]
+  revisions  QuestionRevision[]
+  testItems  TestPaperQuestion[]
+  answers    AttemptAnswer[]
+  bookmarks  QuestionBookmark[]
+  mappingPyq MappingPyq?
 
   @@unique([examName, examYear, paper, setCode, questionNo])
   @@index([paper, examYear])
@@ -905,6 +914,7 @@ model Question {
   @@index([topicId])
   @@index([difficulty])
   @@index([origin, status])
+  @@index([isMapping])
 }
 
 model QuestionMicroTheme {
@@ -1010,3 +1020,65 @@ model QuestionBookmark {
 
   @@id([userId, questionId])
 }
+
+// ---------- Mapping & Places in News (PIN) Engine ----------
+model MappingPyq {
+  id            String    @id // e.g., GEO-UPSC-2023-17, ENV-UPSC-2022-01
+  questionId    String?   @unique
+  exam          String // "UPSC CSE Prelims", "CDS I", "CDS II"
+  examYear      Int
+  subject       String
+  mapCategory   String[]  @default([])
+  affairsType   String? // "Static", "Contemporary", "Current"
+  newsLagMonths Int?
+  selection     String? // "concept-tagged", "keyword-matched", etc.
+  stem          String
+  options       Json // [{label, text}]
+  correctLabel  String
+  answerText    String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  question      Question? @relation(fields: [questionId], references: [id], onDelete: SetNull)
+
+  @@index([exam, examYear])
+  @@index([subject])
+  @@index([affairsType])
+  @@map("mapping_pyqs")
+}
+
+model PlaceInNews {
+  id             String   @id @default(cuid())
+  pinId          String   @unique // e.g., PIN-2026-10-001
+  slug           String   @unique // e.g., sauj-jheel-uttar-pradesh
+  date           String // ISO date string of latest trigger (YYYY-MM-DD)
+  targetExamYear Int      @default(2027)
+  subject        String
+  mapCategory    String[] @default([])
+  hookCategory   String?
+  priority       String   @default("Medium") // High, Medium, Low
+  place          String
+  aliases        String[] @default([])
+  placeType      String?
+  regionScope    String   @default("India") // India, World
+  locatedIn      Json? // { country, stateOrProvince, district }
+  lat            Float?
+  lng            Float?
+  coordinates    Json? // { lat, lng }
+  neighbours     String[] @default([])
+  staticFacts    String[] @default([])
+  newsTriggers   Json     @default("[]") // [{ date, source, url, newsHook }]
+  upscAngle      Json? // { preferredFormat, framing, distractorPool }
+  similarPYQ     String[] @default([]) // Array of MappingPyq.id / Question.dedupHash
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([subject])
+  @@index([priority])
+  @@index([regionScope])
+  @@index([placeType])
+  @@index([targetExamYear])
+  @@index([date])
+  @@index([lat, lng])
+  @@map("places_in_news")
+}
+

@@ -1,6 +1,9 @@
 import prisma from '@/lib/prisma'
 import { generateQuestionSlug } from '@/lib/pyqSlug'
 
+// Cache sitemap.xml for 24 hours so bot fetches consume 0 database compute
+export const revalidate = 86400
+
 export default async function sitemap() {
   const baseUrl = 'https://www.upscgpt.in'
 
@@ -27,8 +30,8 @@ export default async function sitemap() {
     select: { id: true, updatedAt: true }
   })
 
-  // Fetch all Published Questions (PYQ Archive)
-  const questions = await prisma.question.findMany({
+  // Fetch all Master PYQ Questions (from QuestionDraft, which powers /prelims/pyq & /admin/pyq)
+  const questions = await prisma.questionDraft.findMany({
     select: { 
       id: true, 
       dedupHash: true, 
@@ -100,6 +103,12 @@ export default async function sitemap() {
       url: `${baseUrl}/prelims/pyq`,
       lastModified: new Date(),
       changeFrequency: 'daily',
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/mapping`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
       priority: 0.9,
     },
     {

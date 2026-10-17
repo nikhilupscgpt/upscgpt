@@ -21,7 +21,8 @@ import {
   HelpCircle,
   FileText,
   Layers,
-  ArrowRight
+  ArrowRight,
+  Printer
 } from 'lucide-react';
 import { isNewPatternQuestion, isPairQuestion, isStatementQuestion } from '@/lib/pyqPattern';
 
@@ -90,6 +91,19 @@ export default function PyqAdminClient({ session }) {
   });
   const [addingQuestion, setAddingQuestion] = useState(false);
 
+  // Print PDF Modal State
+  const [printModalOpen, setPrintModalOpen] = useState(false);
+  const [printExam, setPrintExam] = useState('UPSC CSE');
+  const [printStage, setPrintStage] = useState('PRELIMS');
+  const [printSubject, setPrintSubject] = useState('ALL');
+  const [printTopic, setPrintTopic] = useState('ALL');
+  const [printMicrotheme, setPrintMicrotheme] = useState('ALL');
+  const [printYear, setPrintYear] = useState('ALL');
+  const [printIncludeKey, setPrintIncludeKey] = useState(true);
+  const [printIncludeExpl, setPrintIncludeExpl] = useState(true);
+  const [printTaxonomy, setPrintTaxonomy] = useState({ exams: [], subjects: [], topics: [], microthemes: [], matchingCount: null });
+  const [loadingTaxonomy, setLoadingTaxonomy] = useState(false);
+
   // Fetch Questions
   const fetchQuestions = useCallback(async () => {
     setLoading(true);
@@ -129,6 +143,56 @@ export default function PyqAdminClient({ session }) {
   useEffect(() => {
     fetchQuestions();
   }, [fetchQuestions]);
+
+  // Fetch taxonomy options & live question count when Print Modal is opened or selections change
+  useEffect(() => {
+    if (!printModalOpen) return;
+    let isMounted = true;
+    async function loadTaxonomy() {
+      setLoadingTaxonomy(true);
+      try {
+        const p = new URLSearchParams({
+          exam: printExam,
+          subject: printSubject,
+          topic: printTopic,
+          microtheme: printMicrotheme,
+          year: printYear
+        });
+        const res = await fetch(`/api/admin/pyq/taxonomy?${p.toString()}`);
+        const data = await res.json();
+        if (isMounted && data.success) {
+          setPrintTaxonomy({
+            exams: data.exams || [],
+            subjects: data.subjects || [],
+            topics: data.topics || [],
+            microthemes: data.microthemes || [],
+            matchingCount: typeof data.matchingCount === 'number' ? data.matchingCount : null
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load taxonomy:', err);
+      } finally {
+        if (isMounted) setLoadingTaxonomy(false);
+      }
+    }
+    loadTaxonomy();
+    return () => { isMounted = false; };
+  }, [printModalOpen, printExam, printSubject, printTopic, printMicrotheme, printYear]);
+
+  const handleLaunchPrint = () => {
+    const p = new URLSearchParams({
+      exam: printExam,
+      stage: printStage,
+      subject: printSubject,
+      topic: printTopic,
+      microtheme: printMicrotheme,
+      year: printYear,
+      limit: 'ALL',
+      includeKey: printIncludeKey ? 'true' : 'false',
+      includeExpl: printIncludeExpl ? 'true' : 'false'
+    });
+    window.open(`/api/admin/pyq/print-pdf?${p.toString()}`, '_blank');
+  };
 
   // Handle Search Submit
   const handleSearchSubmit = (e) => {
@@ -483,6 +547,28 @@ export default function PyqAdminClient({ session }) {
             <Plus size={16} />
             <span>Add Single Question</span>
           </button>
+
+          <button
+            onClick={() => setPrintModalOpen(true)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 20px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+              color: '#ffffff',
+              border: 'none',
+              fontWeight: 800,
+              fontSize: '0.9rem',
+              cursor: 'pointer',
+              boxShadow: '0 4px 15px rgba(245, 158, 11, 0.35)',
+              marginLeft: 'auto'
+            }}
+          >
+            <Printer size={16} />
+            <span>Print Question Booklet</span>
+          </button>
         </div>
 
         {/* ========================================================================= */}
@@ -558,6 +644,38 @@ export default function PyqAdminClient({ session }) {
                   }}
                 >
                   Search
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const p = new URLSearchParams({
+                      exam: exam !== 'ALL' ? exam : 'ALL',
+                      subject: subject !== 'ALL' ? subject : 'ALL',
+                      topic: topic !== 'ALL' ? topic : 'ALL',
+                      year: year !== 'ALL' ? year : 'ALL',
+                      limit: 'ALL',
+                      q: search.trim()
+                    });
+                    window.open(`/api/admin/pyq/print-pdf?${p.toString()}`, '_blank');
+                  }}
+                  style={{
+                    padding: '10px 18px',
+                    borderRadius: '12px',
+                    background: 'rgba(245, 158, 11, 0.15)',
+                    color: '#f59e0b',
+                    border: '1.5px solid rgba(245, 158, 11, 0.4)',
+                    fontWeight: 800,
+                    fontSize: '0.9rem',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                  title="Print all matching filtered questions in colour PDF"
+                >
+                  <Printer size={16} />
+                  <span>Print All ({total})</span>
                 </button>
               </form>
 
@@ -1851,6 +1969,369 @@ export default function PyqAdminClient({ session }) {
               >
                 {savingEdit ? <RefreshCw size={14} className="animate-spin" /> : <Check size={14} />}
                 <span>{savingEdit ? 'Saving...' : 'Save Changes'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* PRINT QUESTION BOOKLET MODAL (UPSC & CDS CASCADING SELECTOR)             */}
+      {/* ========================================================================= */}
+      {printModalOpen && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0, 0, 0, 0.75)',
+          backdropFilter: 'blur(6px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '20px'
+        }}>
+          <div style={{
+            background: '#0f172a',
+            border: '1.5px solid rgba(255, 255, 255, 0.15)',
+            borderRadius: '20px',
+            width: '100%',
+            maxWidth: '560px',
+            boxShadow: '0 25px 60px rgba(0, 0, 0, 0.6)',
+            overflow: 'hidden'
+          }}>
+            {/* Modal Header */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '18px 24px',
+              borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
+              background: 'rgba(2, 6, 23, 0.5)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  background: 'rgba(245, 158, 11, 0.2)',
+                  color: '#f59e0b',
+                  padding: '8px',
+                  borderRadius: '10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <Printer size={20} />
+                </div>
+                <div>
+                  <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: '#ffffff' }}>
+                    Print Question Booklet
+                  </h3>
+                  <p style={{ margin: 0, fontSize: '0.78rem', color: '#94a3b8' }}>
+                    Generate authentic UPSC / CDS examination papers
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setPrintModalOpen(false)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#64748b',
+                  cursor: 'pointer',
+                  padding: '4px'
+                }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* Exam & Stage */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: '#94a3b8', marginBottom: '6px' }}>
+                    EXAM
+                  </label>
+                  <select
+                    value={printExam}
+                    onChange={e => { setPrintExam(e.target.value); setPrintTopic('ALL'); setPrintMicrotheme('ALL'); }}
+                    style={{
+                      width: '100%',
+                      background: 'rgba(2, 6, 23, 0.8)',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      borderRadius: '10px',
+                      padding: '10px 12px',
+                      color: '#ffffff',
+                      fontSize: '0.88rem',
+                      fontWeight: 600
+                    }}
+                  >
+                    <option value="UPSC CSE">UPSC Civil Services (CSE)</option>
+                    <option value="CDS">Combined Defence Services (CDS)</option>
+                    <option value="ALL">All Examinations Combined</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: '#94a3b8', marginBottom: '6px' }}>
+                    STAGE
+                  </label>
+                  <select
+                    value={printStage}
+                    onChange={e => setPrintStage(e.target.value)}
+                    style={{
+                      width: '100%',
+                      background: 'rgba(2, 6, 23, 0.8)',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      borderRadius: '10px',
+                      padding: '10px 12px',
+                      color: '#ffffff',
+                      fontSize: '0.88rem',
+                      fontWeight: 600
+                    }}
+                  >
+                    <option value="PRELIMS">Prelims (2-Column MCQs)</option>
+                    <option value="MAINS">Mains (Subjective with Ruling)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Subject */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: '#94a3b8', marginBottom: '6px' }}>
+                  SUBJECT
+                </label>
+                <select
+                  value={printSubject}
+                  onChange={e => { setPrintSubject(e.target.value); setPrintTopic('ALL'); setPrintMicrotheme('ALL'); }}
+                  style={{
+                    width: '100%',
+                    background: 'rgba(2, 6, 23, 0.8)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    borderRadius: '10px',
+                    padding: '10px 12px',
+                    color: '#ffffff',
+                    fontSize: '0.88rem',
+                    fontWeight: 600
+                  }}
+                >
+                  <option value="ALL">All Subjects</option>
+                  {(printTaxonomy.subjects.length > 0 ? printTaxonomy.subjects : filterOptions.subjects).map(s => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Theme / Topic */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: '#94a3b8', marginBottom: '6px' }}>
+                  THEME (BROAD TOPIC)
+                </label>
+                <select
+                  value={printTopic}
+                  onChange={e => { setPrintTopic(e.target.value); setPrintMicrotheme('ALL'); }}
+                  disabled={printSubject === 'ALL'}
+                  style={{
+                    width: '100%',
+                    background: 'rgba(2, 6, 23, 0.8)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    borderRadius: '10px',
+                    padding: '10px 12px',
+                    color: '#ffffff',
+                    fontSize: '0.88rem',
+                    fontWeight: 600,
+                    opacity: printSubject === 'ALL' ? 0.5 : 1
+                  }}
+                >
+                  <option value="ALL">All Themes in {printSubject === 'ALL' ? 'Subject' : printSubject}</option>
+                  {printTaxonomy.topics.map(t => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Microtheme */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: '#94a3b8', marginBottom: '6px' }}>
+                  MICROTHEME (SUBTOPIC)
+                </label>
+                <select
+                  value={printMicrotheme}
+                  onChange={e => setPrintMicrotheme(e.target.value)}
+                  disabled={printTopic === 'ALL'}
+                  style={{
+                    width: '100%',
+                    background: 'rgba(2, 6, 23, 0.8)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    borderRadius: '10px',
+                    padding: '10px 12px',
+                    color: '#ffffff',
+                    fontSize: '0.88rem',
+                    fontWeight: 600,
+                    opacity: printTopic === 'ALL' ? 0.5 : 1
+                  }}
+                >
+                  <option value="ALL">All Microthemes in {printTopic === 'ALL' ? 'Theme' : printTopic}</option>
+                  {printTaxonomy.microthemes.map(m => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Year Filter */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: '#94a3b8', marginBottom: '6px' }}>
+                  EXAM YEAR
+                </label>
+                <select
+                  value={printYear}
+                  onChange={e => setPrintYear(e.target.value)}
+                  style={{
+                    width: '100%',
+                    background: 'rgba(2, 6, 23, 0.8)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    borderRadius: '10px',
+                    padding: '10px 12px',
+                    color: '#ffffff',
+                    fontSize: '0.88rem',
+                    fontWeight: 600
+                  }}
+                >
+                  <option value="ALL">All Available Years</option>
+                  {filterOptions.years.map(y => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Print Toggles Box */}
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '12px',
+                padding: '14px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px'
+              }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.88rem', fontWeight: 600, color: '#ffffff' }}>
+                  <input
+                    type="checkbox"
+                    checked={printIncludeKey}
+                    onChange={e => setPrintIncludeKey(e.target.checked)}
+                    style={{ accentColor: '#f59e0b', width: '16px', height: '16px' }}
+                  />
+                  <span>Append Answer Key Matrix on Separate Page</span>
+                </label>
+
+                {printIncludeKey && (
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 500, color: '#cbd5e1', paddingLeft: '24px' }}>
+                    <input
+                      type="checkbox"
+                      checked={printIncludeExpl}
+                      onChange={e => setPrintIncludeExpl(e.target.checked)}
+                      style={{ accentColor: '#f59e0b', width: '15px', height: '15px' }}
+                    />
+                    <span>Include Detailed Conceptual Explanations</span>
+                  </label>
+                )}
+              </div>
+
+              {/* Live Matching Question Count Indicator */}
+              <div style={{
+                background: printTaxonomy.matchingCount === 0
+                  ? 'rgba(239, 68, 68, 0.1)'
+                  : 'rgba(16, 185, 129, 0.12)',
+                border: printTaxonomy.matchingCount === 0
+                  ? '1px solid rgba(239, 68, 68, 0.35)'
+                  : '1px solid rgba(16, 185, 129, 0.35)',
+                borderRadius: '10px',
+                padding: '10px 14px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                fontSize: '0.83rem',
+                fontWeight: 700,
+                color: printTaxonomy.matchingCount === 0 ? '#fca5a5' : '#6ee7b7'
+              }}>
+                <span>
+                  {loadingTaxonomy
+                    ? '⏳ Counting matching archival questions...'
+                    : typeof printTaxonomy.matchingCount === 'number'
+                      ? `📚 ${printTaxonomy.matchingCount} Questions Matched for Selected Filter`
+                      : '📚 All Matching Questions Will Be Printed'}
+                </span>
+                {typeof printTaxonomy.matchingCount === 'number' && printTaxonomy.matchingCount > 0 && (
+                  <span style={{
+                    background: 'rgba(16, 185, 129, 0.25)',
+                    color: '#a7f3d0',
+                    padding: '2px 8px',
+                    borderRadius: '999px',
+                    fontSize: '0.73rem',
+                    fontWeight: 800
+                  }}>
+                    Full Colour • No Limit
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              gap: '12px',
+              padding: '16px 24px',
+              borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+              background: 'rgba(2, 6, 23, 0.5)'
+            }}>
+              <button
+                type="button"
+                onClick={() => setPrintModalOpen(false)}
+                style={{
+                  padding: '10px 18px',
+                  borderRadius: '10px',
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  color: '#94a3b8',
+                  border: 'none',
+                  fontWeight: 700,
+                  fontSize: '0.88rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  handleLaunchPrint();
+                  setPrintModalOpen(false);
+                }}
+                disabled={loadingTaxonomy || printTaxonomy.matchingCount === 0}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  padding: '10px 24px',
+                  borderRadius: '10px',
+                  background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                  color: '#ffffff',
+                  border: 'none',
+                  fontWeight: 800,
+                  fontSize: '0.9rem',
+                  cursor: printTaxonomy.matchingCount === 0 ? 'not-allowed' : 'pointer',
+                  opacity: printTaxonomy.matchingCount === 0 ? 0.5 : 1,
+                  boxShadow: '0 4px 15px rgba(245, 158, 11, 0.4)'
+                }}
+              >
+                <Printer size={16} />
+                <span>
+                  {typeof printTaxonomy.matchingCount === 'number' && printTaxonomy.matchingCount > 0
+                    ? `Open & Print All (${printTaxonomy.matchingCount} Qs)`
+                    : 'Open & Print PDF'}
+                </span>
               </button>
             </div>
           </div>

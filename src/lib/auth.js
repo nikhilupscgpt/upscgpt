@@ -4,14 +4,17 @@ import { PrismaAdapter } from "@auth/prisma-adapter"
 import prisma from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 
+const Google = typeof GoogleProvider === "function" ? GoogleProvider : GoogleProvider?.default
+const Credentials = typeof CredentialsProvider === "function" ? CredentialsProvider : CredentialsProvider?.default
+
 export const authOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
-    GoogleProvider({
+    ...(Google ? [Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    }),
-    CredentialsProvider({
+    })] : []),
+    Credentials({
       id: "otp",
       name: "OTP",
       credentials: {
@@ -63,7 +66,7 @@ export const authOptions = {
         };
       }
     }),
-    CredentialsProvider({
+    Credentials({
       name: 'Credentials',
       credentials: {
         username: { label: "Username", type: "text" },

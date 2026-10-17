@@ -1,13 +1,19 @@
-# upscgpt.in
+# UPSCGPT (https://www.upscgpt.in)
 
-> An AI-powered preparation platform for the UPSC (Union Public Service Commission) examination.
+> An AI-powered strategic preparation platform for the UPSC Civil Services Examination (CSE) and Combined Defence Services (CDS), featuring 2,528+ solved Prelims Previous Year Questions (2011–2025), interactive GIS Mapping & Places in News (PIN), and syllabus-linked current affairs.
 
-## Core Features
-- [UPSC Syllabus Analyzer & Hub](/issues) - Navigate the dynamic and mapped civil services syllabus nodes.
-- [Mains Command Center & Neural Base](/mains/prepare) - Consolidated knowledge and pgvector RAG study chats for answer writing.
-- [Daily Current Affairs & news-streaks](/news) - AI-summarized insights and timeline events mapped to exam nodes.
-- [Interactive Map Atlas](/atlas) - Domestic and global spatial mapping portals designed for geography questions.
+## Primary Public Archives & Study Portals
+- [UPSC Prelims PYQ Explorer (2011–2025)](https://www.upscgpt.in/prelims/pyq): Complete archive of 2,528+ authentic UPSC Civil Services (CSE) and CDS Prelims Previous Year Questions organized by Subject and Topic, with verified official UPSC answer keys and detailed conceptual explanations.
+- [Interactive Geography & Places in News (PIN) Workspace](https://www.upscgpt.in/mapping): Curated UPSC Geography Atlas covering National Parks, Tiger Reserves, Ramsar Wetlands, River Systems, Mountain Passes, and Strategic Locations linked directly to UPSC Prelims PYQs.
+- [UPSC Syllabus Analyzer & Issue Graph](https://www.upscgpt.in/issues): Navigate 500+ dynamic Civil Services General Studies (GS1, GS2, GS3, GS4) syllabus nodes.
+- [Mains Command Center & Neural Base](https://www.upscgpt.in/mains/prepare): Consolidated Mains study guides and topic-wise conceptual notes.
+- [Daily Current Affairs & News Streaks](https://www.upscgpt.in/news): Longitudinal current affairs timelines mapped to UPSC Prelims and Mains syllabus themes.
 
-## Strategic Resources
-- [Mains GATEWAY](/mains) - Gateway to syllabus prepare guides and AI answer evaluation tools.
-- [Prelims MCQ Practice Portal](/prelims) - AI-generated questions mapped to current affairs and maps.
+## UPSC Prelims PYQ Subject Coverage (/prelims/pyq)
+- **Science & Technology** (500 Solved PYQs): Physics, Chemistry, Biology, Biotechnology, Space & Defence Technology, Emerging Technologies.
+- **Indian Polity** (416 Solved PYQs): Constitutional Framework, Fundamental Rights, Directive Principles, Parliament, Judiciary, Federalism, Panchayati Raj, Constitutional Bodies.
+- **Economy** (401 Solved PYQs): Banking & RBI, Fiscal Policy & Budget, Balance of Payments, Agriculture & Subsidies, Inflation, Financial Markets, International Organizations.
+- **Geography** (391 Solved PYQs): Indian Physiography & Drainage, Climatology & Monsoon, World Mapping, Soils & Natural Vegetation, Minerals & Resources, Oceanography.
+- **Environment & Ecology** (257 Solved PYQs): Biodiversity & Conservation, Protected Areas (National Parks, Biosphere Reserves, Ramsar Sites), Climate Change & Conventions, Pollution, Environmental Legislation.
+- **Modern History** (200+ Solved PYQs): 1857 Revolt, Indian National Movement, Socio-Religious Reforms, British Administrative & Economic Policies, Governor-Generals & Viceroys.
+- **Ancient, Medieval History & Art and Culture** (350+ Solved PYQs): Indus Valley Civilization, Vedic & Post-Mauryan Period, Gupta & Chola Empires, Buddhism & Jainism, Temple Architecture, Performing Arts, Literature.

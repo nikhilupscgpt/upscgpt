@@ -70,7 +70,7 @@ export default function Navigation({ children }) {
   if (!pathname || isHiddenRoute) return null;
 
   const isPrelimsActive = pathname.startsWith("/prelims");
-  const isAtlasActive = pathname.startsWith("/atlas");
+  const isAtlasActive = pathname.startsWith("/atlas") || pathname.startsWith("/mapping");
 
   const userInitial = session?.user?.name
     ? session.user.name.trim()[0].toUpperCase()
@@ -111,7 +111,7 @@ export default function Navigation({ children }) {
               <span className="beta-badge" style={{ background: 'rgba(59, 130, 246, 0.15)', color: 'var(--color-blue, #3b82f6)', border: '1px solid rgba(59, 130, 246, 0.3)', textTransform: 'lowercase' }}>prelimsgpt</span>
             </Link>
 
-            {/* Focused Core Links: PYQ Explorer & Atlas Only */}
+            {/* Focused Core Links: PYQ Explorer & Mapping Only */}
             <div className="app-nav__links">
               <Link
                 href="/prelims/pyq"
@@ -140,7 +140,7 @@ export default function Navigation({ children }) {
                 }}
               >
                 <Map size={15} />
-                Atlas
+                Mapping
               </Link>
             </div>
           </div>
@@ -353,7 +353,7 @@ export default function Navigation({ children }) {
               PYQ Explorer
             </Link>
             <Link href="/atlas" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>
-              Atlas
+              Mapping
             </Link>
             {session && (
               <>

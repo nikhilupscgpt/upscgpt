@@ -23,13 +23,10 @@ export const metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://www.upscgpt.in'), // Replace with your production domain
-  alternates: {
-    canonical: '/',
-  },
+  metadataBase: new URL('https://www.upscgpt.in'),
   openGraph: {
     title: 'UPSC Intelligence Platform | UPSCGPT',
-    description: 'Master UPSC Current Affairs and Geopolitics through high-performance neural tracking.',
+    description: 'Master UPSC Current Affairs, Prelims PYQs, and Geopolitics through high-performance neural tracking.',
     url: 'https://www.upscgpt.in',
     siteName: 'UPSCGPT',
     images: [
@@ -39,13 +36,13 @@ export const metadata = {
         height: 630,
       },
     ],
-    locale: 'en_US',
+    locale: 'en_IN',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
     title: 'UPSC Intelligence Platform | UPSCGPT',
-    description: 'Master UPSC Current Affairs and Geography through a high-performance strategic graph.',
+    description: 'Master UPSC Current Affairs, Prelims PYQs, and Geography through a high-performance strategic graph.',
     images: ['/og-image.png'],
   },
   manifest: '/manifest.json',
@@ -77,7 +74,6 @@ export default function RootLayout({ children }) {
       <head>
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossOrigin="" />
         <link rel="apple-touch-icon" href="/logo.png" />
-        <meta name="google-site-verification" content="ADD_YOUR_VERIFICATION_CODE_HERE" />
       </head>
       <body className={`${outfit.variable} antialiased`} style={{ minHeight: '100vh', position: 'relative', overflowX: 'hidden', fontFamily: 'var(--font-outfit), sans-serif' }}>
         <div className="universal-page-glow" />

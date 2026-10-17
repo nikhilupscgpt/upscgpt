@@ -1,10 +1,26 @@
 export default function robots() {
-  const disallowedPaths = ['/admin/', '/api/', '/profile/', '/_next/'];
+  // Block dynamic/interactive routes that would waste server compute or create infinite URL query permutations
+  const disallowedPaths = [
+    '/admin/',
+    '/admin-login',
+    '/api/',
+    '/profile/',
+    '/dashboard/',
+    '/notes/',
+    '/prelims/pyq/practice',
+    '/search',
+    '/_next/',
+  ];
 
-  // SEO bots and AI scrapers that consume high bandwidth & compute with 0 benefit
+  // Aggressive SEO scrapers and bulk AI training crawlers that consume server compute with 0 user traffic
   const blockedCrawlers = [
     'AhrefsBot',
     'SemrushBot',
+    'MJ12bot',
+    'DotBot',
+    'PetalBot',
+    'BLEXBot',
+    'DataForSeoBot',
     'GPTBot',
     'ClaudeBot',
     'Amazonbot',
@@ -13,9 +29,11 @@ export default function robots() {
     'CCBot',
     'cohere-ai',
     'Diffbot',
+    'ImagesiftBot',
+    'YouBot',
   ];
 
-  // Live AI search, answer, and discovery engines (keep open for GEO citations & student traffic)
+  // Live search & answer citation engines (allowed ONLY on static/ISR cached content routes)
   const searchAndDiscoveryBots = [
     'Googlebot',
     'Bingbot',
@@ -27,13 +45,13 @@ export default function robots() {
 
   return {
     rules: [
-      // 1. Block SEO scrapers and bulk extractors from consuming bandwidth & compute
+      // 1. Strictly block aggressive SEO scrapers and bulk training bots from consuming compute
       ...blockedCrawlers.map(bot => ({
         userAgent: bot,
         disallow: '/',
       })),
 
-      // 2. Allow real-time search & citation engines
+      // 2. Allow real-time search & citation engines on ISR-cached study routes
       ...searchAndDiscoveryBots.map(bot => ({
         userAgent: bot,
         allow: '/',
