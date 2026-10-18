@@ -475,21 +475,37 @@ function buildSlideDocument({ questions }) {
     .badge-cyan { background: #0284c7; color: #ffffff; }
 
     /* ========================================================================= */
-    /* TIER 1: TOP 3-ZONE LAYOUT (Question | Answer & Keywords | Explanation)    */
+    /* ASYMMETRIC 2-COLUMN SLIDE ARCHITECTURE (38% Left / 62% Right)             */
     /* ========================================================================= */
-    .tier-top {
+    .slide-body-split {
       display: grid;
-      grid-template-columns: 37% 25% 36%;
-      gap: 12px;
-      align-items: start;
+      grid-template-columns: 38% 62%;
+      gap: 16px;
+      flex: 1;
+      min-height: 0;
+      align-items: stretch;
     }
 
-    /* Left: Authentic UPSC Question Paper Typography */
+    /* LEFT COLUMN (38%): Continuous Question & Real-World News Context */
+    .slide-left-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      padding-right: 6px;
+      border-right: 1px dashed #e2e8f0;
+      min-height: 0;
+    }
+    .q-box-container {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      overflow-y: hidden;
+    }
     .q-col-serif {
       font-family: "Times New Roman", Times, Georgia, "Liberation Serif", serif;
       color: #000000;
       line-height: 1.4;
-      padding-right: 4px;
     }
     .q-stem-serif {
       font-size: 9.6pt;
@@ -504,39 +520,88 @@ function buildSlideDocument({ questions }) {
       line-height: 1.35;
     }
     .q-opt-serif-line {
-      margin-top: 2px;
+      margin-top: 3px;
     }
 
-    /* Center: Green Answer + Blue Keywords */
-    .tier1-center {
+    /* In News Editorial Card (Bottom of Left Column) */
+    .left-news-block {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      margin-top: auto;
+    }
+    .card-news-editorial {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 7px 10px;
+      font-size: 8.2pt;
+      color: #334155;
+      line-height: 1.32;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .news-headline {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 9.6pt;
+      font-weight: 800;
+      color: #000000;
+      line-height: 1.25;
+      margin-bottom: 2px;
+    }
+    .news-dateline {
+      font-size: 7.2pt;
+      font-weight: 800;
+      color: #0284c7;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .news-relevance {
+      line-height: 1.3;
+      color: #334155;
+    }
+
+    /* RIGHT COLUMN (62%): Comprehensive Concept & Value Addition Analysis */
+    .slide-right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      justify-content: space-between;
+      min-height: 0;
+    }
+
+    /* Sub-row 1: Answer Badge & Keywords Box (Side-by-side or stacked) */
+    .right-top-grid {
+      display: grid;
+      grid-template-columns: 38% 62%;
+      gap: 10px;
+      align-items: stretch;
     }
     .card-ans-green {
       background: #86efac;
       border: none;
       border-radius: 4px;
-      padding: 8px 10px;
+      padding: 7px 10px;
       color: #064e3b;
       font-size: 9pt;
       font-weight: 700;
       line-height: 1.32;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
     .card-kw-blue {
       background: #93c5fd;
       border: none;
       border-radius: 4px;
-      padding: 8px 10px;
+      padding: 7px 10px;
       color: #1e3a8a;
-      font-size: 8.5pt;
-      line-height: 1.32;
+      font-size: 8.4pt;
+      line-height: 1.3;
     }
     .kw-title {
       font-weight: 800;
       text-decoration: underline;
-      margin-bottom: 4px;
-      font-size: 8.8pt;
+      margin-bottom: 3px;
+      font-size: 8.6pt;
       color: #0f172a;
     }
     .kw-list {
@@ -558,8 +623,8 @@ function buildSlideDocument({ questions }) {
       margin-left: 3px;
     }
 
-    /* Right: Pink Explanation */
-    .tier1-right {
+    /* Sub-row 2: Option Breakdown (Pink Box) */
+    .right-expl-block {
       display: flex;
       flex-direction: column;
     }
@@ -567,13 +632,13 @@ function buildSlideDocument({ questions }) {
       background: #fda4af;
       border: none;
       border-radius: 4px;
-      padding: 8px 10px;
+      padding: 7px 10px;
       color: #881337;
-      font-size: 8.4pt;
-      line-height: 1.35;
+      font-size: 8.3pt;
+      line-height: 1.34;
     }
     .opt-row {
-      margin-bottom: 5px;
+      margin-bottom: 4px;
     }
     .opt-row:last-child {
       margin-bottom: 0;
@@ -587,43 +652,40 @@ function buildSlideDocument({ questions }) {
       font-weight: 800;
     }
 
-    /* ========================================================================= */
-    /* TIER 2: MIDDLE VALUE ADDITION (Full width across, 2-column text/grid)      */
-    /* ========================================================================= */
-    .tier-middle {
+    /* Sub-row 3: Value Addition (Yellow Box strictly in Right Column!) */
+    .right-va-block {
       display: flex;
       flex-direction: column;
-      margin-top: 6px;
     }
     .card-va-yellow {
       background: #fef08a;
       border: none;
       border-radius: 4px;
-      padding: 8px 14px;
+      padding: 7px 12px;
       color: #451a03;
       font-size: 8.2pt;
-      line-height: 1.38;
+      line-height: 1.36;
     }
     .va-twocol-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
+      gap: 14px;
     }
     .va-col {
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 2px;
     }
     .va-lead-bold {
       font-weight: 800;
       color: #000000;
-      font-size: 8.5pt;
-      line-height: 1.3;
+      font-size: 8.4pt;
+      line-height: 1.28;
       margin-bottom: 2px;
     }
     .va-para {
-      margin: 0 0 4px 0;
-      line-height: 1.34;
+      margin: 0 0 3px 0;
+      line-height: 1.32;
       color: #292524;
     }
     .va-subhead {
@@ -634,21 +696,21 @@ function buildSlideDocument({ questions }) {
       margin-bottom: 1px;
     }
     .va-bullet-list {
-      margin: 1px 0 3px 0;
+      margin: 1px 0 2px 0;
       padding-left: 14px;
       list-style-type: disc;
     }
     .va-bullet-list li {
-      margin-bottom: 2.5px;
-      line-height: 1.32;
+      margin-bottom: 2px;
+      line-height: 1.3;
       color: #1c1917;
     }
     .va-bullet-item {
       display: flex;
       align-items: baseline;
-      gap: 6px;
-      margin-bottom: 2.5px;
-      line-height: 1.32;
+      gap: 5px;
+      margin-bottom: 2px;
+      line-height: 1.3;
       color: #1c1917;
     }
     .va-dot {
@@ -666,75 +728,31 @@ function buildSlideDocument({ questions }) {
       font-weight: 600;
     }
 
-    /* ========================================================================= */
-    /* TIER 3: BOTTOM SECTION (In News Left | Similar PYQ Right - 50% / 50%)    */
-    /* ========================================================================= */
-    .tier-bottom {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      align-items: stretch;
-      margin-top: 6px;
-    }
-    .tier3-left, .tier3-right {
+    /* Sub-row 4: Similar PYQ (Sage Green Box) */
+    .right-pyq-block {
       display: flex;
       flex-direction: column;
     }
-
-    /* In News Editorial Card */
-    .card-news-editorial {
-      background: #ffffff;
-      border: 1.5px solid #cbd5e1;
-      border-radius: 4px;
-      padding: 8px 12px;
-      font-size: 8.2pt;
-      color: #334155;
-      line-height: 1.32;
-      flex: 1;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    }
-    .news-headline {
-      font-family: Georgia, 'Times New Roman', serif;
-      font-size: 10.2pt;
-      font-weight: 800;
-      color: #000000;
-      line-height: 1.25;
-      margin-bottom: 3px;
-    }
-    .news-dateline {
-      font-size: 7.2pt;
-      font-weight: 800;
-      color: #0284c7;
-      text-transform: uppercase;
-      margin-bottom: 3px;
-    }
-    .news-relevance {
-      line-height: 1.32;
-      color: #334155;
-    }
-
-    /* Similar PYQ Card */
     .card-pyq-green {
       background: #86efac;
       border: none;
       border-radius: 4px;
-      padding: 8px 12px;
+      padding: 7px 10px;
       color: #14532d;
-      font-size: 8.2pt;
-      line-height: 1.32;
-      flex: 1;
+      font-size: 8.1pt;
+      line-height: 1.3;
     }
     .pyq-stem {
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
     .pyq-takeaway {
       background: rgba(255, 255, 255, 0.75);
-      padding: 4px 8px;
+      padding: 3px 7px;
       border-radius: 3px;
-      font-size: 7.8pt;
+      font-size: 7.6pt;
       color: #065f46;
       font-weight: 700;
-      margin-top: 4px;
+      margin-top: 3px;
     }
 
     /* Footer */
@@ -823,107 +841,114 @@ function buildSlideDocument({ questions }) {
           </div>
         </div>
 
-        <!-- TIER 1: TOP 3-ZONE LAYOUT (Question | Answer & Keywords | Explanation) -->
-        <div class="tier-top">
-          <!-- Zone 1A: Question Stem & Options in UPSC Exam Serif Font -->
-          <div class="q-col-serif">
-            <div class="q-stem-serif">${escapeHtml(q.stem || '')}</div>
-            ${opts && opts.length > 0 ? `
-              <div class="q-opts-serif">
-                ${opts.map(o => `
-                  <div class="q-opt-serif-line">
-                    <strong>(${escapeHtml((o.label || '').toLowerCase())})</strong> ${escapeHtml(o.text || '')}
+        <!-- ASYMMETRIC 2-COLUMN SLIDE BODY (38% Left / 62% Right) -->
+        <div class="slide-body-split">
+          
+          <!-- LEFT COLUMN (38%): Continuous Question Stem, Options, and News Context -->
+          <div class="slide-left-col">
+            <div class="q-box-container">
+              <div class="q-col-serif">
+                <div class="q-stem-serif">${escapeHtml(q.stem || '')}</div>
+                ${opts && opts.length > 0 ? `
+                  <div class="q-opts-serif">
+                    ${opts.map(o => `
+                      <div class="q-opt-serif-line">
+                        <strong>(${escapeHtml((o.label || '').toLowerCase())})</strong> ${escapeHtml(o.text || '')}
+                      </div>
+                    `).join('')}
                   </div>
-                `).join('')}
+                ` : ''}
               </div>
-            ` : ''}
-          </div>
-
-          <!-- Zone 1B: Green Answer Box + Blue Keywords Box -->
-          <div class="tier1-center">
-            <div class="card-ans-green">
-              (${escapeHtml(ansLabel || '–')}) ${escapeHtml(correctText)}
             </div>
 
-            <div class="card-kw-blue">
-              <div class="kw-title">Keywords and Concepts:</div>
-              <div class="kw-list">
-                ${keywords.map(kw => {
-                  const isDistractor = typeof kw === 'object' && kw !== null && Boolean(kw.isDistractor);
-                  const name = typeof kw === 'object' && kw !== null ? kw.concept : String(kw);
+            <!-- In News Editorial Card (Strictly at bottom of Left Column) -->
+            <div class="left-news-block">
+              <div><span class="badge-pill badge-cyan">In News</span></div>
+              <div class="card-news-editorial">
+                ${inNews && typeof inNews === 'object' ? `
+                  <div class="news-headline">${escapeHtml(inNews.headline || 'Current Affairs Development')}</div>
+                  ${(inNews.source || inNews.date) ? `<div class="news-dateline">${escapeHtml(inNews.source || '')} ${inNews.date ? '• ' + escapeHtml(inNews.date) : ''}</div>` : ''}
+                  ${inNews.relevance ? `<div class="news-relevance">${escapeHtml(inNews.relevance)}</div>` : ''}
+                ` : `
+                  <div class="news-headline">Current Affairs Linkage</div>
+                  <div class="news-relevance">Regularly reported in The Hindu / Indian Express / DownToEarth under ${escapeHtml(q.srcTopic || q.srcSubject || 'General Studies')}.</div>
+                `}
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN (62%): Answer, Keywords, Explanation, Value Addition, and Similar PYQ -->
+          <div class="slide-right-col">
+            <!-- Row 1: Green Answer Badge + Blue Keywords Box -->
+            <div class="right-top-grid">
+              <div class="card-ans-green">
+                <div style="font-size: 7.2pt; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8; margin-bottom: 2px;">Correct Answer</div>
+                <div>(${escapeHtml(ansLabel || '–')}) ${escapeHtml(correctText)}</div>
+              </div>
+
+              <div class="card-kw-blue">
+                <div class="kw-title">Keywords and Concepts:</div>
+                <div class="kw-list">
+                  ${keywords.map(kw => {
+                    const isDistractor = typeof kw === 'object' && kw !== null && Boolean(kw.isDistractor);
+                    const name = typeof kw === 'object' && kw !== null ? kw.concept : String(kw);
+                    return `
+                      <div class="kw-row">
+                        ${isDistractor ? `- <s class="distractor-strike">${escapeHtml(name)}</s> <span class="distractor-tag">(Distractor)</span>` : `- ${escapeHtml(name)}`}
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+            </div>
+
+            <!-- Row 2: Pink Option Breakdown Box -->
+            <div class="right-expl-block">
+              <div><span class="badge-pill badge-black">Explanation</span></div>
+              <div class="card-expl-pink">
+                ${optionBreakdown ? optionBreakdown.map(opt => {
+                  const isCorr = (opt.verdict || '').toLowerCase().includes('correct') && !(opt.verdict || '').toLowerCase().includes('incorrect');
                   return `
-                    <div class="kw-row">
-                      ${isDistractor ? `- <s class="distractor-strike">${escapeHtml(name)}</s> <span class="distractor-tag">(Distractor)</span>` : `- ${escapeHtml(name)}`}
+                    <div class="opt-row">
+                      <strong>(${escapeHtml((opt.label || '').toLowerCase())}) ${opt.text ? escapeHtml(opt.text) + '. ' : ''}<span class="${isCorr ? 'verdict-correct' : 'verdict-incorrect'}">${escapeHtml(opt.verdict || (isCorr ? 'Correct' : 'Incorrect'))}.</span></strong>
+                      <span>${escapeHtml(opt.explanation || '')}</span>
                     </div>
                   `;
-                }).join('')}
+                }).join('') : `
+                  <div class="opt-row" style="white-space: pre-wrap;">${escapeHtml(explanationText || 'Detailed explanation provided in study module.')}</div>
+                `}
+              </div>
+            </div>
+
+            <!-- Row 3: Value Addition (Confined strictly to Right Column with internal 2-col grid!) -->
+            <div class="right-va-block">
+              <div><span class="badge-pill badge-teal">Value Addition</span></div>
+              <div class="card-va-yellow">
+                ${renderValueAdditionHtml(valueAddition, q)}
+              </div>
+            </div>
+
+            <!-- Row 4: Similar PYQ Sage Green Box -->
+            <div class="right-pyq-block">
+              <div><span class="badge-pill badge-slate">Similar PYQ</span></div>
+              <div class="card-pyq-green">
+                ${similarPyq && typeof similarPyq === 'object' ? `
+                  <div class="pyq-stem">
+                    <strong>${escapeHtml(similarPyq.examName || 'UPSC CSE')} ${escapeHtml(similarPyq.examYear ? String(similarPyq.examYear) : '')}:</strong>
+                    ${escapeHtml(similarPyq.stem || '')}
+                  </div>
+                  ${similarPyq.keyTakeaway ? `
+                    <div class="pyq-takeaway"><strong>Core Takeaway:</strong> ${escapeHtml(similarPyq.keyTakeaway)}</div>
+                  ` : ''}
+                ` : `
+                  <div class="pyq-stem">
+                    <strong>UPSC Question Family:</strong> Questions on ${escapeHtml(q.srcTopic || q.srcSubject || 'this theme')} frequently recur with modified distractors in subsequent exam cycles.
+                  </div>
+                `}
               </div>
             </div>
           </div>
 
-          <!-- Zone 1C: Black Badge + Pink Option Breakdown Box -->
-          <div class="tier1-right">
-            <div><span class="badge-pill badge-black">Explanation</span></div>
-            <div class="card-expl-pink">
-              ${optionBreakdown ? optionBreakdown.map(opt => {
-                const isCorr = (opt.verdict || '').toLowerCase().includes('correct') && !(opt.verdict || '').toLowerCase().includes('incorrect');
-                return `
-                  <div class="opt-row">
-                    <strong>(${escapeHtml((opt.label || '').toLowerCase())}) ${opt.text ? escapeHtml(opt.text) + '. ' : ''}<span class="${isCorr ? 'verdict-correct' : 'verdict-incorrect'}">${escapeHtml(opt.verdict || (isCorr ? 'Correct' : 'Incorrect'))}.</span></strong>
-                    <span>${escapeHtml(opt.explanation || '')}</span>
-                  </div>
-                `;
-              }).join('') : `
-                <div class="opt-row" style="white-space: pre-wrap;">${escapeHtml(explanationText || 'Detailed explanation provided in study module.')}</div>
-              `}
-            </div>
-          </div>
-        </div>
-
-        <!-- TIER 2: MIDDLE VALUE ADDITION (Full width across, 2-column layout) -->
-        <div class="tier-middle">
-          <div><span class="badge-pill badge-teal">Value Addition</span></div>
-          <div class="card-va-yellow">
-            ${renderValueAdditionHtml(valueAddition, q)}
-          </div>
-        </div>
-
-        <!-- TIER 3: BOTTOM SECTION (In News on Left | Similar PYQ on Right) -->
-        <div class="tier-bottom">
-          <!-- Zone 3A: In News Newspaper Clipping -->
-          <div class="tier3-left">
-            <div><span class="badge-pill badge-cyan">In News</span></div>
-            <div class="card-news-editorial">
-              ${inNews && typeof inNews === 'object' ? `
-                <div class="news-headline">${escapeHtml(inNews.headline || 'Current Affairs Development')}</div>
-                ${(inNews.source || inNews.date) ? `<div class="news-dateline">${escapeHtml(inNews.source || '')} ${inNews.date ? '• ' + escapeHtml(inNews.date) : ''}</div>` : ''}
-                ${inNews.relevance ? `<div class="news-relevance">${escapeHtml(inNews.relevance)}</div>` : ''}
-              ` : `
-                <div class="news-headline">Current Affairs Linkage</div>
-                <div class="news-relevance">Regularly reported in The Hindu / Indian Express / DownToEarth under ${escapeHtml(q.srcTopic || q.srcSubject || 'General Studies')}.</div>
-              `}
-            </div>
-          </div>
-
-          <!-- Zone 3B: Similar PYQ Sage Green Box -->
-          <div class="tier3-right">
-            <div><span class="badge-pill badge-slate">Similar PYQ</span></div>
-            <div class="card-pyq-green">
-              ${similarPyq && typeof similarPyq === 'object' ? `
-                <div class="pyq-stem">
-                  <strong>${escapeHtml(similarPyq.examName || 'UPSC CSE')} ${escapeHtml(similarPyq.examYear ? String(similarPyq.examYear) : '')}:</strong>
-                  ${escapeHtml(similarPyq.stem || '')}
-                </div>
-                ${similarPyq.keyTakeaway ? `
-                  <div class="pyq-takeaway"><strong>Core Takeaway:</strong> ${escapeHtml(similarPyq.keyTakeaway)}</div>
-                ` : ''}
-              ` : `
-                <div class="pyq-stem">
-                  <strong>UPSC Question Family:</strong> Questions on ${escapeHtml(q.srcTopic || q.srcSubject || 'this theme')} frequently recur with modified distractors in subsequent exam cycles.
-                </div>
-              `}
-            </div>
-          </div>
         </div>
 
         <!-- Slide Bottom Footer -->
