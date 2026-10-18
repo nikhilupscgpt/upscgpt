@@ -1,4 +1,4 @@
-# UPSCGPT (https://www.upscgpt.in)
+# UPSCGPT - AI-Powered UPSC CSE Preparation Platform
 
 > An AI-powered strategic preparation platform for the UPSC Civil Services Examination (CSE) and Combined Defence Services (CDS), featuring 2,528+ solved Prelims Previous Year Questions (2011–2025), interactive GIS Mapping & Places in News (PIN), and syllabus-linked current affairs.
 

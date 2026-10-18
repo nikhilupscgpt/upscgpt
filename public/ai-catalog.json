@@ -1,0 +1,32 @@
+{
+  "$schema": "https://raw.githubusercontent.com/ards-project/ard-spec/main/spec/schemas/ai-catalog.schema.json",
+  "specVersion": "1.0",
+  "host": {
+    "displayName": "UPSCGPT",
+    "identifier": "did:web:upscgpt.in",
+    "documentationUrl": "https://www.upscgpt.in/llms.txt"
+  },
+  "entries": [
+    {
+      "identifier": "urn:ai:upscgpt.in:pyq:explorer",
+      "displayName": "UPSC Prelims PYQ Explorer",
+      "type": "api",
+      "url": "https://www.upscgpt.in/prelims/pyq",
+      "description": "2,528+ authentic solved UPSC Civil Services Prelims Previous Year Questions (2011-2025) with verified official answers."
+    },
+    {
+      "identifier": "urn:ai:upscgpt.in:mapping:atlas",
+      "displayName": "UPSC Geography Atlas & Places in News",
+      "type": "api",
+      "url": "https://www.upscgpt.in/mapping",
+      "description": "Interactive GIS atlas covering National Parks, Ramsar wetlands, Tiger Reserves, Rivers, and Mountain Passes linked to PYQs."
+    },
+    {
+      "identifier": "urn:ai:upscgpt.in:issues:graph",
+      "displayName": "UPSC Syllabus Analyzer & Issue Graph",
+      "type": "api",
+      "url": "https://www.upscgpt.in/issues",
+      "description": "Civil services syllabus knowledge graph spanning GS1, GS2, GS3, and GS4."
+    }
+  ]
+}
