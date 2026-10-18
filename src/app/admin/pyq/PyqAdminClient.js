@@ -1369,8 +1369,10 @@ export default function PyqAdminClient({ session }) {
                             <span>Print Slide</span>
                           </button>
 
-                          <button
-                            onClick={() => handleOpenEdit(q)}
+                          <a
+                            href={`/admin/pyq/${q.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             style={{
                               display: 'inline-flex',
                               alignItems: 'center',
@@ -1382,12 +1384,15 @@ export default function PyqAdminClient({ session }) {
                               border: 'none',
                               fontSize: '0.8rem',
                               fontWeight: 700,
+                              textDecoration: 'none',
                               cursor: 'pointer'
                             }}
+                            title="Open in Visual Split-Screen Editor (New Tab)"
                           >
                             <Edit3 size={13} />
-                            <span>Edit Question</span>
-                          </button>
+                            <span>Visual Editor</span>
+                            <ExternalLink size={12} style={{ opacity: 0.8 }} />
+                          </a>
 
                           <button
                             onClick={() => handleDeleteQuestion(q.id)}
