@@ -475,52 +475,112 @@ function buildSlideDocument({ questions }) {
     .badge-cyan { background: #0284c7; color: #ffffff; }
 
     /* ========================================================================= */
-    /* ASYMMETRIC 2-COLUMN SLIDE ARCHITECTURE (38% Left / 62% Right)             */
+    /* ASYMMETRIC 2-COLUMN SLIDE ARCHITECTURE (34% Left / 66% Right)             */
     /* ========================================================================= */
     .slide-body-split {
       display: grid;
-      grid-template-columns: 38% 62%;
+      grid-template-columns: 34% 66%;
       gap: 16px;
       flex: 1;
       min-height: 0;
       align-items: stretch;
     }
 
-    /* LEFT COLUMN (38%): Continuous Question & Real-World News Context */
+    /* LEFT COLUMN (34%): Question -> Answer & Keywords -> In News */
     .slide-left-col {
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
-      gap: 10px;
-      padding-right: 6px;
-      border-right: 1px dashed #e2e8f0;
+      gap: 7px;
+      padding-right: 8px;
+      border-right: 1.5px solid #f1f5f9;
       min-height: 0;
+      justify-content: flex-start;
     }
     .q-box-container {
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      overflow-y: hidden;
+      gap: 4px;
     }
     .q-col-serif {
       font-family: "Times New Roman", Times, Georgia, "Liberation Serif", serif;
       color: #000000;
-      line-height: 1.4;
+      line-height: 1.38;
     }
     .q-stem-serif {
-      font-size: 9.6pt;
+      font-size: 9.4pt;
       font-weight: 600;
       white-space: pre-wrap;
-      margin-bottom: 6px;
+      margin-bottom: 5px;
     }
     .q-opts-serif {
-      font-size: 9.2pt;
+      font-size: 9pt;
       font-weight: 500;
       color: #111827;
-      line-height: 1.35;
+      line-height: 1.32;
     }
     .q-opt-serif-line {
-      margin-top: 3px;
+      margin-top: 2.5px;
+    }
+
+    /* Answer Badge (Right below Question Options) */
+    .left-ans-box {
+      margin-top: 2px;
+    }
+    .card-ans-green {
+      background: #86efac;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 10px;
+      color: #064e3b;
+      font-size: 8.8pt;
+      font-weight: 700;
+      line-height: 1.28;
+    }
+    .ans-tag-label {
+      font-size: 7pt;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      opacity: 0.8;
+      margin-bottom: 1px;
+    }
+
+    /* Keywords and Concepts Box (Right below Answer) */
+    .left-kw-box {
+      margin-top: 2px;
+    }
+    .card-kw-blue {
+      background: #93c5fd;
+      border: none;
+      border-radius: 4px;
+      padding: 6px 10px;
+      color: #1e3a8a;
+      font-size: 8.2pt;
+      line-height: 1.28;
+    }
+    .kw-title {
+      font-weight: 800;
+      text-decoration: underline;
+      margin-bottom: 3px;
+      font-size: 8.4pt;
+      color: #0f172a;
+    }
+    .kw-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5px;
+    }
+    .kw-row {
+      line-height: 1.22;
+    }
+    .distractor-strike {
+      text-decoration: line-through;
+      color: #334155;
+    }
+    .distractor-tag {
+      color: #dc2626;
+      font-size: 7.2pt;
+      font-weight: 800;
+      margin-left: 3px;
     }
 
     /* In News Editorial Card (Bottom of Left Column) */
@@ -528,20 +588,21 @@ function buildSlideDocument({ questions }) {
       display: flex;
       flex-direction: column;
       margin-top: auto;
+      padding-top: 4px;
     }
     .card-news-editorial {
       background: #ffffff;
       border: 1px solid #cbd5e1;
       border-radius: 4px;
       padding: 7px 10px;
-      font-size: 8.2pt;
+      font-size: 8pt;
       color: #334155;
-      line-height: 1.32;
+      line-height: 1.3;
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
     .news-headline {
       font-family: Georgia, 'Times New Roman', serif;
-      font-size: 9.6pt;
+      font-size: 9.4pt;
       font-weight: 800;
       color: #000000;
       line-height: 1.25;
@@ -555,75 +616,20 @@ function buildSlideDocument({ questions }) {
       margin-bottom: 3px;
     }
     .news-relevance {
-      line-height: 1.3;
+      line-height: 1.28;
       color: #334155;
     }
 
-    /* RIGHT COLUMN (62%): Comprehensive Concept & Value Addition Analysis */
+    /* RIGHT COLUMN (66%): Dedicated High-Capacity Knowledge Hub */
     .slide-right-col {
       display: flex;
       flex-direction: column;
       gap: 8px;
-      justify-content: space-between;
+      justify-content: flex-start;
       min-height: 0;
     }
 
-    /* Sub-row 1: Answer Badge & Keywords Box (Side-by-side or stacked) */
-    .right-top-grid {
-      display: grid;
-      grid-template-columns: 38% 62%;
-      gap: 10px;
-      align-items: stretch;
-    }
-    .card-ans-green {
-      background: #86efac;
-      border: none;
-      border-radius: 4px;
-      padding: 7px 10px;
-      color: #064e3b;
-      font-size: 9pt;
-      font-weight: 700;
-      line-height: 1.32;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    .card-kw-blue {
-      background: #93c5fd;
-      border: none;
-      border-radius: 4px;
-      padding: 7px 10px;
-      color: #1e3a8a;
-      font-size: 8.4pt;
-      line-height: 1.3;
-    }
-    .kw-title {
-      font-weight: 800;
-      text-decoration: underline;
-      margin-bottom: 3px;
-      font-size: 8.6pt;
-      color: #0f172a;
-    }
-    .kw-list {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .kw-row {
-      line-height: 1.25;
-    }
-    .distractor-strike {
-      text-decoration: line-through;
-      color: #334155;
-    }
-    .distractor-tag {
-      color: #dc2626;
-      font-size: 7.2pt;
-      font-weight: 800;
-      margin-left: 3px;
-    }
-
-    /* Sub-row 2: Option Breakdown (Pink Box) */
+    /* Row 1: Option Breakdown (Pink Box) */
     .right-expl-block {
       display: flex;
       flex-direction: column;
@@ -632,10 +638,10 @@ function buildSlideDocument({ questions }) {
       background: #fda4af;
       border: none;
       border-radius: 4px;
-      padding: 7px 10px;
+      padding: 8px 12px;
       color: #881337;
       font-size: 8.3pt;
-      line-height: 1.34;
+      line-height: 1.36;
     }
     .opt-row {
       margin-bottom: 4px;
@@ -652,7 +658,7 @@ function buildSlideDocument({ questions }) {
       font-weight: 800;
     }
 
-    /* Sub-row 3: Value Addition (Yellow Box strictly in Right Column!) */
+    /* Row 2: Value Addition (High Capacity Yellow Box across 66% width) */
     .right-va-block {
       display: flex;
       flex-direction: column;
@@ -661,7 +667,7 @@ function buildSlideDocument({ questions }) {
       background: #fef08a;
       border: none;
       border-radius: 4px;
-      padding: 7px 12px;
+      padding: 8px 12px;
       color: #451a03;
       font-size: 8.2pt;
       line-height: 1.36;
@@ -669,12 +675,12 @@ function buildSlideDocument({ questions }) {
     .va-twocol-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 14px;
+      gap: 16px;
     }
     .va-col {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 2.5px;
     }
     .va-lead-bold {
       font-weight: 800;
@@ -728,16 +734,17 @@ function buildSlideDocument({ questions }) {
       font-weight: 600;
     }
 
-    /* Sub-row 4: Similar PYQ (Sage Green Box) */
+    /* Row 3: Similar PYQ (Sage Green Box) */
     .right-pyq-block {
       display: flex;
       flex-direction: column;
+      margin-top: auto;
     }
     .card-pyq-green {
       background: #86efac;
       border: none;
       border-radius: 4px;
-      padding: 7px 10px;
+      padding: 7px 11px;
       color: #14532d;
       font-size: 8.1pt;
       line-height: 1.3;
@@ -841,10 +848,10 @@ function buildSlideDocument({ questions }) {
           </div>
         </div>
 
-        <!-- ASYMMETRIC 2-COLUMN SLIDE BODY (38% Left / 62% Right) -->
+        <!-- ASYMMETRIC 2-COLUMN SLIDE BODY (34% Left / 66% Right) -->
         <div class="slide-body-split">
           
-          <!-- LEFT COLUMN (38%): Continuous Question Stem, Options, and News Context -->
+          <!-- LEFT COLUMN (34%): Question -> Correct Answer -> Keywords -> In News -->
           <div class="slide-left-col">
             <div class="q-box-container">
               <div class="q-col-serif">
@@ -858,6 +865,32 @@ function buildSlideDocument({ questions }) {
                     `).join('')}
                   </div>
                 ` : ''}
+              </div>
+
+              <!-- Answer Badge (Right below Question Options) -->
+              <div class="left-ans-box">
+                <div class="card-ans-green">
+                  <div class="ans-tag-label">Correct Answer</div>
+                  <div><strong>(${escapeHtml(ansLabel || '–')})</strong> ${escapeHtml(correctText)}</div>
+                </div>
+              </div>
+
+              <!-- Keywords and Concepts Box (Right below Answer) -->
+              <div class="left-kw-box">
+                <div class="card-kw-blue">
+                  <div class="kw-title">Keywords and Concepts:</div>
+                  <div class="kw-list">
+                    ${keywords.map(kw => {
+                      const isDistractor = typeof kw === 'object' && kw !== null && Boolean(kw.isDistractor);
+                      const name = typeof kw === 'object' && kw !== null ? kw.concept : String(kw);
+                      return `
+                        <div class="kw-row">
+                          ${isDistractor ? `- <s class="distractor-strike">${escapeHtml(name)}</s> <span class="distractor-tag">(Distractor)</span>` : `- ${escapeHtml(name)}`}
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -877,32 +910,9 @@ function buildSlideDocument({ questions }) {
             </div>
           </div>
 
-          <!-- RIGHT COLUMN (62%): Answer, Keywords, Explanation, Value Addition, and Similar PYQ -->
+          <!-- RIGHT COLUMN (66%): High-Capacity Knowledge Hub (Explanation, Value Addition, Similar PYQ) -->
           <div class="slide-right-col">
-            <!-- Row 1: Green Answer Badge + Blue Keywords Box -->
-            <div class="right-top-grid">
-              <div class="card-ans-green">
-                <div style="font-size: 7.2pt; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8; margin-bottom: 2px;">Correct Answer</div>
-                <div>(${escapeHtml(ansLabel || '–')}) ${escapeHtml(correctText)}</div>
-              </div>
-
-              <div class="card-kw-blue">
-                <div class="kw-title">Keywords and Concepts:</div>
-                <div class="kw-list">
-                  ${keywords.map(kw => {
-                    const isDistractor = typeof kw === 'object' && kw !== null && Boolean(kw.isDistractor);
-                    const name = typeof kw === 'object' && kw !== null ? kw.concept : String(kw);
-                    return `
-                      <div class="kw-row">
-                        ${isDistractor ? `- <s class="distractor-strike">${escapeHtml(name)}</s> <span class="distractor-tag">(Distractor)</span>` : `- ${escapeHtml(name)}`}
-                      </div>
-                    `;
-                  }).join('')}
-                </div>
-              </div>
-            </div>
-
-            <!-- Row 2: Pink Option Breakdown Box -->
+            <!-- Row 1: Option Breakdown Box -->
             <div class="right-expl-block">
               <div><span class="badge-pill badge-black">Explanation</span></div>
               <div class="card-expl-pink">
@@ -920,7 +930,7 @@ function buildSlideDocument({ questions }) {
               </div>
             </div>
 
-            <!-- Row 3: Value Addition (Confined strictly to Right Column with internal 2-col grid!) -->
+            <!-- Row 2: Value Addition (Spanning full 66% width with internal 2-column grid) -->
             <div class="right-va-block">
               <div><span class="badge-pill badge-teal">Value Addition</span></div>
               <div class="card-va-yellow">
@@ -928,7 +938,7 @@ function buildSlideDocument({ questions }) {
               </div>
             </div>
 
-            <!-- Row 4: Similar PYQ Sage Green Box -->
+            <!-- Row 3: Similar PYQ Sage Green Box -->
             <div class="right-pyq-block">
               <div><span class="badge-pill badge-slate">Similar PYQ</span></div>
               <div class="card-pyq-green">
