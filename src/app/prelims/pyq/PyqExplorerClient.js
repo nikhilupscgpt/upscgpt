@@ -23,6 +23,8 @@ import {
 } from 'lucide-react';
 import StemView from './StemView';
 import QuizSetupModal from './QuizSetupModal';
+import PyqDeepDive from './PyqDeepDive';
+import { getStructuredExplanation } from '@/lib/pyqExplanationHelper';
 import { usePyqStore } from './pyqStore';
 import { SUBJECT_ORDER, SUBJECT_SHORT } from './topicGroups';
 import { generateQuestionSlug } from '@/lib/pyqSlug';
@@ -1325,6 +1327,7 @@ function QuestionCard({ q, attempt, revealedOnly, bookmarked, onPick, onReveal, 
   const correctOpt = options.find(o => o.label === q.correctLabel);
   const isPair = isPairQuestion(q);
   const isStmt = isStatementQuestion(q);
+  const { explanationText, analysis } = useMemo(() => getStructuredExplanation(q), [q.explanation, q.analysis]);
 
   return (
     <article className={`pq-card pq-qcard ${attempt ? (attempt.ok ? 'is-ok' : 'is-bad') : ''}`}>
@@ -1389,7 +1392,8 @@ function QuestionCard({ q, attempt, revealedOnly, bookmarked, onPick, onReveal, 
           ) : (
             <><b>Answer: ({q.correctLabel.toUpperCase()})</b>{correctOpt ? ` — ${correctOpt.text}` : ''}</>
           )}
-          {q.explanation && <div className="pq-verdict-exp">{q.explanation}</div>}
+          {explanationText && <div className="pq-verdict-exp">{explanationText}</div>}
+          {analysis && <PyqDeepDive analysis={analysis} />}
         </div>
       )}
 

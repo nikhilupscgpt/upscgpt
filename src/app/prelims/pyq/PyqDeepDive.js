@@ -9,10 +9,10 @@ import {
   BookOpen, 
   Newspaper, 
   ArrowRight,
-  ExternalLink,
   Tag,
   Layers,
-  Flame
+  Flame,
+  Info
 } from 'lucide-react';
 
 export default function PyqDeepDive({ analysis }) {
@@ -38,11 +38,32 @@ export default function PyqDeepDive({ analysis }) {
             <Tag size={14} /> Keywords & Core Concepts
           </div>
           <div className="pq-keywords">
-            {keywords.map((kw, i) => (
-              <span key={i} className="pq-keyword-pill">
-                #{kw}
-              </span>
-            ))}
+            {keywords.map((kw, i) => {
+              if (typeof kw === 'object' && kw !== null) {
+                const isDistractor = Boolean(kw.isDistractor);
+                return (
+                  <span 
+                    key={i} 
+                    className={`pq-keyword-pill ${isDistractor ? 'pq-distractor-pill' : ''}`}
+                    style={isDistractor ? {
+                      textDecoration: 'line-through',
+                      opacity: 0.75,
+                      borderColor: 'rgba(239, 68, 68, 0.4)',
+                      background: 'rgba(239, 68, 68, 0.08)',
+                      color: 'var(--pq-ink)'
+                    } : undefined}
+                    title={isDistractor ? 'Distractor concept to learn from' : undefined}
+                  >
+                    {isDistractor ? `~~${kw.concept}~~ (Distractor)` : `#${kw.concept}`}
+                  </span>
+                );
+              }
+              return (
+                <span key={i} className="pq-keyword-pill">
+                  #{String(kw)}
+                </span>
+              );
+            })}
           </div>
         </div>
       )}
@@ -56,16 +77,17 @@ export default function PyqDeepDive({ analysis }) {
           <div className="pq-breakdown-grid">
             {optionBreakdown.map((opt, i) => {
               const isCorrect = (opt.verdict || '').toLowerCase().includes('correct') && !(opt.verdict || '').toLowerCase().includes('incorrect');
+              const labelStr = String(opt.label || i + 1).toUpperCase();
               return (
                 <div 
                   key={i} 
                   className={`pq-breakdown-card ${isCorrect ? 'is-correct-card' : 'is-incorrect-card'}`}
                 >
                   <div className="pq-bc-head">
-                    <span className="pq-bc-label">({opt.label.toUpperCase()})</span>
+                    <span className="pq-bc-label">({labelStr})</span>
                     <span className={`pq-bc-badge ${isCorrect ? 'is-correct' : 'is-incorrect'}`}>
                       {isCorrect ? <CheckCircle2 size={13} /> : <XCircle size={13} />}
-                      {opt.verdict}
+                      {opt.verdict || (isCorrect ? 'Correct' : 'Incorrect')}
                     </span>
                   </div>
                   {opt.text && <p className="pq-bc-opt-text">{opt.text}</p>}
@@ -78,34 +100,49 @@ export default function PyqDeepDive({ analysis }) {
       )}
 
       {/* 4. Value Addition Notes */}
-      {valueAddition && valueAddition.length > 0 && (
+      {valueAddition && (
         <div className="pq-dd-section">
           <div className="pq-dd-label">
-            <BookOpen size={14} /> Value Addition & High-Yield Intel
+            <BookOpen size={14} /> Forward-Looking Value Addition *(What UPSC will ask next)*
           </div>
-          <div className="pq-va-grid">
-            {valueAddition.map((card, i) => (
-              <div key={i} className="pq-va-card">
-                <div className="pq-va-head">
-                  <h4 className="pq-va-title">{card.title}</h4>
-                  {card.tag && <span className="pq-va-tag">{card.tag}</span>}
-                </div>
-                {card.description && (
-                  <p className="pq-va-desc">{card.description}</p>
-                )}
-                {card.sections && card.sections.map((sec, j) => (
-                  <div key={j} className="pq-va-subblock">
-                    <h5 className="pq-va-subtitle">{sec.heading}</h5>
-                    <ul className="pq-va-list">
-                      {sec.points.map((pt, k) => (
-                        <li key={k} dangerouslySetInnerHTML={{ __html: pt }} />
-                      ))}
-                    </ul>
-                  </div>
-                ))}
+          {typeof valueAddition === 'string' ? (
+            <div className="pq-va-card" style={{ padding: '16px 20px', lineHeight: 1.65, fontSize: '0.92rem' }}>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', color: 'var(--pq-ink)' }}>
+                <Info size={16} style={{ color: 'var(--pq-gold)', flexShrink: 0, marginTop: '3px' }} />
+                <div>{valueAddition}</div>
               </div>
-            ))}
-          </div>
+            </div>
+          ) : Array.isArray(valueAddition) ? (
+            <div className="pq-va-grid">
+              {valueAddition.map((card, i) => (
+                <div key={i} className="pq-va-card">
+                  {typeof card === 'string' ? (
+                    <p className="pq-va-desc">{card}</p>
+                  ) : (
+                    <>
+                      <div className="pq-va-head">
+                        <h4 className="pq-va-title">{card.title}</h4>
+                        {card.tag && <span className="pq-va-tag">{card.tag}</span>}
+                      </div>
+                      {card.description && (
+                        <p className="pq-va-desc">{card.description}</p>
+                      )}
+                      {card.sections && card.sections.map((sec, j) => (
+                        <div key={j} className="pq-va-subblock">
+                          <h5 className="pq-va-subtitle">{sec.heading}</h5>
+                          <ul className="pq-va-list">
+                            {sec.points && sec.points.map((pt, k) => (
+                              <li key={k} dangerouslySetInnerHTML={{ __html: pt }} />
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : null}
         </div>
       )}
 
@@ -118,15 +155,15 @@ export default function PyqDeepDive({ analysis }) {
           <div className="pq-news-card">
             <div className="pq-news-top">
               <span className="pq-news-tag">
-                <Flame size={12} /> Recent Context
+                <Flame size={12} /> {inNews.source ? `${inNews.source} • ${inNews.date || ''}` : 'Recent Context'}
               </span>
               {inNews.subheadline && (
                 <span className="pq-news-subtag">{inNews.subheadline}</span>
               )}
             </div>
-            <h4 className="pq-news-title">{inNews.headline}</h4>
-            {inNews.context && (
-              <p className="pq-news-context">{inNews.context}</p>
+            <h4 className="pq-news-title">{inNews.headline || (typeof inNews === 'string' ? inNews : '')}</h4>
+            {(inNews.relevance || inNews.context) && (
+              <p className="pq-news-context">{inNews.relevance || inNews.context}</p>
             )}
             {inNews.relatedArticles && inNews.relatedArticles.length > 0 && (
               <div className="pq-news-related">
@@ -146,16 +183,21 @@ export default function PyqDeepDive({ analysis }) {
       {similarPyq && (
         <div className="pq-dd-section">
           <div className="pq-dd-label">
-            <Layers size={14} /> Interlinked Similar PYQ
+            <Layers size={14} /> Similar PYQ & Question Family
           </div>
           <div className="pq-similar-card">
             <div className="pq-similar-top">
               <span className="pq-similar-badge">
-                {similarPyq.examName || 'UPSC CSE Pre'} {similarPyq.examYear}
+                {similarPyq.examName || 'UPSC CSE Pre'} {similarPyq.examYear || ''}
               </span>
               <span className="pq-similar-topic">{similarPyq.srcTopic || 'Related Theme'}</span>
             </div>
-            <p className="pq-similar-stem">{similarPyq.stem}</p>
+            <p className="pq-similar-stem">{similarPyq.stem || (typeof similarPyq === 'string' ? similarPyq : '')}</p>
+            {similarPyq.keyTakeaway && (
+              <p style={{ marginTop: '8px', fontSize: '0.85rem', color: 'var(--pq-gold)', fontStyle: 'italic' }}>
+                💡 Pattern Insight: {similarPyq.keyTakeaway}
+              </p>
+            )}
             {similarPyq.targetId && (
               <Link 
                 href={`/prelims/pyq/${encodeURIComponent(similarPyq.targetId)}`}

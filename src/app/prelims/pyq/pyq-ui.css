@@ -534,6 +534,14 @@
   border: 1px solid color-mix(in srgb, var(--pq-mark) 35%, transparent);
 }
 
+.pq-keyword-pill.pq-distractor-pill {
+  background: rgba(239, 68, 68, 0.1) !important;
+  color: #ef4444 !important;
+  border-color: rgba(239, 68, 68, 0.35) !important;
+  text-decoration: line-through;
+  opacity: 0.88;
+}
+
 /* Option Breakdown */
 .pq-breakdown-grid {
   display: flex;

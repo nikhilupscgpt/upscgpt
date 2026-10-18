@@ -13,11 +13,14 @@ import {
 import StemView from '../StemView';
 import PyqDeepDive from '../PyqDeepDive';
 import PyqPrecisionView from '../PyqPrecisionView';
+import { getStructuredExplanation } from '@/lib/pyqExplanationHelper';
 import '../pyq-ui.css';
 
 export default function StandaloneQuestionClient({ question: q }) {
-  if (q.analysis && q.analysis.whyCorrect) {
-    return <PyqPrecisionView question={q} />;
+  const { explanationText, analysis } = getStructuredExplanation(q);
+
+  if (analysis && analysis.whyCorrect) {
+    return <PyqPrecisionView question={{ ...q, analysis }} />;
   }
 
   const [userChoice, setUserChoice] = useState(null);
@@ -312,15 +315,15 @@ export default function StandaloneQuestionClient({ question: q }) {
             </div>
 
             <div style={{ fontSize: '14.5px', lineHeight: 1.7 }}>
-              {q.explanation ? (
+              {explanationText ? (
                 <div style={{ margin: '0 0 12px 0', whiteSpace: 'pre-line' }}>
-                  <strong>Detailed Explanation:</strong>{'\n'}{q.explanation}
+                  <strong>Detailed Explanation:</strong>{'\n'}{explanationText}
                 </div>
-              ) : (
+              ) : !analysis ? (
                 <p style={{ margin: '0 0 10px 0' }}>
                   <strong>Explanation:</strong> Under the official {q.examName} ({q.examYear}) key, Option <strong>({correctLabelUpper})</strong> is the verified correct answer.
                 </p>
-              )}
+              ) : null}
               <p style={{ margin: 0, color: '#0284c7', fontSize: '12.5px', fontFamily: 'monospace' }}>
                 Source: Official {q.examName} ({q.examYear}) Key • {q.srcSubject} ({q.srcTopic}) Archive
               </p>
@@ -379,7 +382,7 @@ export default function StandaloneQuestionClient({ question: q }) {
         </div>
 
         {/* Lecture-Grade Micro Deep-Dive */}
-        {q.analysis && <PyqDeepDive analysis={q.analysis} />}
+        {analysis && <PyqDeepDive analysis={analysis} />}
       </article>
 
       {/* Related Questions Internal Link Mesh (Critical for Search Engine Spidering across all 2,528 PYQs) */}
