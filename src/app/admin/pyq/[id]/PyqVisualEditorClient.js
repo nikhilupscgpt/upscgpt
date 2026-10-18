@@ -11,30 +11,38 @@ import {
   CheckCircle2, 
   AlertCircle, 
   RefreshCw, 
-  ExternalLink,
-  Layers,
-  Copy,
-  Check,
-  Eye,
-  FileText,
-  RotateCcw,
-  BookOpen,
-  Newspaper,
-  Compass
+  Layers, 
+  Copy, 
+  Check, 
+  Eye, 
+  BookOpen, 
+  Newspaper, 
+  Compass,
+  Edit3,
+  Plus,
+  Trash2,
+  CheckSquare
 } from 'lucide-react';
 import { getStructuredExplanation } from '@/lib/pyqExplanationHelper';
-import StemView from '@/app/prelims/pyq/StemView';
 import '@/app/prelims/pyq/pyq-ui.css';
 
 export default function PyqVisualEditorClient({ initialQuestion }) {
-  // Parse initial structured explanation or analysis
   const initialStructured = useMemo(() => {
     return getStructuredExplanation(initialQuestion);
   }, [initialQuestion]);
 
-  // Construct initial JSON structure for editor
-  const buildInitialJson = useCallback((q, structured) => {
-    const opts = (q.options || []).map((o, idx) => ({
+  // Construct initial structured object
+  const buildInitialData = useCallback((q, structured) => {
+    let opts = q.options || [];
+    if (!Array.isArray(opts) || opts.length === 0) {
+      opts = [
+        { label: 'a', text: '' },
+        { label: 'b', text: '' },
+        { label: 'c', text: '' },
+        { label: 'd', text: '' },
+      ];
+    }
+    const normalizedOptions = opts.map((o, idx) => ({
       label: (o.label || String.fromCharCode(97 + idx)).toLowerCase(),
       text: o.text || ''
     }));
@@ -47,14 +55,14 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
       srcTopic: q.srcTopic || '',
       sourceBase: q.sourceBase || '',
       stem: q.stem || '',
-      options: opts,
-      correctLabel: (q.correctLabel || '').toLowerCase(),
+      options: normalizedOptions,
+      correctLabel: (q.correctLabel || 'a').toLowerCase(),
       analysis: structured.analysis || {
         keywords: [
           { concept: q.srcSubject || 'General Studies', isDistractor: false },
           { concept: q.srcTopic || 'Polity & Governance', isDistractor: false }
         ],
-        optionBreakdown: opts.map(o => ({
+        optionBreakdown: normalizedOptions.map(o => ({
           label: o.label,
           verdict: o.label === (q.correctLabel || '').toLowerCase() ? 'Correct' : 'Incorrect',
           explanation: o.label === (q.correctLabel || '').toLowerCase() 
@@ -78,34 +86,47 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
     };
   }, []);
 
-  const [rawJsonText, setRawJsonText] = useState(() => {
-    const obj = buildInitialJson(initialQuestion, initialStructured);
-    return JSON.stringify(obj, null, 2);
-  });
-
+  // Primary Source of Truth: parsed data object
+  const [data, setData] = useState(() => buildInitialData(initialQuestion, initialStructured));
+  
+  // Left JSON string mirror
+  const [rawJsonText, setRawJsonText] = useState(() => JSON.stringify(buildInitialData(initialQuestion, initialStructured), null, 2));
   const [parseError, setParseError] = useState(null);
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Live parsed object for right-side visual renderer
-  const parsedData = useMemo(() => {
-    try {
-      const trimmed = rawJsonText.trim();
-      if (!trimmed) {
-        setParseError('Editor is empty. Paste a JSON / JSONL object.');
-        return null;
+  // Sync from Right Visual Editor to Left JSON
+  const updateDataAndSyncJson = useCallback((updater) => {
+    setData(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : { ...prev, ...updater };
+      try {
+        setRawJsonText(JSON.stringify(next, null, 2));
+        setParseError(null);
+      } catch (e) {
+        console.error('Error stringifying JSON:', e);
       }
-      const obj = JSON.parse(trimmed);
+      return next;
+    });
+  }, []);
+
+  // Sync from Left JSON to Right Visual Editor
+  const handleJsonChange = (newText) => {
+    setRawJsonText(newText);
+    try {
+      const trimmed = newText.trim();
+      if (!trimmed) {
+        setParseError('JSON editor is empty');
+        return;
+      }
+      const parsed = JSON.parse(trimmed);
+      setData(parsed);
       setParseError(null);
-      return obj;
     } catch (err) {
       setParseError(err.message);
-      return null;
     }
-  }, [rawJsonText]);
+  };
 
-  // Handle beautify / format JSON
   const handleFormatJson = () => {
     try {
       const obj = JSON.parse(rawJsonText);
@@ -116,17 +137,16 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
     }
   };
 
-  // Handle Copy JSON
   const handleCopy = () => {
     navigator.clipboard.writeText(rawJsonText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Save to Database
+  // Save to DB
   const handleSave = async () => {
-    if (!parsedData) {
-      alert('Please fix the JSON errors before saving.');
+    if (parseError) {
+      alert('Please fix the JSON errors before saving: ' + parseError);
       return;
     }
 
@@ -138,23 +158,21 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          stem: parsedData.stem,
-          options: parsedData.options,
-          correctLabel: parsedData.correctLabel,
-          srcSubject: parsedData.srcSubject,
-          srcTopic: parsedData.srcTopic,
-          examName: parsedData.examName,
-          examYear: parsedData.examYear,
-          questionNo: parsedData.questionNo,
-          analysis: parsedData.analysis || null,
-          explanation: parsedData.explanation || null,
+          stem: data.stem,
+          options: data.options,
+          correctLabel: data.correctLabel,
+          srcSubject: data.srcSubject,
+          srcTopic: data.srcTopic,
+          examName: data.examName,
+          examYear: data.examYear,
+          questionNo: data.questionNo,
+          analysis: data.analysis || null,
+          explanation: data.explanation || null,
         })
       });
 
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to update question');
-      }
+      const resData = await res.json();
+      if (!res.ok) throw new Error(resData.error || 'Failed to update question');
 
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
@@ -165,31 +183,133 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
     }
   };
 
-  // Open A4 landscape printable slide for this question
   const handlePrintSlide = () => {
     window.open(`/api/admin/pyq/print-pdf?mode=slide&ids=${initialQuestion.id}`, '_blank');
   };
 
-  // Normalize options for visual rendering
-  const displayOptions = useMemo(() => {
-    if (!parsedData || !Array.isArray(parsedData.options)) return [];
-    return parsedData.options.map((o, idx) => ({
-      label: (o.label || String.fromCharCode(97 + idx)).toLowerCase(),
-      text: o.text || ''
+  // Specific visual field updaters
+  const handleStemChange = (val) => {
+    updateDataAndSyncJson(prev => ({ ...prev, stem: val }));
+  };
+
+  const handleOptionTextChange = (idx, newText) => {
+    updateDataAndSyncJson(prev => {
+      const nextOpts = [...(prev.options || [])];
+      if (nextOpts[idx]) {
+        nextOpts[idx] = { ...nextOpts[idx], text: newText };
+      }
+      return { ...prev, options: nextOpts };
+    });
+  };
+
+  const handleSelectCorrect = (label) => {
+    updateDataAndSyncJson(prev => ({ ...prev, correctLabel: label.toLowerCase() }));
+  };
+
+  const handleValueAdditionChange = (val) => {
+    updateDataAndSyncJson(prev => ({
+      ...prev,
+      analysis: {
+        ...(prev.analysis || {}),
+        valueAddition: val
+      }
     }));
-  }, [parsedData]);
+  };
 
-  // Extract analysis parts
-  const analysis = parsedData?.analysis || {};
-  const keywords = Array.isArray(analysis.keywords) ? analysis.keywords : [];
-  const optionBreakdown = Array.isArray(analysis.optionBreakdown) ? analysis.optionBreakdown : [];
-  const valueAddition = analysis.valueAddition || '';
-  const inNews = analysis.inNews || null;
-  const similarPyq = analysis.similarPyq || null;
-  const visualSuggestion = analysis.visualSuggestion || null;
+  const handleNewsChange = (field, val) => {
+    updateDataAndSyncJson(prev => ({
+      ...prev,
+      analysis: {
+        ...(prev.analysis || {}),
+        inNews: {
+          ...((prev.analysis && prev.analysis.inNews) || {}),
+          [field]: val
+        }
+      }
+    }));
+  };
 
-  const correctOpt = displayOptions.find(o => o.label === (parsedData?.correctLabel || '').toLowerCase());
-  const correctText = correctOpt ? correctOpt.text : (parsedData?.correctLabel ? `Option (${parsedData.correctLabel.toUpperCase()})` : '–');
+  const handleSimilarPyqChange = (field, val) => {
+    updateDataAndSyncJson(prev => ({
+      ...prev,
+      analysis: {
+        ...(prev.analysis || {}),
+        similarPyq: {
+          ...((prev.analysis && prev.analysis.similarPyq) || {}),
+          [field]: val
+        }
+      }
+    }));
+  };
+
+  const handleOptionExplanationChange = (idx, val) => {
+    updateDataAndSyncJson(prev => {
+      const breakdown = [...((prev.analysis && prev.analysis.optionBreakdown) || [])];
+      if (breakdown[idx]) {
+        breakdown[idx] = { ...breakdown[idx], explanation: val };
+      }
+      return {
+        ...prev,
+        analysis: {
+          ...(prev.analysis || {}),
+          optionBreakdown: breakdown
+        }
+      };
+    });
+  };
+
+  const handleOptionVerdictChange = (idx, val) => {
+    updateDataAndSyncJson(prev => {
+      const breakdown = [...((prev.analysis && prev.analysis.optionBreakdown) || [])];
+      if (breakdown[idx]) {
+        breakdown[idx] = { ...breakdown[idx], verdict: val };
+      }
+      return {
+        ...prev,
+        analysis: {
+          ...(prev.analysis || {}),
+          optionBreakdown: breakdown
+        }
+      };
+    });
+  };
+
+  const handleAddKeyword = () => {
+    const concept = window.prompt('Enter new keyword / tested concept:');
+    if (!concept || !concept.trim()) return;
+    const isDistractor = window.confirm('Is this a distractor concept? (Click OK for Distractor, Cancel for Core Concept)');
+    updateDataAndSyncJson(prev => ({
+      ...prev,
+      analysis: {
+        ...(prev.analysis || {}),
+        keywords: [
+          ...((prev.analysis && prev.analysis.keywords) || []),
+          { concept: concept.trim(), isDistractor }
+        ]
+      }
+    }));
+  };
+
+  const handleRemoveKeyword = (idx) => {
+    updateDataAndSyncJson(prev => {
+      const kw = [...((prev.analysis && prev.analysis.keywords) || [])];
+      kw.splice(idx, 1);
+      return {
+        ...prev,
+        analysis: {
+          ...(prev.analysis || {}),
+          keywords: kw
+        }
+      };
+    });
+  };
+
+  const optionsList = Array.isArray(data.options) ? data.options : [];
+  const analysisObj = data.analysis || {};
+  const keywordsList = Array.isArray(analysisObj.keywords) ? analysisObj.keywords : [];
+  const optionBreakdownList = Array.isArray(analysisObj.optionBreakdown) ? analysisObj.optionBreakdown : [];
+  const inNewsObj = analysisObj.inNews || {};
+  const similarPyqObj = analysisObj.similarPyq || {};
 
   return (
     <div style={{
@@ -244,14 +364,14 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
                 borderRadius: '9999px',
                 letterSpacing: '0.3px'
               }}>
-                {parsedData?.examName || initialQuestion.examName} {parsedData?.examYear || initialQuestion.examYear}
+                {data.examName || initialQuestion.examName} {data.examYear || initialQuestion.examYear}
               </span>
               <span style={{ fontSize: '0.88rem', fontWeight: 700, color: '#f8fafc' }}>
-                Q#{parsedData?.questionNo ?? initialQuestion.questionNo ?? '–'}
+                Q#{data.questionNo ?? initialQuestion.questionNo ?? '–'}
               </span>
               <span style={{ color: '#64748b', fontSize: '0.8rem' }}>•</span>
               <span style={{ color: '#94a3b8', fontSize: '0.82rem' }}>
-                {parsedData?.srcSubject || initialQuestion.srcSubject} {parsedData?.srcTopic ? `› ${parsedData.srcTopic}` : ''}
+                {data.srcSubject || initialQuestion.srcSubject} {data.srcTopic ? `› ${data.srcTopic}` : ''}
               </span>
             </div>
           </div>
@@ -267,7 +387,7 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
               fontSize: '0.85rem',
               fontWeight: 700
             }}>
-              <CheckCircle2 size={16} /> Saved Successfully
+              <CheckCircle2 size={16} /> Changes Saved!
             </span>
           )}
 
@@ -325,7 +445,7 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
         overflow: 'hidden'
       }}>
         {/* ========================================================================= */}
-        {/* LEFT PANEL: Ingest & JSONL / Raw JSON Input                               */}
+        {/* LEFT COLUMN: JSON / JSONL Ingestion & Raw Editor                          */}
         {/* ========================================================================= */}
         <section style={{
           display: 'flex',
@@ -334,7 +454,7 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
           background: '#090e17',
           minHeight: 0
         }}>
-          {/* Left Panel Toolbar */}
+          {/* Left Toolbar */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -347,16 +467,6 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Code2 size={16} color="#60a5fa" />
               <strong style={{ fontSize: '0.85rem', color: '#f1f5f9' }}>JSON / JSONL Ingestion Panel</strong>
-              <span style={{
-                background: 'rgba(59, 130, 246, 0.15)',
-                color: '#93c5fd',
-                fontSize: '0.72rem',
-                fontWeight: 700,
-                padding: '1px 6px',
-                borderRadius: '4px'
-              }}>
-                Gemini / Claude
-              </span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -402,7 +512,6 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
             </div>
           </div>
 
-          {/* Syntax Error Notice */}
           {parseError && (
             <div style={{
               display: 'flex',
@@ -417,18 +526,16 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
               flexShrink: 0
             }}>
               <AlertCircle size={15} color="#ef4444" style={{ marginTop: '2px', flexShrink: 0 }} />
-              <div>
-                <strong>JSON Parse Error:</strong> {parseError}
-              </div>
+              <div><strong>Parse Error:</strong> {parseError}</div>
             </div>
           )}
 
-          {/* Textarea for JSON / JSONL Editing */}
-          <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
+          {/* JSON Textarea */}
+          <div style={{ flex: 1, minHeight: 0 }}>
             <textarea
               value={rawJsonText}
-              onChange={(e) => setRawJsonText(e.target.value)}
-              placeholder="Paste question JSON / JSONL output from Gemini or Claude here..."
+              onChange={(e) => handleJsonChange(e.target.value)}
+              placeholder="Paste raw JSON/JSONL here or edit fields directly on the right..."
               style={{
                 width: '100%',
                 height: '100%',
@@ -447,7 +554,6 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
             />
           </div>
 
-          {/* Ingest Helper Tips */}
           <div style={{
             padding: '10px 16px',
             background: 'rgba(0, 0, 0, 0.25)',
@@ -459,15 +565,15 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
             alignItems: 'center',
             flexShrink: 0
           }}>
-            <span>💡 Ingesting JSON on left immediately populates the frontend practice card &amp; answer components on right.</span>
+            <span>💡 <strong>Two-way sync:</strong> Editing on either side updates both panels simultaneously!</span>
             <span style={{ color: parseError ? '#ef4444' : '#10b981', fontWeight: 700 }}>
-              {parseError ? '● Invalid JSON' : '● Live Syncing'}
+              {parseError ? '● Syntax Error' : '● Live 2-Way Syncing'}
             </span>
           </div>
         </section>
 
         {/* ========================================================================= */}
-        {/* RIGHT PANEL: Live Frontend Student UI Preview                             */}
+        {/* RIGHT COLUMN: Interactive Visual Frontend UI Editor                       */}
         {/* ========================================================================= */}
         <section style={{
           display: 'flex',
@@ -475,370 +581,519 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
           background: '#090e1a',
           minHeight: 0,
           overflowY: 'auto',
-          padding: '24px 28px'
+          padding: '24px 28px',
+          gap: '20px'
         }}>
           {/* Panel Header */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            marginBottom: '16px',
             flexShrink: 0
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Eye size={17} color="#38bdf8" />
-              <strong style={{ fontSize: '0.92rem', color: '#ffffff' }}>Frontend Practice &amp; Solution View</strong>
+              <Edit3 size={17} color="#38bdf8" />
+              <strong style={{ fontSize: '0.92rem', color: '#ffffff' }}>Direct Visual Field Editor (Frontend UI)</strong>
             </div>
-            <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
-              Exact look &amp; feel rendered to students on the platform
+            <span style={{ fontSize: '0.78rem', color: '#38bdf8', background: 'rgba(56, 189, 248, 0.1)', padding: '2px 8px', borderRadius: '4px' }}>
+              ✏️ Click any card to edit directly
             </span>
           </div>
 
-          {/* Frontend Question Card (Matching prelims portal pq-card & pqp-question-card) */}
-          <div className="pq-root" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {/* Card 1: Question Stem & Options */}
+          <div style={{
+            background: '#0d1424',
+            border: '1px solid #1c263c',
+            borderRadius: '16px',
+            padding: '24px 26px',
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.25)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <label style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b' }}>
+                Question Stem (Text &amp; Statements)
+              </label>
+              <span style={{ fontSize: '11px', color: '#94a3b8' }}>Markdown &amp; Tables Supported</span>
+            </div>
+
+            <textarea
+              value={data.stem || ''}
+              onChange={(e) => handleStemChange(e.target.value)}
+              placeholder="Enter question stem and statements..."
+              rows={5}
+              style={{
+                width: '100%',
+                background: '#070b14',
+                color: '#f8fafc',
+                border: '1px solid #1c263c',
+                borderRadius: '8px',
+                padding: '12px 14px',
+                fontSize: '0.94rem',
+                lineHeight: 1.55,
+                outline: 'none',
+                resize: 'vertical',
+                boxSizing: 'border-box',
+                fontFamily: 'inherit',
+                marginBottom: '16px'
+              }}
+            />
+
+            {/* Options List with One-Click Radio for Correct Key */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <label style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#64748b' }}>
+                Options &amp; Correct Key Selection (Click circle to set correct answer)
+              </label>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {optionsList.map((opt, idx) => {
+                const isSelected = opt.label.toLowerCase() === (data.correctLabel || '').toLowerCase();
+                return (
+                  <div
+                    key={opt.label || idx}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      background: isSelected ? 'rgba(16, 185, 129, 0.08)' : '#090e1a',
+                      border: isSelected ? '1.5px solid #10b981' : '1px solid #1c263c',
+                      borderRadius: '10px',
+                      padding: '8px 12px',
+                      transition: 'border-color 0.15s'
+                    }}
+                  >
+                    {/* Clickable Circle to Set as Correct Answer */}
+                    <button
+                      type="button"
+                      onClick={() => handleSelectCorrect(opt.label)}
+                      title={`Click to mark (${opt.label.toUpperCase()}) as the correct answer`}
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        borderRadius: '50%',
+                        border: 'none',
+                        background: isSelected ? '#10b981' : '#192339',
+                        color: isSelected ? '#ffffff' : '#94a3b8',
+                        fontWeight: 800,
+                        fontSize: '12px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                        transition: 'all 0.15s'
+                      }}
+                    >
+                      {opt.label.toUpperCase()}
+                    </button>
+
+                    <input
+                      type="text"
+                      value={opt.text || ''}
+                      onChange={(e) => handleOptionTextChange(idx, e.target.value)}
+                      placeholder={`Option (${opt.label.toUpperCase()}) text...`}
+                      style={{
+                        flex: 1,
+                        background: 'transparent',
+                        border: 'none',
+                        color: isSelected ? '#ffffff' : '#cbd5e1',
+                        fontSize: '14px',
+                        outline: 'none',
+                        fontWeight: isSelected ? 600 : 400
+                      }}
+                    />
+
+                    {isSelected && (
+                      <span style={{
+                        fontSize: '11px',
+                        fontWeight: 800,
+                        color: '#10b981',
+                        background: 'rgba(16, 185, 129, 0.2)',
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        flexShrink: 0
+                      }}>
+                        ✓ Correct Answer
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Card 2: Keywords & Tested Concepts Container */}
+          <div style={{
+            background: '#0d1424',
+            border: '1px solid #1c263c',
+            borderRadius: '16px',
+            padding: '20px 24px'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <CheckSquare size={16} color="#38bdf8" />
+                <strong style={{ fontSize: '14px', color: '#f8fafc' }}>Keywords &amp; Tested Concepts</strong>
+              </div>
+              <button
+                type="button"
+                onClick={handleAddKeyword}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '4px 8px',
+                  borderRadius: '6px',
+                  background: 'rgba(56, 189, 248, 0.12)',
+                  color: '#38bdf8',
+                  border: '1px solid rgba(56, 189, 248, 0.3)',
+                  fontSize: '11.5px',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              >
+                <Plus size={13} />
+                <span>Add Keyword</span>
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+              {keywordsList.map((kw, i) => {
+                const isDist = typeof kw === 'object' && kw !== null && Boolean(kw.isDistractor);
+                const name = typeof kw === 'object' && kw !== null ? kw.concept : String(kw);
+                return (
+                  <div
+                    key={i}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '4px 10px',
+                      borderRadius: '6px',
+                      background: isDist ? 'rgba(239, 68, 68, 0.12)' : 'rgba(59, 130, 246, 0.12)',
+                      border: isDist ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(59, 130, 246, 0.3)',
+                      color: isDist ? '#f87171' : '#93c5fd',
+                      fontSize: '12.5px',
+                      fontWeight: 600
+                    }}
+                  >
+                    <span>{isDist ? <s>{name}</s> : name}</span>
+                    {isDist && <span style={{ fontSize: '10px', opacity: 0.8 }}>(Distractor)</span>}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveKeyword(i)}
+                      style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: 'inherit',
+                        cursor: 'pointer',
+                        padding: 0,
+                        marginLeft: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        opacity: 0.6
+                      }}
+                      title="Remove concept"
+                    >
+                      <Trash2 size={12} />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Card 3: Option-by-Option Breakdown */}
+          <div style={{
+            background: '#0d1424',
+            border: '1px solid #1c263c',
+            borderRadius: '16px',
+            padding: '20px 24px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+              <BookOpen size={16} color="#f43f5e" />
+              <strong style={{ fontSize: '14.5px', color: '#f8fafc' }}>
+                Option-by-Option Explanation Breakdown
+              </strong>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {optionBreakdownList.map((opt, i) => {
+                const isCorr = (opt.verdict || '').toLowerCase().includes('correct') && !(opt.verdict || '').toLowerCase().includes('incorrect');
+                return (
+                  <div
+                    key={i}
+                    style={{
+                      background: '#090e1a',
+                      border: '1px solid #1c263c',
+                      borderRadius: '10px',
+                      padding: '12px 14px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{
+                        background: isCorr ? '#10b981' : '#ef4444',
+                        color: '#ffffff',
+                        fontWeight: 800,
+                        fontSize: '11px',
+                        padding: '1px 8px',
+                        borderRadius: '4px'
+                      }}>
+                        Option ({opt.label})
+                      </span>
+                      <input
+                        type="text"
+                        value={opt.verdict || ''}
+                        onChange={(e) => handleOptionVerdictChange(i, e.target.value)}
+                        placeholder="Verdict (e.g. Correct / Incorrect)..."
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          color: isCorr ? '#34d399' : '#f87171',
+                          fontWeight: 800,
+                          fontSize: '12px',
+                          outline: 'none',
+                          width: '160px'
+                        }}
+                      />
+                    </div>
+                    <textarea
+                      value={opt.explanation || ''}
+                      onChange={(e) => handleOptionExplanationChange(i, e.target.value)}
+                      rows={2}
+                      placeholder={`Explanation for option (${opt.label})...`}
+                      style={{
+                        width: '100%',
+                        background: '#070b14',
+                        color: '#cbd5e1',
+                        border: '1px solid #1c263c',
+                        borderRadius: '6px',
+                        padding: '8px 10px',
+                        fontSize: '13px',
+                        lineHeight: 1.5,
+                        outline: 'none',
+                        resize: 'vertical',
+                        boxSizing: 'border-box',
+                        fontFamily: 'inherit'
+                      }}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Card 4: Value Addition Container */}
+          <div style={{
+            background: '#0d1424',
+            border: '1px solid #1c263c',
+            borderRadius: '16px',
+            padding: '20px 24px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+              <Layers size={16} color="#eab308" />
+              <strong style={{ fontSize: '14.5px', color: '#f8fafc' }}>
+                Value Addition (Institutional Framework &amp; Macro Coverage)
+              </strong>
+            </div>
+
+            <textarea
+              value={typeof data.analysis?.valueAddition === 'string' ? data.analysis.valueAddition : (typeof data.explanation === 'string' ? data.explanation : '')}
+              onChange={(e) => handleValueAdditionChange(e.target.value)}
+              rows={4}
+              placeholder="Enter comprehensive value addition, statistical figures, pillars, and governance linkages..."
+              style={{
+                width: '100%',
+                background: '#070b14',
+                color: '#fef08a',
+                border: '1px solid #1c263c',
+                borderRadius: '8px',
+                padding: '12px 14px',
+                fontSize: '13px',
+                lineHeight: 1.6,
+                outline: 'none',
+                resize: 'vertical',
+                boxSizing: 'border-box',
+                fontFamily: 'inherit'
+              }}
+            />
+          </div>
+
+          {/* Card 5 & 6: In News & Similar PYQ Dual Row */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '16px'
+          }}>
+            {/* In News Box */}
             <div style={{
               background: '#0d1424',
               border: '1px solid #1c263c',
               borderRadius: '16px',
-              padding: '26px 28px',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.25)'
+              padding: '18px 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px'
             }}>
-              {/* Badges Bar */}
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                flexWrap: 'wrap',
-                marginBottom: '16px'
-              }}>
-                <span style={{
-                  background: '#dc2626',
-                  color: '#ffffff',
-                  fontSize: '11px',
-                  fontWeight: 800,
-                  padding: '3px 10px',
-                  borderRadius: '6px'
-                }}>
-                  {parsedData?.examName || 'UPSC CSE'} {parsedData?.examYear || ''}
-                </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Newspaper size={15} color="#38bdf8" />
+                <strong style={{ fontSize: '13.5px', color: '#38bdf8' }}>In News Clipping</strong>
+              </div>
 
-                <span style={{
-                  background: '#192339',
-                  border: '1px solid #23304b',
-                  color: '#94a3b8',
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  padding: '3px 10px',
-                  borderRadius: '6px'
-                }}>
-                  {parsedData?.srcSubject || 'General Studies'}
-                </span>
-
-                {parsedData?.srcTopic && (
-                  <span style={{
-                    background: '#192339',
-                    border: '1px solid #23304b',
-                    color: '#94a3b8',
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    padding: '3px 10px',
-                    borderRadius: '6px'
-                  }}>
-                    {parsedData.srcTopic}
-                  </span>
-                )}
-
-                <span style={{
-                  background: 'rgba(56, 189, 248, 0.1)',
-                  border: '1px solid rgba(56, 189, 248, 0.3)',
-                  color: '#38bdf8',
-                  fontSize: '11px',
-                  fontWeight: 700,
-                  padding: '3px 10px',
+              <input
+                type="text"
+                value={inNewsObj.headline || ''}
+                onChange={(e) => handleNewsChange('headline', e.target.value)}
+                placeholder="News headline..."
+                style={{
+                  background: '#070b14',
+                  color: '#f8fafc',
+                  border: '1px solid #1c263c',
                   borderRadius: '6px',
-                  marginLeft: 'auto'
-                }}>
-                  Q#{parsedData?.questionNo ?? '–'}
-                </span>
+                  padding: '7px 10px',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  outline: 'none'
+                }}
+              />
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                <input
+                  type="text"
+                  value={inNewsObj.source || ''}
+                  onChange={(e) => handleNewsChange('source', e.target.value)}
+                  placeholder="Source (e.g. The Hindu)..."
+                  style={{
+                    background: '#070b14',
+                    color: '#94a3b8',
+                    border: '1px solid #1c263c',
+                    borderRadius: '6px',
+                    padding: '6px 10px',
+                    fontSize: '11.5px',
+                    outline: 'none'
+                  }}
+                />
+                <input
+                  type="text"
+                  value={inNewsObj.date || ''}
+                  onChange={(e) => handleNewsChange('date', e.target.value)}
+                  placeholder="Date (e.g. May 2026)..."
+                  style={{
+                    background: '#070b14',
+                    color: '#94a3b8',
+                    border: '1px solid #1c263c',
+                    borderRadius: '6px',
+                    padding: '6px 10px',
+                    fontSize: '11.5px',
+                    outline: 'none'
+                  }}
+                />
               </div>
 
-              {/* Question Stem Text with standard StemView styling */}
-              <div style={{ marginBottom: '22px' }}>
-                <StemView stem={parsedData?.stem || 'Question stem will appear here once ingested on the left...'} size="lg" />
-              </div>
-
-              {/* Interactive Frontend Options Grid */}
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
-                gap: '10px',
-                marginBottom: '20px'
-              }}>
-                {displayOptions.map((o) => {
-                  const isCorrect = o.label === (parsedData?.correctLabel || '').toLowerCase();
-                  return (
-                    <div
-                      key={o.label}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        padding: '12px 16px',
-                        borderRadius: '10px',
-                        background: isCorrect ? 'rgba(16, 185, 129, 0.12)' : '#090e1a',
-                        border: isCorrect ? '1.5px solid #10b981' : '1px solid #1c263c',
-                        transition: 'all 0.15s'
-                      }}
-                    >
-                      <span style={{
-                        width: '26px',
-                        height: '26px',
-                        borderRadius: '50%',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '11px',
-                        fontWeight: 800,
-                        flexShrink: 0,
-                        background: isCorrect ? '#10b981' : '#192339',
-                        color: isCorrect ? '#ffffff' : '#cbd5e1'
-                      }}>
-                        {o.label.toUpperCase()}
-                      </span>
-                      <span style={{
-                        fontSize: '14px',
-                        lineHeight: 1.45,
-                        color: isCorrect ? '#ffffff' : '#cbd5e1',
-                        flex: 1,
-                        fontWeight: isCorrect ? 600 : 400
-                      }}>
-                        {o.text}
-                      </span>
-                      {isCorrect && (
-                        <span style={{
-                          fontSize: '11px',
-                          fontWeight: 800,
-                          color: '#10b981',
-                          whiteSpace: 'nowrap',
-                          background: 'rgba(16, 185, 129, 0.2)',
-                          padding: '2px 6px',
-                          borderRadius: '4px'
-                        }}>
-                          Correct Key
-                        </span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              {/* Frontend Answer & Keywords Container (Matching platform component) */}
-              <div style={{
-                background: 'rgba(16, 185, 129, 0.08)',
-                border: '1px solid rgba(16, 185, 129, 0.25)',
-                borderRadius: '12px',
-                padding: '16px 20px',
-                marginTop: '16px'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                  <CheckCircle2 size={18} color="#10b981" />
-                  <strong style={{ fontSize: '15px', color: '#10b981' }}>
-                    Verified Answer: ({((parsedData?.correctLabel || '–')).toUpperCase()}) {correctText}
-                  </strong>
-                </div>
-
-                {keywords.length > 0 && (
-                  <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px dashed rgba(16, 185, 129, 0.2)' }}>
-                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '6px' }}>
-                      Keywords &amp; Tested Concepts:
-                    </div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                      {keywords.map((kw, i) => {
-                        const isDist = typeof kw === 'object' && kw !== null && Boolean(kw.isDistractor);
-                        const name = typeof kw === 'object' && kw !== null ? kw.concept : String(kw);
-                        return (
-                          <span
-                            key={i}
-                            style={{
-                              fontSize: '12px',
-                              padding: '3px 8px',
-                              borderRadius: '6px',
-                              background: isDist ? 'rgba(239, 68, 68, 0.15)' : 'rgba(59, 130, 246, 0.15)',
-                              color: isDist ? '#f87171' : '#93c5fd',
-                              border: isDist ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(59, 130, 246, 0.3)',
-                              fontWeight: 600
-                            }}
-                          >
-                            {isDist ? <s>{name}</s> : name}
-                            {isDist && <span style={{ fontSize: '9px', marginLeft: '4px', opacity: 0.8 }}>(Distractor)</span>}
-                          </span>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
+              <textarea
+                value={inNewsObj.relevance || ''}
+                onChange={(e) => handleNewsChange('relevance', e.target.value)}
+                rows={2}
+                placeholder="Relevance / why this is in news..."
+                style={{
+                  background: '#070b14',
+                  color: '#cbd5e1',
+                  border: '1px solid #1c263c',
+                  borderRadius: '6px',
+                  padding: '7px 10px',
+                  fontSize: '12.5px',
+                  lineHeight: 1.45,
+                  outline: 'none',
+                  resize: 'none',
+                  fontFamily: 'inherit'
+                }}
+              />
             </div>
 
-            {/* Option-by-Option Explanation Cards */}
-            {optionBreakdown.length > 0 && (
-              <div style={{
-                background: '#0d1424',
-                border: '1px solid #1c263c',
-                borderRadius: '16px',
-                padding: '24px 28px'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-                  <BookOpen size={18} color="#f43f5e" />
-                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#f8fafc' }}>
-                    Option-by-Option Analysis &amp; Trap Breakdown
-                  </h3>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  {optionBreakdown.map((opt, i) => {
-                    const isCorr = (opt.verdict || '').toLowerCase().includes('correct') && !(opt.verdict || '').toLowerCase().includes('incorrect');
-                    return (
-                      <div
-                        key={i}
-                        style={{
-                          background: '#090e1a',
-                          border: isCorr ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(239, 68, 68, 0.25)',
-                          borderRadius: '10px',
-                          padding: '14px 18px'
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-                          <span style={{
-                            background: isCorr ? '#10b981' : '#ef4444',
-                            color: '#ffffff',
-                            fontWeight: 800,
-                            fontSize: '11px',
-                            padding: '1px 7px',
-                            borderRadius: '4px'
-                          }}>
-                            Statement / Option ({opt.label})
-                          </span>
-                          <strong style={{ fontSize: '13px', color: isCorr ? '#34d399' : '#f87171' }}>
-                            {opt.verdict || (isCorr ? 'Correct' : 'Incorrect')}
-                          </strong>
-                        </div>
-                        <p style={{ margin: 0, fontSize: '13.5px', lineHeight: 1.6, color: '#cbd5e1' }}>
-                          {opt.explanation}
-                        </p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Value Addition Container */}
-            {valueAddition && (
-              <div style={{
-                background: '#0d1424',
-                border: '1px solid #1c263c',
-                borderRadius: '16px',
-                padding: '24px 28px'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-                  <Layers size={18} color="#eab308" />
-                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#f8fafc' }}>
-                    High-Yield Value Addition &amp; Institutional Governance
-                  </h3>
-                </div>
-
-                <div style={{
-                  background: 'rgba(234, 179, 8, 0.08)',
-                  border: '1px solid rgba(234, 179, 8, 0.25)',
-                  borderRadius: '10px',
-                  padding: '16px 20px',
-                  color: '#fef08a',
-                  fontSize: '13.5px',
-                  lineHeight: 1.65,
-                  whiteSpace: 'pre-wrap'
-                }}>
-                  {typeof valueAddition === 'string' ? valueAddition : JSON.stringify(valueAddition, null, 2)}
-                </div>
-              </div>
-            )}
-
-            {/* In News & Similar PYQ Dual Row */}
+            {/* Similar PYQ Box */}
             <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '16px'
+              background: '#0d1424',
+              border: '1px solid #1c263c',
+              borderRadius: '16px',
+              padding: '18px 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px'
             }}>
-              {/* In News Card */}
-              {inNews && typeof inNews === 'object' && (
-                <div style={{
-                  background: '#0d1424',
-                  border: '1px solid #1c263c',
-                  borderRadius: '16px',
-                  padding: '20px 22px'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                    <Newspaper size={17} color="#38bdf8" />
-                    <h4 style={{ margin: 0, fontSize: '14.5px', fontWeight: 800, color: '#38bdf8' }}>
-                      In News Clipping
-                    </h4>
-                  </div>
-                  <div style={{
-                    fontSize: '14.5px',
-                    fontWeight: 700,
-                    color: '#f8fafc',
-                    lineHeight: 1.35,
-                    marginBottom: '4px'
-                  }}>
-                    {inNews.headline}
-                  </div>
-                  {(inNews.source || inNews.date) && (
-                    <div style={{ fontSize: '11.5px', color: '#0284c7', fontWeight: 700, marginBottom: '6px' }}>
-                      {inNews.source} {inNews.date ? `• ${inNews.date}` : ''}
-                    </div>
-                  )}
-                  {inNews.relevance && (
-                    <p style={{ margin: 0, fontSize: '13px', lineHeight: 1.5, color: '#94a3b8' }}>
-                      {inNews.relevance}
-                    </p>
-                  )}
-                </div>
-              )}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Compass size={15} color="#a78bfa" />
+                <strong style={{ fontSize: '13.5px', color: '#a78bfa' }}>Similar PYQ Linkage</strong>
+              </div>
 
-              {/* Similar PYQ Card */}
-              {similarPyq && typeof similarPyq === 'object' && (
-                <div style={{
-                  background: '#0d1424',
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '8px' }}>
+                <input
+                  type="text"
+                  value={similarPyqObj.examName || ''}
+                  onChange={(e) => handleSimilarPyqChange('examName', e.target.value)}
+                  placeholder="Exam (e.g. UPSC CSE Pre)..."
+                  style={{
+                    background: '#070b14',
+                    color: '#f8fafc',
+                    border: '1px solid #1c263c',
+                    borderRadius: '6px',
+                    padding: '6px 10px',
+                    fontSize: '12px',
+                    outline: 'none'
+                  }}
+                />
+                <input
+                  type="number"
+                  value={similarPyqObj.examYear || ''}
+                  onChange={(e) => handleSimilarPyqChange('examYear', parseInt(e.target.value, 10) || '')}
+                  placeholder="Year (e.g. 2018)..."
+                  style={{
+                    background: '#070b14',
+                    color: '#f8fafc',
+                    border: '1px solid #1c263c',
+                    borderRadius: '6px',
+                    padding: '6px 10px',
+                    fontSize: '12px',
+                    outline: 'none'
+                  }}
+                />
+              </div>
+
+              <textarea
+                value={similarPyqObj.stem || ''}
+                onChange={(e) => handleSimilarPyqChange('stem', e.target.value)}
+                rows={2}
+                placeholder="Similar PYQ Question Stem..."
+                style={{
+                  background: '#070b14',
+                  color: '#cbd5e1',
                   border: '1px solid #1c263c',
-                  borderRadius: '16px',
-                  padding: '20px 22px'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                    <Compass size={17} color="#a78bfa" />
-                    <h4 style={{ margin: 0, fontSize: '14.5px', fontWeight: 800, color: '#a78bfa' }}>
-                      Similar PYQ Family
-                    </h4>
-                  </div>
-                  <div style={{ fontSize: '12px', fontWeight: 700, color: '#94a3b8', marginBottom: '4px' }}>
-                    {similarPyq.examName || 'UPSC CSE'} {similarPyq.examYear || ''}
-                  </div>
-                  <p style={{ margin: '0 0 10px 0', fontSize: '13.5px', lineHeight: 1.55, color: '#e2e8f0' }}>
-                    {similarPyq.stem}
-                  </p>
-                  {similarPyq.keyTakeaway && (
-                    <div style={{
-                      background: 'rgba(167, 139, 250, 0.12)',
-                      border: '1px solid rgba(167, 139, 250, 0.25)',
-                      borderRadius: '8px',
-                      padding: '8px 12px',
-                      fontSize: '12px',
-                      color: '#ddd6fe'
-                    }}>
-                      <strong>Examiner Takeaway:</strong> {similarPyq.keyTakeaway}
-                    </div>
-                  )}
-                </div>
-              )}
+                  borderRadius: '6px',
+                  padding: '7px 10px',
+                  fontSize: '12.5px',
+                  lineHeight: 1.45,
+                  outline: 'none',
+                  resize: 'none',
+                  fontFamily: 'inherit'
+                }}
+              />
+
+              <input
+                type="text"
+                value={similarPyqObj.keyTakeaway || ''}
+                onChange={(e) => handleSimilarPyqChange('keyTakeaway', e.target.value)}
+                placeholder="Core Takeaway banner text..."
+                style={{
+                  background: 'rgba(167, 139, 250, 0.1)',
+                  color: '#ddd6fe',
+                  border: '1px solid rgba(167, 139, 250, 0.25)',
+                  borderRadius: '6px',
+                  padding: '6px 10px',
+                  fontSize: '12px',
+                  outline: 'none',
+                  fontWeight: 600
+                }}
+              />
             </div>
           </div>
         </section>
