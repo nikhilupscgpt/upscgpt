@@ -168,34 +168,143 @@ export async function GET(req) {
 function renderValueAdditionHtml(va, q) {
   if (!va) {
     return `
-      <div class="va-twocol-text">
-        <p><strong>Topic Core:</strong> ${escapeHtml(q.srcTopic || q.srcSubject || 'General Studies')}. Ensure systematic review of foundational NCERT frameworks, nodal ministries, and core conceptual distinctions.</p>
-        <p><strong>Examiner Trend:</strong> UPSC repeatedly tests adjacent operational guidelines, institutional governance, and statutory parameters from this syllabus branch in subsequent exam cycles.</p>
+      <div class="va-twocol-grid">
+        <div class="va-col">
+          <div class="va-lead-bold">Topic Core: ${escapeHtml(q.srcTopic || q.srcSubject || 'General Studies')}</div>
+          <p class="va-para">Systematic review of foundational NCERT frameworks, nodal ministries, and core conceptual distinctions required for high-order prelims elimination.</p>
+        </div>
+        <div class="va-col">
+          <div class="va-lead-bold">Examiner Trend &amp; Linkages:</div>
+          <p class="va-para">UPSC repeatedly tests adjacent operational guidelines, institutional governance, and statutory parameters from this syllabus branch in subsequent exam cycles.</p>
+        </div>
       </div>
     `;
   }
+
+  // Helper to parse unstructured text into structured columns with bold headers and bullets
+  const formatTextIntoColumns = (raw) => {
+    const text = raw.trim();
+
+    // Check if it has two logical paragraphs or double-newlines
+    const parts = text.split(/\n\s*\n+/);
+    if (parts.length >= 2) {
+      return `
+        <div class="va-twocol-grid">
+          <div class="va-col">${formatVaBlock(parts[0])}</div>
+          <div class="va-col">${formatVaBlock(parts.slice(1).join('\n\n'))}</div>
+        </div>
+      `;
+    }
+
+    // Check if the text describes a core framework with numbered points: (1)... (2)... (3)... (4)...
+    const matchIntroAndPillars = text.match(/^(.*?)(?:\s*(?:\(1\)|1\.)\s*)(.*)$/s);
+    if (matchIntroAndPillars && matchIntroAndPillars[2]) {
+      const intro = matchIntroAndPillars[1].trim();
+      const afterPillars = matchIntroAndPillars[2].trim();
+
+      // Separate pillars from any trailing general factual context
+      // e.g., "and (4) Climate Change... (CCSAMMN). Rainfed agriculture covers..."
+      const splitByPoints = afterPillars.split(/\s*(?:\([2-9]\)|[2-9]\.)\s*/);
+      const points = [splitByPoints[0]];
+      let trailingContext = '';
+
+      for (let i = 1; i < splitByPoints.length; i++) {
+        const seg = splitByPoints[i];
+        if (i === splitByPoints.length - 1) {
+          // Check if there are trailing sentences after the last point
+          // Usually ends with a period before a new sentence starts e.g., "(CCSAMMN). Rainfed agriculture..."
+          const matchTrailing = seg.match(/^(.*?\))\.\s+([A-Z].*)$/s) || seg.match(/^(.*?\b[A-Za-z0-9_-]+)\.\s+([A-Z].*)$/s);
+          if (matchTrailing) {
+            points.push(matchTrailing[1].trim());
+            trailingContext = matchTrailing[2].trim();
+          } else {
+            points.push(seg.trim());
+          }
+        } else {
+          points.push(seg.trim());
+        }
+      }
+
+      // Left Column: Intro + All functional pillars neatly bulleted
+      // Right Column: Key Operational Parameters & Macro Statistics
+      return `
+        <div class="va-twocol-grid">
+          <div class="va-col">
+            ${intro ? `<div class="va-lead-bold">${escapeHtml(intro)}</div>` : ''}
+            <ul class="va-bullet-list">
+              ${points.map(pt => `<li>${formatBulletText(pt.replace(/,\s*and\s*$/, '').replace(/,\s*$/, ''))}</li>`).join('')}
+            </ul>
+          </div>
+          <div class="va-col">
+            ${trailingContext ? `
+              <div class="va-lead-bold">Key Operational Dynamics &amp; Macro Coverage:</div>
+              <p class="va-para">${formatBulletText(trailingContext)}</p>
+            ` : `
+              <div class="va-lead-bold">Implementation Framework:</div>
+              <p class="va-para">Cluster-based convergence with micro-watershed development, financial risk insurance, and soil-health management protocols.</p>
+            `}
+          </div>
+        </div>
+      `;
+    }
+
+    // Split sentences into two columns
+    const sentences = text.match(/[^.!?]+[.!?]+(\s|$)/g) || [text];
+    if (sentences.length >= 2) {
+      const half = Math.ceil(sentences.length / 2);
+      const col1 = sentences.slice(0, half).join(' ').trim();
+      const col2 = sentences.slice(half).join(' ').trim();
+      return `
+        <div class="va-twocol-grid">
+          <div class="va-col">${formatVaBlock(col1)}</div>
+          <div class="va-col">${formatVaBlock(col2)}</div>
+        </div>
+      `;
+    }
+
+    return `<div class="va-col">${formatVaBlock(text)}</div>`;
+  };
+
+  const formatBulletText = (str) => {
+    // Bold leading words before colon or hyphen
+    return escapeHtml(str).replace(/^([^:—–-]{3,40}[:—–-])/, '<strong>$1</strong>');
+  };
+
+  const formatVaBlock = (str) => {
+    const lines = str.split(/\n+/).map(l => l.trim()).filter(Boolean);
+    return lines.map(line => {
+      if (/^[-•*]\s*/.test(line)) {
+        return `<div class="va-bullet-item"><span class="va-dot">•</span> <span>${formatBulletText(line.replace(/^[-•*]\s*/, ''))}</span></div>`;
+      }
+      return `<p class="va-para">${formatBulletText(line)}</p>`;
+    }).join('');
+  };
+
   if (typeof va === 'string') {
-    const formatted = escapeHtml(va)
-      .replace(/(\b(?:Key Features|Core Objectives|Key Objectives|Global Participation|India's Involvement|India's Wetlands|4 core functional pillars|4 core pillars|NMSA Pillars|Operational Philosophy):)/gi, '<strong style="display:block; margin-top:3px; font-weight:800; color:#451a03;">$1</strong>');
-    return `<div class="va-twocol-text">${formatted}</div>`;
+    return formatTextIntoColumns(va);
   }
+
   if (Array.isArray(va)) {
     return `
       <div class="va-twocol-grid">
         ${va.map(item => {
           if (typeof item === 'string') {
-            return `<div class="va-point">• ${escapeHtml(item)}</div>`;
+            return `
+              <div class="va-bullet-item">
+                <span class="va-dot">•</span> <span>${formatBulletText(item)}</span>
+              </div>
+            `;
           }
           return `
-            <div class="va-item">
-              ${item.title ? `<div class="va-title"><strong>${escapeHtml(item.title)}</strong> ${item.tag ? `<span class="va-tag">${escapeHtml(item.tag)}</span>` : ''}</div>` : ''}
-              ${item.description ? `<div class="va-desc">${escapeHtml(item.description)}</div>` : ''}
+            <div class="va-col">
+              ${item.title ? `<div class="va-lead-bold">${escapeHtml(item.title)} ${item.tag ? `<span class="va-tag">${escapeHtml(item.tag)}</span>` : ''}</div>` : ''}
+              ${item.description ? `<p class="va-para">${escapeHtml(item.description)}</p>` : ''}
               ${item.sections && Array.isArray(item.sections) ? item.sections.map(sec => `
                 <div class="va-sec">
                   ${sec.heading ? `<div class="va-subhead">${escapeHtml(sec.heading)}</div>` : ''}
                   ${sec.points && Array.isArray(sec.points) ? `
-                    <ul class="va-list">
-                      ${sec.points.map(pt => `<li>${escapeHtml(pt)}</li>`).join('')}
+                    <ul class="va-bullet-list">
+                      ${sec.points.map(pt => `<li>${formatBulletText(pt)}</li>`).join('')}
                     </ul>
                   ` : ''}
                 </div>
@@ -206,7 +315,29 @@ function renderValueAdditionHtml(va, q) {
       </div>
     `;
   }
-  return `<div class="va-twocol-text">${escapeHtml(JSON.stringify(va))}</div>`;
+
+  // Object with explicit left/right or columns or key-values
+  if (typeof va === 'object' && va !== null) {
+    if (va.columns && Array.isArray(va.columns)) {
+      return `
+        <div class="va-twocol-grid">
+          ${va.columns.map(col => `
+            <div class="va-col">
+              ${col.heading ? `<div class="va-lead-bold">${escapeHtml(col.heading)}</div>` : ''}
+              ${col.lead ? `<p class="va-para"><strong>${escapeHtml(col.lead)}</strong></p>` : ''}
+              ${Array.isArray(col.points) ? `
+                <ul class="va-bullet-list">
+                  ${col.points.map(pt => `<li>${formatBulletText(pt)}</li>`).join('')}
+                </ul>
+              ` : col.text ? `<p class="va-para">${escapeHtml(col.text)}</p>` : ''}
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+  }
+
+  return `<div class="va-col"><p class="va-para">${escapeHtml(JSON.stringify(va))}</p></div>`;
 }
 
 function buildSlideDocument({ questions }) {
@@ -465,31 +596,66 @@ function buildSlideDocument({ questions }) {
       margin-top: 6px;
     }
     .card-va-yellow {
-      background: #fde047;
+      background: #fef08a;
       border: none;
       border-radius: 4px;
-      padding: 8px 12px;
-      color: #713f12;
+      padding: 8px 14px;
+      color: #451a03;
       font-size: 8.2pt;
-      line-height: 1.36;
-    }
-    .va-twocol-text {
-      column-count: 2;
-      column-gap: 22px;
-      column-rule: 1px solid rgba(113, 63, 18, 0.2);
-      text-align: justify;
+      line-height: 1.38;
     }
     .va-twocol-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      gap: 20px;
     }
-    .va-point {
+    .va-col {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .va-lead-bold {
+      font-weight: 800;
+      color: #000000;
+      font-size: 8.5pt;
+      line-height: 1.3;
       margin-bottom: 2px;
     }
-    .va-title {
-      font-size: 8.6pt;
-      margin-bottom: 2px;
+    .va-para {
+      margin: 0 0 4px 0;
+      line-height: 1.34;
+      color: #292524;
+    }
+    .va-subhead {
+      font-weight: 700;
+      font-size: 8.2pt;
+      color: #1c1917;
+      margin-top: 2px;
+      margin-bottom: 1px;
+    }
+    .va-bullet-list {
+      margin: 1px 0 3px 0;
+      padding-left: 14px;
+      list-style-type: disc;
+    }
+    .va-bullet-list li {
+      margin-bottom: 2.5px;
+      line-height: 1.32;
+      color: #1c1917;
+    }
+    .va-bullet-item {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 2.5px;
+      line-height: 1.32;
+      color: #1c1917;
+    }
+    .va-dot {
+      color: #451a03;
+      font-weight: 800;
+      font-size: 9pt;
+      line-height: 1;
     }
     .va-tag {
       background: rgba(0,0,0,0.08);
@@ -497,20 +663,7 @@ function buildSlideDocument({ questions }) {
       padding: 1px 5px;
       border-radius: 3px;
       margin-left: 4px;
-    }
-    .va-desc {
-      margin-bottom: 3px;
-    }
-    .va-sec {
-      margin-top: 3px;
-    }
-    .va-subhead {
-      font-weight: 700;
-      font-size: 8pt;
-    }
-    .va-list {
-      margin: 2px 0 0 14px;
-      padding: 0;
+      font-weight: 600;
     }
 
     /* ========================================================================= */
