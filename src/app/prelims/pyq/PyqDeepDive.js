@@ -26,9 +26,9 @@ export default function PyqDeepDive({ analysis }) {
       <div className="pq-deepdive-head">
         <div className="pq-deepdive-title">
           <Sparkles size={18} className="pq-deepdive-sparkle" />
-          <span>Lecture-Grade Micro Deep-Dive</span>
+          <span>UPSCGPT Lecture-Grade Deep-Dive</span>
         </div>
-        <span className="pq-micro-badge">µ UPSC MICRO</span>
+        <span className="pq-micro-badge">UPSCGPT</span>
       </div>
 
       {/* 2. Keywords and Concepts */}

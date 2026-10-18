@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import { getStructuredExplanation } from '@/lib/pyqExplanationHelper';
 
 function normalizeOptions(opts) {
   if (Array.isArray(opts)) return opts;
@@ -32,6 +33,8 @@ export async function GET(req) {
     }
 
     const { searchParams } = new URL(req.url);
+    const mode = searchParams.get('mode') || 'booklet'; // 'slide' | 'booklet'
+    const ids = searchParams.get('ids');
     const exam = searchParams.get('exam') || 'ALL';       // 'UPSC CSE', 'CDS', or 'ALL'
     const stage = searchParams.get('stage') || 'PRELIMS'; // 'PRELIMS' | 'MAINS'
     const subject = searchParams.get('subject') || 'ALL';
@@ -48,41 +51,48 @@ export async function GET(req) {
     const where = {};
     const andConditions = [];
 
-    if (exam !== 'ALL') {
-      where.examName = { contains: exam === 'UPSC CSE' ? 'CSE' : exam, mode: 'insensitive' };
-    }
-    if (subject !== 'ALL') {
-      where.srcSubject = subject;
-    }
-    if (topic !== 'ALL') {
-      where.srcTopic = topic;
-    }
-    if (year !== 'ALL') {
-      const parsedYear = parseInt(year, 10);
-      if (!isNaN(parsedYear)) where.examYear = parsedYear;
-    }
+    if (ids) {
+      const idList = ids.split(',').map(s => s.trim()).filter(Boolean);
+      if (idList.length > 0) {
+        where.id = { in: idList };
+      }
+    } else {
+      if (exam !== 'ALL') {
+        where.examName = { contains: exam === 'UPSC CSE' ? 'CSE' : exam, mode: 'insensitive' };
+      }
+      if (subject !== 'ALL') {
+        where.srcSubject = subject;
+      }
+      if (topic !== 'ALL') {
+        where.srcTopic = topic;
+      }
+      if (year !== 'ALL') {
+        const parsedYear = parseInt(year, 10);
+        if (!isNaN(parsedYear)) where.examYear = parsedYear;
+      }
 
-    if (search) {
-      andConditions.push({
-        OR: [
-          { stem: { contains: search, mode: 'insensitive' } },
-          { explanation: { contains: search, mode: 'insensitive' } }
-        ]
-      });
-    }
+      if (search) {
+        andConditions.push({
+          OR: [
+            { stem: { contains: search, mode: 'insensitive' } },
+            { explanation: { contains: search, mode: 'insensitive' } }
+          ]
+        });
+      }
 
-    if (microtheme !== 'ALL') {
-      andConditions.push({
-        OR: [
-          { srcTheme: microtheme },
-          { stem: { contains: microtheme, mode: 'insensitive' } },
-          { explanation: { contains: microtheme, mode: 'insensitive' } }
-        ]
-      });
-    }
+      if (microtheme !== 'ALL') {
+        andConditions.push({
+          OR: [
+            { srcTheme: microtheme },
+            { stem: { contains: microtheme, mode: 'insensitive' } },
+            { explanation: { contains: microtheme, mode: 'insensitive' } }
+          ]
+        });
+      }
 
-    if (andConditions.length > 0) {
-      where.AND = andConditions;
+      if (andConditions.length > 0) {
+        where.AND = andConditions;
+      }
     }
 
     const findQuery = {
@@ -105,7 +115,7 @@ export async function GET(req) {
     };
 
     // Only apply limit if explicitly provided as a positive number; otherwise print ALL matching questions
-    if (parsedLimit && !isNaN(parsedLimit) && parsedLimit > 0) {
+    if (!ids && parsedLimit && !isNaN(parsedLimit) && parsedLimit > 0) {
       findQuery.take = parsedLimit;
     }
 
@@ -117,11 +127,18 @@ export async function GET(req) {
         <style>body{font-family:system-ui,-apple-system,sans-serif;background:#0f172a;color:#f8fafc;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;}</style>
         </head><body><div style="text-align:center;padding:30px;background:#1e293b;border-radius:16px;max-width:500px;border:1px solid rgba(255,255,255,0.1);">
           <h2 style="color:#ef4444;margin-top:0;">No Matching Questions Found</h2>
-          <p style="color:#94a3b8;font-size:14px;">Try loosening the filters (e.g. set Microtheme or Year to 'All') in the Admin Panel.</p>
+          <p style="color:#94a3b8;font-size:14px;">Try loosening the filters or selecting questions using the checkbox in the Admin Panel.</p>
           <button onclick="window.close()" style="background:#3b82f6;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:bold;cursor:pointer;margin-top:10px;">Close Window</button>
         </div></body></html>`,
         { headers: { 'Content-Type': 'text/html; charset=utf-8' } }
       );
+    }
+
+    if (mode === 'slide') {
+      const html = buildSlideDocument({ questions });
+      return new NextResponse(html, {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
     }
 
     const html = buildExamDocument({
@@ -146,6 +163,574 @@ export async function GET(req) {
     console.error('[Print PDF Error]:', error);
     return NextResponse.json({ error: 'Failed to generate PDF' }, { status: 500 });
   }
+}
+
+function renderValueAdditionHtml(va, q) {
+  if (!va) {
+    return `<div class="va-text"><strong>Topic Core:</strong> ${escapeHtml(q.srcTopic || q.srcSubject || 'General Studies')}. Ensure systematic review of standard reference NCERT &amp; statutory frameworks.</div>`;
+  }
+  if (typeof va === 'string') {
+    return `<div class="va-text">${escapeHtml(va)}</div>`;
+  }
+  if (Array.isArray(va)) {
+    return va.map(item => {
+      if (typeof item === 'string') {
+        return `<div class="va-point">• ${escapeHtml(item)}</div>`;
+      }
+      return `
+        <div class="va-item">
+          ${item.title ? `<div class="va-title"><strong>${escapeHtml(item.title)}</strong> ${item.tag ? `<span class="va-tag">${escapeHtml(item.tag)}</span>` : ''}</div>` : ''}
+          ${item.description ? `<div class="va-desc">${escapeHtml(item.description)}</div>` : ''}
+          ${item.sections && Array.isArray(item.sections) ? item.sections.map(sec => `
+            <div class="va-sec">
+              ${sec.heading ? `<div class="va-subhead">${escapeHtml(sec.heading)}</div>` : ''}
+              ${sec.points && Array.isArray(sec.points) ? `
+                <ul class="va-list">
+                  ${sec.points.map(pt => `<li>${escapeHtml(pt)}</li>`).join('')}
+                </ul>
+              ` : ''}
+            </div>
+          `).join('') : ''}
+        </div>
+      `;
+    }).join('');
+  }
+  return `<div class="va-text">${escapeHtml(JSON.stringify(va))}</div>`;
+}
+
+function buildSlideDocument({ questions }) {
+  const totalSlides = questions.length;
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>UPSCGPT Prelims Slides (${totalSlides} Question${totalSlides > 1 ? 's' : ''})</title>
+  <style>
+    @page {
+      size: A4 landscape;
+      margin: 6mm 8mm;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+      color-adjust: exact !important;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #1e293b;
+      line-height: 1.35;
+      background: #0f172a;
+    }
+
+    /* Screen mode toolbar and centering */
+    @media screen {
+      body {
+        padding: 24px 16px 60px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 28px;
+      }
+      .slide-page {
+        width: 297mm;
+        min-height: 200mm;
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 10mm 12mm;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .no-print {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 297mm;
+        background: #1e293b;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 12px 20px;
+        color: #ffffff;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      }
+    }
+
+    /* Print Mode: Exact single page per landscape slide */
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      body {
+        background: #ffffff !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      .slide-page {
+        width: 100% !important;
+        height: 194mm !important;
+        max-height: 194mm !important;
+        page-break-after: always;
+        break-after: page;
+        overflow: hidden;
+        margin: 0 !important;
+        padding: 2mm 3mm !important;
+        box-shadow: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+    }
+
+    /* Header Bar */
+    .slide-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      padding-bottom: 4px;
+      border-bottom: 1.5px solid #e2e8f0;
+    }
+    .badge-exam-red {
+      background: #dc2626;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 10pt;
+      padding: 3px 14px;
+      border-radius: 9999px;
+      letter-spacing: 0.3px;
+      display: inline-block;
+    }
+    .slide-head-meta {
+      font-size: 8.5pt;
+      font-weight: 700;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* 2-Column Main Layout */
+    .slide-grid {
+      display: grid;
+      grid-template-columns: 43% 55%;
+      gap: 14px;
+      flex: 1;
+      align-items: stretch;
+    }
+    .col-left, .col-right {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    /* Question Box */
+    .q-stem-box {
+      font-size: 9.3pt;
+      line-height: 1.38;
+      color: #0f172a;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 9px 12px;
+    }
+    .q-stem-text {
+      font-weight: 700;
+      margin-bottom: 6px;
+      white-space: pre-wrap;
+    }
+    .q-stem-options {
+      color: #334155;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+    .q-opt-line {
+      margin-top: 3px;
+    }
+
+    /* Green Answer Box */
+    .card-ans-green {
+      background: #bbf7d0;
+      border: 1.5px solid #86efac;
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: #064e3b;
+      font-size: 9.2pt;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    /* Blue Keywords Box */
+    .card-kw-blue {
+      background: #bfdbfe;
+      border: 1.5px solid #93c5fd;
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: #1e3a8a;
+      font-size: 8.8pt;
+    }
+    .kw-title {
+      font-weight: 800;
+      text-decoration: underline;
+      margin-bottom: 5px;
+      font-size: 9pt;
+    }
+    .kw-list {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .kw-row {
+      line-height: 1.3;
+    }
+    .distractor-strike {
+      text-decoration: line-through;
+      color: #475569;
+    }
+    .distractor-tag {
+      color: #dc2626;
+      font-size: 7.5pt;
+      font-weight: 800;
+      margin-left: 3px;
+    }
+
+    /* Badges */
+    .badge-pill {
+      display: inline-block;
+      font-size: 8pt;
+      font-weight: 800;
+      padding: 2.5px 10px;
+      border-radius: 6px;
+      letter-spacing: 0.2px;
+      margin-bottom: 4px;
+    }
+    .badge-black { background: #0f172a; color: #ffffff; }
+    .badge-teal { background: #0d9488; color: #ffffff; }
+    .badge-slate { background: #334155; color: #ffffff; }
+    .badge-cyan { background: #0284c7; color: #ffffff; }
+
+    /* In News Card */
+    .card-news {
+      background: #f0f9ff;
+      border: 1.5px solid #bae6fd;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 8.5pt;
+      color: #0c4a6e;
+      flex: 1;
+    }
+    .news-headline {
+      font-weight: 800;
+      font-size: 9.8pt;
+      color: #0f172a;
+      line-height: 1.3;
+      margin-bottom: 3px;
+    }
+    .news-meta {
+      font-size: 7.5pt;
+      font-weight: 700;
+      color: #0284c7;
+      margin-bottom: 4px;
+    }
+    .news-relevance {
+      line-height: 1.35;
+      color: #334155;
+    }
+
+    /* Pink Explanation Card */
+    .card-expl-pink {
+      background: #fecdd3;
+      border: 1.5px solid #fda4af;
+      border-radius: 8px;
+      padding: 9px 12px;
+      color: #881337;
+      font-size: 8.6pt;
+      line-height: 1.38;
+    }
+    .opt-row {
+      margin-bottom: 6px;
+    }
+    .opt-row:last-child {
+      margin-bottom: 0;
+    }
+    .verdict-correct {
+      color: #065f46;
+      font-weight: 800;
+    }
+    .verdict-incorrect {
+      color: #991b1b;
+      font-weight: 800;
+    }
+
+    /* Yellow Value Addition Card */
+    .card-va-yellow {
+      background: #fef08a;
+      border: 1.5px solid #fde047;
+      border-radius: 8px;
+      padding: 9px 12px;
+      color: #713f12;
+      font-size: 8.4pt;
+      line-height: 1.38;
+      flex: 1;
+    }
+    .va-point {
+      margin-bottom: 3px;
+    }
+    .va-title {
+      font-size: 8.8pt;
+      margin-bottom: 2px;
+    }
+    .va-tag {
+      background: rgba(0,0,0,0.08);
+      font-size: 7.5pt;
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-left: 5px;
+    }
+    .va-desc {
+      margin-bottom: 4px;
+    }
+    .va-sec {
+      margin-top: 4px;
+    }
+    .va-subhead {
+      font-weight: 700;
+      font-size: 8.2pt;
+    }
+    .va-list {
+      margin: 2px 0 0 16px;
+      padding: 0;
+    }
+
+    /* Green Similar PYQ Card */
+    .card-pyq-green {
+      background: #bbf7d0;
+      border: 1.5px solid #86efac;
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: #14532d;
+      font-size: 8.4pt;
+      line-height: 1.35;
+    }
+    .pyq-stem {
+      margin-bottom: 4px;
+    }
+    .pyq-takeaway {
+      background: rgba(255, 255, 255, 0.7);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 8pt;
+      color: #065f46;
+    }
+
+    /* Footer */
+    .slide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+      padding-top: 5px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 7.8pt;
+      color: #64748b;
+      font-weight: 700;
+    }
+    .footer-brand {
+      color: #0f172a;
+      font-weight: 800;
+    }
+
+    /* Screen Toolbar Buttons */
+    .btn-print {
+      background: #3b82f6;
+      color: #ffffff;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .btn-print:hover { background: #2563eb; }
+    .btn-close {
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-left: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="no-print">
+    <div>
+      <strong style="font-size: 1.1rem; color: #60a5fa;">UPSCGPT Lecture Slide Deck</strong>
+      <span style="margin-left: 10px; color: #94a3b8; font-size: 0.85rem;">${totalSlides} Slide${totalSlides > 1 ? 's' : ''} • Landscape A4 Format</span>
+    </div>
+    <div>
+      <button class="btn-print" onclick="window.print()">🖨️ Print Slides / Save PDF</button>
+      <button class="btn-close" onclick="window.close()">✕ Close</button>
+    </div>
+  </div>
+
+  ${questions.map((q, idx) => {
+    const opts = normalizeOptions(q.options);
+    const { explanationText, analysis } = getStructuredExplanation(q);
+
+    const ansLabel = (q.correctLabel || '').toLowerCase().trim();
+    const correctOpt = opts.find(o => (o.label || '').toLowerCase().trim() === ansLabel);
+    const correctText = correctOpt ? correctOpt.text : (ansLabel ? `Option (${ansLabel})` : 'Verified Answer');
+
+    const keywords = (analysis && Array.isArray(analysis.keywords) && analysis.keywords.length > 0)
+      ? analysis.keywords
+      : [q.srcSubject, q.srcTopic, q.srcTheme].filter(Boolean).map(c => ({ concept: c, isDistractor: false }));
+
+    const optionBreakdown = (analysis && Array.isArray(analysis.optionBreakdown) && analysis.optionBreakdown.length > 0)
+      ? analysis.optionBreakdown
+      : null;
+
+    const valueAddition = analysis ? analysis.valueAddition : null;
+    const inNews = analysis ? analysis.inNews : null;
+    const similarPyq = analysis ? analysis.similarPyq : null;
+
+    return `
+      <div class="slide-page">
+        <!-- Slide Top Header -->
+        <div class="slide-head">
+          <span class="badge-exam-red">${escapeHtml(q.examName || 'UPSC Prelims')} ${q.examYear || ''}</span>
+          <div class="slide-head-meta">
+            <span>${escapeHtml(q.srcSubject || 'General Studies')}</span>
+            ${q.srcTopic ? `<span>›</span><span>${escapeHtml(q.srcTopic)}</span>` : ''}
+            ${q.questionNo ? `<span>• Q#${q.questionNo}</span>` : ''}
+          </div>
+        </div>
+
+        <!-- 2-Column Main Section -->
+        <div class="slide-grid">
+          <!-- LEFT COLUMN: Question, Answer, Keywords, In News -->
+          <div class="col-left">
+            <div class="q-stem-box">
+              <div class="q-stem-text">${escapeHtml(q.stem || '')}</div>
+              ${opts && opts.length > 0 ? `
+                <div class="q-stem-options">
+                  ${opts.map(o => `
+                    <div class="q-opt-line">
+                      <strong>(${escapeHtml((o.label || '').toLowerCase())})</strong> ${escapeHtml(o.text || '')}
+                    </div>
+                  `).join('')}
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- Green Answer Card -->
+            <div class="card-ans-green">
+              (${escapeHtml(ansLabel || '–')}) ${escapeHtml(correctText)}
+            </div>
+
+            <!-- Blue Keywords Card -->
+            <div class="card-kw-blue">
+              <div class="kw-title">Keywords and Concepts:</div>
+              <div class="kw-list">
+                ${keywords.map(kw => {
+                  const isDistractor = typeof kw === 'object' && kw !== null && Boolean(kw.isDistractor);
+                  const name = typeof kw === 'object' && kw !== null ? kw.concept : String(kw);
+                  return `
+                    <div class="kw-row">
+                      ${isDistractor ? `• <s class="distractor-strike">${escapeHtml(name)}</s> <span class="distractor-tag">(Distractor)</span>` : `• ${escapeHtml(name)}`}
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+
+            <!-- In News Card -->
+            <div>
+              <span class="badge-pill badge-cyan">In News</span>
+              <div class="card-news">
+                ${inNews && typeof inNews === 'object' ? `
+                  <div class="news-headline">${escapeHtml(inNews.headline || 'Current Affairs Development')}</div>
+                  ${(inNews.source || inNews.date) ? `<div class="news-meta">${escapeHtml(inNews.source || '')} ${inNews.date ? '• ' + escapeHtml(inNews.date) : ''}</div>` : ''}
+                  ${inNews.relevance ? `<div class="news-relevance">${escapeHtml(inNews.relevance)}</div>` : ''}
+                ` : `
+                  <div class="news-headline">Current Affairs Linkage</div>
+                  <div class="news-relevance">Regularly reported in The Hindu / Indian Express / DownToEarth under ${escapeHtml(q.srcTopic || q.srcSubject || 'General Studies')}.</div>
+                `}
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT COLUMN: Explanation, Value Addition, Similar PYQ -->
+          <div class="col-right">
+            <!-- Pink Explanation Card -->
+            <div>
+              <span class="badge-pill badge-black">Explanation</span>
+              <div class="card-expl-pink">
+                ${optionBreakdown ? optionBreakdown.map(opt => {
+                  const isCorr = (opt.verdict || '').toLowerCase().includes('correct') && !(opt.verdict || '').toLowerCase().includes('incorrect');
+                  return `
+                    <div class="opt-row">
+                      <strong>(${escapeHtml((opt.label || '').toLowerCase())}) ${opt.text ? escapeHtml(opt.text) + '. ' : ''}<span class="${isCorr ? 'verdict-correct' : 'verdict-incorrect'}">${escapeHtml(opt.verdict || (isCorr ? 'Correct' : 'Incorrect'))}.</span></strong>
+                      <span>${escapeHtml(opt.explanation || '')}</span>
+                    </div>
+                  `;
+                }).join('') : `
+                  <div class="opt-row" style="white-space: pre-wrap;">${escapeHtml(explanationText || 'Detailed explanation not provided.')}</div>
+                `}
+              </div>
+            </div>
+
+            <!-- Yellow Value Addition Card -->
+            <div>
+              <span class="badge-pill badge-teal">Value Addition</span>
+              <div class="card-va-yellow">
+                ${renderValueAdditionHtml(valueAddition, q)}
+              </div>
+            </div>
+
+            <!-- Green Similar PYQ Card -->
+            <div>
+              <span class="badge-pill badge-slate">Similar PYQ</span>
+              <div class="card-pyq-green">
+                ${similarPyq && typeof similarPyq === 'object' ? `
+                  <div class="pyq-stem">
+                    <strong>${escapeHtml(similarPyq.examName || 'UPSC CSE')} ${escapeHtml(similarPyq.examYear ? String(similarPyq.examYear) : '')}:</strong>
+                    ${escapeHtml(similarPyq.stem || '')}
+                  </div>
+                  ${similarPyq.keyTakeaway ? `
+                    <div class="pyq-takeaway"><strong>Core Takeaway:</strong> ${escapeHtml(similarPyq.keyTakeaway)}</div>
+                  ` : ''}
+                ` : `
+                  <div class="pyq-stem">
+                    <strong>UPSC Question Family:</strong> Questions on ${escapeHtml(q.srcTopic || q.srcSubject || 'this theme')} frequently recur with modified distractors in subsequent exam cycles.
+                  </div>
+                `}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide Bottom Footer -->
+        <div class="slide-footer">
+          <div class="footer-brand">
+            <span>UPSCGPT</span>
+            <span style="font-weight: 500; color: #94a3b8; margin-left: 6px;">• High-Yield Preliminary Examination Architecture</span>
+          </div>
+          <div>Slide ${idx + 1} of ${totalSlides}</div>
+        </div>
+      </div>
+    `;
+  }).join('')}
+</body>
+</html>`;
 }
 
 function formatQuestionStem(stem) {

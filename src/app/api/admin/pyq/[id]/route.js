@@ -82,8 +82,15 @@ export async function PATCH(req, { params }) {
       updateData.correctLabel = body.correctLabel ? body.correctLabel.trim().toLowerCase() : null;
     }
 
-    if (body.explanation !== undefined) {
-      updateData.explanation = body.explanation ? body.explanation.trim() : null;
+    if (body.explanation !== undefined || body.analysis !== undefined) {
+      if (body.analysis && typeof body.analysis === 'object') {
+        updateData.explanation = JSON.stringify({
+          explanation: typeof body.explanation === 'string' ? body.explanation.trim() : '',
+          analysis: body.analysis
+        });
+      } else if (body.explanation !== undefined) {
+        updateData.explanation = body.explanation ? (typeof body.explanation === 'string' ? body.explanation.trim() : JSON.stringify(body.explanation)) : null;
+      }
     }
 
     if (body.srcSubject !== undefined) {

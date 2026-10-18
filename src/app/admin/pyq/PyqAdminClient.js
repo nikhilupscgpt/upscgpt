@@ -25,6 +25,7 @@ import {
   Printer
 } from 'lucide-react';
 import { isNewPatternQuestion, isPairQuestion, isStatementQuestion } from '@/lib/pyqPattern';
+import { getStructuredExplanation } from '@/lib/pyqExplanationHelper';
 
 export default function PyqAdminClient({ session }) {
   const [activeTab, setActiveTab] = useState('list'); // 'list' | 'bulk' | 'add'
@@ -48,8 +49,14 @@ export default function PyqAdminClient({ session }) {
 
   const [filterOptions, setFilterOptions] = useState({ subjects: [], years: [], exams: [] });
 
-  // Edit Modal State
+  // Selection state for batch printing / actions
+  const [selectedQIds, setSelectedQIds] = useState(new Set());
+
+  // Edit Modal State (Dual Mode: Visual Form vs Raw JSON / JSONL)
   const [editingQuestion, setEditingQuestion] = useState(null);
+  const [editMode, setEditMode] = useState('form'); // 'form' | 'json'
+  const [editJsonRaw, setEditJsonRaw] = useState('');
+  const [jsonError, setJsonError] = useState(null);
   const [editForm, setEditForm] = useState({
     stem: '',
     options: [],
@@ -206,9 +213,53 @@ export default function PyqAdminClient({ session }) {
     setPage(1);
   };
 
+  // Selection Handlers
+  const toggleSelectQuestion = (id) => {
+    setSelectedQIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const handleSelectAllOnPage = () => {
+    if (questions.length === 0) return;
+    const pageIds = questions.map(q => q.id);
+    const allSelected = pageIds.every(id => selectedQIds.has(id));
+    setSelectedQIds(prev => {
+      const next = new Set(prev);
+      if (allSelected) {
+        pageIds.forEach(id => next.delete(id));
+      } else {
+        pageIds.forEach(id => next.add(id));
+      }
+      return next;
+    });
+  };
+
+  const handleClearSelection = () => {
+    setSelectedQIds(new Set());
+  };
+
+  const handlePrintSelectedSlides = () => {
+    if (selectedQIds.size === 0) return;
+    const ids = Array.from(selectedQIds).join(',');
+    window.open(`/api/admin/pyq/print-pdf?mode=slide&ids=${ids}`, '_blank');
+  };
+
+  const handlePrintSelectedBooklet = () => {
+    if (selectedQIds.size === 0) return;
+    const ids = Array.from(selectedQIds).join(',');
+    window.open(`/api/admin/pyq/print-pdf?ids=${ids}`, '_blank');
+  };
+
   // Open Edit Modal
   const handleOpenEdit = (q) => {
     setEditingQuestion(q);
+    setEditMode('form');
+    setJsonError(null);
+
     // Ensure 4 options format
     let opts = q.options || [];
     if (!Array.isArray(opts) || opts.length === 0) {
@@ -219,14 +270,18 @@ export default function PyqAdminClient({ session }) {
         { label: 'D', text: '' },
       ];
     }
+    const normalizedOptions = opts.map((o, idx) => ({
+      label: (o.label || String.fromCharCode(65 + idx)).toUpperCase(),
+      text: o.text || ''
+    }));
+
+    const structured = getStructuredExplanation(q);
+
     setEditForm({
       stem: q.stem || '',
-      options: opts.map((o, idx) => ({
-        label: (o.label || String.fromCharCode(65 + idx)).toUpperCase(),
-        text: o.text || ''
-      })),
+      options: normalizedOptions,
       correctLabel: (q.correctLabel || '').toLowerCase(),
-      explanation: q.explanation || '',
+      explanation: structured.explanationText || (typeof q.explanation === 'string' ? q.explanation : ''),
       srcSubject: q.srcSubject || '',
       srcTopic: q.srcTopic || '',
       examName: q.examName || '',
@@ -234,6 +289,152 @@ export default function PyqAdminClient({ session }) {
       questionNo: q.questionNo || '',
       difficulty: q.difficulty || 'MEDIUM',
     });
+
+    // Prepare JSON object for the JSON / JSONL editor mode
+    const jsonObj = {
+      examName: q.examName || 'UPSC CSE Pre',
+      examYear: q.examYear || 2024,
+      questionNo: q.questionNo ?? null,
+      srcSubject: q.srcSubject || '',
+      srcTopic: q.srcTopic || '',
+      stem: q.stem || '',
+      options: normalizedOptions.map(o => ({
+        label: o.label.toLowerCase(),
+        text: o.text
+      })),
+      correctLabel: (q.correctLabel || '').toLowerCase(),
+      ...(structured.explanationText ? { explanation: structured.explanationText } : {}),
+      ...(structured.analysis ? { analysis: structured.analysis } : {})
+    };
+    if (!structured.analysis && !structured.explanationText && q.explanation) {
+      jsonObj.explanation = q.explanation;
+    }
+    setEditJsonRaw(JSON.stringify(jsonObj, null, 2));
+  };
+
+  // Mode Switching
+  const handleSwitchToFormMode = () => {
+    try {
+      const parsed = JSON.parse(editJsonRaw);
+      setEditForm({
+        stem: parsed.stem || '',
+        options: (parsed.options || []).map((o, idx) => ({
+          label: (o.label || String.fromCharCode(65 + idx)).toUpperCase(),
+          text: o.text || ''
+        })),
+        correctLabel: (parsed.correctLabel || '').toLowerCase(),
+        explanation: typeof parsed.explanation === 'string' 
+          ? parsed.explanation 
+          : (parsed.analysis ? JSON.stringify(parsed.analysis, null, 2) : ''),
+        srcSubject: parsed.srcSubject || '',
+        srcTopic: parsed.srcTopic || '',
+        examName: parsed.examName || '',
+        examYear: parsed.examYear || 2024,
+        questionNo: parsed.questionNo ?? '',
+        difficulty: parsed.difficulty || 'MEDIUM',
+      });
+      setJsonError(null);
+      setEditMode('form');
+    } catch (err) {
+      if (window.confirm('The JSON contains syntax errors: ' + err.message + '\n\nDo you want to discard your raw JSON changes and switch to Form Mode?')) {
+        setJsonError(null);
+        setEditMode('form');
+      }
+    }
+  };
+
+  const handleSwitchToJsonMode = () => {
+    const currentJson = {
+      examName: editForm.examName || 'UPSC CSE Pre',
+      examYear: parseInt(editForm.examYear, 10) || 2024,
+      questionNo: editForm.questionNo ? parseInt(editForm.questionNo, 10) : null,
+      srcSubject: editForm.srcSubject || '',
+      srcTopic: editForm.srcTopic || '',
+      stem: editForm.stem || '',
+      options: editForm.options.map((o, idx) => ({
+        label: (o.label || String.fromCharCode(97 + idx)).toLowerCase(),
+        text: o.text || ''
+      })),
+      correctLabel: (editForm.correctLabel || '').toLowerCase(),
+    };
+
+    const trimmed = (editForm.explanation || '').trim();
+    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+      try {
+        const parsedExp = JSON.parse(trimmed);
+        if (parsedExp.analysis) {
+          currentJson.analysis = parsedExp.analysis;
+          if (parsedExp.explanation) currentJson.explanation = parsedExp.explanation;
+        } else if (parsedExp.keywords || parsedExp.optionBreakdown || parsedExp.valueAddition) {
+          currentJson.analysis = parsedExp;
+        } else {
+          currentJson.explanation = editForm.explanation;
+        }
+      } catch {
+        currentJson.explanation = editForm.explanation;
+      }
+    } else {
+      currentJson.explanation = editForm.explanation;
+    }
+
+    setEditJsonRaw(JSON.stringify(currentJson, null, 2));
+    setJsonError(null);
+    setEditMode('json');
+  };
+
+  const handleFormatJson = () => {
+    try {
+      const parsed = JSON.parse(editJsonRaw);
+      setEditJsonRaw(JSON.stringify(parsed, null, 2));
+      setJsonError(null);
+    } catch (err) {
+      setJsonError(err.message);
+    }
+  };
+
+  const handleLoadLectureTemplate = () => {
+    const templateAnalysis = {
+      keywords: [
+        { concept: "Core Concept A", isDistractor: false },
+        { concept: "Core Concept B", isDistractor: false },
+        { concept: "Distractor Concept C", isDistractor: true }
+      ],
+      optionBreakdown: [
+        { label: "1", verdict: "Incorrect", explanation: "Precise factual reason for elimination." },
+        { label: "2", verdict: "Incorrect", explanation: "Contradiction with statutory guidelines." },
+        { label: "3", verdict: "Correct", explanation: "Core operational mandate as verified." }
+      ],
+      valueAddition: "Forward-looking value addition (strictly under 120 words). Details what UPSC will ask next from this syllabus cluster, with temporal anchors (e.g. as of 2024).",
+      inNews: {
+        headline: "Recent relevant headline connecting static concept to current affairs",
+        source: "The Hindu / PIB",
+        date: "July 2024",
+        relevance: "Field data or policy shift demonstrating why this topic is under national focus."
+      },
+      similarPyq: {
+        examYear: 2018,
+        examName: "UPSC CSE Pre",
+        stem: "Earlier UPSC question testing the same syllabus family...",
+        keyTakeaway: "UPSC repeatedly tests foundational themes from this topic cluster."
+      }
+    };
+
+    if (editMode === 'json') {
+      try {
+        const parsed = JSON.parse(editJsonRaw);
+        parsed.analysis = templateAnalysis;
+        setEditJsonRaw(JSON.stringify(parsed, null, 2));
+        setJsonError(null);
+      } catch {
+        setEditJsonRaw(JSON.stringify({ ...editForm, analysis: templateAnalysis }, null, 2));
+        setJsonError(null);
+      }
+    } else {
+      setEditForm(prev => ({
+        ...prev,
+        explanation: JSON.stringify({ analysis: templateAnalysis }, null, 2)
+      }));
+    }
   };
 
   // Save Edit
@@ -241,10 +442,25 @@ export default function PyqAdminClient({ session }) {
     if (!editingQuestion) return;
     setSavingEdit(true);
     try {
+      let payload = {};
+
+      if (editMode === 'json') {
+        let parsed;
+        try {
+          parsed = JSON.parse(editJsonRaw);
+        } catch (err) {
+          setJsonError(err.message);
+          throw new Error('Invalid JSON: ' + err.message);
+        }
+        payload = parsed;
+      } else {
+        payload = { ...editForm };
+      }
+
       const res = await fetch(`/api/admin/pyq/${editingQuestion.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editForm)
+        body: JSON.stringify(payload)
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to save changes');
@@ -252,6 +468,7 @@ export default function PyqAdminClient({ session }) {
       // Update question in local state
       setQuestions(prev => prev.map(q => q.id === editingQuestion.id ? data.question : q));
       setEditingQuestion(null);
+      setJsonError(null);
     } catch (err) {
       alert('Error updating question: ' + err.message);
     } finally {
@@ -913,26 +1130,128 @@ export default function PyqAdminClient({ session }) {
             ) : (
               /* QUESTIONS LIST */
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {/* Batch Selection Header Toolbar */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: '12px',
+                  background: selectedQIds.size > 0 ? 'rgba(59, 130, 246, 0.12)' : 'rgba(15, 23, 42, 0.6)',
+                  border: selectedQIds.size > 0 ? '1.5px solid #3b82f6' : '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '12px',
+                  padding: '12px 18px',
+                  transition: 'all 0.2s'
+                }}>
+                  <label style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 700, color: '#f1f5f9' }}>
+                    <input
+                      type="checkbox"
+                      checked={questions.length > 0 && questions.every(q => selectedQIds.has(q.id))}
+                      onChange={handleSelectAllOnPage}
+                      style={{ width: '17px', height: '17px', accentColor: '#3b82f6', cursor: 'pointer' }}
+                    />
+                    <span>Select All on This Page ({questions.length} questions)</span>
+                  </label>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                    {selectedQIds.size > 0 ? (
+                      <>
+                        <span style={{ fontSize: '0.84rem', fontWeight: 800, color: '#60a5fa' }}>
+                          🎯 {selectedQIds.size} selected
+                        </span>
+                        <button
+                          type="button"
+                          onClick={handlePrintSelectedSlides}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '7px 16px',
+                            borderRadius: '8px',
+                            background: '#059669',
+                            color: '#ffffff',
+                            border: 'none',
+                            fontSize: '0.82rem',
+                            fontWeight: 800,
+                            cursor: 'pointer'
+                          }}
+                          title="Open landscape A4 lecture slides for selected questions"
+                        >
+                          <Printer size={14} />
+                          <span>Print Selected Slides (Landscape)</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handlePrintSelectedBooklet}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '7px 14px',
+                            borderRadius: '8px',
+                            background: 'rgba(59, 130, 246, 0.2)',
+                            color: '#60a5fa',
+                            border: '1px solid rgba(59, 130, 246, 0.4)',
+                            fontSize: '0.82rem',
+                            fontWeight: 700,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <FileText size={14} />
+                          <span>Print Booklet (Portrait)</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleClearSelection}
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: '#94a3b8',
+                            fontSize: '0.82rem',
+                            cursor: 'pointer',
+                            padding: '4px 8px'
+                          }}
+                        >
+                          Clear
+                        </button>
+                      </>
+                    ) : (
+                      <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
+                        Check questions to batch print landscape lecture slides or portrait booklets.
+                      </span>
+                    )}
+                  </div>
+                </div>
+
                 {questions.map((q) => {
                   const isPair = isPairQuestion(q);
                   const isStmt = isStatementQuestion(q);
                   const hasAnswer = !!q.correctLabel;
                   const hasExpl = !!q.explanation;
+                  const isSelected = selectedQIds.has(q.id);
 
                   return (
                     <div
                       key={q.id}
                       style={{
-                        background: 'rgba(15, 23, 42, 0.8)',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        background: isSelected ? 'rgba(30, 41, 59, 0.95)' : 'rgba(15, 23, 42, 0.8)',
+                        border: isSelected ? '1.5px solid #3b82f6' : '1px solid rgba(255, 255, 255, 0.1)',
                         borderRadius: '16px',
                         padding: '20px 24px',
-                        transition: 'border-color 0.15s'
+                        transition: 'border-color 0.15s, background-color 0.15s'
                       }}
                     >
                       {/* Top Meta Badges */}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px', marginBottom: '12px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleSelectQuestion(q.id)}
+                            style={{ width: '18px', height: '18px', accentColor: '#3b82f6', cursor: 'pointer', marginRight: '4px' }}
+                            title="Select question for printing"
+                          />
+
                           <span style={{
                             background: 'rgba(59, 130, 246, 0.15)',
                             color: '#60a5fa',
@@ -1028,6 +1347,28 @@ export default function PyqAdminClient({ session }) {
 
                         {/* Actions */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <button
+                            type="button"
+                            onClick={() => window.open(`/api/admin/pyq/print-pdf?mode=slide&ids=${q.id}`, '_blank')}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              padding: '6px 12px',
+                              borderRadius: '8px',
+                              background: 'rgba(16, 185, 129, 0.15)',
+                              color: '#34d399',
+                              border: '1px solid rgba(16, 185, 129, 0.3)',
+                              fontSize: '0.8rem',
+                              fontWeight: 700,
+                              cursor: 'pointer'
+                            }}
+                            title="Print 8-block lecture slide (Landscape A4)"
+                          >
+                            <Printer size={13} />
+                            <span>Print Slide</span>
+                          </button>
+
                           <button
                             onClick={() => handleOpenEdit(q)}
                             style={{
@@ -1152,6 +1493,88 @@ export default function PyqAdminClient({ session }) {
                     </div>
                   );
                 })}
+              </div>
+            )}
+
+            {/* Sticky Floating Action Bar for Selected Questions */}
+            {selectedQIds.size > 0 && (
+              <div style={{
+                position: 'fixed',
+                bottom: '28px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 1000,
+                background: '#090d16',
+                border: '1.5px solid #3b82f6',
+                boxShadow: '0 16px 40px rgba(0, 0, 0, 0.75)',
+                borderRadius: '16px',
+                padding: '12px 24px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '16px',
+                maxWidth: '92vw',
+                flexWrap: 'wrap'
+              }}>
+                <span style={{ color: '#ffffff', fontWeight: 800, fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  🎯 <span>{selectedQIds.size} Question{selectedQIds.size > 1 ? 's' : ''} Selected</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={handlePrintSelectedSlides}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '8px 18px',
+                    borderRadius: '10px',
+                    background: '#059669',
+                    color: '#ffffff',
+                    border: 'none',
+                    fontWeight: 800,
+                    fontSize: '0.85rem',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 14px rgba(5, 150, 105, 0.4)'
+                  }}
+                  title="Print landscape A4 slides matching the 8-block lecture architecture"
+                >
+                  <Printer size={15} />
+                  <span>Print Selected Slides (Landscape)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePrintSelectedBooklet}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 14px',
+                    borderRadius: '10px',
+                    background: 'rgba(59, 130, 246, 0.2)',
+                    color: '#60a5fa',
+                    border: '1px solid rgba(59, 130, 246, 0.4)',
+                    fontWeight: 700,
+                    fontSize: '0.85rem',
+                    cursor: 'pointer'
+                  }}
+                  title="Print standard portrait question booklet"
+                >
+                  <FileText size={15} />
+                  <span>Print Booklet (Portrait)</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleClearSelection}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#94a3b8',
+                    fontSize: '0.82rem',
+                    cursor: 'pointer',
+                    padding: '4px 8px'
+                  }}
+                >
+                  Clear Selection
+                </button>
               </div>
             )}
           </div>
@@ -1693,19 +2116,57 @@ export default function PyqAdminClient({ session }) {
             boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.85)',
             overflow: 'hidden'
           }}>
-            {/* Modal Header */}
+            {/* Modal Header with Mode Switcher */}
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              padding: '20px 24px',
+              padding: '16px 24px',
               borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
-              background: 'rgba(2, 6, 23, 0.5)'
+              background: 'rgba(2, 6, 23, 0.7)'
             }}>
               <div>
-                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: '#ffffff' }}>
-                  Edit Question {editingQuestion.questionNo ? `Q${editingQuestion.questionNo}` : ''}
-                </h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: '#ffffff' }}>
+                    Edit Question {editingQuestion.questionNo ? `Q${editingQuestion.questionNo}` : ''}
+                  </h3>
+                  <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.08)', padding: '2px', borderRadius: '8px' }}>
+                    <button
+                      type="button"
+                      onClick={editMode === 'form' ? undefined : handleSwitchToFormMode}
+                      style={{
+                        padding: '5px 12px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        background: editMode === 'form' ? '#3b82f6' : 'transparent',
+                        color: editMode === 'form' ? '#ffffff' : '#94a3b8',
+                        fontWeight: 800,
+                        fontSize: '0.78rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s'
+                      }}
+                    >
+                      📝 Form Mode
+                    </button>
+                    <button
+                      type="button"
+                      onClick={editMode === 'json' ? undefined : handleSwitchToJsonMode}
+                      style={{
+                        padding: '5px 12px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        background: editMode === 'json' ? '#10b981' : 'transparent',
+                        color: editMode === 'json' ? '#ffffff' : '#94a3b8',
+                        fontWeight: 800,
+                        fontSize: '0.78rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s'
+                      }}
+                    >
+                      ⚡ JSON / JSONL Mode
+                    </button>
+                  </div>
+                </div>
                 <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
                   ID: {editingQuestion.id} · {editingQuestion.examName} {editingQuestion.examYear}
                 </span>
@@ -1732,195 +2193,334 @@ export default function PyqAdminClient({ session }) {
               flexDirection: 'column',
               gap: '18px'
             }}>
-              {/* Stem */}
-              <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>
-                  QUESTION STEM (PROMPT) *
-                </label>
-                <textarea
-                  rows={4}
-                  value={editForm.stem}
-                  onChange={e => setEditForm(prev => ({ ...prev, stem: e.target.value }))}
-                  style={{
-                    width: '100%',
-                    background: 'rgba(2, 6, 23, 0.8)',
-                    border: '1px solid rgba(255, 255, 255, 0.15)',
-                    borderRadius: '10px',
-                    padding: '10px 12px',
-                    color: '#ffffff',
-                    fontSize: '0.9rem',
-                    lineHeight: 1.55,
-                    outline: 'none'
-                  }}
-                />
-              </div>
-
-              {/* Options */}
-              <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '8px' }}>
-                  OPTIONS &amp; SELECT CORRECT ANSWER (Click radio button to mark correct answer)
-                </label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {editForm.options.map((opt, idx) => {
-                    const isCorrect = (editForm.correctLabel || '').toLowerCase() === (opt.label || '').toLowerCase();
-                    return (
-                      <div
-                        key={opt.label}
+              {editMode === 'json' ? (
+                /* =================== JSON / JSONL EDITOR MODE =================== */
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#e2e8f0' }}>
+                        RAW QUESTION PAYLOAD (JSON / JSONL):
+                      </span>
+                      {jsonError ? (
+                        <span style={{ fontSize: '0.75rem', color: '#f87171', background: 'rgba(239, 68, 68, 0.15)', border: '1px solid rgba(239, 68, 68, 0.3)', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
+                          ❌ Syntax Error
+                        </span>
+                      ) : (
+                        <span style={{ fontSize: '0.75rem', color: '#34d399', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '2px 8px', borderRadius: '4px', fontWeight: 700 }}>
+                          ✓ Valid JSON
+                        </span>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        type="button"
+                        onClick={handleFormatJson}
                         style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '10px',
-                          background: isCorrect ? 'rgba(16, 185, 129, 0.12)' : 'rgba(2, 6, 23, 0.6)',
-                          border: isCorrect ? '1.5px solid #10b981' : '1px solid rgba(255, 255, 255, 0.1)',
-                          borderRadius: '10px',
-                          padding: '6px 12px'
+                          background: 'rgba(255, 255, 255, 0.08)',
+                          border: '1px solid rgba(255, 255, 255, 0.15)',
+                          color: '#ffffff',
+                          borderRadius: '6px',
+                          padding: '5px 12px',
+                          fontSize: '0.78rem',
+                          fontWeight: 700,
+                          cursor: 'pointer'
                         }}
                       >
-                        <input
-                          type="radio"
-                          name="correctOptionRadio"
-                          checked={isCorrect}
-                          onChange={() => setEditForm(prev => ({ ...prev, correctLabel: opt.label.toLowerCase() }))}
-                          style={{ cursor: 'pointer', accentColor: '#10b981' }}
-                        />
-                        <span style={{ fontWeight: 800, fontSize: '0.85rem', color: isCorrect ? '#10b981' : '#94a3b8' }}>
-                          Option {opt.label}:
-                        </span>
+                        ✨ Prettify JSON
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleLoadLectureTemplate}
+                        style={{
+                          background: 'rgba(59, 130, 246, 0.15)',
+                          border: '1px solid rgba(59, 130, 246, 0.3)',
+                          color: '#60a5fa',
+                          borderRadius: '6px',
+                          padding: '5px 12px',
+                          fontSize: '0.78rem',
+                          fontWeight: 700,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        + Insert 8-Block Template
+                      </button>
+                    </div>
+                  </div>
+
+                  {jsonError && (
+                    <div style={{ background: 'rgba(239, 68, 68, 0.12)', border: '1px solid #ef4444', borderRadius: '8px', padding: '8px 12px', color: '#fca5a5', fontSize: '0.78rem' }}>
+                      <strong>JSON Parse Error:</strong> {jsonError}
+                    </div>
+                  )}
+
+                  <textarea
+                    rows={18}
+                    value={editJsonRaw}
+                    onChange={e => {
+                      const val = e.target.value;
+                      setEditJsonRaw(val);
+                      try {
+                        JSON.parse(val);
+                        setJsonError(null);
+                      } catch (err) {
+                        setJsonError(err.message);
+                      }
+                    }}
+                    style={{
+                      width: '100%',
+                      minHeight: '440px',
+                      background: 'rgba(2, 6, 23, 0.95)',
+                      border: jsonError ? '1.5px solid #ef4444' : '1px solid rgba(255, 255, 255, 0.2)',
+                      borderRadius: '10px',
+                      padding: '14px',
+                      color: '#e2e8f0',
+                      fontSize: '0.86rem',
+                      fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
+                      lineHeight: 1.55,
+                      outline: 'none',
+                      whiteSpace: 'pre'
+                    }}
+                  />
+                  <p style={{ fontSize: '0.75rem', color: '#64748b', margin: 0 }}>
+                    💡 Tip: You can paste the JSON or JSONL output generated from Claude/Gemini directly here. It will update the stem, options, correct answer, and full 8-block lecture analysis!
+                  </p>
+                </div>
+              ) : (
+                /* =================== VISUAL FORM MODE =================== */
+                <>
+                  {/* Stem */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>
+                      QUESTION STEM (PROMPT) *
+                    </label>
+                    <textarea
+                      rows={4}
+                      value={editForm.stem}
+                      onChange={e => setEditForm(prev => ({ ...prev, stem: e.target.value }))}
+                      style={{
+                        width: '100%',
+                        background: 'rgba(2, 6, 23, 0.8)',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        borderRadius: '10px',
+                        padding: '10px 12px',
+                        color: '#ffffff',
+                        fontSize: '0.9rem',
+                        lineHeight: 1.55,
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+
+                  {/* Options & Answer Selection */}
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                      <label style={{ fontSize: '0.8rem', fontWeight: 800, color: '#cbd5e1' }}>
+                        OPTIONS &amp; SELECT CORRECT ANSWER (Click radio button to mark correct)
+                      </label>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 700 }}>Label:</span>
                         <input
                           type="text"
-                          value={opt.text}
-                          onChange={e => {
-                            const val = e.target.value;
-                            setEditForm(prev => ({
-                              ...prev,
-                              options: prev.options.map((o, i) => i === idx ? { ...o, text: val } : o)
-                            }));
-                          }}
+                          value={editForm.correctLabel}
+                          onChange={e => setEditForm(prev => ({ ...prev, correctLabel: e.target.value.toLowerCase() }))}
+                          placeholder="e.g. a"
                           style={{
-                            flex: 1,
-                            background: 'transparent',
-                            border: 'none',
-                            outline: 'none',
-                            color: '#ffffff',
-                            fontSize: '0.88rem'
+                            width: '45px',
+                            background: 'rgba(2, 6, 23, 0.8)',
+                            border: '1px solid rgba(255, 255, 255, 0.2)',
+                            borderRadius: '6px',
+                            padding: '2px 6px',
+                            color: '#10b981',
+                            fontSize: '0.82rem',
+                            fontWeight: 800,
+                            textAlign: 'center'
                           }}
                         />
-                        {isCorrect && (
-                          <span style={{ color: '#10b981', fontSize: '0.75rem', fontWeight: 800 }}>
-                            ✓ Correct Answer
-                          </span>
-                        )}
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
+                    </div>
 
-              {/* Explanation */}
-              <div>
-                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 800, color: '#cbd5e1', marginBottom: '6px' }}>
-                  EXPLANATION (Markdown supported)
-                </label>
-                <textarea
-                  rows={4}
-                  value={editForm.explanation}
-                  onChange={e => setEditForm(prev => ({ ...prev, explanation: e.target.value }))}
-                  style={{
-                    width: '100%',
-                    background: 'rgba(2, 6, 23, 0.8)',
-                    border: '1px solid rgba(255, 255, 255, 0.15)',
-                    borderRadius: '10px',
-                    padding: '10px 12px',
-                    color: '#ffffff',
-                    fontSize: '0.9rem',
-                    lineHeight: 1.55,
-                    outline: 'none'
-                  }}
-                />
-              </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {editForm.options.map((opt, idx) => {
+                        const isCorrect = (editForm.correctLabel || '').toLowerCase() === (opt.label || '').toLowerCase();
+                        return (
+                          <div
+                            key={opt.label}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '10px',
+                              background: isCorrect ? 'rgba(16, 185, 129, 0.12)' : 'rgba(2, 6, 23, 0.6)',
+                              border: isCorrect ? '1.5px solid #10b981' : '1px solid rgba(255, 255, 255, 0.1)',
+                              borderRadius: '10px',
+                              padding: '6px 12px'
+                            }}
+                          >
+                            <input
+                              type="radio"
+                              name="correctOptionRadio"
+                              checked={isCorrect}
+                              onChange={() => setEditForm(prev => ({ ...prev, correctLabel: opt.label.toLowerCase() }))}
+                              style={{ cursor: 'pointer', accentColor: '#10b981' }}
+                            />
+                            <span style={{ fontWeight: 800, fontSize: '0.85rem', color: isCorrect ? '#10b981' : '#94a3b8' }}>
+                              Option {opt.label}:
+                            </span>
+                            <input
+                              type="text"
+                              value={opt.text}
+                              onChange={e => {
+                                const val = e.target.value;
+                                setEditForm(prev => ({
+                                  ...prev,
+                                  options: prev.options.map((o, i) => i === idx ? { ...o, text: val } : o)
+                                }));
+                              }}
+                              style={{
+                                flex: 1,
+                                background: 'transparent',
+                                border: 'none',
+                                outline: 'none',
+                                color: '#ffffff',
+                                fontSize: '0.88rem'
+                              }}
+                            />
+                            {isCorrect && (
+                              <span style={{ color: '#10b981', fontSize: '0.75rem', fontWeight: 800 }}>
+                                ✓ Correct Answer
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
 
-              {/* Metadata Fields */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', marginBottom: '4px' }}>
-                    SUBJECT
-                  </label>
-                  <input
-                    type="text"
-                    value={editForm.srcSubject}
-                    onChange={e => setEditForm(prev => ({ ...prev, srcSubject: e.target.value }))}
-                    style={{
-                      width: '100%',
-                      background: 'rgba(2, 6, 23, 0.8)',
-                      border: '1px solid rgba(255, 255, 255, 0.15)',
-                      borderRadius: '8px',
-                      padding: '6px 10px',
-                      color: '#ffffff',
-                      fontSize: '0.82rem'
-                    }}
-                  />
-                </div>
+                  {/* Explanation with Template Insert */}
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                      <label style={{ fontSize: '0.8rem', fontWeight: 800, color: '#cbd5e1' }}>
+                        EXPLANATION (Text, Markdown, or 8-Block Analysis JSON)
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleLoadLectureTemplate}
+                        style={{
+                          background: 'rgba(59, 130, 246, 0.15)',
+                          color: '#60a5fa',
+                          border: '1px solid rgba(59, 130, 246, 0.3)',
+                          borderRadius: '6px',
+                          padding: '3px 10px',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        + Insert 8-Block Template
+                      </button>
+                    </div>
+                    <textarea
+                      rows={6}
+                      value={editForm.explanation}
+                      onChange={e => setEditForm(prev => ({ ...prev, explanation: e.target.value }))}
+                      style={{
+                        width: '100%',
+                        background: 'rgba(2, 6, 23, 0.8)',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        borderRadius: '10px',
+                        padding: '10px 12px',
+                        color: '#ffffff',
+                        fontSize: '0.88rem',
+                        lineHeight: 1.55,
+                        outline: 'none',
+                        fontFamily: editForm.explanation.trim().startsWith('{') ? 'monospace' : 'inherit'
+                      }}
+                    />
+                  </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', marginBottom: '4px' }}>
-                    TOPIC
-                  </label>
-                  <input
-                    type="text"
-                    value={editForm.srcTopic}
-                    onChange={e => setEditForm(prev => ({ ...prev, srcTopic: e.target.value }))}
-                    style={{
-                      width: '100%',
-                      background: 'rgba(2, 6, 23, 0.8)',
-                      border: '1px solid rgba(255, 255, 255, 0.15)',
-                      borderRadius: '8px',
-                      padding: '6px 10px',
-                      color: '#ffffff',
-                      fontSize: '0.82rem'
-                    }}
-                  />
-                </div>
+                  {/* Metadata Fields */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', marginBottom: '4px' }}>
+                        SUBJECT
+                      </label>
+                      <input
+                        type="text"
+                        value={editForm.srcSubject}
+                        onChange={e => setEditForm(prev => ({ ...prev, srcSubject: e.target.value }))}
+                        style={{
+                          width: '100%',
+                          background: 'rgba(2, 6, 23, 0.8)',
+                          border: '1px solid rgba(255, 255, 255, 0.15)',
+                          borderRadius: '8px',
+                          padding: '6px 10px',
+                          color: '#ffffff',
+                          fontSize: '0.82rem'
+                        }}
+                      />
+                    </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', marginBottom: '4px' }}>
-                    EXAM YEAR
-                  </label>
-                  <input
-                    type="number"
-                    value={editForm.examYear}
-                    onChange={e => setEditForm(prev => ({ ...prev, examYear: parseInt(e.target.value, 10) || 2024 }))}
-                    style={{
-                      width: '100%',
-                      background: 'rgba(2, 6, 23, 0.8)',
-                      border: '1px solid rgba(255, 255, 255, 0.15)',
-                      borderRadius: '8px',
-                      padding: '6px 10px',
-                      color: '#ffffff',
-                      fontSize: '0.82rem'
-                    }}
-                  />
-                </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', marginBottom: '4px' }}>
+                        TOPIC
+                      </label>
+                      <input
+                        type="text"
+                        value={editForm.srcTopic}
+                        onChange={e => setEditForm(prev => ({ ...prev, srcTopic: e.target.value }))}
+                        style={{
+                          width: '100%',
+                          background: 'rgba(2, 6, 23, 0.8)',
+                          border: '1px solid rgba(255, 255, 255, 0.15)',
+                          borderRadius: '8px',
+                          padding: '6px 10px',
+                          color: '#ffffff',
+                          fontSize: '0.82rem'
+                        }}
+                      />
+                    </div>
 
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', marginBottom: '4px' }}>
-                    QUESTION NUMBER
-                  </label>
-                  <input
-                    type="number"
-                    value={editForm.questionNo}
-                    onChange={e => setEditForm(prev => ({ ...prev, questionNo: e.target.value }))}
-                    style={{
-                      width: '100%',
-                      background: 'rgba(2, 6, 23, 0.8)',
-                      border: '1px solid rgba(255, 255, 255, 0.15)',
-                      borderRadius: '8px',
-                      padding: '6px 10px',
-                      color: '#ffffff',
-                      fontSize: '0.82rem'
-                    }}
-                  />
-                </div>
-              </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', marginBottom: '4px' }}>
+                        EXAM YEAR
+                      </label>
+                      <input
+                        type="number"
+                        value={editForm.examYear}
+                        onChange={e => setEditForm(prev => ({ ...prev, examYear: parseInt(e.target.value, 10) || 2024 }))}
+                        style={{
+                          width: '100%',
+                          background: 'rgba(2, 6, 23, 0.8)',
+                          border: '1px solid rgba(255, 255, 255, 0.15)',
+                          borderRadius: '8px',
+                          padding: '6px 10px',
+                          color: '#ffffff',
+                          fontSize: '0.82rem'
+                        }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', marginBottom: '4px' }}>
+                        QUESTION NUMBER
+                      </label>
+                      <input
+                        type="number"
+                        value={editForm.questionNo}
+                        onChange={e => setEditForm(prev => ({ ...prev, questionNo: e.target.value }))}
+                        style={{
+                          width: '100%',
+                          background: 'rgba(2, 6, 23, 0.8)',
+                          border: '1px solid rgba(255, 255, 255, 0.15)',
+                          borderRadius: '8px',
+                          padding: '6px 10px',
+                          color: '#ffffff',
+                          fontSize: '0.82rem'
+                        }}
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Modal Footer */}
