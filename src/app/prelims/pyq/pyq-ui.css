@@ -2231,9 +2231,18 @@
   font-weight: 600;
   background: var(--pq-inset);
   color: var(--pq-sub);
-  padding: 3px 8px;
+  border: 1px solid var(--pq-line);
+  padding: 3px 9px;
   border-radius: 6px;
   white-space: nowrap;
+  text-decoration: none;
+  transition: all 0.12s ease;
+}
+
+.pq-sc-topic-chip:hover {
+  border-color: var(--pq-accent);
+  color: var(--pq-ink);
+  background: var(--pq-card);
 }
 
 .pq-sc-actions {
@@ -2596,3 +2605,190 @@
   animation: pq-shimmer 1.5s infinite;
 }
 
+/* ==========================================================================
+   Theme-Aware Collapsible Syllabus & SEO Index Drawer (Subject Hub Footer)
+   ========================================================================== */
+
+.pq-seo-drawer {
+  margin-top: 36px;
+  background: var(--pq-card);
+  border: 1px solid var(--pq-line);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: border-color 0.15s ease;
+}
+
+.pq-seo-drawer:hover {
+  border-color: var(--pq-line-strong);
+}
+
+.pq-seo-summary {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 20px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.pq-seo-summary::-webkit-details-marker {
+  display: none;
+}
+
+.pq-seo-summary-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.pq-seo-badge {
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: 6px;
+  background: var(--pq-inset);
+  border: 1px solid var(--pq-line);
+  color: var(--pq-accent);
+  white-space: nowrap;
+}
+
+.pq-seo-title {
+  display: block;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--pq-ink);
+}
+
+.pq-seo-sub {
+  display: block;
+  font-size: 12px;
+  color: var(--pq-muted);
+  margin-top: 2px;
+}
+
+.pq-seo-toggle-pill {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--pq-sub);
+  background: var(--pq-inset);
+  border: 1px solid var(--pq-line);
+  padding: 6px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+  transition: all 0.12s ease;
+}
+
+.pq-seo-summary:hover .pq-seo-toggle-pill {
+  border-color: var(--pq-accent);
+  color: var(--pq-ink);
+}
+
+.pq-seo-body {
+  border-top: 1px solid var(--pq-line);
+  padding: 20px;
+  background: var(--pq-inset);
+}
+
+.pq-seo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+.pq-seo-card {
+  background: var(--pq-card);
+  border: 1px solid var(--pq-line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pq-seo-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.pq-seo-card-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--pq-ink);
+  text-decoration: none;
+}
+
+.pq-seo-card-title:hover {
+  color: var(--pq-accent);
+}
+
+.pq-seo-card-count {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--pq-muted);
+}
+
+.pq-seo-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.pq-seo-topic-link {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--pq-sub);
+  background: var(--pq-inset);
+  border: 1px solid var(--pq-line);
+  padding: 2px 7px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.12s ease;
+}
+
+.pq-seo-topic-link span {
+  opacity: 0.7;
+}
+
+.pq-seo-topic-link:hover {
+  border-color: var(--pq-accent);
+  color: var(--pq-ink);
+}
+
+.pq-seo-qlist {
+  margin: 2px 0 0;
+  padding-left: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.pq-seo-qlist li {
+  font-size: 11.5px;
+  color: var(--pq-muted);
+  line-height: 1.4;
+}
+
+.pq-seo-qlink {
+  color: var(--pq-sub);
+  text-decoration: none;
+}
+
+.pq-seo-qlink strong {
+  color: var(--pq-ink);
+  font-weight: 700;
+}
+
+.pq-seo-qlink:hover {
+  color: var(--pq-accent);
+  text-decoration: underline;
+}

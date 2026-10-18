@@ -310,14 +310,17 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
     callback();
   };
 
-  const selectSubject = (s) => {
+  const selectSubject = (s, initialTopic = 'ALL') => {
     setSubject(s);
-    setTopic('ALL');
+    setTopic(initialTopic);
     setShow('ALL');
     setPatternFilter('ALL');
     setQuery('');
     setDebouncedQuery('');
     resetPage();
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const backToAllSubjects = () => {
@@ -328,6 +331,9 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
     setQuery('');
     setDebouncedQuery('');
     resetPage();
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const onSearch = (v) => {
@@ -513,17 +519,32 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
 
                 <div className="pq-sc-topics">
                   {(s.topTopics || []).map(t => (
-                    <span key={t} className="pq-sc-topic-chip">{t}</span>
+                    <a
+                      key={t}
+                      href={`/prelims/pyq?subject=${encodeURIComponent(s.name)}&topic=${encodeURIComponent(t)}`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        selectSubject(s.name, t);
+                      }}
+                      className="pq-sc-topic-chip"
+                      title={`Practice ${t} questions in ${s.name}`}
+                    >
+                      {t}
+                    </a>
                   ))}
                 </div>
 
                 <div className="pq-sc-actions">
-                  <button
+                  <a
+                    href={`/prelims/pyq?subject=${encodeURIComponent(s.name)}`}
                     className="pq-sc-btn"
-                    onClick={() => selectSubject(s.name)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      selectSubject(s.name);
+                    }}
                   >
                     Browse Questions
-                  </button>
+                  </a>
                   <button
                     type="button"
                     onClick={() =>
@@ -542,6 +563,75 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
               </div>
             ))}
           </div>
+
+          {/* Theme-Aware Collapsible Syllabus & Question Index (100% synced with Light/Dark UI & Crawlable) */}
+          <details className="pq-seo-drawer">
+            <summary className="pq-seo-summary">
+              <div className="pq-seo-summary-left">
+                <span className="pq-seo-badge">SYLLABUS INDEX</span>
+                <div>
+                  <span className="pq-seo-title">
+                    Complete Topic-Wise UPSC Prelims Question Bank ({(initialMetadata?.totalQuestions || 2528).toLocaleString()} Solved PYQs)
+                  </span>
+                  <span className="pq-seo-sub">
+                    Browse all micro-topics and featured solved questions across 10 GS subjects
+                  </span>
+                </div>
+              </div>
+              <span className="pq-seo-toggle-pill">Explore All Topics ▾</span>
+            </summary>
+
+            <div className="pq-seo-body">
+              <div className="pq-seo-grid">
+                {subjectStats.map(s => (
+                  <div key={s.name} className="pq-seo-card">
+                    <div className="pq-seo-card-head">
+                      <a
+                        href={`/prelims/pyq?subject=${encodeURIComponent(s.name)}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          selectSubject(s.name);
+                        }}
+                        className="pq-seo-card-title"
+                      >
+                        <span>{s.meta?.icon || '📚'}</span>
+                        <span>{s.name} PYQs</span>
+                      </a>
+                      <span className="pq-seo-card-count">{s.count} Qs</span>
+                    </div>
+
+                    <div className="pq-seo-topics">
+                      {(s.allTopics || []).slice(0, 6).map(([tName, tCount]) => (
+                        <a
+                          key={tName}
+                          href={`/prelims/pyq?subject=${encodeURIComponent(s.name)}&topic=${encodeURIComponent(tName)}`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            selectSubject(s.name, tName);
+                          }}
+                          className="pq-seo-topic-link"
+                        >
+                          {tName} <span>({tCount})</span>
+                        </a>
+                      ))}
+                    </div>
+
+                    {Array.isArray(s.sampleQuestions) && s.sampleQuestions.length > 0 && (
+                      <ul className="pq-seo-qlist">
+                        {s.sampleQuestions.slice(0, 3).map(sq => (
+                          <li key={sq.id}>
+                            <Link href={`/prelims/pyq/${sq.slug}`} className="pq-seo-qlink">
+                              <strong>[{sq.examName} {sq.examYear}]</strong> {sq.shortStem}…
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </details>
         </div>
 
         <QuizSetupModal

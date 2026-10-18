@@ -381,6 +381,16 @@ export default function MappingWorkspace({
   const [selectedAnswers, setSelectedAnswers] = useState({});
   const [revealedQuestions, setRevealedQuestions] = useState({});
 
+  // Floating On-Map PYQ Challenge Dock: 'collapsed' | 'expanded' | 'hidden'
+  const [mapPyqDockMode, setMapPyqDockMode] = useState('collapsed');
+  const [mapPyqIndex, setMapPyqIndex] = useState(0);
+
+  // Reset floating question index when selected place changes
+  useEffect(() => {
+    setMapPyqIndex(0);
+    setMapPyqDockMode('collapsed');
+  }, [selectedNode?.id]);
+
   const [cameraTarget, setCameraTarget] = useState({
     center: [23.5, 79.5],
     zoom: 5,
@@ -1839,7 +1849,7 @@ export default function MappingWorkspace({
         {/* COLUMN 2: CENTER MAP CANVAS + FLOATING CONTROLS                   */}
         {/* ================================================================= */}
         <div style={{ flex: 1, position: 'relative', height: '100%', minWidth: 0 }}>
-          {/* Top-Left Floating Context Pill: Zoomed to ... | All-India view */}
+          {/* Top-Left Floating Context Pill: Zoomed to ... | All-India view (Constrained so it NEVER collides with basemap switcher) */}
           <div
             style={{
               position: 'absolute',
@@ -1857,9 +1867,19 @@ export default function MappingWorkspace({
               boxShadow: '0 4px 14px rgba(15, 23, 42, 0.08)',
               fontSize: 12,
               color: '#475569',
+              maxWidth: 'calc(100% - 240px)',
+              overflow: 'hidden',
             }}
           >
-            <span>
+            <span
+              style={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+                maxWidth: 'min(360px, calc(100% - 150px))',
+              }}
+              title={selectedLocationSubtitle}
+            >
               {selectedNode ? (
                 <>
                   Zoomed to{' '}
@@ -1871,49 +1891,53 @@ export default function MappingWorkspace({
                 </strong>
               )}
             </span>
-            <span style={{ width: 1, height: 14, background: '#cbd5e1' }} />
-            <button
-              type="button"
-              onClick={() =>
-                setCameraTarget({
-                  center: [22.8, 79.5],
-                  zoom: 4.8,
-                  ts: Date.now(),
-                })
-              }
-              style={{
-                border: 'none',
-                background: 'none',
-                color: '#2563eb',
-                fontWeight: 700,
-                fontSize: 12,
-                cursor: 'pointer',
-                padding: 0,
-              }}
-            >
-              All-India view
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                setCameraTarget({
-                  center: [22.0, 25.0],
-                  zoom: 2.3,
-                  ts: Date.now(),
-                })
-              }
-              style={{
-                border: 'none',
-                background: 'none',
-                color: '#64748b',
-                fontWeight: 600,
-                fontSize: 12,
-                cursor: 'pointer',
-                padding: 0,
-              }}
-            >
-              World view
-            </button>
+            <span style={{ width: 1, height: 14, background: '#cbd5e1', flexShrink: 0 }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+              <button
+                type="button"
+                onClick={() =>
+                  setCameraTarget({
+                    center: [22.8, 79.5],
+                    zoom: 4.8,
+                    ts: Date.now(),
+                  })
+                }
+                style={{
+                  border: 'none',
+                  background: 'none',
+                  color: '#2563eb',
+                  fontWeight: 700,
+                  fontSize: 12,
+                  cursor: 'pointer',
+                  padding: 0,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                All-India view
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setCameraTarget({
+                    center: [22.0, 25.0],
+                    zoom: 2.3,
+                    ts: Date.now(),
+                  })
+                }
+                style={{
+                  border: 'none',
+                  background: 'none',
+                  color: '#64748b',
+                  fontWeight: 600,
+                  fontSize: 12,
+                  cursor: 'pointer',
+                  padding: 0,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                World view
+              </button>
+            </div>
           </div>
 
           {/* Top-Right Floating Basemap Switcher: Clean | Terrain | Satellite */}
@@ -1963,37 +1987,43 @@ export default function MappingWorkspace({
             })}
           </div>
 
-          {/* Bottom-Left Floating Legend Pill */}
+          {/* Bottom-Left Floating Legend Pill (Steps up dynamically to 58px when PYQ dock is present so it NEVER overlaps) */}
           <div
             style={{
               position: 'absolute',
-              bottom: 16,
+              bottom:
+                selectedNode &&
+                practiceQuestionsForSelected.length > 0 &&
+                mapPyqDockMode !== 'hidden'
+                  ? 58
+                  : 16,
               left: 14,
-              zIndex: 500,
+              zIndex: 490,
               display: 'inline-flex',
               alignItems: 'center',
               flexWrap: 'wrap',
-              gap: 12,
+              gap: 10,
               background: 'rgba(255, 255, 255, 0.95)',
               backdropFilter: 'blur(8px)',
               border: '1px solid #e2e8f0',
-              borderRadius: 9,
-              padding: '6px 12px',
+              borderRadius: 8,
+              padding: '5px 10px',
               boxShadow: '0 4px 14px rgba(15, 23, 42, 0.08)',
-              fontSize: 11.5,
+              fontSize: 11,
               color: '#334155',
               fontWeight: 600,
+              transition: 'bottom 0.2s ease',
             }}
           >
-            {folders.slice(0, 4).map((f) => (
+            {folders.slice(0, 3).map((f) => (
               <span
                 key={f.id}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
               >
                 <span
                   style={{
-                    width: 8,
-                    height: 8,
+                    width: 7,
+                    height: 7,
                     borderRadius: '50%',
                     background: f.color,
                     display: 'inline-block',
@@ -2002,14 +2032,14 @@ export default function MappingWorkspace({
                 <span>{f.shortLabel}</span>
               </span>
             ))}
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
               <span
                 style={{
-                  width: 8,
-                  height: 8,
+                  width: 7,
+                  height: 7,
                   borderRadius: '50%',
                   background: '#ef4444',
-                  boxShadow: '0 0 0 3px rgba(239,68,68,0.28)',
+                  boxShadow: '0 0 0 2.5px rgba(239,68,68,0.28)',
                   display: 'inline-block',
                 }}
               />
@@ -2027,6 +2057,383 @@ export default function MappingWorkspace({
             cameraTarget={cameraTarget}
             activeOrg={activeOrg}
           />
+
+          {/* Floating On-Map PYQ Challenge Dock (Vibrant High-Yield Gold/Amber Visual Identity) */}
+          {selectedNode && practiceQuestionsForSelected.length > 0 && (() => {
+            const currentMapQ = practiceQuestionsForSelected[mapPyqIndex] || practiceQuestionsForSelected[0];
+            const chosen = currentMapQ ? selectedAnswers[currentMapQ.id] : null;
+            const isRevealed = currentMapQ ? revealedQuestions[currentMapQ.id] : false;
+            const isAnswerCorrect =
+              isRevealed &&
+              (chosen || '').toLowerCase() === (currentMapQ?.correctLabel || '').toLowerCase();
+
+            if (mapPyqDockMode === 'hidden') {
+              return (
+                <button
+                  type="button"
+                  onClick={() => setMapPyqDockMode('expanded')}
+                  title="Open On-Map UPSC Practice Dock"
+                  style={{
+                    position: 'absolute',
+                    bottom: 16,
+                    right: 68,
+                    zIndex: 500,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    background: '#ffffff',
+                    border: '1.5px solid #f59e0b',
+                    borderRadius: 8,
+                    padding: '6px 12px',
+                    color: '#0f172a',
+                    fontSize: 12,
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    boxShadow: '0 6px 18px rgba(245, 158, 11, 0.28)',
+                  }}
+                >
+                  <span style={{ color: '#ea580c' }}>🔥</span>
+                  <span>Practice ({practiceQuestionsForSelected.length} PYQs)</span>
+                </button>
+              );
+            }
+
+            if (mapPyqDockMode === 'collapsed') {
+              return (
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: 16,
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    zIndex: 500,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    background: '#ffffff',
+                    border: '1.5px solid #f59e0b',
+                    borderRadius: 12,
+                    padding: '8px 14px',
+                    boxShadow:
+                      '0 10px 28px -4px rgba(245, 158, 11, 0.35), 0 4px 12px rgba(15, 23, 42, 0.08)',
+                    color: '#0f172a',
+                    maxWidth: 'min(88%, 560px)',
+                  }}
+                >
+                  <span
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      fontSize: 11,
+                      fontWeight: 900,
+                      letterSpacing: '0.03em',
+                      textTransform: 'uppercase',
+                      padding: '4px 9px',
+                      borderRadius: 6,
+                      background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
+                      color: '#ffffff',
+                      whiteSpace: 'nowrap',
+                      boxShadow: '0 2px 6px rgba(234, 88, 12, 0.35)',
+                    }}
+                  >
+                    🔥 {practiceQuestionsForSelected.length} {practiceQuestionsForSelected.length === 1 ? 'PYQ' : 'PYQs'}
+                  </span>
+                  <span
+                    style={{
+                      fontSize: 12.5,
+                      fontWeight: 650,
+                      color: '#1e293b',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      flex: 1,
+                    }}
+                  >
+                    Q{mapPyqIndex + 1}: {currentMapQ?.stem?.slice(0, 56)}…
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setMapPyqDockMode('expanded')}
+                    style={{
+                      padding: '5px 12px',
+                      borderRadius: 7,
+                      border: '1.5px solid #d97706',
+                      background: '#0f172a',
+                      color: '#fef08a',
+                      fontSize: 11.5,
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      boxShadow: '0 2px 6px rgba(15, 23, 42, 0.25)',
+                    }}
+                  >
+                    Solve on Map ▴
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMapPyqDockMode('hidden')}
+                    title="Dismiss floating question dock"
+                    style={{
+                      border: 'none',
+                      background: 'none',
+                      color: '#94a3b8',
+                      fontSize: 15,
+                      cursor: 'pointer',
+                      padding: '0 2px',
+                      fontWeight: 700,
+                    }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              );
+            }
+
+            // Expanded Mode: Full interactive High-Yield MCQ challenge card
+            return (
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: 16,
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  zIndex: 500,
+                  width: 'min(92%, 580px)',
+                  maxHeight: '48%',
+                  background: '#ffffff',
+                  border: '2px solid #f59e0b',
+                  borderRadius: 14,
+                  boxShadow:
+                    '0 16px 44px -8px rgba(245, 158, 11, 0.35), 0 8px 24px rgba(15, 23, 42, 0.15)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden',
+                }}
+              >
+                {/* Card Header with Warm Gold tint */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '9px 13px',
+                    background: 'linear-gradient(135deg, #fffdf5 0%, #fef3c7 100%)',
+                    borderBottom: '1.5px solid #fde68a',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span
+                      style={{
+                        fontSize: 10.5,
+                        fontWeight: 900,
+                        color: '#ffffff',
+                        background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
+                        padding: '3px 8px',
+                        borderRadius: 5,
+                        letterSpacing: '0.04em',
+                        boxShadow: '0 2px 6px rgba(234, 88, 12, 0.3)',
+                      }}
+                    >
+                      🔥 {currentMapQ?.exam} {currentMapQ?.examYear ? `(${currentMapQ.examYear})` : ''}
+                    </span>
+                    <span style={{ fontSize: 12, fontWeight: 800, color: '#0f172a' }}>
+                      Question {mapPyqIndex + 1} of {practiceQuestionsForSelected.length}
+                    </span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <button
+                      type="button"
+                      disabled={mapPyqIndex <= 0}
+                      onClick={() => setMapPyqIndex((i) => Math.max(0, i - 1))}
+                      style={{
+                        width: 24,
+                        height: 24,
+                        borderRadius: 6,
+                        border: '1px solid #cbd5e1',
+                        background: '#ffffff',
+                        color: mapPyqIndex <= 0 ? '#cbd5e1' : '#0f172a',
+                        cursor: mapPyqIndex <= 0 ? 'not-allowed' : 'pointer',
+                        fontSize: 13,
+                        fontWeight: 800,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      ‹
+                    </button>
+                    <button
+                      type="button"
+                      disabled={mapPyqIndex >= practiceQuestionsForSelected.length - 1}
+                      onClick={() =>
+                        setMapPyqIndex((i) =>
+                          Math.min(practiceQuestionsForSelected.length - 1, i + 1)
+                        )
+                      }
+                      style={{
+                        width: 24,
+                        height: 24,
+                        borderRadius: 6,
+                        border: '1px solid #cbd5e1',
+                        background: '#ffffff',
+                        color:
+                          mapPyqIndex >= practiceQuestionsForSelected.length - 1
+                            ? '#cbd5e1'
+                            : '#0f172a',
+                        cursor:
+                          mapPyqIndex >= practiceQuestionsForSelected.length - 1
+                            ? 'not-allowed'
+                            : 'pointer',
+                        fontSize: 13,
+                        fontWeight: 800,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      ›
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMapPyqDockMode('collapsed')}
+                      title="Minimize question card"
+                      style={{
+                        padding: '2px 8px',
+                        borderRadius: 6,
+                        border: '1px solid #cbd5e1',
+                        background: '#ffffff',
+                        color: '#475569',
+                        fontSize: 11,
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      Minimize ▾
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setMapPyqDockMode('hidden')}
+                      title="Close dock"
+                      style={{
+                        border: 'none',
+                        background: 'none',
+                        color: '#64748b',
+                        fontSize: 14,
+                        cursor: 'pointer',
+                        padding: '0 4px',
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+
+                {/* Card Body */}
+                <div style={{ padding: '12px 14px', overflowY: 'auto' }}>
+                  <div
+                    style={{
+                      fontSize: 12.5,
+                      fontWeight: 650,
+                      color: '#0f172a',
+                      lineHeight: 1.45,
+                      marginBottom: 10,
+                      whiteSpace: 'pre-line',
+                    }}
+                  >
+                    {currentMapQ?.stem}
+                  </div>
+
+                  {/* Options List */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                    {(currentMapQ?.options || []).map((opt) => {
+                      const isCorrect =
+                        (opt.label || '').toLowerCase() ===
+                        (currentMapQ.correctLabel || '').toLowerCase();
+                      const isSelected = chosen === opt.label;
+                      let border = '#cbd5e1';
+                      let bg = '#ffffff';
+                      let textColor = '#1e293b';
+                      if (isRevealed) {
+                        if (isCorrect) {
+                          border = '#10b981';
+                          bg = '#ecfdf5';
+                          textColor = '#065f46';
+                        } else if (isSelected) {
+                          border = '#ef4444';
+                          bg = '#fef2f2';
+                          textColor = '#991b1b';
+                        }
+                      }
+                      return (
+                        <button
+                          key={opt.label}
+                          type="button"
+                          onClick={() => handleOptionClick(currentMapQ.id, opt.label)}
+                          style={{
+                            textAlign: 'left',
+                            padding: '6px 9px',
+                            borderRadius: 7,
+                            border: `1.5px solid ${border}`,
+                            background: bg,
+                            color: textColor,
+                            fontSize: 11.5,
+                            cursor: 'pointer',
+                            fontWeight: isRevealed && isCorrect ? 800 : 600,
+                            lineHeight: 1.35,
+                            transition: 'all 0.12s ease',
+                          }}
+                        >
+                          <strong style={{ color: '#0f172a' }}>({opt.label})</strong> {opt.text}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {isRevealed && (
+                    <div
+                      style={{
+                        marginTop: 9,
+                        padding: '7px 11px',
+                        borderRadius: 7,
+                        background: isAnswerCorrect ? '#ecfdf5' : '#fef2f2',
+                        border: `1.5px solid ${isAnswerCorrect ? '#86efac' : '#fca5a5'}`,
+                        color: isAnswerCorrect ? '#065f46' : '#991b1b',
+                        fontWeight: 700,
+                        fontSize: 11.5,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                      }}
+                    >
+                      <span>
+                        {isAnswerCorrect ? '✓ Correct Answer: ' : '✗ Answer: '}
+                        ({currentMapQ.correctLabel?.toUpperCase()}) {currentMapQ.answerText}
+                      </span>
+                      {mapPyqIndex < practiceQuestionsForSelected.length - 1 && (
+                        <button
+                          type="button"
+                          onClick={() => setMapPyqIndex((i) => i + 1)}
+                          style={{
+                            border: 'none',
+                            background: '#0f172a',
+                            color: '#fef08a',
+                            padding: '3px 9px',
+                            borderRadius: 5,
+                            fontSize: 11,
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Next Question →
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            );
+          })()}
         </div>
 
         {/* ================================================================= */}
@@ -2795,39 +3202,45 @@ export default function MappingWorkspace({
                 }
                 style={{
                   width: '100%',
-                  padding: '11px 16px',
+                  padding: '12px 16px',
                   borderRadius: 10,
-                  border: 'none',
-                  background: '#0f172a',
+                  border: '1.5px solid #f59e0b',
+                  background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
                   color: '#ffffff',
                   fontSize: 13,
-                  fontWeight: 700,
+                  fontWeight: 800,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
+                  boxShadow: '0 4px 14px rgba(245, 158, 11, 0.22)',
+                  transition: 'all 0.15s ease',
                 }}
               >
-                <span>
-                  {panelMode === 'STUDY'
-                    ? 'Practice related PYQs & MCQs'
-                    : 'Return to Study Notes'}
+                <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                  <span style={{ color: '#f59e0b' }}>🔥</span>
+                  <span>
+                    {panelMode === 'STUDY'
+                      ? 'Practice related PYQs & MCQs'
+                      : 'Return to Study Notes'}
+                  </span>
                 </span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span
                     style={{
                       fontSize: 11.5,
-                      padding: '2px 8px',
+                      padding: '2px 9px',
                       borderRadius: 999,
-                      background: 'rgba(255,255,255,0.16)',
+                      background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
                       color: '#ffffff',
-                      fontWeight: 700,
+                      fontWeight: 900,
+                      boxShadow: '0 2px 6px rgba(234, 88, 12, 0.35)',
                     }}
                   >
                     {practiceQuestionsForSelected.length}{' '}
                     {practiceQuestionsForSelected.length === 1 ? 'question' : 'questions'}
                   </span>
-                  <span>→</span>
+                  <span style={{ color: '#f59e0b', fontWeight: 800 }}>→</span>
                 </div>
               </button>
             </div>

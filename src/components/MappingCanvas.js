@@ -206,10 +206,15 @@ function createNodeIcon(node, isSelected) {
     });
   }
 
-  const shortTitle =
-    (node.place || '').length > 30
-      ? `${node.place.slice(0, 28)}…`
-      : node.place;
+  const rawPlace = node.place || '';
+  const matchParen = rawPlace.match(/^([^(]+)\(([^)]+)\)$/);
+  const mainTitle = matchParen ? matchParen[1].trim() : rawPlace;
+  const subDetail = matchParen
+    ? matchParen[2].trim()
+    : [node.locatedIn?.stateOrProvince, node.locatedIn?.country].filter(Boolean).join(', ') || node.regionScope || '';
+
+  const cleanMain = mainTitle.length > 22 ? `${mainTitle.slice(0, 20)}…` : mainTitle;
+  const cleanSub = subDetail.length > 26 ? `${subDetail.slice(0, 24)}…` : subDetail;
 
   const activeBadgeContent = idxNum
     ? `<span style="font-family:Inter,system-ui,sans-serif;font-size:13px;font-weight:800;color:#ffffff;line-height:1;">${idxNum}</span>`
@@ -232,14 +237,16 @@ function createNodeIcon(node, isSelected) {
         </div>
         <div style="
           position:absolute;top:50%;left:38px;transform:translateY(-50%);
-          background:#0f172a;color:#ffffff;
-          border:1.5px solid rgba(239,68,68,0.75);
-          border-radius:7px;padding:4px 10px;
-          font-family:Inter,system-ui,sans-serif;font-size:12px;font-weight:700;
-          white-space:nowrap;box-shadow:0 6px 18px rgba(15,23,42,0.45), 0 0 12px rgba(239,68,68,0.35);
+          background:rgba(15, 23, 42, 0.95);backdrop-filter:blur(6px);color:#ffffff;
+          border:1.5px solid rgba(239,68,68,0.85);
+          border-radius:8px;padding:5px 11px;
+          font-family:Inter,system-ui,sans-serif;
+          white-space:nowrap;max-width:210px;overflow:hidden;
+          box-shadow:0 6px 20px rgba(15,23,42,0.5), 0 0 12px rgba(239,68,68,0.35);
           pointer-events:none;z-index:11;
         ">
-          ${shortTitle}
+          <div style="font-size:12px;font-weight:800;color:#ffffff;line-height:1.2;overflow:hidden;text-overflow:ellipsis;">${cleanMain}</div>
+          ${cleanSub ? `<div style="font-size:10px;font-weight:600;color:#94a3b8;margin-top:2px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;">${cleanSub}</div>` : ''}
         </div>
       </div>`,
     iconSize: [34, 34],
