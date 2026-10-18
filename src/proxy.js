@@ -15,16 +15,15 @@ export async function proxy(request) {
     pathname.startsWith("/manifest") ||
     pathname.startsWith("/sitemap") ||
     pathname.startsWith("/robots") ||
+    pathname.startsWith("/llms") ||
+    pathname.startsWith("/ai-catalog") ||
+    pathname.startsWith("/.well-known") ||
     pathname.startsWith("/search") ||
-    pathname === "/news" ||
-    pathname === "/news/" ||
-    pathname.startsWith("/news/") ||
-    pathname === "/prelims" ||
-    pathname === "/prelims/" ||
-    pathname.startsWith("/prelims/pyq") ||
-    pathname.startsWith("/prelims/prepare") ||
-    pathname.startsWith("/mains") ||
+    pathname.startsWith("/mapping") ||
     pathname.startsWith("/atlas") ||
+    pathname.startsWith("/news") ||
+    pathname.startsWith("/prelims") ||
+    pathname.startsWith("/mains") ||
     pathname.startsWith("/issues") ||
     pathname.startsWith("/node")
   ) {
