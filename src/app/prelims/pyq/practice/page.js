@@ -1,8 +1,9 @@
-import { PrismaClient } from '@prisma/client';
+import { redirect } from 'next/navigation';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
+import prisma from '@/lib/prisma';
 import PracticeClient from './PracticeClient';
 import { isNewPatternQuestion } from '@/lib/pyqPattern';
-
-const prisma = new PrismaClient();
 
 export const dynamic = 'force-dynamic';
 export const metadata = {
@@ -42,6 +43,13 @@ export default async function PracticePage({ searchParams }) {
 
   const drill = get('drill'); // 'daily'
   const isDailyDrill = drill === 'daily';
+
+  // Require login for custom quiz sets & practice sessions (prevents bulk scraping via /practice?n=100)
+  const session = await getServerSession(authOptions);
+  if (!session?.user && !isDailyDrill) {
+    redirect('/login?callbackUrl=' + encodeURIComponent('/prelims/pyq'));
+  }
+
   const pattern = get('pattern'); // 'new'
   const mode = get('mode') === 'practice' ? 'practice' : 'exam';
   const subject = get('subject');
@@ -51,9 +59,9 @@ export default async function PracticePage({ searchParams }) {
   const exam = get('exam');
   const years = get('years');
   const ids = get('ids').split(',').map(s => s.trim()).filter(Boolean);
-  const n = isDailyDrill 
-    ? Math.min(Math.max(parseInt(get('n'), 10) || 10, 5), 35) 
-    : Math.min(Math.max(parseInt(get('n'), 10) || 20, 5), 100);
+  const n = isDailyDrill
+    ? 10
+    : Math.min(Math.max(parseInt(get('n'), 10) || 20, 5), 50);
 
   // Dropped questions (no official key) can't be graded — exclude them from tests
   const where = { correctLabel: { not: null } };
@@ -97,7 +105,6 @@ export default async function PracticePage({ searchParams }) {
 
   let picked = [];
   if (ids.length > 0) {
-    // Keep order of ids or rows
     picked = rows.slice(0, n);
   } else if (isDailyDrill) {
     const todayStr = new Date().toISOString().slice(0, 10);

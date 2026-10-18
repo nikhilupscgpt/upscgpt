@@ -35,19 +35,29 @@ export default function StudentLogin() {
     }
   }
 
+  const getCallbackUrl = () => {
+    if (typeof window !== 'undefined') {
+      const sp = new URLSearchParams(window.location.search)
+      const cb = sp.get('callbackUrl')
+      if (cb && cb.startsWith('/')) return cb
+    }
+    return '/prelims/pyq'
+  }
+
   const handleVerifyOtp = async (e) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
+    const targetUrl = getCallbackUrl()
     const result = await signIn('otp', {
       email,
       otp,
       redirect: false,
-      callbackUrl: '/atlas'
+      callbackUrl: targetUrl
     })
 
     if (result?.ok) {
-      window.location.href = '/atlas'
+      window.location.href = targetUrl
     } else {
       setError("Invalid OTP or expired")
       setLoading(false)
@@ -176,7 +186,7 @@ export default function StudentLogin() {
 
         {/* Secondary Action: Google */}
         <button
-          onClick={() => signIn('google', { callbackUrl: '/atlas' })}
+          onClick={() => signIn('google', { callbackUrl: getCallbackUrl() })}
           style={{
             width: '100%', padding: '14px 24px', borderRadius: '16px', border: '1px solid var(--border-color)',
             background: 'transparent', color: 'var(--text-primary)', fontWeight: 700, fontSize: '0.95rem',

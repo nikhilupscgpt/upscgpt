@@ -2,12 +2,11 @@
 
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
+import { useSession, signIn } from 'next-auth/react';
 import {
   Search,
   Bookmark,
-  ArrowRight,
   ArrowLeft,
-  X,
   ExternalLink,
   Sparkles,
   BookOpen,
@@ -15,13 +14,19 @@ import {
   RotateCcw,
   Flame,
   Globe2,
+  Lock,
+  Mail,
+  Key,
+  ShieldCheck,
+  CheckCircle2,
+  X,
 } from 'lucide-react';
 import StemView from './StemView';
 import QuizSetupModal from './QuizSetupModal';
 import { usePyqStore } from './pyqStore';
 import { SUBJECT_ORDER, SUBJECT_SHORT } from './topicGroups';
 import { generateQuestionSlug } from '@/lib/pyqSlug';
-import { isNewPatternQuestion, isPairQuestion, isStatementQuestion } from '@/lib/pyqPattern';
+import { isPairQuestion, isStatementQuestion } from '@/lib/pyqPattern';
 import './pyq-ui.css';
 
 const PAGE_SIZE = 10;
@@ -45,13 +50,6 @@ const SUBJECT_META = {
   'Agriculture': { icon: '🌾', color: '#84cc16' },
 };
 
-function inBucket(year, bucket) {
-  if (bucket === 'ALL') return true;
-  if (/^\d{4}$/.test(bucket)) return year === Number(bucket);
-  const [lo, hi] = bucket.split('-').map(Number);
-  return year >= lo && year <= hi;
-}
-
 function difficultyOf(q) {
   const s = q.stem || '';
   if (/Statement[\s-]*(I|1)\b|How many of the (above|following)/i.test(s)) return { label: 'Moderate', cls: 'pq-tag-mod' };
@@ -60,8 +58,14 @@ function difficultyOf(q) {
 }
 
 export default function PyqExplorerClient({ initialQuestions = [], initialMetadata = null }) {
-  const [questions, setQuestions] = useState(initialQuestions || []);
+  const { data: session, status: sessionStatus } = useSession();
+  const isAuthenticated = sessionStatus === 'authenticated' && Boolean(session?.user);
+
+  const [pageItems, setPageItems] = useState(initialQuestions || []);
+  const [totalFiltered, setTotalFiltered] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [loadingQuestions, setLoadingQuestions] = useState(false);
+
   const [subject, setSubject] = useState('ALL');
   const [topic, setTopic] = useState('ALL');
   const [exam, setExam] = useState('ALL');
@@ -69,14 +73,33 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
   const [show, setShow] = useState('ALL');
   const [patternFilter, setPatternFilter] = useState('ALL'); // 'ALL' | 'NEW'
   const [query, setQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   const [page, setPage] = useState(1);
+
   const [quizModalOpen, setQuizModalOpen] = useState(false);
+  const [authGateReason, setAuthGateReason] = useState(null); // null or string description
   const [revealed, setRevealed] = useState({});
   const [urlReady, setUrlReady] = useState(false);
+
   const searchRef = useRef(null);
   const feedTopRef = useRef(null);
 
   const { attempts, bookmarks, mistakes, streak, isStreakCompletedToday, recordAttempt, clearAttempt, toggleBookmark } = usePyqStore();
+
+  /* Clear any legacy bulk-dump sessionStorage item so full dataset never sits in browser storage */
+  useEffect(() => {
+    try {
+      sessionStorage.removeItem('upscgpt_pyq_store_v1');
+    } catch (_) {}
+  }, []);
+
+  /* Debounce search input */
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(query.trim());
+    }, 280);
+    return () => clearTimeout(timer);
+  }, [query]);
 
   /* ---- URL <-> state ---- */
   useEffect(() => {
@@ -84,7 +107,10 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
     const q = p.get('q');
     const s = p.get('show');
     const pat = p.get('pattern');
-    if (q) setQuery(q);
+    if (q) {
+      setQuery(q);
+      setDebouncedQuery(q.trim());
+    }
     if (p.get('subject')) setSubject(p.get('subject'));
     if (p.get('topic')) setTopic(p.get('topic'));
     if (p.get('exam')) setExam(p.get('exam'));
@@ -120,91 +146,25 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  /* Background hydration of full PYQ database */
-  useEffect(() => {
-    if (questions.length >= 1000) return;
-
-    let isMounted = true;
-
-    // Check sessionStorage cache first for instant hydration
-    try {
-      const cached = sessionStorage.getItem('upscgpt_pyq_store_v1');
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed) && parsed.length > 500) {
-          setQuestions(parsed);
-          return;
-        }
-      }
-    } catch (e) {}
-
-    setLoadingQuestions(true);
-    fetch('/api/pyq')
-      .then(res => res.json())
-      .then(data => {
-        if (!isMounted) return;
-        if (data.success && Array.isArray(data.questions) && data.questions.length > 0) {
-          setQuestions(data.questions);
-          try {
-            sessionStorage.setItem('upscgpt_pyq_store_v1', JSON.stringify(data.questions));
-          } catch (e) {}
-        }
-      })
-      .catch(err => {
-        console.error('Failed to load full question database:', err);
-      })
-      .finally(() => {
-        if (isMounted) setLoadingQuestions(false);
-      });
-
-    return () => { isMounted = false; };
-  }, []);
-
-  /* ---- Derived data ---- */
+  /* ---- Derived metadata from SSR initialMetadata ---- */
   const subjectStats = useMemo(() => {
     if (initialMetadata?.subjectStats && initialMetadata.subjectStats.length > 0) {
       return initialMetadata.subjectStats;
     }
+    return SUBJECT_ORDER.map(s => ({
+      name: s,
+      short: SUBJECT_SHORT[s] || s,
+      count: 0,
+      topTopics: [],
+      allTopics: [],
+      newPatternCount: 0,
+      meta: SUBJECT_META[s] || { icon: '📚', color: '#64748b' },
+    }));
+  }, [initialMetadata]);
 
-    const map = new Map();
-    for (const q of questions) {
-      if (!map.has(q.srcSubject)) {
-        map.set(q.srcSubject, { count: 0, topics: new Map() });
-      }
-      const entry = map.get(q.srcSubject);
-      entry.count++;
-      if (q.srcTopic) {
-        entry.topics.set(q.srcTopic, (entry.topics.get(q.srcTopic) || 0) + 1);
-      }
-    }
-
-    const order = SUBJECT_ORDER.filter(s => map.has(s));
-    const extra = [...map.keys()].filter(s => !SUBJECT_ORDER.includes(s));
-    return [...order, ...extra].map(s => {
-      const data = map.get(s);
-      const topTopics = [...data.topics.entries()]
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 4)
-        .map(([t]) => t);
-      return {
-        name: s,
-        short: SUBJECT_SHORT[s] || s,
-        count: data.count,
-        topTopics,
-        meta: SUBJECT_META[s] || { icon: '📚', color: '#64748b' },
-      };
-    });
-  }, [questions, initialMetadata]);
-
-  const searching = query.trim().length > 0;
+  const searching = debouncedQuery.length > 0;
   const mistakeCount = Object.keys(mistakes).length;
-
-  const totalNewPatternCount = useMemo(() => {
-    if (initialMetadata?.totalNewPattern !== undefined) {
-      return initialMetadata.totalNewPattern;
-    }
-    return questions.filter(isNewPatternQuestion).length;
-  }, [questions, initialMetadata]);
+  const totalNewPatternCount = initialMetadata?.totalNewPattern ?? 0;
 
   const showOptions = useMemo(() => [
     ['ALL', 'All'],
@@ -214,95 +174,141 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
     ['MARKED', 'Bookmarked'],
   ], [mistakeCount]);
 
-  // Questions matching active subject & search
-  const scope = useMemo(() => {
-    const needle = query.trim().toLowerCase();
-    return questions.filter(q => {
-      if (patternFilter === 'NEW' && !isNewPatternQuestion(q)) return false;
-      if (subject !== 'ALL' && q.srcSubject !== subject) return false;
-      if (topic !== 'ALL' && q.srcTopic !== topic) return false;
-      if (exam !== 'ALL' && !(q.examName || '').includes(exam === 'UPSC CSE' ? 'CSE' : 'CDS')) return false;
-      if (!inBucket(q.examYear, years)) return false;
+  /* ---- Server-Side Paginated Fetch (Strictly 10 Questions per Page) ---- */
+  useEffect(() => {
+    if (!urlReady) return;
+    // When on Subject Hub (no subject selected, not searching, no New Pattern filter), no question fetch needed
+    if (subject === 'ALL' && !searching && patternFilter === 'ALL') {
+      setPageItems([]);
+      setTotalFiltered(0);
+      setTotalPages(1);
+      return;
+    }
 
-      if (needle) {
-        const inStem = (q.stem || '').toLowerCase().includes(needle);
-        const inTopic = (q.srcTopic || '').toLowerCase().includes(needle);
-        const inSubject = (q.srcSubject || '').toLowerCase().includes(needle);
-        const inOptions = (q.options || []).some(o => (o.text || '').toLowerCase().includes(needle));
-        const inExplanation = (q.explanation || '').toLowerCase().includes(needle);
-        if (!inStem && !inTopic && !inSubject && !inOptions && !inExplanation) {
-          return false;
+    let cancelled = false;
+    async function loadPage() {
+      setLoadingQuestions(true);
+      try {
+        const params = new URLSearchParams();
+        params.set('page', String(page));
+        if (subject !== 'ALL') params.set('subject', subject);
+        if (topic !== 'ALL') params.set('topic', topic);
+        if (exam !== 'ALL') params.set('exam', exam);
+        if (years !== 'ALL') params.set('years', years);
+        if (patternFilter === 'NEW') params.set('pattern', 'NEW');
+        if (debouncedQuery) params.set('q', debouncedQuery);
+
+        if (show === 'MISTAKES') {
+          const ids = Object.keys(mistakes);
+          if (ids.length === 0) {
+            setPageItems([]);
+            setTotalFiltered(0);
+            setTotalPages(1);
+            setLoadingQuestions(false);
+            return;
+          }
+          params.set('ids', ids.join(','));
+        } else if (show === 'MARKED') {
+          const ids = Object.keys(bookmarks);
+          if (ids.length === 0) {
+            setPageItems([]);
+            setTotalFiltered(0);
+            setTotalPages(1);
+            setLoadingQuestions(false);
+            return;
+          }
+          params.set('ids', ids.join(','));
+        } else if (show === 'WRONG') {
+          const ids = Object.entries(attempts)
+            .filter(([, a]) => a && !a.ok)
+            .map(([id]) => id);
+          if (ids.length === 0) {
+            setPageItems([]);
+            setTotalFiltered(0);
+            setTotalPages(1);
+            setLoadingQuestions(false);
+            return;
+          }
+          params.set('ids', ids.join(','));
+        } else if (show === 'NEW') {
+          const attemptedIds = Object.keys(attempts);
+          if (attemptedIds.length > 0) {
+            params.set('excludeIds', attemptedIds.join(','));
+          }
         }
+
+        const res = await fetch(`/api/pyq?${params.toString()}`);
+        const data = await res.json();
+        if (cancelled) return;
+
+        if (res.status === 401 || data?.requiresAuth) {
+          setAuthGateReason(
+            page > 1
+              ? `Sign in free to unlock Page ${page} and all 2,528+ solved UPSC Prelims questions.`
+              : 'Sign in free to use full-text keyword search, New Pattern filters, and custom quizzes.'
+          );
+          if (page > 1) setPage(1);
+          return;
+        }
+
+        if (data?.success && Array.isArray(data.questions)) {
+          setPageItems(data.questions);
+          setTotalFiltered(data.total || 0);
+          setTotalPages(data.totalPages || 1);
+        }
+      } catch (err) {
+        console.error('Failed to fetch paginated PYQ page:', err);
+      } finally {
+        if (!cancelled) setLoadingQuestions(false);
       }
+    }
 
-      return true;
-    });
-  }, [questions, query, subject, topic, exam, years, patternFilter]);
-
-  const filtered = useMemo(() => {
-    if (show === 'ALL') return scope;
-    return scope.filter(q => {
-      const a = attempts[q.id];
-      if (show === 'NEW') return !a;
-      if (show === 'WRONG') return a && !a.ok;
-      if (show === 'MISTAKES') return !!mistakes[q.id];
-      if (show === 'MARKED') return !!bookmarks[q.id];
-      return true;
-    });
-  }, [scope, show, attempts, mistakes, bookmarks]);
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const pageItems = useMemo(
-    () => filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
-    [filtered, page]
-  );
+    loadPage();
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    urlReady,
+    subject,
+    topic,
+    exam,
+    years,
+    patternFilter,
+    debouncedQuery,
+    searching,
+    show,
+    page,
+    isAuthenticated,
+  ]);
 
   // Topics for the active subject dropdown
   const activeSubjectTopics = useMemo(() => {
     if (subject === 'ALL') return [];
-    if (initialMetadata?.subjectStats) {
-      const match = initialMetadata.subjectStats.find(s => s.name === subject);
-      if (match?.allTopics && match.allTopics.length > 0) {
-        return match.allTopics;
-      }
-    }
-    const m = new Map();
-    for (const q of questions) {
-      if (q.srcSubject === subject && q.srcTopic) {
-        m.set(q.srcTopic, (m.get(q.srcTopic) || 0) + 1);
-      }
-    }
-    return [...m.entries()].sort((a, b) => b[1] - a[1]);
-  }, [questions, subject, initialMetadata]);
-
-  const activeSubjectMistakesCount = useMemo(() => {
-    if (subject === 'ALL') return mistakeCount;
-    return questions.filter(q => q.srcSubject === subject && mistakes[q.id]).length;
-  }, [questions, subject, mistakes, mistakeCount]);
+    const match = subjectStats.find(s => s.name === subject);
+    return match?.allTopics || [];
+  }, [subject, subjectStats]);
 
   const activeSubjectNewPatternCount = useMemo(() => {
     if (subject === 'ALL') return totalNewPatternCount;
-    if (initialMetadata?.subjectStats) {
-      const match = initialMetadata.subjectStats.find(s => s.name === subject);
-      if (match?.newPatternCount !== undefined) {
-        return match.newPatternCount;
-      }
-    }
-    return questions.filter(q => q.srcSubject === subject && isNewPatternQuestion(q)).length;
-  }, [questions, subject, totalNewPatternCount, initialMetadata]);
+    const match = subjectStats.find(s => s.name === subject);
+    return match?.newPatternCount ?? 0;
+  }, [subject, subjectStats, totalNewPatternCount]);
 
   const totalSubjectQs = useMemo(() => {
-    if (initialMetadata?.subjectStats) {
-      const match = initialMetadata.subjectStats.find(s => s.name === subject);
-      if (match?.count !== undefined) {
-        return match.count;
-      }
-    }
-    return questions.filter(q => q.srcSubject === subject).length;
-  }, [questions, subject, initialMetadata]);
+    const match = subjectStats.find(s => s.name === subject);
+    return match?.count ?? 0;
+  }, [subject, subjectStats]);
 
-  /* ---- Handlers ---- */
+  /* ---- Handlers with Smart Auth Gate ---- */
   const resetPage = () => setPage(1);
+
+  const requireAuthOrRun = (reason, callback) => {
+    if (!isAuthenticated) {
+      setAuthGateReason(reason);
+      return;
+    }
+    callback();
+  };
 
   const selectSubject = (s) => {
     setSubject(s);
@@ -310,6 +316,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
     setShow('ALL');
     setPatternFilter('ALL');
     setQuery('');
+    setDebouncedQuery('');
     resetPage();
   };
 
@@ -319,20 +326,32 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
     setShow('ALL');
     setPatternFilter('ALL');
     setQuery('');
+    setDebouncedQuery('');
     resetPage();
   };
 
   const onSearch = (v) => {
+    if (!isAuthenticated && v.trim().length > 1) {
+      setAuthGateReason('Sign in free to search across all 2,528+ UPSC CSE & CDS questions by keyword or Article.');
+      return;
+    }
     setQuery(v);
     resetPage();
   };
 
   const clearSearch = () => {
     setQuery('');
+    setDebouncedQuery('');
     resetPage();
   };
 
   const goPage = (n) => {
+    if (n > 1 && !isAuthenticated) {
+      setAuthGateReason(
+        `You've completed the Page 1 preview! Sign in free to continue to Page ${n} and unlock all ${totalFiltered} questions in ${topic !== 'ALL' ? topic : subject}.`
+      );
+      return;
+    }
     setPage(n);
     feedTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
@@ -368,7 +387,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
   // =========================================================================
   // VIEW 1: SUBJECT HUB (When no subject is picked and not searching)
   // =========================================================================
-  if (subject === 'ALL' && !searching) {
+  if (subject === 'ALL' && !searching && patternFilter === 'ALL') {
     return (
       <div className="pq-root">
         <div className="pq-hub-shell">
@@ -397,7 +416,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                 className="pq-btn pq-btn-primary pq-shc-btn"
               >
                 <Flame size={15} />
-                {isStreakCompletedToday ? 'Review Today\'s Drill' : '▶ Start Today\'s Drill (10 Qs)'}
+                {isStreakCompletedToday ? "Review Today's Drill" : "▶ Start Today's Drill (10 Qs)"}
               </Link>
             </div>
           </div>
@@ -436,7 +455,12 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
               <button
                 className={`pq-btn ${patternFilter === 'NEW' ? 'pq-btn-primary' : ''}`}
                 style={{ fontWeight: 800, padding: '11px 16px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
-                onClick={() => setPatternFilter(p => p === 'NEW' ? 'ALL' : 'NEW')}
+                onClick={() =>
+                  requireAuthOrRun(
+                    'Sign in free to filter all 2022–2025 New Pattern (Statement-I/II & How Many Pairs) UPSC questions.',
+                    () => setPatternFilter(p => (p === 'NEW' ? 'ALL' : 'NEW'))
+                  )
+                }
               >
                 <Flame size={15} />
                 {patternFilter === 'NEW' ? 'Showing New Pattern' : `🔥 New Pattern (${totalNewPatternCount} Qs)`}
@@ -445,19 +469,32 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
               <button
                 className="pq-btn"
                 style={{ fontWeight: 800, padding: '11px 16px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
-                onClick={() => setQuizModalOpen(true)}
+                onClick={() =>
+                  requireAuthOrRun(
+                    'Sign in free to build custom multi-subject practice tests and timed mock exams.',
+                    () => setQuizModalOpen(true)
+                  )
+                }
               >
                 <Sparkles size={15} /> Custom Quiz Builder
               </button>
 
               {mistakeCount > 0 && (
-                <Link
-                  href={`/prelims/pyq/practice?ids=${Object.keys(mistakes).slice(0, 50).join(',')}&mode=practice`}
+                <button
+                  type="button"
+                  onClick={() =>
+                    requireAuthOrRun(
+                      'Sign in free to revise your personal Mistake Notebook.',
+                      () => {
+                        window.location.href = `/prelims/pyq/practice?ids=${Object.keys(mistakes).slice(0, 50).join(',')}&mode=practice`;
+                      }
+                    )
+                  }
                   className="pq-btn"
-                  style={{ textDecoration: 'none', fontWeight: 800, padding: '11px 16px', display: 'inline-flex', alignItems: 'center', gap: 6, borderColor: 'var(--pq-gold)', color: 'var(--pq-gold)' }}
+                  style={{ fontWeight: 800, padding: '11px 16px', display: 'inline-flex', alignItems: 'center', gap: 6, borderColor: 'var(--pq-gold)', color: 'var(--pq-gold)' }}
                 >
                   <RotateCcw size={15} /> Revise {mistakeCount} Mistakes
-                </Link>
+                </button>
               )}
             </div>
           </header>
@@ -471,11 +508,11 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                     <h2 className="pq-sc-name">{s.name}</h2>
                     <span className="pq-sc-count">{s.count} Previous Year Questions</span>
                   </div>
-                  <span className="pq-sc-icon" aria-hidden="true">{s.meta.icon}</span>
+                  <span className="pq-sc-icon" aria-hidden="true">{s.meta?.icon || '📚'}</span>
                 </div>
 
                 <div className="pq-sc-topics">
-                  {s.topTopics.map(t => (
+                  {(s.topTopics || []).map(t => (
                     <span key={t} className="pq-sc-topic-chip">{t}</span>
                   ))}
                 </div>
@@ -487,12 +524,20 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                   >
                     Browse Questions
                   </button>
-                  <Link
-                    href={`/prelims/pyq/practice?subject=${encodeURIComponent(s.name)}&mode=practice&n=20`}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      requireAuthOrRun(
+                        `Sign in free to launch interactive 1-by-1 Practice Mode for ${s.name}.`,
+                        () => {
+                          window.location.href = `/prelims/pyq/practice?subject=${encodeURIComponent(s.name)}&mode=practice&n=20`;
+                        }
+                      )
+                    }
                     className="pq-sc-btn pq-sc-btn-primary"
                   >
                     <Play size={13} fill="currentColor" /> Practice (1 by 1)
-                  </Link>
+                  </button>
                 </div>
               </div>
             ))}
@@ -502,14 +547,19 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
         <QuizSetupModal
           isOpen={quizModalOpen}
           onClose={() => setQuizModalOpen(false)}
-          questions={questions}
+          initialMetadata={initialMetadata}
+        />
+
+        <AuthGateModal
+          reason={authGateReason}
+          onClose={() => setAuthGateReason(null)}
         />
       </div>
     );
   }
 
   // =========================================================================
-  // VIEW 2: FOCUSED SUBJECT VIEW (Simple, clutter-free single column!)
+  // VIEW 2: FOCUSED SUBJECT VIEW (Server-Paginated 10 Qs per Page)
   // =========================================================================
   const subjectMeta = SUBJECT_META[subject] || { icon: '📚', color: '#64748b' };
 
@@ -532,34 +582,55 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                 {subject !== 'ALL' ? subject : (searching ? `Search: “${query}”` : 'All Questions')}
               </h1>
               <span style={{ fontSize: 13, color: 'var(--pq-muted)', fontWeight: 600, display: 'block', marginTop: 4 }}>
-                {filtered.length} questions {subject !== 'ALL' ? `in ${subject}` : ''} {searching ? `· matching “${query}”` : ''} {topic !== 'ALL' ? `· Topic: ${topic}` : ''} {patternFilter === 'NEW' ? '· 🔥 New Pattern Only' : ''}
+                {totalFiltered} questions {subject !== 'ALL' ? `in ${subject}` : ''} {searching ? `· matching “${query}”` : ''} {topic !== 'ALL' ? `· Topic: ${topic}` : ''} {patternFilter === 'NEW' ? '· 🔥 New Pattern Only' : ''}
               </span>
             </div>
 
             <div className="pq-focus-actions">
-              <Link
-                href={practiceUrl}
+              <button
+                type="button"
+                onClick={() =>
+                  requireAuthOrRun(
+                    'Sign in free to launch step-by-step Practice Mode.',
+                    () => {
+                      window.location.href = practiceUrl;
+                    }
+                  )
+                }
                 className="pq-btn pq-btn-primary"
-                style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 800 }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 800 }}
               >
                 <Play size={14} fill="currentColor" /> Attempt in Practice Mode
-              </Link>
+              </button>
 
               <button
                 className="pq-btn"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 700 }}
-                onClick={() => setQuizModalOpen(true)}
+                onClick={() =>
+                  requireAuthOrRun(
+                    'Sign in free to build custom multi-subject practice tests.',
+                    () => setQuizModalOpen(true)
+                  )
+                }
               >
                 <Sparkles size={14} /> Build Quiz
               </button>
 
-              {activeSubjectMistakesCount > 0 && (
+              {mistakeCount > 0 && (
                 <button
                   className={`pq-btn ${show === 'MISTAKES' ? 'is-active' : ''}`}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: 6, borderColor: 'var(--pq-gold)', color: 'var(--pq-gold)' }}
-                  onClick={() => { setShow(show === 'MISTAKES' ? 'ALL' : 'MISTAKES'); resetPage(); }}
+                  onClick={() =>
+                    requireAuthOrRun(
+                      'Sign in free to filter by your personal Mistake Notebook.',
+                      () => {
+                        setShow(show === 'MISTAKES' ? 'ALL' : 'MISTAKES');
+                        resetPage();
+                      }
+                    )
+                  }
                 >
-                  <BookOpen size={14} /> Notebook ({activeSubjectMistakesCount})
+                  <BookOpen size={14} /> Notebook ({mistakeCount})
                 </button>
               )}
             </div>
@@ -575,7 +646,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                 onChange={e => onSearch(e.target.value)}
                 placeholder={subject !== 'ALL'
                   ? `Search keywords in ${subject} (e.g. Article 21, Money Bill, Preamble)...`
-                  : "Search any keyword, article or theme across all subjects..."}
+                  : 'Search any keyword, article or theme across all subjects...'}
                 aria-label="Search previous year questions"
               />
               {query && (
@@ -594,7 +665,15 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
               <button
                 type="button"
                 className="pq-btn"
-                onClick={() => { setSubject('ALL'); resetPage(); }}
+                onClick={() =>
+                  requireAuthOrRun(
+                    'Sign in free to search across all 10 subjects simultaneously.',
+                    () => {
+                      setSubject('ALL');
+                      resetPage();
+                    }
+                  )
+                }
                 style={{
                   padding: '9px 14px',
                   fontSize: '12px',
@@ -602,7 +681,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '6px',
-                  whiteSpace: 'nowrap'
+                  whiteSpace: 'nowrap',
                 }}
                 title="Search across all 2,528 questions"
               >
@@ -643,7 +722,15 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                 </button>
                 <button
                   className={patternFilter === 'NEW' ? 'is-active' : ''}
-                  onClick={() => { setPatternFilter(patternFilter === 'NEW' ? 'ALL' : 'NEW'); resetPage(); }}
+                  onClick={() =>
+                    requireAuthOrRun(
+                      'Sign in free to filter by New UPSC Pattern (Statement I/II & Pair-based) questions.',
+                      () => {
+                        setPatternFilter(patternFilter === 'NEW' ? 'ALL' : 'NEW');
+                        resetPage();
+                      }
+                    )
+                  }
                 >
                   🔥 New Pattern ({activeSubjectNewPatternCount})
                 </button>
@@ -673,7 +760,20 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
             <span className="pq-flabel">Filter</span>
             <div className="pq-seg">
               {showOptions.map(([v, l]) => (
-                <button key={v} className={show === v ? 'is-active' : ''} onClick={() => { setShow(v); resetPage(); }}>{l}</button>
+                <button
+                  key={v}
+                  className={show === v ? 'is-active' : ''}
+                  onClick={() => {
+                    if (v !== 'ALL' && !isAuthenticated) {
+                      setAuthGateReason('Sign in free to filter by Unattempted, Wrong, Mistake Notebook, and Bookmarked questions.');
+                      return;
+                    }
+                    setShow(v);
+                    resetPage();
+                  }}
+                >
+                  {l}
+                </button>
               ))}
             </div>
           </div>
@@ -681,40 +781,38 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
 
         {/* Question Feed */}
         <main ref={feedTopRef}>
-          {pageItems.length === 0 ? (
-            loadingQuestions ? (
-              <div className="pq-skeleton-list">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="pq-card pq-qcard pq-skeleton-card">
-                    <div className="pq-skeleton-tags">
-                      <div className="pq-skeleton-pill" style={{ width: 120 }}></div>
-                      <div className="pq-skeleton-pill" style={{ width: 60 }}></div>
-                      <div className="pq-skeleton-pill" style={{ width: 100 }}></div>
-                    </div>
-                    <div className="pq-skeleton-line" style={{ width: '92%', height: 18, margin: '14px 0 8px' }}></div>
-                    <div className="pq-skeleton-line" style={{ width: '85%', height: 18, marginBottom: 8 }}></div>
-                    <div className="pq-skeleton-line" style={{ width: '60%', height: 18, marginBottom: 20 }}></div>
-                    <div className="pq-skeleton-opts">
-                      <div className="pq-skeleton-opt"></div>
-                      <div className="pq-skeleton-opt"></div>
-                      <div className="pq-skeleton-opt"></div>
-                      <div className="pq-skeleton-opt"></div>
-                    </div>
+          {loadingQuestions ? (
+            <div className="pq-skeleton-list">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="pq-card pq-qcard pq-skeleton-card">
+                  <div className="pq-skeleton-tags">
+                    <div className="pq-skeleton-pill" style={{ width: 120 }}></div>
+                    <div className="pq-skeleton-pill" style={{ width: 60 }}></div>
+                    <div className="pq-skeleton-pill" style={{ width: 100 }}></div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="pq-card pq-empty" style={{ padding: 40, textAlign: 'center' }}>
-                <h3 style={{ margin: '0 0 8px' }}>No questions match this filter</h3>
-                <p style={{ margin: '0 0 16px', color: 'var(--pq-muted)' }}>Try resetting format, topic, year, or review filters.</p>
-                <button
-                  className="pq-btn pq-btn-primary"
-                  onClick={() => { setTopic('ALL'); setExam('ALL'); setYears('ALL'); setShow('ALL'); setPatternFilter('ALL'); resetPage(); }}
-                >
-                  Reset filters
-                </button>
-              </div>
-            )
+                  <div className="pq-skeleton-line" style={{ width: '92%', height: 18, margin: '14px 0 8px' }}></div>
+                  <div className="pq-skeleton-line" style={{ width: '85%', height: 18, marginBottom: 8 }}></div>
+                  <div className="pq-skeleton-line" style={{ width: '60%', height: 18, marginBottom: 20 }}></div>
+                  <div className="pq-skeleton-opts">
+                    <div className="pq-skeleton-opt"></div>
+                    <div className="pq-skeleton-opt"></div>
+                    <div className="pq-skeleton-opt"></div>
+                    <div className="pq-skeleton-opt"></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : pageItems.length === 0 ? (
+            <div className="pq-card pq-empty" style={{ padding: 40, textAlign: 'center' }}>
+              <h3 style={{ margin: '0 0 8px' }}>No questions match this filter</h3>
+              <p style={{ margin: '0 0 16px', color: 'var(--pq-muted)' }}>Try resetting format, topic, year, or review filters.</p>
+              <button
+                className="pq-btn pq-btn-primary"
+                onClick={() => { setTopic('ALL'); setExam('ALL'); setYears('ALL'); setShow('ALL'); setPatternFilter('ALL'); resetPage(); }}
+              >
+                Reset filters
+              </button>
+            </div>
           ) : (
             pageItems.map(q => (
               <QuestionCard
@@ -726,16 +824,82 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                 onPick={onPick}
                 onReveal={() => setRevealed(r => ({ ...r, [q.id]: true }))}
                 onTryAgain={() => tryAgain(q)}
-                onBookmark={() => toggleBookmark(q.id)}
+                onBookmark={() =>
+                  requireAuthOrRun(
+                    'Sign in free to bookmark important PYQs to your personal revision list.',
+                    () => toggleBookmark(q.id)
+                  )
+                }
               />
             ))
           )}
 
-          {filtered.length > PAGE_SIZE && (
+          {/* Free Account Conversion Banner on Page 1 for Anonymous Visitors */}
+          {!isAuthenticated && totalPages > 1 && !loadingQuestions && (
+            <div
+              style={{
+                marginTop: 22,
+                padding: '20px 24px',
+                borderRadius: 16,
+                background: 'linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(139, 92, 246, 0.08))',
+                border: '1.5px solid rgba(59, 130, 246, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: 16,
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, maxWidth: 580 }}>
+                <div
+                  style={{
+                    width: 38,
+                    height: 38,
+                    borderRadius: 10,
+                    background: 'rgba(37, 99, 235, 0.14)',
+                    color: '#3b82f6',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  <Lock size={18} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--pq-ink)' }}>
+                    Unlock all {totalFiltered} questions in {topic !== 'ALL' ? topic : subject} (100% Free)
+                  </div>
+                  <div style={{ fontSize: 13, color: 'var(--pq-muted)', marginTop: 3, lineHeight: 1.5 }}>
+                    You are viewing the first 10 preview questions (Page 1 of {totalPages}). Sign in with Google or Email OTP to unlock all pages, keyword search, custom quizzes, and mistake tracking.
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className="pq-btn pq-btn-primary"
+                style={{ fontWeight: 800, padding: '11px 18px', whiteSpace: 'nowrap' }}
+                onClick={() =>
+                  setAuthGateReason(
+                    `Sign in free to unlock all ${totalFiltered} questions in ${topic !== 'ALL' ? topic : subject}.`
+                  )
+                }
+              >
+                Unlock All {totalPages} Pages Free →
+              </button>
+            </div>
+          )}
+
+          {totalPages > 1 && (
             <div className="pq-pager" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 20 }}>
               <button className="pq-btn" disabled={page <= 1} onClick={() => goPage(page - 1)}>← Previous</button>
-              <span style={{ fontSize: 13, fontWeight: 700 }}>Page {page} of {totalPages}</span>
-              <button className="pq-btn" disabled={page >= totalPages} onClick={() => goPage(page + 1)}>Next →</button>
+              <span style={{ fontSize: 13, fontWeight: 700 }}>
+                Page {page} of {totalPages} {!isAuthenticated && '· 🔒 Sign in for Page 2+'}
+              </span>
+              <button className="pq-btn" disabled={page >= totalPages} onClick={() => goPage(page + 1)}>
+                {!isAuthenticated ? '🔒 Next Page →' : 'Next →'}
+              </button>
             </div>
           )}
         </main>
@@ -744,8 +908,318 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
       <QuizSetupModal
         isOpen={quizModalOpen}
         onClose={() => setQuizModalOpen(false)}
-        questions={questions}
+        initialMetadata={initialMetadata}
       />
+
+      <AuthGateModal
+        reason={authGateReason}
+        onClose={() => setAuthGateReason(null)}
+      />
+    </div>
+  );
+}
+
+/* ====================================================================== */
+/* INLINE FREE ACCOUNT LOGIN GATE MODAL                                   */
+/* ====================================================================== */
+
+function AuthGateModal({ reason, onClose }) {
+  const [email, setEmail] = useState('');
+  const [otp, setOtp] = useState('');
+  const [step, setStep] = useState(1); // 1: Email, 2: OTP
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  if (!reason) return null;
+
+  const handleRequestOtp = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/auth/otp/request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStep(2);
+      } else {
+        setError(data.error || 'Failed to send OTP');
+      }
+    } catch (_) {
+      setError('Connection error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    const result = await signIn('otp', {
+      email,
+      otp,
+      redirect: false,
+    });
+
+    if (result?.ok) {
+      setLoading(false);
+      onClose();
+      window.location.reload();
+    } else {
+      setError('Invalid or expired OTP code');
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = () => {
+    const callbackUrl = typeof window !== 'undefined' ? window.location.href : '/prelims/pyq';
+    signIn('google', { callbackUrl });
+  };
+
+  return (
+    <div
+      className="pp-modal-bg"
+      onClick={onClose}
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'rgba(15, 23, 42, 0.72)',
+        backdropFilter: 'blur(6px)',
+        zIndex: 9999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 20,
+      }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          width: '100%',
+          maxWidth: 440,
+          background: '#0f172a',
+          color: '#f8fafc',
+          borderRadius: 24,
+          border: '1px solid rgba(255,255,255,0.12)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.65)',
+          padding: '28px 28px 24px',
+          position: 'relative',
+          fontFamily: 'Inter, system-ui, sans-serif',
+        }}
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label="Close sign-in modal"
+          style={{
+            position: 'absolute',
+            top: 18,
+            right: 18,
+            width: 32,
+            height: 32,
+            borderRadius: 8,
+            border: '1px solid rgba(255,255,255,0.1)',
+            background: 'rgba(255,255,255,0.05)',
+            color: '#94a3b8',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <X size={16} />
+        </button>
+
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '4px 10px',
+            borderRadius: 999,
+            background: 'rgba(56, 189, 248, 0.14)',
+            color: '#38bdf8',
+            fontSize: 11.5,
+            fontWeight: 800,
+            letterSpacing: '0.04em',
+            textTransform: 'uppercase',
+            marginBottom: 12,
+          }}
+        >
+          <Sparkles size={13} /> Free Aspirant Account
+        </div>
+
+        <h2 style={{ fontSize: 22, fontWeight: 800, margin: '0 0 8px', color: '#ffffff' }}>
+          Continue Practicing Free
+        </h2>
+
+        <p style={{ fontSize: 13.5, color: '#94a3b8', lineHeight: 1.55, margin: '0 0 16px' }}>
+          {reason}
+        </p>
+
+        {/* Value Checklist */}
+        <div
+          style={{
+            background: 'rgba(255,255,255,0.03)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: 12,
+            padding: '12px 14px',
+            marginBottom: 18,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 7,
+            fontSize: 12.5,
+            color: '#cbd5e1',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <CheckCircle2 size={15} style={{ color: '#22c55e', flexShrink: 0 }} />
+            <span>All 2,528+ Topic-Wise UPSC CSE &amp; CDS Questions (2011–2025)</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <CheckCircle2 size={15} style={{ color: '#22c55e', flexShrink: 0 }} />
+            <span>Custom Multi-Subject Practice &amp; Timed Exam Simulator</span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <CheckCircle2 size={15} style={{ color: '#22c55e', flexShrink: 0 }} />
+            <span>Personal Mistake Notebook, Bookmarks &amp; Daily Streak</span>
+          </div>
+        </div>
+
+        {/* 1-Click Google Login */}
+        <button
+          type="button"
+          onClick={handleGoogleSignIn}
+          style={{
+            width: '100%',
+            padding: '12px 16px',
+            borderRadius: 12,
+            border: '1px solid rgba(255,255,255,0.2)',
+            background: '#ffffff',
+            color: '#0f172a',
+            fontWeight: 800,
+            fontSize: 14,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 10,
+            marginBottom: 14,
+          }}
+        >
+          <span>G</span>
+          <span>Continue with Google (1-Click)</span>
+        </button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '12px 0' }}>
+          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.1)' }} />
+          <span style={{ fontSize: 11, color: '#64748b', fontWeight: 700 }}>OR EMAIL OTP</span>
+          <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.1)' }} />
+        </div>
+
+        {step === 1 ? (
+          <form onSubmit={handleRequestOtp} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ position: 'relative' }}>
+              <Mail size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="Enter your email address"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px 12px 40px',
+                  borderRadius: 12,
+                  background: '#090d16',
+                  border: '1px solid rgba(255,255,255,0.14)',
+                  color: '#ffffff',
+                  fontSize: 13.5,
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                borderRadius: 12,
+                border: 'none',
+                background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
+                color: '#ffffff',
+                fontWeight: 800,
+                fontSize: 13.5,
+                cursor: 'pointer',
+              }}
+            >
+              {loading ? 'Sending OTP...' : 'Send 6-Digit Login Code →'}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleVerifyOtp} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center' }}>
+              Enter the 6-digit code sent to <strong style={{ color: '#ffffff' }}>{email}</strong>
+            </div>
+            <div style={{ position: 'relative' }}>
+              <Key size={16} style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
+              <input
+                type="text"
+                maxLength={6}
+                required
+                value={otp}
+                onChange={e => setOtp(e.target.value)}
+                placeholder="6-digit OTP"
+                style={{
+                  width: '100%',
+                  padding: '12px 14px 12px 40px',
+                  borderRadius: 12,
+                  background: '#090d16',
+                  border: '1px solid rgba(255,255,255,0.14)',
+                  color: '#ffffff',
+                  fontSize: 16,
+                  letterSpacing: '0.35em',
+                  textAlign: 'center',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                borderRadius: 12,
+                border: 'none',
+                background: '#10b981',
+                color: '#ffffff',
+                fontWeight: 800,
+                fontSize: 13.5,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6,
+              }}
+            >
+              <ShieldCheck size={16} />
+              <span>{loading ? 'Verifying...' : 'Verify & Unlock Full Access'}</span>
+            </button>
+          </form>
+        )}
+
+        {error && (
+          <div style={{ color: '#f87171', fontSize: 12, fontWeight: 600, marginTop: 10, textAlign: 'center' }}>
+            {error}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

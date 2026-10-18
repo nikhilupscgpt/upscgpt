@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { X, Check, ChevronDown, ChevronUp, Sparkles, BookOpen, Clock, Settings, ArrowRight } from 'lucide-react';
+import { X, Check, ChevronDown, ChevronUp, Sparkles, ArrowRight } from 'lucide-react';
 import { SUBJECT_ORDER, SUBJECT_SHORT } from './topicGroups';
 import { isNewPatternQuestion } from '@/lib/pyqPattern';
 
@@ -19,7 +19,7 @@ const YEAR_OPTIONS = [
   ['2011-2014', '2011–2014'],
 ];
 
-export default function QuizSetupModal({ isOpen, onClose, questions }) {
+export default function QuizSetupModal({ isOpen, onClose, questions = [], initialMetadata = null }) {
   const router = useRouter();
 
   const [selectedSubjects, setSelectedSubjects] = useState([]);
@@ -31,8 +31,17 @@ export default function QuizSetupModal({ isOpen, onClose, questions }) {
   const [years, setYears] = useState('ALL');
   const [pattern, setPattern] = useState('ALL'); // 'ALL' | 'NEW'
 
-  // Compute subject question counts
+  // Compute subject question counts from initialMetadata (or fallback to questions)
   const subjectStats = useMemo(() => {
+    if (initialMetadata?.subjectStats && initialMetadata.subjectStats.length > 0) {
+      return initialMetadata.subjectStats.map(s => ({
+        name: s.name,
+        short: s.short || SUBJECT_SHORT[s.name] || s.name,
+        count: s.count || 0,
+        newPatternCount: s.newPatternCount || 0,
+        allTopics: s.allTopics || [],
+      }));
+    }
     const counts = {};
     for (const q of questions) {
       if (q.srcSubject) {
@@ -45,11 +54,20 @@ export default function QuizSetupModal({ isOpen, onClose, questions }) {
       name: s,
       short: SUBJECT_SHORT[s] || s,
       count: counts[s] || 0,
+      newPatternCount: 0,
+      allTopics: [],
     }));
-  }, [questions]);
+  }, [initialMetadata, questions]);
 
-  // Compute topics per subject
+  // Compute topics per subject from initialMetadata (or fallback to questions)
   const subjectTopicsMap = useMemo(() => {
+    if (initialMetadata?.subjectStats && initialMetadata.subjectStats.length > 0) {
+      const result = {};
+      for (const s of initialMetadata.subjectStats) {
+        result[s.name] = Array.isArray(s.allTopics) ? s.allTopics : [];
+      }
+      return result;
+    }
     const map = {};
     for (const q of questions) {
       if (!q.srcSubject || !q.srcTopic) continue;
@@ -61,13 +79,12 @@ export default function QuizSetupModal({ isOpen, onClose, questions }) {
       result[sub] = Object.entries(topicCounts).sort((a, b) => b[1] - a[1]);
     }
     return result;
-  }, [questions]);
+  }, [initialMetadata, questions]);
 
-  // Toggle subject selection (limit to 3 like Dr Shivin's setup)
+  // Toggle subject selection (limit to 3)
   const toggleSubject = (s) => {
     setSelectedSubjects(prev => {
       if (prev.includes(s)) {
-        // Unselecting subject -> also remove its topics
         const nextSubs = prev.filter(x => x !== s);
         const subTopics = (subjectTopicsMap[s] || []).map(([t]) => t);
         setSelectedTopics(curr => curr.filter(t => !subTopics.includes(t)));
@@ -75,7 +92,6 @@ export default function QuizSetupModal({ isOpen, onClose, questions }) {
         return nextSubs;
       } else {
         if (prev.length >= 3) {
-          // Replace last or keep first 2 and add new
           return [...prev.slice(1), s];
         }
         return [...prev, s];
@@ -103,8 +119,33 @@ export default function QuizSetupModal({ isOpen, onClose, questions }) {
     setSelectedTopics(prev => prev.filter(t => !all.includes(t)));
   };
 
-  // Calculate live matching questions
+  // Calculate live matching questions from metadata
   const availableCount = useMemo(() => {
+    if (initialMetadata?.subjectStats && initialMetadata.subjectStats.length > 0) {
+      const targetSubs =
+        selectedSubjects.length > 0
+          ? subjectStats.filter(s => selectedSubjects.includes(s.name))
+          : subjectStats;
+
+      if (selectedTopics.length > 0) {
+        let sum = 0;
+        for (const s of targetSubs) {
+          for (const [tName, tCount] of s.allTopics || []) {
+            if (selectedTopics.includes(tName)) {
+              sum += tCount;
+            }
+          }
+        }
+        return Math.max(1, sum);
+      }
+
+      if (pattern === 'NEW') {
+        return targetSubs.reduce((acc, s) => acc + (s.newPatternCount || 0), 0);
+      }
+
+      return targetSubs.reduce((acc, s) => acc + (s.count || 0), 0);
+    }
+
     return questions.filter(q => {
       if (pattern === 'NEW' && !isNewPatternQuestion(q)) return false;
       if (selectedSubjects.length > 0 && !selectedSubjects.includes(q.srcSubject)) return false;
@@ -117,7 +158,7 @@ export default function QuizSetupModal({ isOpen, onClose, questions }) {
       }
       return true;
     }).length;
-  }, [questions, pattern, selectedSubjects, selectedTopics, exam, years]);
+  }, [initialMetadata, subjectStats, questions, pattern, selectedSubjects, selectedTopics, exam, years]);
 
   const handleLaunch = () => {
     const p = new URLSearchParams();
