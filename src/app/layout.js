@@ -10,14 +10,25 @@ const outfit = Outfit({
 
 export const metadata = {
   title: {
-    default: 'UPSC Intelligence Platform | UPSCGPT',
+    default: 'UPSCGPT | UPSC Prelims PYQ (2011–2025), Geography Atlas & Mains Prep',
     template: '%s | UPSCGPT'
   },
-  description: 'The definitive strategic intelligence platform for UPSC preparation. 500+ syllabus nodes, real-time geopolitical tracking, and neural-enhanced current affairs.',
-  keywords: ['UPSC', 'IAS', 'Geography', 'Current Affairs', 'Strategic Atlas', 'Issue Graph', 'Geopolitics', 'Civil Services Examination'],
-  authors: [{ name: 'Antigravity AI' }],
-  creator: 'Antigravity AI',
-  publisher: 'UPSC Atlas Portal',
+  description: 'India\'s strategic UPSC CSE preparation platform. Practice 2,528+ topic-wise solved Prelims Previous Year Questions (2011–2025), interactive Geography Atlas, and GS Syllabus Notes.',
+  keywords: [
+    'UPSC Prelims',
+    'UPSC Prelims PYQ',
+    'UPSC Previous Year Questions Topic Wise',
+    'UPSC Prelims Solved Papers 2011 to 2025',
+    'UPSC CSE 2025',
+    'UPSC Prelims Mock Test',
+    'UPSC Geography Mapping',
+    'Places in News UPSC',
+    'UPSC Mains GS Notes',
+    'Civil Services Examination'
+  ],
+  authors: [{ name: 'UPSCGPT' }],
+  creator: 'UPSCGPT',
+  publisher: 'UPSCGPT Platform',
   formatDetection: {
     email: false,
     address: false,
@@ -25,8 +36,8 @@ export const metadata = {
   },
   metadataBase: new URL('https://www.upscgpt.in'),
   openGraph: {
-    title: 'UPSC Intelligence Platform | UPSCGPT',
-    description: 'Master UPSC Current Affairs, Prelims PYQs, and Geopolitics through high-performance neural tracking.',
+    title: 'UPSCGPT | UPSC Prelims PYQ (2011–2025), Geography Atlas & Mains Prep',
+    description: 'Practice 2,528+ authentic solved UPSC Prelims Previous Year Questions (2011–2025), interactive Geography Atlas, and GS Syllabus Notes.',
     url: 'https://www.upscgpt.in',
     siteName: 'UPSCGPT',
     images: [
@@ -41,15 +52,15 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'UPSC Intelligence Platform | UPSCGPT',
-    description: 'Master UPSC Current Affairs, Prelims PYQs, and Geography through a high-performance strategic graph.',
+    title: 'UPSCGPT | UPSC Prelims PYQ (2011–2025), Geography Atlas & Mains Prep',
+    description: 'Practice 2,528+ authentic solved UPSC Prelims Previous Year Questions (2011–2025), interactive Geography Atlas, and GS Syllabus Notes.',
     images: ['/og-image.png'],
   },
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'UPSC Intelligence Platform',
+    title: 'UPSCGPT Prep',
   },
 }
 
