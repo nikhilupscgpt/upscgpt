@@ -167,35 +167,46 @@ export async function GET(req) {
 
 function renderValueAdditionHtml(va, q) {
   if (!va) {
-    return `<div class="va-text"><strong>Topic Core:</strong> ${escapeHtml(q.srcTopic || q.srcSubject || 'General Studies')}. Ensure systematic review of standard reference NCERT &amp; statutory frameworks.</div>`;
+    return `
+      <div class="va-twocol-text">
+        <p><strong>Topic Core:</strong> ${escapeHtml(q.srcTopic || q.srcSubject || 'General Studies')}. Ensure systematic review of foundational NCERT frameworks, nodal ministries, and core conceptual distinctions.</p>
+        <p><strong>Examiner Trend:</strong> UPSC repeatedly tests adjacent operational guidelines, institutional governance, and statutory parameters from this syllabus branch in subsequent exam cycles.</p>
+      </div>
+    `;
   }
   if (typeof va === 'string') {
-    return `<div class="va-text">${escapeHtml(va)}</div>`;
+    const formatted = escapeHtml(va)
+      .replace(/(\b(?:Key Features|Core Objectives|Key Objectives|Global Participation|India's Involvement|India's Wetlands|4 core functional pillars|4 core pillars|NMSA Pillars|Operational Philosophy):)/gi, '<strong style="display:block; margin-top:3px; font-weight:800; color:#451a03;">$1</strong>');
+    return `<div class="va-twocol-text">${formatted}</div>`;
   }
   if (Array.isArray(va)) {
-    return va.map(item => {
-      if (typeof item === 'string') {
-        return `<div class="va-point">• ${escapeHtml(item)}</div>`;
-      }
-      return `
-        <div class="va-item">
-          ${item.title ? `<div class="va-title"><strong>${escapeHtml(item.title)}</strong> ${item.tag ? `<span class="va-tag">${escapeHtml(item.tag)}</span>` : ''}</div>` : ''}
-          ${item.description ? `<div class="va-desc">${escapeHtml(item.description)}</div>` : ''}
-          ${item.sections && Array.isArray(item.sections) ? item.sections.map(sec => `
-            <div class="va-sec">
-              ${sec.heading ? `<div class="va-subhead">${escapeHtml(sec.heading)}</div>` : ''}
-              ${sec.points && Array.isArray(sec.points) ? `
-                <ul class="va-list">
-                  ${sec.points.map(pt => `<li>${escapeHtml(pt)}</li>`).join('')}
-                </ul>
-              ` : ''}
+    return `
+      <div class="va-twocol-grid">
+        ${va.map(item => {
+          if (typeof item === 'string') {
+            return `<div class="va-point">• ${escapeHtml(item)}</div>`;
+          }
+          return `
+            <div class="va-item">
+              ${item.title ? `<div class="va-title"><strong>${escapeHtml(item.title)}</strong> ${item.tag ? `<span class="va-tag">${escapeHtml(item.tag)}</span>` : ''}</div>` : ''}
+              ${item.description ? `<div class="va-desc">${escapeHtml(item.description)}</div>` : ''}
+              ${item.sections && Array.isArray(item.sections) ? item.sections.map(sec => `
+                <div class="va-sec">
+                  ${sec.heading ? `<div class="va-subhead">${escapeHtml(sec.heading)}</div>` : ''}
+                  ${sec.points && Array.isArray(sec.points) ? `
+                    <ul class="va-list">
+                      ${sec.points.map(pt => `<li>${escapeHtml(pt)}</li>`).join('')}
+                    </ul>
+                  ` : ''}
+                </div>
+              `).join('') : ''}
             </div>
-          `).join('') : ''}
-        </div>
-      `;
-    }).join('');
+          `;
+        }).join('')}
+      </div>
+    `;
   }
-  return `<div class="va-text">${escapeHtml(JSON.stringify(va))}</div>`;
+  return `<div class="va-twocol-text">${escapeHtml(JSON.stringify(va))}</div>`;
 }
 
 function buildSlideDocument({ questions }) {
@@ -208,7 +219,7 @@ function buildSlideDocument({ questions }) {
   <style>
     @page {
       size: A4 landscape;
-      margin: 6mm 8mm;
+      margin: 4mm 6mm;
     }
     * {
       box-sizing: border-box;
@@ -222,10 +233,10 @@ function buildSlideDocument({ questions }) {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       color: #1e293b;
       line-height: 1.35;
-      background: #0f172a;
+      background: #090d16;
     }
 
-    /* Screen mode toolbar and centering */
+    /* Screen mode viewer canvas */
     @media screen {
       body {
         padding: 24px 16px 60px;
@@ -236,14 +247,16 @@ function buildSlideDocument({ questions }) {
       }
       .slide-page {
         width: 297mm;
-        min-height: 200mm;
+        height: 204mm;
+        max-height: 204mm;
         background: #ffffff;
-        border-radius: 12px;
-        padding: 10mm 12mm;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+        border-radius: 8px;
+        padding: 8mm 11mm;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        overflow: hidden;
       }
       .no-print {
         display: flex;
@@ -252,14 +265,14 @@ function buildSlideDocument({ questions }) {
         width: 297mm;
         background: #1e293b;
         border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 12px;
-        padding: 12px 20px;
+        border-radius: 10px;
+        padding: 10px 20px;
         color: #ffffff;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
       }
     }
 
-    /* Print Mode: Exact single page per landscape slide */
+    /* Print mode: Exactly 1 sheet per question */
     @media print {
       .no-print {
         display: none !important;
@@ -271,13 +284,13 @@ function buildSlideDocument({ questions }) {
       }
       .slide-page {
         width: 100% !important;
-        height: 194mm !important;
-        max-height: 194mm !important;
+        height: 198mm !important;
+        max-height: 198mm !important;
         page-break-after: always;
         break-after: page;
         overflow: hidden;
         margin: 0 !important;
-        padding: 2mm 3mm !important;
+        padding: 3mm 4mm !important;
         box-shadow: none !important;
         border: none !important;
         border-radius: 0 !important;
@@ -292,168 +305,144 @@ function buildSlideDocument({ questions }) {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
-      padding-bottom: 4px;
+      margin-bottom: 6px;
+      padding-bottom: 3px;
       border-bottom: 1.5px solid #e2e8f0;
     }
     .badge-exam-red {
       background: #dc2626;
       color: #ffffff;
       font-weight: 800;
-      font-size: 10pt;
+      font-size: 9.5pt;
       padding: 3px 14px;
       border-radius: 9999px;
       letter-spacing: 0.3px;
       display: inline-block;
     }
     .slide-head-meta {
-      font-size: 8.5pt;
+      font-size: 8pt;
       font-weight: 700;
       color: #64748b;
       display: flex;
       align-items: center;
-      gap: 10px;
-    }
-
-    /* 2-Column Main Layout */
-    .slide-grid {
-      display: grid;
-      grid-template-columns: 43% 55%;
-      gap: 14px;
-      flex: 1;
-      align-items: stretch;
-    }
-    .col-left, .col-right {
-      display: flex;
-      flex-direction: column;
-      gap: 9px;
-    }
-
-    /* Question Box */
-    .q-stem-box {
-      font-size: 9.3pt;
-      line-height: 1.38;
-      color: #0f172a;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 9px 12px;
-    }
-    .q-stem-text {
-      font-weight: 700;
-      margin-bottom: 6px;
-      white-space: pre-wrap;
-    }
-    .q-stem-options {
-      color: #334155;
-      font-weight: 500;
-      line-height: 1.35;
-    }
-    .q-opt-line {
-      margin-top: 3px;
-    }
-
-    /* Green Answer Box */
-    .card-ans-green {
-      background: #bbf7d0;
-      border: 1.5px solid #86efac;
-      border-radius: 8px;
-      padding: 8px 12px;
-      color: #064e3b;
-      font-size: 9.2pt;
-      font-weight: 700;
-      line-height: 1.35;
-    }
-
-    /* Blue Keywords Box */
-    .card-kw-blue {
-      background: #bfdbfe;
-      border: 1.5px solid #93c5fd;
-      border-radius: 8px;
-      padding: 8px 12px;
-      color: #1e3a8a;
-      font-size: 8.8pt;
-    }
-    .kw-title {
-      font-weight: 800;
-      text-decoration: underline;
-      margin-bottom: 5px;
-      font-size: 9pt;
-    }
-    .kw-list {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-    .kw-row {
-      line-height: 1.3;
-    }
-    .distractor-strike {
-      text-decoration: line-through;
-      color: #475569;
-    }
-    .distractor-tag {
-      color: #dc2626;
-      font-size: 7.5pt;
-      font-weight: 800;
-      margin-left: 3px;
+      gap: 8px;
     }
 
     /* Badges */
     .badge-pill {
       display: inline-block;
-      font-size: 8pt;
+      font-size: 7.8pt;
       font-weight: 800;
-      padding: 2.5px 10px;
-      border-radius: 6px;
+      padding: 2px 9px;
+      border-radius: 4px;
       letter-spacing: 0.2px;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
     .badge-black { background: #0f172a; color: #ffffff; }
     .badge-teal { background: #0d9488; color: #ffffff; }
     .badge-slate { background: #334155; color: #ffffff; }
     .badge-cyan { background: #0284c7; color: #ffffff; }
 
-    /* In News Card */
-    .card-news {
-      background: #f0f9ff;
-      border: 1.5px solid #bae6fd;
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-size: 8.5pt;
-      color: #0c4a6e;
-      flex: 1;
-    }
-    .news-headline {
-      font-weight: 800;
-      font-size: 9.8pt;
-      color: #0f172a;
-      line-height: 1.3;
-      margin-bottom: 3px;
-    }
-    .news-meta {
-      font-size: 7.5pt;
-      font-weight: 700;
-      color: #0284c7;
-      margin-bottom: 4px;
-    }
-    .news-relevance {
-      line-height: 1.35;
-      color: #334155;
+    /* ========================================================================= */
+    /* TIER 1: TOP 3-ZONE LAYOUT (Question | Answer & Keywords | Explanation)    */
+    /* ========================================================================= */
+    .tier-top {
+      display: grid;
+      grid-template-columns: 37% 25% 36%;
+      gap: 12px;
+      align-items: start;
     }
 
-    /* Pink Explanation Card */
+    /* Left: Authentic UPSC Question Paper Typography */
+    .q-col-serif {
+      font-family: "Times New Roman", Times, Georgia, "Liberation Serif", serif;
+      color: #000000;
+      line-height: 1.4;
+      padding-right: 4px;
+    }
+    .q-stem-serif {
+      font-size: 9.6pt;
+      font-weight: 600;
+      white-space: pre-wrap;
+      margin-bottom: 6px;
+    }
+    .q-opts-serif {
+      font-size: 9.2pt;
+      font-weight: 500;
+      color: #111827;
+      line-height: 1.35;
+    }
+    .q-opt-serif-line {
+      margin-top: 2px;
+    }
+
+    /* Center: Green Answer + Blue Keywords */
+    .tier1-center {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .card-ans-green {
+      background: #86efac;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 10px;
+      color: #064e3b;
+      font-size: 9pt;
+      font-weight: 700;
+      line-height: 1.32;
+    }
+    .card-kw-blue {
+      background: #93c5fd;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 10px;
+      color: #1e3a8a;
+      font-size: 8.5pt;
+      line-height: 1.32;
+    }
+    .kw-title {
+      font-weight: 800;
+      text-decoration: underline;
+      margin-bottom: 4px;
+      font-size: 8.8pt;
+      color: #0f172a;
+    }
+    .kw-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .kw-row {
+      line-height: 1.25;
+    }
+    .distractor-strike {
+      text-decoration: line-through;
+      color: #334155;
+    }
+    .distractor-tag {
+      color: #dc2626;
+      font-size: 7.2pt;
+      font-weight: 800;
+      margin-left: 3px;
+    }
+
+    /* Right: Pink Explanation */
+    .tier1-right {
+      display: flex;
+      flex-direction: column;
+    }
     .card-expl-pink {
-      background: #fecdd3;
-      border: 1.5px solid #fda4af;
-      border-radius: 8px;
-      padding: 9px 12px;
+      background: #fda4af;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 10px;
       color: #881337;
-      font-size: 8.6pt;
-      line-height: 1.38;
+      font-size: 8.4pt;
+      line-height: 1.35;
     }
     .opt-row {
-      margin-bottom: 6px;
+      margin-bottom: 5px;
     }
     .opt-row:last-child {
       margin-bottom: 0;
@@ -467,65 +456,132 @@ function buildSlideDocument({ questions }) {
       font-weight: 800;
     }
 
-    /* Yellow Value Addition Card */
+    /* ========================================================================= */
+    /* TIER 2: MIDDLE VALUE ADDITION (Full width across, 2-column text/grid)      */
+    /* ========================================================================= */
+    .tier-middle {
+      display: flex;
+      flex-direction: column;
+      margin-top: 6px;
+    }
     .card-va-yellow {
-      background: #fef08a;
-      border: 1.5px solid #fde047;
-      border-radius: 8px;
-      padding: 9px 12px;
+      background: #fde047;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 12px;
       color: #713f12;
-      font-size: 8.4pt;
-      line-height: 1.38;
-      flex: 1;
+      font-size: 8.2pt;
+      line-height: 1.36;
+    }
+    .va-twocol-text {
+      column-count: 2;
+      column-gap: 22px;
+      column-rule: 1px solid rgba(113, 63, 18, 0.2);
+      text-align: justify;
+    }
+    .va-twocol-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
     }
     .va-point {
-      margin-bottom: 3px;
+      margin-bottom: 2px;
     }
     .va-title {
-      font-size: 8.8pt;
+      font-size: 8.6pt;
       margin-bottom: 2px;
     }
     .va-tag {
       background: rgba(0,0,0,0.08);
-      font-size: 7.5pt;
-      padding: 1px 6px;
-      border-radius: 4px;
-      margin-left: 5px;
+      font-size: 7.2pt;
+      padding: 1px 5px;
+      border-radius: 3px;
+      margin-left: 4px;
     }
     .va-desc {
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
     .va-sec {
-      margin-top: 4px;
+      margin-top: 3px;
     }
     .va-subhead {
       font-weight: 700;
-      font-size: 8.2pt;
+      font-size: 8pt;
     }
     .va-list {
-      margin: 2px 0 0 16px;
+      margin: 2px 0 0 14px;
       padding: 0;
     }
 
-    /* Green Similar PYQ Card */
+    /* ========================================================================= */
+    /* TIER 3: BOTTOM SECTION (In News Left | Similar PYQ Right - 50% / 50%)    */
+    /* ========================================================================= */
+    .tier-bottom {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items: stretch;
+      margin-top: 6px;
+    }
+    .tier3-left, .tier3-right {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* In News Editorial Card */
+    .card-news-editorial {
+      background: #ffffff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 8.2pt;
+      color: #334155;
+      line-height: 1.32;
+      flex: 1;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .news-headline {
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 10.2pt;
+      font-weight: 800;
+      color: #000000;
+      line-height: 1.25;
+      margin-bottom: 3px;
+    }
+    .news-dateline {
+      font-size: 7.2pt;
+      font-weight: 800;
+      color: #0284c7;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .news-relevance {
+      line-height: 1.32;
+      color: #334155;
+    }
+
+    /* Similar PYQ Card */
     .card-pyq-green {
-      background: #bbf7d0;
-      border: 1.5px solid #86efac;
-      border-radius: 8px;
+      background: #86efac;
+      border: none;
+      border-radius: 4px;
       padding: 8px 12px;
       color: #14532d;
-      font-size: 8.4pt;
-      line-height: 1.35;
+      font-size: 8.2pt;
+      line-height: 1.32;
+      flex: 1;
     }
     .pyq-stem {
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
     .pyq-takeaway {
-      background: rgba(255, 255, 255, 0.7);
+      background: rgba(255, 255, 255, 0.75);
       padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 8pt;
+      border-radius: 3px;
+      font-size: 7.8pt;
       color: #065f46;
+      font-weight: 700;
+      margin-top: 4px;
     }
 
     /* Footer */
@@ -533,10 +589,10 @@ function buildSlideDocument({ questions }) {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 8px;
-      padding-top: 5px;
+      margin-top: 6px;
+      padding-top: 4px;
       border-top: 1px solid #e2e8f0;
-      font-size: 7.8pt;
+      font-size: 7.6pt;
       color: #64748b;
       font-weight: 700;
     }
@@ -614,29 +670,28 @@ function buildSlideDocument({ questions }) {
           </div>
         </div>
 
-        <!-- 2-Column Main Section -->
-        <div class="slide-grid">
-          <!-- LEFT COLUMN: Question, Answer, Keywords, In News -->
-          <div class="col-left">
-            <div class="q-stem-box">
-              <div class="q-stem-text">${escapeHtml(q.stem || '')}</div>
-              ${opts && opts.length > 0 ? `
-                <div class="q-stem-options">
-                  ${opts.map(o => `
-                    <div class="q-opt-line">
-                      <strong>(${escapeHtml((o.label || '').toLowerCase())})</strong> ${escapeHtml(o.text || '')}
-                    </div>
-                  `).join('')}
-                </div>
-              ` : ''}
-            </div>
+        <!-- TIER 1: TOP 3-ZONE LAYOUT (Question | Answer & Keywords | Explanation) -->
+        <div class="tier-top">
+          <!-- Zone 1A: Question Stem & Options in UPSC Exam Serif Font -->
+          <div class="q-col-serif">
+            <div class="q-stem-serif">${escapeHtml(q.stem || '')}</div>
+            ${opts && opts.length > 0 ? `
+              <div class="q-opts-serif">
+                ${opts.map(o => `
+                  <div class="q-opt-serif-line">
+                    <strong>(${escapeHtml((o.label || '').toLowerCase())})</strong> ${escapeHtml(o.text || '')}
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+          </div>
 
-            <!-- Green Answer Card -->
+          <!-- Zone 1B: Green Answer Box + Blue Keywords Box -->
+          <div class="tier1-center">
             <div class="card-ans-green">
               (${escapeHtml(ansLabel || '–')}) ${escapeHtml(correctText)}
             </div>
 
-            <!-- Blue Keywords Card -->
             <div class="card-kw-blue">
               <div class="kw-title">Keywords and Concepts:</div>
               <div class="kw-list">
@@ -645,75 +700,75 @@ function buildSlideDocument({ questions }) {
                   const name = typeof kw === 'object' && kw !== null ? kw.concept : String(kw);
                   return `
                     <div class="kw-row">
-                      ${isDistractor ? `• <s class="distractor-strike">${escapeHtml(name)}</s> <span class="distractor-tag">(Distractor)</span>` : `• ${escapeHtml(name)}`}
+                      ${isDistractor ? `- <s class="distractor-strike">${escapeHtml(name)}</s> <span class="distractor-tag">(Distractor)</span>` : `- ${escapeHtml(name)}`}
                     </div>
                   `;
                 }).join('')}
               </div>
             </div>
+          </div>
 
-            <!-- In News Card -->
-            <div>
-              <span class="badge-pill badge-cyan">In News</span>
-              <div class="card-news">
-                ${inNews && typeof inNews === 'object' ? `
-                  <div class="news-headline">${escapeHtml(inNews.headline || 'Current Affairs Development')}</div>
-                  ${(inNews.source || inNews.date) ? `<div class="news-meta">${escapeHtml(inNews.source || '')} ${inNews.date ? '• ' + escapeHtml(inNews.date) : ''}</div>` : ''}
-                  ${inNews.relevance ? `<div class="news-relevance">${escapeHtml(inNews.relevance)}</div>` : ''}
-                ` : `
-                  <div class="news-headline">Current Affairs Linkage</div>
-                  <div class="news-relevance">Regularly reported in The Hindu / Indian Express / DownToEarth under ${escapeHtml(q.srcTopic || q.srcSubject || 'General Studies')}.</div>
-                `}
-              </div>
+          <!-- Zone 1C: Black Badge + Pink Option Breakdown Box -->
+          <div class="tier1-right">
+            <div><span class="badge-pill badge-black">Explanation</span></div>
+            <div class="card-expl-pink">
+              ${optionBreakdown ? optionBreakdown.map(opt => {
+                const isCorr = (opt.verdict || '').toLowerCase().includes('correct') && !(opt.verdict || '').toLowerCase().includes('incorrect');
+                return `
+                  <div class="opt-row">
+                    <strong>(${escapeHtml((opt.label || '').toLowerCase())}) ${opt.text ? escapeHtml(opt.text) + '. ' : ''}<span class="${isCorr ? 'verdict-correct' : 'verdict-incorrect'}">${escapeHtml(opt.verdict || (isCorr ? 'Correct' : 'Incorrect'))}.</span></strong>
+                    <span>${escapeHtml(opt.explanation || '')}</span>
+                  </div>
+                `;
+              }).join('') : `
+                <div class="opt-row" style="white-space: pre-wrap;">${escapeHtml(explanationText || 'Detailed explanation provided in study module.')}</div>
+              `}
+            </div>
+          </div>
+        </div>
+
+        <!-- TIER 2: MIDDLE VALUE ADDITION (Full width across, 2-column layout) -->
+        <div class="tier-middle">
+          <div><span class="badge-pill badge-teal">Value Addition</span></div>
+          <div class="card-va-yellow">
+            ${renderValueAdditionHtml(valueAddition, q)}
+          </div>
+        </div>
+
+        <!-- TIER 3: BOTTOM SECTION (In News on Left | Similar PYQ on Right) -->
+        <div class="tier-bottom">
+          <!-- Zone 3A: In News Newspaper Clipping -->
+          <div class="tier3-left">
+            <div><span class="badge-pill badge-cyan">In News</span></div>
+            <div class="card-news-editorial">
+              ${inNews && typeof inNews === 'object' ? `
+                <div class="news-headline">${escapeHtml(inNews.headline || 'Current Affairs Development')}</div>
+                ${(inNews.source || inNews.date) ? `<div class="news-dateline">${escapeHtml(inNews.source || '')} ${inNews.date ? '• ' + escapeHtml(inNews.date) : ''}</div>` : ''}
+                ${inNews.relevance ? `<div class="news-relevance">${escapeHtml(inNews.relevance)}</div>` : ''}
+              ` : `
+                <div class="news-headline">Current Affairs Linkage</div>
+                <div class="news-relevance">Regularly reported in The Hindu / Indian Express / DownToEarth under ${escapeHtml(q.srcTopic || q.srcSubject || 'General Studies')}.</div>
+              `}
             </div>
           </div>
 
-          <!-- RIGHT COLUMN: Explanation, Value Addition, Similar PYQ -->
-          <div class="col-right">
-            <!-- Pink Explanation Card -->
-            <div>
-              <span class="badge-pill badge-black">Explanation</span>
-              <div class="card-expl-pink">
-                ${optionBreakdown ? optionBreakdown.map(opt => {
-                  const isCorr = (opt.verdict || '').toLowerCase().includes('correct') && !(opt.verdict || '').toLowerCase().includes('incorrect');
-                  return `
-                    <div class="opt-row">
-                      <strong>(${escapeHtml((opt.label || '').toLowerCase())}) ${opt.text ? escapeHtml(opt.text) + '. ' : ''}<span class="${isCorr ? 'verdict-correct' : 'verdict-incorrect'}">${escapeHtml(opt.verdict || (isCorr ? 'Correct' : 'Incorrect'))}.</span></strong>
-                      <span>${escapeHtml(opt.explanation || '')}</span>
-                    </div>
-                  `;
-                }).join('') : `
-                  <div class="opt-row" style="white-space: pre-wrap;">${escapeHtml(explanationText || 'Detailed explanation not provided.')}</div>
-                `}
-              </div>
-            </div>
-
-            <!-- Yellow Value Addition Card -->
-            <div>
-              <span class="badge-pill badge-teal">Value Addition</span>
-              <div class="card-va-yellow">
-                ${renderValueAdditionHtml(valueAddition, q)}
-              </div>
-            </div>
-
-            <!-- Green Similar PYQ Card -->
-            <div>
-              <span class="badge-pill badge-slate">Similar PYQ</span>
-              <div class="card-pyq-green">
-                ${similarPyq && typeof similarPyq === 'object' ? `
-                  <div class="pyq-stem">
-                    <strong>${escapeHtml(similarPyq.examName || 'UPSC CSE')} ${escapeHtml(similarPyq.examYear ? String(similarPyq.examYear) : '')}:</strong>
-                    ${escapeHtml(similarPyq.stem || '')}
-                  </div>
-                  ${similarPyq.keyTakeaway ? `
-                    <div class="pyq-takeaway"><strong>Core Takeaway:</strong> ${escapeHtml(similarPyq.keyTakeaway)}</div>
-                  ` : ''}
-                ` : `
-                  <div class="pyq-stem">
-                    <strong>UPSC Question Family:</strong> Questions on ${escapeHtml(q.srcTopic || q.srcSubject || 'this theme')} frequently recur with modified distractors in subsequent exam cycles.
-                  </div>
-                `}
-              </div>
+          <!-- Zone 3B: Similar PYQ Sage Green Box -->
+          <div class="tier3-right">
+            <div><span class="badge-pill badge-slate">Similar PYQ</span></div>
+            <div class="card-pyq-green">
+              ${similarPyq && typeof similarPyq === 'object' ? `
+                <div class="pyq-stem">
+                  <strong>${escapeHtml(similarPyq.examName || 'UPSC CSE')} ${escapeHtml(similarPyq.examYear ? String(similarPyq.examYear) : '')}:</strong>
+                  ${escapeHtml(similarPyq.stem || '')}
+                </div>
+                ${similarPyq.keyTakeaway ? `
+                  <div class="pyq-takeaway"><strong>Core Takeaway:</strong> ${escapeHtml(similarPyq.keyTakeaway)}</div>
+                ` : ''}
+              ` : `
+                <div class="pyq-stem">
+                  <strong>UPSC Question Family:</strong> Questions on ${escapeHtml(q.srcTopic || q.srcSubject || 'this theme')} frequently recur with modified distractors in subsequent exam cycles.
+                </div>
+              `}
             </div>
           </div>
         </div>
