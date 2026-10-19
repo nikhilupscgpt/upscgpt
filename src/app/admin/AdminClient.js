@@ -285,6 +285,14 @@ export default function AdminClient({ session }) {
           </Link>
 
           <div style={{ margin: '12px 0 8px 12px', fontSize: '0.65rem', fontWeight: 900, color: '#64748b', letterSpacing: '0.1em' }}>PLATFORM TOOLS</div>
+          <Link href="/admin/monetisation" style={{ textDecoration: 'none' }}>
+            <button style={{
+              display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '14px 20px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: '0.95rem',
+              background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', transition: 'all 0.2s', marginBottom: '6px'
+            }}>
+              <Zap size={20}/> Monetisation & Pricing
+            </button>
+          </Link>
           {sidebarItem("users", <Users size={20}/>, "User Management")}
           {sidebarItem("ai", <BrainCircuit size={20}/>, "AI Prompt Control")}
         </nav>

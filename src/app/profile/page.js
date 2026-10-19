@@ -178,7 +178,14 @@ export default function ProfilePage() {
               <h1 className="hero-title">Hello, {session?.user?.name}</h1>
               {isPro && (
                 <span className="pro-badge">
-                  <Zap size={10} fill="black" /> PRO MEMBER
+                  <Zap size={10} fill="black" /> PRELIMS PASS
+                  {session?.user?.validUntil
+                    ? ` · TILL ${new Date(session.user.validUntil).toLocaleDateString('en-IN', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                      }).toUpperCase()}`
+                    : ' ACTIVE'}
                 </span>
               )}
             </div>
@@ -271,10 +278,12 @@ export default function ProfilePage() {
             {!isPro && (
               <div className="upgrade-card">
                 <Zap size={32} style={{ color: '#fbbf24', marginBottom: '1rem' }} />
-                <h3 className="upgrade-title">ELEVATE TO PRO</h3>
-                <p className="upgrade-desc">Unlock unlimited neural RAG queries and priority intelligence syncing.</p>
-                <button onClick={handleUpgrade} className="upgrade-btn">
-                  Upgrade for ₹499/mo
+                <h3 className="upgrade-title">PRELIMS PASS 2027</h3>
+                <p className="upgrade-desc">
+                  Unlock unlimited 8-part PYQ Deep-Dive explanations, custom practice sets, micro-theme analytics &amp; test series.
+                </p>
+                <button onClick={() => router.push('/pricing')} className="upgrade-btn">
+                  View Plans (From ₹199) →
                 </button>
               </div>
             )}

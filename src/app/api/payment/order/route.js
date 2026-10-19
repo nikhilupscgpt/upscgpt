@@ -1,51 +1,111 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from "@/lib/auth";
+import { authOptions } from '@/lib/auth';
 import { getRazorpay } from '@/lib/razorpay';
+import prisma from '@/lib/prisma';
+import { resolveServerOrderQuote } from '@/lib/monetisation';
 
-export async function POST() {
+export async function POST(request) {
   try {
     const session = await getServerSession(authOptions);
 
-    if (!session || !session.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!session || !session.user?.id) {
+      return NextResponse.json({ error: 'Please sign in to continue.' }, { status: 401 });
     }
 
-    // Amount in paise (999.00 INR = 99900 paise)
-    const amount = 99900;
+    let body = {};
+    try {
+      body = await request.json();
+    } catch {
+      body = {};
+    }
+
+    const requestedPlanCode = body?.planCode || 'PRELIMS_PASS_2027';
+    const requestedCouponCode = body?.couponCode || null;
+
+    // 1. Resolve authoritative server-side price & coupon
+    const quote = await resolveServerOrderQuote(requestedPlanCode, requestedCouponCode);
+    const { plan, amountPaise, finalPriceInr, discountInr, scheduledPriceInr, appliedCoupon } = quote;
+
     const options = {
-      amount: amount,
+      amount: amountPaise,
       currency: 'INR',
-      receipt: `receipt_${session.user.id}_${Date.now()}`,
+      receipt: `rcpt_${session.user.id.slice(-8)}_${Date.now()}`,
+      notes: {
+        userId: session.user.id,
+        planCode: plan.code,
+        couponCode: appliedCoupon?.code || '',
+      },
     };
 
-    console.log(`[Payment API] Creating order for user ${session.user.id}...`);
+    let order;
+    let isMock = false;
+
     try {
       const razorpay = getRazorpay();
-      const order = await razorpay.orders.create(options);
-      console.log(`[Payment API] Order created: ${order.id}`);
-
-      return NextResponse.json({
-        id: order.id,
-        currency: order.currency,
-        amount: order.amount,
-      });
+      order = await razorpay.orders.create(options);
     } catch (rzpError) {
-      console.error('[Payment API] Razorpay error, using fallback:', rzpError.message);
-      
-      // Fallback for development/testing if keys are missing
-      if (process.env.NODE_ENV === 'development' || process.env.RAZORPAY_KEY_ID?.includes('your_key')) {
-        return NextResponse.json({
-          id: `mock_order_${Date.now()}`,
-          currency: 'INR',
-          amount: 99900,
-          isMock: true
-        });
+      const canSimulate =
+        process.env.NODE_ENV === 'development' &&
+        process.env.ALLOW_PAYMENT_SIMULATOR === 'true' &&
+        session.user.role === 'ADMIN';
+
+      if (!canSimulate) {
+        console.error('[Payment API] Razorpay order creation failed:', rzpError.message);
+        return NextResponse.json(
+          { error: 'Payment gateway is temporarily unavailable. Please try again shortly.' },
+          { status: 502 }
+        );
       }
-      throw rzpError;
+
+      isMock = true;
+      order = {
+        id: `mock_order_${Date.now()}`,
+        currency: 'INR',
+        amount: amountPaise,
+      };
     }
+
+    // 2. Record server-side order quote in ActionLog so verify & webhook use exact server metadata
+    await prisma.actionLog.create({
+      data: {
+        userId: session.user.id,
+        action: 'PAYMENT_ORDER_CREATED',
+        entityType: 'RAZORPAY_ORDER',
+        entityId: order.id,
+        status: 'PENDING',
+        message: JSON.stringify({
+          orderId: order.id,
+          userId: session.user.id,
+          planCode: plan.code,
+          planName: plan.name,
+          scheduledPriceInr,
+          discountInr,
+          finalPriceInr,
+          amountPaise,
+          couponCode: appliedCoupon?.code || null,
+          isMock,
+        }),
+      },
+    });
+
+    return NextResponse.json({
+      id: order.id,
+      currency: order.currency,
+      amount: order.amount,
+      planCode: plan.code,
+      planName: plan.name,
+      scheduledPriceInr,
+      discountInr,
+      finalPriceInr,
+      appliedCoupon,
+      isMock,
+    });
   } catch (error) {
     console.error('[Payment Order Error]:', error);
-    return NextResponse.json({ error: error.message || 'Error creating order' }, { status: 500 });
+    return NextResponse.json(
+      { error: error.message || 'Error creating payment order' },
+      { status: 400 }
+    );
   }
 }

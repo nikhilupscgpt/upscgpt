@@ -1393,7 +1393,7 @@ function QuestionCard({ q, attempt, revealedOnly, bookmarked, onPick, onReveal, 
             <><b>Answer: ({q.correctLabel.toUpperCase()})</b>{correctOpt ? ` — ${correctOpt.text}` : ''}</>
           )}
           {explanationText && <div className="pq-verdict-exp">{explanationText}</div>}
-          {analysis && <PyqDeepDive analysis={analysis} />}
+          {analysis && <PyqDeepDive analysis={analysis} questionId={q.id} />}
         </div>
       )}
 

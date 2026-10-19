@@ -62,7 +62,8 @@ export const authOptions = {
           email: user.email, 
           name: user.username, 
           role: user.role, 
-          tier: user.tier 
+          tier: user.tier,
+          validUntil: user.validUntil ? user.validUntil.toISOString() : null
         };
       }
     }),
@@ -85,7 +86,13 @@ export const authOptions = {
         if (isMatch) {
           const role = credentials.username === 'admin' ? 'ADMIN' : (user.role || 'USER');
           const tier = credentials.username === 'admin' ? 'PRO' : (user.tier || 'FREE');
-          return { id: user.id, name: user.username, role, tier };
+          return {
+            id: user.id,
+            name: user.username,
+            role,
+            tier,
+            validUntil: user.validUntil ? user.validUntil.toISOString() : null
+          };
         }
         return null;
       }
@@ -98,12 +105,28 @@ export const authOptions = {
         token.id = user.id
         token.role = user.role || 'USER'
         token.tier = user.tier || 'FREE'
+        token.validUntil = user.validUntil
+          ? (typeof user.validUntil === 'string' ? user.validUntil : user.validUntil.toISOString())
+          : null
       }
       
       if (trigger === "update" && session) {
         token.name = session.name || token.name
         token.role = session.role || token.role
         token.tier = session.tier || token.tier
+        if (session.validUntil !== undefined) {
+          token.validUntil = session.validUntil
+        }
+      }
+
+      // Auto-check expiry if token has validUntil in the past
+      if (
+        token.tier === 'PRO' &&
+        token.role !== 'ADMIN' &&
+        token.validUntil &&
+        new Date(token.validUntil) < new Date()
+      ) {
+        token.tier = 'FREE'
       }
 
       return token
@@ -113,6 +136,7 @@ export const authOptions = {
         session.user.id = token.id
         session.user.role = token.role
         session.user.tier = token.tier
+        session.user.validUntil = token.validUntil || null
       }
       return session
     }

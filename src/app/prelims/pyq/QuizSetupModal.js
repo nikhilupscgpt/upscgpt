@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { X, Check, ChevronDown, ChevronUp, Sparkles, ArrowRight } from 'lucide-react';
+import { X, Check, ChevronDown, ChevronUp, Sparkles, ArrowRight, Lock } from 'lucide-react';
 import { SUBJECT_ORDER, SUBJECT_SHORT } from './topicGroups';
 import { isNewPatternQuestion } from '@/lib/pyqPattern';
 
@@ -25,11 +26,30 @@ export default function QuizSetupModal({ isOpen, onClose, questions = [], initia
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [selectedTopics, setSelectedTopics] = useState([]); // if empty, all topics in selected subjects
   const [expandedSubject, setExpandedSubject] = useState(null);
-  const [numQuestions, setNumQuestions] = useState(20);
+  const [numQuestions, setNumQuestions] = useState(10);
   const [mode, setMode] = useState('practice'); // 'practice' | 'exam'
   const [exam, setExam] = useState('ALL');
   const [years, setYears] = useState('ALL');
   const [pattern, setPattern] = useState('ALL'); // 'ALL' | 'NEW'
+  const [usageInfo, setUsageInfo] = useState(null);
+  const [gateNotice, setGateNotice] = useState(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    fetch('/api/monetisation/usage?feature=practice_set')
+      .then(res => res.json())
+      .then(data => {
+        setGateNotice(null);
+        setUsageInfo(data);
+        if (data?.isPro) {
+          setNumQuestions(20);
+        } else {
+          const maxFree = Number(data?.freeLimits?.freeMaxQuestionsPerSet ?? 10);
+          setNumQuestions(prev => Math.min(prev, maxFree));
+        }
+      })
+      .catch(() => {});
+  }, [isOpen]);
 
   // Compute subject question counts from initialMetadata (or fallback to questions)
   const subjectStats = useMemo(() => {
@@ -160,7 +180,32 @@ export default function QuizSetupModal({ isOpen, onClose, questions = [], initia
     }).length;
   }, [initialMetadata, subjectStats, questions, pattern, selectedSubjects, selectedTopics, exam, years]);
 
-  const handleLaunch = () => {
+  const handleLaunch = async () => {
+    setGateNotice(null);
+    if (usageInfo && !usageInfo.isPro && usageInfo.gatingEnabled !== false) {
+      if (!usageInfo.authenticated) {
+        setGateNotice('Please sign in to create a free custom practice set.');
+        return;
+      }
+      try {
+        const res = await fetch('/api/monetisation/usage', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ feature: 'practice_set' }),
+        });
+        const data = await res.json();
+        setUsageInfo(data);
+        if (!res.ok || data.allowed === false) {
+          setGateNotice(
+            `You've used your ${data.limit ?? 1} free custom practice set(s) for today. Upgrade to Prelims Pass for unlimited sets of any length.`
+          );
+          return;
+        }
+      } catch {
+        // Allow launch if usage check fails transiently
+      }
+    }
+
     const p = new URLSearchParams();
     p.set('mode', mode);
     p.set('n', String(numQuestions));
@@ -306,15 +351,33 @@ export default function QuizSetupModal({ isOpen, onClose, questions = [], initia
               <div>
                 <label className="pq-qm-label">Questions</label>
                 <div className="pq-qm-pills">
-                  {PRESET_SIZES.map(sz => (
-                    <button
-                      key={sz}
-                      className={numQuestions === sz ? 'is-active' : ''}
-                      onClick={() => setNumQuestions(sz)}
-                    >
-                      {sz} Qs
-                    </button>
-                  ))}
+                  {PRESET_SIZES.map(sz => {
+                    const maxFree = Number(usageInfo?.freeLimits?.freeMaxQuestionsPerSet ?? 10);
+                    const lockedForFree =
+                      usageInfo &&
+                      !usageInfo.isPro &&
+                      usageInfo.gatingEnabled !== false &&
+                      sz > maxFree;
+                    return (
+                      <button
+                        key={sz}
+                        className={numQuestions === sz ? 'is-active' : ''}
+                        onClick={() => {
+                          if (lockedForFree) {
+                            setGateNotice(
+                              `Free practice sets include up to ${maxFree} questions. Unlock 20, 30 & 50 question sets with Prelims Pass.`
+                            );
+                            return;
+                          }
+                          setGateNotice(null);
+                          setNumQuestions(sz);
+                        }}
+                      >
+                        {lockedForFree && <Lock size={11} style={{ marginRight: 4 }} />}
+                        {sz} Qs
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -341,6 +404,40 @@ export default function QuizSetupModal({ isOpen, onClose, questions = [], initia
               </div>
             </div>
           </div>
+
+          {gateNotice && (
+            <div
+              style={{
+                marginTop: '14px',
+                padding: '12px 16px',
+                borderRadius: '12px',
+                background: 'rgba(16, 185, 129, 0.1)',
+                border: '1px solid rgba(16, 185, 129, 0.35)',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: '12px',
+                flexWrap: 'wrap',
+                fontSize: '13px',
+              }}
+            >
+              <span>{gateNotice}</span>
+              <Link
+                href="/pricing"
+                style={{
+                  padding: '7px 14px',
+                  borderRadius: '8px',
+                  background: '#10b981',
+                  color: '#042f2e',
+                  fontWeight: 800,
+                  textDecoration: 'none',
+                  fontSize: '12.5px',
+                }}
+              >
+                View Prelims Pass →
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
