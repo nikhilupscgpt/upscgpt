@@ -1,35 +1,6 @@
-import fs from 'fs';
-import path from 'path';
+import { getTopicSyllabusOrder } from '@/app/prelims/pyq/topicGroups';
 
-let politySequenceMap = null;
-
-function loadPolityMap() {
-  if (politySequenceMap) return politySequenceMap;
-  try {
-    const filePath = path.resolve(process.cwd(), 'data/polity_topic_sequence_map.json');
-    if (fs.existsSync(filePath)) {
-      politySequenceMap = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-    }
-  } catch (err) {
-    console.warn('[syllabusSequence] Could not read polity_topic_sequence_map.json:', err.message);
-  }
-  return politySequenceMap || {};
-}
-
-/**
- * Returns a numerical syllabusOrder for a given subject and topic.
- * Lower numbers appear first in syllabus flow.
- */
-export function getTopicSyllabusOrder(subject, topic) {
-  if (!topic) return 9999;
-  if (subject === 'Indian Polity') {
-    const map = loadPolityMap();
-    if (map[topic]?.syllabusOrder) {
-      return map[topic].syllabusOrder;
-    }
-  }
-  return 999;
-}
+export { getTopicSyllabusOrder };
 
 /**
  * Sorts questions array in syllabus flow:

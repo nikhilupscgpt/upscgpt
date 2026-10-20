@@ -26,7 +26,7 @@ import QuizSetupModal from './QuizSetupModal';
 import PyqDeepDive from './PyqDeepDive';
 import { getStructuredExplanation } from '@/lib/pyqExplanationHelper';
 import { usePyqStore } from './pyqStore';
-import { SUBJECT_ORDER, SUBJECT_SHORT } from './topicGroups';
+import { SUBJECT_ORDER, SUBJECT_SHORT, groupTopics, getTopicSyllabusOrder } from './topicGroups';
 import { generateQuestionSlug } from '@/lib/pyqSlug';
 import { isPairQuestion, isStatementQuestion } from '@/lib/pyqPattern';
 import './pyq-ui.css';
@@ -288,12 +288,25 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
     isAuthenticated,
   ]);
 
-  // Topics for the active subject dropdown
-  const activeSubjectTopics = useMemo(() => {
+  // Topics grouped and sorted by canonical syllabus flow for the active subject
+  const activeSubjectTopicGroups = useMemo(() => {
     if (subject === 'ALL') return [];
     const match = subjectStats.find(s => s.name === subject);
-    return match?.allTopics || [];
+    const raw = match?.allTopics || [];
+    return groupTopics(subject, raw);
   }, [subject, subjectStats]);
+
+  // Flattened active subject topics in exact syllabus order
+  const activeSubjectTopics = useMemo(() => {
+    if (subject === 'ALL') return [];
+    const flat = [];
+    for (const group of activeSubjectTopicGroups) {
+      if (Array.isArray(group.items)) {
+        flat.push(...group.items);
+      }
+    }
+    return flat;
+  }, [subject, activeSubjectTopicGroups]);
 
   const activeSubjectNewPatternCount = useMemo(() => {
     if (subject === 'ALL') return totalNewPatternCount;
@@ -800,8 +813,18 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                 onChange={e => { setTopic(e.target.value); resetPage(); }}
               >
                 <option value="ALL">All {subject} topics ({totalSubjectQs})</option>
-                {activeSubjectTopics.map(([t, count]) => (
-                  <option key={t} value={t}>{t} ({count})</option>
+                {activeSubjectTopicGroups.map(group => (
+                  group.label ? (
+                    <optgroup key={group.label} label={group.label}>
+                      {group.items.map(([t, count]) => (
+                        <option key={t} value={t}>{t} ({count})</option>
+                      ))}
+                    </optgroup>
+                  ) : (
+                    group.items.map(([t, count]) => (
+                      <option key={t} value={t}>{t} ({count})</option>
+                    ))
+                  )
                 ))}
               </select>
             </div>

@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { isNewPatternQuestion } from '@/lib/pyqPattern';
-import { SUBJECT_ORDER, SUBJECT_SHORT } from '@/app/prelims/pyq/topicGroups';
+import { SUBJECT_ORDER, SUBJECT_SHORT, getTopicSyllabusOrder } from '@/app/prelims/pyq/topicGroups';
 import { sortQuestionsBySyllabus } from '@/lib/syllabusSequence';
 
 const PAGE_SIZE = 10;
@@ -67,7 +67,12 @@ export async function GET(request) {
           .slice(0, 4)
           .map(([t]) => t);
         const allTopics = [...data.topics.entries()]
-          .sort((a, b) => b[1] - a[1]);
+          .sort(([a], [b]) => {
+            const orderA = getTopicSyllabusOrder(s, a);
+            const orderB = getTopicSyllabusOrder(s, b);
+            if (orderA !== orderB) return orderA - orderB;
+            return a.localeCompare(b);
+          });
         return {
           name: s,
           short: SUBJECT_SHORT[s] || s,

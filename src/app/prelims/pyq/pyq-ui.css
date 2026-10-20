@@ -2400,6 +2400,21 @@
   border-color: var(--pq-accent);
 }
 
+.pq-topic-select optgroup {
+  background: var(--pq-card);
+  color: var(--pq-muted);
+  font-weight: 800;
+  font-size: 11px;
+}
+
+.pq-topic-select option {
+  background: var(--pq-card);
+  color: var(--pq-ink);
+  font-weight: 600;
+  font-size: 12.5px;
+  padding: 4px 6px;
+}
+
 @media (max-width: 680px) {
   .pq-hub-grid { grid-template-columns: 1fr; }
   .pq-focus-title-row { flex-direction: column; align-items: flex-start; }

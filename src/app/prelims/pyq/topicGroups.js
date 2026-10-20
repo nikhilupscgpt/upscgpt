@@ -35,7 +35,8 @@ export const TOPIC_GROUPS = {
       'Elections & Representation', 'Elections & Political Parties'
     ]],
     ['Other & Applied', [
-      'National Symbols & Awards', 'Miscellaneous', 'International Organisations & Relations'
+      'National Symbols & Awards', 'Miscellaneous', 'International Organisations & Relations',
+      'International Organisations & Groupings', 'Country Profiles'
     ]],
   ],
   Economy: [
@@ -48,21 +49,67 @@ export const TOPIC_GROUPS = {
     ['Sectors & Schemes', ['Industry & Infrastructure', 'Social Sector Schemes']],
   ],
   Geography: [
-    ['Physical', ['Geomorphology', 'Climatology', 'Oceanography', 'Universe & Solar System', 'Indian Physiography & Drainage', 'Soils & Natural Vegetation']],
+    ['Physical', ['Universe & Solar System', 'Geomorphology', 'Climatology', 'Oceanography', 'Indian Physiography & Drainage', 'Soils & Natural Vegetation']],
     ['Human & Economic', ['Agriculture & Resources', 'Industry, Transport & Trade', 'Population & Human Geography']],
     ['World', ['World Geography & Places', 'Miscellaneous Geography']],
   ],
   'Science & Technology': [
-    ['Core Sciences', ['Physics', 'Chemistry', 'Biology', 'General Science']],
+    ['Core Sciences', ['General Science', 'Physics', 'Chemistry', 'Biology']],
     ['Applied Science', ['Biotechnology & Genetics', 'Health, Diseases & Medicine', 'Nanotechnology & Materials']],
-    ['Tech & Energy', ['Space Technology', 'Nuclear & Energy Technology', 'IT, Communication & Computing', 'Defence Technology']],
+    ['Tech & Energy', ['IT, Communication & Computing', 'Space Technology', 'Nuclear & Energy Technology', 'Defence Technology']],
   ],
   'Modern History': [
     ['Foundations', ['Advent of Europeans & British Expansion', 'Revolt of 1857, Tribal & Peasant Movements']],
     ['Reform & Nationalism', ['Socio-Religious Reform Movements', 'Early Nationalism & Congress (1885-1919)', 'Gandhian Era & Mass Movements (1915-1947)']],
     ['Governance & People', ['Constitutional & Administrative Developments', 'Personalities, Press & Culture', 'Miscellaneous']],
   ],
+  'Ancient History': [
+    ['Prehistory & Early Civilisations', ['Prehistory & Indus Valley Civilisation', 'Vedic Age']],
+    ['Heterodox Sects & Empires', ['Mahajanapadas & Mauryas', 'Buddhism & Jainism', 'Post-Mauryan & Sangam Age', 'Guptas & Post-Guptas']],
+    ['General & Survey', ['Ancient History – General']],
+  ],
+  'Medieval History': [
+    ['Early Medieval & Sultanate', ['Early Medieval Kingdoms', 'Delhi Sultanate']],
+    ['Deccan & Regional States', ['Vijayanagara & Bahmani', 'Marathas & Regional States']],
+    ['The Mughal Era', ['Mughal Empire']],
+    ['General & Survey', ['Medieval History – General']],
+  ],
+  'Art & Culture': [
+    ['Visual Arts', ['Architecture & Sculpture', 'Painting & Handicrafts']],
+    ['Philosophy & Literature', ['Philosophy & Religion', 'Literature & Languages']],
+    ['Performing & Living Culture', ['Dance, Music, Theatre & Puppetry', 'Festivals, Martial Arts & Miscellaneous Culture']],
+  ],
+  Environment: [
+    ['Ecology & Biodiversity', ['Ecology & Ecosystems', 'Biodiversity & Conservation']],
+    ['Pollution & Climate Change', ['Environmental Pollution', 'Climate Change']],
+    ['Laws & Institutions', ['Environmental Laws, Policies & Institutions']],
+  ],
+  Agriculture: [
+    ['Agronomy & Practices', ['Soil, Fertilizers & Farming Practices', 'Major Crops', 'Cropping Patterns & Systems', 'Irrigation & Water Management']],
+    ['Agricultural Economics & Policy', ['Agriculture & Economy', 'Agricultural Pricing & Procurement (MSP)', 'Agricultural Credit & Schemes', 'Agricultural Marketing & Trade']],
+  ],
 };
+
+// Pre-computed subject -> topic -> 1-based order map for O(1) canonical syllabus sorting
+const SYLLABUS_ORDER_MAP = {};
+for (const [sub, groups] of Object.entries(TOPIC_GROUPS)) {
+  SYLLABUS_ORDER_MAP[sub] = {};
+  let seq = 1;
+  for (const [, topics] of groups) {
+    for (const t of topics) {
+      SYLLABUS_ORDER_MAP[sub][t] = seq++;
+    }
+  }
+}
+
+/**
+ * Returns a numerical syllabusOrder for a given subject and topic.
+ * Lower numbers appear first in the official syllabus flow.
+ */
+export function getTopicSyllabusOrder(subject, topic) {
+  if (!topic) return 9999;
+  return SYLLABUS_ORDER_MAP[subject]?.[topic] ?? 999;
+}
 
 /** Returns [{ label, items: [[topic, count], ...] }] for a subject, given [[topic,count],...] */
 export function groupTopics(subject, topicCounts) {

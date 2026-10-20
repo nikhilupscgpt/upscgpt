@@ -3,7 +3,7 @@ import prisma from '@/lib/prisma';
 import PyqExplorerClient from './PyqExplorerClient';
 import { isNewPatternQuestion } from '@/lib/pyqPattern';
 import { generateQuestionSlug } from '@/lib/pyqSlug';
-import { SUBJECT_ORDER, SUBJECT_SHORT } from './topicGroups';
+import { SUBJECT_ORDER, SUBJECT_SHORT, getTopicSyllabusOrder } from './topicGroups';
 
 // Incremental Static Regeneration (ISR): Edge cached for 24 hours so bots consume 0 DB compute
 export const revalidate = 86400;
@@ -113,7 +113,12 @@ export default async function PyqExplorerPage() {
       .slice(0, 4)
       .map(([t]) => t);
     const allTopics = [...data.topics.entries()]
-      .sort((a, b) => b[1] - a[1]);
+      .sort(([a], [b]) => {
+        const orderA = getTopicSyllabusOrder(s, a);
+        const orderB = getTopicSyllabusOrder(s, b);
+        if (orderA !== orderB) return orderA - orderB;
+        return a.localeCompare(b);
+      });
     return {
       name: s,
       short: SUBJECT_SHORT[s] || s,

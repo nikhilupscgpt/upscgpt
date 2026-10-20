@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { X, Check, ChevronDown, ChevronUp, Sparkles, ArrowRight, Lock } from 'lucide-react';
-import { SUBJECT_ORDER, SUBJECT_SHORT } from './topicGroups';
+import { SUBJECT_ORDER, SUBJECT_SHORT, getTopicSyllabusOrder } from './topicGroups';
 import { isNewPatternQuestion } from '@/lib/pyqPattern';
 
 const PRESET_SIZES = [10, 20, 30, 50];
@@ -96,7 +96,12 @@ export default function QuizSetupModal({ isOpen, onClose, questions = [], initia
     }
     const result = {};
     for (const [sub, topicCounts] of Object.entries(map)) {
-      result[sub] = Object.entries(topicCounts).sort((a, b) => b[1] - a[1]);
+      result[sub] = Object.entries(topicCounts).sort(([a], [b]) => {
+        const orderA = getTopicSyllabusOrder(sub, a);
+        const orderB = getTopicSyllabusOrder(sub, b);
+        if (orderA !== orderB) return orderA - orderB;
+        return a.localeCompare(b);
+      });
     }
     return result;
   }, [initialMetadata, questions]);
