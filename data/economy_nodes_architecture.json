@@ -1,0 +1,595 @@
+{
+  "subject": "Indian Economy",
+  "totalPrelimsQuestions": 401,
+  "totalExistingNodesInDB": 40,
+  "syllabusFlow": [
+    {
+      "syllabusOrder": 1,
+      "module": "Macro Foundations",
+      "topic": "Basic Economic Concepts",
+      "questionCount": 49,
+      "coreThemes": [
+        "Opportunity Cost",
+        "Giffen vs Veblen Goods",
+        "Factors of Production",
+        "Economic vs Non-Economic Goods",
+        "Positive vs Normative Economics",
+        "Externalities"
+      ]
+    },
+    {
+      "syllabusOrder": 2,
+      "module": "Macro Foundations",
+      "topic": "National Income & Growth",
+      "questionCount": 11,
+      "coreThemes": [
+        "GDP vs GNP vs NNP",
+        "Factor Cost vs Market Price",
+        "Real vs Nominal GDP",
+        "GDP Deflator",
+        "Gross Value Added (GVA)",
+        "Base Year Changes",
+        "Potential Output"
+      ]
+    },
+    {
+      "syllabusOrder": 3,
+      "module": "Macro Foundations",
+      "topic": "Inflation",
+      "questionCount": 22,
+      "coreThemes": [
+        "CPI vs WPI weights & coverage",
+        "Headline vs Core Inflation",
+        "Demand-Pull vs Cost-Push",
+        "Phillips Curve",
+        "Stagflation",
+        "Deflation vs Disinflation",
+        "Base Effect",
+        "Shrinkflation"
+      ]
+    },
+    {
+      "syllabusOrder": 4,
+      "module": "Macro Foundations",
+      "topic": "Planning",
+      "questionCount": 6,
+      "coreThemes": [
+        "Historical Five Year Plans (1st to 12th)",
+        "Planning Commission vs NITI Aayog structure",
+        "Governing Council of NITI Aayog",
+        "Team India vs Knowledge Hub"
+      ]
+    },
+    {
+      "syllabusOrder": 5,
+      "module": "Macro Foundations",
+      "topic": "Poverty, Unemployment & Human Development",
+      "questionCount": 26,
+      "coreThemes": [
+        "Poverty Line Estimation (Alagh, Lakdawala, Tendulkar, Rangarajan)",
+        "Multidimensional Poverty Index (MPI) dimensions",
+        "Gini Coefficient & Lorenz Curve",
+        "Types of Unemployment (Disguised, Structural, Frictional)",
+        "Periodic Labour Force Survey (PLFS)",
+        "Human Development Index (HDI)"
+      ]
+    },
+    {
+      "syllabusOrder": 6,
+      "module": "Money & Banking",
+      "topic": "Banking & RBI",
+      "questionCount": 81,
+      "coreThemes": [
+        "RBI Functions & Structure",
+        "Quantitative Tools (CRR, SLR, Repo, Reverse Repo, SDF, MSF, OMO)",
+        "Qualitative Tools (Margin requirements, Moral Suasion)",
+        "Money Supply (M0, M1, M2, M3, M4)",
+        "Money Multiplier",
+        "High-Powered Money",
+        "Priority Sector Lending (PSL targets)",
+        "Prompt Corrective Action (PCA)",
+        "Cooperative Banks & Regulation Amendment",
+        "Payments Banks & Small Finance Banks",
+        "Bad Bank (NARCL/IDRCL)",
+        "Basel III Capital Adequacy (CAR/CRAR)",
+        "Insolvency & Bankruptcy Code (IBC)"
+      ]
+    },
+    {
+      "syllabusOrder": 7,
+      "module": "Money & Banking",
+      "topic": "Monetary Policy",
+      "questionCount": 4,
+      "coreThemes": [
+        "Monetary Policy Framework Agreement 2016",
+        "Monetary Policy Committee (MPC) - 6 members, casting vote of Governor",
+        "Inflation Target (4% +/- 2% CPI)",
+        "Stances (Accommodative, Neutral, Calibrated Tightening, Withdrawal of Accommodation)"
+      ]
+    },
+    {
+      "syllabusOrder": 8,
+      "module": "Money & Banking",
+      "topic": "Capital Markets & Financial Instruments",
+      "questionCount": 33,
+      "coreThemes": [
+        "Money Market vs Capital Market",
+        "Treasury Bills (91, 182, 364 days)",
+        "Commercial Paper (CP)",
+        "Certificate of Deposit (CD)",
+        "Cash Management Bills (CMBs)",
+        "Call/Notice Money",
+        "Government Securities (G-Secs), Yields & Yield Curve inversion",
+        "Participatory Notes (P-Notes)",
+        "Sovereign Gold Bonds (SGB)",
+        "Green Bonds & Masala Bonds",
+        "REITs and InvITs",
+        "SEBI Powers & Role",
+        "Credit Rating Agencies (CRAs)"
+      ]
+    },
+    {
+      "syllabusOrder": 9,
+      "module": "Public Finance & Trade",
+      "topic": "Fiscal Policy & Budget",
+      "questionCount": 30,
+      "coreThemes": [
+        "Revenue Receipts (Tax + Non-tax) vs Capital Receipts (Borrowing, Disinvestment, Loan recovery)",
+        "Revenue Expenditure vs Capital Expenditure",
+        "Fiscal Deficit formula & financing",
+        "Revenue Deficit & Effective Revenue Deficit",
+        "Primary Deficit",
+        "Monetized Deficit",
+        "FRBM Act 2003 & NK Singh Committee targets",
+        "Article 266 (Consolidated Fund & Public Account) & Article 267 (Contingency Fund)",
+        "Finance Commission devolution formula"
+      ]
+    },
+    {
+      "syllabusOrder": 10,
+      "module": "Public Finance & Trade",
+      "topic": "Taxation & GST",
+      "questionCount": 15,
+      "coreThemes": [
+        "Direct vs Indirect Taxes",
+        "Progressive vs Regressive Tax",
+        "Tax Buoyancy vs Tax Elasticity",
+        "GST Architecture (101st Constitutional Amendment)",
+        "GST Council (Article 279A, voting power 1/3 Centre, 2/3 States, 3/4 majority)",
+        "Cess vs Surcharge (Article 270/271)",
+        "Anti-Profiteering, E-way bill",
+        "Direct Tax Code, Minimum Alternate Tax (MAT), Equalisation Levy, GAAR"
+      ]
+    },
+    {
+      "syllabusOrder": 11,
+      "module": "Public Finance & Trade",
+      "topic": "Balance of Payments & Exchange Rate",
+      "questionCount": 19,
+      "coreThemes": [
+        "Current Account (Trade Balance + Invisibles/Services/Remittances) vs Capital Account (FDI, FPI, ECB, NRI deposits)",
+        "Current Account Deficit (CAD) causes & remedies",
+        "Capital Account Convertibility (Tarapore Committee recommendations)",
+        "Foreign Exchange Reserves composition (Foreign Currency Assets, Gold, SDR, Reserve Tranche Position)",
+        "Nominal Effective Exchange Rate (NEER) vs Real Effective Exchange Rate (REER)",
+        "Depreciation vs Devaluation",
+        "Currency swaps & Internationalisation of Rupee"
+      ]
+    },
+    {
+      "syllabusOrder": 12,
+      "module": "Public Finance & Trade",
+      "topic": "International Economic Organisations & Trade",
+      "questionCount": 42,
+      "coreThemes": [
+        "WTO Boxes (Green Box, Blue Box, Amber Box/AMS, Peace Clause)",
+        "WTO Agreements (TRIPS, TRIMS, Agreement on Agriculture, SPS, TBT, Trade Facilitation Agreement)",
+        "IMF Structure, Quotas & Special Drawing Rights (SDR basket of 5 currencies)",
+        "World Bank Group (IBRD, IDA, IFC, MIGA, ICSID - India not in ICSID)",
+        "Asian Development Bank (ADB), Asian Infrastructure Investment Bank (AIIB - India 2nd largest shareholder), New Development Bank (NDB/BRICS)",
+        "Regional Trade Agreements (RCEP, ASEAN-India FTA, CEPA, CPTPP)"
+      ]
+    },
+    {
+      "syllabusOrder": 13,
+      "module": "Public Finance & Trade",
+      "topic": "Foreign Investment",
+      "questionCount": 4,
+      "coreThemes": [
+        "FDI vs FPI (10% threshold rule by Mayaram Committee)",
+        "Automatic Route vs Government Approval Route",
+        "Prohibited sectors for FDI (Atomic Energy, Lottery, Gambling, Chit funds, Nidhi companies, Real estate business)",
+        "Round-tripping & Double Tax Avoidance Agreements (DTAA)",
+        "FPI Categories (Category I & II)"
+      ]
+    },
+    {
+      "syllabusOrder": 14,
+      "module": "Real Sector & Schemes",
+      "topic": "Industry & Infrastructure",
+      "questionCount": 26,
+      "coreThemes": [
+        "Index of Eight Core Industries (Refinery 28.04% > Electricity 19.85% > Steel > Coal > Crude Oil > Natural Gas > Cement > Fertilizers 2.63%)",
+        "Index of Industrial Production (IIP) base year & releasing agency (NSO/MoSPI)",
+        "PM Gati Shakti National Master Plan",
+        "National Infrastructure Pipeline (NIP)",
+        "PPP Models (Build-Operate-Transfer BOT, Hybrid Annuity Model HAM, Engineering-Procurement-Construction EPC, Swiss Challenge)",
+        "Disinvestment & Strategic Sale (DIPAM)"
+      ]
+    },
+    {
+      "syllabusOrder": 15,
+      "module": "Real Sector & Schemes",
+      "topic": "Social Sector Schemes",
+      "questionCount": 33,
+      "coreThemes": [
+        "Social Security & Pension Schemes (Atal Pension Yojana APY, PM-SYM, PM-KMY)",
+        "Insurance Schemes (PMJJBY, PMSBY, PMFBY)",
+        "Financial Inclusion Schemes (PMJDY, Stand Up India, PM MUDRA Yojana with Shishu/Kishore/Tarun limits)",
+        "Urban & Rural Livelihood (MGNREGA wage indexing, PM SVANidhi, DAY-NRLM)"
+      ]
+    }
+  ],
+  "existingNodes": [
+    {
+      "nodeId": "cmpjbueto000166078sqefca8",
+      "title": "Employment",
+      "slug": "employment",
+      "topic": "Planning & Development",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 10,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmq5e911q000d1lux2w2c98b3",
+      "title": "Economic Growth and Its Measurement: GDP, GNP, NNP Etc",
+      "slug": "economic-growth-and-its-measurement-gdp-gnp-nnp-etc",
+      "topic": "Planning & Development",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 10,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvjna009jz3r03s9pr7vt",
+      "title": "Indian Economy at Independence — Challenges & Choices",
+      "slug": "indian-economy-at-independence-challenges-choices",
+      "topic": "Planning & Development",
+      "nodeType": "STATIC",
+      "orderIndex": 347,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvjt8009pz3r0k3nahz6x",
+      "title": "Five Year Plans — Objectives, Phases & NITI Aayog",
+      "slug": "five-year-plans-objectives-phases-niti-aayog",
+      "topic": "Planning & Development",
+      "nodeType": "STATIC",
+      "orderIndex": 348,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvjnb009nz3r0putd05af",
+      "title": "Nehruvian Socialist Economy vs Liberalisation",
+      "slug": "nehruvian-socialist-economy-vs-liberalisation",
+      "topic": "Planning & Development",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 349,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvkuv009rz3r00glh15ll",
+      "title": "New Economic Policy 1991 — LPG Reforms & Outcomes",
+      "slug": "new-economic-policy-1991-lpg-reforms-outcomes",
+      "topic": "Planning & Development",
+      "nodeType": "STATIC",
+      "orderIndex": 350,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvkuv009qz3r0go8cnamo",
+      "title": "Inclusive Growth — Concept, Strategies & India's Record",
+      "slug": "inclusive-growth-concept-strategies-indias-record",
+      "topic": "Planning & Development",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 351,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvkuv009uz3r0s5i5a728",
+      "title": "Government Budgeting — Types, Outcome Budget & Process",
+      "slug": "government-budgeting-types-outcome-budget-process",
+      "topic": "Public Finance",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 352,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvkuv009vz3r0fshg03jq",
+      "title": "Fiscal Deficit — FRBM Act, Targets & Fiscal Consolidation",
+      "slug": "fiscal-deficit-frbm-act-targets-fiscal-consolidation",
+      "topic": "Public Finance",
+      "nodeType": "NEWS",
+      "orderIndex": 353,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvluw00adz3r088q7zsrp",
+      "title": "Tax Reforms — GST, Direct Tax Code & Compliance",
+      "slug": "tax-reforms-gst-direct-tax-code-compliance",
+      "topic": "Public Finance",
+      "nodeType": "NEWS",
+      "orderIndex": 354,
+      "hasPrelimsNote": true
+    },
+    {
+      "nodeId": "cmopjvkuv009tz3r009isz45v",
+      "title": "Public Debt — Market Borrowing, Sovereign Debt & Sustainability",
+      "slug": "public-debt-market-borrowing-sovereign-debt-sustainability",
+      "topic": "Public Finance",
+      "nodeType": "NEWS",
+      "orderIndex": 355,
+      "hasPrelimsNote": true
+    },
+    {
+      "nodeId": "cmopjvluo00a7z3r0b8t11w78",
+      "title": "Subsidies — Merit vs Non-Merit, Rationalisation & DBT",
+      "slug": "subsidies-merit-vs-non-merit-rationalisation-dbt",
+      "topic": "Public Finance",
+      "nodeType": "NEWS",
+      "orderIndex": 356,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvkuv009wz3r0kkx8tk7n",
+      "title": "RBI — Monetary Policy, Inflation Targeting & MPC",
+      "slug": "rbi-monetary-policy-inflation-targeting-mpc",
+      "topic": "Banking & Financial Sector",
+      "nodeType": "NEWS",
+      "orderIndex": 357,
+      "hasPrelimsNote": true
+    },
+    {
+      "nodeId": "cmopjvm0z00aez3r09kw06rdz",
+      "title": "Banking Sector — NPA Crisis, Recapitalisation & Reforms",
+      "slug": "banking-sector-npa-crisis-recapitalisation-reforms",
+      "topic": "Banking & Financial Sector",
+      "nodeType": "NEWS",
+      "orderIndex": 358,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvmyw00atz3r0oukh1jcb",
+      "title": "Bad Bank (NARCL) — Concept & Implementation",
+      "slug": "bad-bank-narcl-concept-implementation",
+      "topic": "Banking & Financial Sector",
+      "nodeType": "NEWS",
+      "orderIndex": 359,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvn3s00ayz3r0wdzxa1c2",
+      "title": "Financial Inclusion — Jan Dhan, Payment Banks & Digital Finance",
+      "slug": "financial-inclusion-jan-dhan-payment-banks-digital-finance",
+      "topic": "Banking & Financial Sector",
+      "nodeType": "NEWS",
+      "orderIndex": 360,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvkuv009sz3r0gjk47eey",
+      "title": "NBFC Sector — Shadow Banking & Regulation",
+      "slug": "nbfc-sector-shadow-banking-regulation",
+      "topic": "Banking & Financial Sector",
+      "nodeType": "NEWS",
+      "orderIndex": 361,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvl1h00a4z3r0kb0vxo42",
+      "title": "Insolvency & Bankruptcy Code (IBC) — Framework & Cases",
+      "slug": "insolvency-bankruptcy-code-ibc-framework-cases",
+      "topic": "Banking & Financial Sector",
+      "nodeType": "NEWS",
+      "orderIndex": 362,
+      "hasPrelimsNote": true
+    },
+    {
+      "nodeId": "cmopjvluu00aaz3r097r5bf9z",
+      "title": "Capital Markets — SEBI Regulation, Bond Market & Corporate Governance",
+      "slug": "capital-markets-sebi-regulation-bond-market-corporate-governance",
+      "topic": "Banking & Financial Sector",
+      "nodeType": "NEWS",
+      "orderIndex": 363,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvm5300ahz3r0c37h0di8",
+      "title": "Digital Payments — UPI, BHIM & Fintech Ecosystem",
+      "slug": "digital-payments-upi-bhim-fintech-ecosystem",
+      "topic": "Banking & Financial Sector",
+      "nodeType": "NEWS",
+      "orderIndex": 364,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvmmt00alz3r0i7b7acx9",
+      "title": "Industrial Policy Evolution — IPR 1948, 1956, 1991 & NIP",
+      "slug": "industrial-policy-evolution-ipr-1948-1956-1991-nip",
+      "topic": "Industry & Trade",
+      "nodeType": "STATIC",
+      "orderIndex": 365,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvkuv009xz3r0n2pq87yf",
+      "title": "Make in India — Manufacturing Ecosystem & Challenges",
+      "slug": "make-in-india-manufacturing-ecosystem-challenges",
+      "topic": "Industry & Trade",
+      "nodeType": "NEWS",
+      "orderIndex": 366,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvn0h00awz3r0xr625rqj",
+      "title": "MSME Sector — Role, Problems & Policy Support",
+      "slug": "msme-sector-role-problems-policy-support",
+      "topic": "Industry & Trade",
+      "nodeType": "NEWS",
+      "orderIndex": 367,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvno500b2z3r0j8k8bo4s",
+      "title": "FDI — Policy, Sectoral Limits & Impact",
+      "slug": "fdi-policy-sectoral-limits-impact",
+      "topic": "Industry & Trade",
+      "nodeType": "NEWS",
+      "orderIndex": 368,
+      "hasPrelimsNote": true
+    },
+    {
+      "nodeId": "cmopjvn2g00axz3r0s8z6h97m",
+      "title": "Special Economic Zones (SEZs) — Issues & Outcomes",
+      "slug": "special-economic-zones-sezs-issues-outcomes",
+      "topic": "Industry & Trade",
+      "nodeType": "NEWS",
+      "orderIndex": 369,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvnia00b1z3r0odkejqly",
+      "title": "Industrial Corridors & Manufacturing Hubs",
+      "slug": "industrial-corridors-manufacturing-hubs",
+      "topic": "Industry & Trade",
+      "nodeType": "NEWS",
+      "orderIndex": 370,
+      "hasPrelimsNote": true
+    },
+    {
+      "nodeId": "cmopjvkuw00a0z3r0hhv5tp5p",
+      "title": "Ease of Doing Business — Reforms & India's Global Ranking",
+      "slug": "ease-of-doing-business-reforms-indias-global-ranking",
+      "topic": "Industry & Trade",
+      "nodeType": "NEWS",
+      "orderIndex": 371,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvl1h00a5z3r0frjt0qh0",
+      "title": "External Trade — FTP, WTO Obligations & Trade Disputes",
+      "slug": "external-trade-ftp-wto-obligations-trade-disputes",
+      "topic": "Industry & Trade",
+      "nodeType": "NEWS",
+      "orderIndex": 372,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvkuw00a1z3r0bnfn0rl9",
+      "title": "Start-up Ecosystem — Funding, Policy & Angel Investment",
+      "slug": "start-up-ecosystem-funding-policy-angel-investment",
+      "topic": "Industry & Trade",
+      "nodeType": "NEWS",
+      "orderIndex": 373,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvn3s00azz3r05uzbnbt6",
+      "title": "Road & Highway Development — NHDP, Bharatmala",
+      "slug": "road-highway-development-nhdp-bharatmala",
+      "topic": "Infrastructure",
+      "nodeType": "NEWS",
+      "orderIndex": 374,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvno500b3z3r08yvtj42l",
+      "title": "Railway Reforms — Safety, Privatisation & High-Speed Rail",
+      "slug": "railway-reforms-safety-privatisation-high-speed-rail",
+      "topic": "Infrastructure",
+      "nodeType": "NEWS",
+      "orderIndex": 375,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvl1h00a3z3r0tu5ypxmu",
+      "title": "Port Development — Sagarmala & Maritime Logistics",
+      "slug": "port-development-sagarmala-maritime-logistics",
+      "topic": "Infrastructure",
+      "nodeType": "NEWS",
+      "orderIndex": 376,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvkuw009yz3r0jt3cw1xd",
+      "title": "Civil Aviation — UDAN Scheme & Airport Development",
+      "slug": "civil-aviation-udan-scheme-airport-development",
+      "topic": "Infrastructure",
+      "nodeType": "NEWS",
+      "orderIndex": 377,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvkuw009zz3r0bp1fzq35",
+      "title": "Inland Waterways Development",
+      "slug": "inland-waterways-development",
+      "topic": "Infrastructure",
+      "nodeType": "NEWS",
+      "orderIndex": 378,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvl1h00a6z3r0xhz9m0av",
+      "title": "Telecom Infrastructure — BharatNet, 5G & Digital Divide",
+      "slug": "telecom-infrastructure-bharatnet-5g-digital-divide",
+      "topic": "Infrastructure",
+      "nodeType": "NEWS",
+      "orderIndex": 379,
+      "hasPrelimsNote": true
+    },
+    {
+      "nodeId": "cmopjvl1h00a2z3r08tdsyx76",
+      "title": "Energy Infrastructure — Power Sector Reforms & Grid Management",
+      "slug": "energy-infrastructure-power-sector-reforms-grid-management",
+      "topic": "Infrastructure",
+      "nodeType": "NEWS",
+      "orderIndex": 380,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvluw00abz3r04slz2bl6",
+      "title": "Public-Private Partnership — Models, Issues & Reforms",
+      "slug": "public-private-partnership-models-issues-reforms",
+      "topic": "Infrastructure",
+      "nodeType": "NEWS",
+      "orderIndex": 381,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvmz200auz3r0lvkrkmwm",
+      "title": "Investment Models — PPP, Viability Gap Funding, Hybrid Annuity",
+      "slug": "investment-models-ppp-viability-gap-funding-hybrid-annuity",
+      "topic": "Investment & Growth",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 382,
+      "hasPrelimsNote": true
+    },
+    {
+      "nodeId": "cmopjvlur00a8z3r0qavxf4yk",
+      "title": "Foreign Investment — FDI vs FPI, FIPB & Policy Changes",
+      "slug": "foreign-investment-fdi-vs-fpi-fipb-policy-changes",
+      "topic": "Investment & Growth",
+      "nodeType": "NEWS",
+      "orderIndex": 383,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvluu00a9z3r0n7u5grc1",
+      "title": "Venture Capital & Start-up Funding Ecosystem",
+      "slug": "venture-capital-start-up-funding-ecosystem",
+      "topic": "Investment & Growth",
+      "nodeType": "NEWS",
+      "orderIndex": 384,
+      "hasPrelimsNote": false
+    }
+  ]
+}

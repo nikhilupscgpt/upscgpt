@@ -1,0 +1,77 @@
+{
+  "Basic Economic Concepts": {
+    "topic": "Basic Economic Concepts",
+    "syllabusOrder": 1,
+    "module": "Macro Foundations"
+  },
+  "National Income & Growth": {
+    "topic": "National Income & Growth",
+    "syllabusOrder": 2,
+    "module": "Macro Foundations"
+  },
+  "Inflation": {
+    "topic": "Inflation",
+    "syllabusOrder": 3,
+    "module": "Macro Foundations"
+  },
+  "Planning": {
+    "topic": "Planning",
+    "syllabusOrder": 4,
+    "module": "Macro Foundations"
+  },
+  "Poverty, Unemployment & Human Development": {
+    "topic": "Poverty, Unemployment & Human Development",
+    "syllabusOrder": 5,
+    "module": "Macro Foundations"
+  },
+  "Banking & RBI": {
+    "topic": "Banking & RBI",
+    "syllabusOrder": 6,
+    "module": "Money & Finance"
+  },
+  "Monetary Policy": {
+    "topic": "Monetary Policy",
+    "syllabusOrder": 7,
+    "module": "Money & Finance"
+  },
+  "Capital Markets & Financial Instruments": {
+    "topic": "Capital Markets & Financial Instruments",
+    "syllabusOrder": 8,
+    "module": "Money & Finance"
+  },
+  "Fiscal Policy & Budget": {
+    "topic": "Fiscal Policy & Budget",
+    "syllabusOrder": 9,
+    "module": "Government & Trade"
+  },
+  "Taxation & GST": {
+    "topic": "Taxation & GST",
+    "syllabusOrder": 10,
+    "module": "Government & Trade"
+  },
+  "Balance of Payments & Exchange Rate": {
+    "topic": "Balance of Payments & Exchange Rate",
+    "syllabusOrder": 11,
+    "module": "Government & Trade"
+  },
+  "International Economic Organisations & Trade": {
+    "topic": "International Economic Organisations & Trade",
+    "syllabusOrder": 12,
+    "module": "Government & Trade"
+  },
+  "Foreign Investment": {
+    "topic": "Foreign Investment",
+    "syllabusOrder": 13,
+    "module": "Government & Trade"
+  },
+  "Industry & Infrastructure": {
+    "topic": "Industry & Infrastructure",
+    "syllabusOrder": 14,
+    "module": "Sectors & Schemes"
+  },
+  "Social Sector Schemes": {
+    "topic": "Social Sector Schemes",
+    "syllabusOrder": 15,
+    "module": "Sectors & Schemes"
+  }
+}

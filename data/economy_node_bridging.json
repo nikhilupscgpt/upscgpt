@@ -1,0 +1,705 @@
+{
+  "subject": "Indian Economy",
+  "nodes": [
+    {
+      "nodeId": "cmq5e911q000d1lux2w2c98b3",
+      "title": "Economic Growth and Its Measurement: GDP, GNP, NNP Etc",
+      "syllabusOrder": 2,
+      "topic": "National Income & Growth",
+      "prelimsNote": [
+        "GDP = market value of final goods & services produced within the domestic territory; GNP = GDP + net factor income from abroad; NNP = GNP − depreciation.",
+        "National Income = NNP at factor cost; market price = factor cost + net indirect taxes (indirect taxes − subsidies).",
+        "GVA at basic prices + product taxes − product subsidies = GDP; India adopted GVA with the 2011-12 base revision (2015).",
+        "GDP deflator = nominal GDP ÷ real GDP × 100 — covers all goods and services, broader than CPI/WPI.",
+        "Trap: national income is the money value of FINAL goods & services (UPSC 2013); intermediate goods excluded to avoid double counting.",
+        "PPP: India is the 3rd largest economy by PPP — the UPSC 2019 statement saying 'sixth' was false."
+      ]
+    },
+    {
+      "nodeId": "cmopjvkuv009qz3r0go8cnamo",
+      "title": "Inclusive Growth — Concept, Strategies & India's Record",
+      "syllabusOrder": 2,
+      "topic": "National Income & Growth",
+      "prelimsNote": [
+        "11th Plan theme 'faster and more inclusive growth'; 12th Plan 'faster, more inclusive and sustainable growth'.",
+        "Instruments (UPSC 2011): skill development, financial inclusion, rural infrastructure, social-sector spending.",
+        "Inclusive governance (UPSC 2012): effective District Planning Committees, more public health spending, Mid-day Meal — NOT allowing NBFCs to do banking.",
+        "Measured through poverty, inequality (Gini), employment quality and regional disparity — growth can occur without development (UPSC 2018).",
+        "Inclusive growth targets broad-based gains in income, jobs and access to services for the bottom of the distribution — not just higher average growth."
+      ]
+    },
+    {
+      "nodeId": "cmopjvjna009jz3r03s9pr7vt",
+      "title": "Indian Economy at Independence — Challenges & Choices",
+      "syllabusOrder": 4,
+      "topic": "Planning",
+      "prelimsNote": [
+        "Colonial legacy: stagnant agriculture, de-industrialisation, drain of wealth (Dadabhai Naoroji, 'Poverty and Un-British Rule in India').",
+        "Pre-independence plans: Bombay Plan 1944 (industrialists), Gandhian Plan (S.N. Agarwal), People's Plan (M.N. Roy), Sarvodaya Plan (J.P. Narayan).",
+        "Planning Commission set up in March 1950 by a Cabinet resolution — non-constitutional, non-statutory; National Development Council set up in 1952.",
+        "Industrial Policy Resolutions 1948 and 1956 shaped the mixed economy with public sector at the 'commanding heights'.",
+        "First Five-Year Plan (1951–56) used the Harrod–Domar model with focus on agriculture and irrigation."
+      ]
+    },
+    {
+      "nodeId": "cmopjvjt8009pz3r0k3nahz6x",
+      "title": "Five Year Plans — Objectives, Phases & NITI Aayog",
+      "syllabusOrder": 4,
+      "topic": "Planning",
+      "prelimsNote": [
+        "2nd Plan (1956–61): Mahalanobis model, heavy industry — determined thrust on basic & capital goods (UPSC 2019); 3rd Plan failure led to Plan Holidays (1966–69).",
+        "4th Plan (1969–74): growth with stability, aimed to correct concentration of wealth and economic power (UPSC 2019); 5th Plan: 'Garibi Hatao', terminated in 1978 (Rolling Plans 1978–80).",
+        "8th Plan (1992–97): indicative planning after LPG reforms; 11th Plan: 'Faster and more inclusive growth'; 12th Plan (2012–17): 'Faster, More Inclusive and Sustainable Growth' (UPSC 2014).",
+        "NITI Aayog: 1 Jan 2015 by Cabinet resolution — neither constitutional nor statutory; PM chairperson; Governing Council of all CMs and LGs.",
+        "NITI is a think tank — no power to allocate funds to States (unlike the Planning Commission); hosts the Atal Innovation Mission (UPSC 2019).",
+        "Trap: the 5th Plan did NOT first make the financial sector an integral part of the Plan (UPSC 2019 statement 3 was false)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvjnb009nz3r0putd05af",
+      "title": "Nehruvian Socialist Economy vs Liberalisation",
+      "syllabusOrder": 4,
+      "topic": "Planning",
+      "prelimsNote": [
+        "Nehruvian model: Mahalanobis heavy-industry strategy, public sector at 'commanding heights', import substitution, licence-permit raj.",
+        "Controls: MRTP Act 1969, FERA 1973 (replaced by FEMA 1999); 14 banks nationalised in 1969, 6 more in 1980.",
+        "'Hindu rate of growth' (Raj Krishna) ≈ 3.5% a year during 1950–80.",
+        "1991 BoP crisis: forex reserves covered barely two to three weeks of imports; gold pledged with the Bank of England and Bank of Japan.",
+        "Shift to LPG (liberalisation, privatisation, globalisation) in July 1991 under PM P.V. Narasimha Rao and FM Manmohan Singh."
+      ]
+    },
+    {
+      "nodeId": "cmpjbueto000166078sqefca8",
+      "title": "Employment",
+      "syllabusOrder": 5,
+      "topic": "Poverty, Unemployment & Human Development",
+      "prelimsNote": [
+        "Types: disguised (marginal productivity of labour ≈ zero, typical of agriculture), structural (mismatch between job vacancies and worker skills/location), frictional (between jobs), cyclical (recession-driven), seasonal.",
+        "PLFS by NSO (since 2017-18) replaced NSSO employment–unemployment rounds; measures Usual Status (principal + subsidiary) and Current Weekly Status.",
+        "Key ratios: LFPR = labour force ÷ population; Worker Population Ratio = employed ÷ population; Unemployment Rate = unemployed ÷ labour force.",
+        "Labour Bureau (Ministry of Labour) compiles data on industrial disputes, closures, retrenchments and lay-offs (UPSC 2022).",
+        "Four Labour Codes (Wages 2019; Industrial Relations, Social Security, OSH 2020) consolidate 29 central labour laws.",
+        "Trap: fixed-term employment under the Standing Orders amendment (2018) made hiring/lay-off easier (UPSC 2019); not all casual workers get EPF cover (UPSC 2021)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvm0z00aez3r09kw06rdz",
+      "title": "Banking Sector — NPA Crisis, Recapitalisation & Reforms",
+      "syllabusOrder": 6,
+      "topic": "Banking & RBI",
+      "prelimsNote": [
+        "NPA: interest or principal overdue for more than 90 days; Asset Quality Review (2015) exposed hidden stress.",
+        "Resolution tools: DRTs (1993), SARFAESI Act 2002, ARCs, IBC 2016; Inter-Creditor Agreement (2019) for faster resolution of stressed assets ≥ ₹50 crore under consortium lending (UPSC 2019).",
+        "Recapitalisation bonds (2017); Indradhanush (2015) created the Banks Board Bureau; PSB mergers reduced their number from 27 to 12 (2017–2020).",
+        "Prompt Corrective Action framework triggers on capital, asset quality and leverage thresholds.",
+        "Interest Coverage Ratio = EBIT ÷ interest — a higher ratio means better ability to service debt (UPSC 2020).",
+        "Banks Board Bureau recommends heads of PSBs and helps them with strategies and capital-raising plans; the RBI Governor is NOT its chairman (UPSC 2019, 2022)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvmyw00atz3r0oukh1jcb",
+      "title": "Bad Bank (NARCL) — Concept & Implementation",
+      "syllabusOrder": 6,
+      "topic": "Banking & RBI",
+      "prelimsNote": [
+        "National Asset Reconstruction Company Ltd (NARCL) announced in Budget 2021; licensed by RBI as an ARC under SARFAESI; majority-owned by PSBs.",
+        "India Debt Resolution Company Ltd (IDRCL) manages and resolves the acquired assets (majority private ownership).",
+        "Structure: 15% cash and 85% Security Receipts, backed by a Government guarantee of up to ₹30,600 crore.",
+        "Targets large NPAs of ₹500 crore and above."
+      ]
+    },
+    {
+      "nodeId": "cmopjvn3s00ayz3r0wdzxa1c2",
+      "title": "Financial Inclusion — Jan Dhan, Payment Banks & Digital Finance",
+      "syllabusOrder": 6,
+      "topic": "Banking & RBI",
+      "prelimsNote": [
+        "PMJDY (Aug 2014): zero-balance accounts, RuPay debit card with accident cover, overdraft up to ₹10,000 (UPSC 2015).",
+        "Payments Banks (Nachiket Mor Committee): accept deposits up to ₹2 lakh, cannot lend or issue credit cards (UPSC 2016).",
+        "Small Finance Banks: 75% of credit to priority sectors; at least 50% of loans up to ₹25 lakh (UPSC 2017).",
+        "Business Correspondents (2006), Lead Bank Scheme (1969), Service Area Approach (1989, under the Lead Bank Scheme — UPSC 2019).",
+        "RBI's Financial Inclusion Index (since 2021) measures access, usage and quality."
+      ]
+    },
+    {
+      "nodeId": "cmopjvkuv009sz3r0gjk47eey",
+      "title": "NBFC Sector — Shadow Banking & Regulation",
+      "syllabusOrder": 6,
+      "topic": "Banking & RBI",
+      "prelimsNote": [
+        "NBFCs are registered under the Companies Act and regulated by RBI (Chapter IIIB, RBI Act).",
+        "Unlike banks: cannot accept demand deposits, are not part of the payment & settlement system, cannot issue cheques drawn on themselves; no DICGC deposit insurance.",
+        "Scale-Based Regulation (2021): base, middle, upper and top layers.",
+        "Not all NBFC-like entities are RBI-regulated: insurance (IRDAI), stock-broking/mutual funds (SEBI), chit funds (State governments), Nidhi companies (MCA).",
+        "IL&FS default (2018) exposed shadow-banking contagion risk."
+      ]
+    },
+    {
+      "nodeId": "cmopjvl1h00a4z3r0kb0vxo42",
+      "title": "Insolvency & Bankruptcy Code (IBC) — Framework & Cases",
+      "syllabusOrder": 6,
+      "topic": "Banking & RBI",
+      "prelimsNote": [
+        "IBC 2016; Insolvency and Bankruptcy Board of India (IBBI) is the regulator.",
+        "Adjudicating authority: NCLT for companies/LLPs, DRT for individuals/partnerships; appeals to NCLAT, then the Supreme Court.",
+        "CIRP: 180 days + 90-day extension; 330-day outer limit including litigation (2019 amendment).",
+        "Committee of Creditors decides with 66% vote; its commercial wisdom has primacy (Essar Steel 2019).",
+        "Sec 29A bars defaulting promoters from bidding; pre-packaged insolvency for MSMEs (2021); minimum default threshold ₹1 crore (2020)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvm5300ahz3r0c37h0di8",
+      "title": "Digital Payments — UPI, BHIM & Fintech Ecosystem",
+      "syllabusOrder": 6,
+      "topic": "Banking & RBI",
+      "prelimsNote": [
+        "NPCI (2008): not-for-profit company promoted by banks under the RBI's Payment and Settlement Systems Act 2007 framework.",
+        "NPCI runs NFS (links all ATMs — UPSC 2018), RuPay, UPI (2016), BHIM, IMPS, AePS, NETC FASTag and Bharat BillPay (UPSC 2017).",
+        "Merchant Discount Rate = fee charged to merchants by banks for accepting card payments (UPSC 2018); MDR set to zero for RuPay debit and BHIM-UPI from 2020.",
+        "RBI's 2018 data-localisation directive: all payment-system data must be stored only in India (UPSC 2019).",
+        "CBDC (e₹) pilots from Nov–Dec 2022; programmable features possible, payments without SWIFT (UPSC 2023)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvkuv009wz3r0kkx8tk7n",
+      "title": "RBI — Monetary Policy, Inflation Targeting & MPC",
+      "syllabusOrder": 7,
+      "topic": "Monetary Policy",
+      "prelimsNote": [
+        "Flexible inflation targeting under the amended RBI Act (2016) and the Monetary Policy Framework Agreement (2015): CPI-Combined 4% ± 2%, set by the Government every five years.",
+        "MPC: 6 members — Governor (casting vote), Deputy Governor in charge of monetary policy, one RBI officer, and 3 external members appointed by the Government for 4 years; meets at least 4 times a year.",
+        "If inflation stays outside the band for 3 consecutive quarters, RBI must report reasons and remedial action to the Government.",
+        "Corridor: Standing Deposit Facility (floor, since April 2022) < repo rate < MSF (ceiling, repo + 25 bps); Bank Rate is aligned with MSF.",
+        "Stances: accommodative, neutral, withdrawal of accommodation, calibrated tightening.",
+        "Trap: RBI draws its powers from the RBI Act 1934, and Government directions come under Sec 7 of that Act — not from the Constitution (UPSC 2021)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvluu00aaz3r097r5bf9z",
+      "title": "Capital Markets — SEBI Regulation, Bond Market & Corporate Governance",
+      "syllabusOrder": 8,
+      "topic": "Capital Markets & Financial Instruments",
+      "prelimsNote": [
+        "SEBI set up in 1988, statutory under the SEBI Act 1992; appeals go to the Securities Appellate Tribunal.",
+        "SEBI regulates stock exchanges, mutual funds, credit rating agencies (not RBI — UPSC 2022), REITs/InvITs and Alternative Investment Funds.",
+        "Primary market (new issues/IPOs) vs secondary market (trading); T+1 settlement cycle adopted in 2023.",
+        "CSR under Sec 135, Companies Act 2013: 2% of average net profit for companies above thresholds.",
+        "Corporate bond market is shallow; G-secs dominate debt markets."
+      ]
+    },
+    {
+      "nodeId": "cmopjvluu00a9z3r0n7u5grc1",
+      "title": "Venture Capital & Start-up Funding Ecosystem",
+      "syllabusOrder": 8,
+      "topic": "Capital Markets & Financial Instruments",
+      "prelimsNote": [
+        "Venture capital = short-to-medium-term risk capital for new/early-stage ventures (UPSC 2014).",
+        "SEBI AIF Regulations 2012: Category I (VC funds, angel funds, SME, social venture, infrastructure), Category II (PE, debt funds), Category III (hedge funds).",
+        "Fund of Funds for Startups (SIDBI) invests in SEBI-registered AIFs.",
+        "Angel investors fund the earliest stage; 'angel tax' abolished from FY 2025-26."
+      ]
+    },
+    {
+      "nodeId": "cmopjvkuv009uz3r0s5i5a728",
+      "title": "Government Budgeting — Types, Outcome Budget & Process",
+      "syllabusOrder": 9,
+      "topic": "Fiscal Policy & Budget",
+      "prelimsNote": [
+        "Art 112 'Annual Financial Statement' — the word 'Budget' is not in the Constitution; charged expenditure is not voted on.",
+        "Art 266(1) Consolidated Fund (appropriation needed), Art 266(2) Public Account (no appropriation), Art 267 Contingency Fund (at the President's disposal).",
+        "Reforms: Outcome Budget (2005), Gender Budgeting (2005-06), Budget date moved to 1 February and Railway Budget merged (2017), plan/non-plan distinction removed (2017-18).",
+        "Vote on account (Art 116) covers only expenditure; an interim budget covers receipts and expenditure (UPSC 2011).",
+        "FRBM-mandated documents: Macro-economic Framework Statement and Medium-term Fiscal Policy cum Fiscal Policy Strategy Statement (UPSC 2020).",
+        "Capital budget includes loans to States, recovery of loans, disinvestment and investment in PSUs (UPSC 2016)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvkuv009vz3r0fshg03jq",
+      "title": "Fiscal Deficit — FRBM Act, Targets & Fiscal Consolidation",
+      "syllabusOrder": 9,
+      "topic": "Fiscal Policy & Budget",
+      "prelimsNote": [
+        "Fiscal deficit = total expenditure − (revenue receipts + non-debt capital receipts) = total borrowing requirement.",
+        "Primary deficit = fiscal deficit − interest payments; Revenue deficit = revenue expenditure − revenue receipts; Effective revenue deficit = revenue deficit − grants for creation of capital assets.",
+        "Monetised deficit = RBI's net credit to the Centre; FRBM barred RBI from subscribing to primary G-sec issues from 2006 (only Ways & Means Advances).",
+        "FRBM Act 2003; N.K. Singh Review Committee (2017): general government debt 60% of GDP (Centre 40%, States 20%), fiscal deficit 3% — UPSC 2018.",
+        "Escape clause lets the Centre deviate by up to 0.5% of GDP for national security, calamity, structural reforms or a sharp fall in output.",
+        "Recent anchor (as of 2025): Centre shifting from annual deficit targets to a debt-to-GDP path (~50% ± 1% by 2031); FY26 fiscal deficit target 4.4%."
+      ]
+    },
+    {
+      "nodeId": "cmopjvkuv009tz3r009isz45v",
+      "title": "Public Debt — Market Borrowing, Sovereign Debt & Sustainability",
+      "syllabusOrder": 9,
+      "topic": "Fiscal Policy & Budget",
+      "prelimsNote": [
+        "Internal debt: dated securities (largest component, issued at market-related rates in auctions — UPSC 2022), T-bills, cash management bills; small savings via NSSF.",
+        "Art 292: Union borrows on the security of the Consolidated Fund within limits fixed by Parliament (no limit fixed so far); Art 293: a State indebted to the Centre needs its consent to borrow.",
+        "Bond prices and yields move inversely; yields rise with inflation expectations, higher government borrowing and rising global rates (UPSC 2021).",
+        "India's FAR (Fully Accessible Route) G-secs included in J.P. Morgan's GBI-EM index from June 2024.",
+        "Household financial savings partly flow into government borrowing (UPSC 2022)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvluo00a7z3r0b8t11w78",
+      "title": "Subsidies — Merit vs Non-Merit, Rationalisation & DBT",
+      "syllabusOrder": 9,
+      "topic": "Fiscal Policy & Budget",
+      "prelimsNote": [
+        "Merit subsidies (education, health, nutrition) have large positive externalities; non-merit subsidies largely benefit private consumption.",
+        "Major subsidies: food (NFSA via FCI), fertiliser, petroleum (LPG); fertiliser: urea MRP fixed by government, P&K under Nutrient Based Subsidy since 2010 (UPSC 2020).",
+        "Direct Benefit Transfer launched 1 Jan 2013; JAM trinity (Jan Dhan–Aadhaar–Mobile); PAHAL (DBTL) for LPG.",
+        "PM Garib Kalyan Anna Yojana: free foodgrains to NFSA beneficiaries extended for five years from 1 Jan 2024.",
+        "Trap: WTO Amber Box covers trade-distorting domestic support; India's food procurement is protected by the Peace Clause (Bali 2013)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvluw00adz3r088q7zsrp",
+      "title": "Tax Reforms — GST, Direct Tax Code & Compliance",
+      "syllabusOrder": 10,
+      "topic": "Taxation & GST",
+      "prelimsNote": [
+        "101st Amendment 2016; GST in force from 1 July 2017 — destination-based tax; Art 246A concurrent taxing power; IGST on inter-state supplies (Art 269A).",
+        "GST Council (Art 279A): Union FM chairs; Centre 1/3 vote weight, States 2/3; decisions by 3/4 of weighted votes; recommendations not binding (Mohit Minerals 2022).",
+        "Outside GST: alcohol for human consumption; petroleum crude, diesel, petrol, natural gas, ATF levied only from a date the Council recommends; electricity; stamp duty.",
+        "GST rationalisation (Sept 2025): mainly two slabs, 5% and 18%, plus 40% on demerit goods (as of late 2025).",
+        "Direct taxes: the Income-tax Act 2025 replaces the 1961 Act from 1 April 2026; earlier Direct Tax Code (2009/2010) was never enacted.",
+        "Traps: equalisation levy (2016) targeted digital ad services of non-residents (UPSC 2018); BEPS is an OECD/G20 project against tax avoidance by MNCs (UPSC 2016)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvl1h00a5z3r0frjt0qh0",
+      "title": "External Trade — FTP, WTO Obligations & Trade Disputes",
+      "syllabusOrder": 12,
+      "topic": "International Economic Organisations & Trade",
+      "prelimsNote": [
+        "Foreign Trade Policy 2023 (from 1 April 2023) has no end date; target of $2 trillion exports by 2030.",
+        "RoDTEP replaced the WTO-incompatible MEIS; Districts as Export Hubs initiative.",
+        "India runs a merchandise trade deficit and a services surplus; overall current account usually in deficit (UPSC 2020).",
+        "Rupee trade settlement mechanism introduced by RBI in 2022.",
+        "WTO disputes: US–India solar DCR (2016), sugar subsidies (2021)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvno500b2z3r0j8k8bo4s",
+      "title": "FDI — Policy, Sectoral Limits & Impact",
+      "syllabusOrder": 13,
+      "topic": "Foreign Investment",
+      "prelimsNote": [
+        "FDI policy is framed by DPIIT; FIPB abolished in 2017 — approvals now by ministries via the Foreign Investment Facilitation Portal.",
+        "Two routes: automatic and government approval.",
+        "Prohibited: atomic energy, lottery, gambling/betting, chit funds, Nidhi companies, real estate business/farm houses, TDR trading, tobacco manufacturing.",
+        "Press Note 3 (2020): investment from countries sharing a land border with India needs government approval.",
+        "FDI is a largely non-debt creating, long-term capital flow (UPSC 2020); FDI cap in insurance raised to 100% in Budget 2025."
+      ]
+    },
+    {
+      "nodeId": "cmopjvlur00a8z3r0qavxf4yk",
+      "title": "Foreign Investment — FDI vs FPI, FIPB & Policy Changes",
+      "syllabusOrder": 13,
+      "topic": "Foreign Investment",
+      "prelimsNote": [
+        "FDI vs FPI: 10% or more of equity of a listed company = FDI; below 10% = FPI (Arvind Mayaram Committee).",
+        "Counted as FDI: equity in unlisted firms, 10%+ of listed firms, FCCBs and GDRs; NRE deposits are not FDI (UPSC 2012, 2021).",
+        "Participatory Notes (ODIs) are issued by registered FPIs to overseas investors not registered in India (UPSC 2019).",
+        "FIPB abolished in 2017.",
+        "FDI is non-debt creating and long-term; FPI is volatile 'hot money' (UPSC 2011, 2020)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvkuv009rz3r00glh15ll",
+      "title": "New Economic Policy 1991 — LPG Reforms & Outcomes",
+      "syllabusOrder": 14,
+      "topic": "Industry & Infrastructure",
+      "prelimsNote": [
+        "Industrial licensing abolished except a short list (now: alcoholic drinks, cigarettes, defence aerospace & equipment, industrial explosives, hazardous chemicals).",
+        "Industries reserved for the public sector cut from 17 to 8 in 1991; now only atomic energy and railway operations.",
+        "Rupee devalued in July 1991; LERMS 1992; current account convertibility in August 1994 (IMF Article VIII).",
+        "MRTP Act replaced by the Competition Act 2002 (Competition Commission of India).",
+        "Outcomes (UPSC 2016, 2020): agriculture's share in GDP fell, FDI inflows rose, services-led growth; share of India's exports in world trade rose only modestly."
+      ]
+    },
+    {
+      "nodeId": "cmopjvmmt00alz3r0i7b7acx9",
+      "title": "Industrial Policy Evolution — IPR 1948, 1956, 1991 & NIP",
+      "syllabusOrder": 14,
+      "topic": "Industry & Infrastructure",
+      "prelimsNote": [
+        "IPR 1948: mixed economy; IPR 1956 (Mahalanobis): Schedule A (17 industries exclusive to the State), B (12, progressively State-owned), C (private sector).",
+        "1970s–80s: focus on small-scale reservation, MRTP and FERA controls.",
+        "NIP 1991: de-licensing, de-reservation, automatic approval for FDI up to 51% in high-priority industries, removal of MRTP asset threshold.",
+        "National Manufacturing Policy 2011: NIMZs and 25% manufacturing share target.",
+        "Now reserved for the public sector: only atomic energy and railway operations."
+      ]
+    },
+    {
+      "nodeId": "cmopjvkuv009xz3r0n2pq87yf",
+      "title": "Make in India — Manufacturing Ecosystem & Challenges",
+      "syllabusOrder": 14,
+      "topic": "Industry & Infrastructure",
+      "prelimsNote": [
+        "Launched September 2014; goal of raising manufacturing to 25% of GDP; 25 sectors initially (27 in Make in India 2.0).",
+        "Production Linked Incentive schemes (2020–21) across 14 sectors — used by domestic and some foreign firms (UPSC 2023).",
+        "India's share of global merchandise exports is under 2% — the UPSC 2023 statement claiming 3.2% was false.",
+        "Domestic Content Requirement in solar (JNNSM) was challenged by the US at the WTO (UPSC 2017).",
+        "Supporting initiatives: Phased Manufacturing Programme (electronics), Semicon India Programme, PM Gati Shakti."
+      ]
+    },
+    {
+      "nodeId": "cmopjvn0h00awz3r0xr625rqj",
+      "title": "MSME Sector — Role, Problems & Policy Support",
+      "syllabusOrder": 14,
+      "topic": "Industry & Infrastructure",
+      "prelimsNote": [
+        "MSMED Act 2006; composite definition (investment + turnover) since 2020; limits raised in Budget 2025 (micro ₹2.5 cr/₹10 cr; small ₹25 cr/₹100 cr; medium ₹125 cr/₹500 cr).",
+        "Trap: 'medium enterprises = ₹15–25 crore investment' is the old/false figure (UPSC 2023); all bank loans to MSMEs qualify as priority-sector lending.",
+        "Udyam registration (2020); CGTMSE credit guarantees; TReDS for receivables; MSME Samadhaan for delayed payments.",
+        "Sec 43B(h) of the Income-tax Act (2023): payments to micro & small suppliers must be made within 45 days to be deductible.",
+        "MSMEs contribute about 30% of GDP and roughly 45% of exports (approximate, as of 2024)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvn2g00axz3r0s8z6h97m",
+      "title": "Special Economic Zones (SEZs) — Issues & Outcomes",
+      "syllabusOrder": 14,
+      "topic": "Industry & Infrastructure",
+      "prelimsNote": [
+        "SEZ policy 2000; SEZ Act 2005; Board of Approval under the Ministry of Commerce.",
+        "SEZs are deemed foreign territory for trade operations, duties and tariffs; units must be net foreign-exchange earners.",
+        "Tax incentives eroded: MAT and DDT exemptions withdrawn (2011–12); income-tax holiday sunset for new units from 2020.",
+        "Kandla (1965) was Asia's first Export Processing Zone; Baba Kalyani Committee (2018) proposed the DESH framework."
+      ]
+    },
+    {
+      "nodeId": "cmopjvnia00b1z3r0odkejqly",
+      "title": "Industrial Corridors & Manufacturing Hubs",
+      "syllabusOrder": 14,
+      "topic": "Industry & Infrastructure",
+      "prelimsNote": [
+        "Delhi–Mumbai Industrial Corridor (Japan-assisted) was the first, along the Western Dedicated Freight Corridor.",
+        "National Industrial Corridor Development Programme — 11 corridors; 12 new industrial smart cities approved in August 2024.",
+        "Greenfield smart cities: Dholera (Gujarat), Shendra–Bidkin/AURIC (Maharashtra).",
+        "Dedicated Freight Corridors: Eastern (Ludhiana–Sonnagar) and Western (Dadri–JNPT).",
+        "PM Gati Shakti National Master Plan (Oct 2021): GIS-based multimodal infrastructure planning."
+      ]
+    },
+    {
+      "nodeId": "cmopjvkuw00a0z3r0hhv5tp5p",
+      "title": "Ease of Doing Business — Reforms & India's Global Ranking",
+      "syllabusOrder": 14,
+      "topic": "Industry & Infrastructure",
+      "prelimsNote": [
+        "World Bank's Doing Business report discontinued in 2021 after data irregularities; India rose to 63rd (2020) from 142nd (2014).",
+        "Sub-indices: starting a business, construction permits, getting electricity, registering property, getting credit, protecting minority investors, paying taxes, trading across borders, enforcing contracts, resolving insolvency.",
+        "Trap: 'maintenance of law and order' is NOT a sub-index (UPSC 2019).",
+        "Replaced by the World Bank's B-READY (Business Ready) report from 2024.",
+        "Domestic: DPIIT's Business Reform Action Plan ranks States; Jan Vishwas Act 2023 decriminalised 183 provisions."
+      ]
+    },
+    {
+      "nodeId": "cmopjvkuw00a1z3r0bnfn0rl9",
+      "title": "Start-up Ecosystem — Funding, Policy & Angel Investment",
+      "syllabusOrder": 14,
+      "topic": "Industry & Infrastructure",
+      "prelimsNote": [
+        "Startup India (Jan 2016): DPIIT recognition for entities up to 10 years old with turnover ≤ ₹100 crore.",
+        "Fund of Funds for Startups (₹10,000 crore) managed by SIDBI.",
+        "'Angel tax' (Sec 56(2)(viib)) abolished from FY 2025-26 (Budget 2024).",
+        "Unicorn = privately held start-up valued at ≥ US$1 billion."
+      ]
+    },
+    {
+      "nodeId": "cmopjvn3s00azz3r05uzbnbt6",
+      "title": "Road & Highway Development — NHDP, Bharatmala",
+      "syllabusOrder": 14,
+      "topic": "Industry & Infrastructure",
+      "prelimsNote": [
+        "NHDP (1998): Golden Quadrilateral (Delhi–Mumbai–Chennai–Kolkata) and North–South & East–West corridors.",
+        "Trap: the East–West corridor connects Silchar and Porbandar — not Dibrugarh and Surat (UPSC 2023).",
+        "Bharatmala Pariyojana (2017): economic corridors, inter-corridors, border and coastal roads; NHAI under the NHAI Act 1988.",
+        "National highways are on the Union List; PMGSY (2000) builds rural roads.",
+        "Financing: HAM, BOT-toll, TOT and NHAI InvITs."
+      ]
+    },
+    {
+      "nodeId": "cmopjvno500b3z3r08yvtj42l",
+      "title": "Railway Reforms — Safety, Privatisation & High-Speed Rail",
+      "syllabusOrder": 14,
+      "topic": "Industry & Infrastructure",
+      "prelimsNote": [
+        "Railways are on the Union List; Railway Budget merged with the Union Budget in 2017.",
+        "Railway operations remain reserved for the public sector (with atomic energy).",
+        "Mumbai–Ahmedabad High-Speed Rail with Japanese (Shinkansen) technology and JICA loan.",
+        "Kavach: indigenous automatic train protection system developed by RDSO.",
+        "Dedicated Freight Corridors and the National Rail Plan 2030 aim to raise rail's share in freight."
+      ]
+    },
+    {
+      "nodeId": "cmopjvl1h00a3z3r0tu5ypxmu",
+      "title": "Port Development — Sagarmala & Maritime Logistics",
+      "syllabusOrder": 14,
+      "topic": "Industry & Infrastructure",
+      "prelimsNote": [
+        "Major ports are under the Union; Major Port Authorities Act 2021 replaced the Major Port Trusts Act 1963.",
+        "Kamarajar Port: first major port registered as a company; Mundra: largest private port (UPSC 2023).",
+        "Trap: Visakhapatnam is NOT India's largest container port — JNPT (Nhava Sheva) is (UPSC 2023).",
+        "Sagarmala (2015): port modernisation, connectivity, port-led industrialisation, coastal community development.",
+        "Maritime India Vision 2030 and Maritime Amrit Kaal Vision 2047; Vadhavan deep-draft port approved in 2024."
+      ]
+    },
+    {
+      "nodeId": "cmopjvkuw009yz3r0jt3cw1xd",
+      "title": "Civil Aviation — UDAN Scheme & Airport Development",
+      "syllabusOrder": 14,
+      "topic": "Industry & Infrastructure",
+      "prelimsNote": [
+        "UDAN (2016) under the National Civil Aviation Policy 2016: regional connectivity with viability gap funding and capped fares.",
+        "Regulators: DGCA (safety), AERA (airport tariffs); AAI manages most airports.",
+        "India is the 3rd largest domestic aviation market.",
+        "GAGAN: satellite-based augmentation system built by ISRO and AAI."
+      ]
+    },
+    {
+      "nodeId": "cmopjvkuw009zz3r0bp1fzq35",
+      "title": "Inland Waterways Development",
+      "syllabusOrder": 14,
+      "topic": "Industry & Infrastructure",
+      "prelimsNote": [
+        "National Waterways Act 2016 declared 111 National Waterways (5 existing + 106 new); IWAI set up in 1986.",
+        "NW-1: Ganga–Bhagirathi–Hooghly (Haldia–Prayagraj), the longest; NW-2: Brahmaputra; NW-3: West Coast Canal.",
+        "Jal Marg Vikas Project (World Bank-assisted) on NW-1 with multimodal terminals at Varanasi, Sahibganj and Haldia.",
+        "Shipping and navigation on national waterways is a Union List subject."
+      ]
+    },
+    {
+      "nodeId": "cmopjvl1h00a6z3r0xhz9m0av",
+      "title": "Telecom Infrastructure — BharatNet, 5G & Digital Divide",
+      "syllabusOrder": 14,
+      "topic": "Industry & Infrastructure",
+      "prelimsNote": [
+        "BharatNet (formerly NOFN, 2011): optical fibre to all gram panchayats, implemented by Bharat Broadband Nigam Ltd.",
+        "5G services launched in October 2022.",
+        "Telecommunications Act 2023 replaced the Indian Telegraph Act 1885; USOF renamed Digital Bharat Nidhi.",
+        "TRAI (TRAI Act 1997) regulates tariffs; appeals go to TDSAT."
+      ]
+    },
+    {
+      "nodeId": "cmopjvl1h00a2z3r08tdsyx76",
+      "title": "Energy Infrastructure — Power Sector Reforms & Grid Management",
+      "syllabusOrder": 14,
+      "topic": "Industry & Infrastructure",
+      "prelimsNote": [
+        "Electricity is on the Concurrent List; Electricity Act 2003; CERC and SERCs regulate tariffs.",
+        "One Nation One Grid achieved with synchronisation of the southern grid (2013); Green Energy Corridors for renewables.",
+        "UDAY (2015): States took over discom debt (UPSC 2016); RDSS (2021) for loss reduction and smart prepaid metering.",
+        "Non-fossil sources crossed 50% of installed capacity in 2025, ahead of the 2030 NDC target (as of 2025).",
+        "Electricity carries 19.85% weight in the Index of Eight Core Industries."
+      ]
+    },
+    {
+      "nodeId": "cmopjvluw00abz3r04slz2bl6",
+      "title": "Public-Private Partnership — Models, Issues & Reforms",
+      "syllabusOrder": 14,
+      "topic": "Industry & Infrastructure",
+      "prelimsNote": [
+        "Models: BOT (toll/annuity), BOOT, BOO, DBFOT, TOT, EPC (fully government-funded), Hybrid Annuity Model (government pays 40% during construction).",
+        "Swiss Challenge: an unsolicited proposal is opened for counter-bids, with the originator allowed to match.",
+        "Kelkar Committee (2015) on revisiting and revitalising PPPs.",
+        "Viability Gap Funding: up to 20% of project cost from the Centre (+ up to 20% from the sponsoring authority)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvmz200auz3r0lvkrkmwm",
+      "title": "Investment Models — PPP, Viability Gap Funding, Hybrid Annuity",
+      "syllabusOrder": 14,
+      "topic": "Industry & Infrastructure",
+      "prelimsNote": [
+        "National Infrastructure Pipeline (₹111 lakh crore, 2020–25); National Monetisation Pipeline (₹6 lakh crore, 2021) — brownfield assets, ownership retained by government.",
+        "NaBFID (2021): development finance institution for infrastructure; NIIF (2015): government-anchored investment fund (not an organ of NITI Aayog — UPSC 2017).",
+        "InvITs and REITs (SEBI, 2014) pool income-generating infrastructure/real-estate assets.",
+        "Interest income distributed by InvITs is taxable in investors' hands (UPSC 2023 tested InvIT taxation and their status under SARFAESI).",
+        "HAM (2016) balances risk between government and private developer in highways."
+      ]
+    }
+  ],
+  "newNodesToCreate": [
+    {
+      "title": "Basic Economic Concepts — Opportunity Cost, Micro vs Macro & Externalities",
+      "module": "Macro Foundations",
+      "syllabusOrder": 1,
+      "topic": "Basic Economic Concepts",
+      "nodeType": "CONCEPTUAL",
+      "prelimsNote": [
+        "Opportunity cost = value of the next best alternative given up; free goods have no opportunity cost.",
+        "Change in a good's own price causes movement along the demand curve; income, tastes and prices of related goods shift the curve.",
+        "Giffen good: inferior good whose demand rises with price; Veblen good: prestige good demanded more when expensive.",
+        "Public goods are non-rival and non-excludable; externalities (positive/negative) justify Pigouvian taxes or subsidies.",
+        "Real sector = production of goods and services (farmers harvesting, mills making cloth) — not bank lending or bond issues (UPSC 2022).",
+        "For a firm, acquiring new technology is capital expenditure; debt vs equity financing is not 'capital vs revenue expenditure' (UPSC 2022)."
+      ]
+    },
+    {
+      "title": "Inflation — CPI vs WPI, Headline vs Core, Phillips Curve & Base Effect",
+      "module": "Macro Foundations",
+      "syllabusOrder": 3,
+      "topic": "Inflation",
+      "nodeType": "CONCEPTUAL",
+      "prelimsNote": [
+        "CPI (NSO/MoSPI, base 2012) covers goods AND services, food weight ~46% in CPI-Combined; WPI (Office of Economic Adviser, DPIIT, base 2011-12) has no services (UPSC 2020).",
+        "RBI targets CPI-Combined headline inflation (4% ± 2%); core inflation excludes food and fuel.",
+        "Demand-pull (excess demand, monetised deficit — UPSC 2013) vs cost-push (input costs, supply shocks); stagflation = high inflation + stagnant output.",
+        "Phillips Curve: short-run inverse relation between inflation and unemployment; vertical in the long run at the natural rate/NAIRU (Friedman).",
+        "Base effect: a low (high) base last year inflates (deflates) this year's rate (UPSC 2011); disinflation = falling rate, deflation = falling price level.",
+        "Inflation benefits debtors and hurts creditors and fixed-income earners (UPSC 2013)."
+      ]
+    },
+    {
+      "title": "Poverty & Inequality Measurement — Tendulkar, Rangarajan, MPI, Gini & Lorenz Curve",
+      "module": "Macro Foundations",
+      "syllabusOrder": 5,
+      "topic": "Poverty, Unemployment & Human Development",
+      "nodeType": "CONCEPTUAL",
+      "prelimsNote": [
+        "Poverty committees: Alagh (1979, calorie norm 2400 rural/2100 urban), Lakdawala (1993), Tendulkar (2009; 21.9% poor in 2011-12), Rangarajan (2014; 29.5%).",
+        "State poverty lines differ because of differences in price levels (UPSC 2019).",
+        "Global MPI (UNDP + OPHI): 3 dimensions (health, education, standard of living), 10 indicators; NITI Aayog's national MPI uses 12 (adds maternal health and bank account).",
+        "Gini coefficient: 0 = perfect equality, 1 = perfect inequality; Lorenz curve farther from the 45° line means more inequality.",
+        "HDI (UNDP, concept by Mahbub ul Haq): life expectancy, education (mean & expected years of schooling), GNI per capita (PPP).",
+        "Global Hunger Index (Concern Worldwide & Welthungerhilfe): undernourishment, child stunting, child wasting, child mortality (UPSC 2016); Global Gender Gap Index by WEF (UPSC 2017)."
+      ]
+    },
+    {
+      "title": "Human Development & Global Indices — Publishers and Indicators",
+      "module": "Macro Foundations",
+      "syllabusOrder": 5,
+      "topic": "Poverty, Unemployment & Human Development",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "UNDP: HDI, MPI (with OPHI); WEF: Global Competitiveness Report, Global Gender Gap Index (UPSC 2017, 2019).",
+        "IMF: World Economic Outlook, Global Financial Stability Report (UPSC 2014, 2016); World Bank: World Development Report.",
+        "World Justice Project: Rule of Law Index (UPSC 2018); UNCTAD: World Investment Report.",
+        "Demographic dividend = growth boost from a rising working-age share; reaped through skills, health and jobs (UPSC 2013).",
+        "Trap: matching a report to the wrong publisher is UPSC's commonest one-liner trap in this area."
+      ]
+    },
+    {
+      "title": "Money Supply & RBI Instruments — M0–M4, Money Multiplier, CRR, SLR, Repo & OMO",
+      "module": "Money & Banking",
+      "syllabusOrder": 6,
+      "topic": "Banking & RBI",
+      "nodeType": "CONCEPTUAL",
+      "prelimsNote": [
+        "M0 = reserve/high-powered money; M1 = currency with public + demand deposits + other deposits with RBI; M3 (broad money) = M1 + time deposits; liquidity falls from M1 to M4 (UPSC 2013).",
+        "Money multiplier = broad money ÷ reserve money; it rises when the public holds less cash and banks hold fewer reserves (UPSC 2021).",
+        "Quantitative tools: CRR (no interest paid), SLR (cash, gold, approved securities), repo, SDF, MSF, Bank Rate, OMO; qualitative: margin requirements, moral suasion, selective credit control.",
+        "Expansionary policy: cut CRR/SLR/repo and buy G-secs via OMO (UPSC 2020); a lower SLR lets banks lend more (UPSC 2015).",
+        "Sterilisation: RBI offsets the liquidity impact of forex intervention through OMOs/MSS (UPSC 2023).",
+        "Higher demand for money with unchanged supply raises interest rates (UPSC 2013)."
+      ]
+    },
+    {
+      "title": "Banking Structure & Regulation — Basel III, PSL, Co-operative, Payments & Small Finance Banks",
+      "module": "Money & Banking",
+      "syllabusOrder": 6,
+      "topic": "Banking & RBI",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "Basel III in India: minimum CRAR 9% (Basel: 8%) + 2.5% capital conservation buffer; CAR is prescribed by RBI, not decided by each bank (UPSC 2018).",
+        "Priority Sector Lending: 40% of ANBC for commercial banks; 75% for RRBs and Small Finance Banks.",
+        "Banking Regulation (Amendment) Act 2020 brought urban co-operative banks under RBI supervision; they can now issue equity/preference shares (UPSC 2021).",
+        "DICGC insures deposits up to ₹5 lakh per depositor per bank (since 2020).",
+        "On a bank's balance sheet, deposits are liabilities; advances, investments and money at call are assets (UPSC 2019).",
+        "RRBs (1975) are sponsored by commercial banks; Payments Banks cannot lend; SFBs must lend mainly to small borrowers."
+      ]
+    },
+    {
+      "title": "Money & Capital Markets — T-Bills, G-Secs, Bond Yields, P-Notes, Commercial Paper & SGB",
+      "module": "Money & Banking",
+      "syllabusOrder": 8,
+      "topic": "Capital Markets & Financial Instruments",
+      "nodeType": "CONCEPTUAL",
+      "prelimsNote": [
+        "Money market (< 1 year): call/notice money, T-bills (91/182/364 days), Cash Management Bills, Commercial Paper (corporates, 7 days–1 year), Certificates of Deposit (banks).",
+        "Capital market: government bond market and stock market — call money and T-bill markets are NOT capital markets (UPSC 2023).",
+        "T-bills are issued only by the Government of India, at a discount to face value; States issue none (UPSC 2018).",
+        "Bond prices and yields move inversely; an inverted yield curve (short > long yields) signals recession risk.",
+        "Masala bonds: rupee-denominated bonds issued abroad (IFC first, 2014); Sovereign Gold Bonds issued by RBI for GoI (8-year tenor, exit after 5 years; new issues halted in 2024-25); Sovereign Green Bonds from 2023.",
+        "REITs/InvITs pool rental/toll-generating assets; credit rating agencies are regulated by SEBI (UPSC 2022)."
+      ]
+    },
+    {
+      "title": "Tax Concepts — Direct vs Indirect, Progressive Taxation, Buoyancy, Cess & Surcharge",
+      "module": "Public Finance & Trade",
+      "syllabusOrder": 10,
+      "topic": "Taxation & GST",
+      "nodeType": "CONCEPTUAL",
+      "prelimsNote": [
+        "Progressive tax: rate rises with income; regressive: burden falls more on the poor; proportional: same rate for all.",
+        "Tax buoyancy = responsiveness of revenue to GDP including discretionary changes; tax elasticity excludes policy changes.",
+        "Cess (Art 270) and surcharge (Art 271) are outside the divisible pool — not shared with States.",
+        "Tax incidence: a tax is shifted forward to consumers more when demand is inelastic relative to supply.",
+        "Indirect transfers: tax on transfer of foreign company shares deriving value from Indian assets (Vodafone; retrospective tax repealed 2021 — UPSC 2022).",
+        "A falling tax-GDP ratio can signal slowing growth or weaker tax effort (UPSC 2015, 2017)."
+      ]
+    },
+    {
+      "title": "Balance of Payments (BoP) — Current vs Capital Account, CAD, Forex Reserves & REER/NEER",
+      "module": "Public Finance & Trade",
+      "syllabusOrder": 11,
+      "topic": "Balance of Payments & Exchange Rate",
+      "nodeType": "CONCEPTUAL",
+      "prelimsNote": [
+        "Current account = trade in goods + invisibles (services, remittances, primary income); capital account = FDI, FPI, ECB, NRI deposits, loans.",
+        "A foreign tourist's spending in India is an export of services (UPSC 2011).",
+        "Forex reserves = Foreign Currency Assets (largest) + gold + SDRs + Reserve Tranche Position with IMF (UPSC 2013); import cover = months of imports reserves can finance.",
+        "Rupee fully convertible on current account since 1994; capital account partly — Tarapore Committees 1997 and 2006.",
+        "NEER rise = rupee appreciation; REER rise = loss of trade competitiveness; higher domestic inflation widens the NEER–REER gap (UPSC 2022).",
+        "Rupee depreciation: RBI sells dollars; Fed tightening causes capital flight and raises the cost of existing ECBs; devaluation increases ECB currency risk (UPSC 2022)."
+      ]
+    },
+    {
+      "title": "Multilateral Financial Institutions & WTO — IMF, World Bank, SDR, WTO Boxes & Agreements",
+      "module": "Public Finance & Trade",
+      "syllabusOrder": 12,
+      "topic": "International Economic Organisations & Trade",
+      "nodeType": "CONCEPTUAL",
+      "prelimsNote": [
+        "IMF quotas determine voting power; SDR basket has 5 currencies — USD, EUR, CNY (added 2016 — UPSC 2016), JPY, GBP; Reserve/Gold Tranche drawings carry no conditionality (UPSC 2020).",
+        "World Bank Group: IBRD, IDA, IFC, MIGA, ICSID — India is not a member of ICSID.",
+        "WTO (1995): Amber Box (trade-distorting support; de minimis 10% for developing countries), Blue Box, Green Box; Peace Clause (Bali 2013) protects India's public stockholding.",
+        "TRIMS prohibit quantitative restrictions on imports by foreign investors, apply only to goods (not services) and do not regulate foreign investment as such (UPSC 2020); Trade Facilitation Agreement in force Feb 2017, ratified by India (UPSC 2017).",
+        "GI Act 1999 was enacted to meet TRIPS obligations (UPSC 2018).",
+        "AIIB: China largest, India second-largest shareholder, members include non-Asian countries (UPSC 2019); NDB headquartered in Shanghai (UPSC 2016)."
+      ]
+    },
+    {
+      "title": "Industrial Indices — IIP & Index of Eight Core Industries",
+      "module": "Real Sector & Schemes",
+      "syllabusOrder": 14,
+      "topic": "Industry & Infrastructure",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "IIP: base 2011-12, released monthly by NSO (MoSPI); manufacturing has the largest weight (~78%).",
+        "Index of Eight Core Industries: released by the Office of the Economic Adviser (DPIIT); ~40.27% weight in IIP.",
+        "Weights: Refinery Products 28.04 > Electricity 19.85 > Steel 17.92 > Coal 10.33 > Crude Oil 8.98 > Natural Gas 6.88 > Cement 5.37 > Fertilizers 2.63 (UPSC 2012, 2015).",
+        "Trap: fertilizers carry the lowest weight and refinery products the highest; IIP and the Core index are released by different agencies.",
+        "Annual Survey of Industries (ASI) by NSO is the main source of organised manufacturing statistics."
+      ]
+    },
+    {
+      "title": "Social Security, Insurance & Livelihood Schemes",
+      "module": "Real Sector & Schemes",
+      "syllabusOrder": 15,
+      "topic": "Social Sector Schemes",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "Atal Pension Yojana: ages 18–40, guaranteed pension ₹1,000–5,000 from 60; spouse gets the same pension, then corpus to nominee; not restricted to one member per family (UPSC 2016).",
+        "PMJJBY (₹2 lakh life cover, ages 18–50) and PMSBY (₹2 lakh accident cover, ages 18–70); PM-SYM gives unorganised workers ₹3,000/month pension with matching contribution.",
+        "PM MUDRA Yojana: Shishu (≤ ₹50,000), Kishore (₹50,000–5 lakh), Tarun (₹5–10 lakh), Tarun Plus (₹10–20 lakh, from 2024); Stand Up India: ₹10 lakh–1 crore for SC/ST and women, refinance via SIDBI.",
+        "MGNREGA: 100 days of wage employment per rural household per year, wages indexed to CPI-AL, at least one-third women. A 2025 law to replace it with a new rural employment guarantee — check current status.",
+        "NFSA 2013: 5 kg grain per person per month (35 kg for AAY households); eldest woman aged 18+ is head of household for ration cards (UPSC 2018).",
+        "PM SVANidhi (street vendors' collateral-free loans) and DAY-NRLM (SHG-based livelihoods) are other high-yield schemes."
+      ]
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-import { getTopicSyllabusOrder } from '@/app/prelims/pyq/topicGroups';
+import { getTopicSyllabusOrder } from '../app/prelims/pyq/topicGroups.js';
 
 export { getTopicSyllabusOrder };
 
