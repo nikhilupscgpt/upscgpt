@@ -4,27 +4,38 @@
 export const TOPIC_GROUPS = {
   'Indian Polity': [
     ['Foundations', [
-      'Historical Background', 'Constituent Assembly', 'Salient Features of the Constitution', 'Preamble',
-      'Basic Structure', 'Constitutional Amendments', 'Schedules of the Constitution',
+      'Historical Background', 'Constituent Assembly', 'Salient Features of the Constitution',
+      'Schedules of the Constitution', 'Political Theory & Concepts', 'Preamble',
+      'Citizenship', 'Fundamental Rights', 'Directive Principles of State Policy',
+      'Fundamental Duties', 'Basic Structure', 'Constitutional Amendments'
     ]],
-    ['Rights & Duties', ['Fundamental Rights', 'Directive Principles of State Policy', 'Fundamental Duties', 'Citizenship']],
-    ['Executive', [
-      'President', 'Vice-President', 'Prime Minister & Council of Ministers', 'Union Executive & Ministries',
-      'Attorney General & Solicitor General', 'Emergency Provisions', 'Governor',
-    ]],
-    ['Legislature', [
-      'Parliament', 'Parliamentary System', 'Parliamentary Committees', 'Budget & Financial Procedure',
-      'Elections & Representation', 'Elections & Political Parties', 'State Legislature',
-    ]],
-    ['Judiciary', ['Supreme Court', 'High Courts', 'Subordinate Courts', 'Tribunals', 'Judicial Review & Landmark Judgements']],
     ['Federalism & Local Govt', [
-      'Centre-State Relations', 'Inter-State Relations', 'Federal System', 'Finance Commission',
-      'Panchayati Raj', 'Municipalities', 'Scheduled & Tribal Areas',
+      'Federal System', 'Centre-State Relations', 'Inter-State Relations',
+      'Panchayati Raj', 'Municipalities', 'Scheduled & Tribal Areas'
     ]],
-    ['Bodies & Others', [
-      'Statutory & Non-Constitutional Bodies', 'National Commissions (SC/ST/BC/Women/Minorities)',
-      'Comptroller and Auditor General', 'Political Theory & Concepts', 'International Organisations & Relations',
-      'National Symbols & Awards', 'Miscellaneous',
+    ['The Executive', [
+      'President', 'Vice-President', 'Prime Minister & Council of Ministers',
+      'Union Executive & Ministries', 'Attorney General & Solicitor General',
+      'Governor', 'Emergency Provisions'
+    ]],
+    ['The Legislature', [
+      'Parliamentary System', 'Parliament', 'Parliamentary Committees',
+      'Budget & Financial Procedure', 'State Legislature'
+    ]],
+    ['The Judiciary', [
+      'Supreme Court', 'High Courts', 'Subordinate Courts',
+      'Tribunals', 'Judicial Review & Landmark Judgements'
+    ]],
+    ['Constitutional & Statutory Bodies', [
+      'Comptroller and Auditor General', 'Finance Commission',
+      'National Commissions (SC/ST/BC/Women/Minorities)',
+      'Statutory & Non-Constitutional Bodies'
+    ]],
+    ['Elections & Representation', [
+      'Elections & Representation', 'Elections & Political Parties'
+    ]],
+    ['Other & Applied', [
+      'National Symbols & Awards', 'Miscellaneous', 'International Organisations & Relations'
     ]],
   ],
   Economy: [

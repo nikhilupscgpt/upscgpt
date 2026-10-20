@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { isNewPatternQuestion } from '@/lib/pyqPattern';
 import { SUBJECT_ORDER, SUBJECT_SHORT } from '@/app/prelims/pyq/topicGroups';
+import { sortQuestionsBySyllabus } from '@/lib/syllabusSequence';
 
 const PAGE_SIZE = 10;
 
@@ -171,10 +172,34 @@ export async function GET(request) {
 
     const where = andConditions.length > 0 ? { AND: andConditions } : {};
 
+    const sortParam = searchParams.get('sort') || (subject !== 'ALL' && topic === 'ALL' ? 'syllabus' : 'exam');
+
     let total = 0;
     let drafts = [];
 
-    if (pattern === 'NEW') {
+    if (sortParam === 'syllabus') {
+      // Syllabus sequence order: Foundations -> Rights -> Executive -> Legislature -> Judiciary...
+      const candidateRows = await prisma.questionDraft.findMany({
+        where,
+        select: {
+          id: true,
+          dedupHash: true,
+          questionNo: true,
+          examName: true,
+          examYear: true,
+          srcSubject: true,
+          srcTopic: true,
+          stem: true,
+          options: true,
+          correctLabel: true,
+          explanation: true,
+        },
+      });
+      const filteredCandidates = pattern === 'NEW' ? candidateRows.filter(isNewPatternQuestion) : candidateRows;
+      const sortedRows = sortQuestionsBySyllabus(filteredCandidates, subject !== 'ALL' ? subject : 'Indian Polity');
+      total = sortedRows.length;
+      drafts = sortedRows.slice((requestedPage - 1) * PAGE_SIZE, requestedPage * PAGE_SIZE);
+    } else if (pattern === 'NEW') {
       // New pattern requires regex matching on stem/options, so fetch matching rows and slice 10 on server
       const candidateRows = await prisma.questionDraft.findMany({
         where,

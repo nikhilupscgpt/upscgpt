@@ -74,6 +74,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
   const [years, setYears] = useState('ALL');
   const [show, setShow] = useState('ALL');
   const [patternFilter, setPatternFilter] = useState('ALL'); // 'ALL' | 'NEW'
+  const [sortOrder, setSortOrder] = useState('syllabus'); // 'syllabus' | 'exam'
   const [query, setQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [page, setPage] = useState(1);
@@ -117,6 +118,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
     if (p.get('topic')) setTopic(p.get('topic'));
     if (p.get('exam')) setExam(p.get('exam'));
     if (p.get('year')) setYears(p.get('year'));
+    if (p.get('sort')) setSortOrder(p.get('sort'));
     if (s) setShow(s);
     if (pat === 'new') setPatternFilter('NEW');
     setUrlReady(true);
@@ -132,9 +134,10 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
     if (years !== 'ALL') p.set('year', years);
     if (show !== 'ALL') p.set('show', show);
     if (patternFilter === 'NEW') p.set('pattern', 'new');
+    if (sortOrder !== 'syllabus') p.set('sort', sortOrder);
     const qs = p.toString();
     window.history.replaceState(null, '', qs ? `?${qs}` : window.location.pathname);
-  }, [urlReady, query, subject, topic, exam, years, show, patternFilter]);
+  }, [urlReady, query, subject, topic, exam, years, show, patternFilter, sortOrder]);
 
   /* ⌘K / Ctrl+K focuses search */
   useEffect(() => {
@@ -199,6 +202,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
         if (years !== 'ALL') params.set('years', years);
         if (patternFilter === 'NEW') params.set('pattern', 'NEW');
         if (debouncedQuery) params.set('q', debouncedQuery);
+        params.set('sort', sortOrder);
 
         if (show === 'MISTAKES') {
           const ids = Object.keys(mistakes);
@@ -279,6 +283,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
     debouncedQuery,
     searching,
     show,
+    sortOrder,
     page,
     isAuthenticated,
   ]);
@@ -869,6 +874,26 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
               ))}
             </div>
           </div>
+
+          <div className="pq-fgroup">
+            <span className="pq-flabel">Flow</span>
+            <div className="pq-seg">
+              <button
+                className={sortOrder === 'syllabus' ? 'is-active' : ''}
+                onClick={() => { setSortOrder('syllabus'); resetPage(); }}
+                title="Ordered chapter-by-chapter in logical syllabus flow"
+              >
+                📚 Syllabus
+              </button>
+              <button
+                className={sortOrder === 'exam' ? 'is-active' : ''}
+                onClick={() => { setSortOrder('exam'); resetPage(); }}
+                title="Ordered by latest exam paper year"
+              >
+                ⏱️ Year
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Question Feed */}
@@ -1327,7 +1352,7 @@ function QuestionCard({ q, attempt, revealedOnly, bookmarked, onPick, onReveal, 
   const correctOpt = options.find(o => o.label === q.correctLabel);
   const isPair = isPairQuestion(q);
   const isStmt = isStatementQuestion(q);
-  const { explanationText, analysis } = useMemo(() => getStructuredExplanation(q), [q.explanation, q.analysis]);
+  const { explanationText, analysis } = useMemo(() => getStructuredExplanation(q), [q]);
 
   return (
     <article className={`pq-card pq-qcard ${attempt ? (attempt.ok ? 'is-ok' : 'is-bad') : ''}`}>

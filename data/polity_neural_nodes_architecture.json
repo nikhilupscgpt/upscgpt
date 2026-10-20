@@ -1,0 +1,801 @@
+{
+  "subject": "Indian Polity",
+  "totalNodes": 76,
+  "totalQuestionTopics": 46,
+  "existingNeuralNodes": [
+    {
+      "id": "cmopjv8ls005cz3r0n9cuby56",
+      "title": "Historical Evolution of Indian Constitution (1773-1947)",
+      "topic": "Constitution — Foundations",
+      "domain": "POLITY",
+      "orderIndex": 165,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjv8xr005hz3r0g9xrojs8",
+      "title": "Constituent Assembly & Constitutional Making Process",
+      "topic": "Constitution — Foundations",
+      "domain": "POLITY",
+      "orderIndex": 166,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjv8ls005dz3r0g7eq33f5",
+      "title": "Salient Features of Indian Constitution",
+      "topic": "Constitution — Foundations",
+      "domain": "POLITY",
+      "orderIndex": 167,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjv8ys005iz3r06szqd1g7",
+      "title": "Federal vs Unitary Features of Indian Constitution",
+      "topic": "Constitution — Foundations",
+      "domain": "POLITY",
+      "orderIndex": 168,
+      "nodeType": "CONCEPTUAL"
+    },
+    {
+      "id": "cmopjv63g004ez3r0ga5hviqs",
+      "title": "Parliamentary vs Presidential System — Comparison",
+      "topic": "Constitution — Foundations",
+      "domain": "POLITY",
+      "orderIndex": 169,
+      "nodeType": "CONCEPTUAL"
+    },
+    {
+      "id": "cmopjv63h004jz3r01zxx2kse",
+      "title": "Preamble — Values & Constitutional Philosophy",
+      "topic": "Constitution — Foundations",
+      "domain": "POLITY",
+      "orderIndex": 170,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjv7hz004xz3r0t5i22xuz",
+      "title": "Fundamental Rights — Scope, Limitations & Judicial Interpretation",
+      "topic": "Constitution — Foundations",
+      "domain": "POLITY",
+      "orderIndex": 171,
+      "nodeType": "CONCEPTUAL"
+    },
+    {
+      "id": "cmopjv84h0052z3r0h4dmyw6z",
+      "title": "Directive Principles of State Policy (DPSP) — Implementation & Conflicts with FR",
+      "topic": "Constitution — Foundations",
+      "domain": "POLITY",
+      "orderIndex": 172,
+      "nodeType": "CONCEPTUAL"
+    },
+    {
+      "id": "cmopjv8fl0058z3r0qris622w",
+      "title": "Fundamental Duties",
+      "topic": "Constitution — Foundations",
+      "domain": "POLITY",
+      "orderIndex": 173,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjv63g004iz3r0rkw7yvlk",
+      "title": "Basic Structure Doctrine — Evolution & Significance",
+      "topic": "Constitution — Foundations",
+      "domain": "POLITY",
+      "orderIndex": 174,
+      "nodeType": "CONCEPTUAL"
+    },
+    {
+      "id": "cmopjv63g004fz3r0j9n9cadb",
+      "title": "Constitutional Amendments — Process, Key Amendments & Pending Amendments",
+      "topic": "Constitution — Foundations",
+      "domain": "POLITY",
+      "orderIndex": 175,
+      "nodeType": "CONCEPTUAL"
+    },
+    {
+      "id": "cmopjv63i004lz3r0fvsxglxb",
+      "title": "India as a Welfare State",
+      "topic": "Constitution — Foundations",
+      "domain": "POLITY",
+      "orderIndex": 176,
+      "nodeType": "CONCEPTUAL"
+    },
+    {
+      "id": "cmopjv63g004hz3r0yczpq5zn",
+      "title": "Centre-State Legislative Relations — Union, State & Concurrent Lists",
+      "topic": "Federalism",
+      "domain": "POLITY",
+      "orderIndex": 177,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjv7cz004pz3r0t3jtglbj",
+      "title": "Centre-State Administrative Relations",
+      "topic": "Federalism",
+      "domain": "POLITY",
+      "orderIndex": 178,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjv7cx004oz3r0911tnovd",
+      "title": "Centre-State Financial Relations & Fiscal Federalism",
+      "topic": "Federalism",
+      "domain": "POLITY",
+      "orderIndex": 179,
+      "nodeType": "CONCEPTUAL"
+    },
+    {
+      "id": "cmopjv63g004gz3r0ckhzvfcv",
+      "title": "Governor — Role, Discretionary Powers & Politicisation",
+      "topic": "Federalism",
+      "domain": "POLITY",
+      "orderIndex": 180,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjv63h004kz3r07d43n1ej",
+      "title": "Misuse of Article 356 — President's Rule",
+      "topic": "Federalism",
+      "domain": "POLITY",
+      "orderIndex": 181,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjv76z004nz3r03vfbodgw",
+      "title": "Inter-State Council & Dispute Resolution Mechanisms",
+      "topic": "Federalism",
+      "domain": "POLITY",
+      "orderIndex": 182,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjv7hy004wz3r0aodedcq8",
+      "title": "Special Category Status & Special Packages for States",
+      "topic": "Federalism",
+      "domain": "POLITY",
+      "orderIndex": 183,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjv7hx004sz3r0stcdy7wp",
+      "title": "Centrally Sponsored Schemes — Issues & Rationalisation",
+      "topic": "Federalism",
+      "domain": "POLITY",
+      "orderIndex": 184,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjv7hx004rz3r064ffos2o",
+      "title": "GST & Cooperative Federalism",
+      "topic": "Federalism",
+      "domain": "POLITY",
+      "orderIndex": 185,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjv7hy004vz3r080ri89rf",
+      "title": "Finance Commission — Role, Devolution & Analysis",
+      "topic": "Federalism",
+      "domain": "POLITY",
+      "orderIndex": 186,
+      "nodeType": "CONCEPTUAL"
+    },
+    {
+      "id": "cmopjv7hx004uz3r0v5is3c5a",
+      "title": "Demand for Smaller States & State Formation Issues",
+      "topic": "Federalism",
+      "domain": "POLITY",
+      "orderIndex": 187,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjv7hx004tz3r0zds82xx1",
+      "title": "Parliament — Structure, Functions & Composition (Lok Sabha & Rajya Sabha)",
+      "topic": "Legislature",
+      "domain": "POLITY",
+      "orderIndex": 188,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjv7q1004zz3r0ycwmym05",
+      "title": "State Legislatures — Legislative Assembly & Legislative Council",
+      "topic": "Legislature",
+      "domain": "POLITY",
+      "orderIndex": 189,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjv83s0051z3r05wbooszc",
+      "title": "Law Making Process in India",
+      "topic": "Legislature",
+      "domain": "POLITY",
+      "orderIndex": 190,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjv87q0054z3r0i0g0l3ea",
+      "title": "Parliamentary Committees — Role & Functions",
+      "topic": "Legislature",
+      "domain": "POLITY",
+      "orderIndex": 191,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjv85a0053z3r0bxbsud1l",
+      "title": "Parliamentary Privileges & Immunity",
+      "topic": "Legislature",
+      "domain": "POLITY",
+      "orderIndex": 192,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjv8lr0059z3r0o2e0220c",
+      "title": "Anti-Defection Law — Tenth Schedule & Issues",
+      "topic": "Legislature",
+      "domain": "POLITY",
+      "orderIndex": 193,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjv82d0050z3r0m3vhzoey",
+      "title": "Ordinance Making Power — Misuse & Reforms",
+      "topic": "Legislature",
+      "domain": "POLITY",
+      "orderIndex": 194,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjv89d0057z3r0q2pw5gh9",
+      "title": "Women's Reservation in Parliament",
+      "topic": "Legislature",
+      "domain": "POLITY",
+      "orderIndex": 195,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjv89d0056z3r03bzsegw2",
+      "title": "Simultaneous Elections — Feasibility & Debate",
+      "topic": "Legislature",
+      "domain": "POLITY",
+      "orderIndex": 196,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjv8ls005fz3r0eukd9hlb",
+      "title": "Declining Standards of Parliamentary Functioning",
+      "topic": "Legislature",
+      "domain": "POLITY",
+      "orderIndex": 197,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjv8lr005az3r096hu4zpo",
+      "title": "Delegated Legislation & Issues",
+      "topic": "Legislature",
+      "domain": "POLITY",
+      "orderIndex": 198,
+      "nodeType": "CONCEPTUAL"
+    },
+    {
+      "id": "cmopjv8lr005bz3r0yxrba1sw",
+      "title": "President of India — Powers, Functions & Role",
+      "topic": "Executive",
+      "domain": "POLITY",
+      "orderIndex": 199,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjvafb005lz3r0dq24p1eg",
+      "title": "Prime Minister & Council of Ministers",
+      "topic": "Executive",
+      "domain": "POLITY",
+      "orderIndex": 200,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjvafb005kz3r0uaoggroj",
+      "title": "Governor — Constitutional Role vs Political Reality",
+      "topic": "Executive",
+      "domain": "POLITY",
+      "orderIndex": 201,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjvafb005mz3r0me9eajcn",
+      "title": "Emergency Provisions — National, State & Financial Emergency",
+      "topic": "Executive",
+      "domain": "POLITY",
+      "orderIndex": 202,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjvcry006xz3r0fypgry07",
+      "title": "Coalition Government — Challenges & Stability",
+      "topic": "Executive",
+      "domain": "POLITY",
+      "orderIndex": 203,
+      "nodeType": "CONCEPTUAL"
+    },
+    {
+      "id": "cmopjvcl1006uz3r0z2ta4kqd",
+      "title": "Supreme Court — Guardian of Constitution & Fundamental Rights",
+      "topic": "Judiciary",
+      "domain": "POLITY",
+      "orderIndex": 204,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjvcey006pz3r0g5qxct18",
+      "title": "Judicial Review — Scope & Limits",
+      "topic": "Judiciary",
+      "domain": "POLITY",
+      "orderIndex": 205,
+      "nodeType": "CONCEPTUAL"
+    },
+    {
+      "id": "cmopjvcey006oz3r08g1ex12c",
+      "title": "Public Interest Litigation (PIL) — Evolution & Misuse",
+      "topic": "Judiciary",
+      "domain": "POLITY",
+      "orderIndex": 206,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjvcf0006sz3r029fkmpqa",
+      "title": "Judicial Activism vs Judicial Overreach",
+      "topic": "Judiciary",
+      "domain": "POLITY",
+      "orderIndex": 207,
+      "nodeType": "CONCEPTUAL"
+    },
+    {
+      "id": "cmopjvcky006tz3r08927042n",
+      "title": "Collegium System & Judicial Appointments (NJAC Controversy)",
+      "topic": "Judiciary",
+      "domain": "POLITY",
+      "orderIndex": 208,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjvafb005nz3r0t6rg0wl9",
+      "title": "Judicial Accountability & Transparency",
+      "topic": "Judiciary",
+      "domain": "POLITY",
+      "orderIndex": 209,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjvafd005vz3r0qo2xya5h",
+      "title": "High Courts & Subordinate Courts — Structure & Issues",
+      "topic": "Judiciary",
+      "domain": "POLITY",
+      "orderIndex": 210,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjvbdx0069z3r04myaf2no",
+      "title": "Fast Track Courts, Gram Nyayalayas & Access to Justice",
+      "topic": "Judiciary",
+      "domain": "POLITY",
+      "orderIndex": 211,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjvceu006jz3r0kznfty5v",
+      "title": "Lok Adalat, NALSA & Alternative Dispute Resolution",
+      "topic": "Judiciary",
+      "domain": "POLITY",
+      "orderIndex": 212,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjvcex006mz3r0kc4wr8zn",
+      "title": "All India Judicial Services — Debate & Feasibility",
+      "topic": "Judiciary",
+      "domain": "POLITY",
+      "orderIndex": 213,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjvcf0006qz3r0th6b8330",
+      "title": "National Litigation Policy & Pendency Crisis",
+      "topic": "Judiciary",
+      "domain": "POLITY",
+      "orderIndex": 214,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjvafc005oz3r0o2h6hiw6",
+      "title": "Election Commission of India — Powers, Appointment & Electoral Reforms",
+      "topic": "Constitutional Bodies",
+      "domain": "POLITY",
+      "orderIndex": 215,
+      "nodeType": "CONCEPTUAL"
+    },
+    {
+      "id": "cmopjvbdr0061z3r0yidzr1ai",
+      "title": "Paid News, Model Code of Conduct & Electoral Finance",
+      "topic": "Constitutional Bodies",
+      "domain": "POLITY",
+      "orderIndex": 216,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjvbdv0064z3r0gxsdr71x",
+      "title": "CAG of India — Role, Independence & Audit Functions",
+      "topic": "Constitutional Bodies",
+      "domain": "POLITY",
+      "orderIndex": 217,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjvbdx006az3r0hgdfnqja",
+      "title": "UPSC — Appointment, Functions & Civil Services Reforms",
+      "topic": "Constitutional Bodies",
+      "domain": "POLITY",
+      "orderIndex": 218,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjvcex006lz3r0x0nsjzrs",
+      "title": "Finance Commission — Constitutional Role & Recommendations",
+      "topic": "Constitutional Bodies",
+      "domain": "POLITY",
+      "orderIndex": 219,
+      "nodeType": "CONCEPTUAL"
+    },
+    {
+      "id": "cmopjvafc005pz3r0lpvww23y",
+      "title": "National Commission for SC/ST — Functions & Effectiveness",
+      "topic": "Constitutional Bodies",
+      "domain": "POLITY",
+      "orderIndex": 220,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjvbdx0068z3r0hg03lkch",
+      "title": "SEBI — Powers, Functions & Securities Market Regulation",
+      "topic": "Statutory & Regulatory Bodies",
+      "domain": "POLITY",
+      "orderIndex": 221,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjvbk2006gz3r08efayz0u",
+      "title": "RBI — Autonomy, Functions & Monetary Policy (GS2)",
+      "topic": "Statutory & Regulatory Bodies",
+      "domain": "POLITY",
+      "orderIndex": 222,
+      "nodeType": "CONCEPTUAL"
+    },
+    {
+      "id": "cmopjvces006iz3r0vdkq8xwc",
+      "title": "CBI — Appointment, Autonomy vs Accountability",
+      "topic": "Statutory & Regulatory Bodies",
+      "domain": "POLITY",
+      "orderIndex": 223,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjvafc005qz3r0813oisd2",
+      "title": "CVC — Anti-Corruption Role & Effectiveness",
+      "topic": "Statutory & Regulatory Bodies",
+      "domain": "POLITY",
+      "orderIndex": 224,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjvcf0006rz3r0ru81xr9o",
+      "title": "TRAI — Telecom Regulation & Net Neutrality",
+      "topic": "Statutory & Regulatory Bodies",
+      "domain": "POLITY",
+      "orderIndex": 225,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjvcn5006wz3r0iwjkgcfz",
+      "title": "IRDA — Insurance Regulation",
+      "topic": "Statutory & Regulatory Bodies",
+      "domain": "POLITY",
+      "orderIndex": 226,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjvcl1006vz3r03i6tsnxw",
+      "title": "National Human Rights Commission (NHRC) — Functions & Limitations",
+      "topic": "Statutory & Regulatory Bodies",
+      "domain": "POLITY",
+      "orderIndex": 227,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjvafc005rz3r0rxm9q6zn",
+      "title": "Central & State Information Commissions — RTI Implementation",
+      "topic": "Statutory & Regulatory Bodies",
+      "domain": "POLITY",
+      "orderIndex": 228,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjvcev006kz3r0o47z0jjn",
+      "title": "National Green Tribunal (NGT) — Jurisdiction & Effectiveness",
+      "topic": "Statutory & Regulatory Bodies",
+      "domain": "POLITY",
+      "orderIndex": 229,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjvcey006nz3r0k0ieud14",
+      "title": "Lokpal & Lokayukta — Constitutional Status & Implementation",
+      "topic": "Statutory & Regulatory Bodies",
+      "domain": "POLITY",
+      "orderIndex": 230,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjvafd005tz3r03au89e3i",
+      "title": "NITI Aayog — Role, Structure vs Planning Commission",
+      "topic": "Statutory & Regulatory Bodies",
+      "domain": "POLITY",
+      "orderIndex": 231,
+      "nodeType": "CONCEPTUAL"
+    },
+    {
+      "id": "cmopjvafe005yz3r0e98bwcm8",
+      "title": "Zonal Councils — Purpose & Relevance",
+      "topic": "Statutory & Regulatory Bodies",
+      "domain": "POLITY",
+      "orderIndex": 232,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjvbk1006fz3r0imlls4cx",
+      "title": "Separation of Powers — Indian Context vs USA/UK",
+      "topic": "Separation of Powers & Checks and Balances",
+      "domain": "POLITY",
+      "orderIndex": 233,
+      "nodeType": "CONCEPTUAL"
+    },
+    {
+      "id": "cmopjvafd005sz3r0b2wi548k",
+      "title": "Checks & Balances in Indian Constitution",
+      "topic": "Separation of Powers & Checks and Balances",
+      "domain": "POLITY",
+      "orderIndex": 234,
+      "nodeType": "CONCEPTUAL"
+    },
+    {
+      "id": "cmopjvafd005uz3r02lncdjwk",
+      "title": "Conflict of Interest Issues in Parliament & Executive",
+      "topic": "Separation of Powers & Checks and Balances",
+      "domain": "POLITY",
+      "orderIndex": 235,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjvafd005wz3r0hhwz9mkf",
+      "title": "Representation of People's Act — Key Provisions & Amendments",
+      "topic": "Electoral System",
+      "domain": "POLITY",
+      "orderIndex": 236,
+      "nodeType": "STATIC"
+    },
+    {
+      "id": "cmopjvafd005xz3r00ah654lz",
+      "title": "Electoral Reforms — State Funding, NOTA, Compulsory Voting",
+      "topic": "Electoral System",
+      "domain": "POLITY",
+      "orderIndex": 237,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjvafe0060z3r0esumzu5a",
+      "title": "Anti-Defection Law — Issues & Reform Needed",
+      "topic": "Electoral System",
+      "domain": "POLITY",
+      "orderIndex": 238,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjvafe005zz3r02ylwsw1n",
+      "title": "Office of Profit — Constitutional Provisions & Controversies",
+      "topic": "Electoral System",
+      "domain": "POLITY",
+      "orderIndex": 239,
+      "nodeType": "NEWS"
+    },
+    {
+      "id": "cmopjvbdu0063z3r06mcngvug",
+      "title": "Political Parties — Registration, Regulation & RTI",
+      "topic": "Electoral System",
+      "domain": "POLITY",
+      "orderIndex": 240,
+      "nodeType": "NEWS"
+    }
+  ],
+  "existingQuestionTopics": [
+    {
+      "topic": "International Organisations & Relations",
+      "questionCount": 41
+    },
+    {
+      "topic": "Fundamental Rights",
+      "questionCount": 40
+    },
+    {
+      "topic": "Parliament",
+      "questionCount": 31
+    },
+    {
+      "topic": "Statutory & Non-Constitutional Bodies",
+      "questionCount": 19
+    },
+    {
+      "topic": "Salient Features of the Constitution",
+      "questionCount": 19
+    },
+    {
+      "topic": "Miscellaneous",
+      "questionCount": 17
+    },
+    {
+      "topic": "Supreme Court",
+      "questionCount": 16
+    },
+    {
+      "topic": "Budget & Financial Procedure",
+      "questionCount": 14
+    },
+    {
+      "topic": "Panchayati Raj",
+      "questionCount": 13
+    },
+    {
+      "topic": "Parliamentary Committees",
+      "questionCount": 13
+    },
+    {
+      "topic": "Judicial Review & Landmark Judgements",
+      "questionCount": 12
+    },
+    {
+      "topic": "Elections & Representation",
+      "questionCount": 12
+    },
+    {
+      "topic": "Constitutional Amendments",
+      "questionCount": 12
+    },
+    {
+      "topic": "Governor",
+      "questionCount": 11
+    },
+    {
+      "topic": "Schedules of the Constitution",
+      "questionCount": 11
+    },
+    {
+      "topic": "Prime Minister & Council of Ministers",
+      "questionCount": 10
+    },
+    {
+      "topic": "President",
+      "questionCount": 9
+    },
+    {
+      "topic": "Scheduled & Tribal Areas",
+      "questionCount": 9
+    },
+    {
+      "topic": "Directive Principles of State Policy",
+      "questionCount": 9
+    },
+    {
+      "topic": "Preamble",
+      "questionCount": 7
+    },
+    {
+      "topic": "Centre-State Relations",
+      "questionCount": 6
+    },
+    {
+      "topic": "High Courts",
+      "questionCount": 6
+    },
+    {
+      "topic": "Political Theory & Concepts",
+      "questionCount": 6
+    },
+    {
+      "topic": "International Organisations & Groupings",
+      "questionCount": 6
+    },
+    {
+      "topic": "Citizenship",
+      "questionCount": 6
+    },
+    {
+      "topic": "Parliamentary System",
+      "questionCount": 6
+    },
+    {
+      "topic": "Elections & Political Parties",
+      "questionCount": 6
+    },
+    {
+      "topic": "State Legislature",
+      "questionCount": 5
+    },
+    {
+      "topic": "Emergency Provisions",
+      "questionCount": 5
+    },
+    {
+      "topic": "Union Executive & Ministries",
+      "questionCount": 4
+    },
+    {
+      "topic": "Fundamental Duties",
+      "questionCount": 4
+    },
+    {
+      "topic": "National Commissions (SC/ST/BC/Women/Minorities)",
+      "questionCount": 4
+    },
+    {
+      "topic": "Attorney General & Solicitor General",
+      "questionCount": 4
+    },
+    {
+      "topic": "Federal System",
+      "questionCount": 3
+    },
+    {
+      "topic": "Inter-State Relations",
+      "questionCount": 3
+    },
+    {
+      "topic": "Constituent Assembly",
+      "questionCount": 3
+    },
+    {
+      "topic": "National Symbols & Awards",
+      "questionCount": 2
+    },
+    {
+      "topic": "Basic Structure",
+      "questionCount": 2
+    },
+    {
+      "topic": "Comptroller and Auditor General",
+      "questionCount": 2
+    },
+    {
+      "topic": "Historical Background",
+      "questionCount": 2
+    },
+    {
+      "topic": "Tribunals",
+      "questionCount": 1
+    },
+    {
+      "topic": "Country Profiles",
+      "questionCount": 1
+    },
+    {
+      "topic": "Vice-President",
+      "questionCount": 1
+    },
+    {
+      "topic": "Finance Commission",
+      "questionCount": 1
+    },
+    {
+      "topic": "Municipalities",
+      "questionCount": 1
+    },
+    {
+      "topic": "Subordinate Courts",
+      "questionCount": 1
+    }
+  ]
+}

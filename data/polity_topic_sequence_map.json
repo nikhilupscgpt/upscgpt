@@ -1,0 +1,278 @@
+{
+  "Historical Background": {
+    "topic": "Historical Background",
+    "syllabusOrder": 1,
+    "module": "Constitution — Foundations",
+    "nodeTitle": "Historical Evolution of Indian Constitution (1773-1947)"
+  },
+  "Constituent Assembly": {
+    "topic": "Constituent Assembly",
+    "syllabusOrder": 2,
+    "module": "Constitution — Foundations",
+    "nodeTitle": "Constituent Assembly & Constitutional Making Process"
+  },
+  "Salient Features of the Constitution": {
+    "topic": "Salient Features of the Constitution",
+    "syllabusOrder": 3,
+    "module": "Constitution — Foundations",
+    "nodeTitle": "Salient Features of Indian Constitution"
+  },
+  "Schedules of the Constitution": {
+    "topic": "Schedules of the Constitution",
+    "syllabusOrder": 4,
+    "module": "Constitution — Foundations",
+    "nodeTitle": "Schedules of the Constitution (First to Twelfth)"
+  },
+  "Political Theory & Concepts": {
+    "topic": "Political Theory & Concepts",
+    "syllabusOrder": 5,
+    "module": "Constitution — Foundations",
+    "nodeTitle": "Political Theory — Constitutionalism, Rule of Law, Liberty, Equality, Rights"
+  },
+  "Federal System": {
+    "topic": "Federal System",
+    "syllabusOrder": 6,
+    "module": "Constitution — Foundations",
+    "nodeTitle": "Federal vs Unitary Features of Indian Constitution"
+  },
+  "Parliamentary System": {
+    "topic": "Parliamentary System",
+    "syllabusOrder": 7,
+    "module": "Constitution — Foundations",
+    "nodeTitle": "Parliamentary vs Presidential System — Comparison"
+  },
+  "Preamble": {
+    "topic": "Preamble",
+    "syllabusOrder": 8,
+    "module": "Constitution — Foundations",
+    "nodeTitle": "Preamble — Values & Constitutional Philosophy"
+  },
+  "Citizenship": {
+    "topic": "Citizenship",
+    "syllabusOrder": 9,
+    "module": "Constitution — Foundations",
+    "nodeTitle": "Citizenship — Part II (Arts 5–11) & Citizenship Act 1955"
+  },
+  "Fundamental Rights": {
+    "topic": "Fundamental Rights",
+    "syllabusOrder": 10,
+    "module": "Constitution — Foundations",
+    "nodeTitle": "Fundamental Rights — Scope, Limitations & Judicial Interpretation"
+  },
+  "Directive Principles of State Policy": {
+    "topic": "Directive Principles of State Policy",
+    "syllabusOrder": 11,
+    "module": "Constitution — Foundations",
+    "nodeTitle": "Directive Principles of State Policy (DPSP) — Implementation & Conflicts with FR"
+  },
+  "Fundamental Duties": {
+    "topic": "Fundamental Duties",
+    "syllabusOrder": 12,
+    "module": "Constitution — Foundations",
+    "nodeTitle": "Fundamental Duties"
+  },
+  "Basic Structure": {
+    "topic": "Basic Structure",
+    "syllabusOrder": 13,
+    "module": "Constitution — Foundations",
+    "nodeTitle": "Basic Structure Doctrine — Evolution & Significance"
+  },
+  "Constitutional Amendments": {
+    "topic": "Constitutional Amendments",
+    "syllabusOrder": 14,
+    "module": "Constitution — Foundations",
+    "nodeTitle": "Constitutional Amendments — Process, Key Amendments & Pending Amendments"
+  },
+  "Centre-State Relations": {
+    "topic": "Centre-State Relations",
+    "syllabusOrder": 15,
+    "module": "Federalism",
+    "nodeTitle": "Centre-State Legislative Relations — Union, State & Concurrent Lists"
+  },
+  "Governor": {
+    "topic": "Governor",
+    "syllabusOrder": 16,
+    "module": "Federalism",
+    "nodeTitle": "Governor — Role, Discretionary Powers & Politicisation"
+  },
+  "Inter-State Relations": {
+    "topic": "Inter-State Relations",
+    "syllabusOrder": 17,
+    "module": "Federalism",
+    "nodeTitle": "Inter-State Council & Dispute Resolution Mechanisms"
+  },
+  "Finance Commission": {
+    "topic": "Finance Commission",
+    "syllabusOrder": 18,
+    "module": "Federalism",
+    "nodeTitle": "Finance Commission — Role, Devolution & Analysis"
+  },
+  "Panchayati Raj": {
+    "topic": "Panchayati Raj",
+    "syllabusOrder": 19,
+    "module": "Local Governance",
+    "nodeTitle": "Local Government — Panchayati Raj (73rd Amendment)"
+  },
+  "Municipalities": {
+    "topic": "Municipalities",
+    "syllabusOrder": 20,
+    "module": "Local Governance",
+    "nodeTitle": "Local Government — Municipalities (74th Amendment)"
+  },
+  "Scheduled & Tribal Areas": {
+    "topic": "Scheduled & Tribal Areas",
+    "syllabusOrder": 21,
+    "module": "Local Governance",
+    "nodeTitle": "Scheduled & Tribal Areas — Fifth & Sixth Schedules, PESA"
+  },
+  "Parliament": {
+    "topic": "Parliament",
+    "syllabusOrder": 22,
+    "module": "Legislature",
+    "nodeTitle": "Parliament — Structure, Functions & Composition (Lok Sabha & Rajya Sabha)"
+  },
+  "State Legislature": {
+    "topic": "State Legislature",
+    "syllabusOrder": 23,
+    "module": "Legislature",
+    "nodeTitle": "State Legislatures — Legislative Assembly & Legislative Council"
+  },
+  "Budget & Financial Procedure": {
+    "topic": "Budget & Financial Procedure",
+    "syllabusOrder": 24,
+    "module": "Legislature",
+    "nodeTitle": "Parliament — Financial Procedure (Budget, Money & Finance Bills)"
+  },
+  "Parliamentary Committees": {
+    "topic": "Parliamentary Committees",
+    "syllabusOrder": 25,
+    "module": "Legislature",
+    "nodeTitle": "Parliamentary Committees — Role & Functions"
+  },
+  "President": {
+    "topic": "President",
+    "syllabusOrder": 26,
+    "module": "Executive",
+    "nodeTitle": "President of India — Powers, Functions & Role"
+  },
+  "Vice-President": {
+    "topic": "Vice-President",
+    "syllabusOrder": 27,
+    "module": "Executive",
+    "nodeTitle": "Vice-President of India"
+  },
+  "Prime Minister & Council of Ministers": {
+    "topic": "Prime Minister & Council of Ministers",
+    "syllabusOrder": 28,
+    "module": "Executive",
+    "nodeTitle": "Prime Minister & Council of Ministers"
+  },
+  "Union Executive & Ministries": {
+    "topic": "Union Executive & Ministries",
+    "syllabusOrder": 29,
+    "module": "Executive",
+    "nodeTitle": "Prime Minister & Council of Ministers"
+  },
+  "Attorney General & Solicitor General": {
+    "topic": "Attorney General & Solicitor General",
+    "syllabusOrder": 30,
+    "module": "Executive",
+    "nodeTitle": "Attorney General, Solicitor General & Advocate General"
+  },
+  "Emergency Provisions": {
+    "topic": "Emergency Provisions",
+    "syllabusOrder": 31,
+    "module": "Executive",
+    "nodeTitle": "Emergency Provisions — National, State & Financial Emergency"
+  },
+  "Supreme Court": {
+    "topic": "Supreme Court",
+    "syllabusOrder": 32,
+    "module": "Judiciary",
+    "nodeTitle": "Supreme Court — Guardian of Constitution & Fundamental Rights"
+  },
+  "Judicial Review & Landmark Judgements": {
+    "topic": "Judicial Review & Landmark Judgements",
+    "syllabusOrder": 33,
+    "module": "Judiciary",
+    "nodeTitle": "Judicial Review — Scope & Limits"
+  },
+  "High Courts": {
+    "topic": "High Courts",
+    "syllabusOrder": 34,
+    "module": "Judiciary",
+    "nodeTitle": "High Courts & Subordinate Courts — Structure & Issues"
+  },
+  "Subordinate Courts": {
+    "topic": "Subordinate Courts",
+    "syllabusOrder": 35,
+    "module": "Judiciary",
+    "nodeTitle": "High Courts & Subordinate Courts — Structure & Issues"
+  },
+  "Comptroller and Auditor General": {
+    "topic": "Comptroller and Auditor General",
+    "syllabusOrder": 36,
+    "module": "Constitutional Bodies",
+    "nodeTitle": "CAG of India — Role, Independence & Audit Functions"
+  },
+  "National Commissions (SC/ST/BC/Women/Minorities)": {
+    "topic": "National Commissions (SC/ST/BC/Women/Minorities)",
+    "syllabusOrder": 37,
+    "module": "Constitutional Bodies",
+    "nodeTitle": "National Commission for SC/ST — Functions & Effectiveness"
+  },
+  "Tribunals": {
+    "topic": "Tribunals",
+    "syllabusOrder": 38,
+    "module": "Statutory & Regulatory Bodies",
+    "nodeTitle": "Tribunals — Arts 323A/323B & CAT"
+  },
+  "Statutory & Non-Constitutional Bodies": {
+    "topic": "Statutory & Non-Constitutional Bodies",
+    "syllabusOrder": 39,
+    "module": "Statutory & Regulatory Bodies",
+    "nodeTitle": "Other Statutory & Regulatory Bodies (FSSAI, QCI, BIS, Commodity Boards, Coal Controller)"
+  },
+  "Elections & Representation": {
+    "topic": "Elections & Representation",
+    "syllabusOrder": 40,
+    "module": "Electoral System",
+    "nodeTitle": "Representation of People's Act — Key Provisions & Amendments"
+  },
+  "Elections & Political Parties": {
+    "topic": "Elections & Political Parties",
+    "syllabusOrder": 41,
+    "module": "Electoral System",
+    "nodeTitle": "Political Parties — Registration, Regulation & RTI"
+  },
+  "National Symbols & Awards": {
+    "topic": "National Symbols & Awards",
+    "syllabusOrder": 42,
+    "module": "Miscellaneous",
+    "nodeTitle": "National Symbols, Flag Code & Official Language"
+  },
+  "International Organisations & Relations": {
+    "topic": "International Organisations & Relations",
+    "syllabusOrder": 43,
+    "module": "Other / Applied",
+    "nodeTitle": "International Organisations & Relations"
+  },
+  "Miscellaneous": {
+    "topic": "Miscellaneous",
+    "syllabusOrder": 44,
+    "module": "Other / Applied",
+    "nodeTitle": "Miscellaneous"
+  },
+  "International Organisations & Groupings": {
+    "topic": "International Organisations & Groupings",
+    "syllabusOrder": 45,
+    "module": "Other / Applied",
+    "nodeTitle": "International Organisations & Groupings"
+  },
+  "Country Profiles": {
+    "topic": "Country Profiles",
+    "syllabusOrder": 46,
+    "module": "Other / Applied",
+    "nodeTitle": "Country Profiles"
+  }
+}
