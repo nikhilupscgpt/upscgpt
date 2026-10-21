@@ -1,0 +1,42 @@
+{
+  "Advent of Europeans & British Expansion": {
+    "topic": "Advent of Europeans & British Expansion",
+    "syllabusOrder": 1,
+    "module": "Foundations"
+  },
+  "Revolt of 1857, Tribal & Peasant Movements": {
+    "topic": "Revolt of 1857, Tribal & Peasant Movements",
+    "syllabusOrder": 2,
+    "module": "Foundations"
+  },
+  "Socio-Religious Reform Movements": {
+    "topic": "Socio-Religious Reform Movements",
+    "syllabusOrder": 3,
+    "module": "Reform & Nationalism"
+  },
+  "Early Nationalism & Congress (1885-1919)": {
+    "topic": "Early Nationalism & Congress (1885-1919)",
+    "syllabusOrder": 4,
+    "module": "Reform & Nationalism"
+  },
+  "Gandhian Era & Mass Movements (1915-1947)": {
+    "topic": "Gandhian Era & Mass Movements (1915-1947)",
+    "syllabusOrder": 5,
+    "module": "Reform & Nationalism"
+  },
+  "Constitutional & Administrative Developments": {
+    "topic": "Constitutional & Administrative Developments",
+    "syllabusOrder": 6,
+    "module": "Governance & People"
+  },
+  "Personalities, Press & Culture": {
+    "topic": "Personalities, Press & Culture",
+    "syllabusOrder": 7,
+    "module": "Governance & People"
+  },
+  "Miscellaneous": {
+    "topic": "Miscellaneous",
+    "syllabusOrder": 8,
+    "module": "Governance & People"
+  }
+}
