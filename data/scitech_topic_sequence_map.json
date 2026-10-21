@@ -1,0 +1,57 @@
+{
+  "General Science": {
+    "topic": "General Science",
+    "syllabusOrder": 1,
+    "module": "Core Sciences"
+  },
+  "Physics": {
+    "topic": "Physics",
+    "syllabusOrder": 2,
+    "module": "Core Sciences"
+  },
+  "Chemistry": {
+    "topic": "Chemistry",
+    "syllabusOrder": 3,
+    "module": "Core Sciences"
+  },
+  "Biology": {
+    "topic": "Biology",
+    "syllabusOrder": 4,
+    "module": "Core Sciences"
+  },
+  "Biotechnology & Genetics": {
+    "topic": "Biotechnology & Genetics",
+    "syllabusOrder": 5,
+    "module": "Applied Science"
+  },
+  "Health, Diseases & Medicine": {
+    "topic": "Health, Diseases & Medicine",
+    "syllabusOrder": 6,
+    "module": "Applied Science"
+  },
+  "Nanotechnology & Materials": {
+    "topic": "Nanotechnology & Materials",
+    "syllabusOrder": 7,
+    "module": "Applied Science"
+  },
+  "IT, Communication & Computing": {
+    "topic": "IT, Communication & Computing",
+    "syllabusOrder": 8,
+    "module": "Tech & Energy"
+  },
+  "Space Technology": {
+    "topic": "Space Technology",
+    "syllabusOrder": 9,
+    "module": "Tech & Energy"
+  },
+  "Nuclear & Energy Technology": {
+    "topic": "Nuclear & Energy Technology",
+    "syllabusOrder": 10,
+    "module": "Tech & Energy"
+  },
+  "Defence Technology": {
+    "topic": "Defence Technology",
+    "syllabusOrder": 11,
+    "module": "Tech & Energy"
+  }
+}

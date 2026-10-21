@@ -1,0 +1,714 @@
+{
+  "subject": "Science & Technology",
+  "nodes": [
+    {
+      "nodeId": "cmopjvonr00b8z3r0p076whxn",
+      "title": "Genetic Engineering & Recombinant DNA Technology",
+      "syllabusOrder": 5,
+      "topic": "Biotechnology & Genetics",
+      "prelimsNote": [
+        "rDNA uses restriction enzymes (molecular scissors) and ligases to insert genes into vectors (plasmids).",
+        "CRISPR-Cas9: Cas9 is a molecular scissors enzyme guided by RNA to edit genes (UPSC 2019).",
+        "RNA interference silences genes; used for pest-resistant crops and therapies (UPSC 2019).",
+        "rDNA technology can transfer genes across species barriers — UPSC 2013 tested its scope; GM crops, insulin and vaccines are key products."
+      ]
+    },
+    {
+      "nodeId": "cmopjvont00bgz3r0mfcxtgv0",
+      "title": "GM Organisms — Agriculture, Ethics & Biosafety Regulation",
+      "syllabusOrder": 5,
+      "topic": "Biotechnology & Genetics",
+      "prelimsNote": [
+        "GEAC (Genetic Engineering Appraisal Committee) under the Environment Protection Act 1986 approves GM organisms (UPSC 2015).",
+        "Bt cotton (Cry1Ac, 2002) is the only GM food/fibre crop commercialised; Bollgard-II has Cry1Ac + Cry2Ab against bollworm (UPSC 2021).",
+        "Bt brinjal: approved by GEAC in 2009, moratorium in 2010 (UPSC 2011–13).",
+        "GM mustard DMH-11 uses barnase–barstar for hybrid seed (male sterility); GEAC approved environmental release in 2022 (UPSC 2018).",
+        "Trap: GM mustard has 'genes of soil bacterium' giving pest resistance — false; it is for hybridisation and herbicide tolerance."
+      ]
+    },
+    {
+      "nodeId": "cmopjvqkj00c4z3r0gmai2uyn",
+      "title": "Human Genome Project & Genomic Medicine",
+      "syllabusOrder": 5,
+      "topic": "Biotechnology & Genetics",
+      "prelimsNote": [
+        "Human Genome Project completed in 2003 (~3 billion base pairs, ~20,000 protein-coding genes).",
+        "Genome India Project (2020, DBT): sequencing 10,000 genomes completed in 2024.",
+        "Genome sequencing helps identify disease genes, develop crop varieties faster and study evolutionary links (UPSC 2017).",
+        "Microsatellite DNA (short tandem repeats) is used to study evolutionary relationships among species and in DNA fingerprinting (UPSC 2023).",
+        "Denisovans: extinct archaic humans identified from DNA (UPSC 2019)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvql200c6z3r0y04w8lqr",
+      "title": "Stem Cell Research & Cloning — Science & Ethics",
+      "syllabusOrder": 5,
+      "topic": "Biotechnology & Genetics",
+      "prelimsNote": [
+        "Totipotent (zygote) > pluripotent (embryonic, iPSCs) > multipotent (adult) stem cells; iPSCs reprogrammed from adult cells (Yamanaka).",
+        "Somatic Cell Nuclear Transfer (SCNT): cloning technique (Dolly, 1996) (UPSC 2017).",
+        "Mitochondrial replacement (pronuclear transfer) creates 'three-parent babies'; mitochondrial DNA is inherited from the mother only (UPSC 2020, 2021).",
+        "Stem cells are used in regenerative medicine; ethical concerns centre on embryo use (UPSC 2012 tested stem-cell basics)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvql400cbz3r04a8aho02",
+      "title": "Bio-piracy & Traditional Knowledge Protection",
+      "syllabusOrder": 5,
+      "topic": "Biotechnology & Genetics",
+      "prelimsNote": [
+        "Traditional Knowledge Digital Library (TKDL, 2001, CSIR + AYUSH) blocks wrongful patents (turmeric, neem, basmati cases).",
+        "Biological Diversity Act 2002 and Nagoya Protocol: access & benefit sharing; NBA approval for foreign access.",
+        "Patents Act 1970: biological processes for creating animals/plants not patentable (UPSC 2019).",
+        "TRIPS Art 27.3(b) allows exclusion of plants and animals but requires protection of plant varieties (India: PPV&FR Act 2001)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvqpg00cgz3r03sfe12gc",
+      "title": "Bioinformatics & Precision Medicine",
+      "syllabusOrder": 5,
+      "topic": "Biotechnology & Genetics",
+      "prelimsNote": [
+        "DNA barcoding identifies species from short standard gene regions — distinguishes look-alike species and detects adulteration in food (UPSC 2022).",
+        "Aerial metagenomics collects DNA samples from air in a habitat in one go (UPSC 2023).",
+        "Transcriptome = full set of RNA transcripts in a cell (UPSC 2016).",
+        "Precision medicine tailors treatment to an individual's genetic profile."
+      ]
+    },
+    {
+      "nodeId": "cmopjvons00baz3r0vcv4025i",
+      "title": "Intellectual Property Rights — Patents, Copyright & TRIPS",
+      "syllabusOrder": 5,
+      "topic": "Biotechnology & Genetics",
+      "prelimsNote": [
+        "Patents Act 1970 (amended 2005 for TRIPS); Sec 3(d) bars evergreening (Novartis case, 2013).",
+        "Patent term 20 years; compulsory licensing (Natco–Bayer, 2012).",
+        "National IPR Policy 2016 — DPIIT is nodal (UPSC 2017).",
+        "GI Act 1999 enacted to comply with TRIPS (UPSC 2018); copyright: 60 years after the author's death for literary works."
+      ]
+    },
+    {
+      "nodeId": "cmopjvql400c9z3r00ygkawdq",
+      "title": "Biotechnology in Medicine — Vaccines, Biosimilars & Gene Therapy",
+      "syllabusOrder": 6,
+      "topic": "Health, Diseases & Medicine",
+      "prelimsNote": [
+        "Vaccine platforms (UPSC 2021, 2022): Covishield = viral vector (chimpanzee adenovirus), Sputnik V = viral vector, Covaxin = inactivated virus; Covishield is NOT mRNA.",
+        "Adenoviruses have double-stranded DNA genomes (UPSC 2021).",
+        "Biosimilars are near-copies of approved biologic drugs; generics copy small-molecule drugs.",
+        "Gene therapy can treat genetic disorders by correcting/replacing genes; CAR-T therapy (India's NexCAR19, 2023) re-engineers T cells against cancer.",
+        "Pneumococcal conjugate vaccine (UPSC 2020): India's indigenous PCV; protects against pneumonia, meningitis, sepsis."
+      ]
+    },
+    {
+      "nodeId": "cmopjvqpg00cdz3r0qn8xei0g",
+      "title": "Nanotechnology — Principles, Applications & India's Nano Mission",
+      "syllabusOrder": 7,
+      "topic": "Nanotechnology & Materials",
+      "prelimsNote": [
+        "Nanoscale = 1–100 nm; high surface-area-to-volume ratio and quantum confinement change properties.",
+        "Graphene: single layer of carbon atoms, strongest and highly conductive (UPSC 2012); carbon nanotubes used for drug carriers, artificial blood capillaries, biosensors (UPSC 2020).",
+        "Nano Mission (2007, DST).",
+        "Nanoparticles occur naturally too (volcanic ash, sea spray) — UPSC 2022 statement that they exist only as man-made was false."
+      ]
+    },
+    {
+      "nodeId": "cmopjvqpg00cez3r0t5wlp56g",
+      "title": "Nanotechnology in Medicine, Agriculture & Environment",
+      "syllabusOrder": 7,
+      "topic": "Nanotechnology & Materials",
+      "prelimsNote": [
+        "Nano-urea and nano-DAP (IFFCO) reduce fertiliser use.",
+        "Nanoparticles of metal oxides (TiO₂, ZnO) are used in cosmetics and sunscreens; some nanoparticles entering the environment are unsafe (UPSC 2022).",
+        "Nanotech in health (UPSC 2015): targeted drug delivery, gene therapy.",
+        "Carbon fibres used in automobile and aircraft components; they CAN be recycled (UPSC 2023)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvonq00b4z3r0nztsqg1i",
+      "title": "Cyber Warfare & Electronic Intelligence",
+      "syllabusOrder": 8,
+      "topic": "IT, Communication & Computing",
+      "prelimsNote": [
+        "Ransomware (WannaCry, Petya 2017 — UPSC 2018) encrypts data for ransom; spyware like Pegasus exploits zero-day vulnerabilities.",
+        "CERT-In (IT Act Sec 70B) is the national nodal agency; 2022 directions require reporting cyber incidents within 6 hours (UPSC 2017 asked about mandatory reporting).",
+        "NCIIPC (Sec 70A) protects Critical Information Infrastructure; Defence Cyber Agency set up in 2019.",
+        "Cyber insurance can cover data-restoration costs, extortion payments and third-party liability (UPSC 2020)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvonq00b5z3r0l0hnoqu5",
+      "title": "Artificial Intelligence — Applications, Ethics & Governance",
+      "syllabusOrder": 8,
+      "topic": "IT, Communication & Computing",
+      "prelimsNote": [
+        "AI capabilities tested (UPSC 2020): reducing electricity consumption, creating meaningful short stories, disease diagnosis, text-to-speech — all possible.",
+        "Machine learning learns patterns from data; generative AI (LLMs) creates text/images; deepfakes are synthetic media.",
+        "IndiaAI Mission (2024): compute capacity (GPUs), datasets, indigenous foundation models.",
+        "Trap: AI is not 'programmed rules only' — it can learn without explicit programming."
+      ]
+    },
+    {
+      "nodeId": "cmopjvonr00b7z3r046aemwpd",
+      "title": "Cybersecurity — Threats, Laws & National Cyber Policy",
+      "syllabusOrder": 8,
+      "topic": "IT, Communication & Computing",
+      "prelimsNote": [
+        "IT Act 2000 (amended 2008) — Sec 66A struck down in Shreya Singhal (2015).",
+        "Digital signatures (UPSC 2019): authenticate the signer, identify the document and are legally valid under the IT Act; PKI provides the key infrastructure (UPSC 2020).",
+        "Digital Personal Data Protection Act 2023 created the Data Protection Board.",
+        "National Cyber Security Policy 2013 (a new strategy has been under preparation)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvont00bjz3r0qwzz7mlo",
+      "title": "Internet Governance — Net Neutrality, Data Sovereignty",
+      "syllabusOrder": 8,
+      "topic": "IT, Communication & Computing",
+      "prelimsNote": [
+        "Net neutrality: TRAI's Prohibition of Discriminatory Tariffs (2016) blocked zero-rating like 'Free Basics'; DoT accepted net-neutrality rules in 2018.",
+        "Data localisation: RBI (2018) requires payment data stored only in India (UPSC 2019).",
+        "ICANN manages the domain-name system; the Internet Governance Forum is UN-convened.",
+        "DPDP Act 2023 allows cross-border data transfer except to countries the government blacklists."
+      ]
+    },
+    {
+      "nodeId": "cmopjvqkb00c2z3r0u2xkdolc",
+      "title": "Big Data & Cloud Computing — Governance Applications",
+      "syllabusOrder": 8,
+      "topic": "IT, Communication & Computing",
+      "prelimsNote": [
+        "Cloud models: IaaS, PaaS, SaaS — SaaS buyers can customise the user interface and data fields; Outlook, Hotmail, Yahoo! Mail are SaaS (UPSC 2022).",
+        "MeghRaj: GoI's cloud initiative.",
+        "Big data: volume, velocity, variety (and veracity); used in governance analytics.",
+        "Edge computing processes data near the source to cut latency."
+      ]
+    },
+    {
+      "nodeId": "cmopjvql200c5z3r07gx5jbu8",
+      "title": "Blockchain Technology — Uses, Cryptocurrency & Regulation",
+      "syllabusOrder": 8,
+      "topic": "IT, Communication & Computing",
+      "prelimsNote": [
+        "Blockchain (UPSC 2020): a public ledger everyone can inspect but no single user controls; its data is NOT only about cryptocurrency; applications can be built on it without anyone's permission.",
+        "Bitcoin (UPSC 2016): peer-to-peer, no central authority; not legal tender in India.",
+        "NFTs (UPSC 2022) are unique tokens on a blockchain; they are not interchangeable at equivalency.",
+        "Crypto income taxed at 30% with 1% TDS (Budget 2022); CBDC (e₹) issued by RBI is legal tender."
+      ]
+    },
+    {
+      "nodeId": "cmopjvqkj00c3z3r0aandn1h1",
+      "title": "Internet of Things (IoT) & Cyber-Physical Systems",
+      "syllabusOrder": 8,
+      "topic": "IT, Communication & Computing",
+      "prelimsNote": [
+        "IoT: network of devices that sense, communicate and act without human intervention (UPSC 2018).",
+        "Wearables (UPSC 2019) can track location, heart rate and other vitals.",
+        "Accelerometer detects acceleration/tilt — airbag deployment, laptop free-fall protection, screen rotation (UPSC 2023).",
+        "IoT security risk: large attack surface (botnets such as Mirai)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvql300c7z3r0sgpf3zvf",
+      "title": "Social Media — Regulation, Misinformation & Internal Security",
+      "syllabusOrder": 8,
+      "topic": "IT, Communication & Computing",
+      "prelimsNote": [
+        "IT (Intermediary Guidelines and Digital Media Ethics Code) Rules 2021: grievance officers, traceability of first originator for significant intermediaries.",
+        "Sec 69A of the IT Act allows blocking of online content (upheld in Shreya Singhal 2015).",
+        "Sec 79: safe-harbour for intermediaries that follow due diligence.",
+        "Deepfakes and AI-labelling advisories issued by MeitY (2023–24)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvql400caz3r069h3eiti",
+      "title": "E-Governance — Digital India, NeGP & Service Delivery",
+      "syllabusOrder": 8,
+      "topic": "IT, Communication & Computing",
+      "prelimsNote": [
+        "NeGP (2006) → Digital India (2015): digital infrastructure, governance & services on demand, digital empowerment.",
+        "DigiLocker: digital locker under Digital India; documents accessible anywhere (UPSC 2016).",
+        "Aarogya Setu, CoWIN, DigiLocker and DIKSHA are built on open-source platforms (UPSC 2022).",
+        "Aadhaar (UIDAI, statutory under the Aadhaar Act 2016); BHIM-UPI; Common Service Centres for rural delivery."
+      ]
+    },
+    {
+      "nodeId": "cmopjvons00b9z3r06jt60az5",
+      "title": "5G Technology — Applications, Security Concerns & Rollout",
+      "syllabusOrder": 8,
+      "topic": "IT, Communication & Computing",
+      "prelimsNote": [
+        "5G launched in India in October 2022; uses sub-6 GHz and mmWave bands; enables network slicing and low latency.",
+        "LTE is data-only; VoLTE carries voice over LTE (UPSC 2019).",
+        "Short-range technologies (UPSC 2022): CCTV, RFID, Wireless LAN.",
+        "Li-Fi/VLC use visible light (UPSC 2016, 2020); Project Loon used balloons for internet (UPSC 2016).",
+        "Telecommunications Act 2023 replaced the Indian Telegraph Act 1885."
+      ]
+    },
+    {
+      "nodeId": "cmopjvpqe00bqz3r0wk7tyz08",
+      "title": "Semiconductor Industry — India's Chip Policy & Fab Ecosystem",
+      "syllabusOrder": 8,
+      "topic": "IT, Communication & Computing",
+      "prelimsNote": [
+        "India Semiconductor Mission (2021, ₹76,000 crore) under Digital India Corporation.",
+        "First fab: Tata–PSMC at Dholera (approved 2024); OSAT units by Micron (Sanand) and others.",
+        "Semiconductors: silicon, germanium; doping creates n-type and p-type; LEDs are semiconductor devices.",
+        "Rare earths and critical minerals are strategic inputs (National Critical Mineral Mission 2025)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvpqk00bzz3r0fuepe48m",
+      "title": "Quantum Computing — Principles & National Mission",
+      "syllabusOrder": 8,
+      "topic": "IT, Communication & Computing",
+      "prelimsNote": [
+        "Qubits exploit superposition and entanglement — 'qubit' is the term from quantum computing (UPSC 2022).",
+        "National Quantum Mission (2023, ₹6,003 crore): 50–1,000 qubit computers by 2031, quantum communication and sensing.",
+        "Quantum key distribution offers theoretically unbreakable encryption.",
+        "Trap: quantum computers do not replace classical ones for all tasks."
+      ]
+    },
+    {
+      "nodeId": "cmopjvql300c8z3r0awfeqe0z",
+      "title": "Robotics & Automation — Industry 4.0 & Employment Impact",
+      "syllabusOrder": 8,
+      "topic": "IT, Communication & Computing",
+      "prelimsNote": [
+        "Industry 4.0: cyber-physical systems, IoT, AI, 3D printing, robotics.",
+        "3D printing builds objects layer by layer from digital models (UPSC 2018).",
+        "Augmented reality overlays digital info on the real world; virtual reality creates a fully immersive environment (UPSC 2019).",
+        "Automation raises productivity but displaces routine jobs."
+      ]
+    },
+    {
+      "nodeId": "cmopjvluw00acz3r08h18ur7h",
+      "title": "ISRO — History, Missions & Launch Vehicles",
+      "syllabusOrder": 9,
+      "topic": "Space Technology",
+      "prelimsNote": [
+        "ISRO founded 1969 (INCOSPAR 1962 under DAE); Department of Space 1972; first satellite Aryabhata (1975, Soviet launch); first Indian launch vehicle SLV-3 (1980, Rohini).",
+        "PSLV: 4 stages alternating solid–liquid–solid–liquid; workhorse for polar/sun-synchronous orbits (also launched Chandrayaan-1 and MOM).",
+        "GSLV uses an indigenous cryogenic upper stage (liquid hydrogen + liquid oxygen) for GTO; LVM3 (GSLV Mk III) launched Chandrayaan-2/3 and is human-rated for Gaganyaan.",
+        "Trap (UPSC 2018): PSLV satellites (Earth observation) do not appear fixed in the sky; GSLV Mk III (LVM3) is a three-stage vehicle — solid strap-ons, liquid core, cryogenic upper stage — not four-stage.",
+        "SSLV (2022–23): small satellites (≤500 kg to LEO) with three solid stages + a liquid trim module (VTM)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvm0z00afz3r0pd3qo9ww",
+      "title": "Satellite Technology — INSAT, Remote Sensing & Applications",
+      "syllabusOrder": 9,
+      "topic": "Space Technology",
+      "prelimsNote": [
+        "Geostationary orbit ≈ 35,786 km above the Equator, period = 24 h, appears stationary — used for communication and weather (INSAT/GSAT); polar/sun-synchronous orbits (~500–800 km) for remote sensing (IRS, Cartosat, Resourcesat).",
+        "Remote sensing applications (UPSC 2019): crop acreage and yield estimates, groundwater prospecting, forest cover, disaster monitoring.",
+        "GPS/satellite applications: precision agriculture, disaster response, fleet tracking (UPSC 2018).",
+        "Active sensors (SAR/radar) work through clouds and at night; passive optical sensors need sunlight.",
+        "NISAR (NASA–ISRO SAR, L- and S-band) launched in 2025 (as of 2025) for Earth-surface change monitoring."
+      ]
+    },
+    {
+      "nodeId": "cmopjvmsr00apz3r0hsnq6suf",
+      "title": "Chandrayaan, Mangalyaan & Gaganyaan — India's Space Missions",
+      "syllabusOrder": 9,
+      "topic": "Space Technology",
+      "prelimsNote": [
+        "Chandrayaan-1 (2008, PSLV) detected water/hydroxyl on the Moon with NASA's M3 payload; Chandrayaan-2 (2019) orbiter still working, lander Vikram crash-landed.",
+        "Chandrayaan-3 (2023, LVM3): first soft landing near the lunar south pole (Shiv Shakti point, 23 August = National Space Day).",
+        "Mangalyaan/MOM (2013, PSLV): India first Asian nation to reach Mars orbit and first in the world on its maiden attempt; it was NOT launched by GSLV (UPSC 2016).",
+        "Aditya-L1 (2023): solar observatory at the Sun–Earth Lagrange point L1 (~1.5 million km).",
+        "Gaganyaan: human spaceflight to ~400 km LEO on human-rated LVM3; crew module, uncrewed G1 test flights precede crewed flight (as of 2025)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvm1000agz3r0zjx3ulef",
+      "title": "Commercial Space — NewSpace India & Global Competition",
+      "syllabusOrder": 9,
+      "topic": "Space Technology",
+      "prelimsNote": [
+        "NewSpace India Ltd (NSIL, 2019): commercial arm of ISRO for launches, satellite services and technology transfer; Antrix (1992) is the older commercial arm.",
+        "IN-SPACe (2020): single-window regulator/promoter authorising private space activities.",
+        "Indian Space Policy 2023 opened the full value chain to private players; FDI rules liberalised in 2024 (up to 100% in satellite components via automatic route).",
+        "Private milestones: Vikram-S (Skyroot, 2022) first private sub-orbital launch; Agnikul's semi-cryogenic 3D-printed engine flight (2024)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvmsr00amz3r02cu3d5io",
+      "title": "GPS & Navigation Systems — NavIC & Geostrategic Importance",
+      "syllabusOrder": 9,
+      "topic": "Space Technology",
+      "prelimsNote": [
+        "NavIC (IRNSS): regional system of 7 satellites (3 GEO + 4 GSO) covering India and ~1,500 km around it (UPSC 2018).",
+        "Global systems: GPS (USA), GLONASS (Russia), Galileo (EU), BeiDou (China); Japan's QZSS is regional — UPSC 2023: Japan has its own satellite navigation system.",
+        "GAGAN (ISRO + AAI): satellite-based augmentation system improving GPS accuracy for aviation.",
+        "Trap: NavIC is regional, not global; it uses L5 and S bands."
+      ]
+    },
+    {
+      "nodeId": "cmopjvmbz00akz3r0fr7umpn7",
+      "title": "Space Debris & International Space Law",
+      "syllabusOrder": 9,
+      "topic": "Space Technology",
+      "prelimsNote": [
+        "Kessler Syndrome: cascading collisions making orbits unusable.",
+        "Project NETRA (ISRO): space situational awareness network to track debris.",
+        "Mission Shakti (2019): India's anti-satellite (ASAT) test in LEO (~300 km) — chosen to limit long-lived debris.",
+        "Space law: Outer Space Treaty 1967 (no national appropriation, no WMD in orbit), Liability Convention 1972, Registration Convention 1975; Moon Agreement 1979 (few signatories)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvm5300aiz3r0zsw3amu6",
+      "title": "Nuclear Energy — Reactor Types, India's Nuclear Programme",
+      "syllabusOrder": 10,
+      "topic": "Nuclear & Energy Technology",
+      "prelimsNote": [
+        "Three-stage programme (Homi Bhabha): Stage 1 PHWRs on natural uranium, Stage 2 Fast Breeder Reactors on plutonium (breed fissile material), Stage 3 thorium-based reactors (U-233).",
+        "Heavy water (D₂O) is the moderator in PHWRs — slows neutrons (UPSC 2011).",
+        "India has large thorium reserves (monazite sands) but limited uranium (UPSC 2012).",
+        "Fission splits heavy nuclei (U-235, Pu-239); fusion joins light nuclei (deuterium–tritium) — ITER in France aims to demonstrate fusion; India is a member (UPSC 2016).",
+        "Small Modular Reactors (≤300 MWe) and Bharat Small Reactors announced with private participation in Budget 2025 (as of 2025)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvm5500ajz3r03c0qxqly",
+      "title": "Nuclear Safety — Accidents, Radiation & Public Concerns",
+      "syllabusOrder": 10,
+      "topic": "Nuclear & Energy Technology",
+      "prelimsNote": [
+        "Major accidents: Three Mile Island (USA, 1979), Chernobyl (USSR, 1986), Fukushima (Japan, 2011 — tsunami-triggered).",
+        "Atomic Energy Regulatory Board (AERB, 1983) regulates safety in India — created by executive order under the Atomic Energy Act 1962, not a statutory independent regulator.",
+        "Civil Liability for Nuclear Damage Act 2010: operator liability, with right of recourse against suppliers (Sec 17) — a sticking point for foreign suppliers.",
+        "Radiation units: becquerel (activity), gray (absorbed dose), sievert (biological effect)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvmyp00asz3r01qac9nx1",
+      "title": "India-USA Nuclear Deal & NSG Waiver",
+      "syllabusOrder": 10,
+      "topic": "Nuclear & Energy Technology",
+      "prelimsNote": [
+        "Joint statement 2005; 123 Agreement 2008 under the US Atomic Energy Act; NSG granted India a 'clean waiver' in Sept 2008.",
+        "India separated civil and military facilities; civil reactors placed under IAEA safeguards — some reactors use imported fuel, which must be safeguarded (UPSC 2020).",
+        "India signed the IAEA Additional Protocol (ratified 2014) — civil facilities under broader IAEA inspection (UPSC 2018).",
+        "NSG membership gives access to latest nuclear technology but does NOT make a country an NPT member (UPSC 2018); India is not yet an NSG member."
+      ]
+    },
+    {
+      "nodeId": "cmopjvmsr00aoz3r0bcqg8ysc",
+      "title": "Nuclear Non-Proliferation — NPT, CTBT & India's Position",
+      "syllabusOrder": 10,
+      "topic": "Nuclear & Energy Technology",
+      "prelimsNote": [
+        "NPT (1968, in force 1970): recognises 5 nuclear-weapon states (tested before 1 Jan 1967); India, Pakistan, Israel never signed; North Korea withdrew.",
+        "CTBT (1996) not in force — requires all 44 Annex-2 states to ratify; India has not signed.",
+        "Export-control regimes India has joined: MTCR (2016), Wassenaar Arrangement (2017), Australia Group (2018); not NSG (UPSC 2022).",
+        "New START (US–Russia, 2010) caps deployed strategic warheads (UPSC 2011); Russia suspended participation in 2023.",
+        "Nuclear Security Summits (2010–2016) were US-led, not under UN aegis; International Panel on Fissile Materials is independent, not an IAEA organ (UPSC 2017)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvqpg00cfz3r07x52ll9i",
+      "title": "Solar Energy — Technology, Solar Mission & Grid Parity",
+      "syllabusOrder": 10,
+      "topic": "Nuclear & Energy Technology",
+      "prelimsNote": [
+        "Solar PV converts light to electricity directly; solar thermal uses heat (UPSC 2014).",
+        "National Solar Mission (2010) target raised to 100 GW by 2022; India's 2030 target 500 GW non-fossil capacity.",
+        "Net metering lets rooftop solar households sell excess power to the grid (UPSC 2016); PM Surya Ghar (2024) rooftop scheme.",
+        "Materials: crystalline silicon dominates; perovskite and thin-film (CdTe, CIGS) are emerging.",
+        "International Solar Alliance launched at COP21 Paris (2015); HQ Gurugram."
+      ]
+    },
+    {
+      "nodeId": "cmopjvonu00bkz3r082c7ed3c",
+      "title": "Wind Energy — Offshore & Onshore Development",
+      "syllabusOrder": 10,
+      "topic": "Nuclear & Energy Technology",
+      "prelimsNote": [
+        "India has ~45+ GW installed wind capacity, 4th largest globally (as of 2024).",
+        "Top wind states: Gujarat, Tamil Nadu, Karnataka, Maharashtra.",
+        "National Offshore Wind Energy Policy 2015; targets off Gujarat and Tamil Nadu coasts.",
+        "Wind–solar hybrid policy 2018 improves grid utilisation."
+      ]
+    },
+    {
+      "nodeId": "cmopjvons00bbz3r025q73dbw",
+      "title": "Nuclear Energy — Thorium Programme & Fast Breeder Reactors",
+      "syllabusOrder": 10,
+      "topic": "Nuclear & Energy Technology",
+      "prelimsNote": [
+        "Prototype Fast Breeder Reactor (500 MWe, Kalpakkam, BHAVINI) began core loading in 2024 — gateway to Stage 2.",
+        "Fast breeders produce more fissile material than they consume; use liquid sodium coolant.",
+        "Stage 3 uses thorium–U-233 cycle; Advanced Heavy Water Reactor (AHWR) design by BARC.",
+        "Thorium is fertile, not fissile — needs conversion to U-233 (UPSC 2012)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvpqb00blz3r07ta27lxv",
+      "title": "Hydrogen Energy — Green Hydrogen Policy",
+      "syllabusOrder": 10,
+      "topic": "Nuclear & Energy Technology",
+      "prelimsNote": [
+        "Grey (from natural gas, emits CO₂), blue (with carbon capture), green (electrolysis using renewable power).",
+        "National Green Hydrogen Mission (2023): 5 MMT annual production by 2030; SIGHT incentive programme.",
+        "Green hydrogen can be used directly in internal combustion, blended with natural gas for heat/power, and in fuel cells for vehicles (UPSC 2023).",
+        "Expected to decarbonise fertiliser plants, oil refineries and steel plants (UPSC 2023).",
+        "Fuel cells produce electricity with water and heat as by-products (UPSC 2015); H-CNG blends hydrogen with CNG (UPSC 2019)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvpqc00bnz3r0xotd8kul",
+      "title": "Biofuel — Ethanol Blending & Biogas Policy",
+      "syllabusOrder": 10,
+      "topic": "Nuclear & Energy Technology",
+      "prelimsNote": [
+        "Generations: 1G (food crops), 2G (lignocellulosic residues), 3G (algae), 4G (engineered organisms with carbon capture).",
+        "National Policy on Biofuels 2018 (amended 2022): E20 target advanced to 2025-26 — achieved in 2025 (as of 2025); allows damaged grains, sugarcane juice, B-heavy molasses (UPSC 2020).",
+        "SATAT (2018) promotes compressed biogas; GOBARdhan for cattle-dung biogas.",
+        "Algae biofuel constraints: large land/water needs, contamination, cost (UPSC 2017)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvpqd00bpz3r00hicoysw",
+      "title": "Energy Storage — Battery Technology & Grid Management",
+      "syllabusOrder": 10,
+      "topic": "Nuclear & Energy Technology",
+      "prelimsNote": [
+        "Lithium-ion dominates; sodium-ion (cheaper, abundant sodium) and solid-state (safer, higher density) are emerging.",
+        "PLI for Advanced Chemistry Cell (ACC) battery storage (2021).",
+        "Cobalt for EV batteries: ~70–75% of world supply from DR Congo (UPSC 2023).",
+        "Pumped-storage hydro and battery energy storage systems balance renewable variability; VGF for BESS (2023)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvmsr00anz3r0yf00xjh7",
+      "title": "Nuclear Doctrine & Strategic Deterrence",
+      "syllabusOrder": 11,
+      "topic": "Defence Technology",
+      "prelimsNote": [
+        "India's doctrine (2003): credible minimum deterrence, No First Use, massive retaliation, non-use against non-nuclear weapon states.",
+        "Nuclear Command Authority: Political Council (chaired by PM) authorises use; Executive Council (NSA) advises.",
+        "Nuclear triad completed with INS Arihant's first deterrence patrol (2018) — SSBN with K-series SLBMs.",
+        "Tests: Pokhran-I (1974, 'Smiling Buddha'), Pokhran-II (1998, Operation Shakti)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvmsx00aqz3r0a7sd1jpn",
+      "title": "India's Missile Programme — Agni, Prithvi, BrahMos",
+      "syllabusOrder": 11,
+      "topic": "Defence Technology",
+      "prelimsNote": [
+        "IGMDP (1983, APJ Abdul Kalam): Prithvi (SRBM), Agni (IRBM/ICBM), Trishul, Akash (SAM), Nag (anti-tank); concluded 2008.",
+        "Agni-V: ~5,000+ km ICBM-class, solid-fuelled, canisterised; MIRV test 'Mission Divyastra' (2024).",
+        "BrahMos (India–Russia JV): supersonic cruise missile (~Mach 2.8), not an ICBM; trap in UPSC 2023 swapped Agni-V and BrahMos descriptions.",
+        "Ballistic missiles are rocket-powered and follow a ballistic arc; cruise missiles are jet-powered and fly within the atmosphere — UPSC 2023 statement reversing this was false.",
+        "Agni-IV (UPSC 2014): ~4,000 km, solid-fuelled surface-to-surface missile."
+      ]
+    },
+    {
+      "nodeId": "cmopjvnft00b0z3r01veptacj",
+      "title": "DRDO — Role, Achievements & Indigenisation",
+      "syllabusOrder": 11,
+      "topic": "Defence Technology",
+      "prelimsNote": [
+        "Set up in 1958 under the Ministry of Defence by merging defence science establishments.",
+        "Key products: Tejas LCA, Arjun MBT, Akash, Astra BVR AAM, Pinaka MBRL, ATAGS, Netra AEW&C.",
+        "Ballistic Missile Defence: Prithvi Air Defence (exo-atmospheric) and Advanced Air Defence (endo-atmospheric) interceptors.",
+        "Hypersonic: HSTDV scramjet demonstration (2020); long-range hypersonic missile test (Nov 2024)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvmsz00arz3r0570pjtj0",
+      "title": "Make in India in Defence — FDI, DPP & Offset Policy",
+      "syllabusOrder": 11,
+      "topic": "Defence Technology",
+      "prelimsNote": [
+        "Defence FDI: up to 74% via automatic route, beyond 74% through government approval (2020).",
+        "Defence Acquisition Procedure 2020 replaced DPP; categories prioritise 'Buy (Indian-IDDM)'.",
+        "Positive Indigenisation Lists bar import of notified items after set timelines.",
+        "Defence corridors in Uttar Pradesh and Tamil Nadu; iDEX (2018) funds defence start-ups."
+      ]
+    },
+    {
+      "nodeId": "cmopjvmz200avz3r0b1slngjf",
+      "title": "Stealth Technology, Drones (UAVs) & Modern Warfare",
+      "syllabusOrder": 11,
+      "topic": "Defence Technology",
+      "prelimsNote": [
+        "Stealth reduces radar cross-section through shaping and radar-absorbent materials.",
+        "Drone uses (UPSC 2020): agricultural spraying, mapping, crater inspection of volcanoes, breath sampling of whales.",
+        "Drone Rules 2021 and PLI for drones; Digital Sky platform for permissions.",
+        "Anti-drone systems (DRDO D4) use detection, jamming and laser 'hard kill'.",
+        "THAAD is a US terminal-phase missile defence system (UPSC 2018)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvonq00b6z3r0r0oddzqr",
+      "title": "Chemical & Biological Weapons — Conventions & Threats",
+      "syllabusOrder": 11,
+      "topic": "Defence Technology",
+      "prelimsNote": [
+        "Chemical Weapons Convention (1993, in force 1997) — implemented by the OPCW (The Hague), an independent body, not an EU/NATO/WHO organ (UPSC 2016).",
+        "OPCW monitors the chemical industry and assists states against chemical-weapons threats (UPSC 2016).",
+        "Biological Weapons Convention (1972) has no verification body like the OPCW.",
+        "Australia Group harmonises export controls on chemical/biological dual-use items; India joined in 2018."
+      ]
+    }
+  ],
+  "newNodesToCreate": [
+    {
+      "title": "Everyday Science — Units, Instruments, States of Matter & Heat Transfer",
+      "module": "Core Sciences",
+      "syllabusOrder": 1,
+      "topic": "General Science",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "Water expands on freezing (anomalous expansion below 4 °C) — ice floats and pipes burst in winter (UPSC 2011).",
+        "Pressure cooker cooks faster because higher pressure raises water's boiling point (UPSC 2021).",
+        "Instruments: SONAR (sound under water), RADAR (radio waves), seismograph (earthquakes), barometer (air pressure), hygrometer (humidity).",
+        "Heat transfer: conduction (solids), convection (fluids), radiation (no medium needed).",
+        "Light-year is a unit of distance, not time (UPSC 2021); the outermost (non-luminous) zone of a flame is hottest (UPSC 2020)."
+      ]
+    },
+    {
+      "title": "Optics & Electromagnetic Spectrum — Refraction, Dispersion, Scattering & Rainbow",
+      "module": "Core Sciences",
+      "syllabusOrder": 2,
+      "topic": "Physics",
+      "nodeType": "CONCEPTUAL",
+      "prelimsNote": [
+        "Rainbow involves refraction, dispersion and total internal reflection (UPSC 2013); refraction explains twinkling of stars, apparent bending of a stick in water.",
+        "Rayleigh scattering (∝ 1/λ⁴) makes the sky blue and the Sun red at sunrise/sunset.",
+        "EM spectrum by decreasing frequency: gamma > X-ray > UV > visible > infrared > microwave > radio.",
+        "Infrared is absorbed mainly by water vapour and CO₂ in the lower atmosphere — not part of the visible spectrum (UPSC 2023).",
+        "Displays: LED and OLED (organic, flexible, no backlight — UPSC 2017); LEDs are more efficient than CFLs and contain no mercury (UPSC 2011, 2021)."
+      ]
+    },
+    {
+      "title": "Mechanics, Gravitation, Sound & Fundamental Forces",
+      "module": "Core Sciences",
+      "syllabusOrder": 2,
+      "topic": "Physics",
+      "nodeType": "CONCEPTUAL",
+      "prelimsNote": [
+        "Four fundamental forces: gravitational, electromagnetic, strong and weak nuclear (UPSC 2013).",
+        "Ball bearings reduce friction (rolling vs sliding) (UPSC 2013); gravity provides the centripetal force for satellites (UPSC 2011).",
+        "Escape velocity from Earth ≈ 11.2 km/s; geostationary period = 24 h.",
+        "Doppler effect: change in observed frequency with relative motion — red shift of galaxies indicates an expanding universe (UPSC 2012).",
+        "Higgs boson ('God particle') gives mass to particles — confirmed at CERN's LHC in 2012 (UPSC 2013)."
+      ]
+    },
+    {
+      "title": "Electricity, Magnetism, Semiconductors & Superconductivity",
+      "module": "Core Sciences",
+      "syllabusOrder": 2,
+      "topic": "Physics",
+      "nodeType": "CONCEPTUAL",
+      "prelimsNote": [
+        "Metals conduct due to free electrons; non-metals lack free electrons (bad conductors).",
+        "Transformers work only on AC (mutual induction); superconductors have zero resistance below a critical temperature.",
+        "Semiconductors (Si, Ge): doping gives n-type and p-type; LEDs, solar cells and transistors are semiconductor devices.",
+        "Sodium lamps emit near-monochromatic yellow light; LEDs give a wider spectrum and longer life — UPSC 2021 compared the two.",
+        "Earth's magnetic field has reversed many times; the magnetosphere deflects the solar wind (UPSC 2012, 2018)."
+      ]
+    },
+    {
+      "title": "Everyday Chemistry — Acids/Bases, Polymers, Plastics & Common Chemicals",
+      "module": "Core Sciences",
+      "syllabusOrder": 3,
+      "topic": "Chemistry",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "pH < 7 acidic, > 7 basic; acid rain is caused by SO₂ and NOx (UPSC 2022); some microbes grow below pH 3 (UPSC 2023).",
+        "Water is a universal solvent because of its polarity (UPSC 2021).",
+        "PET: fibres blend with wool/cotton and bottles are recyclable; incineration releases greenhouse gases (UPSC 2022).",
+        "Bisphenol A (BPA) in polycarbonate plastics is an endocrine disruptor (UPSC 2021); triclosan is an antimicrobial in toiletries (UPSC 2021).",
+        "Trans fats from partial hydrogenation raise LDL cholesterol (UPSC 2011); aspartame is an artificial sweetener (UPSC 2011)."
+      ]
+    },
+    {
+      "title": "Elements, Radioactivity & Isotopes — Rare Earths, Heavy Metals & Critical Minerals",
+      "module": "Core Sciences",
+      "syllabusOrder": 3,
+      "topic": "Chemistry",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "Isotopes: carbon-14 (dating), iodine-131 (thyroid), cobalt-60 (cancer therapy), uranium-235 (fission).",
+        "Monazite contains thorium and rare earths; government bodies only can process/export it (UPSC 2022).",
+        "Ilmenite and rutile are titanium ores in coastal sands (UPSC 2023).",
+        "Heavy-metal pollution: mercury from gold mining and coal plants (UPSC 2023); lead from batteries and paints (UPSC 2012).",
+        "Critical minerals for batteries: lithium, cobalt, nickel, graphite; Lithium found in J&K (Reasi) in 2023."
+      ]
+    },
+    {
+      "title": "Cell Biology, Genetics Basics & Plant Physiology",
+      "module": "Core Sciences",
+      "syllabusOrder": 4,
+      "topic": "Biology",
+      "nodeType": "CONCEPTUAL",
+      "prelimsNote": [
+        "Plant cells have cell walls, large vacuoles and chloroplasts; animal cells lack cell walls (UPSC 2020).",
+        "Mitochondria have their own DNA, inherited only from the mother (UPSC 2021).",
+        "Girdling a tree cuts phloem — roots starve and the tree dies (UPSC 2011).",
+        "Photosynthesis: CO₂ + water + light → glucose + oxygen in chloroplasts; transpiration is water loss through stomata.",
+        "Plant hormones: auxins (growth), gibberellins (stem elongation), cytokinins (cell division), ethylene (ripening), ABA (stress)."
+      ]
+    },
+    {
+      "title": "Human Physiology, Nutrition & Microorganisms",
+      "module": "Core Sciences",
+      "syllabusOrder": 4,
+      "topic": "Biology",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "Vitamin deficiencies: A — night blindness, B1 — beriberi, C — scurvy, D — rickets, K — poor clotting (UPSC 2014).",
+        "Blood groups follow ABO alleles; a child's group depends on parents' genotypes (UPSC 2011).",
+        "B cells make antibodies, T cells kill infected cells — both protect against pathogens (UPSC 2022).",
+        "Probiotics contain live bacteria and yeast; they occur naturally in the gut and help digest milk sugars (UPSC 2022).",
+        "Viruses lack cell machinery and are not killed by antibiotics; lichens are fungus–alga symbioses (UPSC 2013, 2014)."
+      ]
+    },
+    {
+      "title": "Infectious Diseases, Antimicrobial Resistance & Disease Control",
+      "module": "Applied Science & Health",
+      "syllabusOrder": 6,
+      "topic": "Health, Diseases & Medicine",
+      "nodeType": "CONCEPTUAL",
+      "prelimsNote": [
+        "Viral: COVID-19 (enters via ACE2 receptors — UPSC 2021), dengue, Zika (Aedes mosquito; also sexual transmission — UPSC 2017), Nipah, rabies, hepatitis.",
+        "Hepatitis B, like HIV, spreads via blood/sexual contact; a vaccine EXISTS for Hepatitis B but not C (UPSC 2019).",
+        "AMR drivers (UPSC 2019): antibiotic overuse in humans and livestock, poor sanitation, incomplete courses.",
+        "Wolbachia bacteria in Aedes mosquitoes reduce dengue/Zika transmission (UPSC 2023).",
+        "Eradicated/eliminated: smallpox (global, 1980), polio (India certified polio-free 2014), guinea worm (India 2000) — UPSC 2014 asked which diseases were eradicated."
+      ]
+    },
+    {
+      "title": "Immunology & Vaccine Technologies — mRNA, Viral Vector, Monoclonal Antibodies & CAR-T",
+      "module": "Applied Science & Health",
+      "syllabusOrder": 6,
+      "topic": "Health, Diseases & Medicine",
+      "nodeType": "CONCEPTUAL",
+      "prelimsNote": [
+        "Vaccine types: live attenuated, inactivated (Covaxin), subunit/protein, viral vector (Covishield, Sputnik V), mRNA (Pfizer, Moderna), DNA (ZyCoV-D — world's first DNA vaccine for COVID).",
+        "Recombinant vector vaccines can be developed quickly and induce strong immunity (UPSC 2021).",
+        "Monoclonal antibodies are lab-made identical antibodies targeting one antigen.",
+        "CAR-T therapy re-engineers a patient's T cells to attack cancer; India's first, NexCAR19, approved 2023.",
+        "Pneumococcal conjugate vaccine protects against pneumonia, meningitis and sepsis; India has an indigenous PCV (UPSC 2020)."
+      ]
+    },
+    {
+      "title": "Astronomy, Orbits & Space Observatories — Lagrange Points, Telescopes & Cosmology",
+      "module": "Frontier Tech, Space & Energy",
+      "syllabusOrder": 9,
+      "topic": "Space Technology",
+      "nodeType": "CONCEPTUAL",
+      "prelimsNote": [
+        "Lagrange points L1–L5: positions where gravitational forces balance; Aditya-L1 at Sun–Earth L1, James Webb at L2.",
+        "Cepheids are pulsating stars; nebulae are dust–gas clouds; pulsars are rotating neutron stars (UPSC 2023 swapped these).",
+        "Gravitational waves (LIGO, 2015) and eLISA/LISA space-based detector (UPSC 2017, 2019, 2020).",
+        "Black holes, expanding universe and cosmic microwave background are key cosmology terms (UPSC 2017).",
+        "AstroSat (2015): India's first multi-wavelength space observatory (UPSC 2016); Hubble in LEO, James Webb (infrared) at L2."
+      ]
+    }
+  ]
+}
