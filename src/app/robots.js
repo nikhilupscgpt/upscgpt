@@ -21,7 +21,6 @@ export default function robots() {
     'PetalBot',
     'BLEXBot',
     'DataForSeoBot',
-    'GPTBot',
     'ClaudeBot',
     'Amazonbot',
     'Meta-webindexer',
@@ -33,10 +32,11 @@ export default function robots() {
     'YouBot',
   ];
 
-  // Live search & answer citation engines (allowed ONLY on static/ISR cached content routes)
+  // Live search, ChatGPT browsing & answer citation engines (allowed on static/ISR cached content routes)
   const searchAndDiscoveryBots = [
     'Googlebot',
     'Bingbot',
+    'GPTBot',
     'OAI-SearchBot',
     'ChatGPT-User',
     'PerplexityBot',
