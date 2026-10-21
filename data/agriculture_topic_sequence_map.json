@@ -1,0 +1,42 @@
+{
+  "Soil, Fertilizers & Farming Practices": {
+    "topic": "Soil, Fertilizers & Farming Practices",
+    "syllabusOrder": 1,
+    "module": "Agronomy & Practices"
+  },
+  "Major Crops": {
+    "topic": "Major Crops",
+    "syllabusOrder": 2,
+    "module": "Agronomy & Practices"
+  },
+  "Cropping Patterns & Systems": {
+    "topic": "Cropping Patterns & Systems",
+    "syllabusOrder": 3,
+    "module": "Agronomy & Practices"
+  },
+  "Irrigation & Water Management": {
+    "topic": "Irrigation & Water Management",
+    "syllabusOrder": 4,
+    "module": "Agronomy & Practices"
+  },
+  "Agriculture & Economy": {
+    "topic": "Agriculture & Economy",
+    "syllabusOrder": 5,
+    "module": "Agricultural Economics & Policy"
+  },
+  "Agricultural Pricing & Procurement (MSP)": {
+    "topic": "Agricultural Pricing & Procurement (MSP)",
+    "syllabusOrder": 6,
+    "module": "Agricultural Economics & Policy"
+  },
+  "Agricultural Credit & Schemes": {
+    "topic": "Agricultural Credit & Schemes",
+    "syllabusOrder": 7,
+    "module": "Agricultural Economics & Policy"
+  },
+  "Agricultural Marketing & Trade": {
+    "topic": "Agricultural Marketing & Trade",
+    "syllabusOrder": 8,
+    "module": "Agricultural Economics & Policy"
+  }
+}

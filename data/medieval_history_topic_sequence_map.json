@@ -1,0 +1,32 @@
+{
+  "Early Medieval Kingdoms": {
+    "topic": "Early Medieval Kingdoms",
+    "syllabusOrder": 1,
+    "module": "Early Medieval & Sultanate"
+  },
+  "Delhi Sultanate": {
+    "topic": "Delhi Sultanate",
+    "syllabusOrder": 2,
+    "module": "Early Medieval & Sultanate"
+  },
+  "Vijayanagara & Bahmani": {
+    "topic": "Vijayanagara & Bahmani",
+    "syllabusOrder": 3,
+    "module": "Deccan & Regional States"
+  },
+  "Marathas & Regional States": {
+    "topic": "Marathas & Regional States",
+    "syllabusOrder": 4,
+    "module": "Deccan & Regional States"
+  },
+  "Mughal Empire": {
+    "topic": "Mughal Empire",
+    "syllabusOrder": 5,
+    "module": "The Mughal Era"
+  },
+  "Medieval History – General": {
+    "topic": "Medieval History – General",
+    "syllabusOrder": 6,
+    "module": "General & Survey"
+  }
+}

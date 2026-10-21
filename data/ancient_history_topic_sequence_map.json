@@ -1,0 +1,37 @@
+{
+  "Prehistory & Indus Valley Civilisation": {
+    "topic": "Prehistory & Indus Valley Civilisation",
+    "syllabusOrder": 1,
+    "module": "Prehistory & Early Civilisations"
+  },
+  "Vedic Age": {
+    "topic": "Vedic Age",
+    "syllabusOrder": 2,
+    "module": "Prehistory & Early Civilisations"
+  },
+  "Mahajanapadas & Mauryas": {
+    "topic": "Mahajanapadas & Mauryas",
+    "syllabusOrder": 3,
+    "module": "Heterodox Sects & Empires"
+  },
+  "Buddhism & Jainism": {
+    "topic": "Buddhism & Jainism",
+    "syllabusOrder": 4,
+    "module": "Heterodox Sects & Empires"
+  },
+  "Post-Mauryan & Sangam Age": {
+    "topic": "Post-Mauryan & Sangam Age",
+    "syllabusOrder": 5,
+    "module": "Heterodox Sects & Empires"
+  },
+  "Guptas & Post-Guptas": {
+    "topic": "Guptas & Post-Guptas",
+    "syllabusOrder": 6,
+    "module": "Heterodox Sects & Empires"
+  },
+  "Ancient History – General": {
+    "topic": "Ancient History – General",
+    "syllabusOrder": 7,
+    "module": "General & Survey"
+  }
+}

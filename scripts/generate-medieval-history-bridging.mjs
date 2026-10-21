@@ -1,0 +1,275 @@
+import fs from 'fs';
+import path from 'path';
+
+const bridgingData = {
+  subject: 'Medieval History',
+  nodes: [],
+  newNodesToCreate: [
+    // -------------------------------------------------------------------------
+    // TOPIC 1: Early Medieval Kingdoms (Syllabus Order: 1)
+    // -------------------------------------------------------------------------
+    {
+      title: 'Tripartite Struggle & Northern Dynasties — Palas, Pratiharas & Rashtrakutas',
+      module: 'Early Medieval & Sultanate',
+      topic: 'Early Medieval Kingdoms',
+      syllabusOrder: 1,
+      nodeType: 'STATIC',
+      prelimsNote: [
+        'Tripartite Struggle (8th to 10th century CE): protracted conflict between Gurjara-Pratiharas of Malwa/Rajasthan, Palas of Bengal/Bihar, and Rashtrakutas of Deccan for supremacy over Kannauj (Kanyakubja) in the fertile Gangetic Doab; symbol of imperial sovereignty.',
+        'Pala Empire (founded by Gopala in 750 CE through democratic election by regional chieftains to end Matsyanyaya / law of jungle): Dharmapala founded Vikramashila University and revived Nalanda; Devapala expanded empire to Assam and Utkala; patronized Vajrayana Buddhism; sustained close maritime and cultural relations with Sailendra Empire of Java/Sumatra.',
+        'Gurjara-Pratiharas: founded by Harichandra; Nagabhata I repulsed Arab invasions into Rajasthan/Gujarat; Mihira Bhoja (Bhoja I, c. 836-885 CE) was greatest ruler (devotee of Vishnu, assumed title Adivaraha); Arab traveller Sulaiman visited his court and noted the strength of his cavalry.',
+        'Rashtrakutas of Manyakheta (Malkhed): founded by Dantidurga (performed Hiranyagarbha ritual); Krishna I carved monolithic rock-cut Kailasanatha temple at Ellora (Cave 16); Amoghavarsha I (scholar-king who authored Kavirajamarga - earliest Kannada poetic treatise, and Prashnottara Ratnamalika; praised by Arab merchant Sulaiman as one of the four great monarchs of the world alongside Caliph of Baghdad, Emperor of China, and Emperor of Constantinople).',
+        'Rajput Clans & Terms: Chandellas of Jejakabhukti (Bundelkhand: founded by Nannuka; built Khajuraho temples under Dhanga and Ganda), Paramaras of Malwa (King Bhoja - polymath who authored Samaranganasutradhara on architecture), Gahadavalas of Kannauj (Jaichand; levied Turushkadanda / tax on Muslim subjects or for defense against Turks).'
+      ]
+    },
+    {
+      title: 'Imperial Cholas — Administration, Local Self-Government & Maritime Power',
+      module: 'Early Medieval & Sultanate',
+      topic: 'Early Medieval Kingdoms',
+      syllabusOrder: 1,
+      nodeType: 'STATIC',
+      prelimsNote: [
+        'Dynastic Resurgence: founded by Vijayalaya (850 CE) by capturing Thanjavur from Muttaraiyars; reached imperial apogee under Rajaraja I and Rajendra I.',
+        'Rajaraja I (c. 985-1014 CE): built monumental Brihadisvara / Rajarajesvara Temple at Thanjavur (Dravidian architecture with tallest Vimana); conducted comprehensive land revenue survey; conquered northern Sri Lanka (Anuradhapura made Mummudi Chola Mandalam) and Maldives.',
+        'Rajendra I (c. 1014-1044 CE): completed conquest of entire Sri Lanka; led military expedition to North India up to river Ganga (defeated Mahipala of Bengal; assumed title "Gangaikonda Chola" and founded new capital Gangaikonda Cholapuram with Cholagangam irrigation reservoir); launched naval expedition against maritime kingdom of Srivijaya (Sumatra, Malay peninsula, Kedah) to secure unimpeded Chola maritime trade routes to Song China.',
+        'Chola Village Administration & Uttaramerur Inscription (dated to Parantaka I, 919 & 921 CE): autonomous democratic village assemblies: 1) Ur (general assembly of tax-paying landholders), 2) Sabha / Mahasabha (exclusive assembly of Brahmin landholders in Agrahara / Brahmadeya villages), 3) Nagaram (assembly of merchants and traders in commercial towns).',
+        'Kudavolai System (Electoral lottery): village divided into 30 Wards (Kudumbus); eligible candidates\' names written on palm-leaf tickets and drawn by young boy from pot (Kuda); strict qualification criteria: age (35-70 years), land ownership, residence on own land, Vedic learning; disqualifications: failure to submit accounts of previous committee, committed sins, or moral turpitude; Executive committees (Variyams): Samvatsara-variyam (annual committee), Erivariyam (tank/irrigation committee), Thotta-variyam (garden committee), Pon-variyam (gold/finance committee).'
+      ]
+    },
+    {
+      title: 'Rajput Kingdoms & Turkish Invasions — Ghaznavids, Ghurids & Tarain',
+      module: 'Early Medieval & Sultanate',
+      topic: 'Early Medieval Kingdoms',
+      syllabusOrder: 1,
+      nodeType: 'STATIC',
+      prelimsNote: [
+        'Mahmud of Ghazni: conducted 17 plundering expeditions into North India between 1000 and 1027 CE; sacked Somnath temple in Gujarat (1025 CE) during reign of Chalukya/Solanki king Bhima I; court scholars included Al-Biruni (wrote "Kitab-ul-Hind" / Tarikh-al-Hind: objective encyclopedic survey of Indian sciences, religion, society, and caste system), Firdausi (wrote epic Shahnama), and Utbi.',
+        'Muhammad of Ghur (Mu\'izz al-Din): founder of Muslim dominion in India; conquered Multan and Lahore; advanced toward Delhi and the Doab.',
+        'Battles of Tarain: 1) First Battle of Tarain (1191 CE): Prithviraj Chauhan III (Chahamana ruler of Delhi-Ajmer, immortalized in Chand Bardai\'s Prithviraj Raso) decisively defeated Muhammad Ghuri; 2) Second Battle of Tarain (1192 CE): Ghuri returned with superior Turkish horse-archers and mobility, routed Prithviraj; paved the way for establishment of the Delhi Sultanate.',
+        'Battle of Chandwar (1194 CE): Ghuri defeated Jaichand of Gahadavala dynasty of Kannauj, bringing the central Gangetic plains under Turkish control; Qutbuddin Aibak appointed viceroy of Indian territories; Ikhtiyaruddin Muhammad Bakhtiyar Khalji swept through Bihar and Bengal, sacking the Buddhist monastic universities of Nalanda, Vikramashila, and Odantapuri (c. 1200 CE).'
+      ]
+    },
+    // -------------------------------------------------------------------------
+    // TOPIC 2: Delhi Sultanate (Syllabus Order: 2)
+    // -------------------------------------------------------------------------
+    {
+      title: 'Mamluk (Slave) Dynasty & State Consolidation — Iltutmish to Balban',
+      module: 'Early Medieval & Sultanate',
+      topic: 'Delhi Sultanate',
+      syllabusOrder: 2,
+      nodeType: 'STATIC',
+      prelimsNote: [
+        'Qutbuddin Aibak (1206-1210 CE): slave and general of Muhammad Ghuri; founded Slave / Mamluk Dynasty; assumed title "Lakhbaksh" (giver of lakhs) for immense generosity; laid foundation of Qutb Minar (dedicated to Sufi saint Qutbuddin Bakhtiyar Kaki) and built Quwwat-ul-Islam mosque (Delhi) and Adhai Din Ka Jhonpra (Ajmer); died playing Chaugan (horse polo).',
+        'Shamsuddin Iltutmish (1211-1236 CE, "Real Founder of Delhi Sultanate"): shifted capital from Lahore to Delhi; received Investiture (Mansur) from Abbasid Caliph of Baghdad; organized Turkish nobility into "Turkan-i-Chahalgani" (The Forty / Chalisa); saved nascent Sultanate from Mongol conqueror Chengiz Khan (1221 CE) by diplomatically refusing asylum to Jalaluddin Mangbarani (ruler of Khwarizm); introduced standard Sultanate coinage: silver Tanka (175 grains) and copper Jital; completed Qutb Minar.',
+        'Razia Sultana (1236-1240 CE): daughter of Iltutmish; first and only female Muslim sovereign of Delhi Sultanate; discarded purdah, wore male dress (Kaba and Kulah), rode elephants in public, and held open court; antagonized Turkish Forty by promoting non-Turk Jamaluddin Yaqut (Abyssinian noble) to Amir-i-Akhur (Master of Horse); defeated and killed near Kaithal.',
+        'Ghiyasuddin Balban (1266-1287 CE): broke and destroyed the power of Turkan-i-Chahalgani; propounded exalted divine kingship theory ("Niyabat-i-Khudai" - viceregent of God on Earth; "Zill-i-Ilahi" - shadow of God); instituted strict Persian court etiquette: Sijdah (prostration before monarch) and Paibos (kissing Sultan\'s feet); introduced Persian festival of Nowruz; adopted ruthless "Blood and Iron" policy to eliminate Mewati bandits and recalcitrant Rajput chiefs; reorganized Diwan-i-Arz (military department) headed by Ariz-i-Mumalik; built line of border forts against Mongols.'
+      ]
+    },
+    {
+      title: 'Khalji Dynasty — Alauddin Khalji, Market Control Reforms & Imperial Expansion',
+      module: 'Early Medieval & Sultanate',
+      topic: 'Delhi Sultanate',
+      syllabusOrder: 2,
+      nodeType: 'STATIC',
+      prelimsNote: [
+        'Jalaluddin Khalji (1290-1296 CE): founded Khalji Dynasty via "Khalji Revolution" (ended monopoly of Ilbari Turkish aristocracy, opening high offices to Indo-Muslims and non-Turks); murdered by nephew Alauddin Khalji at Kara.',
+        'Alauddin Khalji (1296-1316 CE): assumed title "Sikandar-i-Sani" (Second Alexander); dreamed of founding a new religion and conquering the world; repulsed multiple ferocious Mongol invasions (defeated commanders like Qutlugh Khwaja and Targhi; built Siri Fort in Delhi).',
+        'Imperial Conquests: Northern India (Gujarat in 1299 under Ulugh Khan and Nusrat Khan, where slave general Malik Kafur / Hazar Dinari was acquired; Ranthambore 1301; Chittor 1303 against Rana Ratan Singh, siege described in Malik Muhammad Jayasi\'s Padmavat; Malwa 1305); Southern Campaigns: led by Malik Kafur (subjugated Yadavas of Devagiri under Ramachandra, Kakatiyas of Warangal under Prataparudra II who surrendered Koh-i-Noor diamond, Hoysalas of Dvarasamudra under Ballala III, and Pandyas of Madurai; forced southern kingdoms to pay annual tribute without direct annexation).',
+        'Market Control & Price Regulation Reforms (Barani\'s Tarikh-i-Firoz Shahi): established 4 separate regulated markets in Delhi: 1) Mandi (foodgrains), 2) Sarai-i-Adl (cloth, sugar, dried fruits, oil), 3) Market for horses, slaves, and cattle, 4) Miscellaneous goods; fixed statutory prices for all commodities; appointed Shahna-i-Mandi (market superintendent) and Barids/Munhiyans (intelligence spies); established state granaries in Delhi to maintain emergency buffer stocks; hoarders and short-weighing shopkeepers severely punished with flesh cut from body.',
+        'Agrarian & Military Reforms: measured land (first Sultan to do so, using Biswa unit); fixed land revenue at 50% of gross produce (Kharaj); confiscated religious and charitable land grants (Inam, Milk, Waqf); created Diwan-i-Mustakhraj to collect revenue arrears; eliminated middleman intermediaries (Khuts, Muqaddams, Chaudharis); instituted Dagh (branding of horses) and Chehra / Huliya (descriptive soldier muster roll) to eliminate fraud in army; paid standing army entirely in cash.'
+      ]
+    },
+    {
+      title: 'Tughlaq Dynasty, Sayyids & Lodis — Administrative Experiments & Decline',
+      module: 'Early Medieval & Sultanate',
+      topic: 'Delhi Sultanate',
+      syllabusOrder: 2,
+      nodeType: 'STATIC',
+      prelimsNote: [
+        'Ghiyasuddin Tughlaq (1320-1325 CE): founded Tughlaq Dynasty; founded Tughlaqabad city; built dams and canals for agriculture; died in pavilion collapse at Afghanpur organized by son Juna Khan.',
+        'Muhammad bin Tughlaq (1325-1351 CE, Juna Khan): visionary yet impetuous intellectual well-versed in astronomy, mathematics, philosophy, and medicine; celebrated 5 radical administrative experiments: 1) Taxation in the Doab (raised taxes during severe drought, triggering peasant rebellion), 2) Transfer of Capital (shifted imperial capital from Delhi to Deogiri / Daulatabad in 1327 to govern South India better; ordered forced mass migration; reversed due to logistical catastrophe and vulnerability of Delhi to Mongols), 3) Token Currency (issued bronze/copper coins with same nominal value as silver Tanka; failed because state lacked royal minting monopoly, leading to widespread counterfeiting at every house), 4) Khurasan Expedition (recruited massive army with 1 year advance salary, cancelled when Central Asian geopolitical landscape shifted), 5) Qarachil Expedition (military campaign into Kumaon/Garhwal hills decimated by mountain terrain, disease, and rains).',
+        'Agrarian Reforms of MBT: established first dedicated agricultural department "Diwan-i-Kohi"; advanced interest-free state agricultural loans "Sondhar" / "Takkavi" to distress-hit farmers to purchase seeds, dig wells, and switch to superior cash crops (grapes/wheat instead of barley). Visited by Moroccan traveler Ibn Battuta (1333-1342 CE), who was appointed Qazi of Delhi and authored "Rihla".',
+        'Firoz Shah Tughlaq (1351-1388 CE): reversed centralisation; appeased Ulema and nobles by making Iqta hereditary; abolished 24 oppressive taxes, levying only 4 Quranic taxes: Kharaj (land tax 10%), Zakat (2.5% tax on Muslims for poor relief), Jizya (poll tax on non-Muslims, extended to Brahmins for first time), and Khams (1/5th of war booty); levied Sharb (irrigation water tax 10% on lands irrigated by royal canals).',
+        'Firoz\'s Public Works & Departments: excavated extensive canal irrigation network (e.g., from Yamuna to Hissar, and Sutlej to Ghaggar); founded new cities: Firozabad, Fatehabad, Jaunpur (named after Juna Khan), Hissar; created Diwan-i-Bandagan (department of 180,000 royal slaves trained in crafts) and Diwan-i-Khairat (charity bureau for orphan girls\' marriages); brought two Ashokan pillars (from Topra and Meerut) to Delhi.',
+        'Invasion of Timur (1398 CE): devastated Delhi, massacred population, and shattered Sultanate hegemony during reign of Nasiruddin Mahmud Tughlaq; paving way for Sayyid Dynasty (founded by Khizr Khan) and Lodi Dynasty (first Afghan/Pathan dynasty in India; Bahlul Lodi, Sikandar Lodi who founded Agra in 1504 and introduced Gaz-i-Sikandari measurement unit, and Ibrahim Lodi who was defeated and killed by Babur in the First Battle of Panipat in 1526).'
+      ]
+    },
+    {
+      title: 'Delhi Sultanate — Administration, Central Departments & The Iqta System',
+      module: 'Early Medieval & Sultanate',
+      topic: 'Delhi Sultanate',
+      syllabusOrder: 2,
+      nodeType: 'STATIC',
+      prelimsNote: [
+        'Central Administrative Organs: Sultan was absolute military commander, supreme judge, and chief executive; assisted by four core ministerial departments: 1) Diwan-i-Wizarat (finance and revenue department headed by Wazir / Prime Minister), 2) Diwan-i-Arz (military department headed by Ariz-i-Mumalik, responsible for recruitment, muster rolls, inspection, and salaries), 3) Diwan-i-Insha (state correspondence, imperial edicts, and royal farmans headed by Dabir-i-Khas), 4) Diwan-i-Rasalat (foreign affairs, diplomatic envoys, and religious appeals); Diwan-i-Qaza headed by Sadr-us-Sudur / Chief Qazi (judicial administration); Barid-i-Mumalik headed imperial intelligence and spy network.',
+        'The Iqta System (Territorial Revenue Assignments): state divided land into Iqtas assigned to military commanders / nobles (Iqtadars, Muqtis, or Walis); not hereditary ownership of land, but the right to collect land revenue from the assigned area; Muqti maintained troops for the Sultan\'s service, paid administrative expenses from revenue, and was legally bound to remit surplus revenue ("Fawazil") to the Sultan\'s central treasury; Khalisa lands were crown lands whose revenue flowed directly into royal treasury.',
+        'Provincial & Local Hierarchy: Sultanate divided into Shiqs (provinces) governed by Shiqdars; Shiqs divided into Parganas (districts) comprising group of villages, headed by Amil (revenue collector) and assisted by Munsif and Qanungo; villages administered by traditional rural intermediaries: Muqaddam (village headman), Patwari (village accountant), and Chaudhari (head of 100 villages).',
+        'Military Technology & Equipment: Munjaniq (catapult / stone thrower) and Arrada (siege engine / ballista) used in siege warfare before gunpowder; iron stirrups (provided stability for horse-mounted archery); horseshoeing; spinning wheel (Charkha) revolutionized yarn spinning in 13th-14th century; Araghatta (water-wheel fitted with pots / Persian wheel geared with bullocks) transformed irrigation in dry tracts.'
+      ]
+    },
+    // -------------------------------------------------------------------------
+    // TOPIC 3: Vijayanagara & Bahmani (Syllabus Order: 3)
+    // -------------------------------------------------------------------------
+    {
+      title: 'Vijayanagara Empire — Foundation, Dynasties & Krishnadeva Raya',
+      module: 'Deccan & Regional States',
+      topic: 'Vijayanagara & Bahmani',
+      syllabusOrder: 3,
+      nodeType: 'STATIC',
+      prelimsNote: [
+        'Foundation & Geopolitics: founded in 1336 CE by brothers Harihara I and Bukka I of Sangama Dynasty on the southern bank of river Tungabhadra (Karnataka), inspired by sage Vidyaranya of Sringeri Peetham; citadel of Hampi (UNESCO World Heritage Site); four successive ruling dynasties: 1) Sangama (1336-1485), 2) Saluva (1485-1505, founded by Saluva Narasimha), 3) Tuluva (1505-1570, founded by Vira Narasimha), 4) Aravidu (1570-1646, founded by Tirumala).',
+        'Krishnadeva Raya (1509-1529 CE, Tuluva Dynasty): greatest emperor of Vijayanagara; assumed titles "Abhinava Bhoja", "Andhra Bhoja", and "Yavana-rajya-sthapana-charya"; subdued rebellious feudatories, conquered Raichur Doab (1520 CE) from Ismail Adil Shah of Bijapur, defeated Gajapati ruler Prataparudra of Odisha and recovered Udayagiri fort.',
+        'Diplomacy & Trade: maintained friendly diplomatic relations with Portuguese Governor Afonso de Albuquerque; permitted Portuguese to build fort at Bhatkal in exchange for exclusive monopoly on importing Arabian and Persian war horses; developed harbor at Nagalapuram (suburb named after mother Nagala Devi).',
+        'Literary & Architectural Splendor under KDR: patronized the "Ashtadiggajas" (eight celebrated Telugu court poets, including Allasani Peddana - "Andhra Kavita Pitamaha" who wrote Manucharitam, and Tenali Ramakrishna who wrote Panduranga Mahatmyam); Krishnadeva Raya himself authored "Amuktamalyada" (masterpiece on Telugu political philosophy and devotion of Andal) and Sanskrit drama "Jambavati Kalyanam"; constructed Vitthala Temple (famous stone chariot and musical pillars) and Hazara Rama Temple at Hampi; constructed massive irrigation dam across Tungabhadra River.',
+        'Battle of Talikota / Rakshasi-Tangadi (23 January 1565): turning point in South Indian history; grand military coalition of four Deccan Sultanates (Bijapur, Golconda, Ahmadnagar, and Bidar; Berar excluded) routed Vijayanagara army under regent Aliya Rama Raya; capital Hampi plundered and sacked; Aravidu dynasty shifted capital to Penukonda and later Chandragiri.'
+      ]
+    },
+    {
+      title: 'Vijayanagara Administration, The Nayankara System, Society & Foreign Travellers',
+      module: 'Deccan & Regional States',
+      topic: 'Vijayanagara & Bahmani',
+      syllabusOrder: 3,
+      nodeType: 'STATIC',
+      prelimsNote: [
+        'The Nayankara System: military-feudal administrative pillar of Vijayanagara; empire divided among military commanders called Amara-nayakas; given territorial land tracts called "Amaram"; Nayakas collected revenue, retained fixed share for maintaining specified quota of foot-soldiers, horses, and elephants for the King, remitted annual tribute to the royal treasury, and attended court festivals (Mahanavami Dibba) with ceremonial gifts.',
+        'The Ayagar System: autonomous village self-government in Karnataka/Andhra; every village functioned as self-contained economic republic governed by a body of 12 village functionaries called "Ayagars" (including headman/Gouda, accountant/Karnam, blacksmith, carpenter, potter, washerman, astrologer); Ayagars granted hereditary tax-free land plots ("Manyam") or grain shares from harvest.',
+        'Mahanavami Dibba: monumental multi-tiered stone platform in royal enclosure at Hampi; focal point of 10-day Navaratri / Mahanavami celebrations where King displayed royal pomp, held weapon worship (Ayudha Puja), inspected armies, witnessed wrestling bouts and animal sacrifices, and received formal homage from Amara-nayakas.',
+        'Social Structure & Women\'s Status: women occupied high and diverse positions; Portuguese chronicler Fernao Nuniz noted women served as royal palace bodyguards, wrestlers, astrologers, accountants, music composers, and judges; child marriage and Sati (Sahagamana / voluntary self-immolation) prevalent among upper nobility.',
+        'Accounts of Foreign Chroniclers: 1) Nicolo de Conti (Italian merchant visited 1420 during Deva Raya I; described city circumference of 60 miles), 2) Abdur Razzaq (ambassador of Persian Timurid ruler Shahrukh visited 1443 during Deva Raya II; remarked "The eye has not seen, nor the ear heard of any place to equal Vijayanagara on earth"), 3) Afanasy Nikitin (Russian merchant visited 1470), 4) Duarte Barbosa (Portuguese official 1518: noted religious freedom and flourishing jewel/pearl trade), 5) Domingo Paes (Portuguese visitor 1520: compared Hampi\'s size to Rome), 6) Fernao Nuniz (Portuguese horse-trader 1535: chronicled social history and female palace staff under Achyuta Deva Raya).'
+      ]
+    },
+    {
+      title: 'Bahmani Kingdom & The Deccan Sultanates',
+      module: 'Deccan & Regional States',
+      topic: 'Vijayanagara & Bahmani',
+      syllabusOrder: 3,
+      nodeType: 'STATIC',
+      prelimsNote: [
+        'Foundation & Expansion: founded in 1347 CE by Alauddin Hasan Bahman Shah (Hasan Gangu, an Afghan noble who rebelled against Muhammad bin Tughlaq); established capital at Gulbarga (Ahsanabad) and later shifted to Bidar (1422 CE) by Ahmad Shah Wali.',
+        'Geopolitical Rivalry: incessant warfare with Vijayanagara Empire over three strategic border zones: 1) Raichur Doab (fertile land between Krishna and Tungabhadra rivers), 2) Krishna-Godavari Delta (rich agricultural basin with coastal ports), 3) Konkan coastal strip (strategic trade gateway for importing Persian/Arabian war horses).',
+        'Mahmud Gawan (Prime Minister / Khwaja Jahan, 1466-1481 CE): Persian merchant turned premier statesman; reformed administration by dividing kingdom into 8 Tarafs (provinces) to curb over-mighty provincial governors; built grand three-storeyed Madrasa at Bidar (Islamic college with library of 3,000 manuscripts); executed unjustly due to court factionalism between Afaqis (newcomers/Persians) and Deccanis (indigenous nobles).',
+        'Breakup into Five Deccan Sultanates (late 15th-early 16th century): 1) Nizam Shahi of Ahmadnagar (founded by Malik Ahmad, 1490; heroically defended by Chand Bibi against Akbar; annexed by Shah Jahan in 1636), 2) Adil Shahi of Bijapur (founded by Yusuf Adil Shah, 1490; patronized Dakhni Urdu; built Gol Gumbaz with world\'s second largest dome and whispering gallery, and Ibrahim Rauza; annexed by Aurangzeb in 1686), 3) Qutb Shahi of Golconda (founded by Quli Qutb Shah, 1512; built Charminar and Golconda Fort; world center of diamond trading; annexed by Aurangzeb in 1687), 4) Barid Shahi of Bidar (founded by Qasim Barid, 1492), 5) Imad Shahi of Berar (founded by Fatullah Imad-ul-Mulk, 1490; absorbed by Ahmadnagar in 1574).'
+      ]
+    },
+    // -------------------------------------------------------------------------
+    // TOPIC 4: Marathas & Regional States (Syllabus Order: 4)
+    // -------------------------------------------------------------------------
+    {
+      title: 'Rise of the Marathas — Chhatrapati Shivaji Maharaj & Maratha Swarajya',
+      module: 'Deccan & Regional States',
+      topic: 'Marathas & Regional States',
+      syllabusOrder: 4,
+      nodeType: 'STATIC',
+      prelimsNote: [
+        'Chhatrapati Shivaji Maharaj (1630-1680 CE): born at Shivneri Fort to Shahaji Bhonsle and Jijabai; inspired by saint-poets of Varkari movement (Tukaram, Ramdas); carved sovereign Maratha kingdom ("Hindavi Swarajya") against Bijapur Sultanate and Mughal Empire through hill-fort strategy (Torna, Raigad, Sinhagad, Pratapgad).',
+        'Military Breakthroughs: killed Bijapur general Afzal Khan at Pratapgad (1659) using Bagh-nakh (tiger claws); wounded Mughal governor Shaista Khan in night raid at Lal Mahal, Pune (1663); sacked Mughal port of Surat twice (1664 & 1670); master of guerrilla warfare / light mobile cavalry ("Ganimi Kava").',
+        'Treaty of Purandar (1665): negotiated with Rajput general Mirza Raja Jai Singh of Amber on behalf of Aurangzeb; Shivaji surrendered 23 out of 35 hill forts to Mughals; retained 12 forts; sent son Sambhaji as Mughal mansabdar of 5,000; escaped from house arrest at Agra in sweetmeat baskets (1666).',
+        'Coronation & Administrative Institutions (1674): crowned as Chhatrapati at Raigad by Brahmin scholar Gaga Bhatta; assumed titles "Haidava Dharmoddharak" (Protector of Hindu Faith) and "Kshatriya Kulavantas"; created Council of Eight Ministers (Ashtapradhan): 1) Peshwa / Mukhya Pradhan (Prime Minister / general administration), 2) Amatya / Mazumdar (Finance and Revenue Minister), 3) Sachiv / Sur-Nis (Imperial correspondence / record-keeper), 4) Mantri / Waqia-Navis (Interior Minister / intelligence), 5) Senapati / Sar-i-Naubat (Commander-in-Chief), 6) Sumant / Dabir (Foreign Minister), 7) Nyayadhish (Chief Justice), 8) Panditrao / Danadhyaksha (Ecclesiastical affairs and charities); all except Nyayadhish and Panditrao held military commands.',
+        'Revenue System: abolished Jagirdari / Zamindari intermediaries; revenue assessed directly on peasants using Kathi (measuring rod); levied two external tributary taxes: 1) Chauth (one-fourth / 25% of standard land revenue demanded from non-Maratha neighboring territories in return for immunity from Maratha raids), 2) Sardeshmukhi (additional 10% levy claimed by Shivaji as hereditary supreme head / Sardeshmukh of Maharashtra).'
+      ]
+    },
+    {
+      title: 'The Peshwas, Maratha Confederacy & 18th-Century Successor States',
+      module: 'Deccan & Regional States',
+      topic: 'Marathas & Regional States',
+      syllabusOrder: 4,
+      nodeType: 'STATIC',
+      prelimsNote: [
+        'Succession & Rise of Peshwas: Shivaji succeeded by Sambhaji (captured and executed by Aurangzeb in 1689), Rajaram, and Tarabai (who led heroic Maratha resistance); Shahu released by Mughals in 1707; appointed Balaji Vishwanath as Peshwa (1713), transforming office into hereditary de facto executive leadership with capital at Pune.',
+        'Baji Rao I (1720-1740 CE, "Fighting Peshwa"): champion of "Hindu Pad Padshahi"; expounded forward offensive policy into North India ("Let us strike at the trunk of the withering tree, and the branches will fall of themselves"); defeated Nizam-ul-Mulk at Palkhed (1728) and Bhopal (1737); conquered Malwa and Gujarat; established Maratha Confederacy of semi-autonomous military families: Gaekwads of Baroda, Scindias / Shindes of Gwalior, Holkars of Indore, Bhonsles of Nagpur, and Peshwas of Pune.',
+        'Third Battle of Panipat (14 January 1761): Afghan invader Ahmad Shah Abdali routed Maratha army commanded by Sadashivrao Bhau and Vishwasrao; artillery led by Ibrahim Khan Gardi; shattered Maratha dream of pan-Indian empire; created geopolitical vacuum exploited by British East India Company.',
+        '18th-Century Regional Successor States: 1) Hyderabad (founded 1724 by Chin Qilich Khan / Nizam-ul-Mulk Asaf Jah by defeating Mughal governor Mubariz Khan at Shakr Kheda), 2) Bengal (founded by Murshid Quli Khan, who made Murshidabad capital and introduced Ijara revenue farming; followed by Shujauddin and Alivardi Khan), 3) Awadh (founded 1722 by Saadat Khan Burhan-ul-Mulk; followed by Safdarjung and Shuja-ud-Daula; Lucknow cultural renaissance), 4) Mysore (rise of Hyder Ali in 1761 and Tipu Sultan; modernized army with French aid, built rocket artillery, planted Tree of Liberty at Srirangapatna, and joined Jacobin Club).'
+      ]
+    },
+    // -------------------------------------------------------------------------
+    // TOPIC 5: Mughal Empire (Syllabus Order: 5)
+    // -------------------------------------------------------------------------
+    {
+      title: 'Foundation of Mughal Rule & Sur Interregnum — Babur to Sher Shah Suri',
+      module: 'The Mughal Era',
+      topic: 'Mughal Empire',
+      syllabusOrder: 5,
+      nodeType: 'STATIC',
+      prelimsNote: [
+        'Babur (Zahiruddin Muhammad Babur, 1526-1530 CE): descendant of Timur (father\'s side) and Chengiz Khan (mother\'s side); ruler of Ferghana; defeated Ibrahim Lodi in the First Battle of Panipat (21 April 1526) using field artillery, matchlocks, and Tulughma flanking battle tactics; defeated Rana Sanga of Mewar at Battle of Khanwa (1527, declared Jihad and assumed title Ghazi), Medini Rai at Chanderi (1528), and Afghan chiefs at Battle of Ghaghra (1529); authored candid autobiography "Tuzk-i-Baburi" / Baburnama in Chaghatai Turkic; introduced formal charbagh garden layout (Aram Bagh, Agra).',
+        'Humayun (1530-1540 & 1555-1556 CE): built Dinpanah city at Delhi; defeated by Afghan leader Sher Khan at Battle of Chausa (1539) and Battle of Kannauj / Bilgram (1540); lived in exile in Safavid Persia; reconquered Delhi in 1555 with Persian military assistance; died falling from library staircase at Sher Mandal.',
+        'Sher Shah Suri & The Second Afghan Empire (1540-1545 CE): peerless administrative reformer; divided empire into 47 Sarkars, each subdivided into Parganas; appointed Shiqdar-i-Shiqdaran (law and order) and Munsif-i-Munsifan (revenue justice) at Sarkar level, and Shiqdar and Amil at Pargana level; built network of paved highways, notably Sadak-e-Azam (Grand Trunk Road running from Sonargaon in Bengal to Attock/Peshawar), flanked by shady trees, wells, and 1,700 Sarais (inns providing food and security to Hindu and Muslim travelers, doubling as dak-chaukis / postal stations).',
+        'Economic & Currency Breakthroughs under Sher Shah: introduced standard pure silver coin named "Rupiya" (weighing 178 grains of silver, which remained standard throughout Mughal and British rule) and copper "Dam" (380 grains); introduced Patta (deed of lease formalizing peasant land tenure) and Qabuliyat (deed of agreement pledging tax payment); surveyed arable land and fixed tax at 1/3rd of produce; built Purana Qila at Delhi (including Qila-i-Kuhna mosque); buried in magnificent octagonal mausoleum set in artificial lake at Sasaram (Bihar).'
+      ]
+    },
+    {
+      title: 'Akbar\'s Age — State Consolidation, Mansabdari System & Din-i-Ilahi',
+      module: 'The Mughal Era',
+      topic: 'Mughal Empire',
+      syllabusOrder: 5,
+      nodeType: 'STATIC',
+      prelimsNote: [
+        'Accession & Early Conquests: Akbar crowned at Kalanaur (Punjab) at age 13 in 1556 under regent Bairam Khan (Khan-i-Khanan); defeated Hemu (Vikramaditya) in the Second Battle of Panipat (November 1556); conquered Malwa, Gondwana (Rani Durgavati), Gujarat (1572 - built Buland Darwaza at Fatehpur Sikri to commemorate victory), Bengal (1576), and Kashmir.',
+        'The Mansabdari System (Military-Bureaucratic Backbone): introduced in 1571; single integrated cadre for all civil and military officers; every officer given dual numeric rank: 1) Zat (determined personal status, rank in court hierarchy, and salary), 2) Sawar (indicated the actual number of horsemen / cavalry troops the mansabdar was required to maintain for the Emperor); Sawar rank could never exceed Zat rank; Dagh (branding of horses) and Chehra (descriptive rolls) strictly enforced; paid via cash (Naqd) or revenue assignments (Jagir); ranks ranged from 10 to 10,000 (highest reserved for royal princes).',
+        'Zabti / Dahsala Land Revenue System (formulated by Raja Todar Mal, 1580): calculated average produce and average prices of each crop over the preceding 10 years (1570-1580); state demand fixed at one-third of average yield, payable in cash; measured land using bamboo rod with iron rings (Tanab); classified agricultural land into 4 categories based on cultivation frequency: 1) Polaj (cultivated continuously every year), 2) Parauti (left fallow for 1-2 years to recover fertility), 3) Chachar (left fallow for 3-4 years), 4) Banjar (uncultivated for 5 or more years).',
+        'Religious Syncretism & Evolution: abolished pilgrimage tax (1563) and Jizya (1564); constructed Ibadat Khana (Hall of Worship) at Fatehpur Sikri in 1575 for theological debates (initially Sunni Muslims, opened in 1578 to Purushottam/Devi for Hinduism, Rodolfo Aquaviva/Antonio Monserrate for Christianity, Meherji Rana for Zoroastrianism, and Hira Vijaya Suri for Jainism); issued "Mahzar" (Infallibility Decree, 1579, drafted by Sheikh Mubarak) declaring Akbar the final arbiter (Imam-i-Adil) in religious disputes; propounded "Sulh-i-Kul" (Universal Peace and goodwill toward all religions); formulated "Tauhid-i-Ilahi" / "Din-i-Ilahi" (1582, ethical spiritual fraternity centered on monotheism and moral virtue; Birbal was only Hindu noble to join).',
+        'Court Literature & Translators: Abul Fazl authored "Akbarnama" and "Ain-i-Akbari" (detailed gazetteer of administration); Maktab Khana (translation bureau) translated Sanskrit epics: Mahabharata translated into Persian as "Razmnama" by Badauni and Faizi; Rajatarangini, Lilavati, and Panchatantra translated into Persian.'
+      ]
+    },
+    {
+      title: 'Later Mughal Era & European Travellers — Jahangir to Aurangzeb',
+      module: 'The Mughal Era',
+      topic: 'Mughal Empire',
+      syllabusOrder: 5,
+      nodeType: 'STATIC',
+      prelimsNote: [
+        'Jahangir (1605-1627 CE, Prince Salim): installed "Zanjir-i-Adl" (Chain of Justice) at Agra fort for direct public petitioning; executed 5th Sikh Guru Arjan Dev (1606) for blessing rebellious son Khusrau; golden age of Mughal miniature painting (court painters: Ustad Mansur renowned for flora and fauna, Bishandas for portraits, and Abul Hasan); shifted emphasis from manuscript illustrations to individual albums (Muraqqa); authored autobiography "Tuzk-i-Jahangiri"; introduced "Du-aspa Sih-aspa" system in Mansabdari (allowed select mansabdars to maintain double cavalry without raising their Zat rank); married Nur Jahan (Mehr-un-Nisa), who formed the powerful "Junta" clique.',
+        'Shah Jahan (1628-1658 CE, Prince Khurram): golden age of Mughal architecture; built Taj Mahal (dedicated to Mumtaz Mahal, chief architect Ustad Ahmad Lahori), Red Fort and Jama Masjid at Delhi, Moti Masjid at Agra, and Peacock Throne (Takht-i-Taus); annexed Ahmadnagar (1636); sent expeditions to Balkh and Badakhshan; war of succession between 4 sons (Dara Shikoh, Shuja, Aurangzeb, Murad Bakhsh; Battle of Samugarh 1658 where Aurangzeb triumphed; Dara Shikoh was Upanishadic scholar who translated 50 Upanishads into Persian as "Sirr-i-Akbar" / Great Secret, and authored "Majma-ul-Bahrain" / Mingling of Two Oceans).',
+        'Aurangzeb Alamgir (1658-1707 CE): expansionist and puritanical monarch; assumed title "Alamgir" (Conqueror of the World); banned court music, dancing, Nauroz celebrations, astrology, and Jharokha Darshan; appointed Muhtasibs (public censors of moral conduct); re-imposed Jizya (1679) and pilgrimage tax; executed 9th Sikh Guru Tegh Bahadur (1675) for resisting forced conversions; spent last 25 years (1681-1707) bogged down in the "Deccan Ulcer" annexing Bijapur (1686) and Golconda (1687) while fighting relentless Marathas; commissioned "Fatawa-i-Alamgiri" (comprehensive digest of Islamic jurisprudence); built Badshahi Mosque (Lahore), Moti Masjid (Red Fort, Delhi), and Bibi Ka Maqbara (Aurangabad).',
+        'Foreign Chroniclers of the Mughal Court: 1) William Hawkins (1608-1611) and Sir Thomas Roe (1615-1619, ambassador of King James I to Jahangir\'s court seeking trading concessions for East India Company), 2) Francois Bernier (French physician to Prince Dara Shikoh and later Aurangzeb; authored "Travels in the Mogul Empire"; argued that state ownership of all land in India stifled private commerce and caused rural ruin; described royal workshops / Karkhanas), 3) Jean-Baptiste Tavernier (French gem merchant who visited India 6 times; gave exhaustive account of diamond mines of Golconda, particularly Kollur mine, and Peacock Throne), 4) Niccolao Manucci (Italian physician and artilleryman; authored "Storia do Mogor").'
+      ]
+    },
+    // -------------------------------------------------------------------------
+    // TOPIC 6: Medieval History – General (Syllabus Order: 6)
+    // -------------------------------------------------------------------------
+    {
+      title: 'Medieval Agrarian Economy, Revenue Terminology & Rural Hierarchy',
+      module: 'General & Survey',
+      topic: 'Medieval History – General',
+      syllabusOrder: 6,
+      nodeType: 'STATIC',
+      prelimsNote: [
+        'Agrarian Social Stratification: rural society divided into: 1) Khudkasht (resident owner-cultivators owning their own bullocks and agricultural implements; paid revenue at customary concessional rates), 2) Pahi-kasht (non-resident tenant farmers cultivating lands in other villages on contractual terms), 3) Muzarian (landless agricultural tenants/sharecroppers dependent on village elites), 4) Upari (in Maharashtra, tenant farmers possessing temporary cultivation rights without hereditary land ownership).',
+        'Village Officials & Intermediaries: Muqaddam (village headman responsible for maintaining order and collecting revenue from peasants), Patwari (village accountant maintaining Bahi / land records of crops, yields, and taxes), Chaudhari (hereditary revenue officer over a Pargana / cluster of villages), Qanungo (custodian of revenue records and local land measurement customs at Pargana level), Mahattara and Pattakila (village elders and headmen in early medieval epigraphs).',
+        'Revenue Assignment Categories: 1) Jagir (territorial land revenue assignment given to mansabdars in lieu of cash salary; non-hereditary and transferable every 3-4 years to prevent entrenched local power bases), 2) Watan Jagir (hereditary, non-transferable jagir granted to autonomous indigenous rulers like Rajput Rajas in their ancestral home territories), 3) Altamgha Jagir (perpetual, hereditary royal grant), 4) Madadd-i-Maash / Sayurghal / Inam (tax-free charitable land grants to scholars, religious divines, and pious institutions), 5) Khalisa (crown lands whose revenues flowed directly to imperial treasury).',
+        'Credit & Commercial Instruments: Hundi (indigenous credit instrument / bill of exchange developed by Indian merchants; carried unconditional promise to pay a specified sum to the bearer or named person at a future date in another city; operated without physical transport of silver bullion; functioned as credit, money remittance, and transit insurance against robbery; discounted in financial markets by Sarrafs / indigenous bankers).'
+      ]
+    },
+    {
+      title: 'Trade Networks, Merchant Guilds & Technology in Medieval India',
+      module: 'General & Survey',
+      topic: 'Medieval History – General',
+      syllabusOrder: 6,
+      nodeType: 'STATIC',
+      prelimsNote: [
+        'South Indian Merchant Guilds: powerful autonomous trade corporations operating extensive cross-border trade: 1) Manigramam (flourished in coastal Tamil Nadu and Kerala; conducted maritime commerce across Indian Ocean and Southeast Asia), 2) Nanadesi (trans-regional guild of merchants from diverse countries), 3) Ayyavole 500 (Five Hundred Lords of Aihole: apex merchant guild federating merchants across Karnataka, Deccan, and Southeast Asia; maintained armed guards / Virakodiyar to protect caravans), 4) Anjuvannam (merchant guild of West Asian traders: Jews, Christians, Muslims on Malabar coast).',
+        'Inland Trade & Logistics: Banjaras (itinerant pastoralist and grain merchant caravans who transported grain, salt, and supplies across hundreds of miles using bullock caravans called Tandas; critical for supplying Mughal armies during imperial campaigns); major riverine transit on Ganga, Yamuna, and Indus; ports of Surat ("Gateway to Mecca" / Bandar Mubarak, principal Mughal commercial port), Cambay, Bharuch, Calicut, Masulipatnam, and Hooghly.',
+        'Artisanal & Textile Technology: India was world\'s workshop for cotton textiles (calico, chintz, muslin); introduction of the Charkha (spinning wheel with crank and belt drive in 13th-14th century) multiplied yarn production sixfold; drawloom enabled complex pattern weaving; block printing and tie-dye (Bandhani); sericulture / silk rearing introduced into Bengal in 15th century.',
+        'Material Innovations: Paper manufacturing (introduced by Turks in 13th century, replacing palm-leaf and birch-bark manuscripts); Distillation of liquor and rose water (Arq-i-Gulab invented by Nur Jahan\'s mother Asmat Begum); true arch, dome, and vault construction using lime mortar (surkhi) transformed architecture; iron stirrups, nailed horseshoes, and Damascus crucible steel (Wootz steel for swords).'
+      ]
+    }
+  ]
+};
+
+const outputDir = path.resolve('./data');
+if (!fs.existsSync(outputDir)) {
+  fs.mkdirSync(outputDir, { recursive: true });
+}
+
+const outputPath = path.join(outputDir, 'medieval_history_node_bridging.json');
+fs.writeFileSync(outputPath, JSON.stringify(bridgingData, null, 2), 'utf8');
+console.log(`✅ Saved Medieval History bridging data to ${outputPath} (${bridgingData.newNodesToCreate.length} nodes)`);
+
+// Also save to /Users/nikhilwandhe/Downloads/medieval_history_node_bridging.json
+const downloadsPath = '/Users/nikhilwandhe/Downloads/medieval_history_node_bridging.json';
+try {
+  fs.writeFileSync(downloadsPath, JSON.stringify(bridgingData, null, 2), 'utf8');
+  console.log(`✅ Copied Medieval History bridging data to ${downloadsPath}`);
+} catch (e) {
+  console.warn(`Could not write to downloads: ${e.message}`);
+}
