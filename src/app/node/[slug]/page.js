@@ -1,6 +1,7 @@
 import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { CURATED_MAPPING_NODES } from '@/lib/static-mapping-data';
 import './node-detail.css';
 
 export async function generateMetadata({ params }) {
@@ -36,6 +37,10 @@ export default async function NodeDetailPage({ params }) {
   const themes = metadata.keyThemes || [];
   const subtopics = metadata.subtopics || [];
   const gsPapers = node.gsPapers || [];
+
+  const mappedPlaces = CURATED_MAPPING_NODES.filter(
+    (m) => m.linkedIssueSlug === slug || m.linkedIssueSlug === node.slug
+  );
 
   return (
     <div className="node-detail-page">
@@ -101,13 +106,24 @@ export default async function NodeDetailPage({ params }) {
               </ul>
             </section>
 
-            <section className="node-section content-status">
-              <h2 className="section-title">Study Material</h2>
-              <div className="coming-soon-box">
-                <p>Full AI-synthesized study material for <strong>{node.title}</strong> is being calibrated.</p>
-                <Link href={`/issues/${node.slug}`} className="legacy-link">View Legacy Notes →</Link>
-              </div>
-            </section>
+            {node.prelimsNote ? (
+              <section className="node-section" style={{ background: '#f8fafc', borderRadius: 12, padding: 22, border: '1px solid #e2e8f0' }}>
+                <h2 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#0f172a', marginBottom: 16 }}>
+                  <span>🎯</span> High-Yield Prelims Focus Points
+                </h2>
+                <div style={{ whiteSpace: 'pre-line', fontSize: 14.5, lineHeight: 1.7, color: '#334155' }}>
+                  {node.prelimsNote}
+                </div>
+              </section>
+            ) : (
+              <section className="node-section content-status">
+                <h2 className="section-title">Study Material</h2>
+                <div className="coming-soon-box">
+                  <p>Full AI-synthesized study material for <strong>{node.title}</strong> is being calibrated.</p>
+                  <Link href={`/issues/${node.slug}`} className="legacy-link">View Legacy Notes →</Link>
+                </div>
+              </section>
+            )}
           </div>
 
           <aside className="node-sidebar">
@@ -118,6 +134,39 @@ export default async function NodeDetailPage({ params }) {
                 <button className="action-btn bookmark">Bookmark for Revision</button>
               </div>
             </div>
+
+            {mappedPlaces.length > 0 && (
+              <div className="sidebar-card">
+                <h3>📍 Mapped GIS Places ({mappedPlaces.length})</h3>
+                <p style={{ fontSize: 12, color: '#64748b', marginBottom: 10 }}>
+                  Directly linked spatial features with coordinates and PYQ evidence.
+                </p>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {mappedPlaces.map((p) => (
+                    <Link
+                      key={p.id}
+                      href={`/atlas?node=${p.slug}`}
+                      style={{
+                        display: 'block',
+                        padding: '10px 12px',
+                        background: '#f8fafc',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: 8,
+                        fontSize: 12.5,
+                        textDecoration: 'none',
+                        color: '#1e293b',
+                        transition: 'border-color 0.15s ease',
+                      }}
+                    >
+                      <div style={{ fontWeight: 700, color: '#0f172a' }}>{p.place}</div>
+                      <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+                        {p.placeType} · {p.similarPYQ?.length || 0} PYQs
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="sidebar-card">
               <h3>Exam Metadata</h3>

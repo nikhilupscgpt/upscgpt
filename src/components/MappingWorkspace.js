@@ -418,6 +418,27 @@ export default function MappingWorkspace({
           setAllNodes(uniqueNodes);
           setAllPyqs(Array.isArray(data.pyqs) ? data.pyqs : []);
           setOrganizations(Array.isArray(data.organizations) ? data.organizations : []);
+
+          // Auto-select node if requested via query parameter (?node=... or ?slug=...)
+          if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            const target = params.get('node') || params.get('slug') || params.get('place');
+            if (target) {
+              const matched = uniqueNodes.find(
+                (n) => n.slug === target || n.id === target || n.linkedIssueSlug === target
+              );
+              if (matched) {
+                setSelectedNode(matched);
+                if (typeof matched.lat === 'number' && typeof matched.lng === 'number') {
+                  setCameraTarget({
+                    center: [matched.lat, matched.lng],
+                    zoom: 7.2,
+                    ts: Date.now(),
+                  });
+                }
+              }
+            }
+          }
         }
       } catch (err) {
         console.error('Failed to load mapping workspace:', err);
@@ -2938,6 +2959,91 @@ export default function MappingWorkspace({
                         ⚠️ Examiner&apos;s trap:{' '}
                       </strong>
                       <span>{examinerTrapText}</span>
+                    </div>
+                  )}
+
+                  {/* CONNECTED NEURAL GRAPH NODE */}
+                  {selectedNode.linkedIssueSlug && (
+                    <div
+                      style={{
+                        background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)',
+                        border: '1px solid #a7f3d0',
+                        borderRadius: 10,
+                        padding: '11px 14px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 12,
+                      }}
+                    >
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div
+                          style={{
+                            fontSize: 10,
+                            fontWeight: 800,
+                            letterSpacing: '0.06em',
+                            textTransform: 'uppercase',
+                            color: '#047857',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 5,
+                            marginBottom: 2,
+                          }}
+                        >
+                          <span>🧠</span>
+                          <span>CONNECTED NEURAL NODE</span>
+                          <span
+                            style={{
+                              background: '#d1fae5',
+                              color: '#065f46',
+                              fontSize: 9.5,
+                              padding: '1px 5px',
+                              borderRadius: 4,
+                              fontWeight: 700,
+                            }}
+                          >
+                            {selectedNode.linkedIssueDomain || selectedNode.subject}
+                          </span>
+                        </div>
+                        <div
+                          style={{
+                            fontSize: 13,
+                            fontWeight: 700,
+                            color: '#064e3b',
+                            lineHeight: 1.35,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                          }}
+                          title={selectedNode.linkedIssueTitle}
+                        >
+                          {selectedNode.linkedIssueTitle || selectedNode.linkedIssueSlug}
+                        </div>
+                        <div style={{ fontSize: 11, color: '#059669', marginTop: 1 }}>
+                          Syllabus Theory & Previous Year Questions
+                        </div>
+                      </div>
+                      <a
+                        href={`/node/${selectedNode.linkedIssueSlug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 4,
+                          padding: '6px 12px',
+                          background: '#059669',
+                          color: '#ffffff',
+                          borderRadius: 7,
+                          fontSize: 12,
+                          fontWeight: 700,
+                          textDecoration: 'none',
+                          flexShrink: 0,
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                        }}
+                      >
+                        Explore Node →
+                      </a>
                     </div>
                   )}
 

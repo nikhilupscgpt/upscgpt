@@ -151,6 +151,9 @@ export async function GET() {
         upscAngle: p.upscAngle || null,
         similarPYQ: p.similarPYQ || [],
         resolvedSimilarPYQs: resolvedPyqs,
+        linkedIssueSlug: p.linkedIssueSlug || staticMatch?.linkedIssueSlug || null,
+        linkedIssueTitle: p.linkedIssueTitle || staticMatch?.linkedIssueTitle || null,
+        linkedIssueDomain: p.linkedIssueDomain || staticMatch?.linkedIssueDomain || null,
       };
     });
 
