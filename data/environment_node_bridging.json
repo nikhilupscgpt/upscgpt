@@ -1,0 +1,698 @@
+{
+  "subject": "Environment",
+  "nodes": [
+    {
+      "nodeId": "cmopjvont00biz3r0y5y35jk5",
+      "title": "Ecosystem Concepts — Food Chains, Trophic Levels & Ecological Pyramids",
+      "syllabusOrder": 1,
+      "topic": "Ecology & Ecosystems",
+      "prelimsNote": [
+        "Ecosystem = biotic + abiotic components interacting as a unit (UPSC 2015); decomposers (bacteria, fungi) recycle nutrients (UPSC 2013).",
+        "10% law (Lindeman): only ~10% of energy passes to the next trophic level — food chains rarely exceed 4–5 links (UPSC 2013).",
+        "Pyramid of energy is always upright; pyramid of biomass is inverted in aquatic ecosystems (phytoplankton < zooplankton); pyramid of numbers inverted in a tree ecosystem.",
+        "Correct marine sequence: diatoms → crustaceans → herrings (UPSC 2014); detritivores include earthworms, dung beetles, woodlice (UPSC 2021).",
+        "Phytoplankton are the main primary producers of the oceans and a major carbon sink (UPSC 2012, 2021)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvpqk00byz3r0t0atd5wk",
+      "title": "Biogeochemical Cycles — Carbon, Nitrogen, Water & Phosphorus",
+      "syllabusOrder": 1,
+      "topic": "Ecology & Ecosystems",
+      "prelimsNote": [
+        "Carbon is added to the atmosphere by respiration, volcanic action and decay of organic matter — photosynthesis removes it (UPSC 2014).",
+        "Nitrogen enters soil via lightning, nitrogen-fixing bacteria (Rhizobium in legumes), cyanobacteria like Nostoc (UPSC 2013).",
+        "Phosphorus cycle has no atmospheric phase — it is a sedimentary cycle (weathering of rocks); UPSC 2021.",
+        "Agricultural soils release nitrogen oxides and cattle release ammonia (UPSC 2019).",
+        "Sulphur cycle: SO₂ from fossil fuels returns as acid rain."
+      ]
+    },
+    {
+      "nodeId": "cmopjvons00bcz3r01v97eb3m",
+      "title": "Ecologically Sensitive Areas — ESZ, Biodiversity Hotspots",
+      "syllabusOrder": 2,
+      "topic": "Biodiversity & Conservation",
+      "prelimsNote": [
+        "Hotspot criteria (Norman Myers/CI): at least 1,500 endemic vascular plants and ≥70% of original habitat lost (UPSC 2011).",
+        "India's 4 hotspots: Himalaya, Indo-Burma, Western Ghats–Sri Lanka, Sundaland (Nicobar Islands).",
+        "Eco-Sensitive Zones are notified under the Environment (Protection) Act 1986 — not under the Wildlife Protection Act (UPSC 2014).",
+        "Gadgil (WGEEP, 2011) and Kasturirangan (HLWG, 2013) reports dealt with protecting the Western Ghats (UPSC 2016).",
+        "ESZs extend up to 10 km around protected areas (default guideline)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvons00bdz3r0fh13bekn",
+      "title": "Biodiversity — Types, Importance & Threats",
+      "syllabusOrder": 2,
+      "topic": "Biodiversity & Conservation",
+      "prelimsNote": [
+        "Levels: genetic, species, ecosystem diversity; alpha (within community), beta (between communities), gamma (regional).",
+        "Diversity increases towards the equator and decreases with altitude (UPSC 2011).",
+        "Ecosystem services: provisioning, regulating, cultural, supporting (Millennium Ecosystem Assessment — UPSC 2012).",
+        "Himalayas lie at the meeting point of Palaearctic, Indo-Malayan and Ethiopian realms (UPSC 2011).",
+        "India: ~2.4% of world land area, ~7–8% of recorded species; one of 17 megadiverse countries."
+      ]
+    },
+    {
+      "nodeId": "cmopjvons00bez3r080zetoxx",
+      "title": "Biodiversity Loss — Causes, IPBES Reports & India's Status",
+      "syllabusOrder": 2,
+      "topic": "Biodiversity & Conservation",
+      "prelimsNote": [
+        "Main drivers (HIPPO): habitat loss, invasive species, pollution, population, over-exploitation; climate change adds to them.",
+        "IPBES (2019) Global Assessment: about 1 million species threatened with extinction.",
+        "'Sixth mass extinction' refers to human-driven over-exploitation, habitat loss and climate change (UPSC 2018).",
+        "Kunming–Montreal Global Biodiversity Framework (CBD COP15, 2022): '30 by 30' — protect 30% of land and sea by 2030."
+      ]
+    },
+    {
+      "nodeId": "cmopjvons00bfz3r05e2b5wcm",
+      "title": "In-Situ Conservation — National Parks, Wildlife Sanctuaries, Tiger Reserves",
+      "syllabusOrder": 2,
+      "topic": "Biodiversity & Conservation",
+      "prelimsNote": [
+        "National parks: no grazing or human activity, no collection of forest produce; sanctuaries allow some activities (UPSC 2012).",
+        "Biosphere Reserves (UNESCO MAB): core, buffer and transition zones; best strategy to conserve biodiversity with traditional human life (UPSC 2014).",
+        "Project Tiger 1973; tiger reserves notified by States on NTCA's recommendation; Nagarjunasagar–Srisailam is the largest tiger reserve (critical tiger habitat area — UPSC 2020).",
+        "Project Elephant 1992; MIKE (Monitoring Illegal Killing of Elephants) under CITES; M-STrIPES is a tiger-reserve monitoring app (UPSC 2017).",
+        "Community and Conservation Reserves added by the WPA amendment of 2002."
+      ]
+    },
+    {
+      "nodeId": "cmopjvont00bhz3r0qeqlghmg",
+      "title": "Ex-Situ Conservation — Zoos, Gene Banks & Seed Vaults",
+      "syllabusOrder": 2,
+      "topic": "Biodiversity & Conservation",
+      "prelimsNote": [
+        "Ex-situ = outside natural habitat: botanical gardens (UPSC 2011), zoos, gene banks, seed banks, cryopreservation (−196 °C liquid nitrogen).",
+        "Svalbard Global Seed Vault (Norway) stores duplicate seed samples; ICAR-NBPGR (New Delhi) holds India's national gene bank.",
+        "Central Zoo Authority (WPA 1991 amendment) regulates zoos.",
+        "Captive breeding: Great Indian Bustard and Gharial programmes support recovery."
+      ]
+    },
+    {
+      "nodeId": "cmopjvqpf00ccz3r0qxlf90v7",
+      "title": "Man-Animal Conflict — Human-Wildlife Interface & Mitigation",
+      "syllabusOrder": 2,
+      "topic": "Biodiversity & Conservation",
+      "prelimsNote": [
+        "Elephants: herds led by the oldest female (matriarch); gestation up to ~22 months; Asian elephant is Endangered (UPSC 2020).",
+        "Conflict hotspots: elephant corridors, crop-raiding near PAs, leopard incursions in cities.",
+        "Mitigation: corridors, early-warning systems, compensation, bee-fences (Project RE-HAB).",
+        "A protected wild animal can be killed only if it becomes dangerous to human life after due process — mere apprehension is not sufficient ground (UPSC 2022)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvpqc00bmz3r0kanfkbww",
+      "title": "Wildlife Crime — Poaching, Trade & CITES",
+      "syllabusOrder": 2,
+      "topic": "Biodiversity & Conservation",
+      "prelimsNote": [
+        "CITES (1975): Appendix I (trade banned), II (regulated), III (listed by one country); legally binding but does not replace national laws.",
+        "TRAFFIC is a wildlife-trade monitoring network of WWF and IUCN — not a UNEP bureau (UPSC 2017).",
+        "Wildlife Crime Control Bureau (WCCB) under WPA (2006 amendment) coordinates enforcement.",
+        "Red sanders (endemic to Andhra's Eastern Ghats) is heavily smuggled; listed as Endangered (UPSC 2016)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvpqc00boz3r0hroygf57",
+      "title": "International Biodiversity Conventions — CBD, Ramsar, CITES",
+      "syllabusOrder": 2,
+      "topic": "Biodiversity & Conservation",
+      "prelimsNote": [
+        "CBD (Rio 1992): conservation, sustainable use, fair benefit sharing; Cartagena Protocol (biosafety), Nagoya Protocol (access & benefit sharing).",
+        "Ramsar (1971, Iran): parties designate wetlands of international importance; Montreux Record lists threatened sites — Keoladeo and Loktak (UPSC 2014).",
+        "CMS/Bonn Convention (migratory species) — India hosted CMS COP13 (Gandhinagar, 2020).",
+        "International Treaty on Plant Genetic Resources (FAO) and CITES are other biodiversity treaties (UPSC 2014)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvpqj00bwz3r04xgim5oj",
+      "title": "Wetlands — Conservation, Ramsar Sites & Threats",
+      "syllabusOrder": 2,
+      "topic": "Biodiversity & Conservation",
+      "prelimsNote": [
+        "India has 90+ Ramsar sites (as of 2025); Tamil Nadu has the most.",
+        "Wetlands act as the 'kidneys of the earth' because aquatic plants absorb heavy metals and excess nutrients (UPSC 2022).",
+        "Wetlands (Conservation and Management) Rules 2017 under EPA; Montreux Record: Keoladeo, Loktak (Chilika removed 2002).",
+        "Harike wetland lies at the Beas–Sutlej confluence — UPSC 2014 asked which wetlands sit at river confluences."
+      ]
+    },
+    {
+      "nodeId": "cmopjvpqe00bsz3r09jgyqvf2",
+      "title": "River Pollution — Ganga, Yamuna & Namami Gange Programme",
+      "syllabusOrder": 3,
+      "topic": "Environmental Pollution",
+      "prelimsNote": [
+        "Namami Gange (2014) under the National Mission for Clean Ganga (NMCG, registered society).",
+        "National Ganga River Basin Authority (2009) treated the river basin as the unit of planning; it was chaired by the PM, not a CM (UPSC 2016).",
+        "Ganga declared the National River (2008); Ganges river dolphin is the National Aquatic Animal (UPSC 2015).",
+        "Threats to Ganges dolphins: dams, pollution, fishing nets, sand mining (UPSC 2014)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvpqg00buz3r08v0m1rb3",
+      "title": "Ocean Resource Degradation & Marine Pollution",
+      "syllabusOrder": 3,
+      "topic": "Environmental Pollution",
+      "prelimsNote": [
+        "Microbeads in personal-care products accumulate in oceans and harm marine life (UPSC 2019).",
+        "Coral bleaching from heat stress; ocean acidification dissolves carbonate shells.",
+        "Dead zones from nutrient run-off cause hypoxia; harmful algal blooms produce toxins (UPSC 2011).",
+        "Global Plastics Treaty negotiations (UNEA 2022 mandate) were still unresolved (as of 2025)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvsii00dcz3r02g0993ne",
+      "title": "Air Pollution — Sources, Health Impact & Policy (BS Norms, NCAP)",
+      "syllabusOrder": 3,
+      "topic": "Environmental Pollution",
+      "prelimsNote": [
+        "National AQI (2014): 8 pollutants — PM10, PM2.5, NO₂, SO₂, CO, O₃, NH₃, Pb (UPSC 2016).",
+        "WHO Air Quality Guidelines 2021: PM2.5 annual 5 µg/m³, 24-hour 15 µg/m³; PM2.5 (not PM10) enters the bloodstream; ozone triggers asthma (UPSC 2022).",
+        "Crop-residue burning releases CO, NOx, PM and SO₂ (UPSC 2019); benzene from vehicle exhaust, tobacco smoke, wood burning (UPSC 2020).",
+        "NCAP (2019): 40% PM reduction by 2025-26 in non-attainment cities; BS-VI norms from April 2020 (leapfrogged BS-V).",
+        "Photochemical smog: NOx + VOCs + sunlight → ozone, PAN; London smog: SO₂ + smoke + fog."
+      ]
+    },
+    {
+      "nodeId": "cmopjvtdv00dhz3r0gz67b3wk",
+      "title": "Water Pollution — Industrial, Agricultural & Municipal Sources",
+      "syllabusOrder": 3,
+      "topic": "Environmental Pollution",
+      "prelimsNote": [
+        "BOD measures oxygen needed by microbes to decompose organic matter — high BOD means more pollution (UPSC 2017).",
+        "Eutrophication from nitrates/phosphates → algal blooms → hypoxia (UPSC 2011).",
+        "Drinking water contaminants: arsenic (Ganga–Brahmaputra plains), fluoride (fluorosis), nitrates (blue-baby syndrome) — UPSC 2013.",
+        "UV radiation disinfects water by killing microbes (UPSC 2012)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvrns00clz3r0tug2brh2",
+      "title": "Soil Pollution — Pesticides, Heavy Metals & Remediation",
+      "syllabusOrder": 3,
+      "topic": "Environmental Pollution",
+      "prelimsNote": [
+        "Carbofuran, methyl parathion, phorate and triazophos are pesticides viewed with concern (UPSC 2019).",
+        "Heavy-metal diseases: Minamata (mercury), Itai-itai (cadmium), arsenicosis (arsenic).",
+        "Bioremediation uses microbes/plants to clean pollutants — cheaper and on-site (UPSC 2017); Oilzapper (TERI) degrades oil sludge (UPSC 2011).",
+        "Neem-coated urea slows nitrogen release and limits leaching (UPSC 2016)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvrnt00csz3r0mysh7hv2",
+      "title": "E-Waste — Management Rules, Health Impact & Extended Producer Responsibility",
+      "syllabusOrder": 3,
+      "topic": "Environmental Pollution",
+      "prelimsNote": [
+        "E-waste contains lead, mercury, cadmium, beryllium and brominated flame retardants (UPSC 2013).",
+        "E-Waste (Management) Rules 2022 (in force 2023): EPR certificates traded via CPCB portal; producers bear collection responsibility (UPSC 2019).",
+        "R2 (Responsible Recycling) standard is for e-waste recycling practices (UPSC 2021).",
+        "India is the third-largest e-waste generator (after China and the USA)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvtjy00dnz3r03lc6q4hx",
+      "title": "Plastic Pollution — Single Use Plastic Ban & Circular Economy",
+      "syllabusOrder": 3,
+      "topic": "Environmental Pollution",
+      "prelimsNote": [
+        "Identified single-use plastic items banned from 1 July 2022 (Plastic Waste Management Amendment Rules 2021).",
+        "Carry-bag thickness minimum 120 microns (from Dec 2022); EPR guidelines for plastic packaging (2022).",
+        "PET is recyclable into fibres and bottles; incineration emits GHGs (UPSC 2022).",
+        "Microbeads banned in rinse-off cosmetics by BIS (2020) (UPSC 2019)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvtk000doz3r0pka4iqfd",
+      "title": "Noise & Light Pollution",
+      "syllabusOrder": 3,
+      "topic": "Environmental Pollution",
+      "prelimsNote": [
+        "Noise Pollution (Regulation and Control) Rules 2000 under EPA: day/night limits for industrial, commercial, residential and silence zones.",
+        "Silence zones: 100 m around hospitals, schools, courts.",
+        "Light pollution disrupts nocturnal species and bird migration; India's first dark-sky reserve at Hanle (Ladakh, 2022).",
+        "Never asked in UPSC Prelims so far — a likely gap area."
+      ]
+    },
+    {
+      "nodeId": "cmopjvtqz00dsz3r0lkkxt8x7",
+      "title": "Oil Spills — Impact & International Conventions",
+      "syllabusOrder": 3,
+      "topic": "Environmental Pollution",
+      "prelimsNote": [
+        "Oil forms a surface film blocking oxygen and light; harms seabirds and mammals.",
+        "Clean-up: booms, skimmers, dispersants, bioremediation (Oilzapper — UPSC 2011).",
+        "MARPOL (IMO, 1973/78) prevents ship pollution; India's National Oil Spill Disaster Contingency Plan coordinated by the Coast Guard.",
+        "Sand mining and coastal pollution damage marine ecosystems (UPSC 2018)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvpqf00btz3r0dioe1svj",
+      "title": "Climate Change — Scientific Basis, IPCC Reports & Evidence",
+      "syllabusOrder": 4,
+      "topic": "Climate Change",
+      "prelimsNote": [
+        "IPCC (1988, WMO + UNEP) assesses science; AR6 (2021–23) — human influence 'unequivocal'.",
+        "Warming beyond 2 °C threatens coral reefs, food production and sea level (UPSC 2014).",
+        "Carbon fertilization: higher CO₂ boosts plant photosynthesis (UPSC 2018).",
+        "Low clouds reflect sunlight (cooling); high thin clouds trap outgoing infrared (warming) — UPSC 2022 swapped these.",
+        "Methane hydrates under ocean floors/permafrost could release methane on warming (UPSC 2019)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvpwm00c1z3r0ibvotfxi",
+      "title": "Paris Agreement — NDCs, Finance & Implementation",
+      "syllabusOrder": 4,
+      "topic": "Climate Change",
+      "prelimsNote": [
+        "Adopted at COP21 (2015), in force 2016; goal: well below 2 °C, pursue 1.5 °C; NDCs updated every 5 years (UPSC 2016).",
+        "INDCs were submitted before Paris; they became NDCs on ratification (UPSC 2016).",
+        "Article 6: carbon markets — 6.2 bilateral, 6.4 UN-supervised mechanism (operationalised at COP29, 2024).",
+        "India's updated NDC (2022): 45% emissions-intensity cut by 2030 (vs 2005), 50% non-fossil power capacity, 2.5–3 billion t CO₂ sink; net zero by 2070 (Panchamrit at COP26).",
+        "NCQG (COP29, 2024): developed countries to mobilise at least US$300 billion a year by 2035."
+      ]
+    },
+    {
+      "nodeId": "cmopjvpql00c0z3r0lnjm1rjw",
+      "title": "International Solar Alliance — India's Leadership",
+      "syllabusOrder": 4,
+      "topic": "Climate Change",
+      "prelimsNote": [
+        "Launched by India and France at COP21 Paris (2015); HQ Gurugram — first intergovernmental body headquartered in India (UPSC 2016).",
+        "Membership opened to all UN members (2020 amendment) — but not ALL UN members are members (UPSC 2016 trap).",
+        "Initiatives: One Sun One World One Grid (OSOWOG), Green Grids Initiative with UK (COP26).",
+        "Aim: mobilise US$1 trillion solar investment by 2030."
+      ]
+    },
+    {
+      "nodeId": "cmopjvqpg00chz3r07qyojztm",
+      "title": "Carbon Markets — Emissions Trading, Carbon Tax & Green Bonds",
+      "syllabusOrder": 4,
+      "topic": "Climate Change",
+      "prelimsNote": [
+        "Kyoto mechanisms: Emissions Trading, Clean Development Mechanism (CERs), Joint Implementation (UPSC 2011, 2016).",
+        "Carbon markets do NOT transfer resources from the private sector to the State — UPSC 2023 Statement-II was false.",
+        "India's Carbon Credit Trading Scheme 2023 under the Energy Conservation (Amendment) Act 2022; Bureau of Energy Efficiency administers it.",
+        "Social cost of carbon = economic damage from emitting one extra tonne of CO₂ (UPSC 2020); GHG Protocol is an accounting standard (UPSC 2016).",
+        "Sovereign Green Bonds issued by India from 2023."
+      ]
+    },
+    {
+      "nodeId": "cmopjvrnr00ciz3r0ww9q43dj",
+      "title": "Loss & Damage — Climate Finance for Developing Nations",
+      "syllabusOrder": 4,
+      "topic": "Climate Change",
+      "prelimsNote": [
+        "Loss & Damage Fund agreed at COP27 (Sharm el-Sheikh, 2022), operationalised at COP28 (Dubai, 2023); hosted by the World Bank initially.",
+        "Warsaw International Mechanism (2013) first addressed loss and damage.",
+        "Green Climate Fund (2010, HQ Songdo, South Korea) helps developing countries with mitigation and adaptation (UPSC 2015).",
+        "Global Environment Facility is a financial mechanism for CBD, UNFCCC, UNCCD, Stockholm and Minamata conventions (UPSC 2014)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvrns00cmz3r0fzi7k4de",
+      "title": "Climate Change & Agriculture — Food Security Implications",
+      "syllabusOrder": 4,
+      "topic": "Climate Change",
+      "prelimsNote": [
+        "Rice paddies are the most important anthropogenic crop source of both methane and N₂O (UPSC 2022).",
+        "Climate-smart agriculture: GACSA (Global Alliance for Climate-Smart Agriculture, FAO-backed — UPSC 2018); climate-smart villages (CCAFS — UPSC 2021).",
+        "NICRA (ICAR, 2011) develops climate-resilient technologies.",
+        "SRI (alternate wetting and drying) reduces seed needs and methane emissions (UPSC 2022)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvrnr00cjz3r06fryamqq",
+      "title": "Climate Change & Urbanisation — Heat Islands & Flooding",
+      "syllabusOrder": 4,
+      "topic": "Climate Change",
+      "prelimsNote": [
+        "Urban heat island: cities warmer than surroundings due to concrete, low vegetation, waste heat.",
+        "Miyawaki method creates dense mini-forests in urban areas (UPSC 2022).",
+        "Heat Action Plans (Ahmedabad 2013, first in South Asia); NDMA heat-wave guidelines.",
+        "Sponge-city concepts and blue–green infrastructure reduce urban flooding."
+      ]
+    },
+    {
+      "nodeId": "cmopjvrnr00ckz3r0zhjx1ppz",
+      "title": "Kigali Agreement — HFCs & Ozone Layer",
+      "syllabusOrder": 4,
+      "topic": "Climate Change",
+      "prelimsNote": [
+        "Montreal Protocol (1987) phases out ozone-depleting substances; universally ratified.",
+        "Kigali Amendment (2016): phase down HFCs, which are not ozone-depleting but are potent GHGs; India's baseline 2024–26, freeze 2028.",
+        "HFCs are used in refrigeration, aerosols, foam-blowing and fire suppression — UPSC 2023 asked how many of aerosols, foams, fire retardants and lubricants use them.",
+        "Polar stratospheric clouds enable ozone-hole chemistry over Antarctica (UPSC 2011); CFCs were used in aerosols, foams and refrigeration (UPSC 2012)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvrnv00cyz3r0xkqjcgsk",
+      "title": "Arctic & Antarctic — Melting Ice, Sea Level Rise & Geopolitics",
+      "syllabusOrder": 4,
+      "topic": "Climate Change",
+      "prelimsNote": [
+        "Arctic Council members: Canada, Denmark, Finland, Iceland, Norway, Russia, Sweden, USA — India is an observer (2013) (UPSC 2014).",
+        "India's Arctic station Himadri (Svalbard, 2008); Antarctic stations Maitri and Bharati; Antarctic Act 2022.",
+        "Polar Code (IMO): safety code for ships in polar waters (UPSC 2022).",
+        "India's Arctic Policy (2022): six pillars; Arctic warming nearly four times the global average."
+      ]
+    },
+    {
+      "nodeId": "cmopjvsig00dbz3r05du9b03v",
+      "title": "Desertification & Land Degradation — LDN Targets",
+      "syllabusOrder": 4,
+      "topic": "Climate Change",
+      "prelimsNote": [
+        "UNCCD (1994) is the only legally binding agreement linking environment and development to land management (UPSC 2016).",
+        "India hosted UNCCD COP14 (2019); target to restore 26 million ha of degraded land by 2030.",
+        "ISRO's Desertification Atlas: nearly 30% of India's land degraded.",
+        "Prosopis juliflora (invasive) spreads in degraded arid lands (UPSC 2018)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvpqj00bxz3r05nfpqm0w",
+      "title": "Groundwater Depletion — Causes, Regional Hotspots & Policy",
+      "syllabusOrder": 5,
+      "topic": "Environmental Laws, Policies & Institutions",
+      "prelimsNote": [
+        "India is the largest groundwater user — about a quarter of global extraction (UN World Water Development Report 2022; UPSC 2023).",
+        "Central Ground Water Authority is constituted under the Environment (Protection) Act 1986 (UPSC 2022).",
+        "Atal Bhujal Yojana (2019, World Bank-aided) for community groundwater management in 7 States.",
+        "Most groundwater is used for irrigation, not drinking water (UPSC 2023 Statement-II trap)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvpqe00brz3r07pxlw1h4",
+      "title": "Interlinking of Rivers — Debate, Benefits & Environmental Cost",
+      "syllabusOrder": 5,
+      "topic": "Environmental Laws, Policies & Institutions",
+      "prelimsNote": [
+        "National Perspective Plan 1980: Himalayan (14 links) and Peninsular (16 links) components; NWDA prepares reports.",
+        "Ken–Betwa is the first link project approved (2021); Godavari–Krishna linked via Polavaram right canal (UPSC 2016).",
+        "Concerns: Panna Tiger Reserve submergence, forest loss, displacement, altered sediment flows.",
+        "Water is a State subject (Entry 17), with inter-state rivers under Union List Entry 56."
+      ]
+    },
+    {
+      "nodeId": "cmopjvpqg00bvz3r030vfmdzw",
+      "title": "Water Management — Watershed Development & Rainwater Harvesting",
+      "syllabusOrder": 5,
+      "topic": "Environmental Laws, Policies & Institutions",
+      "prelimsNote": [
+        "Watershed programmes conserve soil and water, recharge aquifers, raise productivity (UPSC 2014).",
+        "Jal Shakti Abhiyan: Catch the Rain campaign; Mission Amrit Sarovar (2022): 75 water bodies per district.",
+        "Drip irrigation saves water and fertiliser, reduces weeds and salinity (UPSC 2016); fertigation improves nutrient efficiency (UPSC 2020).",
+        "Traditional systems: Dholavira reservoirs (UPSC 2021), johads, kuhls, zabo."
+      ]
+    },
+    {
+      "nodeId": "cmopjvtqz00dtz3r0ogugazt6",
+      "title": "Deforestation — Causes, REDD+ & Compensatory Afforestation Fund",
+      "syllabusOrder": 5,
+      "topic": "Environmental Laws, Policies & Institutions",
+      "prelimsNote": [
+        "REDD+ = reducing emissions from deforestation and forest degradation + conservation, sustainable management, enhancement of carbon stocks (UPSC 2016).",
+        "CAMPA Act 2016: compensatory afforestation funds — 90% to States, 10% to the Centre; non-lapsable public accounts (UPSC 2019).",
+        "ISFR (FSI, biennial): India's forest + tree cover about 25% (as of ISFR 2023).",
+        "Forest (Conservation) Amendment Act 2023 renamed the 1980 Act as Van (Sanrakshan Evam Samvardhan) Adhiniyam."
+      ]
+    },
+    {
+      "nodeId": "cmopjvrns00cnz3r09hsx5xo9",
+      "title": "Forest Rights Act — Tribal Rights & Conflicts",
+      "syllabusOrder": 5,
+      "topic": "Environmental Laws, Policies & Institutions",
+      "prelimsNote": [
+        "Scheduled Tribes and Other Traditional Forest Dwellers (Recognition of Forest Rights) Act 2006; nodal ministry: Tribal Affairs (UPSC 2021).",
+        "Gram Sabha initiates the process of determining individual and community forest rights (UPSC 2013).",
+        "Critical Wildlife Habitats under FRA can be declared inviolate only after due process (UPSC 2018).",
+        "Community Forest Resource rights let Gram Sabhas manage and protect forests."
+      ]
+    },
+    {
+      "nodeId": "cmopjvrnu00cuz3r06kx17szm",
+      "title": "Mining & Environment — Forest Clearance, Go/No-Go & Displacement",
+      "syllabusOrder": 5,
+      "topic": "Environmental Laws, Policies & Institutions",
+      "prelimsNote": [
+        "Go/No-Go (2009–10) classified coal blocks in dense forests as 'no-go' — later diluted.",
+        "District Mineral Foundations (MMDR Amendment 2015) fund welfare in mining-affected areas (UPSC 2016).",
+        "Environmental clearance under EIA Notification 2006; forest clearance under the Forest Conservation law.",
+        "Coal ash and fly ash disposal pollutes air and water; fly ash is used in bricks and cement (UPSC 2015)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvtqz00duz3r088wztcd8",
+      "title": "Environmental Impact Assessment (EIA) — Process, Reforms & Controversies",
+      "syllabusOrder": 5,
+      "topic": "Environmental Laws, Policies & Institutions",
+      "prelimsNote": [
+        "EIA notification first issued in 1994, revised in 2006 under the EP Act 1986.",
+        "Stages: screening, scoping, public consultation, appraisal; Category A projects appraised by the Centre, B by States (SEIAA).",
+        "Draft EIA Notification 2020 drew criticism for post-facto clearances.",
+        "Never directly asked in UPSC Prelims so far — a likely gap area."
+      ]
+    },
+    {
+      "nodeId": "cmopjvtqy00drz3r0laurayc4",
+      "title": "Pollution Control Boards — Functioning, Challenges & Reforms",
+      "syllabusOrder": 5,
+      "topic": "Environmental Laws, Policies & Institutions",
+      "prelimsNote": [
+        "CPCB constituted under the Water Act 1974; also given powers under the Air Act 1981.",
+        "SPCBs issue consent to establish/operate; CPCB coordinates and sets standards.",
+        "NGT can hear appeals against SPCB orders; CPCB is not a judicial body (UPSC 2018).",
+        "Never asked in detail in Prelims — the Air and Water Acts are classic gap areas."
+      ]
+    },
+    {
+      "nodeId": "cmopjvrns00coz3r01l0yzn82",
+      "title": "National Green Tribunal (NGT) — Jurisdiction, Orders & Implementation",
+      "syllabusOrder": 5,
+      "topic": "Environmental Laws, Policies & Institutions",
+      "prelimsNote": [
+        "NGT Act 2010 — rooted in Art 21; principal bench New Delhi; chairperson a retired SC judge or HC Chief Justice.",
+        "Hears civil cases under 7 laws (Water, Water Cess, Forest Conservation, Air, EP Act, Public Liability Insurance, Biological Diversity) — NOT the Wildlife Protection Act, Indian Forest Act or FRA.",
+        "Disposal within 6 months of filing (endeavour); appeals to the Supreme Court within 90 days.",
+        "NGT is a quasi-judicial tribunal (NGT Act 2010); CPCB is a statutory pollution regulator (Water Act 1974) — UPSC 2018 tested their differences.",
+        "Follows natural justice and the polluter-pays, precautionary and sustainable-development principles."
+      ]
+    },
+    {
+      "nodeId": "cmopjvrnt00cpz3r0gx9zabxv",
+      "title": "Environmental Laws — EPA, Wildlife Protection Act, Forest Conservation Act",
+      "syllabusOrder": 5,
+      "topic": "Environmental Laws, Policies & Institutions",
+      "prelimsNote": [
+        "EP Act 1986 enacted under Art 253 after the Bhopal gas tragedy — umbrella law; GEAC and CGWA are constituted under it (UPSC 2015, 2022).",
+        "WPA 1972 amended 2022: schedules reduced to four — I (highest protection), II (lesser), III (protected plants), IV (CITES-listed specimens); vermin schedule removed.",
+        "Wild animals are government property; protected animals get equal protection inside and outside PAs (UPSC 2022).",
+        "Hunting of Schedule I animals is barred except in specified circumstances (UPSC 2017).",
+        "Forest (Conservation) Act 1980 requires Central approval for diversion of forest land; amended 2023."
+      ]
+    },
+    {
+      "nodeId": "cmopjvrnt00cqz3r0dbl7syhh",
+      "title": "Sustainable Development — Goals, Principles & India's Record",
+      "syllabusOrder": 5,
+      "topic": "Environmental Laws, Policies & Institutions",
+      "prelimsNote": [
+        "Brundtland Report (1987): meeting present needs without compromising future generations.",
+        "Agenda 21 (Rio 1992) — non-binding action plan (UPSC 2016); Rio+20 (2012) launched the SDG process (UPSC 2015).",
+        "17 SDGs adopted in 2015 for 2030; NITI Aayog's SDG India Index tracks States (UPSC 2016).",
+        "Principles: polluter pays, precautionary, intergenerational equity, public trust doctrine."
+      ]
+    },
+    {
+      "nodeId": "cmopjvrnu00cxz3r0jff4tve9",
+      "title": "Green Economy & Circular Economy",
+      "syllabusOrder": 5,
+      "topic": "Environmental Laws, Policies & Institutions",
+      "prelimsNote": [
+        "UNEP's PAGE (Partnership for Action on Green Economy) helps countries transition (UPSC 2018).",
+        "TEEB (The Economics of Ecosystems and Biodiversity) values nature's services (UPSC 2016).",
+        "Circular economy: reduce, reuse, recycle; EPR across plastics, e-waste, batteries, tyres.",
+        "Greenwashing = falsely presenting products as eco-friendly (UPSC 2022)."
+      ]
+    },
+    {
+      "nodeId": "cmopjvtdv00djz3r0q48qzwvf",
+      "title": "Traditional Ecological Knowledge & Environment Ethics",
+      "syllabusOrder": 5,
+      "topic": "Environmental Laws, Policies & Institutions",
+      "prelimsNote": [
+        "Sacred groves (orans, devrais, kavus) conserve biodiversity through community belief.",
+        "Bishnoi movement (1730, Khejarli) and Chipko (1973) are classic conservation movements.",
+        "GIAHS (FAO) recognises Koraput, Kuttanad and Saffron heritage of Kashmir (UPSC 2016).",
+        "Joint Forest Management (1990) involves village communities in protecting and regenerating forests."
+      ]
+    }
+  ],
+  "newNodesToCreate": [
+    {
+      "title": "Ecological Interactions, Niche, Ecotone & Succession",
+      "module": "Ecology & Biodiversity",
+      "syllabusOrder": 1,
+      "topic": "Ecology & Ecosystems",
+      "nodeType": "CONCEPTUAL",
+      "prelimsNote": [
+        "Niche = functional role and requirements of a species; habitat = where it lives (UPSC 2013).",
+        "Interactions: mutualism (lichens, mycorrhiza), commensalism (cattle egret–cattle — UPSC 2014), parasitism, predation, amensalism.",
+        "Ants that farm fungi (UPSC 2022); some species of pollinators decline → plant reproduction affected (butterflies — UPSC 2017).",
+        "Ecotone: transition zone with edge effect (more species); grasslands may not turn into forests because of water limits and fire (UPSC 2013).",
+        "Succession: lichens and mosses are pioneers on bare rock (UPSC 2021) → seral stages → climax community."
+      ]
+    },
+    {
+      "title": "Adaptations, Animal Behaviour & Microorganisms",
+      "module": "Ecology & Biodiversity",
+      "syllabusOrder": 1,
+      "topic": "Ecology & Ecosystems",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "Hibernation is seen in bats, bears and rodents (UPSC 2014); some animals roll into balls for defence (pangolin, hedgehog — UPSC 2021).",
+        "Honeybees perform the waggle dance to signal food direction and distance (UPSC 2023); orangutans make tools from sticks (UPSC 2023).",
+        "Some turtles, fish and marine mammals (dugongs, manatees) are herbivores; some snakes are viviparous (UPSC 2019).",
+        "Extremophiles grow above boiling point, below freezing and below pH 3 (UPSC 2023); some mushrooms are medicinal, psychoactive, insecticidal and bioluminescent (UPSC 2023).",
+        "Desert plants reduce water loss through thick cuticles, tiny or no leaves, thorns (UPSC 2018)."
+      ]
+    },
+    {
+      "title": "Indian Fauna & Flora — Species Identification, Habitat & IUCN Status",
+      "module": "Ecology & Biodiversity",
+      "syllabusOrder": 2,
+      "topic": "Biodiversity & Conservation",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "UPSC's most-repeated Environment concept (tested in 10 separate papers): match a species to its habitat/range.",
+        "Range traps: Lion-tailed macaque — Western Ghats only; Indian wild ass — Rann of Kutch; Great Indian Hornbill — NE and Western Ghats; Musk deer — Himalaya (UPSC 2011, 2013, 2016, 2020).",
+        "Nocturnal: lion-tailed macaque is diurnal; Malabar civet and sambar are nocturnal/crepuscular (UPSC 2023); marsupials are not native to India (UPSC 2023).",
+        "Critically Endangered in India: Great Indian Bustard, Gharial, Bengal Florican, Jerdon's Courser, White-backed vulture (diclofenac decline — UPSC 2012).",
+        "Plants: Himalayan nettle (fibre — UPSC 2019), Gucchi (morel fungus — UPSC 2022), red sanders (endemic, Endangered — UPSC 2016)."
+      ]
+    },
+    {
+      "title": "Protected Areas of India — Location, Rivers & Special Features",
+      "module": "Ecology & Biodiversity",
+      "syllabusOrder": 2,
+      "topic": "Biodiversity & Conservation",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "Location questions recur almost every year (9 separate papers): State, river or region of a protected area.",
+        "Keibul Lamjao (Manipur) is the only floating national park (phumdis on Loktak — UPSC 2015); Namdapha has the widest altitudinal range (UPSC 2015).",
+        "Desert National Park spans Jaisalmer and Barmer and is a Great Indian Bustard habitat (UPSC 2020); Pakhui is in Arunachal (UPSC 2018).",
+        "Sathyamangalam links Eastern and Western Ghats (UPSC 2017); Cauvery-basin PAs: Nagarhole, Sathyamangalam, Wayanad (UPSC 2020).",
+        "Community Reserves are declared by the State Government on community/private land; hunting is not allowed (UPSC 2023)."
+      ]
+    },
+    {
+      "title": "Invasive Alien Species & Species Recovery Programmes",
+      "module": "Ecology & Biodiversity",
+      "syllabusOrder": 2,
+      "topic": "Biodiversity & Conservation",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "Invasive in India: Lantana camara, Prosopis juliflora, water hyacinth (Eichhornia), Parthenium (Prosopis juliflora — UPSC 2018).",
+        "IUCN's Invasive Species Specialist Group develops the Global Invasive Species Database (UPSC 2023).",
+        "Kunming–Montreal GBF targets a 50% cut in introduction rates of invasive species by 2030.",
+        "Recovery: Cheetah reintroduction at Kuno (2022); lions proposed for Kuno Palpur (UPSC 2017); GIB captive breeding."
+      ]
+    },
+    {
+      "title": "Hazardous Chemicals, Heavy Metals, Biomagnification & Fly Ash",
+      "module": "Pollution & Climate Change",
+      "syllabusOrder": 3,
+      "topic": "Environmental Pollution",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "One of the most-repeated Environment concepts (8 papers): source ↔ chemical ↔ harm.",
+        "Mercury: gold mining and coal plants are sources; no known safe exposure level (UPSC 2023); lead from batteries, paints, petrol (UPSC 2012).",
+        "BPA in polycarbonate (endocrine disruptor), triclosan in toiletries, brominated flame retardants, benzene (UPSC 2014, 2020, 2021).",
+        "Biomagnification: concentration of persistent toxins (DDT, mercury) rises up the food chain.",
+        "Fly ash contains silica, alumina, iron oxides; used in bricks and cement (UPSC 2015); steel slag reused in roads (UPSC 2020)."
+      ]
+    },
+    {
+      "title": "Greenhouse Gases, Ozone Depletion & Geo-engineering",
+      "module": "Pollution & Climate Change",
+      "syllabusOrder": 4,
+      "topic": "Climate Change",
+      "nodeType": "CONCEPTUAL",
+      "prelimsNote": [
+        "GWP (100-year): CO₂ = 1, methane ~28, N₂O ~265, HFCs and SF₆ thousands; water vapour is the most abundant GHG.",
+        "Oceans absorb CO₂ and acidify (UPSC 2011); phytoplankton act as a carbon sink (UPSC 2012).",
+        "Carbon capture options discussed (UPSC 2023): enhanced rock weathering (crushed basalt on farmland), ocean alkalinity enhancement (adding lime), CO₂ injection into abandoned mines.",
+        "Geo-engineering (UPSC 2019): stratospheric aerosol injection, cirrus cloud thinning, ocean iron fertilisation.",
+        "Blue carbon = carbon captured by oceans and coastal ecosystems (mangroves, seagrass, salt marshes) — UPSC 2021."
+      ]
+    },
+    {
+      "title": "Climate Finance & Forest-Carbon Mechanisms — GCF, GEF, REDD+, FCPF",
+      "module": "Pollution & Climate Change",
+      "syllabusOrder": 4,
+      "topic": "Climate Change",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "Green Climate Fund (2010) — mitigation and adaptation in developing countries, HQ South Korea (UPSC 2015).",
+        "GEF (1991) is the financial mechanism for UNFCCC, CBD, UNCCD, Stockholm and Minamata conventions (UPSC 2014).",
+        "World Bank's BioCarbon Fund (UPSC 2015) and Forest Carbon Partnership Facility (FCPF, supports REDD+ — UPSC 2015).",
+        "UN-REDD Programme (FAO, UNDP, UNEP) — REDD+ benefits include biodiversity and livelihoods (UPSC 2016).",
+        "Adaptation Fund (Kyoto) financed from a share of CDM proceeds."
+      ]
+    },
+    {
+      "title": "Global Climate & Environment Initiatives — Alliances, Coalitions & Trackers",
+      "module": "Pollution & Climate Change",
+      "syllabusOrder": 4,
+      "topic": "Climate Change",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "UPSC's favourite 'who runs it' area (7+ papers): Climate and Clean Air Coalition (UNEP-hosted, short-lived climate pollutants — UPSC 2017); Global Climate Change Alliance (EU — UPSC 2017).",
+        "Climate Action Tracker: independent research consortium, not an IPCC or UNFCCC body (UPSC 2022); Climate Neutral Now (UNFCCC — UPSC 2018).",
+        "The Climate Group runs RE100/EP100; Under2 Coalition secretariat is the Climate Group, not the IEA (UPSC 2022).",
+        "New York Declaration on Forests (2014, non-binding — UPSC 2021); Common Carbon Metric (UNEP-SBCI, buildings — UPSC 2021).",
+        "Earth Hour by WWF (UPSC 2014); Arbor Day Foundation + FAO run Tree Cities of the World (UPSC 2021)."
+      ]
+    },
+    {
+      "title": "Chemical & Waste Conventions — Basel, Rotterdam, Stockholm & Minamata",
+      "module": "Pollution & Climate Change",
+      "syllabusOrder": 4,
+      "topic": "Climate Change",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "Basel (1989): transboundary movement of hazardous wastes; Rotterdam (1998): Prior Informed Consent for hazardous chemicals/pesticides trade.",
+        "Stockholm (2001): eliminate Persistent Organic Pollutants (the 'dirty dozen' incl. DDT, aldrin); Minamata (2013): mercury — India ratified in 2018.",
+        "BRS conventions share a joint UNEP secretariat in Geneva.",
+        "Never directly asked in UPSC Prelims so far — a strong candidate for a future question."
+      ]
+    },
+    {
+      "title": "Biological Diversity Act, BMCs & Access and Benefit Sharing",
+      "module": "Laws & Institutions",
+      "syllabusOrder": 5,
+      "topic": "Environmental Laws, Policies & Institutions",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "Biological Diversity Act 2002 (amended 2023) gives effect to the CBD; three-tier structure: NBA (Chennai), State Biodiversity Boards, Biodiversity Management Committees.",
+        "BMCs (local bodies) maintain People's Biodiversity Registers and can levy collection fees for access to bio-resources in their area (UPSC 2023).",
+        "BMCs are key to realising the Nagoya Protocol's access and benefit-sharing objectives (UPSC 2023).",
+        "Foreigners need NBA approval to access Indian bio-resources; 2023 amendment eased rules for AYUSH and Indian companies."
+      ]
+    },
+    {
+      "title": "Wildlife Protection Act 2022 & Wildlife Institutions — NTCA, WCCB, CZA, AWBI",
+      "module": "Laws & Institutions",
+      "syllabusOrder": 5,
+      "topic": "Environmental Laws, Policies & Institutions",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "WPA amendment 2022: four schedules — I (highest), II, III (protected plants), IV (CITES specimens); the old Schedule VI (specified plants whose cultivation needs a licence — UPSC 2020) is now absorbed into the reorganised schedules.",
+        "Statutory bodies: NTCA (2006 amendment), WCCB (2006), Central Zoo Authority (1991), National Board for Wildlife (2002, chaired by PM).",
+        "Animal Welfare Board of India is statutory under the Prevention of Cruelty to Animals Act 1960 (UPSC 2014).",
+        "Trap: Schedule III covers protected PLANTS and Schedule IV covers CITES-listed specimens — not the other way round; vermin schedule (old Schedule V) was removed."
+      ]
+    }
+  ]
+}

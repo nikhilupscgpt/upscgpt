@@ -1,0 +1,27 @@
+{
+  "Ecology & Ecosystems": {
+    "topic": "Ecology & Ecosystems",
+    "syllabusOrder": 1,
+    "module": "Ecology & Biodiversity"
+  },
+  "Biodiversity & Conservation": {
+    "topic": "Biodiversity & Conservation",
+    "syllabusOrder": 2,
+    "module": "Ecology & Biodiversity"
+  },
+  "Environmental Pollution": {
+    "topic": "Environmental Pollution",
+    "syllabusOrder": 3,
+    "module": "Pollution & Climate Change"
+  },
+  "Climate Change": {
+    "topic": "Climate Change",
+    "syllabusOrder": 4,
+    "module": "Pollution & Climate Change"
+  },
+  "Environmental Laws, Policies & Institutions": {
+    "topic": "Environmental Laws, Policies & Institutions",
+    "syllabusOrder": 5,
+    "module": "Laws & Institutions"
+  }
+}

@@ -1,0 +1,472 @@
+{
+  "subject": "Environment",
+  "totalPrelimsQuestions": 257,
+  "totalExistingNodesInDB": 43,
+  "syllabusFlow": [
+    {
+      "syllabusOrder": 1,
+      "module": "Ecology & Biodiversity",
+      "topic": "Ecology & Ecosystems",
+      "questionCount": 46,
+      "coreThemes": [
+        "Ecosystem Structure & Functions (Productivity, Decomposition, Energy Flow - 10% Law, Nutrient Cycling)",
+        "Ecological Pyramids (Upright vs Inverted - Biomass in aquatic vs terrestrial, Number, Energy always upright)",
+        "Ecotone & Edge Effect",
+        "Ecological Niche vs Habitat",
+        "Biotic Interactions (Mutualism, Commensalism, Amensalism, Parasitism, Predation)",
+        "Ecological Succession (Primary vs Secondary, Pioneer community, Seral stages, Climax community)",
+        "Biogeochemical Cycles (Carbon, Nitrogen, Phosphorus, Sulphur, Water cycle)"
+      ]
+    },
+    {
+      "syllabusOrder": 2,
+      "module": "Ecology & Biodiversity",
+      "topic": "Biodiversity & Conservation",
+      "questionCount": 103,
+      "coreThemes": [
+        "Levels of Biodiversity (Genetic, Species, Ecosystem diversity, Alpha, Beta, Gamma diversity)",
+        "Biodiversity Hotspots (Norman Myers criteria, 4 in India: Himalayas, Indo-Burma, Western Ghats-Sri Lanka, Sundaland)",
+        "In-situ Conservation (National Parks, Wildlife Sanctuaries, Community Reserves, Conservation Reserves, Biosphere Reserves - Core, Buffer, Transition)",
+        "Tiger Reserves, Elephant Reserves (Project Tiger 1973, Project Elephant 1992, MIKE sites)",
+        "Ex-situ Conservation (Botanical Gardens, Zoological Parks, Seed Banks, Cryopreservation)",
+        "IUCN Red List Categories & Critically Endangered Species of India (Gharial, Great Indian Bustard, Hangul, Bengal Florican, Pygmy Hog, Dugong, Nilgiri Tahr, Gangetic Dolphin)",
+        "Invasive Alien Species in India (Lantana camara, Prosopis juliflora, Water Hyacinth, Parthenium)",
+        "Ramsar Convention & Montreux Record (Keoladeo & Loktak in Montreux Record; Chilika removed)"
+      ]
+    },
+    {
+      "syllabusOrder": 3,
+      "module": "Pollution & Climate Change",
+      "topic": "Environmental Pollution",
+      "questionCount": 42,
+      "coreThemes": [
+        "Air Pollutants (PM2.5, PM10, SO2, NO2, CO, Ozone O3, Lead Pb, Ammonia NH3 - National Air Quality Index AQI 8 pollutants)",
+        "Photochemical Smog (Ozone, PAN, VOCs, NOx, Sunlight) vs Classical/London Smog (SO2, Smoke, Fog)",
+        "Acid Rain (Sulfuric acid & Nitric acid - pH < 5.6)",
+        "Fly Ash (Composition: silica, alumina, iron oxides; uses in cement, bricks, soil conditioner)",
+        "Water Pollution & Indicators (BOD Biochemical Oxygen Demand, COD, Eutrophication, Algal Bloom, Bioaccumulation & Biomagnification)",
+        "Solid Waste & E-Waste Management Rules (Extended Producer Responsibility EPR, Plastic Waste Management Rules, Single-Use Plastics ban)",
+        "Bioremediation & Phytoremediation techniques",
+        "Heavy Metal Poisoning (Minamata / Mercury, Itai-Itai / Cadmium, Arsenicosis / Arsenic, Fluorosis / Fluoride, Blue Baby Syndrome / Nitrates)"
+      ]
+    },
+    {
+      "syllabusOrder": 4,
+      "module": "Pollution & Climate Change",
+      "topic": "Climate Change",
+      "questionCount": 48,
+      "coreThemes": [
+        "Greenhouse Effect & Major GHGs (Water vapor, CO2, Methane CH4, N2O, CFCs/HFCs, SF6 - Global Warming Potential GWP)",
+        "Ocean Acidification (Carbonic acid formation, impact on calcifying organisms like corals and molluscs)",
+        "UNFCCC Framework & COPs (Earth Summit 1992, Kyoto Protocol - Annex I/Non-Annex I, Clean Development Mechanism CDM, Paris Agreement 2015 - Article 6 carbon markets, Loss and Damage Fund at COP27/28)",
+        "India Nationally Determined Contributions (NDCs) & Panchamrit goals (500 GW non-fossil by 2030, Net Zero by 2070)",
+        "Montreal Protocol & Kigali Amendment (Ozone Depleting Substances ODS phase-out, HFC phase-down)",
+        "Other Environmental Conventions (Stockholm on POPs, Basel on Hazardous Wastes, Rotterdam on Prior Informed Consent, Minamata on Mercury, UNCCD on Desertification)"
+      ]
+    },
+    {
+      "syllabusOrder": 5,
+      "module": "Laws & Institutions",
+      "topic": "Environmental Laws, Policies & Institutions",
+      "questionCount": 18,
+      "coreThemes": [
+        "Wildlife Protection Act 1972 & 2022 Amendment (Reduction of schedules from VI to IV: Schedule I highest protection, Schedule II lesser, Schedule III CITES species, Schedule IV specimen plants; removal of vermin schedule)",
+        "Environment (Protection) Act 1986 (Enacted after Bhopal Gas Tragedy under Article 253; Central Pollution Control Board CPCB powers, Coastal Regulation Zone CRZ)",
+        "Biological Diversity Act 2002 (National Biodiversity Authority NBA in Chennai, State Biodiversity Boards SBBs, Biodiversity Management Committees BMCs, Access and Benefit Sharing ABS)",
+        "Forest (Conservation) Act 1980 & 2023 Amendment (Van Sanrakshan Evam Samvardhan Adhiniyam)",
+        "Compensatory Afforestation Fund Act (CAMPA) 2016 (90% State, 10% Centre)",
+        "National Green Tribunal (NGT) Act 2010 (Chairperson, judicial & expert members, 6-month disposal mandate, 7 environmental laws under jurisdiction; WPA and IFA excluded)",
+        "Statutory Bodies: Animal Welfare Board of India, National Tiger Conservation Authority NTCA, Central Zoo Authority CZA, Wildlife Crime Control Bureau WCCB"
+      ]
+    }
+  ],
+  "existingNodes": [
+    {
+      "nodeId": "cmopjvont00biz3r0y5y35jk5",
+      "title": "Ecosystem Concepts — Food Chains, Trophic Levels & Ecological Pyramids",
+      "slug": "ecosystem-concepts-food-chains-trophic-levels-ecological-pyramids",
+      "topic": "Ecology Basics",
+      "nodeType": "STATIC",
+      "orderIndex": 430,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvpqk00byz3r0t0atd5wk",
+      "title": "Biogeochemical Cycles — Carbon, Nitrogen, Water & Phosphorus",
+      "slug": "biogeochemical-cycles-carbon-nitrogen-water-phosphorus",
+      "topic": "Ecology Basics",
+      "nodeType": "STATIC",
+      "orderIndex": 431,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvons00bcz3r01v97eb3m",
+      "title": "Ecologically Sensitive Areas — ESZ, Biodiversity Hotspots",
+      "slug": "ecologically-sensitive-areas-esz-biodiversity-hotspots",
+      "topic": "Ecology Basics",
+      "nodeType": "NEWS",
+      "orderIndex": 432,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvons00bdz3r0fh13bekn",
+      "title": "Biodiversity — Types, Importance & Threats",
+      "slug": "biodiversity-types-importance-threats",
+      "topic": "Biodiversity",
+      "nodeType": "STATIC",
+      "orderIndex": 433,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvons00bez3r080zetoxx",
+      "title": "Biodiversity Loss — Causes, IPBES Reports & India's Status",
+      "slug": "biodiversity-loss-causes-ipbes-reports-indias-status",
+      "topic": "Biodiversity",
+      "nodeType": "NEWS",
+      "orderIndex": 434,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvons00bfz3r05e2b5wcm",
+      "title": "In-Situ Conservation — National Parks, Wildlife Sanctuaries, Tiger Reserves",
+      "slug": "in-situ-conservation-national-parks-wildlife-sanctuaries-tiger-reserves",
+      "topic": "Biodiversity",
+      "nodeType": "NEWS",
+      "orderIndex": 435,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvont00bhz3r0qeqlghmg",
+      "title": "Ex-Situ Conservation — Zoos, Gene Banks & Seed Vaults",
+      "slug": "ex-situ-conservation-zoos-gene-banks-seed-vaults",
+      "topic": "Biodiversity",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 436,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvqpf00ccz3r0qxlf90v7",
+      "title": "Man-Animal Conflict — Human-Wildlife Interface & Mitigation",
+      "slug": "man-animal-conflict-human-wildlife-interface-mitigation",
+      "topic": "Biodiversity",
+      "nodeType": "NEWS",
+      "orderIndex": 437,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvpqc00bmz3r0kanfkbww",
+      "title": "Wildlife Crime — Poaching, Trade & CITES",
+      "slug": "wildlife-crime-poaching-trade-cites",
+      "topic": "Biodiversity",
+      "nodeType": "NEWS",
+      "orderIndex": 438,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvpqc00boz3r0hroygf57",
+      "title": "International Biodiversity Conventions — CBD, Ramsar, CITES",
+      "slug": "international-biodiversity-conventions-cbd-ramsar-cites",
+      "topic": "Biodiversity",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 439,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvpqj00bxz3r05nfpqm0w",
+      "title": "Groundwater Depletion — Causes, Regional Hotspots & Policy",
+      "slug": "groundwater-depletion-causes-regional-hotspots-policy",
+      "topic": "Water Resources",
+      "nodeType": "NEWS",
+      "orderIndex": 440,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvpqe00bsz3r09jgyqvf2",
+      "title": "River Pollution — Ganga, Yamuna & Namami Gange Programme",
+      "slug": "river-pollution-ganga-yamuna-namami-gange-programme",
+      "topic": "Water Resources",
+      "nodeType": "NEWS",
+      "orderIndex": 441,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvpqj00bwz3r04xgim5oj",
+      "title": "Wetlands — Conservation, Ramsar Sites & Threats",
+      "slug": "wetlands-conservation-ramsar-sites-threats",
+      "topic": "Water Resources",
+      "nodeType": "NEWS",
+      "orderIndex": 442,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvpqe00brz3r07pxlw1h4",
+      "title": "Interlinking of Rivers — Debate, Benefits & Environmental Cost",
+      "slug": "interlinking-of-rivers-debate-benefits-environmental-cost",
+      "topic": "Water Resources",
+      "nodeType": "NEWS",
+      "orderIndex": 443,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvpqg00bvz3r030vfmdzw",
+      "title": "Water Management — Watershed Development & Rainwater Harvesting",
+      "slug": "water-management-watershed-development-rainwater-harvesting",
+      "topic": "Water Resources",
+      "nodeType": "NEWS",
+      "orderIndex": 444,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvpqg00buz3r08v0m1rb3",
+      "title": "Ocean Resource Degradation & Marine Pollution",
+      "slug": "ocean-resource-degradation-marine-pollution",
+      "topic": "Water Resources",
+      "nodeType": "NEWS",
+      "orderIndex": 445,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvpqf00btz3r0dioe1svj",
+      "title": "Climate Change — Scientific Basis, IPCC Reports & Evidence",
+      "slug": "climate-change-scientific-basis-ipcc-reports-evidence",
+      "topic": "Climate Change",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 446,
+      "hasPrelimsNote": true
+    },
+    {
+      "nodeId": "cmopjvpwm00c1z3r0ibvotfxi",
+      "title": "Paris Agreement — NDCs, Finance & Implementation",
+      "slug": "paris-agreement-ndcs-finance-implementation",
+      "topic": "Climate Change",
+      "nodeType": "NEWS",
+      "orderIndex": 447,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvpql00c0z3r0lnjm1rjw",
+      "title": "International Solar Alliance — India's Leadership",
+      "slug": "international-solar-alliance-indias-leadership",
+      "topic": "Climate Change",
+      "nodeType": "NEWS",
+      "orderIndex": 448,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvqpg00chz3r07qyojztm",
+      "title": "Carbon Markets — Emissions Trading, Carbon Tax & Green Bonds",
+      "slug": "carbon-markets-emissions-trading-carbon-tax-green-bonds",
+      "topic": "Climate Change",
+      "nodeType": "NEWS",
+      "orderIndex": 449,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvrnr00ciz3r0ww9q43dj",
+      "title": "Loss & Damage — Climate Finance for Developing Nations",
+      "slug": "loss-damage-climate-finance-for-developing-nations",
+      "topic": "Climate Change",
+      "nodeType": "NEWS",
+      "orderIndex": 450,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvrns00cmz3r0fzi7k4de",
+      "title": "Climate Change & Agriculture — Food Security Implications",
+      "slug": "climate-change-agriculture-food-security-implications",
+      "topic": "Climate Change",
+      "nodeType": "NEWS",
+      "orderIndex": 451,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvrnr00cjz3r06fryamqq",
+      "title": "Climate Change & Urbanisation — Heat Islands & Flooding",
+      "slug": "climate-change-urbanisation-heat-islands-flooding",
+      "topic": "Climate Change",
+      "nodeType": "NEWS",
+      "orderIndex": 452,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvrnr00ckz3r0zhjx1ppz",
+      "title": "Kigali Agreement — HFCs & Ozone Layer",
+      "slug": "kigali-agreement-hfcs-ozone-layer",
+      "topic": "Climate Change",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 453,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvrnv00cyz3r0xkqjcgsk",
+      "title": "Arctic & Antarctic — Melting Ice, Sea Level Rise & Geopolitics",
+      "slug": "arctic-antarctic-melting-ice-sea-level-rise-geopolitics",
+      "topic": "Climate Change",
+      "nodeType": "NEWS",
+      "orderIndex": 454,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvsii00dcz3r02g0993ne",
+      "title": "Air Pollution — Sources, Health Impact & Policy (BS Norms, NCAP)",
+      "slug": "air-pollution-sources-health-impact-policy-bs-norms-ncap",
+      "topic": "Pollution",
+      "nodeType": "NEWS",
+      "orderIndex": 455,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvtdv00dhz3r0gz67b3wk",
+      "title": "Water Pollution — Industrial, Agricultural & Municipal Sources",
+      "slug": "water-pollution-industrial-agricultural-municipal-sources",
+      "topic": "Pollution",
+      "nodeType": "NEWS",
+      "orderIndex": 456,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvrns00clz3r0tug2brh2",
+      "title": "Soil Pollution — Pesticides, Heavy Metals & Remediation",
+      "slug": "soil-pollution-pesticides-heavy-metals-remediation",
+      "topic": "Pollution",
+      "nodeType": "NEWS",
+      "orderIndex": 457,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvrnt00csz3r0mysh7hv2",
+      "title": "E-Waste — Management Rules, Health Impact & Extended Producer Responsibility",
+      "slug": "e-waste-management-rules-health-impact-extended-producer-responsibility",
+      "topic": "Pollution",
+      "nodeType": "NEWS",
+      "orderIndex": 458,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvtjy00dnz3r03lc6q4hx",
+      "title": "Plastic Pollution — Single Use Plastic Ban & Circular Economy",
+      "slug": "plastic-pollution-single-use-plastic-ban-circular-economy",
+      "topic": "Pollution",
+      "nodeType": "NEWS",
+      "orderIndex": 459,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvtk000doz3r0pka4iqfd",
+      "title": "Noise & Light Pollution",
+      "slug": "noise-light-pollution",
+      "topic": "Pollution",
+      "nodeType": "NEWS",
+      "orderIndex": 460,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvtqz00dsz3r0lkkxt8x7",
+      "title": "Oil Spills — Impact & International Conventions",
+      "slug": "oil-spills-impact-international-conventions",
+      "topic": "Pollution",
+      "nodeType": "NEWS",
+      "orderIndex": 461,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvtqz00dtz3r0ogugazt6",
+      "title": "Deforestation — Causes, REDD+ & Compensatory Afforestation Fund",
+      "slug": "deforestation-causes-redd-compensatory-afforestation-fund",
+      "topic": "Forests & Land",
+      "nodeType": "NEWS",
+      "orderIndex": 462,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvrns00cnz3r09hsx5xo9",
+      "title": "Forest Rights Act — Tribal Rights & Conflicts",
+      "slug": "forest-rights-act-tribal-rights-conflicts",
+      "topic": "Forests & Land",
+      "nodeType": "NEWS",
+      "orderIndex": 463,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvrnu00cuz3r06kx17szm",
+      "title": "Mining & Environment — Forest Clearance, Go/No-Go & Displacement",
+      "slug": "mining-environment-forest-clearance-gono-go-displacement",
+      "topic": "Forests & Land",
+      "nodeType": "NEWS",
+      "orderIndex": 464,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvsig00dbz3r05du9b03v",
+      "title": "Desertification & Land Degradation — LDN Targets",
+      "slug": "desertification-land-degradation-ldn-targets",
+      "topic": "Forests & Land",
+      "nodeType": "NEWS",
+      "orderIndex": 465,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvtqz00duz3r088wztcd8",
+      "title": "Environmental Impact Assessment (EIA) — Process, Reforms & Controversies",
+      "slug": "environmental-impact-assessment-eia-process-reforms-controversies",
+      "topic": "Environmental Governance",
+      "nodeType": "NEWS",
+      "orderIndex": 466,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvtqy00drz3r0laurayc4",
+      "title": "Pollution Control Boards — Functioning, Challenges & Reforms",
+      "slug": "pollution-control-boards-functioning-challenges-reforms",
+      "topic": "Environmental Governance",
+      "nodeType": "NEWS",
+      "orderIndex": 467,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvrns00coz3r01l0yzn82",
+      "title": "National Green Tribunal (NGT) — Jurisdiction, Orders & Implementation",
+      "slug": "national-green-tribunal-ngt-jurisdiction-orders-implementation",
+      "topic": "Environmental Governance",
+      "nodeType": "NEWS",
+      "orderIndex": 468,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvrnt00cpz3r0gx9zabxv",
+      "title": "Environmental Laws — EPA, Wildlife Protection Act, Forest Conservation Act",
+      "slug": "environmental-laws-epa-wildlife-protection-act-forest-conservation-act",
+      "topic": "Environmental Governance",
+      "nodeType": "STATIC",
+      "orderIndex": 469,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvrnt00cqz3r0dbl7syhh",
+      "title": "Sustainable Development — Goals, Principles & India's Record",
+      "slug": "sustainable-development-goals-principles-indias-record",
+      "topic": "Environmental Governance",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 470,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvrnu00cxz3r0jff4tve9",
+      "title": "Green Economy & Circular Economy",
+      "slug": "green-economy-circular-economy",
+      "topic": "Environmental Governance",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 471,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjvtdv00djz3r0q48qzwvf",
+      "title": "Traditional Ecological Knowledge & Environment Ethics",
+      "slug": "traditional-ecological-knowledge-environment-ethics",
+      "topic": "Environmental Governance",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 472,
+      "hasPrelimsNote": false
+    }
+  ]
+}
