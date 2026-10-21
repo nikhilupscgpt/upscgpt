@@ -1,0 +1,353 @@
+import fs from 'fs';
+import path from 'path';
+
+const bridgingData = {
+  subject: 'Art & Culture',
+  nodes: [
+    {
+      nodeId: 'cmopjv1t40036z3r0avl18x11',
+      title: 'Paleolithic & Pre-Historic Art of India',
+      syllabusOrder: 1,
+      topic: 'Architecture & Sculpture',
+      prelimsNote: [
+        'Bhimbetka rock shelters (MP, Vindhyan range) discovered by V.S. Wakankar (1957); UNESCO World Heritage Site with continuous occupation from Upper Paleolithic to Mesolithic.',
+        'Mesolithic rock paintings show hunting scenes, communal dances, stick-like human figures; red ochre (geru) and white pigments used (UPSC 2013).',
+        'Lakhudiyar (Uttarakhand, Kumaon hills on river Suyal) features hand-linked dancing figures and wavy lines.',
+        'Edakkal Caves (Wayanad, Kerala) contain Neolithic petroglyphs and early writing-like symbols.'
+      ]
+    },
+    {
+      nodeId: 'cmopjv3cu003ez3r0nxe6m4xk',
+      title: 'Indus Valley Civilisation — Art, Culture & Architecture',
+      syllabusOrder: 1,
+      topic: 'Architecture & Sculpture',
+      prelimsNote: [
+        'Harappan cities built on grid system; burnt bricks used; Citadel (higher west) and Lower Town (east); Great Bath at Mohenjo-daro lined with bitumen/gypsum mortar.',
+        'Bronze Dancing Girl from Mohenjo-daro made using Cire Perdue (lost-wax technique) in tribhanga pose; Priest-King carved from steatite.',
+        'Terracotta figurines: Mother Goddess with fan-shaped headdress, toy carts, terracotta plough found at Banawali.',
+        'Seals: steatite square seals with pictographic script (un-deciphered); famous Pashupati seal shows figure in yogic posture surrounded by elephant, tiger, rhino, buffalo and two deer at feet (UPSC 2012, 2019).'
+      ]
+    },
+    {
+      nodeId: 'cmopjv3j3003iz3r0dxsgd4pt',
+      title: 'Mauryan Architecture & Sculpture (Ashoka Pillars, Stupas)',
+      syllabusOrder: 1,
+      topic: 'Architecture & Sculpture',
+      prelimsNote: [
+        'Ashokan pillars made of single monolithic pieces of Chunar sandstone with lustrous polish; components: shaft, inverted lotus base, abacus and crowning animal.',
+        'Sarnath Lion Capital has 4 Asiatic lions back-to-back, abacus carved with horse, bull, elephant and lion separated by 24-spoke Dharma wheels; adopted as National Emblem (UPSC 2014).',
+        'Stupa architectural parts: circular drum, hemispherical dome (Anda), stone balcony (Harmika - abode of relics), umbrella (Chhatra), circumambulatory path (Pradakshina patha) and gateways (Toranas with Jataka reliefs - added later by Sungas/Satavahanas).',
+        'Barabar and Nagarjuni caves (Bihar) excavated during Ashoka and Dasharatha for Ajivika ascetics; Sudama cave and Lomas Rishi cave feature chaitya arch entrances (UPSC 2013).'
+      ]
+    },
+    {
+      nodeId: 'cmopjv3v9003qz3r0n0o4n8by',
+      title: 'Post-Mauryan Art — Gandhara, Mathura, Amaravati Schools',
+      syllabusOrder: 1,
+      topic: 'Architecture & Sculpture',
+      prelimsNote: [
+        'Gandhara School (NWFP/Punjab): patronized by Kushanas; Greco-Roman influence, grey schist/stucco used; realistic Buddha with wavy hair, drapery folds and Apollo-like facial features (UPSC 2014).',
+        'Mathura School (UP): indigenous development under Kushanas; spotted red sandstone; Buddha shown smiling, shaved head or ushnisha, muscular body, transparent drapery; also produced Jaina Tirthankaras and Hindu deities.',
+        'Amaravati School (Krishna-Godavari basin, AP): patronized by Satavahanas and Ikshvakus; white marble used; narrative relief art on Stupas depicting Jataka stories, human emotions and dynamic movement.',
+        'Sarnath Gupta School: refined spiritual expression, decorated halos (Prabhamandala), Dharmachakra Pravartana Buddha pose (UPSC 2019).'
+      ]
+    },
+    {
+      nodeId: 'cmopjv4qb0043z3r0zht5p6q1',
+      title: 'Temple Architecture — Nagara, Dravida & Vesara Styles',
+      syllabusOrder: 1,
+      topic: 'Architecture & Sculpture',
+      prelimsNote: [
+        'Nagara Style (North India): raised platform (Jagati), curvilinear tower (Shikhara/Rekha-deula), crowning amalaka and kalasha, absence of elaborate boundary walls or water tanks; Panchayatana layout (main shrine + 4 subsidiary shrines - UPSC 2014); examples: Khajuraho (Kandariya Mahadeva), Sun Temple Modhera/Konark.',
+        'Dravida Style (South India): pyramidal stepped tower (Vimana), pillared assembly hall (Mandapa), monumental gateway (Gopuram), enclosed boundary walls with sacred temple water tank (Kalyani); examples: Brihadeshwara Temple Thanjavur (Chola - Rajaraja I), Meenakshi Temple Madurai (Nayaka).',
+        'Vesara / Hybrid Style: blend of Nagara and Dravida, typical of Karnataka; Chalukyas (Badami, Aihole, Pattadakal) and Hoysalas (star-shaped stellate ground plan, soapstone carvings at Belur, Halebidu, Somnathapura - UNESCO 2023 - UPSC 2019).',
+        'Sun Temples in India: Modhera (Gujarat), Konark (Odisha - Black Pagoda), Arasavalli (AP), Martand (Kashmir).'
+      ]
+    },
+    {
+      nodeId: 'cmopjv1t40034z3r06289lsud',
+      title: 'Cave Architecture — Ajanta, Ellora, Elephanta',
+      syllabusOrder: 1,
+      topic: 'Architecture & Sculpture',
+      prelimsNote: [
+        'Ajanta Caves (Aurangabad, Maharashtra on Waghora river gorge): 29 rock-cut caves, exclusively Buddhist (Hinayana and Mahayana); famous for fresco murals depicting Jataka tales; Cave 26 has colossal Mahaparinirvana sculpture (UPSC 2013, 2017).',
+        'Ellora Caves (Verul, Maharashtra): 34 caves spanning three religions: Caves 1-12 Buddhist, Caves 13-29 Hindu, Caves 30-34 Jain; Cave 16 houses Kailasanatha monolithic rock-cut temple carved top-to-bottom by Rashtrakuta king Krishna I (UPSC 2015).',
+        'Elephanta Caves (Mumbai harbour): dedicated primarily to Lord Shiva; famous for colossal Trimurti / Maheshamurti (Creator, Preserver, Destroyer) relief.',
+        'Other major rock-cut caves: Udayagiri-Khandagiri (Odisha - Hathigumpha inscription of Kharavela, Jaina caves), Badami caves (Karnataka - Chalukyan), Sittanavasal (Tamil Nadu - Jain murals).'
+      ]
+    },
+    {
+      nodeId: 'cmopjv3va003sz3r0g7m1bdec',
+      title: 'Indian Paintings — Miniature, Mughal, Rajput, Pahari, Modern',
+      syllabusOrder: 2,
+      topic: 'Painting & Handicrafts',
+      prelimsNote: [
+        'Mughal Painting: started under Humayun (Mir Sayyid Ali, Abdus Samad); zenith under Jahangir (portraiture, flora, fauna, birds by Ustad Mansur); declined under Aurangzeb causing artists to migrate to regional courts.',
+        'Rajasthani School: themes of Radha-Krishna and Geet Govinda; Kishangarh school famous for Bani Thani (painted by Nihal Chand - Indian Mona Lisa, UPSC 2018); Mewar (Ragamala), Bundi (rich vegetation and water bodies, Chitrashala), Kota (hunting scenes).',
+        'Pahari School: Basohli (early, bold primary colours, expressive eyes), Kangra (patronized by Raja Sansar Chand, lyrical elegance, delicate lines, green landscape - UPSC 2015).',
+        'Modern Indian Art: Raja Ravi Varma (oil paintings blending European realism with Indian mythological themes - UPSC 2020), Abanindranath Tagore (Bengal School of Art, Bharat Mata painting, wash technique).'
+      ]
+    },
+    {
+      nodeId: 'cmopjv4qa0042z3r0xkru4t8l',
+      title: 'Indian Pottery & Craft Traditions',
+      syllabusOrder: 2,
+      topic: 'Painting & Handicrafts',
+      prelimsNote: [
+        'Pottery Chronology: Ochre Coloured Pottery (OCP) → Black and Red Ware (BRW) → Painted Grey Ware (PGW - associated with Later Vedic / Iron Age) → Northern Black Polished Ware (NBPW - associated with Mahajanapada / Mauryan era, glossy mirror finish - UPSC 2016).',
+        'Metal Crafts: Dhokra casting (lost-wax hollow bronze casting in Bastar, WB, Odisha); Bidriware (zinc and copper alloy inlaid with pure silver, blackened with special soil from Bidar fort, Karnataka - GI tag - UPSC 2014).',
+        'Traditional Toys & Terracotta: Channapatna toys (lacquer ivory wood, Karnataka), Kondapalli toys (AP), Bankura horses (terracotta, WB).',
+        'Stone & Woodcraft: Sandalwood carving (Karnataka), Kashmiri walnut wood carving, Makrana marble craft.'
+      ]
+    },
+    {
+      nodeId: 'cmopjv1t2002yz3r04rxq885b',
+      title: 'Religion & Indian Philosophy — Vedanta, Buddhism, Jainism, Sufism',
+      syllabusOrder: 3,
+      topic: 'Philosophy & Religion',
+      prelimsNote: [
+        'Buddhism fundamental tenets: Four Noble Truths (Arya Satya), Eightfold Path (Ashtangika Marga), Pratityasamutpada (Dependent Origination), Anatta (No-soul), Anicca (Impermanence); rejects Vedic authority and caste (UPSC 2013, 2020).',
+        'Jainism fundamental tenets: Anekantavada (multiplicity of viewpoints / elephant and blind men), Syadvada (relativity of truth), Triratna (Right Faith, Knowledge, Conduct); extreme non-violence (Ahimsa); believes even inanimate objects have Jiva (UPSC 2018).',
+        'Vedanta doctrines: Advaita of Adi Shankara (Nirguna Brahman, Maya/illusion, Tat Tvam Asi); Vishishtadvaita of Ramanuja (Saguna Brahman, soul is part of God, Bhakti as path to Moksha - UPSC 2022).',
+        'Sufi Concepts: Fana (annihilation of self), Baqa (abiding in God), Sama (musical sessions), Silsila (spiritual lineage/chain), Dargah (tomb of saint).'
+      ]
+    },
+    {
+      nodeId: 'cmopjv4ef0040z3r0v8t8e8u6',
+      title: 'Bhakti & Sufi Movements — Social Impact',
+      syllabusOrder: 3,
+      topic: 'Philosophy & Religion',
+      prelimsNote: [
+        'Alvars (12 Vaishnavite saints, Nalayira Divya Prabandham by Nathamuni, only female Alvar was Andal - UPSC 2021) and Nayanars (63 Shaivite saints, Tevaram compiled by Nambiyandar Nambi) in Tamil country.',
+        'Nirguna Bhakti (God without attributes): Kabir (Bijak, dohas, weaver from Varanasi), Guru Nanak (Adi Granth, Langar/community kitchen, Sangat); rejected caste, ritualism and idol worship (UPSC 2014, 2019).',
+        'Saguna Bhakti (God with human form): Tulsidas (Ramcharitmanas), Surdas (Sursagar), Mirabai (devotion to Krishna in Braj bhasha/Rajasthani), Chaitanya Mahaprabhu (Gaudiya Vaishnavism, Sankirtan in Bengal).',
+        'Maharashtra Dharma (Varkari Panth, Pandharpur Vitthala devotion): Dnyaneshwar (Bhavartha Dipika), Namdev, Eknath, Tukaram (Abhangas, contemporary of Shivaji - UPSC 2019); Shankaradeva in Assam (Ekasarana Dharma, Sattra institutions, Borgeet).'
+      ]
+    },
+    {
+      nodeId: 'cmopjv4w90045z3r06zpnrcb3',
+      title: 'Indian Literature — Ancient, Medieval & Modern',
+      syllabusOrder: 4,
+      topic: 'Literature & Languages',
+      prelimsNote: [
+        'Vedic Literature: Rigveda (1028 hymns, Gayatri Mantra in Mandala 3), Samaveda (origin of Indian music), Yajurveda (rituals/sacrifices), Atharvaveda (charms, medicine); Upanishads explore Brahman and Atman.',
+        'Classical Sanskrit Dramas: Kalidasa (Abhijnanasakuntalam, Malavikagnimitram), Sudraka (Mrichhakatika / Little Clay Cart - love story of Charudatta and Vasantasena, UPSC 2016), Visakhadatta (Mudrarakshasa / Chandragupta and Chanakya overthrowing Nandas, UPSC 2014).',
+        'Scientific Texts: Aryabhata (Aryabhatiya - Earth rotation on axis, solar/lunar eclipses, pi approximation), Varahamihira (Brihat Samhita - encyclopaedia of astronomy, weather, architecture), Charaka (Charaka Samhita - Ayurveda, pathology), Sushruta (Sushruta Samhita - surgery, rhinoplasty).',
+        'Sangam Corpus: Tolkappiyam (earliest Tamil grammar by Tolkappiyar), Ettuthogai (8 anthologies of poems), Pattupattu (10 idylls), Tirukkural by Tiruvalluvar (ethics and polity); Silappadikaram (Story of Kannagi and Kovalan by Ilango Adigal - UPSC 2015).'
+      ]
+    },
+    {
+      nodeId: 'cmopjv3j3003kz3r0txhy6btj',
+      title: 'Classical Dance Forms — Bharatanatyam, Kathak, Odissi, Manipuri, etc.',
+      syllabusOrder: 5,
+      topic: 'Dance, Music, Theatre & Puppetry',
+      prelimsNote: [
+        '8 Sangeet Natak Akademi classical dances: Bharatanatyam (Tamil Nadu - Ekaharya soloist, fire dance, alarippu to tillana), Kathakali (Kerala - elaborate facial makeup, green paccha for noble, red katti for evil, based on Kathakali plays/Attakkatha - UPSC 2014), Kathak (UP - jugalbandi, chakkars/spins, tatkar footwork, Lucknow/Jaipur/Banaras gharanas).',
+        'Mohiniyattam (Kerala - dance of enchantress, white/gold Kasavu saree, Lasya dominance), Odissi (Odisha - Tribhanga posture, chowk stance, Mahari tradition, Gotipua - UPSC 2013).',
+        'Kuchipudi (Andhra Pradesh - brass plate dance Tarangam, dialogue and singing by dancer, Bhagavata Mela tradition - UPSC 2014).',
+        'Manipuri (Manipur - Raasleela, gentle undulating movements, cylindrical skirt Kumil, Pung Cholom drum dance), Sattriya (Assam - introduced by Sankaradeva in 15th century, practiced in Sattras/monasteries - UPSC 2014).'
+      ]
+    },
+    {
+      nodeId: 'cmopjv3p4003pz3r0qbd41meh',
+      title: 'Folk Dance Forms of India — Region-wise',
+      syllabusOrder: 5,
+      topic: 'Dance, Music, Theatre & Puppetry',
+      prelimsNote: [
+        'North & Central India: Bhangra & Giddha (Punjab), Charkula (Braj/UP - women dance with brass lamps), Kalbelia (Rajasthan snake-charmer dance - UNESCO ICH - UPSC 2010), Ghoomar (Rajasthan - Bhil community), Matki & Jawara (MP).',
+        'East & North-East India: Chhau (martial dance of Purulia/WB, Seraikela/Jharkhand, Mayurbhanj/Odisha - UNESCO ICH - UPSC 2014), Bihu (Assam harvest dance), Cheraw (Mizoram bamboo dance), Hojagiri (Tripura - Reang community balancing on pots), Rouf (Kashmir spring dance).',
+        'South & West: Garba & Dandiya Raas (Gujarat - UNESCO ICH 2023), Lavani (Maharashtra - Dholki rhythm), Padayani (Kerala - Kolam masks), Karagattam (Tamil Nadu - balancing pot on head), Dollu Kunitha (Karnataka drum dance).'
+      ]
+    },
+    {
+      nodeId: 'cmopjv486003vz3r0xci2kuvi',
+      title: 'Classical Music — Hindustani & Carnatic Traditions',
+      syllabusOrder: 5,
+      topic: 'Dance, Music, Theatre & Puppetry',
+      prelimsNote: [
+        'Hindustani Music (North India): Persian influence; major vocal forms: Dhrupad (oldest, devotional, austere, Dagari/Darbhanga gharanas, Swami Haridas, Tansen - UPSC 2021), Khayal (imaginative, taans, Amir Khusrau credited), Thumri (semi-classical, romantic/devotional, Banaras gharana), Tarana.',
+        'Carnatic Music (South India): indigenous, strictly structured around Kriti composition; Purandara Dasa regarded as Pitamaha (grandfather); Trinity of Carnatic Music: Tyagaraja, Muthuswami Dikshitar, Syama Sastri (all contemporaries in Tiruvarur, 18th-19th century - UPSC 2018).',
+        'Concepts: Raga (melodic framework of swaras), Tala (rhythmic cycle), Shruti (microtonal interval), Melakarta (parent 72 ragas in Carnatic system of Venkatamakhin).'
+      ]
+    },
+    {
+      nodeId: 'cmopjv4ec003yz3r0nf3z43bu',
+      title: 'Musical Instruments of India — Classification & History',
+      syllabusOrder: 5,
+      topic: 'Dance, Music, Theatre & Puppetry',
+      prelimsNote: [
+        'Natya Shastra 4-fold classification: Tata (stringed / chordophones - Veena, Sitar, Sarod, Santoor, Sarangi, Ektara); Sushira (wind / aerophones - Bansuri/flute, Shehnai, Nadaswaram); Avanaddha (percussion with membrane / membranophones - Tabla, Mridangam, Pakhawaj, Dholak); Ghana (solid / idiophones - Jal Tarang, Ghatam, Manjira, Morchang).',
+        'Instrument Maestros: Sitar (Pt. Ravi Shankar, Vilayat Khan), Sarod (Amjad Ali Khan, Ali Akbar Khan), Shehnai (Bismillah Khan), Flute (Hariprasad Chaurasia), Tabla (Zakir Hussain, Alla Rakha), Mridangam (Palghat Mani Iyer), Santoor (Shivkumar Sharma).',
+        'Rudra Veena is the oldest stringed instrument associated with Dhrupad; Sarangi has animal gut strings and sympathetic strings, closest to human voice.'
+      ]
+    },
+    {
+      nodeId: 'cmopjv1t2002uz3r0jxf9e45p',
+      title: 'Drama & Theatre — Sanskrit, Folk & Modern Indian Theatre',
+      syllabusOrder: 5,
+      topic: 'Dance, Music, Theatre & Puppetry',
+      prelimsNote: [
+        'Sanskrit Theatre: Bharata Muni Natya Shastra establishes theory of Rasa (9 rasas) and Bhava; Koodiyattam (Kerala) is the only surviving Sanskrit theatre tradition, performed in temple Koothambalams, recognized by UNESCO ICH (UPSC 2010).',
+        'Folk Theatre of India: Bhand Pather (Kashmir - satire, wit, farming themes - UPSC 2014), Swang / Nautanki (North India / UP - operatic, verse dialogues), Bhavai (Gujarat - female impersonation, fast footwork), Jatra (Bengal/Odisha - open-air musical theatre).',
+        'Tamasha (Maharashtra - Lavani singing, humorous dialogue), Yakshagana (Karnataka - coastal tradition, grand headdress/kireeta, epics), Therukoothu (Tamil Nadu - street theatre, Mahabharata themes), Ankiya Nat (Assam - one-act plays by Sankaradeva, Brajavali language).'
+      ]
+    },
+    {
+      nodeId: 'cmopjv1t40035z3r029cbdcvg',
+      title: 'Puppet Forms of India',
+      syllabusOrder: 5,
+      topic: 'Dance, Music, Theatre & Puppetry',
+      prelimsNote: [
+        'String Puppets (Kathputli): Rajasthan (carved from wood, jointed limbs, whistling whistle), Kundhei (Odisha - light wood, multi-jointed), Gombeyatta (Karnataka - Yakshagana costume), Bommalattam (Tamil Nadu - combines string and rod).',
+        'Shadow Puppets: Togalu Gombeyatta (Karnataka - translucent leather, colourful), Tholu Bommalata (Andhra Pradesh - large mythological puppets), Ravanachhaya (Odisha - opaque deer-skin, no joints, pure shadow drama - UPSC 2013).',
+        'Rod Puppets: Putul Nach (West Bengal - large puppets on bamboo rods, traditional drum music), Yampuri (Bihar - wheeled puppets showing Yama and afterlife).',
+        'Glove Puppets: Pavakoothu (Kerala - Kathakali headgear and costumes), Pava Kathakali.'
+      ]
+    },
+    {
+      nodeId: 'cmopjv4ec003zz3r0nsbmg0va',
+      title: 'Government Institutions for Art & Culture (ASI, Sangeet Natak Akademi, etc.)',
+      syllabusOrder: 6,
+      topic: 'Festivals, Martial Arts & Miscellaneous Culture',
+      prelimsNote: [
+        'Archaeological Survey of India (ASI): founded 1861 by Alexander Cunningham (first Director-General); protects monuments of national importance under AMASR Act 1958; under Ministry of Culture.',
+        'Akademies: Sangeet Natak Akademi (1952, national academy for music, dance and drama); Lalit Kala Akademi (1954, visual arts); Sahitya Akademi (1954, letters/literature, awards in 24 languages: 22 Eighth Schedule + English and Rajasthani - UPSC 2017).',
+        'National Archives of India (NAI, 1891 as Imperial Record Department); Indira Gandhi National Centre for the Arts (IGNCA, 1987); Centre for Cultural Resources and Training (CCRT, 1979 - cultural education).',
+        'National Mission on Manuscripts (NAMAMI, 2003 - digitising rare Indian manuscripts).'
+      ]
+    },
+    {
+      nodeId: 'cmopjv4ec003xz3r0t3jyhjxt',
+      title: 'Culture & Social Change — Globalisation Impact on Indian Culture',
+      syllabusOrder: 6,
+      topic: 'Festivals, Martial Arts & Miscellaneous Culture',
+      prelimsNote: [
+        'Intangible Cultural Heritage: UNESCO Convention 2003; India has 15 inscriptions including Yoga (2016), Kumbh Mela (2017), Durga Puja in Kolkata (2021), Garba of Gujarat (2023 - latest).',
+        'Traditional Knowledge Digital Library (TKDL): collaborative initiative between CSIR and Ministry of Ayush to prevent biopiracy and wrongful patenting of Indian traditional medicinal knowledge (Neem, Turmeric patents revoked).',
+        'Geographical Indications (GI) of Goods Act 1999: administered by Controller General of Patents, Designs and Trademarks in Chennai; Darjeeling Tea was first GI tag in India (2004-05); protects traditional community intellectual property.',
+        'Project Mausam: Ministry of Culture initiative to revive historical maritime cultural connections across 39 Indian Ocean nations.'
+      ]
+    }
+  ],
+  newNodesToCreate: [
+    {
+      title: 'Indo-Islamic Architecture — Imperial, Provincial & Mughal Styles',
+      module: 'Visual Arts',
+      syllabusOrder: 1,
+      topic: 'Architecture & Sculpture',
+      nodeType: 'STATIC',
+      prelimsNote: [
+        'Features introduced: true arch (Mehrab), dome (Gumbad), minarets, squinch system for dome support, Pietra dura (floral inlay in marble), arabesque, calligraphy and jali lattice screens.',
+        'Delhi Sultanate: Qutb Minar complex (Quwwat-ul-Islam mosque using temple pillars, Iron Pillar of Mehrauli, Alai Darwaza with true horse-shoe arch by Alauddin Khalji - UPSC 2014); Tughlaq architecture (sloping walls/batter, red sandstone, Tughlaqabad, Hauz Khas).',
+        'Provincial Styles: Bengal (brick and terracotta, Adina mosque, Dakhil Darwaza), Gujarat (Jami Masjid Ahmedabad, intricate jalis of Sidi Saiyyed Mosque - tree of life motif), Deccan (Gol Gumbaz of Bijapur - largest unsupported dome with whispering gallery; Charminar of Hyderabad by Quli Qutb Shah).',
+        'Mughal Architecture: Humayun Tomb (Delhi, Persian architect Mirak Mirza Ghiyas, first garden tomb / Charbagh layout, double dome - precursor to Taj Mahal - UPSC 2013); Fatehpur Sikri (Akbar - Buland Darwaza, Panch Mahal, Ibadat Khana, Salim Chisti Dargah in white marble); Taj Mahal (Shah Jahan - white Makrana marble, symmetrical gardens, Pietra dura).'
+      ]
+    },
+    {
+      title: 'Folk Painting Traditions & GI Tagged Indian Handicrafts',
+      module: 'Visual Arts',
+      syllabusOrder: 2,
+      topic: 'Painting & Handicrafts',
+      prelimsNote: [
+        'Madhubani / Mithila Painting (Bihar): done by women using fingers, twigs, brushes and matchsticks with natural dyes; characterized by double line borders, filled-in eye shapes, fish, birds, lotus and Hindu deities (GI tag - UPSC 2013).',
+        'Pattachitra (Odisha & West Bengal): scroll painting on treated cloth/patta using natural colours; depicts Jagannath, Krishna Leela and tribal folklore.',
+        'Warli Painting (Maharashtra): tribal art by Warli community using rice paste and gum on mud walls; geometric patterns (circles, triangles) representing human activities, Tarpa dance, Mother Earth (Palghat).',
+        'Kalamkari (Andhra Pradesh): hand-painted (Srikalahasti - temple themes) or block-printed (Machilipatnam - floral motifs) on cotton fabric using tamarind pen and natural vegetable dyes (UPSC 2015).',
+        'Phad (Rajasthan): long scroll painting on cloth depicting deeds of folk deities Pabuji and Devnarayan, accompanied by Bhopa singer-priests; Pithora (Gujarat/MP Rathwa tribe - horse murals for vows).'
+      ]
+    },
+    {
+      title: 'Six Orthodox Schools of Indian Philosophy (Shad-Darshana) & Heterodox Schools',
+      module: 'Thought & Literature',
+      syllabusOrder: 3,
+      topic: 'Philosophy & Religion',
+      prelimsNote: [
+        'Six Orthodox Schools (Astika - accept authority of Vedas): Samkhya (founded by Kapila - dualism of Purusha/consciousness and Prakriti/matter - UPSC 2013); Yoga (Patanjali - Yogasutras, Ashtanga Yoga); Nyaya (Gautama - school of logic, 4 Pramanas).',
+        'Vaisheshika (Kanada - atomic theory / Parmanu, physics of universe); Purva Mimamsa (Jaimini - Vedic rituals, Dharma, literal interpretation); Uttara Mimamsa / Vedanta (Badarayana - Brahma Sutras, philosophy of Upanishads - UPSC 2014).',
+        'Heterodox Schools (Nastika - reject Vedic authority): Charvaka / Lokayata (Brihaspati - pure materialism, rejection of rebirth and rituals, ' + '"enjoy life while alive" ' + '); Ajivika (Makkhali Gosala - strict fatalism/Niyati, no free will - UPSC 2014).',
+        'Pramanas (valid means of knowledge): Pratyaksha (perception), Anumana (inference), Upamana (comparison), Shabda (testimony), Arthapatti (postulation), Anupalabdhi (non-perception) - varying numbers accepted by different schools.'
+      ]
+    },
+    {
+      title: 'Buddhism & Jainism: Philosophical Doctrines, Sects, Councils & Bodhisattvas',
+      module: 'Thought & Literature',
+      syllabusOrder: 3,
+      topic: 'Philosophy & Religion',
+      prelimsNote: [
+        'Buddhist Councils: 1st at Rajgriha (483 BCE / Ajatashatru, Mahakassapa, Vinaya & Sutta Pitaka compiled); 2nd at Vaishali (383 BCE / Kalashoka, split into Sthaviravadins & Mahasanghikas); 3rd at Pataliputra (250 BCE / Ashoka, Moggaliputta Tissa, Abhidhamma Pitaka added); 4th at Kundalvana/Kashmir (72 CE / Kanishka, Vasumitra, split into Hinayana & Mahayana - UPSC 2020).',
+        'Bodhisattvas in Mahayana: Avalokiteshvara / Padmapani (lotus-bearer, personifies compassion - UPSC 2017); Maitreya (the Future Buddha who will appear on earth - UPSC 2018); Manjushri (sword of wisdom); Vajrapani (thunderbolt); Tara (female saviour).',
+        'Buddhist Sects: Theravada / Hinayana (Pali texts, Buddha as human teacher, individual Arhat salvation); Mahayana (Sanskrit texts, Buddha as divine deity, idol worship, Bodhisattva ideal); Vajrayana (Tantric Buddhism, mantras, mudras, Mandalas, Tibet/Bengal/Bihar - UPSC 2016).',
+        'Jainism Tenets: 5 Mahavratas (Ahimsa, Satya, Asteya, Brahmacharya, Aparigraha - Mahavira added Brahmacharya); Anekantavada and Syadvada (doctrine of May Be); Sallekhana / Santhara (voluntary fasting to death); Svetambara (white-clad, Sthulabhadra) vs Digambara (sky-clad, Bhadrabahu - migrated south to Shravanabelagola).'
+      ]
+    },
+    {
+      title: 'Classical Sanskrit Literature, Epics & Ancient Scientific Treatises',
+      module: 'Thought & Literature',
+      syllabusOrder: 4,
+      topic: 'Literature & Languages',
+      prelimsNote: [
+        'Kalidasa (Gupta court): Plays: Abhijnanasakuntalam, Malavikagnimitram, Vikramorvasiyam; Mahakavyas: Raghuvamsa, Kumarasambhava; Lyric poems: Meghaduta, Ritusamhara.',
+        'Other Classical Plays: Bhasa (Svapnavasavadatta, Urubhanga - 13 plays); Sudraka (Mrichhakatika / Little Clay Cart); Visakhadatta (Mudrarakshasa - political intrigue of Chanakya; Devichandraguptam - Ramagupta and Chandragupta II - UPSC 2020); Bhavabhuti (Uttararamacharita, Malatimadhava - court of Yasovarman of Kannauj).',
+        'Ancient Historians & Biographers: Banabhatta (Harshacharita - biography of Harsha; Kadambari - early novel); Bilhana (Vikramankadevacharita); Kalhana (Rajatarangini - 12th century chronicle of kings of Kashmir, first true historical work in India - UPSC 2012).',
+        'Scientific Treatises: Aryabhata (Aryabhatiya, calculated lunar/solar eclipses, value of pi to 3.1416); Varahamihira (Panchasiddhantika, Brihat Samhita); Brahmagupta (Brahmasphutasiddhanta - rules for zero and negative numbers); Charaka (Charaka Samhita) & Sushruta (Sushruta Samhita - rhinoplasty, cataract).'
+      ]
+    },
+    {
+      title: 'Sangam Literature, Ancient Dravidian Texts & Classical Languages of India',
+      module: 'Thought & Literature',
+      syllabusOrder: 4,
+      topic: 'Literature & Languages',
+      prelimsNote: [
+        'Sangam Assembly (Madurai under Pandya patronage): 3 Sangams; Literature classified into Akam (internal / love poetry) and Puram (external / war and ethics); landscape divided into 5 Tinais: Kurinji (hills), Mullai (forest), Marutham (agricultural plains), Neythal (coast), Palai (arid desert).',
+        'Corpus: Tolkappiyam (earliest Tamil grammar and poetics by Tolkappiyar); Ettuthogai (8 anthologies including Agananuru, Purananuru); Pattupattu (10 idylls); Pathinenkilkanakku (18 didactic works including Tirukkural / Kural by Tiruvalluvar - book of ethics on Aram, Porul, Inbam - UPSC 2019).',
+        'Twin Tamil Epics: Silappadikaram (by Ilango Adigal - story of Kovalan, Kannagi and Madhavi, Anklet of Kannagi, Pattini cult / chaste wife worship - UPSC 2015); Manimekalai (by Sattanar - story of Kovalan and Madhavi daughter Manimekalai, deeply Buddhist philosophy).',
+        '11 Classical Languages of India: Tamil (2004), Sanskrit (2005), Telugu (2008), Kannada (2008), Malayalam (2013), Odia (2014) + Union Cabinet approved 5 new languages in Oct 2024: Marathi, Pali, Prakrit, Assamese, Bengali (UPSC 2014, 2015).'
+      ]
+    },
+    {
+      title: 'Traditional Festivals, Tribal Celebrations & Cultural Fairs of India',
+      module: 'Performing & Living Culture',
+      syllabusOrder: 6,
+      topic: 'Festivals, Martial Arts & Miscellaneous Culture',
+      prelimsNote: [
+        'North-East Festivals: Hornbill Festival (Nagaland, Kohima, ' + '"Festival of Festivals" ' + 'celebrating all Naga tribes); Chapchar Kut (Mizoram, post-jhum clearing spring festival); Bihu (Assam: Rongali/spring, Kongali/autumn, Bhogali/harvest); Losar (Tibetan New Year in Ladakh, Arunachal - Monpa tribe); Saga Dawa (Sikkim, Buddha birth/enlightenment/parinirvana); Wangala (Meghalaya, 100-drum festival of Garos - UPSC 2017).',
+        'South India Festivals: Thrissur Pooram (Kerala, Vadakkunnathan temple, caparisoned elephant parade and Kudamattam parasol exchange); Onam (Kerala, harvest and return of King Mahabali); Pongal (Tamil Nadu, harvest festival, Jallikattu bull-taming sport in Alanganallur); Kambala (Karnataka coastal buffalo race in muddy paddy fields - UPSC 2018).',
+        'Tribal & Cultural Fairs: Medaram Jathara / Sammakka Saralamma Jathara (Telangana, Koya tribe, second largest congregation in India after Kumbh Mela); Nuakhai (Odisha harvest celebration); Ambubachi Mela (Kamakhya temple, Guwahati, annual fertility festival of Goddess Kamakhya).',
+        'Pushkar Camel Fair (Rajasthan, Kartik Purnima); Tarnetar Fair (Gujarat, Saurashtra Koli and Rabari matchmaking fair); Baneshwar Fair (Rajasthan, Bhil community tribal confluence at Mahi and Som rivers).'
+      ]
+    },
+    {
+      title: 'Traditional Martial Arts of India — Kalaripayattu, Thang-Ta, Gatka & Silambam',
+      module: 'Performing & Living Culture',
+      syllabusOrder: 6,
+      topic: 'Festivals, Martial Arts & Miscellaneous Culture',
+      prelimsNote: [
+        'Kalaripayattu (Kerala): one of the oldest fighting systems in the world; practiced in a Kalari (training arena); includes unarmed combat, footwork, wooden weapons, and Urumi (flexible sword); integrated into Kathakali training (UPSC 2014).',
+        'Thang-Ta & Sarit Sarak (Manipur): traditional martial art of the Meitei community; Thang = sword, Ta = spear; performed as ritual art, armed combat and dance; promoted under Khelo India Youth Games.',
+        'Silambam (Tamil Nadu): ancient weapon-based martial art using long bamboo staff / lathi; references in Sangam literature; employs swift footwork, body evasions and snake-like strikes.',
+        'Gatka (Punjab): traditional martial art of the Sikhs using wooden sticks (soti) and shields; associated with 6th Guru Hargobind and Khalsa warrior tradition.',
+        'Other Regional Martial Arts: Pari-Khanda (Bihar/Jharkhand - shield and sword, basis of Chhau dance steps); Mardani Khel (Maharashtra - Maratha patta sword and shield); Musti Yuddha (Varanasi - ancient boxing); Sqay (Kashmir - curved sword and shield).'
+      ]
+    },
+    {
+      title: 'UNESCO Intangible Cultural Heritage & World Heritage Sites in India',
+      module: 'Performing & Living Culture',
+      syllabusOrder: 6,
+      topic: 'Festivals, Martial Arts & Miscellaneous Culture',
+      prelimsNote: [
+        '15 UNESCO Intangible Cultural Heritage (ICH) Elements: 1. Vedic Chanting (2008), 2. Ramlila (2008), 3. Koodiyattam (2008), 4. Ramman (Garhwal religious festival 2009), 5. Mudiyettu (Kerala ritual theatre 2010), 6. Kalbelia dance of Rajasthan (2010), 7. Chhau dance (2010), 8. Buddhist Chanting of Ladakh (2012), 9. Sankirtana of Manipur (2013), 10. Traditional brass and copper craft of Jandiala Guru / Punjab (2014), 11. Yoga (2016), 12. Nowruz (2016), 13. Kumbh Mela (2017), 14. Durga Puja in Kolkata (2021), 15. Garba of Gujarat (2023 - latest) (UPSC 2012, 2017).',
+        'UNESCO World Heritage Sites in India: 43 sites total (35 Cultural, 7 Natural, 1 Mixed - Khangchendzonga National Park, Sikkim).',
+        'Latest Inscriptions: Sacred Ensembles of the Hoysalas (2023 - Belur, Halebidu, Somnathapura); Santiniketan (2023 - Rabindranath Tagore university town); Moidams — the Mound-Burial System of the Ahom Dynasty (2024 - Charaideo, Assam, first cultural heritage site from North-East).',
+        'UNESCO Creative Cities Network (UCCN) from India: Jaipur (Crafts), Varanasi (Music), Chennai (Music), Mumbai (Film), Hyderabad (Gastronomy), Srinagar (Crafts), Gwalior (Music 2023), Kozhikode (Literature 2023).'
+      ]
+    }
+  ]
+};
+
+const localPath = path.resolve('./data/art_culture_node_bridging.json');
+fs.writeFileSync(localPath, JSON.stringify(bridgingData, null, 2));
+
+const downloadPath = '/Users/nikhilwandhe/Downloads/art_culture_node_bridging.json';
+fs.writeFileSync(downloadPath, JSON.stringify(bridgingData, null, 2));
+
+console.log(`✅ Saved Art & Culture bridging data to:\n   - ${localPath}\n   - ${downloadPath}`);

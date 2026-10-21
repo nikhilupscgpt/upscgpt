@@ -1,0 +1,32 @@
+{
+  "Architecture & Sculpture": {
+    "topic": "Architecture & Sculpture",
+    "syllabusOrder": 1,
+    "module": "Visual Arts"
+  },
+  "Painting & Handicrafts": {
+    "topic": "Painting & Handicrafts",
+    "syllabusOrder": 2,
+    "module": "Visual Arts"
+  },
+  "Philosophy & Religion": {
+    "topic": "Philosophy & Religion",
+    "syllabusOrder": 3,
+    "module": "Thought & Literature"
+  },
+  "Literature & Languages": {
+    "topic": "Literature & Languages",
+    "syllabusOrder": 4,
+    "module": "Thought & Literature"
+  },
+  "Dance, Music, Theatre & Puppetry": {
+    "topic": "Dance, Music, Theatre & Puppetry",
+    "syllabusOrder": 5,
+    "module": "Performing & Living Culture"
+  },
+  "Festivals, Martial Arts & Miscellaneous Culture": {
+    "topic": "Festivals, Martial Arts & Miscellaneous Culture",
+    "syllabusOrder": 6,
+    "module": "Performing & Living Culture"
+  }
+}
