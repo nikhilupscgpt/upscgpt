@@ -269,7 +269,7 @@ export default function PyqDeepDive({ analysis, questionId }) {
           {valueAddition && (
             <div className="pq-dd-section">
               <div className="pq-dd-label">
-                <BookOpen size={14} /> Forward-Looking Value Addition *(What UPSC will ask next)*
+                <BookOpen size={14} /> Value Addition
               </div>
               {typeof valueAddition === 'string' ? (
                 <div className="pq-va-card" style={{ padding: '16px 20px', lineHeight: 1.65, fontSize: '0.92rem' }}>
