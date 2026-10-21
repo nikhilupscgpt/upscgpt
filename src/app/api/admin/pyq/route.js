@@ -4,6 +4,12 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import crypto from 'crypto';
 import { isNewPatternQuestion, isPairQuestion, isStatementQuestion } from '@/lib/pyqPattern';
+import {
+  SUBJECT_ORDER,
+  TOPIC_GROUPS,
+  getTopicSyllabusOrder,
+  sortQuestionsBySyllabus
+} from '@/lib/syllabusTaxonomy';
 
 const prisma = new PrismaClient();
 
@@ -37,6 +43,7 @@ export async function GET(req) {
     const year = searchParams.get('year') || 'ALL';
     const pattern = searchParams.get('pattern') || 'ALL'; // ALL | NEW | PAIR | STATEMENT
     const answerStatus = searchParams.get('answerStatus') || 'ALL'; // ALL | HAS_ANSWER | MISSING_ANSWER | HAS_EXPL | MISSING_EXPL
+    const sort = searchParams.get('sort') || (subject !== 'ALL' && topic === 'ALL' ? 'syllabus' : 'exam'); // 'syllabus' | 'exam'
 
     // Build base where clause
     const where = {};
@@ -82,13 +89,11 @@ export async function GET(req) {
       ];
     }
 
-    // Pattern filtering requires checking stem/options, so if pattern is filtered,
-    // we fetch matching set and filter in memory or apply standard pagination
     let questions = [];
     let total = 0;
 
-    if (pattern === 'NEW' || pattern === 'PAIR' || pattern === 'STATEMENT') {
-      // Fetch all candidate records for the given where filter, then filter by pattern
+    if (sort === 'syllabus' || pattern === 'NEW' || pattern === 'PAIR' || pattern === 'STATEMENT') {
+      // For syllabus sorting or pattern detection, fetch candidate records and sort/filter in memory
       const allMatches = await prisma.questionDraft.findMany({
         where,
         orderBy: [{ examYear: 'desc' }, { questionNo: 'asc' }],
@@ -110,17 +115,24 @@ export async function GET(req) {
         }
       });
 
-      const patternFiltered = allMatches.filter(q => {
-        const parsedOpts = normalizeOptions(q.options);
-        const item = { ...q, options: parsedOpts };
-        if (pattern === 'NEW') return isNewPatternQuestion(item);
-        if (pattern === 'PAIR') return isPairQuestion(item);
-        if (pattern === 'STATEMENT') return isStatementQuestion(item);
-        return true;
-      });
+      let candidateList = allMatches;
+      if (pattern === 'NEW' || pattern === 'PAIR' || pattern === 'STATEMENT') {
+        candidateList = allMatches.filter(q => {
+          const parsedOpts = normalizeOptions(q.options);
+          const item = { ...q, options: parsedOpts };
+          if (pattern === 'NEW') return isNewPatternQuestion(item);
+          if (pattern === 'PAIR') return isPairQuestion(item);
+          if (pattern === 'STATEMENT') return isStatementQuestion(item);
+          return true;
+        });
+      }
 
-      total = patternFiltered.length;
-      questions = patternFiltered.slice((page - 1) * limit, page * limit).map(q => ({
+      if (sort === 'syllabus') {
+        candidateList = sortQuestionsBySyllabus(candidateList, subject !== 'ALL' ? subject : 'Indian Polity');
+      }
+
+      total = candidateList.length;
+      questions = candidateList.slice((page - 1) * limit, page * limit).map(q => ({
         ...q,
         options: normalizeOptions(q.options)
       }));
@@ -155,7 +167,7 @@ export async function GET(req) {
       }));
     }
 
-    // Fetch filter options for dropdowns (cached per subject/year)
+    // Fetch filter options for dropdowns
     const [rawSubjects, rawYears, rawExams] = await Promise.all([
       prisma.questionDraft.findMany({
         select: { srcSubject: true },
@@ -175,9 +187,53 @@ export async function GET(req) {
       })
     ]);
 
-    const subjects = rawSubjects.map(s => s.srcSubject).filter(Boolean).sort();
+    const subjects = rawSubjects
+      .map(s => s.srcSubject)
+      .filter(Boolean)
+      .sort((a, b) => {
+        const idxA = SUBJECT_ORDER.indexOf(a);
+        const idxB = SUBJECT_ORDER.indexOf(b);
+        const rankA = idxA === -1 ? 999 : idxA;
+        const rankB = idxB === -1 ? 999 : idxB;
+        if (rankA !== rankB) return rankA - rankB;
+        return a.localeCompare(b);
+      });
+
     const years = rawYears.map(y => y.examYear).filter(Boolean);
     const exams = rawExams.map(e => e.examName).filter(Boolean).sort();
+
+    // Fetch topics and topicGroups for the active subject if filtered
+    let topics = [];
+    let topicGroups = [];
+    if (subject !== 'ALL') {
+      const topicRows = await prisma.questionDraft.findMany({
+        where: { srcSubject: subject },
+        distinct: ['srcTopic'],
+        select: { srcTopic: true }
+      });
+      const distinctTopics = topicRows.map(t => t.srcTopic).filter(Boolean);
+      topics = distinctTopics.sort((a, b) => {
+        const orderA = getTopicSyllabusOrder(subject, a);
+        const orderB = getTopicSyllabusOrder(subject, b);
+        if (orderA !== orderB) return orderA - orderB;
+        return a.localeCompare(b);
+      });
+
+      const subjectModules = TOPIC_GROUPS[subject] || [];
+      const topicSet = new Set(topics);
+      const covered = new Set();
+      for (const [moduleLabel, topicNames] of subjectModules) {
+        const items = topicNames.filter(t => topicSet.has(t));
+        if (items.length > 0) {
+          items.forEach(t => covered.add(t));
+          topicGroups.push({ label: moduleLabel, topics: items });
+        }
+      }
+      const rest = topics.filter(t => !covered.has(t));
+      if (rest.length > 0) {
+        topicGroups.push({ label: 'Other & Specialized Topics', topics: rest });
+      }
+    }
 
     return NextResponse.json({
       success: true,
@@ -190,6 +246,8 @@ export async function GET(req) {
         subjects,
         years,
         exams,
+        topics,
+        topicGroups,
       }
     });
   } catch (error) {

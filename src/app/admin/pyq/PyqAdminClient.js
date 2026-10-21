@@ -46,8 +46,9 @@ export default function PyqAdminClient({ session }) {
   const [year, setYear] = useState('ALL');
   const [pattern, setPattern] = useState('ALL');
   const [answerStatus, setAnswerStatus] = useState('ALL');
+  const [sortOrder, setSortOrder] = useState('syllabus'); // 'syllabus' | 'exam'
 
-  const [filterOptions, setFilterOptions] = useState({ subjects: [], years: [], exams: [] });
+  const [filterOptions, setFilterOptions] = useState({ subjects: [], years: [], exams: [], topics: [], topicGroups: [] });
 
   // Selection state for batch printing / actions
   const [selectedQIds, setSelectedQIds] = useState(new Set());
@@ -106,9 +107,10 @@ export default function PyqAdminClient({ session }) {
   const [printTopic, setPrintTopic] = useState('ALL');
   const [printMicrotheme, setPrintMicrotheme] = useState('ALL');
   const [printYear, setPrintYear] = useState('ALL');
+  const [printSort, setPrintSort] = useState('syllabus');
   const [printIncludeKey, setPrintIncludeKey] = useState(true);
   const [printIncludeExpl, setPrintIncludeExpl] = useState(true);
-  const [printTaxonomy, setPrintTaxonomy] = useState({ exams: [], subjects: [], topics: [], microthemes: [], matchingCount: null });
+  const [printTaxonomy, setPrintTaxonomy] = useState({ exams: [], subjects: [], topics: [], topicGroups: [], microthemes: [], matchingCount: null });
   const [loadingTaxonomy, setLoadingTaxonomy] = useState(false);
 
   // Fetch Questions
@@ -119,6 +121,7 @@ export default function PyqAdminClient({ session }) {
       const p = new URLSearchParams();
       p.set('page', page.toString());
       p.set('limit', limit.toString());
+      p.set('sort', sortOrder);
       if (search.trim()) p.set('q', search.trim());
       if (subject !== 'ALL') p.set('subject', subject);
       if (topic !== 'ALL') p.set('topic', topic);
@@ -145,7 +148,7 @@ export default function PyqAdminClient({ session }) {
     } finally {
       setLoading(false);
     }
-  }, [page, limit, search, subject, topic, exam, year, pattern, answerStatus]);
+  }, [page, limit, search, subject, topic, exam, year, pattern, answerStatus, sortOrder]);
 
   useEffect(() => {
     fetchQuestions();
@@ -172,6 +175,7 @@ export default function PyqAdminClient({ session }) {
             exams: data.exams || [],
             subjects: data.subjects || [],
             topics: data.topics || [],
+            topicGroups: data.topicGroups || [],
             microthemes: data.microthemes || [],
             matchingCount: typeof data.matchingCount === 'number' ? data.matchingCount : null
           });
@@ -194,6 +198,7 @@ export default function PyqAdminClient({ session }) {
       topic: printTopic,
       microtheme: printMicrotheme,
       year: printYear,
+      sort: printSort,
       limit: 'ALL',
       includeKey: printIncludeKey ? 'true' : 'false',
       includeExpl: printIncludeExpl ? 'true' : 'false'
@@ -903,7 +908,7 @@ export default function PyqAdminClient({ session }) {
                   <label style={{ fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Subject</label>
                   <select
                     value={subject}
-                    onChange={e => { setSubject(e.target.value); setPage(1); }}
+                    onChange={e => { setSubject(e.target.value); setTopic('ALL'); setPage(1); }}
                     style={{
                       background: 'rgba(2, 6, 23, 0.8)',
                       border: '1px solid rgba(255, 255, 255, 0.15)',
@@ -918,6 +923,63 @@ export default function PyqAdminClient({ session }) {
                     {filterOptions.subjects.map(s => (
                       <option key={s} value={s}>{s}</option>
                     ))}
+                  </select>
+                </div>
+
+                {/* Theme / Topic Filter */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={{ fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Theme / Topic</label>
+                  <select
+                    value={topic}
+                    onChange={e => { setTopic(e.target.value); setPage(1); }}
+                    disabled={subject === 'ALL'}
+                    style={{
+                      background: 'rgba(2, 6, 23, 0.8)',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      borderRadius: '8px',
+                      color: '#ffffff',
+                      padding: '8px 12px',
+                      fontSize: '0.85rem',
+                      fontWeight: 600,
+                      opacity: subject === 'ALL' ? 0.5 : 1,
+                      maxWidth: '240px'
+                    }}
+                  >
+                    <option value="ALL">All Themes in {subject === 'ALL' ? 'Subject' : subject}</option>
+                    {filterOptions.topicGroups && filterOptions.topicGroups.length > 0 ? (
+                      filterOptions.topicGroups.map(group => (
+                        <optgroup key={group.label} label={group.label}>
+                          {group.topics.map(t => (
+                            <option key={t} value={t}>{t}</option>
+                          ))}
+                        </optgroup>
+                      ))
+                    ) : (
+                      (filterOptions.topics || []).map(t => (
+                        <option key={t} value={t}>{t}</option>
+                      ))
+                    )}
+                  </select>
+                </div>
+
+                {/* Sequence Order Filter */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                  <label style={{ fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Sequence Order</label>
+                  <select
+                    value={sortOrder}
+                    onChange={e => { setSortOrder(e.target.value); setPage(1); }}
+                    style={{
+                      background: 'rgba(2, 6, 23, 0.8)',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      borderRadius: '8px',
+                      color: '#ffffff',
+                      padding: '8px 12px',
+                      fontSize: '0.85rem',
+                      fontWeight: 600
+                    }}
+                  >
+                    <option value="syllabus">📖 Syllabus Sequence (NCERT Chapters)</option>
+                    <option value="exam">📅 Exam Year (Recent First)</option>
                   </select>
                 </div>
 
@@ -1276,13 +1338,15 @@ export default function PyqAdminClient({ session }) {
 
                           {q.srcTopic && (
                             <span style={{
-                              background: 'rgba(255, 255, 255, 0.05)',
-                              color: '#94a3b8',
+                              background: 'rgba(59, 130, 246, 0.14)',
+                              color: '#93c5fd',
+                              border: '1px solid rgba(59, 130, 246, 0.3)',
                               padding: '3px 8px',
                               borderRadius: '6px',
-                              fontSize: '0.72rem'
+                              fontSize: '0.72rem',
+                              fontWeight: 700
                             }}>
-                              {q.srcTopic}
+                              📖 {q.srcTopic}
                             </span>
                           )}
 
@@ -2750,9 +2814,19 @@ export default function PyqAdminClient({ session }) {
                   }}
                 >
                   <option value="ALL">All Themes in {printSubject === 'ALL' ? 'Subject' : printSubject}</option>
-                  {printTaxonomy.topics.map(t => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
+                  {printTaxonomy.topicGroups && printTaxonomy.topicGroups.length > 0 ? (
+                    printTaxonomy.topicGroups.map(group => (
+                      <optgroup key={group.label} label={group.label}>
+                        {group.topics.map(t => (
+                          <option key={t} value={t}>{t}</option>
+                        ))}
+                      </optgroup>
+                    ))
+                  ) : (
+                    printTaxonomy.topics.map(t => (
+                      <option key={t} value={t}>{t}</option>
+                    ))
+                  )}
                 </select>
               </div>
 
@@ -2807,6 +2881,30 @@ export default function PyqAdminClient({ session }) {
                   {filterOptions.years.map(y => (
                     <option key={y} value={y}>{y}</option>
                   ))}
+                </select>
+              </div>
+
+              {/* Question Sequence / Ordering */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: '#94a3b8', marginBottom: '6px' }}>
+                  QUESTION SEQUENCE
+                </label>
+                <select
+                  value={printSort}
+                  onChange={e => setPrintSort(e.target.value)}
+                  style={{
+                    width: '100%',
+                    background: 'rgba(2, 6, 23, 0.8)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    borderRadius: '10px',
+                    padding: '10px 12px',
+                    color: '#ffffff',
+                    fontSize: '0.88rem',
+                    fontWeight: 600
+                  }}
+                >
+                  <option value="syllabus">📖 Canonical Syllabus Sequence (NCERT Chapters &amp; Modules)</option>
+                  <option value="exam">📅 Chronological by Exam Year (Recent First)</option>
                 </select>
               </div>
 

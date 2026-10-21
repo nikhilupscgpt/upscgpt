@@ -2,6 +2,13 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import {
+  SUBJECT_ORDER,
+  TOPIC_GROUPS,
+  getTopicSyllabusOrder,
+  getMicrothemesForTopic,
+  buildMicrothemeConditions
+} from '@/lib/syllabusTaxonomy';
 
 export async function GET(req) {
   try {
@@ -29,7 +36,7 @@ export async function GET(req) {
       return name;
     })));
 
-    // 2. Get Subjects
+    // 2. Get Subjects (Strictly ordered by canonical NCERT syllabus sequence)
     const examWhere = {};
     if (exam !== 'ALL') {
       examWhere.examName = { contains: exam === 'UPSC CSE' ? 'CSE' : exam, mode: 'insensitive' };
@@ -39,48 +46,92 @@ export async function GET(req) {
       where: examWhere,
       distinct: ['srcSubject'],
       select: { srcSubject: true },
-      orderBy: { srcSubject: 'asc' }
     });
-    const subjects = subjectRows.map(s => s.srcSubject).filter(Boolean);
+    const rawSubjects = subjectRows.map(s => s.srcSubject).filter(Boolean);
+    const subjects = rawSubjects.sort((a, b) => {
+      const idxA = SUBJECT_ORDER.indexOf(a);
+      const idxB = SUBJECT_ORDER.indexOf(b);
+      const rankA = idxA === -1 ? 999 : idxA;
+      const rankB = idxB === -1 ? 999 : idxB;
+      if (rankA !== rankB) return rankA - rankB;
+      return a.localeCompare(b);
+    });
 
-    // 3. Get Topics (Themes) for the chosen Subject
+    // 3. Get Topics (Themes) & Structured Topic Groups for the chosen Subject
     let topics = [];
+    let topicGroups = [];
     if (subject !== 'ALL') {
       const topicRows = await prisma.questionDraft.findMany({
         where: { ...examWhere, srcSubject: subject },
         distinct: ['srcTopic'],
         select: { srcTopic: true },
-        orderBy: { srcTopic: 'asc' }
       });
-      topics = topicRows.map(t => t.srcTopic).filter(Boolean);
+      const distinctTopics = topicRows.map(t => t.srcTopic).filter(Boolean);
+
+      // Sort topics by official syllabus flow (Foundations -> Executive -> Legislature...)
+      topics = distinctTopics.sort((a, b) => {
+        const orderA = getTopicSyllabusOrder(subject, a);
+        const orderB = getTopicSyllabusOrder(subject, b);
+        if (orderA !== orderB) return orderA - orderB;
+        return a.localeCompare(b);
+      });
+
+      // Construct canonical module groupings matching TOPIC_GROUPS
+      const subjectModules = TOPIC_GROUPS[subject] || [];
+      const topicSet = new Set(topics);
+      const covered = new Set();
+
+      for (const [moduleLabel, topicNames] of subjectModules) {
+        const items = topicNames.filter(t => topicSet.has(t));
+        if (items.length > 0) {
+          items.forEach(t => covered.add(t));
+          topicGroups.push({
+            label: moduleLabel,
+            topics: items
+          });
+        }
+      }
+      const rest = topics.filter(t => !covered.has(t));
+      if (rest.length > 0) {
+        topicGroups.push({
+          label: 'Other & Specialized Topics',
+          topics: rest
+        });
+      }
     }
 
-    // 4. Get Microthemes (Subtopics)
+    // 4. Get Microthemes (Subtopics / Neural Nodes)
     let microthemes = [];
     if (topic !== 'ALL') {
-      const subIssues = await prisma.issue.findMany({
+      const directBridged = getMicrothemesForTopic(subject, topic);
+      const microthemeSet = new Set(directBridged);
+
+      // Complement with live Issue nodes from the DB matching topic keywords
+      const dbIssues = await prisma.issue.findMany({
         where: {
-          parentIssueId: { not: null },
           OR: [
             { topic: { contains: topic, mode: 'insensitive' } },
-            { parentIssue: { title: { contains: topic, mode: 'insensitive' } } }
+            { title: { contains: topic, mode: 'insensitive' } }
           ]
         },
         select: { title: true },
-        distinct: ['title'],
-        take: 100
+        take: 50
       });
-
-      if (subIssues.length > 0) {
-        microthemes = subIssues.map(s => s.title);
-      } else {
-        const themeRows = await prisma.questionDraft.findMany({
-          where: { ...examWhere, srcTopic: topic, srcTheme: { not: null } },
-          distinct: ['srcTheme'],
-          select: { srcTheme: true }
-        });
-        microthemes = themeRows.map(t => t.srcTheme).filter(Boolean);
+      for (const iss of dbIssues) {
+        if (iss.title) microthemeSet.add(iss.title);
       }
+
+      // Complement with any explicit QuestionDraft.srcTheme
+      const themeRows = await prisma.questionDraft.findMany({
+        where: { ...examWhere, srcTopic: topic, srcTheme: { not: null } },
+        distinct: ['srcTheme'],
+        select: { srcTheme: true }
+      });
+      for (const tr of themeRows) {
+        if (tr.srcTheme) microthemeSet.add(tr.srcTheme);
+      }
+
+      microthemes = Array.from(microthemeSet);
     }
 
     // 5. Compute exact matching question count for current selection
@@ -92,11 +143,10 @@ export async function GET(req) {
       if (!isNaN(parsedYear)) countWhere.examYear = parsedYear;
     }
     if (microtheme !== 'ALL') {
-      countWhere.OR = [
-        { srcTheme: microtheme },
-        { stem: { contains: microtheme, mode: 'insensitive' } },
-        { explanation: { contains: microtheme, mode: 'insensitive' } }
-      ];
+      const microCond = buildMicrothemeConditions(microtheme);
+      if (microCond) {
+        countWhere.AND = [microCond];
+      }
     }
 
     const matchingCount = await prisma.questionDraft.count({ where: countWhere });
@@ -106,6 +156,7 @@ export async function GET(req) {
       exams: standardExams,
       subjects,
       topics,
+      topicGroups,
       microthemes,
       matchingCount
     });

@@ -3,6 +3,11 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { getStructuredExplanation } from '@/lib/pyqExplanationHelper';
+import {
+  getTopicModule,
+  sortQuestionsBySyllabus,
+  buildMicrothemeConditions
+} from '@/lib/syllabusTaxonomy';
 
 function normalizeOptions(opts) {
   if (Array.isArray(opts)) return opts;
@@ -41,6 +46,7 @@ export async function GET(req) {
     const topic = searchParams.get('topic') || 'ALL';
     const microtheme = searchParams.get('microtheme') || 'ALL';
     const year = searchParams.get('year') || 'ALL';
+    const sort = searchParams.get('sort') || 'syllabus';  // 'syllabus' | 'exam'
     const search = (searchParams.get('q') || '').trim();
     const includeKey = searchParams.get('includeKey') !== 'false';
     const includeExpl = searchParams.get('includeExpl') !== 'false';
@@ -81,13 +87,10 @@ export async function GET(req) {
       }
 
       if (microtheme !== 'ALL') {
-        andConditions.push({
-          OR: [
-            { srcTheme: microtheme },
-            { stem: { contains: microtheme, mode: 'insensitive' } },
-            { explanation: { contains: microtheme, mode: 'insensitive' } }
-          ]
-        });
+        const microCond = buildMicrothemeConditions(microtheme);
+        if (microCond) {
+          andConditions.push(microCond);
+        }
       }
 
       if (andConditions.length > 0) {
@@ -134,8 +137,14 @@ export async function GET(req) {
       );
     }
 
+    // Sort questions: canonical syllabus sequence (Foundations -> Executive -> Legislature...)
+    // or chronological exam year based on the requested sort parameter
+    const sortedQuestions = sort === 'syllabus'
+      ? sortQuestionsBySyllabus(questions, subject !== 'ALL' ? subject : 'Indian Polity')
+      : questions;
+
     if (mode === 'slide') {
-      const html = buildSlideDocument({ questions });
+      const html = buildSlideDocument({ questions: sortedQuestions });
       return new NextResponse(html, {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
@@ -148,7 +157,7 @@ export async function GET(req) {
       topic,
       microtheme,
       year,
-      questions,
+      questions: sortedQuestions,
       includeKey,
       includeExpl
     });
@@ -836,13 +845,17 @@ function buildSlideDocument({ questions }) {
     const inNews = analysis ? analysis.inNews : null;
     const similarPyq = analysis ? analysis.similarPyq : null;
 
+    const qSub = q.srcSubject || 'General Studies';
+    const qModule = getTopicModule(qSub, q.srcTopic);
+
     return `
       <div class="slide-page">
         <!-- Slide Top Header -->
         <div class="slide-head">
           <span class="badge-exam-red">${escapeHtml(q.examName || 'UPSC Prelims')} ${q.examYear || ''}</span>
           <div class="slide-head-meta">
-            <span>${escapeHtml(q.srcSubject || 'General Studies')}</span>
+            <span>${escapeHtml(qSub)}</span>
+            ${qModule && qModule !== 'General' ? `<span style="color:#f59e0b;font-weight:700;">› ${escapeHtml(qModule)}</span>` : ''}
             ${q.srcTopic ? `<span>›</span><span>${escapeHtml(q.srcTopic)}</span>` : ''}
             ${q.questionNo ? `<span>• Q#${q.questionNo}</span>` : ''}
           </div>
@@ -1321,6 +1334,36 @@ function buildExamDocument({ exam, stage, subject, topic, microtheme, year, ques
       max-width: 100%;
     }
 
+    /* Syllabus Module / Topic Section Divider */
+    .syllabus-section-divider {
+      break-inside: avoid;
+      page-break-inside: avoid;
+      margin: 11pt 0 7pt 0;
+      padding: 5.5pt 9pt;
+      background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+      border: 1pt solid #cbd5e1;
+      border-left: 4.5pt solid #1e40af;
+      border-radius: 5px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .ssd-module {
+      font-size: 7.2pt;
+      font-weight: 800;
+      color: #1e40af;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 2pt;
+    }
+    .ssd-topic {
+      font-size: 9.5pt;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: 0.2px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
     /* Question Item */
     .question-block {
       break-inside: avoid;
@@ -1672,38 +1715,59 @@ function buildExamDocument({ exam, stage, subject, topic, microtheme, year, ques
 
   <!-- Questions Body -->
   <div class="paper-body ${isPrelims ? 'two-column' : 'single-column'}">
-    ${questions.map((q, idx) => {
-      const opts = normalizeOptions(q.options);
-      const isCds = /cds/i.test(q.examName || exam);
-      const showTopicChip = topic === 'ALL' && q.srcTopic;
-      return `
-        <div class="question-block">
-          <div class="q-head">
-            <span class="q-num-badge">Q${idx + 1}</span>
-            <div class="q-tags-right">
-              ${showTopicChip ? `<span class="q-topic-tag">${escapeHtml(q.srcTopic)}</span>` : ''}
-              <span class="q-source-tag ${isCds ? 'cds-tag' : ''}">${escapeHtml(q.examName || exam)} ${q.examYear || ''}</span>
-            </div>
-          </div>
-          <div class="q-stem">${formatQuestionStem(q.stem)}</div>
+    ${(() => {
+      let currentSectionKey = '';
+      return questions.map((q, idx) => {
+        const opts = normalizeOptions(q.options);
+        const isCds = /cds/i.test(q.examName || exam);
+        const qSub = q.srcSubject || subject || 'General Studies';
+        const qTopic = q.srcTopic || 'General Topic';
+        const qModule = getTopicModule(qSub, qTopic);
+        const sectionKey = `${qSub}:::${qTopic}`;
 
-          ${isPrelims ? `
-            <div class="options-list">
-              ${opts.map(o => `
-                <div class="option-item">
-                  <span class="opt-label">(${escapeHtml((o.label || '').toLowerCase())})</span>
-                  <span>${escapeHtml(o.text)}</span>
-                </div>
-              `).join('')}
+        let sectionHeaderHtml = '';
+        if (topic === 'ALL' && sectionKey !== currentSectionKey) {
+          currentSectionKey = sectionKey;
+          sectionHeaderHtml = `
+            <div class="syllabus-section-divider">
+              <div class="ssd-module">${escapeHtml(qSub)} • MODULE: ${escapeHtml(qModule)}</div>
+              <div class="ssd-topic">
+                <span>${escapeHtml(qTopic)}</span>
+              </div>
             </div>
-          ` : `
-            <div class="mains-meta">[Marks: 10 / 150 Words]</div>
-            <div class="mains-ruling"></div>
-            <div class="mains-ruling"></div>
-          `}
-        </div>
-      `;
-    }).join('')}
+          `;
+        }
+
+        return `
+          ${sectionHeaderHtml}
+          <div class="question-block">
+            <div class="q-head">
+              <span class="q-num-badge">Q${idx + 1}</span>
+              <div class="q-tags-right">
+                ${q.srcTopic ? `<span class="q-topic-tag">${escapeHtml(q.srcTopic)}</span>` : ''}
+                <span class="q-source-tag ${isCds ? 'cds-tag' : ''}">${escapeHtml(q.examName || exam)} ${q.examYear || ''}</span>
+              </div>
+            </div>
+            <div class="q-stem">${formatQuestionStem(q.stem)}</div>
+
+            ${isPrelims ? `
+              <div class="options-list">
+                ${opts.map(o => `
+                  <div class="option-item">
+                    <span class="opt-label">(${escapeHtml((o.label || '').toLowerCase())})</span>
+                    <span>${escapeHtml(o.text)}</span>
+                  </div>
+                `).join('')}
+              </div>
+            ` : `
+              <div class="mains-meta">[Marks: 10 / 150 Words]</div>
+              <div class="mains-ruling"></div>
+              <div class="mains-ruling"></div>
+            `}
+          </div>
+        `;
+      }).join('');
+    })()}
   </div>
 
   <div class="end-paper">★ ★ ★ END OF QUESTION PAPER (${totalQuestions} QUESTIONS) ★ ★ ★</div>
@@ -1740,7 +1804,7 @@ function buildExamDocument({ exam, stage, subject, topic, microtheme, year, ques
             return `
               <div class="expl-item">
                 <div class="expl-head">
-                  <span class="expl-q-title">Q${idx + 1} • ${escapeHtml(q.examName || exam)} ${q.examYear || ''}</span>
+                  <span class="expl-q-title">Q${idx + 1} • ${escapeHtml(q.srcTopic || '')} • ${escapeHtml(q.examName || exam)} ${q.examYear || ''}</span>
                   <span class="ans-badge ${badgeClass}">Answer: (${escapeHtml(ans)})</span>
                 </div>
                 <div style="margin-top:2pt; color:#1e293b;">${formatQuestionStem(q.explanation || 'Detailed explanation not provided for this question.')}</div>
