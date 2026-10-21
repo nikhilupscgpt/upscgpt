@@ -1,0 +1,567 @@
+{
+  "subject": "Geography",
+  "totalPrelimsQuestions": 391,
+  "totalExistingNodesInDB": 45,
+  "syllabusFlow": [
+    {
+      "syllabusOrder": 1,
+      "module": "Physical Geography",
+      "topic": "Universe & Solar System",
+      "questionCount": 37,
+      "coreThemes": [
+        "Big Bang & Universe Evolution",
+        "Solar System Planets (Inner vs Outer planets, Retrograde rotation of Venus & Uranus, Asteroid Belt)",
+        "Earth Motions (Rotation, Revolution, Solstices, Equinoxes, Seasons, Day/Night variation)",
+        "Latitudes & Longitudes (International Date Line, Time Zones, Tropics, Prime Meridian)",
+        "Eclipses (Solar vs Lunar, Umbra, Penumbra)"
+      ]
+    },
+    {
+      "syllabusOrder": 2,
+      "module": "Physical Geography",
+      "topic": "Geomorphology",
+      "questionCount": 48,
+      "coreThemes": [
+        "Earth Interior Layers (Crust, Moho, Mantle, Asthenosphere, Outer Core, Inner Core)",
+        "Seismic Waves (P-waves vs S-waves shadow zones)",
+        "Continental Drift & Paleomagnetism",
+        "Plate Tectonics (Convergent, Divergent, Transform boundaries, Ring of Fire)",
+        "Volcanism & Intrusive Landforms (Batholiths, Laccoliths, Sills, Dykes)",
+        "Earthquakes & Tsunamis",
+        "Weathering & Mass Wasting",
+        "Erosional & Depositional Landforms (Fluvial, Karst, Glacial, Aeolian, Coastal)"
+      ]
+    },
+    {
+      "syllabusOrder": 3,
+      "module": "Physical Geography",
+      "topic": "Climatology",
+      "questionCount": 68,
+      "coreThemes": [
+        "Atmosphere Layers (Troposphere, Stratosphere, Mesosphere, Thermosphere, Exosphere)",
+        "Insolation, Heat Budget & Temperature Inversion",
+        "Atmospheric Pressure & Global Pressure Belts",
+        "Planetary Winds (Trade Winds, Westerlies, Polar Easterlies)",
+        "Local Winds (Loo, Chinook, Foehn, Sirocco, Mistral, Harmattan)",
+        "Jet Streams & Rossby Waves",
+        "Air Masses, Fronts & Temperate Cyclones",
+        "Tropical Cyclones (Conditions, Eye, Coriolis necessity)",
+        "Indian Monsoon Mechanism, ITCZ shift, El Niño / La Niña & Indian Ocean Dipole (IOD)",
+        "Koppen Climate Classification (Af, Am, Aw, Cs, BWh, etc.)"
+      ]
+    },
+    {
+      "syllabusOrder": 4,
+      "module": "Physical Geography",
+      "topic": "Oceanography",
+      "questionCount": 27,
+      "coreThemes": [
+        "Ocean Bottom Relief (Continental Shelf, Slope, Abyssal Plain, Trenches, Guyots)",
+        "Temperature & Salinity Distribution (Factors, Halocline, Thermocline)",
+        "Ocean Currents (Warm vs Cold currents, Gyres, Sargasso Sea, Upwelling)",
+        "Tides (Spring vs Neap tides, Perigean vs Apogean, Tidal forces)",
+        "Coral Reefs (Conditions, Fringing, Barrier, Atolls, Coral Bleaching)",
+        "Marine Resources (Polymetallic nodules, Gas hydrates, EEZ boundaries)"
+      ]
+    },
+    {
+      "syllabusOrder": 5,
+      "module": "Physical Geography",
+      "topic": "Indian Physiography & Drainage",
+      "questionCount": 72,
+      "coreThemes": [
+        "Northern Mountains (Trans-Himalayas, Greater Himalayas/Himadri, Lesser Himalayas/Himachal, Shiwaliks, Purvanchal)",
+        "Major Mountain Passes (Zoji La, Shipki La, Nathu La, Rohtang, Lipulekh, Palghat, Bhorghat, Thalghat)",
+        "Northern Plains (Bhabar, Tarai, Bhangar, Khadar)",
+        "Peninsular Plateau (Deccan, Malwa, Chota Nagpur, Western Ghats vs Eastern Ghats)",
+        "Coastal Plains (Konkan, Malabar, Coromandel, Northern Circars) & Island Groups (Ten Degree Channel, Duncan Passage)",
+        "Himalayan Drainage Systems (Indus & 5 tributaries, Ganga & tributaries, Brahmaputra & tributaries - Left vs Right bank)",
+        "Peninsular Drainage Systems (Godavari, Krishna, Cauvery, Mahanadi, Narmada, Tapi - East vs West flowing)"
+      ]
+    },
+    {
+      "syllabusOrder": 6,
+      "module": "Physical Geography",
+      "topic": "Soils & Natural Vegetation",
+      "questionCount": 23,
+      "coreThemes": [
+        "Indian Soils (Alluvial, Black/Regur, Red & Yellow, Laterite, Arid, Saline, Peaty - characteristics, crop suitability, nitrogen/phosphorus status)",
+        "Soil Degradation & Conservation methods",
+        "Natural Vegetation Types (Tropical Evergreen & Semi-Evergreen, Tropical Deciduous Moist/Dry, Tropical Thorn, Montane, Mangroves/Littoral)",
+        "Forest Canopy Density & India State of Forest Report (ISFR) trends"
+      ]
+    },
+    {
+      "syllabusOrder": 7,
+      "module": "Human & Economic",
+      "topic": "Agriculture & Resources",
+      "questionCount": 25,
+      "coreThemes": [
+        "Cropping Seasons (Kharif, Rabi, Zaid)",
+        "Major Crops & Growing Conditions (Rice, Wheat, Cotton, Sugarcane, Tea, Coffee, Jute, Millets/Shree Anna)",
+        "Irrigation Systems (Canals, Wells, Tubewells, Micro-irrigation / Drip & Sprinkler)",
+        "Mineral Resources in India (Iron Ore, Bauxite, Manganese, Copper, Mica, Coal, Petroleum)",
+        "Energy Resources (Nuclear minerals - Uranium in Tummalapalle/Jaduguda, Monazite sand / Thorium in Kerala)"
+      ]
+    },
+    {
+      "syllabusOrder": 8,
+      "module": "Human & Economic",
+      "topic": "Industry, Transport & Trade",
+      "questionCount": 12,
+      "coreThemes": [
+        "Industrial Location Factors (Weber Theory, Raw material oriented, Market oriented, Footloose industries)",
+        "Iron & Steel Plants Location in India",
+        "Textile Industry (Cotton & Jute belts)",
+        "National Highways, Golden Quadrilateral, Dedicated Freight Corridors (EDFC & WDFC)",
+        "Major Seaports of India (West coast vs East coast)",
+        "National Waterways (NW-1 Ganga, NW-2 Brahmaputra, NW-3 West Coast Canal)"
+      ]
+    },
+    {
+      "syllabusOrder": 9,
+      "module": "Human & Economic",
+      "topic": "Population & Human Geography",
+      "questionCount": 6,
+      "coreThemes": [
+        "Demographic Transition Model (Stages 1 to 5)",
+        "Census of India Trends (Population density, Sex ratio, Child sex ratio, Literacy, Decadal growth)",
+        "Urbanisation Trends & Metropolitan agglomerations",
+        "Major Tribes of India & Geographic distribution (Gonds, Bhils, Santhals, Jarawas, Sentinelese, Todas, Chenchus)"
+      ]
+    },
+    {
+      "syllabusOrder": 10,
+      "module": "World",
+      "topic": "World Geography & Places",
+      "questionCount": 45,
+      "coreThemes": [
+        "Strategic Waterways & Straits (Strait of Malacca, Hormuz, Bab-el-Mandeb, Bosphorus, Dardanelles, Gibraltar, Bering, Dover)",
+        "Seas & Bordering Countries (Mediterranean Sea, Black Sea, Caspian Sea, Red Sea, Baltic Sea, Aral Sea, Dead Sea)",
+        "Major Rivers of the World (Nile, Amazon, Yangtze, Mississippi, Danube, Mekong, Rhine)",
+        "Major Mountain Ranges & Peaks (Andes, Rockies, Alps, Atlas, Urals, Great Dividing Range)",
+        "Major Deserts of the World (Sahara, Kalahari, Atacama, Patagonia, Gobi, Great Victoria)",
+        "Places in News / Geopolitical Flashpoints (Levant, Sahel, Horn of Africa, Donbas, Nagorno-Karabakh, Tigray, Kuril Islands)"
+      ]
+    },
+    {
+      "syllabusOrder": 11,
+      "module": "World",
+      "topic": "Miscellaneous Geography",
+      "questionCount": 28,
+      "coreThemes": [
+        "Cartography, Map Projections & Scales",
+        "GIS & Remote Sensing Applications",
+        "Geographical Terms & Definitions",
+        "International Boundary Lines (Radcliffe, McMahon, Durand, 38th Parallel, 49th Parallel)"
+      ]
+    }
+  ],
+  "existingNodes": [
+    {
+      "nodeId": "cmopvn0ua000087p6lfekob3a",
+      "title": "Origin and Evolution of Universe",
+      "slug": "origin-and-evolution-of-earth",
+      "topic": "Astronomical Geography",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 10,
+      "hasPrelimsNote": true
+    },
+    {
+      "nodeId": "cmpwsioly0005enyl2y53bj14",
+      "title": "Indian Monsoon and Local Phenomenon",
+      "slug": "indian-monsoon-and-local-phenomenon",
+      "topic": "Geophysical Hazards & Environmental Change",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 10,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmq176ul3000bz6dqwc7wdygo",
+      "title": "Aravalis",
+      "slug": "aravalis",
+      "topic": "General",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 10,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmq176k1t0009z6dq6gw7nm2w",
+      "title": "Physiography of India",
+      "slug": "physiography-of-india",
+      "topic": "General",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 10,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmoquazfx0005kn43gnuef2if",
+      "title": "Origin of Universe",
+      "slug": "origin-of-universe-geography",
+      "topic": "Astronomical Geography",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 20,
+      "hasPrelimsNote": true
+    },
+    {
+      "nodeId": "cmoqub4d10009kn435r81bm1y",
+      "title": "Big Bang theory",
+      "slug": "big-bang-theory",
+      "topic": "Astronomical Geography",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 21,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmoqub1xl0007kn439xoykecd",
+      "title": "Theories of Origin",
+      "slug": "theories-of-origin",
+      "topic": "Astronomical Geography",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 22,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopvytzo000787p6qg6k81tt",
+      "title": "Origin and Evolution of Earth",
+      "slug": "origin-and-evolution-of-earth-2",
+      "topic": "Astronomical Geography",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 23,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopxprj60000n59n4kwmcpt1",
+      "title": "Geological TIme Scale",
+      "slug": "geological-time-scale-1777822669981-0",
+      "topic": "Geomorphology",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 24,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjv09a002hz3r0vcrj8g7y",
+      "title": "Internal Structure of Earth & Plate Tectonics",
+      "slug": "internal-structure-of-earth-plate-tectonics",
+      "topic": "Geomorphology",
+      "nodeType": "STATIC",
+      "orderIndex": 25,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjv09a002iz3r07owpd2no",
+      "title": "Continental Drift Theory — Evidence & Implications",
+      "slug": "continental-drift-theory-evidence-implications",
+      "topic": "Geomorphology",
+      "nodeType": "STATIC",
+      "orderIndex": 50,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjuy7o001uz3r0d4vdxyf5",
+      "title": "Earthquakes — Causes, Types & Disaster Management",
+      "slug": "earthquakes-causes-types-disaster-management",
+      "topic": "Geomorphology",
+      "nodeType": "STATIC",
+      "orderIndex": 60,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjuy7o001tz3r0zns94alq",
+      "title": "Volcanoes & Volcanic Activity",
+      "slug": "volcanoes-volcanic-activity",
+      "topic": "Geomorphology",
+      "nodeType": "STATIC",
+      "orderIndex": 70,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjuy7o001sz3r0eozv8t97",
+      "title": "Tsunamis — Causes & Preparedness",
+      "slug": "tsunamis-causes-preparedness",
+      "topic": "Geomorphology",
+      "nodeType": "STATIC",
+      "orderIndex": 80,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjuz65001vz3r0vp5ds38v",
+      "title": "Mountain Building — Types of Mountains & Formation",
+      "slug": "mountain-building-types-of-mountains-formation",
+      "topic": "Geomorphology",
+      "nodeType": "STATIC",
+      "orderIndex": 90,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjuz6s001yz3r00c8ye417",
+      "title": "Plains & Plateaus — Formation & Significance",
+      "slug": "plains-plateaus-formation-significance",
+      "topic": "Geomorphology",
+      "nodeType": "STATIC",
+      "orderIndex": 100,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmoq0im3k000dn59no3w91xjg",
+      "title": "Earth Atmosphere: structure and components",
+      "slug": "earth-atmosphere-structure-and-components",
+      "topic": "Climatology",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 110,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmoq0inzl000en59niozc1q3g",
+      "title": "Insolation",
+      "slug": "insolation",
+      "topic": "Climatology",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 120,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmoq0iq05000fn59n5qikrzs5",
+      "title": "Temperature",
+      "slug": "temperature",
+      "topic": "Climatology",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 130,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmoq0isfm000gn59nigwi8dg2",
+      "title": "Atmospheric Pressure and Pressure Belts",
+      "slug": "atmospheric-pressure-and-pressure-belts",
+      "topic": "Climatology",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 140,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmoq0iugu000hn59na4isroie",
+      "title": "Wind Systems (Planetary, Secondary, and Local winds)",
+      "slug": "wind-systems-planetary-secondary-and-local-winds",
+      "topic": "Climatology",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 150,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmoq0iwps000in59nb6swjmnl",
+      "title": "Humidity and Condensation (Evaporation, cloud formation, fog)",
+      "slug": "humidity-and-condensation-evaporation-cloud-formation-fog",
+      "topic": "Climatology",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 160,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmoq0iyqc000jn59n7ekkj6gp",
+      "title": "Precipitation (Types of rainfall, world distribution)",
+      "slug": "precipitation-types-of-rainfall-world-distribution",
+      "topic": "Climatology",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 170,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmoq0j0rm000kn59n8zqvdb87",
+      "title": "Air Masses, Fronts, and Cyclones (Tropical and Temperate)",
+      "slug": "air-masses-fronts-and-cyclones-tropical-and-temperate",
+      "topic": "Climatology",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 180,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmoq0j2sb000ln59nrqrzrciu",
+      "title": "Climate Classification (Köppen's scheme)",
+      "slug": "climate-classification-kppens-scheme",
+      "topic": "Climatology",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 190,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmoq0j5ae000mn59n0t8d2gsp",
+      "title": "Ocean Currents and their climatic influence (El Niño and La Niña)",
+      "slug": "ocean-currents-and-their-climatic-influence-el-nio-and-la-nia",
+      "topic": "Climatology",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 200,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmoq0j78n000nn59npesxc9ss",
+      "title": "Global Climate Change (Causes, impacts, and mitigation strategies)",
+      "slug": "global-climate-change-causes-impacts-and-mitigation-strategies",
+      "topic": "Climatology",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 210,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjuz6s001zz3r0gavo0of3",
+      "title": "Ocean Currents — Types, Causes & Climatic Impact",
+      "slug": "ocean-currents-types-causes-climatic-impact",
+      "topic": "Oceanography",
+      "nodeType": "STATIC",
+      "orderIndex": 220,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjuz6u0021z3r0qnhy07hm",
+      "title": "Coral Reefs — Ecology, Threats & Conservation",
+      "slug": "coral-reefs-ecology-threats-conservation",
+      "topic": "Oceanography",
+      "nodeType": "NEWS",
+      "orderIndex": 230,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjuz6u0022z3r0qdls5131",
+      "title": "Ocean Bottom Relief — Features & Significance",
+      "slug": "ocean-bottom-relief-features-significance",
+      "topic": "Oceanography",
+      "nodeType": "STATIC",
+      "orderIndex": 240,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjuz7d0025z3r0gun6i9vd",
+      "title": "Tides — Causes, Types & Uses",
+      "slug": "tides-causes-types-uses",
+      "topic": "Oceanography",
+      "nodeType": "STATIC",
+      "orderIndex": 250,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjuz7d0024z3r02io0l6ny",
+      "title": "Ocean Acidification & Marine Ecosystem Degradation",
+      "slug": "ocean-acidification-marine-ecosystem-degradation",
+      "topic": "Oceanography",
+      "nodeType": "NEWS",
+      "orderIndex": 260,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjuz7d0026z3r0j0nbx2o3",
+      "title": "Geopolitical Importance of Indian Ocean",
+      "slug": "geopolitical-importance-of-indian-ocean",
+      "topic": "Oceanography",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 270,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjuz7d0029z3r0weasbmf3",
+      "title": "Distribution of Soils — Types & Agricultural Significance",
+      "slug": "distribution-of-soils-types-agricultural-significance",
+      "topic": "Natural Resources",
+      "nodeType": "STATIC",
+      "orderIndex": 280,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjuz7e002bz3r0najbfhi6",
+      "title": "Distribution of Minerals — Global & Indian Context",
+      "slug": "distribution-of-minerals-global-indian-context",
+      "topic": "Natural Resources",
+      "nodeType": "STATIC",
+      "orderIndex": 290,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjv099002cz3r0bns1t8q0",
+      "title": "Distribution of Rivers & Water Bodies",
+      "slug": "distribution-of-rivers-water-bodies",
+      "topic": "Natural Resources",
+      "nodeType": "STATIC",
+      "orderIndex": 300,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjv099002dz3r0kreef4j8",
+      "title": "Distribution of Crops — Cropping Patterns Globally & India",
+      "slug": "distribution-of-crops-cropping-patterns-globally-india",
+      "topic": "Natural Resources",
+      "nodeType": "STATIC",
+      "orderIndex": 310,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjv099002ez3r04doxxzhz",
+      "title": "Primary Sector Location Factors — Agriculture, Mining, Fishing",
+      "slug": "primary-sector-location-factors-agriculture-mining-fishing",
+      "topic": "Industry Location",
+      "nodeType": "STATIC",
+      "orderIndex": 320,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjv1t2002sz3r0commixga",
+      "title": "Secondary Sector Location Factors — Manufacturing & Industry",
+      "slug": "secondary-sector-location-factors-manufacturing-industry",
+      "topic": "Industry Location",
+      "nodeType": "STATIC",
+      "orderIndex": 330,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjv1t2002vz3r0mbnfi6qf",
+      "title": "Tertiary Sector Location Factors — Services & Trade",
+      "slug": "tertiary-sector-location-factors-services-trade",
+      "topic": "Industry Location",
+      "nodeType": "STATIC",
+      "orderIndex": 340,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjv2tm0039z3r0m69tj3z3",
+      "title": "Cyclones — Formation, Classification & India's Vulnerability",
+      "slug": "cyclones-formation-classification-indias-vulnerability",
+      "topic": "Geophysical Hazards & Environmental Change",
+      "nodeType": "CONCEPTUAL",
+      "orderIndex": 350,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjv1t2002wz3r00uyeo5qz",
+      "title": "Deforestation — Causes, Consequences & Policy Response",
+      "slug": "deforestation-causes-consequences-policy-response",
+      "topic": "Geophysical Hazards & Environmental Change",
+      "nodeType": "NEWS",
+      "orderIndex": 360,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjv1t40033z3r0110hkaew",
+      "title": "Desertification — Causes, Extent & Mitigation",
+      "slug": "desertification-causes-extent-mitigation",
+      "topic": "Geophysical Hazards & Environmental Change",
+      "nodeType": "NEWS",
+      "orderIndex": 370,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjv1t2002xz3r0j695yj7w",
+      "title": "Glacier & Ice-Cap Changes — Climate Linkage",
+      "slug": "glacier-ice-cap-changes-climate-linkage",
+      "topic": "Geophysical Hazards & Environmental Change",
+      "nodeType": "NEWS",
+      "orderIndex": 380,
+      "hasPrelimsNote": false
+    },
+    {
+      "nodeId": "cmopjv1t2002tz3r0teg6ddym",
+      "title": "Water Body Changes — Lakes, Wetlands & River Systems",
+      "slug": "water-body-changes-lakes-wetlands-river-systems",
+      "topic": "Geophysical Hazards & Environmental Change",
+      "nodeType": "NEWS",
+      "orderIndex": 390,
+      "hasPrelimsNote": false
+    }
+  ]
+}

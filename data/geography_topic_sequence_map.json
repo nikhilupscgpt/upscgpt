@@ -1,0 +1,57 @@
+{
+  "Universe & Solar System": {
+    "topic": "Universe & Solar System",
+    "syllabusOrder": 1,
+    "module": "Physical"
+  },
+  "Geomorphology": {
+    "topic": "Geomorphology",
+    "syllabusOrder": 2,
+    "module": "Physical"
+  },
+  "Climatology": {
+    "topic": "Climatology",
+    "syllabusOrder": 3,
+    "module": "Physical"
+  },
+  "Oceanography": {
+    "topic": "Oceanography",
+    "syllabusOrder": 4,
+    "module": "Physical"
+  },
+  "Indian Physiography & Drainage": {
+    "topic": "Indian Physiography & Drainage",
+    "syllabusOrder": 5,
+    "module": "Physical"
+  },
+  "Soils & Natural Vegetation": {
+    "topic": "Soils & Natural Vegetation",
+    "syllabusOrder": 6,
+    "module": "Physical"
+  },
+  "Agriculture & Resources": {
+    "topic": "Agriculture & Resources",
+    "syllabusOrder": 7,
+    "module": "Human & Economic"
+  },
+  "Industry, Transport & Trade": {
+    "topic": "Industry, Transport & Trade",
+    "syllabusOrder": 8,
+    "module": "Human & Economic"
+  },
+  "Population & Human Geography": {
+    "topic": "Population & Human Geography",
+    "syllabusOrder": 9,
+    "module": "Human & Economic"
+  },
+  "World Geography & Places": {
+    "topic": "World Geography & Places",
+    "syllabusOrder": 10,
+    "module": "World"
+  },
+  "Miscellaneous Geography": {
+    "topic": "Miscellaneous Geography",
+    "syllabusOrder": 11,
+    "module": "World"
+  }
+}

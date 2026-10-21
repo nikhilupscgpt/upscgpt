@@ -1,0 +1,721 @@
+{
+  "subject": "Geography",
+  "nodes": [
+    {
+      "nodeId": "cmopvn0ua000087p6lfekob3a",
+      "title": "Origin and Evolution of Universe",
+      "syllabusOrder": 1,
+      "topic": "Universe & Solar System",
+      "prelimsNote": [
+        "Big Bang ~13.8 billion years ago: expansion from a singularity; evidence — red shift of galaxies (Hubble's law) and cosmic microwave background radiation.",
+        "Expanding universe supported by red shift (Doppler effect) — UPSC 2012 asked for evidence of expansion.",
+        "Stages: inflation → formation of hydrogen/helium → stars and galaxies → heavier elements made in stars (nucleosynthesis).",
+        "Elements essential for life (C, H, O, N) were formed in stars; UPSC 2012 tested which elements are crucial for life."
+      ]
+    },
+    {
+      "nodeId": "cmoquazfx0005kn43gnuef2if",
+      "title": "Origin of Universe",
+      "syllabusOrder": 1,
+      "topic": "Universe & Solar System",
+      "prelimsNote": [
+        "Steady State theory (Hoyle, Bondi, Gold): universe has no beginning, matter continuously created — rejected after CMB discovery (1965).",
+        "Big Bang is the accepted model; light-year is a unit of distance (~9.46 trillion km) — UPSC 2021.",
+        "Galaxies → Milky Way (spiral) → Solar System in the Orion arm; nearest star after the Sun is Proxima Centauri.",
+        "Dark matter and dark energy make up most of the universe's mass–energy (~95%)."
+      ]
+    },
+    {
+      "nodeId": "cmoqub4d10009kn435r81bm1y",
+      "title": "Big Bang theory",
+      "syllabusOrder": 1,
+      "topic": "Universe & Solar System",
+      "prelimsNote": [
+        "Proposed by Georges Lemaître (1927); 'Big Bang' term coined by Fred Hoyle; supported by Hubble's 1929 observation of receding galaxies.",
+        "Cosmic Microwave Background (Penzias & Wilson, 1965) is relic radiation from the early universe.",
+        "Universe is still expanding and the expansion is accelerating (dark energy).",
+        "Trap: Big Bang was not an explosion in space — it is the expansion of space itself."
+      ]
+    },
+    {
+      "nodeId": "cmoqub1xl0007kn439xoykecd",
+      "title": "Theories of Origin",
+      "syllabusOrder": 1,
+      "topic": "Universe & Solar System",
+      "prelimsNote": [
+        "Nebular hypothesis (Kant, Laplace): Sun and planets formed from a rotating gas cloud.",
+        "Planetesimal hypothesis (Chamberlin & Moulton) and Tidal hypothesis (Jeans & Jeffreys) — older dualistic theories.",
+        "Modern view: solar nebula collapsed ~4.6 billion years ago; planets formed by accretion.",
+        "Inner planets (Mercury, Venus, Earth, Mars) are rocky/terrestrial; outer are gas/ice giants; Venus and Uranus rotate in the retrograde direction."
+      ]
+    },
+    {
+      "nodeId": "cmopvytzo000787p6qg6k81tt",
+      "title": "Origin and Evolution of Earth",
+      "syllabusOrder": 1,
+      "topic": "Universe & Solar System",
+      "prelimsNote": [
+        "Earth formed ~4.54 billion years ago; differentiation produced core, mantle and crust.",
+        "Atmosphere evolved in three stages: primordial gases lost → degassing from interior → oxygen added by photosynthesis.",
+        "Oceans formed from condensed water vapour released by volcanic degassing.",
+        "Earth's magnetic field (from the liquid outer core) has reversed many times — recorded in rocks (UPSC 2018)."
+      ]
+    },
+    {
+      "nodeId": "cmopxprj60000n59n4kwmcpt1",
+      "title": "Geological TIme Scale",
+      "syllabusOrder": 2,
+      "topic": "Geomorphology",
+      "prelimsNote": [
+        "Eons → Eras → Periods → Epochs; Precambrian covers ~88% of Earth's history.",
+        "Palaeozoic (age of invertebrates/fishes), Mesozoic (age of reptiles/dinosaurs, ended ~66 mya), Cenozoic (age of mammals).",
+        "Himalayan uplift began in the Cenozoic (Tertiary); Aravallis are among the oldest fold mountains (Precambrian).",
+        "Holocene epoch began ~11,700 years ago; 'Anthropocene' was proposed but rejected as a formal epoch in 2024."
+      ]
+    },
+    {
+      "nodeId": "cmopjv09a002hz3r0vcrj8g7y",
+      "title": "Internal Structure of Earth & Plate Tectonics",
+      "syllabusOrder": 2,
+      "topic": "Geomorphology",
+      "prelimsNote": [
+        "Layers: crust (Moho discontinuity) → mantle (asthenosphere is the weak, partly molten upper mantle) → outer core (liquid) → inner core (solid).",
+        "Seismic waves: P-waves are primary, longitudinal, travel through solids and liquids, recorded first; S-waves are transverse and cannot pass through liquid (UPSC 2023).",
+        "S-wave shadow zone beyond 103° shows the outer core is liquid; P-wave shadow zone 103°–142°.",
+        "Plate boundaries: convergent (Himalaya, trenches), divergent (mid-ocean ridges, rift valleys), transform (San Andreas).",
+        "Earth's internal heat comes from radioactive decay and primordial heat (UPSC 2013)."
+      ]
+    },
+    {
+      "nodeId": "cmopjv09a002iz3r07owpd2no",
+      "title": "Continental Drift Theory — Evidence & Implications",
+      "syllabusOrder": 2,
+      "topic": "Geomorphology",
+      "prelimsNote": [
+        "Alfred Wegener (1912): Pangaea surrounded by Panthalassa; split into Laurasia and Gondwanaland.",
+        "Evidence: jigsaw fit of coasts, matching fossils (Mesosaurus, Glossopteris), tillite deposits, placer gold in Ghana from Brazil.",
+        "Weakness: no convincing driving force — later explained by sea-floor spreading (Hess, 1960s) and plate tectonics.",
+        "Palaeomagnetism and sea-floor striping support drift; UPSC 2014 linked drift with biological evolution."
+      ]
+    },
+    {
+      "nodeId": "cmopjuy7o001uz3r0d4vdxyf5",
+      "title": "Earthquakes — Causes, Types & Disaster Management",
+      "syllabusOrder": 2,
+      "topic": "Geomorphology",
+      "prelimsNote": [
+        "Focus (hypocentre) vs epicentre; magnitude (Richter, logarithmic) vs intensity (Modified Mercalli).",
+        "Most earthquakes occur along plate boundaries — ~80% in the Pacific Ring of Fire.",
+        "India's seismic zones: II to V; Zone V includes NE India, J&K, Himachal, Uttarakhand, Kutch, Andaman & Nicobar.",
+        "NDMA (Disaster Management Act 2005) chaired by the PM; NDRF for response."
+      ]
+    },
+    {
+      "nodeId": "cmopjuy7o001tz3r0zns94alq",
+      "title": "Volcanoes & Volcanic Activity",
+      "syllabusOrder": 2,
+      "topic": "Geomorphology",
+      "prelimsNote": [
+        "Types: shield (basaltic, gentle — Hawaii), composite/strato (explosive — Fuji, Vesuvius), caldera; Deccan Traps are fissure flood basalts.",
+        "Intrusive landforms: batholith, laccolith, lopolith, sill (horizontal), dyke (vertical).",
+        "Barren Island (Andaman) is India's only active volcano (UPSC 2018); Narcondam is dormant.",
+        "Pacific Ring of Fire hosts most active volcanoes."
+      ]
+    },
+    {
+      "nodeId": "cmopjuy7o001sz3r0eozv8t97",
+      "title": "Tsunamis — Causes & Preparedness",
+      "syllabusOrder": 2,
+      "topic": "Geomorphology",
+      "prelimsNote": [
+        "Caused mainly by undersea earthquakes (thrust faulting), also landslides and volcanic eruptions.",
+        "Low amplitude in deep ocean, rises sharply near coasts (shoaling).",
+        "2004 Indian Ocean tsunami (Sumatra, M9.1) led to the Indian Tsunami Early Warning Centre at INCOIS, Hyderabad (2007).",
+        "Mangroves reduce tsunami damage (UPSC 2011)."
+      ]
+    },
+    {
+      "nodeId": "cmopjuz65001vz3r0vp5ds38v",
+      "title": "Mountain Building — Types of Mountains & Formation",
+      "syllabusOrder": 2,
+      "topic": "Geomorphology",
+      "prelimsNote": [
+        "Fold mountains (Himalaya, Alps, Andes, Rockies) at convergent boundaries; block mountains/horsts (Vosges, Black Forest) with rift valleys/grabens.",
+        "Volcanic mountains (Kilimanjaro, Fuji); residual mountains (Aravallis, Eastern Ghats).",
+        "Syntaxial bends at the ends of the Himalaya (Nanga Parbat in the west, Namcha Barwa in the east) — UPSC 2011.",
+        "Himalaya is young, still rising; Aravallis are among the oldest fold mountains."
+      ]
+    },
+    {
+      "nodeId": "cmopjuz6s001yz3r00c8ye417",
+      "title": "Plains & Plateaus — Formation & Significance",
+      "syllabusOrder": 2,
+      "topic": "Geomorphology",
+      "prelimsNote": [
+        "Plains: alluvial/depositional (Indo-Gangetic), erosional (peneplains), structural.",
+        "Plateaus: Deccan (lava), Tibetan (highest), Chota Nagpur (mineral-rich), Malwa.",
+        "Rann of Kutch formed from repeated sea-level falls — marshland (UPSC 2023).",
+        "Karewas (Kashmir) are lacustrine deposits suited to saffron."
+      ]
+    },
+    {
+      "nodeId": "cmpwsioly0005enyl2y53bj14",
+      "title": "Indian Monsoon and Local Phenomenon",
+      "syllabusOrder": 3,
+      "topic": "Climatology",
+      "prelimsNote": [
+        "Monsoon onset linked to ITCZ shift north, Tibetan plateau heating, tropical easterly jet and shift of subtropical westerly jet.",
+        "Monsoon = seasonal reversal of winds (UPSC 2012); SW monsoon arrives in Kerala around 1 June; NE monsoon gives Tamil Nadu winter rain.",
+        "Local storms: Kalbaisakhi/Nor'westers (WB, Odisha), Mango showers (Kerala–Karnataka), Blossom showers (coffee), Loo (N India).",
+        "Western disturbances bring winter rain/snow to NW India — beneficial for rabi wheat.",
+        "El Niño weakens and positive IOD strengthens the monsoon (UPSC 2011, 2017)."
+      ]
+    },
+    {
+      "nodeId": "cmoq0im3k000dn59no3w91xjg",
+      "title": "Earth Atmosphere: structure and components",
+      "syllabusOrder": 3,
+      "topic": "Climatology",
+      "prelimsNote": [
+        "Nitrogen ~78%, oxygen ~21%, argon ~0.93%, CO₂ ~0.04%; water vapour and dust vary.",
+        "Layers: troposphere (weather, ~8 km at poles to ~18 km at equator) → stratosphere (ozone, ideal for jet flights — UPSC 2011) → mesosphere (coldest, meteors burn) → thermosphere/ionosphere → exosphere.",
+        "Ionosphere reflects radio waves, enabling long-distance radio communication (UPSC 2011).",
+        "Temperature falls ~6.5 °C per km in the troposphere (normal lapse rate)."
+      ]
+    },
+    {
+      "nodeId": "cmoq0inzl000en59niozc1q3g",
+      "title": "Insolation",
+      "syllabusOrder": 3,
+      "topic": "Climatology",
+      "prelimsNote": [
+        "Insolation depends on angle of sun's rays, length of day, transparency of atmosphere and land configuration.",
+        "Infrared waves are largely absorbed by water vapour concentrated in the lower atmosphere (UPSC 2023); the equator receives far less than '10 times' the poles' insolation — UPSC 2023's claim was false.",
+        "Heat budget: about 35 units reflected (albedo) of 100 received; the atmosphere is heated mainly from below by terrestrial radiation.",
+        "Maximum insolation is over subtropical deserts (clear skies), not at the equator."
+      ]
+    },
+    {
+      "nodeId": "cmoq0iq05000fn59n5qikrzs5",
+      "title": "Temperature",
+      "syllabusOrder": 3,
+      "topic": "Climatology",
+      "prelimsNote": [
+        "Temperature inversion: warmer air above colder air — long winter nights, calm air, clear sky, snow cover (UPSC 2012).",
+        "Continentality: land heats and cools faster than water because water's specific heat is higher — UPSC 2023 tested this as a Statement-I/II pair.",
+        "Isotherms bend equatorward over continents in winter and poleward in summer.",
+        "Dew forms on clear calm nights; cloudy nights prevent dew because clouds radiate heat back (UPSC 2019)."
+      ]
+    },
+    {
+      "nodeId": "cmoq0isfm000gn59nigwi8dg2",
+      "title": "Atmospheric Pressure and Pressure Belts",
+      "syllabusOrder": 3,
+      "topic": "Climatology",
+      "prelimsNote": [
+        "Pressure belts: Equatorial Low (doldrums), Subtropical Highs (~30°, horse latitudes), Subpolar Lows (~60°), Polar Highs.",
+        "Subtropical highs from descending air create hot deserts on western margins of continents (UPSC 2011).",
+        "Belts shift north–south with the apparent movement of the Sun.",
+        "Pressure decreases with height; isobars join equal-pressure points."
+      ]
+    },
+    {
+      "nodeId": "cmoq0iugu000hn59na4isroie",
+      "title": "Wind Systems (Planetary, Secondary, and Local winds)",
+      "syllabusOrder": 3,
+      "topic": "Climatology",
+      "prelimsNote": [
+        "Planetary winds: trade winds (easterlies), westerlies, polar easterlies; deflected by Coriolis force (right in NH, left in SH).",
+        "Southern Hemisphere westerlies are stronger and persistent — 'Roaring Forties, Furious Fifties' — due to less land (UPSC 2011).",
+        "Jet streams: high-altitude westerly winds; the subtropical westerly jet's northward shift aids the Indian monsoon's onset.",
+        "Local winds: Loo (hot, N India), Chinook/Foehn (warm, dry descending — 'snow eater'), Sirocco, Mistral (cold, Rhône valley), Harmattan ('doctor', West Africa), Bora (cold, Adriatic)."
+      ]
+    },
+    {
+      "nodeId": "cmoq0iwps000in59nb6swjmnl",
+      "title": "Humidity and Condensation (Evaporation, cloud formation, fog)",
+      "syllabusOrder": 3,
+      "topic": "Climatology",
+      "prelimsNote": [
+        "Absolute humidity = water vapour per unit volume; relative humidity = actual ÷ capacity at that temperature (%).",
+        "Dew point: temperature at which air becomes saturated.",
+        "Condensation forms: dew, frost, fog, mist, clouds (cirrus — high/wispy, cumulus — fluffy, stratus — layered, nimbus — rain).",
+        "Thunder is caused by rapid heating and expansion of air from lightning (UPSC 2013)."
+      ]
+    },
+    {
+      "nodeId": "cmoq0iyqc000jn59n7ekkj6gp",
+      "title": "Precipitation (Types of rainfall, world distribution)",
+      "syllabusOrder": 3,
+      "topic": "Climatology",
+      "prelimsNote": [
+        "Convectional (equatorial, afternoon), orographic (windward vs rain-shadow leeward), cyclonic/frontal.",
+        "Rain-shadow examples: Deccan plateau east of the Western Ghats, Leh.",
+        "Highest rainfall: Mawsynram–Cherrapunji (Meghalaya); lowest in India: Ladakh, western Rajasthan.",
+        "Equatorial regions get rain throughout the year (UPSC 2015)."
+      ]
+    },
+    {
+      "nodeId": "cmoq0j0rm000kn59n8zqvdb87",
+      "title": "Air Masses, Fronts, and Cyclones (Tropical and Temperate)",
+      "syllabusOrder": 3,
+      "topic": "Climatology",
+      "prelimsNote": [
+        "Tropical cyclones need warm sea surface (>27 °C), Coriolis force (none within ~5° of the equator), low wind shear, pre-existing disturbance.",
+        "No tropical cyclones in the South Atlantic and south-east Pacific due to cold currents and wind shear (UPSC 2015).",
+        "Temperate (extra-tropical) cyclones form along fronts between air masses; move west to east in the westerlies.",
+        "Names: hurricanes (Atlantic, NE Pacific), typhoons (NW Pacific), cyclones (Indian Ocean), willy-willies (Australia)."
+      ]
+    },
+    {
+      "nodeId": "cmoq0j2sb000ln59nrqrzrciu",
+      "title": "Climate Classification (Köppen's scheme)",
+      "syllabusOrder": 3,
+      "topic": "Climatology",
+      "prelimsNote": [
+        "Based on temperature and precipitation tied to vegetation: A (tropical humid), B (dry), C (warm temperate), D (cold), E (polar), H (highland).",
+        "India: Amw (Malabar/Konkan coast), As (Coromandel coast), Aw (tropical savannah — most of peninsula), BWhw (western Rajasthan), Cwg (Ganga plains), Dfc (Arunachal), E (Kashmir highlands).",
+        "Savannah: grasses with scattered trees, distinct wet and dry seasons (UPSC 2012, 2021); Mediterranean: winter rain, summer drought.",
+        "Steppe: temperate grasslands of Eurasia (UPSC 2013)."
+      ]
+    },
+    {
+      "nodeId": "cmoq0j5ae000mn59n0t8d2gsp",
+      "title": "Ocean Currents and their climatic influence (El Niño and La Niña)",
+      "syllabusOrder": 3,
+      "topic": "Climatology",
+      "prelimsNote": [
+        "El Niño: warm water off Peru, weak trade winds, usually weak Indian monsoon; La Niña: the reverse (UPSC 2011).",
+        "ENSO = El Niño + Southern Oscillation (pressure see-saw between Tahiti and Darwin).",
+        "Indian Ocean Dipole: positive IOD (warm western Indian Ocean) can offset El Niño and boost the monsoon (UPSC 2017).",
+        "Ocean Mean Temperature (OMT, to 26 °C isotherm depth) predicts monsoon better than SST (UPSC 2020)."
+      ]
+    },
+    {
+      "nodeId": "cmoq0j78n000nn59npesxc9ss",
+      "title": "Global Climate Change (Causes, impacts, and mitigation strategies)",
+      "syllabusOrder": 3,
+      "topic": "Climatology",
+      "prelimsNote": [
+        "Greenhouse gases: CO₂, methane, N₂O, fluorinated gases; water vapour is the most abundant GHG.",
+        "Paris Agreement (2015): limit warming well below 2 °C, pursue 1.5 °C; NDCs every 5 years.",
+        "India's NDC (2022 update): 45% cut in emissions intensity of GDP by 2030 (vs 2005), 50% non-fossil power capacity by 2030, net zero by 2070.",
+        "Impacts: glacier retreat, sea-level rise, coral bleaching, extreme events."
+      ]
+    },
+    {
+      "nodeId": "cmopjv2tm0039z3r0m69tj3z3",
+      "title": "Cyclones — Formation, Classification & India's Vulnerability",
+      "syllabusOrder": 3,
+      "topic": "Climatology",
+      "prelimsNote": [
+        "IMD classification by wind speed: depression → cyclonic storm (62–88 km/h) → severe → very severe → extremely severe → super cyclonic (>221 km/h).",
+        "Bay of Bengal sees more and stronger cyclones than the Arabian Sea; post-monsoon (Oct–Dec) is the peak season.",
+        "Mangroves and coastal shelterbelts reduce storm-surge damage.",
+        "Names are drawn from a list prepared by WMO/ESCAP Panel member countries (13 nations, including India)."
+      ]
+    },
+    {
+      "nodeId": "cmopjuz6s001zz3r0gavo0of3",
+      "title": "Ocean Currents — Types, Causes & Climatic Impact",
+      "syllabusOrder": 4,
+      "topic": "Oceanography",
+      "prelimsNote": [
+        "Causes: planetary winds, temperature and salinity differences (density), Coriolis force, shape of coastline (UPSC 2012).",
+        "Warm currents flow from equator poleward along eastern coasts of continents; cold currents along western coasts (Humboldt/Peru, Benguela, California, Canary).",
+        "Gulf Stream (warm) keeps NW Europe mild; Kuroshio (warm, Japan); Labrador and Oyashio (cold) — meeting zones form rich fishing grounds (Grand Banks, UPSC 2013).",
+        "Sargasso Sea: a sea without coasts in the North Atlantic gyre; equatorial counter-current flows west to east (UPSC 2015)."
+      ]
+    },
+    {
+      "nodeId": "cmopjuz6u0021z3r0qnhy07hm",
+      "title": "Coral Reefs — Ecology, Threats & Conservation",
+      "syllabusOrder": 4,
+      "topic": "Oceanography",
+      "prelimsNote": [
+        "Need warm (20–28 °C), clear, shallow, saline water with sunlight; coral polyps live in symbiosis with zooxanthellae algae.",
+        "Types: fringing, barrier (Great Barrier Reef), atolls (Lakshadweep).",
+        "Indian reefs: Gulf of Mannar, Gulf of Kachchh, Lakshadweep, Andaman & Nicobar (UPSC 2014).",
+        "Bleaching occurs when heat stress expels zooxanthellae; reefs host high biodiversity (UPSC 2018).",
+        "Biorock technology restores damaged reefs (UPSC 2022)."
+      ]
+    },
+    {
+      "nodeId": "cmopjuz6u0022z3r0qdls5131",
+      "title": "Ocean Bottom Relief — Features & Significance",
+      "syllabusOrder": 4,
+      "topic": "Oceanography",
+      "prelimsNote": [
+        "Continental shelf (shallowest, up to ~200 m, rich in fish and oil), slope, rise, abyssal plain, trenches.",
+        "Deepest point: Challenger Deep in the Mariana Trench (~11 km); trenches lie at convergent boundaries.",
+        "Seamounts (submerged volcanoes) and guyots (flat-topped seamounts); mid-ocean ridges at divergent boundaries.",
+        "India's Exclusive Economic Zone extends 200 nautical miles; UNCLOS defines territorial sea (12 nm)."
+      ]
+    },
+    {
+      "nodeId": "cmopjuz7d0025z3r0gun6i9vd",
+      "title": "Tides — Causes, Types & Uses",
+      "syllabusOrder": 4,
+      "topic": "Oceanography",
+      "prelimsNote": [
+        "Caused by gravitational pull of Moon (primary) and Sun, and centrifugal force (UPSC 2015).",
+        "Spring tides at new and full moon (Sun–Earth–Moon aligned); neap tides at first and third quarters.",
+        "Perigean tides are higher (Moon closest); apogean lower.",
+        "Gulf of Khambhat and Gulf of Kachchh have high tidal range suitable for tidal energy."
+      ]
+    },
+    {
+      "nodeId": "cmopjuz7d0024z3r02io0l6ny",
+      "title": "Ocean Acidification & Marine Ecosystem Degradation",
+      "syllabusOrder": 4,
+      "topic": "Oceanography",
+      "prelimsNote": [
+        "Oceans absorb ~25–30% of anthropogenic CO₂, forming carbonic acid; pH has fallen ~0.1 since pre-industrial times (UPSC 2011).",
+        "Acidification dissolves calcium carbonate shells and coral skeletons.",
+        "Dead zones (hypoxia) from nutrient run-off and algal blooms.",
+        "Microplastics and microbeads harm marine life (UPSC 2019)."
+      ]
+    },
+    {
+      "nodeId": "cmopjuz7d0026z3r0j0nbx2o3",
+      "title": "Geopolitical Importance of Indian Ocean",
+      "syllabusOrder": 4,
+      "topic": "Oceanography",
+      "prelimsNote": [
+        "Only ocean named after a country; chokepoints — Strait of Hormuz, Bab-el-Mandeb, Malacca, Mozambique Channel.",
+        "Ten Degree Channel separates Andaman from Nicobar; Nine Degree separates Lakshadweep from Minicoy (UPSC 2014).",
+        "Initiatives: IONS (Indian Ocean Naval Symposium, 2008 — UPSC 2017), IORA, SAGAR (Security and Growth for All in the Region).",
+        "Chabahar (Iran) gives India access to Afghanistan and Central Asia bypassing Pakistan (UPSC 2017)."
+      ]
+    },
+    {
+      "nodeId": "cmq176ul3000bz6dqwc7wdygo",
+      "title": "Aravalis",
+      "syllabusOrder": 5,
+      "topic": "Indian Physiography & Drainage",
+      "prelimsNote": [
+        "Among the oldest fold mountains in the world (Precambrian, residual); run NE–SW from Delhi to Gujarat.",
+        "Highest peak: Guru Shikhar (Mount Abu, ~1,722 m).",
+        "Act as a barrier against desert expansion eastwards; Luni river originates near Ajmer.",
+        "Trap: the Aravallis are residual/relict fold mountains — not young fold mountains like the Himalaya, and not part of the Vindhya–Satpura system."
+      ]
+    },
+    {
+      "nodeId": "cmq176k1t0009z6dq6gw7nm2w",
+      "title": "Physiography of India",
+      "syllabusOrder": 5,
+      "topic": "Indian Physiography & Drainage",
+      "prelimsNote": [
+        "Six divisions: Himalaya, Northern Plains, Peninsular Plateau, Indian Desert, Coastal Plains, Islands.",
+        "Northern Plains: Bhabar (pebbles, streams disappear), Tarai (marshy), Bhangar (old alluvium), Khadar (new alluvium).",
+        "Amarkantak is where Vindhya and Satpura meet — not Sahyadri; Biligirirangan hills link Eastern and Western Ghats; Seshachalam is in the Eastern Ghats (UPSC 2023).",
+        "Easternmost point: Kibithu (Arunachal); westernmost: Guhar Moti (Gujarat); Indira Point is the southernmost (UPSC 2015, 2017)."
+      ]
+    },
+    {
+      "nodeId": "cmopjv099002cz3r0bns1t8q0",
+      "title": "Distribution of Rivers & Water Bodies",
+      "syllabusOrder": 5,
+      "topic": "Indian Physiography & Drainage",
+      "prelimsNote": [
+        "Himalayan rivers are perennial (snow-fed), form deltas; peninsular rivers seasonal, mostly east-flowing.",
+        "West-flowing rivers through rift valleys: Narmada (between Vindhya and Satpura) and Tapi — form estuaries (UPSC 2013).",
+        "Lakes: Wular (largest freshwater; Jhelum passes through it — UPSC 2023), Chilika (largest brackish lagoon), Sambhar (saline), Loktak (phumdis); Kolleru between Godavari and Krishna deltas.",
+        "Saline lakes in India: Sambhar, Pangong, Tso Moriri (UPSC 2021).",
+        "Groundwater: India is the largest extractor, about a quarter of global withdrawal (UPSC 2023)."
+      ]
+    },
+    {
+      "nodeId": "cmopjv1t2002xz3r0j695yj7w",
+      "title": "Glacier & Ice-Cap Changes — Climate Linkage",
+      "syllabusOrder": 5,
+      "topic": "Indian Physiography & Drainage",
+      "prelimsNote": [
+        "Gangotri (Bhagirathi/Ganga), Yamunotri, Siachen (Nubra), Zemu (Teesta), Bara Shigri (Chenab) — river–glacier pairs (UPSC 2019).",
+        "Siachen lies in the Karakoram, the source of the Nubra river (UPSC 2020).",
+        "Glacial lake outburst floods (GLOFs) — South Lhonak (Sikkim, 2023).",
+        "Retreating Himalayan glaciers threaten perennial flows of Indus, Ganga, Brahmaputra."
+      ]
+    },
+    {
+      "nodeId": "cmopjv1t2002tz3r0teg6ddym",
+      "title": "Water Body Changes — Lakes, Wetlands & River Systems",
+      "syllabusOrder": 5,
+      "topic": "Indian Physiography & Drainage",
+      "prelimsNote": [
+        "Aral Sea shrank due to Soviet irrigation diversions of Amu Darya and Syr Darya (UPSC 2018); Lake Faguibine (Mali) dried up (UPSC 2022).",
+        "Ramsar sites in India exceed 90 (as of 2025); Montreux Record lists threatened Ramsar sites (UPSC 2014).",
+        "River-linking: Ken–Betwa first project; Godavari–Krishna link via Polavaram (UPSC 2016).",
+        "Saline and brackish lakes: Sambhar, Chilika, Pulicat."
+      ]
+    },
+    {
+      "nodeId": "cmopjuz7d0029z3r0weasbmf3",
+      "title": "Distribution of Soils — Types & Agricultural Significance",
+      "syllabusOrder": 6,
+      "topic": "Soils & Natural Vegetation",
+      "prelimsNote": [
+        "Alluvial (largest area, rich in potash, poor in nitrogen/phosphorus); khadar (new) vs bhangar (old with kankar).",
+        "Black/regur soil: from Deccan basalt, rich in iron, lime, magnesium; high moisture retention, self-ploughing — ideal for cotton (UPSC 2021).",
+        "Laterite: leached under high rainfall and temperature, rich in iron/aluminium, poor in humus; good for cashew, tea (UPSC 2013).",
+        "Red & yellow soils: iron oxide colour; arid soils: sandy, saline; peaty: Kerala, Sundarbans (humus-rich).",
+        "Soil erosion is linked to deforestation, terrace cultivation on steep slopes and tropical climate (UPSC 2014)."
+      ]
+    },
+    {
+      "nodeId": "cmopjv1t2002wz3r00uyeo5qz",
+      "title": "Deforestation — Causes, Consequences & Policy Response",
+      "syllabusOrder": 6,
+      "topic": "Soils & Natural Vegetation",
+      "prelimsNote": [
+        "India State of Forest Report (biennial, FSI): forest cover ~21.7%, tree + forest cover ~25% (ISFR 2021/2023).",
+        "Largest forest cover by area: Madhya Pradesh; highest % cover: Mizoram (UPSC 2019 tested State forest cover).",
+        "Forest Conservation Act 1980 (amended 2023 as Van (Sanrakshan Evam Samvardhan) Adhiniyam); CAMPA funds compensatory afforestation (UPSC 2019).",
+        "Green India Mission (NAPCC) aims to increase forest/tree cover (UPSC 2016)."
+      ]
+    },
+    {
+      "nodeId": "cmopjv1t40033z3r0110hkaew",
+      "title": "Desertification — Causes, Extent & Mitigation",
+      "syllabusOrder": 6,
+      "topic": "Soils & Natural Vegetation",
+      "prelimsNote": [
+        "UNCCD (1994) is the only legally binding convention on land degradation; India hosted COP14 (2019, Greater Noida).",
+        "ISRO's Desertification and Land Degradation Atlas: ~30% of India's land degraded; Rajasthan, Maharashtra, Gujarat most affected.",
+        "India's target: restore 26 million ha of degraded land by 2030.",
+        "Prosopis juliflora (invasive) spreads in arid lands (UPSC 2018)."
+      ]
+    },
+    {
+      "nodeId": "cmopjuz7e002bz3r0najbfhi6",
+      "title": "Distribution of Minerals — Global & Indian Context",
+      "syllabusOrder": 7,
+      "topic": "Agriculture & Resources",
+      "prelimsNote": [
+        "Iron ore: Odisha, Chhattisgarh (Bailadila), Karnataka, Jharkhand; Bauxite: Odisha, Gujarat; Mica: Andhra, Rajasthan, Jharkhand.",
+        "Coal: ~98% Gondwana (Damodar valley); Tertiary coal in Assam/Meghalaya; India imports coking coal for quality reasons (UPSC 2012).",
+        "Uranium: Jaduguda (Jharkhand), Tummalapalle (Andhra); monazite (thorium) in Kerala/Tamil Nadu/Odisha beach sands (UPSC 2022).",
+        "Cobalt: ~70% of world output from DR Congo (UPSC 2023); ilmenite & rutile are titanium ores (UPSC 2023).",
+        "Minor minerals are regulated by State governments (MMDR Act); major minerals by the Centre (UPSC 2018, 2019)."
+      ]
+    },
+    {
+      "nodeId": "cmopjv099002dz3r0kreef4j8",
+      "title": "Distribution of Crops — Cropping Patterns Globally & India",
+      "syllabusOrder": 7,
+      "topic": "Agriculture & Resources",
+      "prelimsNote": [
+        "Kharif (sown with monsoon: rice, maize, cotton, jowar, groundnut), Rabi (winter: wheat, mustard, gram), Zaid (summer: watermelon, cucumber).",
+        "Rice: high temperature + >100 cm rain (WB, UP, Punjab); wheat: cool growing, warm ripening (UP, Punjab, MP).",
+        "Tea: well-drained slopes, frequent rain (Assam, WB, Kerala, Tamil Nadu; also Tripura and Himachal's Kangra valley); coffee in Karnataka.",
+        "Jute (WB delta), cotton (black soil — Gujarat, Maharashtra), sugarcane (UP, Maharashtra).",
+        "India–China comparison (UPSC 2023): India has more arable land; China higher productivity."
+      ]
+    },
+    {
+      "nodeId": "cmopjv099002ez3r04doxxzhz",
+      "title": "Primary Sector Location Factors — Agriculture, Mining, Fishing",
+      "syllabusOrder": 7,
+      "topic": "Agriculture & Resources",
+      "prelimsNote": [
+        "Agriculture: climate, soil, water, markets, technology — Von Thünen's land-use rings.",
+        "Mining is located at the deposit (resource-bound); mineral-rich Chota Nagpur plateau.",
+        "Major fishing grounds lie where warm and cold currents meet over continental shelves (UPSC 2013).",
+        "India's marine fisheries: west coast more productive (Kerala, Gujarat)."
+      ]
+    },
+    {
+      "nodeId": "cmopjv1t2002sz3r0commixga",
+      "title": "Secondary Sector Location Factors — Manufacturing & Industry",
+      "syllabusOrder": 8,
+      "topic": "Industry, Transport & Trade",
+      "prelimsNote": [
+        "Weber's least-cost theory: raw material (weight-losing → near source), labour and agglomeration factors.",
+        "Iron & steel near coal–iron belts: Jamshedpur, Bhilai, Rourkela, Bokaro, Durgapur; Vizag is a coastal plant.",
+        "Cotton textiles: Mumbai, Ahmedabad (market & humid climate); jute: Hooghly belt; sugar shifting to Maharashtra/peninsula.",
+        "Footloose industries (electronics) not tied to raw material.",
+        "Steel industry pollutants: SOx, NOx, CO, CO₂ (UPSC 2014)."
+      ]
+    },
+    {
+      "nodeId": "cmopjv1t2002vz3r0mbnfi6qf",
+      "title": "Tertiary Sector Location Factors — Services & Trade",
+      "syllabusOrder": 8,
+      "topic": "Industry, Transport & Trade",
+      "prelimsNote": [
+        "Services cluster in large cities with skilled labour and connectivity (IT in Bengaluru, Hyderabad, Pune).",
+        "India's services exports exceed services imports — services surplus offsets the merchandise deficit (UPSC 2020).",
+        "Tourism, trade, transport and communication form the tertiary sector; quaternary = knowledge services.",
+        "Special Economic Zones and IT parks promote service exports."
+      ]
+    }
+  ],
+  "newNodesToCreate": [
+    {
+      "title": "Earth Motions, Latitude–Longitude, Time & Eclipses",
+      "module": "Physical Geography",
+      "syllabusOrder": 1,
+      "topic": "Universe & Solar System",
+      "nodeType": "CONCEPTUAL",
+      "prelimsNote": [
+        "On 21 June (summer solstice) the Sun is overhead at the Tropic of Cancer and does not set below the horizon at the Arctic Circle (UPSC 2019).",
+        "Longest day in the Northern Hemisphere falls in the second half of June (UPSC 2022); day length varies with latitude due to axial tilt of 23.5° (UPSC 2013).",
+        "Earth rotates 15° per hour; IST is based on 82.5°E (Mirzapur); Delhi is at ~77°E longitude (UPSC 2018).",
+        "International Date Line (~180°) zig-zags to avoid land; crossing eastward you repeat a day.",
+        "Solar eclipse at new moon, lunar eclipse at full moon; umbra gives total, penumbra partial eclipse."
+      ]
+    },
+    {
+      "title": "Landforms — Weathering, Fluvial, Karst, Glacial, Aeolian & Coastal",
+      "module": "Physical Geography",
+      "syllabusOrder": 2,
+      "topic": "Geomorphology",
+      "nodeType": "CONCEPTUAL",
+      "prelimsNote": [
+        "Fluvial: V-shaped valleys, gorges, meanders, ox-bow lakes, deltas; Gandikota canyon is cut by the Pennar (UPSC 2022).",
+        "Glacial: U-shaped valleys, cirques, moraines, drumlins; Karst (limestone): sinkholes, stalactites (from roof) and stalagmites (from floor).",
+        "Aeolian: barchans, yardangs, mushroom rocks; coastal: cliffs, sea arches, spits, lagoons.",
+        "Weathering: physical (frost wedging, exfoliation), chemical (oxidation, carbonation), biological; mass wasting includes landslides.",
+        "Ox-bow lakes form from cut-off meanders — Kanwar (Kabar Tal) in Bihar was formed by the meandering Burhi Gandak; UPSC 2023 paired it with Wular (Jhelum) and Kolleru."
+      ]
+    },
+    {
+      "title": "Ocean Temperature, Salinity & Marine Resources",
+      "module": "Physical Geography",
+      "syllabusOrder": 4,
+      "topic": "Oceanography",
+      "nodeType": "CONCEPTUAL",
+      "prelimsNote": [
+        "Average salinity ~35‰; highest in the Red Sea/Persian Gulf (evaporation), lowest near river mouths and polar seas.",
+        "Thermocline: layer of rapid temperature drop; halocline: rapid salinity change.",
+        "Upwelling (cold, nutrient-rich water) along western coasts boosts productivity (UPSC 2011).",
+        "Polymetallic nodules: India's ISA-licensed area in the Central Indian Ocean Basin; ISA (not a 'Global Ocean Commission') grants seabed licences (UPSC 2021).",
+        "Gas hydrates (methane hydrates) found in Krishna–Godavari basin offshore (UPSC 2019)."
+      ]
+    },
+    {
+      "title": "Himalaya, Mountain Passes & Northern Plains",
+      "module": "Physical Geography",
+      "syllabusOrder": 5,
+      "topic": "Indian Physiography & Drainage",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "Himalaya: Trans-Himalaya (Karakoram, Ladakh, Zaskar) → Himadri (Greater) → Himachal (Lesser: Pir Panjal, Dhauladhar) → Shiwaliks (duns like Dehradun).",
+        "Passes: Zoji La (Srinagar–Leh), Shipki La (HP–Tibet, Sutlej), Nathu La (Sikkim), Lipulekh (Uttarakhand, Kailash route), Rohtang (Manali–Lahaul); peninsular: Palghat, Bhorghat, Thalghat.",
+        "Purvanchal: Patkai, Naga, Mizo hills; Namcha Barwa is the eastern syntaxis.",
+        "Peaks: Namcha Barwa is NOT in the Garhwal Himalaya; Nanda Devi is in the Kumaon Himalaya; Nokrek is in Meghalaya, not Sikkim (UPSC 2022).",
+        "Himalayan rivers form syntaxial bends and deep gorges; the Himalaya blocks cold Central Asian winds."
+      ]
+    },
+    {
+      "title": "Peninsular Plateau, Coastal Plains & Island Groups",
+      "module": "Physical Geography",
+      "syllabusOrder": 5,
+      "topic": "Indian Physiography & Drainage",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "Western Ghats (Sahyadri) continuous, higher; Eastern Ghats discontinuous, cut by rivers; they meet in the Nilgiris (Doddabetta).",
+        "Coasts: Konkan, Kannada, Malabar (backwaters/kayals) on the west; Coromandel, Northern Circars on the east.",
+        "Andaman & Nicobar: Ten Degree Channel separates Little Andaman and Car Nicobar; Great Nicobar is close to Sumatra (UPSC 2014, 2017).",
+        "Lakshadweep: coral atolls; Nine Degree Channel separates Minicoy from the rest.",
+        "Chandipur (Odisha): sea recedes up to 5 km at low tide (UPSC 2017)."
+      ]
+    },
+    {
+      "title": "Indian Drainage — Himalayan & Peninsular River Systems",
+      "module": "Physical Geography",
+      "syllabusOrder": 5,
+      "topic": "Indian Physiography & Drainage",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "Indus tributaries: Jhelum, Chenab, Ravi, Beas, Sutlej (UPSC 2021); Ganga's left-bank: Ramganga, Gomti, Ghaghara, Gandak, Kosi; right-bank: Yamuna, Son.",
+        "Brahmaputra (Tsangpo in Tibet, Siang/Dihang in Arunachal) tributaries: Subansiri, Manas, Teesta, Dibang, Lohit (UPSC 2014, 2016).",
+        "Godavari (largest peninsular, 'Dakshin Ganga') tributaries: Pranhita, Indravati, Manjira, Penganga (UPSC 2015).",
+        "Krishna: Bhima, Tungabhadra, Ghataprabha, Malaprabha; Cauvery: Kabini, Hemavati — protected areas in the Cauvery basin include Nagarhole and Sathyamangalam (UPSC 2020).",
+        "Reservoir–State pairs: Gandhi Sagar (MP), Indira Sagar (MP), Maithon (Jharkhand), Ghataprabha (Karnataka) — UPSC 2022."
+      ]
+    },
+    {
+      "title": "Natural Vegetation & Forest Types of India",
+      "module": "Physical Geography",
+      "syllabusOrder": 6,
+      "topic": "Soils & Natural Vegetation",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "Tropical evergreen: >200 cm rain (Western Ghats, NE, Andamans); tropical deciduous (monsoon) is the most widespread.",
+        "Tropical thorn forests in arid areas; montane forests change with altitude; mangroves in Sundarbans and deltas.",
+        "Deciduous trees: teak, sal, mahua; jackfruit is evergreen (UPSC 2023); teak dominates dry deciduous forests (UPSC 2015).",
+        "Andaman has tropical rainforests and mangroves (UPSC 2015).",
+        "Tropical rainforest soils are nutrient-poor because rapid decomposition and leaching (UPSC 2011, 2023)."
+      ]
+    },
+    {
+      "title": "Transport Network — Ports, Highways, Freight Corridors & Waterways",
+      "module": "Human & Economic",
+      "syllabusOrder": 8,
+      "topic": "Industry, Transport & Trade",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "Golden Quadrilateral links Delhi–Mumbai–Chennai–Kolkata; East–West corridor runs Silchar–Porbandar, North–South Srinagar–Kanyakumari (UPSC 2023).",
+        "Ports: Kamarajar (first corporatised major port), Mundra (largest private), JNPT (largest container port) — UPSC 2023.",
+        "DFCs: Eastern (Ludhiana–Sonnagar), Western (Dadri–JNPT).",
+        "National Waterways: NW-1 Ganga (Haldia–Prayagraj), NW-2 Brahmaputra (Dhubri–Sadiya), NW-3 West Coast Canal (Kerala).",
+        "Trilateral Highway links Moreh (Manipur) with Thailand via Myanmar (UPSC 2023)."
+      ]
+    },
+    {
+      "title": "Population, Census, Urbanisation & Tribes",
+      "module": "Human & Economic",
+      "syllabusOrder": 9,
+      "topic": "Population & Human Geography",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "Census 2011: population 121 crore, sex ratio 943, child sex ratio 919, literacy 74%, density 382/km²; next census with caste enumeration scheduled for 2027 (as of 2025).",
+        "Demographic transition: high birth & death → falling death rate → falling birth rate → low both; India is in stage 3.",
+        "Tribes: Gonds (central India), Bhils (W India), Santhals (Jharkhand), Todas (Nilgiris), Chenchus (Andhra), Jarawas & Sentinelese (Andamans); Changpa (Ladakh pastoralists — UPSC 2014).",
+        "Living root bridges (Meghalaya, Khasi) and Konyak/Naga traditions are tested as 'tribes & places' (UPSC 2015)."
+      ]
+    },
+    {
+      "title": "World Physical Features — Straits, Seas, Rivers, Mountains & Deserts",
+      "module": "World",
+      "syllabusOrder": 10,
+      "topic": "World Geography & Places",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "Straits: Malacca (Malaysia–Sumatra), Hormuz (Iran–Oman), Bab-el-Mandeb (Yemen–Djibouti), Bosphorus & Dardanelles (Turkey), Gibraltar, Bering, Dover.",
+        "Mediterranean coastal states and Black Sea neighbours are favourite 'how many border' questions (UPSC 2015, 2017, 2019).",
+        "Equator passes through Ecuador, Colombia, Brazil, Gabon, Congo, DR Congo, Uganda, Kenya, Somalia, Indonesia, Maldives (UPSC 2011).",
+        "Congo Basin covers Cameroon (UPSC 2023); deserts: Atacama (driest, cold Humboldt current), Kalahari, Gobi, Patagonia.",
+        "Aral Sea shrank due to irrigation; Dead Sea is the lowest point on land."
+      ]
+    },
+    {
+      "title": "Places in News — Mapping Geopolitical Flashpoints",
+      "module": "World",
+      "syllabusOrder": 10,
+      "topic": "World Geography & Places",
+      "nodeType": "NEWS",
+      "prelimsNote": [
+        "UPSC pairs a region with its country or reason for news — e.g. Donbas (Ukraine), Kachin (Myanmar), Tigray (Ethiopia) — UPSC 2023.",
+        "North Kivu & Ituri (DR Congo), Nagorno-Karabakh (Azerbaijan–Armenia), Kherson & Zaporizhzhia (Ukraine) — UPSC 2023 swapped their reasons.",
+        "Ukraine's land neighbours: Belarus, Poland, Slovakia, Hungary, Romania, Moldova, Russia (UPSC 2023); Afghanistan's: Iran, Pakistan, China, Tajikistan, Uzbekistan, Turkmenistan (UPSC 2022).",
+        "Levant = eastern Mediterranean shores (UPSC 2022); Senkaku (China–Japan dispute, East China Sea); Sahel coups (Chad, Guinea, Mali, Sudan — UPSC 2023).",
+        "Refugee camps: Bidibidi (Uganda, South Sudanese), Dadaab (Kenya, Somalis) — UPSC 2022."
+      ]
+    },
+    {
+      "title": "Maps, Projections, GIS & International Boundary Lines",
+      "module": "World",
+      "syllabusOrder": 11,
+      "topic": "Miscellaneous Geography",
+      "nodeType": "STATIC",
+      "prelimsNote": [
+        "Map scales: large-scale maps show small areas in detail; projections: Mercator (conformal, distorts area near poles), equal-area, gnomonic.",
+        "Boundary lines: Radcliffe (India–Pakistan/Bangladesh), McMahon (India–China, east), Durand (Afghanistan–Pakistan), 38th Parallel (Koreas), 49th Parallel (USA–Canada).",
+        "Remote sensing uses (UPSC 2019): crop assessment, groundwater mapping, forest monitoring.",
+        "GIS overlays spatial data layers; GPS gives location, not maps by itself."
+      ]
+    }
+  ]
+}
