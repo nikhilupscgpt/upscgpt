@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { isNewPatternQuestion, isPairQuestion, isStatementQuestion } from '@/lib/pyqPattern';
 import { getStructuredExplanation } from '@/lib/pyqExplanationHelper';
+import { TOPIC_GROUPS, SUBJECT_ORDER } from '@/app/prelims/pyq/topicGroups';
 
 export default function PyqAdminClient({ session }) {
   const [activeTab, setActiveTab] = useState('list'); // 'list' | 'bulk' | 'add'
@@ -38,6 +39,9 @@ export default function PyqAdminClient({ session }) {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const [updatingTopicId, setUpdatingTopicId] = useState(null);
+  const [toastMessage, setToastMessage] = useState(null);
 
   const [search, setSearch] = useState('');
   const [subject, setSubject] = useState('ALL');
@@ -204,6 +208,30 @@ export default function PyqAdminClient({ session }) {
       includeExpl: printIncludeExpl ? 'true' : 'false'
     });
     window.open(`/api/admin/pyq/print-pdf?${p.toString()}`, '_blank');
+  };
+
+  // Quick 1-Click Topic Reassignment directly from question card
+  const handleQuickTopicChange = async (qId, newTopic) => {
+    if (!newTopic) return;
+    setUpdatingTopicId(qId);
+    try {
+      const res = await fetch(`/api/admin/pyq/${qId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ srcTopic: newTopic })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to update topic');
+      }
+      setQuestions(prev => prev.map(item => item.id === qId ? { ...item, srcTopic: newTopic } : item));
+      setToastMessage(`✓ Reassigned to "${newTopic}"`);
+      setTimeout(() => setToastMessage(null), 3500);
+    } catch (err) {
+      alert(`Error updating topic: ${err.message}`);
+    } finally {
+      setUpdatingTopicId(null);
+    }
   };
 
   // Handle Search Submit
@@ -1336,19 +1364,42 @@ export default function PyqAdminClient({ session }) {
                             {q.srcSubject || 'General'}
                           </span>
 
-                          {q.srcTopic && (
-                            <span style={{
-                              background: 'rgba(59, 130, 246, 0.14)',
-                              color: '#93c5fd',
-                              border: '1px solid rgba(59, 130, 246, 0.3)',
-                              padding: '3px 8px',
-                              borderRadius: '6px',
-                              fontSize: '0.72rem',
-                              fontWeight: 700
-                            }}>
-                              📖 {q.srcTopic}
-                            </span>
-                          )}
+                          {/* Quick Theme Reassign Dropdown */}
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                            <span style={{ fontSize: '0.72rem', color: '#94a3b8', fontWeight: 700 }}>Theme:</span>
+                            <select
+                              value={q.srcTopic || ''}
+                              disabled={updatingTopicId === q.id}
+                              onChange={e => handleQuickTopicChange(q.id, e.target.value)}
+                              style={{
+                                background: 'rgba(59, 130, 246, 0.16)',
+                                color: '#93c5fd',
+                                border: '1px solid rgba(59, 130, 246, 0.35)',
+                                borderRadius: '6px',
+                                padding: '2px 8px',
+                                fontSize: '0.74rem',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                maxWidth: '280px',
+                                outline: 'none'
+                              }}
+                              title="Click to quickly reassign this question to another syllabus theme"
+                            >
+                              {q.srcTopic && !(TOPIC_GROUPS[q.srcSubject] || []).some(([, topics]) => topics.includes(q.srcTopic)) && (
+                                <option value={q.srcTopic}>{q.srcTopic} (Custom / Legacy)</option>
+                              )}
+                              {(TOPIC_GROUPS[q.srcSubject] || TOPIC_GROUPS['Indian Polity'] || []).map(([moduleLabel, topics]) => (
+                                <optgroup key={moduleLabel} label={moduleLabel}>
+                                  {topics.map(t => (
+                                    <option key={t} value={t}>{t}</option>
+                                  ))}
+                                </optgroup>
+                              ))}
+                            </select>
+                            {updatingTopicId === q.id && (
+                              <RefreshCw size={12} className="animate-spin" style={{ color: '#60a5fa' }} />
+                            )}
+                          </div>
 
                           {isPair && (
                             <span style={{
@@ -2028,12 +2079,13 @@ export default function PyqAdminClient({ session }) {
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#94a3b8', marginBottom: '4px' }}>
                     SUBJECT *
                   </label>
-                  <input
-                    type="text"
-                    required
+                  <select
                     value={newQuestionForm.srcSubject}
-                    onChange={e => setNewQuestionForm(prev => ({ ...prev, srcSubject: e.target.value }))}
-                    placeholder="e.g. Indian Polity"
+                    onChange={e => {
+                      const newSub = e.target.value;
+                      const defaultTopic = TOPIC_GROUPS[newSub]?.[0]?.[1]?.[0] || '';
+                      setNewQuestionForm(prev => ({ ...prev, srcSubject: newSub, srcTopic: defaultTopic }));
+                    }}
                     style={{
                       width: '100%',
                       background: 'rgba(2, 6, 23, 0.8)',
@@ -2041,20 +2093,23 @@ export default function PyqAdminClient({ session }) {
                       borderRadius: '8px',
                       padding: '8px 12px',
                       color: '#ffffff',
-                      fontSize: '0.85rem'
+                      fontSize: '0.85rem',
+                      fontWeight: 600
                     }}
-                  />
+                  >
+                    {SUBJECT_ORDER.map(s => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
                   <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 800, color: '#94a3b8', marginBottom: '4px' }}>
-                    TOPIC
+                    TOPIC (MODULE GROUPED)
                   </label>
-                  <input
-                    type="text"
+                  <select
                     value={newQuestionForm.srcTopic}
                     onChange={e => setNewQuestionForm(prev => ({ ...prev, srcTopic: e.target.value }))}
-                    placeholder="e.g. Fundamental Rights"
                     style={{
                       width: '100%',
                       background: 'rgba(2, 6, 23, 0.8)',
@@ -2062,9 +2117,18 @@ export default function PyqAdminClient({ session }) {
                       borderRadius: '8px',
                       padding: '8px 12px',
                       color: '#ffffff',
-                      fontSize: '0.85rem'
+                      fontSize: '0.85rem',
+                      fontWeight: 600
                     }}
-                  />
+                  >
+                    {(TOPIC_GROUPS[newQuestionForm.srcSubject] || TOPIC_GROUPS['Indian Polity'] || []).map(([moduleLabel, topics]) => (
+                      <optgroup key={moduleLabel} label={moduleLabel}>
+                        {topics.map(t => (
+                          <option key={t} value={t}>{t}</option>
+                        ))}
+                      </optgroup>
+                    ))}
+                  </select>
                 </div>
 
                 <div>
@@ -2512,10 +2576,13 @@ export default function PyqAdminClient({ session }) {
                       <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', marginBottom: '4px' }}>
                         SUBJECT
                       </label>
-                      <input
-                        type="text"
+                      <select
                         value={editForm.srcSubject}
-                        onChange={e => setEditForm(prev => ({ ...prev, srcSubject: e.target.value }))}
+                        onChange={e => {
+                          const newSub = e.target.value;
+                          const defaultTopic = TOPIC_GROUPS[newSub]?.[0]?.[1]?.[0] || '';
+                          setEditForm(prev => ({ ...prev, srcSubject: newSub, srcTopic: defaultTopic }));
+                        }}
                         style={{
                           width: '100%',
                           background: 'rgba(2, 6, 23, 0.8)',
@@ -2523,17 +2590,21 @@ export default function PyqAdminClient({ session }) {
                           borderRadius: '8px',
                           padding: '6px 10px',
                           color: '#ffffff',
-                          fontSize: '0.82rem'
+                          fontSize: '0.82rem',
+                          fontWeight: 600
                         }}
-                      />
+                      >
+                        {SUBJECT_ORDER.map(s => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
+                      </select>
                     </div>
 
                     <div>
                       <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', marginBottom: '4px' }}>
-                        TOPIC
+                        THEME / TOPIC (MODULE GROUPED)
                       </label>
-                      <input
-                        type="text"
+                      <select
                         value={editForm.srcTopic}
                         onChange={e => setEditForm(prev => ({ ...prev, srcTopic: e.target.value }))}
                         style={{
@@ -2543,9 +2614,21 @@ export default function PyqAdminClient({ session }) {
                           borderRadius: '8px',
                           padding: '6px 10px',
                           color: '#ffffff',
-                          fontSize: '0.82rem'
+                          fontSize: '0.82rem',
+                          fontWeight: 600
                         }}
-                      />
+                      >
+                        {editForm.srcTopic && !(TOPIC_GROUPS[editForm.srcSubject] || []).some(([, topics]) => topics.includes(editForm.srcTopic)) && (
+                          <option value={editForm.srcTopic}>{editForm.srcTopic} (Custom / Legacy)</option>
+                        )}
+                        {(TOPIC_GROUPS[editForm.srcSubject] || TOPIC_GROUPS['Indian Polity'] || []).map(([moduleLabel, topics]) => (
+                          <optgroup key={moduleLabel} label={moduleLabel}>
+                            {topics.map(t => (
+                              <option key={t} value={t}>{t}</option>
+                            ))}
+                          </optgroup>
+                        ))}
+                      </select>
                     </div>
 
                     <div>
@@ -3038,6 +3121,31 @@ export default function PyqAdminClient({ session }) {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Floating Instant Feedback Toast */}
+      {toastMessage && (
+        <div style={{
+          position: 'fixed',
+          bottom: '24px',
+          right: '24px',
+          background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+          color: '#ffffff',
+          padding: '12px 20px',
+          borderRadius: '12px',
+          fontWeight: 800,
+          fontSize: '0.88rem',
+          boxShadow: '0 12px 30px rgba(0, 0, 0, 0.45)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          zIndex: 9999,
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          animation: 'fadeIn 0.2s ease-out'
+        }}>
+          <CheckCircle2 size={18} />
+          <span>{toastMessage}</span>
         </div>
       )}
 
