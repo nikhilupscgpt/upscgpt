@@ -21,9 +21,12 @@ import {
   Edit3,
   Plus,
   Trash2,
-  CheckSquare
+  CheckSquare,
+  ShieldCheck,
+  Zap
 } from 'lucide-react';
 import { getStructuredExplanation } from '@/lib/pyqExplanationHelper';
+import { normalizeCanonicalSubject } from '@/app/prelims/pyq/topicGroups';
 import '@/app/prelims/pyq/pyq-ui.css';
 
 export default function PyqVisualEditorClient({ initialQuestion }) {
@@ -95,6 +98,59 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [safeMergeEnabled, setSafeMergeEnabled] = useState(true);
+  const [toastMessage, setToastMessage] = useState(null);
+
+  // Helper to merge incoming JSON while protecting the canonical question and syllabus taxonomy
+  const mergeIncomingJson = useCallback((incomingObj, currentData) => {
+    // Determine canonical subject
+    const canonicalSub = normalizeCanonicalSubject(
+      initialQuestion.srcSubject || currentData.srcSubject || incomingObj.srcSubject
+    );
+
+    // Determine canonical topic (keep question's existing canonical topic if incoming is long or non-standard)
+    let finalTopic = initialQuestion.srcTopic || currentData.srcTopic || incomingObj.srcTopic;
+    const incomingTopic = incomingObj.srcTopic ? String(incomingObj.srcTopic).trim() : '';
+
+    // If incoming topic is long composite string (e.g. contains "—" or "Making of..."), preserve canonical topic and store composite in srcTheme
+    let themeToSet = incomingObj.srcTheme || currentData.srcTheme;
+    if (incomingTopic && (incomingTopic.includes('—') || incomingTopic.includes('–') || incomingTopic.length > 50)) {
+      themeToSet = incomingTopic;
+    }
+
+    // Extract analysis payload
+    const incomingAnalysis = incomingObj.analysis || (incomingObj.optionBreakdown ? incomingObj : null) || {};
+
+    return {
+      ...currentData,
+      // STRICTLY PROTECT verified question identity and syllabus taxonomy
+      id: initialQuestion.id,
+      examName: initialQuestion.examName || currentData.examName || incomingObj.examName || 'UPSC CSE Pre',
+      examYear: initialQuestion.examYear || currentData.examYear || incomingObj.examYear || 2025,
+      questionNo: initialQuestion.questionNo !== undefined ? initialQuestion.questionNo : (currentData.questionNo !== undefined ? currentData.questionNo : incomingObj.questionNo),
+      srcSubject: canonicalSub,
+      srcTopic: finalTopic,
+      stem: initialQuestion.stem || currentData.stem || incomingObj.stem,
+      options: initialQuestion.options && initialQuestion.options.length > 0 ? initialQuestion.options : (currentData.options && currentData.options.length > 0 ? currentData.options : incomingObj.options),
+
+      // ACCEPT AI Answer, Breakdown, and Deep Dive Value Additions
+      correctLabel: (incomingObj.correctLabel || currentData.correctLabel || 'a').toLowerCase(),
+      sourceBase: incomingObj.sourceBase || currentData.sourceBase || '',
+      topicHierarchy: Array.isArray(incomingObj.topicHierarchy) ? incomingObj.topicHierarchy : currentData.topicHierarchy,
+      srcTheme: themeToSet,
+      explanation: incomingObj.explanation !== undefined ? incomingObj.explanation : currentData.explanation,
+      analysis: {
+        ...(currentData.analysis || {}),
+        ...(incomingAnalysis || {}),
+        keywords: incomingAnalysis.keywords || currentData.analysis?.keywords || [],
+        optionBreakdown: incomingAnalysis.optionBreakdown || currentData.analysis?.optionBreakdown || [],
+        valueAddition: incomingAnalysis.valueAddition || currentData.analysis?.valueAddition || '',
+        inNews: incomingAnalysis.inNews !== undefined ? incomingAnalysis.inNews : currentData.analysis?.inNews,
+        similarPyq: incomingAnalysis.similarPyq !== undefined ? incomingAnalysis.similarPyq : currentData.analysis?.similarPyq,
+        visualSuggestion: incomingAnalysis.visualSuggestion !== undefined ? incomingAnalysis.visualSuggestion : currentData.analysis?.visualSuggestion,
+      }
+    };
+  }, [initialQuestion]);
 
   // Sync from Right Visual Editor to Left JSON
   const updateDataAndSyncJson = useCallback((updater) => {
@@ -120,10 +176,43 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
         return;
       }
       const parsed = JSON.parse(trimmed);
-      setData(parsed);
+      if (safeMergeEnabled) {
+        const merged = mergeIncomingJson(parsed, data);
+        setData(merged);
+      } else {
+        setData(parsed);
+      }
       setParseError(null);
     } catch (err) {
       setParseError(err.message);
+    }
+  };
+
+  const handlePasteGeminiAnswer = async () => {
+    try {
+      let text = '';
+      if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.readText) {
+        try {
+          text = await navigator.clipboard.readText();
+        } catch (clipErr) {
+          console.warn('Clipboard read permission denied or unavailable:', clipErr);
+        }
+      }
+      if (!text || !text.trim() || !text.includes('{')) {
+        const manual = window.prompt("Paste your Gemini JSON code here (Answer & Analysis will be safely merged into this question):");
+        if (!manual) return;
+        text = manual;
+      }
+
+      const parsed = JSON.parse(text.trim());
+      const merged = mergeIncomingJson(parsed, data);
+      setData(merged);
+      setRawJsonText(JSON.stringify(merged, null, 2));
+      setParseError(null);
+      setToastMessage('✓ Gemini Answer & Analysis safely merged! (Question & Topic protected)');
+      setTimeout(() => setToastMessage(null), 4000);
+    } catch (err) {
+      alert('Failed to parse and merge Gemini JSON: ' + err.message);
     }
   };
 
@@ -471,6 +560,29 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
               <button
+                type="button"
+                onClick={handlePasteGeminiAnswer}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '4px 10px',
+                  borderRadius: '6px',
+                  background: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
+                  color: '#ffffff',
+                  border: '1px solid rgba(251, 191, 36, 0.4)',
+                  fontSize: '0.75rem',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 8px rgba(245, 158, 11, 0.35)'
+                }}
+                title="Safely extract and merge analysis, answer key, and value additions without altering question or topic"
+              >
+                <Zap size={12} fill="#ffffff" />
+                <span>Merge Gemini Answer</span>
+              </button>
+
+              <button
                 onClick={handleCopy}
                 style={{
                   display: 'inline-flex',
@@ -511,6 +623,54 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
               </button>
             </div>
           </div>
+
+          {/* Protection Safeguard Bar */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '6px 14px',
+            background: 'rgba(15, 23, 42, 0.95)',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            fontSize: '0.75rem',
+            flexShrink: 0
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#94a3b8' }}>
+              <ShieldCheck size={14} color="#10b981" />
+              <span>Protected Question:</span>
+              <strong style={{ color: '#38bdf8' }}>{initialQuestion.srcSubject || 'Indian Polity'}</strong>
+              <span style={{ color: '#64748b' }}>›</span>
+              <strong style={{ color: '#fde047' }}>{initialQuestion.srcTopic || 'Constituent Assembly'}</strong>
+            </div>
+
+            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer', color: safeMergeEnabled ? '#34d399' : '#94a3b8', fontWeight: 700 }}>
+              <input
+                type="checkbox"
+                checked={safeMergeEnabled}
+                onChange={(e) => setSafeMergeEnabled(e.target.checked)}
+                style={{ accentColor: '#10b981', cursor: 'pointer' }}
+              />
+              <span>Lock Question &amp; Topic</span>
+            </label>
+          </div>
+
+          {toastMessage && (
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 14px',
+              background: 'rgba(16, 185, 129, 0.2)',
+              borderBottom: '1px solid rgba(16, 185, 129, 0.4)',
+              color: '#6ee7b7',
+              fontSize: '0.8rem',
+              fontWeight: 700,
+              flexShrink: 0
+            }}>
+              <CheckCircle2 size={15} color="#10b981" />
+              <div>{toastMessage}</div>
+            </div>
+          )}
 
           {parseError && (
             <div style={{

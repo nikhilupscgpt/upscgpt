@@ -142,3 +142,22 @@ export const SUBJECT_ORDER = [
   'Indian Polity', 'Geography', 'Economy', 'Environment', 'Science & Technology',
   'Modern History', 'Ancient History', 'Medieval History', 'Art & Culture', 'Agriculture',
 ];
+
+/**
+ * Normalizes any free-form or AI-generated subject string to the 10 canonical UPSC syllabus subjects.
+ */
+export function normalizeCanonicalSubject(sub) {
+  if (!sub) return 'Indian Polity';
+  const clean = String(sub).trim().toLowerCase();
+  if (clean.includes('polity') || clean.includes('governance')) return 'Indian Polity';
+  if (clean.includes('econom')) return 'Economy';
+  if (clean.includes('geograph')) return 'Geography';
+  if (clean.includes('environ') || clean.includes('ecolog')) return 'Environment';
+  if (clean.includes('scien') || clean.includes('tech')) return 'Science & Technology';
+  if (clean.includes('modern')) return 'Modern History';
+  if (clean.includes('ancient')) return 'Ancient History';
+  if (clean.includes('mediev')) return 'Medieval History';
+  if (clean.includes('art') || clean.includes('cultur')) return 'Art & Culture';
+  if (clean.includes('agri') || clean.includes('farm')) return 'Agriculture';
+  return sub;
+}

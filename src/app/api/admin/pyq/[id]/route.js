@@ -4,6 +4,7 @@ import { PrismaClient } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import crypto from 'crypto';
+import { normalizeCanonicalSubject } from '@/lib/syllabusTaxonomy';
 
 const prisma = new PrismaClient();
 
@@ -94,11 +95,24 @@ export async function PATCH(req, { params }) {
     }
 
     if (body.srcSubject !== undefined) {
-      updateData.srcSubject = body.srcSubject ? body.srcSubject.trim() : null;
+      const rawSub = body.srcSubject ? body.srcSubject.trim() : null;
+      updateData.srcSubject = normalizeCanonicalSubject(rawSub);
     }
 
     if (body.srcTopic !== undefined) {
-      updateData.srcTopic = body.srcTopic ? body.srcTopic.trim() : null;
+      const rawTopic = body.srcTopic ? body.srcTopic.trim() : null;
+      // Guardrail: if incoming topic is a long composite string (e.g. from an AI generation)
+      // and the existing record already has a canonical topic, keep existing.srcTopic and save rawTopic into srcTheme.
+      if (rawTopic && (rawTopic.includes('—') || rawTopic.includes('–') || rawTopic.length > 50)) {
+        if (existing.srcTopic) {
+          updateData.srcTopic = existing.srcTopic;
+          if (!body.srcTheme) updateData.srcTheme = rawTopic;
+        } else {
+          updateData.srcTopic = rawTopic;
+        }
+      } else {
+        updateData.srcTopic = rawTopic;
+      }
     }
 
     if (body.srcTheme !== undefined) {

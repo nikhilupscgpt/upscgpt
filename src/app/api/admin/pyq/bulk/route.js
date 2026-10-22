@@ -4,6 +4,7 @@ import { PrismaClient } from '@prisma/client';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import crypto from 'crypto';
+import { normalizeCanonicalSubject } from '@/lib/syllabusTaxonomy';
 
 const prisma = new PrismaClient();
 
@@ -91,7 +92,8 @@ export async function POST(req) {
         const examName = (item.examName || item.exam || 'UPSC CSE Pre').toString().trim();
         const examYear = parseInt(item.examYear || item.year, 10) || 2024;
         const questionNo = item.questionNo !== undefined && item.questionNo !== null ? parseInt(item.questionNo, 10) : null;
-        const srcSubject = (item.srcSubject || item.subject || 'Indian Polity').toString().trim();
+        const rawSubject = (item.srcSubject || item.subject || 'Indian Polity').toString().trim();
+        const srcSubject = normalizeCanonicalSubject(rawSubject);
         const srcTopic = (item.srcTopic || item.topic || 'General').toString().trim();
         const difficulty = item.difficulty || 'MEDIUM';
 
@@ -124,7 +126,15 @@ export async function POST(req) {
           if (correctLabel) updateData.correctLabel = correctLabel;
           if (explanation !== null) updateData.explanation = explanation;
           if (item.srcSubject) updateData.srcSubject = srcSubject;
-          if (item.srcTopic) updateData.srcTopic = srcTopic;
+          if (item.srcTopic) {
+            if (existing.srcTopic && (srcTopic.includes('—') || srcTopic.includes('–') || srcTopic.length > 50)) {
+              updateData.srcTopic = existing.srcTopic;
+              if (!item.srcTheme) updateData.srcTheme = srcTopic;
+            } else {
+              updateData.srcTopic = srcTopic;
+            }
+          }
+          if (item.srcTheme) updateData.srcTheme = item.srcTheme.toString().trim();
           if (item.examName) updateData.examName = examName;
           if (item.examYear) updateData.examYear = examYear;
           if (item.questionNo !== undefined) updateData.questionNo = questionNo;

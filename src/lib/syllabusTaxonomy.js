@@ -5,7 +5,8 @@ import {
   SUBJECT_ORDER,
   SUBJECT_SHORT,
   getTopicSyllabusOrder,
-  groupTopics
+  groupTopics,
+  normalizeCanonicalSubject
 } from '../app/prelims/pyq/topicGroups.js';
 
 export {
@@ -13,7 +14,8 @@ export {
   SUBJECT_ORDER,
   SUBJECT_SHORT,
   getTopicSyllabusOrder,
-  groupTopics
+  groupTopics,
+  normalizeCanonicalSubject
 };
 
 /**
