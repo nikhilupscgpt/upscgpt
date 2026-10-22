@@ -50,6 +50,59 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
       text: o.text || ''
     }));
 
+    // Clean keywords helper (strips distractors, removes markdown formatting)
+    const cleanKeywords = (rawKeywords) => {
+      if (!Array.isArray(rawKeywords)) return [];
+      return rawKeywords
+        .filter(kw => {
+          if (typeof kw === 'object' && kw !== null) return !kw.isDistractor;
+          if (typeof kw === 'string') return !kw.toLowerCase().includes('(distractor)') && !kw.startsWith('~~');
+          return true;
+        })
+        .map(kw => {
+          if (typeof kw === 'object' && kw !== null) {
+            return {
+              concept: (kw.concept || '').replace(/[*~_]/g, '').trim(),
+              isDistractor: false
+            };
+          }
+          return {
+            concept: String(kw).replace(/[*~_]/g, '').trim(),
+            isDistractor: false
+          };
+        });
+    };
+
+    const initialAnalysis = structured.analysis ? {
+      ...structured.analysis,
+      keywords: cleanKeywords(structured.analysis.keywords)
+    } : {
+      keywords: [
+        { concept: q.srcSubject || 'General Studies', isDistractor: false },
+        { concept: q.srcTopic || 'Polity & Governance', isDistractor: false }
+      ],
+      optionBreakdown: normalizedOptions.map(o => ({
+        label: o.label,
+        verdict: o.label === (q.correctLabel || '').toLowerCase() ? 'Correct' : 'Incorrect',
+        explanation: o.label === (q.correctLabel || '').toLowerCase() 
+          ? 'Key provision tested by UPSC based on standard statutory reference.' 
+          : 'Contradicts statutory or institutional guidelines.'
+      })),
+      valueAddition: typeof q.explanation === 'string' && q.explanation ? q.explanation : 'Foundational conceptual linkages and operational guidelines.',
+      inNews: {
+        headline: 'High-Yield Prelims Subject Analysis',
+        source: 'The Hindu / PIB',
+        date: 'Recent Cycle',
+        relevance: 'Tested frequently under UPSC Preliminary examination syllabus trends.'
+      },
+      similarPyq: {
+        examYear: q.examYear ? q.examYear - 3 : 2020,
+        examName: 'UPSC CSE Pre',
+        stem: 'Adjacent conceptual theme tested in earlier preliminary cycles.',
+        keyTakeaway: 'UPSC frequently rotates core statutory parameters into modified distractor statements.'
+      }
+    };
+
     return {
       examName: q.examName || 'UPSC CSE Pre',
       examYear: q.examYear || 2024,
@@ -60,32 +113,7 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
       stem: q.stem || '',
       options: normalizedOptions,
       correctLabel: (q.correctLabel || 'a').toLowerCase(),
-      analysis: structured.analysis || {
-        keywords: [
-          { concept: q.srcSubject || 'General Studies', isDistractor: false },
-          { concept: q.srcTopic || 'Polity & Governance', isDistractor: false }
-        ],
-        optionBreakdown: normalizedOptions.map(o => ({
-          label: o.label,
-          verdict: o.label === (q.correctLabel || '').toLowerCase() ? 'Correct' : 'Incorrect',
-          explanation: o.label === (q.correctLabel || '').toLowerCase() 
-            ? 'Key provision tested by UPSC based on standard statutory reference.' 
-            : 'Contradicts statutory or institutional guidelines.'
-        })),
-        valueAddition: typeof q.explanation === 'string' && q.explanation ? q.explanation : 'Foundational conceptual linkages and operational guidelines.',
-        inNews: {
-          headline: 'High-Yield Prelims Subject Analysis',
-          source: 'The Hindu / PIB',
-          date: 'Recent Cycle',
-          relevance: 'Tested frequently under UPSC Preliminary examination syllabus trends.'
-        },
-        similarPyq: {
-          examYear: q.examYear ? q.examYear - 3 : 2020,
-          examName: 'UPSC CSE Pre',
-          stem: 'Adjacent conceptual theme tested in earlier preliminary cycles.',
-          keyTakeaway: 'UPSC frequently rotates core statutory parameters into modified distractor statements.'
-        }
-      }
+      analysis: initialAnalysis
     };
   }, []);
 
@@ -142,7 +170,24 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
       analysis: {
         ...(currentData.analysis || {}),
         ...(incomingAnalysis || {}),
-        keywords: incomingAnalysis.keywords || currentData.analysis?.keywords || [],
+        keywords: (Array.isArray(incomingAnalysis.keywords) ? incomingAnalysis.keywords : (currentData.analysis?.keywords || []))
+          .filter(kw => {
+            if (typeof kw === 'object' && kw !== null) return !kw.isDistractor;
+            if (typeof kw === 'string') return !kw.toLowerCase().includes('(distractor)') && !kw.startsWith('~~');
+            return true;
+          })
+          .map(kw => {
+            if (typeof kw === 'object' && kw !== null) {
+              return {
+                concept: (kw.concept || '').replace(/[*~_]/g, '').trim(),
+                isDistractor: false
+              };
+            }
+            return {
+              concept: String(kw).replace(/[*~_]/g, '').trim(),
+              isDistractor: false
+            };
+          }),
         optionBreakdown: incomingAnalysis.optionBreakdown || currentData.analysis?.optionBreakdown || [],
         valueAddition: incomingAnalysis.valueAddition || currentData.analysis?.valueAddition || '',
         inNews: incomingAnalysis.inNews !== undefined ? incomingAnalysis.inNews : currentData.analysis?.inNews,
@@ -395,7 +440,12 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
 
   const optionsList = Array.isArray(data.options) ? data.options : [];
   const analysisObj = data.analysis || {};
-  const keywordsList = Array.isArray(analysisObj.keywords) ? analysisObj.keywords : [];
+  const rawKeywordsList = Array.isArray(analysisObj.keywords) ? analysisObj.keywords : [];
+  const keywordsList = rawKeywordsList.filter(kw => {
+    if (typeof kw === 'object' && kw !== null) return !kw.isDistractor;
+    if (typeof kw === 'string') return !kw.toLowerCase().includes('(distractor)') && !kw.startsWith('~~');
+    return true;
+  });
   const optionBreakdownList = Array.isArray(analysisObj.optionBreakdown) ? analysisObj.optionBreakdown : [];
   const inNewsObj = analysisObj.inNews || {};
   const similarPyqObj = analysisObj.similarPyq || {};
@@ -917,8 +967,8 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
               {keywordsList.map((kw, i) => {
-                const isDist = typeof kw === 'object' && kw !== null && Boolean(kw.isDistractor);
-                const name = typeof kw === 'object' && kw !== null ? kw.concept : String(kw);
+                const rawName = typeof kw === 'object' && kw !== null ? kw.concept : String(kw);
+                const name = rawName.replace(/[*~_]/g, '').trim();
                 return (
                   <div
                     key={i}
@@ -928,15 +978,14 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
                       gap: '6px',
                       padding: '4px 10px',
                       borderRadius: '6px',
-                      background: isDist ? 'rgba(239, 68, 68, 0.12)' : 'rgba(59, 130, 246, 0.12)',
-                      border: isDist ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(59, 130, 246, 0.3)',
-                      color: isDist ? '#f87171' : '#93c5fd',
+                      background: 'rgba(59, 130, 246, 0.12)',
+                      border: '1px solid rgba(59, 130, 246, 0.3)',
+                      color: '#93c5fd',
                       fontSize: '12.5px',
                       fontWeight: 600
                     }}
                   >
-                    <span>{isDist ? <s>{name}</s> : name}</span>
-                    {isDist && <span style={{ fontSize: '10px', opacity: 0.8 }}>(Distractor)</span>}
+                    <span>{name}</span>
                     <button
                       type="button"
                       onClick={() => handleRemoveKeyword(i)}

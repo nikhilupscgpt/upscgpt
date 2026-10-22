@@ -191,8 +191,55 @@ function renderValueAdditionHtml(va, q) {
   }
 
   // Helper to parse unstructured text into structured columns with bold headers and bullets
+  const parseBulletItems = (raw) => {
+    const text = raw.trim();
+    const rawLines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+    const items = [];
+    for (const line of rawLines) {
+      if (line.includes(' • ')) {
+        const parts = line.split(/\s*•\s*/).filter(Boolean);
+        for (const p of parts) {
+          const cleaned = p.replace(/^[•*\-\s]+/, '').trim();
+          if (cleaned) items.push(cleaned);
+        }
+      } else {
+        const cleaned = line.replace(/^[•*\-\s]+/, '').trim();
+        if (cleaned) items.push(cleaned);
+      }
+    }
+    return items;
+  };
+
   const formatTextIntoColumns = (raw) => {
     const text = raw.trim();
+
+    // Check if the text contains multiple bullet points or distinct bulleted lines
+    const bulletItems = parseBulletItems(text);
+    if (bulletItems.length >= 2) {
+      const half = Math.ceil(bulletItems.length / 2);
+      const col1 = bulletItems.slice(0, half);
+      const col2 = bulletItems.slice(half);
+      return `
+        <div class="va-twocol-grid">
+          <div class="va-col">
+            ${col1.map(item => `
+              <div class="va-bullet-item">
+                <span class="va-dot">•</span>
+                <span>${formatBulletText(item)}</span>
+              </div>
+            `).join('')}
+          </div>
+          <div class="va-col">
+            ${col2.map(item => `
+              <div class="va-bullet-item">
+                <span class="va-dot">•</span>
+                <span>${formatBulletText(item)}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
 
     // Check if it has two logical paragraphs or double-newlines
     const parts = text.split(/\n\s*\n+/);
@@ -275,8 +322,18 @@ function renderValueAdditionHtml(va, q) {
   };
 
   const formatBulletText = (str) => {
-    // Bold leading words before colon or hyphen
-    return escapeHtml(str).replace(/^([^:—–-]{3,40}[:—–-])/, '<strong>$1</strong>');
+    const escaped = escapeHtml(str);
+    // Bold leading words before colon (up to 80 chars)
+    const colonMatch = escaped.match(/^([^:]{3,80}:)(.*)$/s);
+    if (colonMatch) {
+      return `<strong>${colonMatch[1]}</strong>${colonMatch[2]}`;
+    }
+    // Or before an em-dash/en-dash
+    const dashMatch = escaped.match(/^([^—–]{3,60}[—–])(.*)$/s);
+    if (dashMatch) {
+      return `<strong>${dashMatch[1]}</strong>${dashMatch[2]}`;
+    }
+    return escaped;
   };
 
   const formatVaBlock = (str) => {
@@ -893,15 +950,21 @@ function buildSlideDocument({ questions }) {
                 <div class="card-kw-blue">
                   <div class="kw-title">Keywords and Concepts:</div>
                   <div class="kw-list">
-                    ${keywords.map(kw => {
-                      const isDistractor = typeof kw === 'object' && kw !== null && Boolean(kw.isDistractor);
-                      const name = typeof kw === 'object' && kw !== null ? kw.concept : String(kw);
-                      return `
-                        <div class="kw-row">
-                          ${isDistractor ? `- <s class="distractor-strike">${escapeHtml(name)}</s> <span class="distractor-tag">(Distractor)</span>` : `- ${escapeHtml(name)}`}
-                        </div>
-                      `;
-                    }).join('')}
+                    ${keywords
+                      .filter(kw => {
+                        if (typeof kw === 'object' && kw !== null) return !kw.isDistractor;
+                        if (typeof kw === 'string') return !kw.toLowerCase().includes('(distractor)') && !kw.startsWith('~~');
+                        return true;
+                      })
+                      .map(kw => {
+                        const rawName = typeof kw === 'object' && kw !== null ? kw.concept : String(kw);
+                        const name = rawName.replace(/[*~_]/g, '').trim();
+                        return `
+                          <div class="kw-row">
+                            - ${escapeHtml(name)}
+                          </div>
+                        `;
+                      }).join('')}
                   </div>
                 </div>
               </div>

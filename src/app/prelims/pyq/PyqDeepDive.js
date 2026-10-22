@@ -17,6 +17,25 @@ import {
   Zap,
 } from 'lucide-react';
 
+function parseValueAdditionPoints(text) {
+  if (!text || typeof text !== 'string') return [];
+  const rawLines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const items = [];
+  for (const line of rawLines) {
+    if (line.includes(' • ')) {
+      const parts = line.split(/\s*•\s*/).filter(Boolean);
+      for (const p of parts) {
+        const cleaned = p.replace(/^[•*\-\s]+/, '').trim();
+        if (cleaned) items.push(cleaned);
+      }
+    } else {
+      const cleaned = line.replace(/^[•*\-\s]+/, '').trim();
+      if (cleaned) items.push(cleaned);
+    }
+  }
+  return items;
+}
+
 export default function PyqDeepDive({ analysis, questionId }) {
   const [usageState, setUsageState] = useState({
     loading: true,
@@ -102,45 +121,36 @@ export default function PyqDeepDive({ analysis, questionId }) {
       </div>
 
       {/* 2. Keywords and Concepts (Always visible as teaser) */}
-      {keywords && keywords.length > 0 && (
-        <div className="pq-dd-section">
-          <div className="pq-dd-label">
-            <Tag size={14} /> Keywords & Core Concepts
-          </div>
-          <div className="pq-keywords">
-            {keywords.map((kw, i) => {
-              if (typeof kw === 'object' && kw !== null) {
-                const isDistractor = Boolean(kw.isDistractor);
+      {keywords && keywords.length > 0 && (() => {
+        // Filter out distractors so only genuine core concepts are shown as keywords
+        const coreKeywords = keywords.filter(kw => {
+          if (typeof kw === 'object' && kw !== null) {
+            return !kw.isDistractor;
+          }
+          return true;
+        });
+
+        if (coreKeywords.length === 0) return null;
+
+        return (
+          <div className="pq-dd-section">
+            <div className="pq-dd-label">
+              <Tag size={14} /> Keywords & Core Concepts
+            </div>
+            <div className="pq-keywords">
+              {coreKeywords.map((kw, i) => {
+                const text = typeof kw === 'object' && kw !== null ? kw.concept : String(kw);
+                const cleanText = text.replace(/[*~_]/g, '').trim();
                 return (
-                  <span
-                    key={i}
-                    className={`pq-keyword-pill ${isDistractor ? 'pq-distractor-pill' : ''}`}
-                    style={
-                      isDistractor
-                        ? {
-                            textDecoration: 'line-through',
-                            opacity: 0.75,
-                            borderColor: 'rgba(239, 68, 68, 0.4)',
-                            background: 'rgba(239, 68, 68, 0.08)',
-                            color: 'var(--pq-ink)',
-                          }
-                        : undefined
-                    }
-                    title={isDistractor ? 'Distractor concept to learn from' : undefined}
-                  >
-                    {isDistractor ? `~~${kw.concept}~~ (Distractor)` : `#${kw.concept}`}
+                  <span key={i} className="pq-keyword-pill">
+                    #{cleanText}
                   </span>
                 );
-              }
-              return (
-                <span key={i} className="pq-keyword-pill">
-                  #{String(kw)}
-                </span>
-              );
-            })}
+              })}
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Paywall Gate Overlay when Daily Free Allowance is Reached */}
       {isLocked ? (
@@ -271,14 +281,54 @@ export default function PyqDeepDive({ analysis, questionId }) {
               <div className="pq-dd-label">
                 <BookOpen size={14} /> Value Addition
               </div>
-              {typeof valueAddition === 'string' ? (
-                <div className="pq-va-card" style={{ padding: '16px 20px', lineHeight: 1.65, fontSize: '0.92rem' }}>
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', color: 'var(--pq-ink)' }}>
-                    <Info size={16} style={{ color: 'var(--pq-gold)', flexShrink: 0, marginTop: '3px' }} />
-                    <div>{valueAddition}</div>
+              {typeof valueAddition === 'string' ? (() => {
+                const points = parseValueAdditionPoints(valueAddition);
+                if (points.length <= 1) {
+                  return (
+                    <div className="pq-va-card" style={{ padding: '16px 20px', lineHeight: 1.65, fontSize: '0.92rem' }}>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start', color: 'var(--pq-ink)' }}>
+                        <Info size={16} style={{ color: 'var(--pq-gold)', flexShrink: 0, marginTop: '3px' }} />
+                        <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.65 }}>{valueAddition}</div>
+                      </div>
+                    </div>
+                  );
+                }
+                return (
+                  <div className="pq-va-card" style={{ padding: '18px 22px', fontSize: '0.92rem' }}>
+                    <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                      {points.map((pt, idx) => {
+                        const colonIdx = pt.indexOf(':');
+                        const hasHeading = colonIdx > 0 && colonIdx < 80;
+                        const heading = hasHeading ? pt.substring(0, colonIdx).trim() : null;
+                        const body = hasHeading ? pt.substring(colonIdx + 1).trim() : pt;
+
+                        return (
+                          <li key={idx} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', lineHeight: 1.62 }}>
+                            <span style={{
+                              color: 'var(--pq-gold, #f59e0b)',
+                              fontWeight: 900,
+                              fontSize: '1.2rem',
+                              lineHeight: 1,
+                              marginTop: '2px',
+                              flexShrink: 0
+                            }}>•</span>
+                            <div style={{ color: 'var(--pq-ink, #0f172a)' }}>
+                              {hasHeading ? (
+                                <>
+                                  <strong style={{ color: 'var(--pq-ink, #0f172a)', fontWeight: 800 }}>{heading}: </strong>
+                                  <span>{body}</span>
+                                </>
+                              ) : (
+                                <span>{body}</span>
+                              )}
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
                   </div>
-                </div>
-              ) : Array.isArray(valueAddition) ? (
+                );
+              })() : Array.isArray(valueAddition) ? (
                 <div className="pq-va-grid">
                   {valueAddition.map((card, i) => (
                     <div key={i} className="pq-va-card">
