@@ -16,28 +16,36 @@ import {
   Camera,
   Timer,
   Layers,
-  ArrowLeft,
   HelpCircle,
-  Eye,
   CheckCircle2,
   XCircle,
   Sparkles,
   Tag,
-  BookOpen,
-  Newspaper,
   Flame,
+  Sun,
+  Moon,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { buildQuestionSteps } from '@/lib/pyqSlideDeck';
 import { parseStem } from '@/app/prelims/pyq/StemView';
 import PyqAnnotationCanvas from './PyqAnnotationCanvas';
 import './present.css';
 
-const PALETTE = [
+const DARK_PALETTE = [
   '#ffffff', // Clean Chalk White
   '#f59e0b', // Amber / Gold
   '#38bdf8', // Sky Blue
   '#34d399', // Emerald Green
   '#fb7185', // Rose
+];
+
+const LIGHT_PALETTE = [
+  '#0f172a', // Jet Slate / Charcoal
+  '#2563eb', // Royal Blue
+  '#dc2626', // Crimson Red
+  '#059669', // Emerald Green
+  '#d97706', // Rich Ochre
 ];
 
 export default function PyqPresenterClient({ questions = [] }) {
@@ -47,10 +55,32 @@ export default function PyqPresenterClient({ questions = [] }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showWebcamBox, setShowWebcamBox] = useState(true);
   const [isBlackboard, setIsBlackboard] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('pq_present_theme');
+        if (saved === 'light' || saved === 'dark') return saved;
+      } catch {
+        // ignore
+      }
+    }
+    return 'dark';
+  }); // 'dark' | 'light'
+  const [isDockCollapsed, setIsDockCollapsed] = useState(false);
 
   // Annotation state
   const [activeTool, setActiveTool] = useState('pen'); // 'pen' | 'highlighter' | 'laser' | 'eraser' | 'none'
-  const [activeColor, setActiveColor] = useState('#ffffff');
+  const [activeColor, setActiveColor] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('pq_present_theme');
+        if (saved === 'light') return '#0f172a';
+      } catch {
+        // ignore
+      }
+    }
+    return '#ffffff';
+  });
   const [showHelp, setShowHelp] = useState(false);
 
   // Think timer (30s)
@@ -86,21 +116,39 @@ export default function PyqPresenterClient({ questions = [] }) {
     return stepInkMap[currentStepKey] || [];
   }, [stepInkMap, currentStepKey]);
 
+  const toggleTheme = useCallback(() => {
+    setTheme(prev => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      try {
+        localStorage.setItem('pq_present_theme', next);
+      } catch {
+        // ignore
+      }
+      setActiveColor(next === 'light' ? '#0f172a' : '#ffffff');
+      return next;
+    });
+  }, []);
+
   // -------------------------------------------------------------
-  // Window Auto-Scaler for Fixed 1920x1080 Coordinate System
+  // Window Auto-Scaler for Fixed 1920x1080 Broadcast Coordinate System
+  // Accounts for browser chrome & Mac 13" 16:10 / 4K TV screens
   // -------------------------------------------------------------
   useEffect(() => {
     const handleResize = () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
-      const s = Math.min(w / 1920, h / 1080);
+      const padX = isFullscreen ? 0 : 20;
+      const padY = isFullscreen ? 0 : 20;
+      const availW = Math.max(320, w - padX * 2);
+      const availH = Math.max(240, h - padY * 2);
+      const s = Math.min(availW / 1920, availH / 1080);
       setScale(s);
     };
 
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [isFullscreen]);
 
   // -------------------------------------------------------------
   // Fullscreen state listener
@@ -149,42 +197,47 @@ export default function PyqPresenterClient({ questions = [] }) {
     if (stepIndex > 0) {
       setStepIndex(s => s - 1);
     } else if (qIndex > 0) {
+      setQIndex(q => q - 1);
+      // Move to last step of previous question
       const prevQ = questions[qIndex - 1];
       const prevSteps = buildQuestionSteps(prevQ);
-      setQIndex(q => q - 1);
       setStepIndex(Math.max(0, prevSteps.length - 1));
       setTimerSeconds(null);
     }
   }, [stepIndex, qIndex, questions]);
 
   // -------------------------------------------------------------
-  // Ink update handlers
+  // Ink management callbacks
   // -------------------------------------------------------------
   const handleUpdateQStrokes = useCallback((strokes) => {
-    setQuestionInkMap(prev => ({ ...prev, [currentQId]: strokes }));
+    setQuestionInkMap(prev => ({
+      ...prev,
+      [currentQId]: strokes,
+    }));
   }, [currentQId]);
 
   const handleUpdateStepStrokes = useCallback((strokes) => {
-    setStepInkMap(prev => ({ ...prev, [currentStepKey]: strokes }));
+    setStepInkMap(prev => ({
+      ...prev,
+      [currentStepKey]: strokes,
+    }));
   }, [currentStepKey]);
 
   const handleUndo = useCallback(() => {
-    // Check step strokes first, then question strokes
-    if (currentStepStrokes.length > 0) {
-      handleUpdateStepStrokes(currentStepStrokes.slice(0, -1));
-    } else if (currentQStrokes.length > 0) {
-      handleUpdateQStrokes(currentQStrokes.slice(0, -1));
+    const stepStrokes = stepInkMap[currentStepKey] || [];
+    if (stepStrokes.length > 0) {
+      handleUpdateStepStrokes(stepStrokes.slice(0, -1));
+      return;
     }
-  }, [currentStepStrokes, currentQStrokes, handleUpdateStepStrokes, handleUpdateQStrokes]);
+    const qStrokes = questionInkMap[currentQId] || [];
+    if (qStrokes.length > 0) {
+      handleUpdateQStrokes(qStrokes.slice(0, -1));
+    }
+  }, [stepInkMap, currentStepKey, questionInkMap, currentQId, handleUpdateStepStrokes, handleUpdateQStrokes]);
 
   const handleClearStepInk = useCallback(() => {
     handleUpdateStepStrokes([]);
   }, [handleUpdateStepStrokes]);
-
-  const handleClearAllInk = useCallback(() => {
-    handleUpdateQStrokes([]);
-    handleUpdateStepStrokes([]);
-  }, [handleUpdateQStrokes, handleUpdateStepStrokes]);
 
   // -------------------------------------------------------------
   // Keyboard Shortcuts (Space, Arrows, Pen, Highlighter, etc.)
@@ -226,6 +279,14 @@ export default function PyqPresenterClient({ questions = [] }) {
         case 'E':
           setActiveTool(t => (t === 'eraser' ? 'none' : 'eraser'));
           break;
+        case 'm':
+        case 'M':
+          toggleTheme();
+          break;
+        case 'd':
+        case 'D':
+          setIsDockCollapsed(c => !c);
+          break;
         case 'f':
         case 'F':
           e.preventDefault();
@@ -257,11 +318,11 @@ export default function PyqPresenterClient({ questions = [] }) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleNext, handlePrev, handleUndo, handleClearStepInk]);
+  }, [handleNext, handlePrev, handleUndo, handleClearStepInk, toggleTheme]);
 
   if (!currentQ) {
     return (
-      <div className="pq-present-root" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="pq-present-root" data-present-theme={theme} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center', maxWidth: 480 }}>
           <h2 style={{ fontSize: 28, margin: '0 0 12px' }}>No Questions Selected</h2>
           <p style={{ color: '#94a3b8', margin: '0 0 24px' }}>Please select questions in the PYQ Admin table to present.</p>
@@ -276,9 +337,10 @@ export default function PyqPresenterClient({ questions = [] }) {
   // Parse question stem statements
   const stemBlocks = parseStem(currentQ.stem);
   const options = Array.isArray(currentQ.options) ? currentQ.options : [];
+  const palette = theme === 'light' ? LIGHT_PALETTE : DARK_PALETTE;
 
   return (
-    <div className="pq-present-root">
+    <div className="pq-present-root" data-present-theme={theme}>
       {/* 16:9 Scaled Viewport Container */}
       <div className="pq-present-stage-viewport">
         <div
@@ -307,7 +369,7 @@ export default function PyqPresenterClient({ questions = [] }) {
           {/* LEFT PANEL: PINNED QUESTION STAGE (44%)                   */}
           {/* ========================================================= */}
           <aside className="pq-present-left-panel">
-            <div>
+            <div className="pq-present-left-content">
               {/* Exam & Subject Meta Tags */}
               <div className="pq-present-q-meta">
                 <span className="pq-present-tag pq-present-tag-exam">
@@ -325,7 +387,7 @@ export default function PyqPresenterClient({ questions = [] }) {
                 )}
               </div>
 
-              {/* Scrollable Stem & Options */}
+              {/* Scrollable Stem & Options (Safe against vertical overflow) */}
               <div className="pq-present-q-scrollable">
                 {stemBlocks.map((b, idx) => {
                   if (b.type === 'stmts') {
@@ -337,9 +399,9 @@ export default function PyqPresenterClient({ questions = [] }) {
                           const isIncorrect = verdict && verdict.toLowerCase().includes('incorrect');
 
                           return (
-                            <div className="pq-present-statement-item" key={k}>
+                            <div className={`pq-present-statement-item ${verdict ? 'has-verdict' : ''}`} key={k}>
                               <span className="pq-present-statement-key">{s.key}</span>
-                              <div style={{ flex: 1 }}>{s.text}</div>
+                              <div style={{ flex: 1, minWidth: 0 }}>{s.text}</div>
 
                               {verdict && (
                                 <span className={`pq-present-statement-verdict ${isCorrect ? 'is-correct' : isIncorrect ? 'is-incorrect' : ''}`}>
@@ -383,7 +445,7 @@ export default function PyqPresenterClient({ questions = [] }) {
             {/* Left Bottom Question Tracker */}
             <div className="pq-present-left-footer">
               <span>QUESTION {qIndex + 1} OF {questions.length}</span>
-              <span style={{ color: '#38bdf8' }}>{currentQ.srcSubject || 'General Studies'}</span>
+              <span style={{ color: theme === 'light' ? '#0284c7' : '#38bdf8' }}>{currentQ.srcSubject || 'General Studies'}</span>
             </div>
           </aside>
 
@@ -403,7 +465,7 @@ export default function PyqPresenterClient({ questions = [] }) {
               )}
             </div>
 
-            {/* Dynamic Step Content Body */}
+            {/* Dynamic Step Content Body (Safe against OBS webcam collision) */}
             <div className="pq-present-slide-body">
               {/* STAGE 1: INTRO */}
               {currentStep?.type === 'intro' && (
@@ -454,17 +516,17 @@ export default function PyqPresenterClient({ questions = [] }) {
 
               {/* STAGE 3: ANSWER */}
               {currentStep?.type === 'answer' && (
-                <div className="pq-present-card" style={{ borderColor: 'rgba(34, 197, 94, 0.45)', background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(15, 23, 42, 0.85))' }}>
+                <div className="pq-present-card" style={{ borderColor: 'rgba(34, 197, 94, 0.45)', background: theme === 'light' ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.12), #ffffff)' : 'linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(15, 23, 42, 0.85))' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
                     <div style={{ width: 44, height: 44, borderRadius: 12, background: '#22c55e', color: '#052e16', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 900 }}>
                       ✓
                     </div>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: '#4ade80' }}>Official Answer Key</div>
-                      <div style={{ fontSize: 24, fontWeight: 900, color: '#ffffff' }}>Option ({currentStep.correctLabel || 'Verified'})</div>
+                      <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: theme === 'light' ? '#15803d' : '#4ade80' }}>Official Answer Key</div>
+                      <div style={{ fontSize: 24, fontWeight: 900, color: theme === 'light' ? '#0f172a' : '#ffffff' }}>Option ({currentStep.correctLabel || 'Verified'})</div>
                     </div>
                   </div>
-                  <div style={{ fontSize: 18.5, lineHeight: 1.6, color: '#f1f5f9' }}>
+                  <div style={{ fontSize: 18.5, lineHeight: 1.6, color: theme === 'light' ? '#1e293b' : '#f1f5f9' }}>
                     {currentStep.explanationText}
                   </div>
                 </div>
@@ -502,7 +564,7 @@ export default function PyqPresenterClient({ questions = [] }) {
               {/* STAGE 6: IN NEWS */}
               {currentStep?.type === 'inNews' && currentStep.inNews && (
                 <div className="pq-present-news-card">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: '#f87171', textTransform: 'uppercase' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: theme === 'light' ? '#dc2626' : '#f87171', textTransform: 'uppercase' }}>
                     <Flame size={14} />
                     <span>{currentStep.inNews.source || 'Current Context'} {currentStep.inNews.date ? `· ${currentStep.inNews.date}` : ''}</span>
                   </div>
@@ -515,16 +577,16 @@ export default function PyqPresenterClient({ questions = [] }) {
 
               {/* STAGE 7: SIMILAR PYQ */}
               {currentStep?.type === 'similarPyq' && currentStep.similarPyq && (
-                <div className="pq-present-card" style={{ borderColor: 'rgba(168, 85, 247, 0.4)', background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.12), rgba(15, 23, 42, 0.85))' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: '#c084fc', textTransform: 'uppercase', marginBottom: 10 }}>
+                <div className="pq-present-card" style={{ borderColor: 'rgba(168, 85, 247, 0.4)', background: theme === 'light' ? 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), #ffffff)' : 'linear-gradient(135deg, rgba(168, 85, 247, 0.12), rgba(15, 23, 42, 0.85))' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: theme === 'light' ? '#7e22ce' : '#c084fc', textTransform: 'uppercase', marginBottom: 10 }}>
                     <Layers size={14} />
                     <span>{currentStep.similarPyq.examName || 'UPSC CSE Pre'} {currentStep.similarPyq.examYear || ''}</span>
                   </div>
-                  <p style={{ fontSize: 18, lineHeight: 1.55, color: '#f8fafc', margin: '0 0 12px' }}>
+                  <p style={{ fontSize: 18, lineHeight: 1.55, color: theme === 'light' ? '#0f172a' : '#f8fafc', margin: '0 0 12px' }}>
                     {currentStep.similarPyq.stem}
                   </p>
                   {currentStep.similarPyq.keyTakeaway && (
-                    <div style={{ fontSize: 15, color: '#fbbf24', fontStyle: 'italic' }}>
+                    <div style={{ fontSize: 15, color: theme === 'light' ? '#b45309' : '#fbbf24', fontStyle: 'italic' }}>
                       💡 Pattern Insight: {currentStep.similarPyq.keyTakeaway}
                     </div>
                   )}
@@ -544,21 +606,22 @@ export default function PyqPresenterClient({ questions = [] }) {
             )}
           </main>
 
-          {/* Blackboard Freehand Mode Overlay */}
+          {/* Blackboard / Whiteboard Freehand Mode Overlay */}
           {isBlackboard && (
             <div
+              className="pq-present-board-overlay"
               style={{
                 position: 'absolute',
                 inset: 0,
-                background: '#040711',
+                background: theme === 'light' ? '#ffffff' : '#040711',
                 zIndex: 45,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <div style={{ fontSize: 14, color: 'rgba(255, 255, 255, 0.25)', fontWeight: 800, letterSpacing: '0.1em' }}>
-                BLACKBOARD MODE · DRAW FREELY · PRESS B TO EXIT
+              <div style={{ fontSize: 14, color: theme === 'light' ? 'rgba(0, 0, 0, 0.35)' : 'rgba(255, 255, 255, 0.25)', fontWeight: 800, letterSpacing: '0.1em' }}>
+                {theme === 'light' ? 'WHITEBOARD MODE · DRAW FREELY · PRESS B TO EXIT' : 'BLACKBOARD MODE · DRAW FREELY · PRESS B TO EXIT'}
               </div>
             </div>
           )}
@@ -580,177 +643,201 @@ export default function PyqPresenterClient({ questions = [] }) {
       </div>
 
       {/* ============================================================= */}
-      {/* FLOATING TEACHER DOCK / CONTROL BAR                           */}
+      {/* FLOATING PRESENTER DOCK / CONTROL BAR                         */}
+      {/* Minimizable / Non-obstructive for 13" Mac & TV recording      */}
       {/* ============================================================= */}
-      <footer className="pq-present-dock">
-        {/* Return to Admin */}
-        <Link
-          href="/admin/pyq"
-          className="pq-dock-btn"
-          title="Exit to PYQ Admin"
-        >
-          <ArrowLeft size={16} />
-        </Link>
-
-        <div className="pq-dock-sep" />
-
-        {/* Prev / Next Buttons */}
+      {isDockCollapsed ? (
         <button
           type="button"
-          onClick={handlePrev}
-          className="pq-dock-btn"
-          title="Previous Step [Left Arrow]"
+          onClick={() => setIsDockCollapsed(false)}
+          className="pq-present-dock-pill"
+          title="Expand Presenter Tools [D]"
         >
-          <ChevronLeft size={18} />
+          <ChevronUp size={14} />
+          <span>Tools</span>
         </button>
+      ) : (
+        <footer className="pq-present-dock">
+          {/* Deck Navigator */}
+          <button
+            type="button"
+            onClick={handlePrev}
+            className="pq-dock-btn"
+            title="Previous Step [Left Arrow]"
+          >
+            <ChevronLeft size={18} />
+          </button>
 
-        {/* Step Indicator Dots */}
-        <div className="pq-dock-steps">
-          {steps.map((st, idx) => (
-            <button
-              key={st.id || idx}
-              type="button"
-              onClick={() => setStepIndex(idx)}
-              className={`pq-step-dot ${idx === stepIndex ? 'is-active' : idx < stepIndex ? 'is-past' : ''}`}
-              title={`Jump to ${st.title}`}
-            />
-          ))}
-        </div>
+          {/* Step Indicator Dots */}
+          <div className="pq-dock-steps">
+            {steps.map((st, idx) => (
+              <button
+                key={st.id || idx}
+                type="button"
+                onClick={() => setStepIndex(idx)}
+                className={`pq-step-dot ${idx === stepIndex ? 'is-active' : idx < stepIndex ? 'is-past' : ''}`}
+                title={`Jump to ${st.title}`}
+              />
+            ))}
+          </div>
 
-        <button
-          type="button"
-          onClick={handleNext}
-          className="pq-dock-btn"
-          title="Next Step [Space / Right Arrow]"
-        >
-          <ChevronRight size={18} />
-        </button>
+          <button
+            type="button"
+            onClick={handleNext}
+            className="pq-dock-btn"
+            title="Next Step [Space / Right Arrow]"
+          >
+            <ChevronRight size={18} />
+          </button>
 
-        <div className="pq-dock-sep" />
+          <div className="pq-dock-sep" />
 
-        {/* Drawing Tools */}
-        <button
-          type="button"
-          onClick={() => setActiveTool(t => (t === 'pen' ? 'none' : 'pen'))}
-          className={`pq-dock-btn ${activeTool === 'pen' ? 'is-active' : ''}`}
-          title="Pen Tool [P] (XP-Pen pressure sensitive)"
-        >
-          <PenTool size={16} />
-        </button>
+          {/* Drawing Tools */}
+          <button
+            type="button"
+            onClick={() => setActiveTool(t => (t === 'pen' ? 'none' : 'pen'))}
+            className={`pq-dock-btn ${activeTool === 'pen' ? 'is-active' : ''}`}
+            title="Pen Tool [P] (XP-Pen pressure sensitive)"
+          >
+            <PenTool size={16} />
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveTool(t => (t === 'highlighter' ? 'none' : 'highlighter'))}
-          className={`pq-dock-btn ${activeTool === 'highlighter' ? 'is-active' : ''}`}
-          title="Highlighter [H]"
-        >
-          <Highlighter size={16} />
-        </button>
+          <button
+            type="button"
+            onClick={() => setActiveTool(t => (t === 'highlighter' ? 'none' : 'highlighter'))}
+            className={`pq-dock-btn ${activeTool === 'highlighter' ? 'is-active' : ''}`}
+            title="Highlighter [H]"
+          >
+            <Highlighter size={16} />
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveTool(t => (t === 'laser' ? 'none' : 'laser'))}
-          className={`pq-dock-btn ${activeTool === 'laser' ? 'is-active' : ''}`}
-          title="Laser Pointer [L]"
-        >
-          <Zap size={16} />
-        </button>
+          <button
+            type="button"
+            onClick={() => setActiveTool(t => (t === 'laser' ? 'none' : 'laser'))}
+            className={`pq-dock-btn ${activeTool === 'laser' ? 'is-active' : ''}`}
+            title="Laser Pointer [L]"
+          >
+            <Zap size={16} />
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveTool(t => (t === 'eraser' ? 'none' : 'eraser'))}
-          className={`pq-dock-btn ${activeTool === 'eraser' ? 'is-active' : ''}`}
-          title="Eraser [E]"
-        >
-          <Eraser size={16} />
-        </button>
+          <button
+            type="button"
+            onClick={() => setActiveTool(t => (t === 'eraser' ? 'none' : 'eraser'))}
+            className={`pq-dock-btn ${activeTool === 'eraser' ? 'is-active' : ''}`}
+            title="Eraser [E]"
+          >
+            <Eraser size={16} />
+          </button>
 
-        {/* Color Palette */}
-        <div className="pq-dock-colors">
-          {PALETTE.map(c => (
-            <button
-              key={c}
-              type="button"
-              onClick={() => {
-                setActiveColor(c);
-                if (activeTool === 'none' || activeTool === 'eraser') setActiveTool('pen');
-              }}
-              className={`pq-color-dot ${activeColor === c ? 'is-selected' : ''}`}
-              style={{ background: c, color: c }}
-              title={`Color: ${c}`}
-            />
-          ))}
-        </div>
+          {/* Color Palette */}
+          <div className="pq-dock-colors">
+            {palette.map(c => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => {
+                  setActiveColor(c);
+                  if (activeTool === 'none' || activeTool === 'eraser') setActiveTool('pen');
+                }}
+                className={`pq-color-dot ${activeColor === c ? 'is-selected' : ''}`}
+                style={{ background: c, color: c }}
+                title={`Color: ${c}`}
+              />
+            ))}
+          </div>
 
-        <div className="pq-dock-sep" />
+          <div className="pq-dock-sep" />
 
-        {/* Undo & Clear */}
-        <button
-          type="button"
-          onClick={handleUndo}
-          className="pq-dock-btn"
-          title="Undo Stroke [Cmd+Z]"
-        >
-          <Undo2 size={16} />
-        </button>
+          {/* Undo & Clear */}
+          <button
+            type="button"
+            onClick={handleUndo}
+            className="pq-dock-btn"
+            title="Undo Stroke [Cmd+Z]"
+          >
+            <Undo2 size={16} />
+          </button>
 
-        <button
-          type="button"
-          onClick={handleClearStepInk}
-          className="pq-dock-btn"
-          title="Clear Step Ink [C]"
-        >
-          <Trash2 size={16} />
-        </button>
+          <button
+            type="button"
+            onClick={handleClearStepInk}
+            className="pq-dock-btn"
+            title="Clear Step Ink [C]"
+          >
+            <Trash2 size={16} />
+          </button>
 
-        <div className="pq-dock-sep" />
+          <div className="pq-dock-sep" />
 
-        {/* Utility Toggles */}
-        <button
-          type="button"
-          onClick={() => setShowWebcamBox(w => !w)}
-          className={`pq-dock-btn ${showWebcamBox ? 'is-active' : ''}`}
-          title="Toggle OBS Webcam Box Guide [W]"
-        >
-          <Camera size={16} />
-        </button>
+          {/* Light / Dark Mode Toggle */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className={`pq-dock-btn ${theme === 'light' ? 'is-light-active' : ''}`}
+            title={`Switch to ${theme === 'dark' ? 'Light / Whiteboard Mode' : 'Dark Mode'} [M]`}
+          >
+            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setTimerSeconds(s => (s ? null : 30))}
-          className={`pq-dock-btn ${timerSeconds !== null ? 'is-active' : ''}`}
-          title="30s Think Countdown Timer [T]"
-        >
-          <Timer size={16} />
-        </button>
+          {/* Utility Toggles */}
+          <button
+            type="button"
+            onClick={() => setShowWebcamBox(w => !w)}
+            className={`pq-dock-btn ${showWebcamBox ? 'is-active' : ''}`}
+            title="Toggle OBS Webcam Box Guide [W]"
+          >
+            <Camera size={16} />
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setIsBlackboard(b => !b)}
-          className={`pq-dock-btn ${isBlackboard ? 'is-active' : ''}`}
-          title="Blackboard Mode [B]"
-        >
-          <Layers size={16} />
-        </button>
+          <button
+            type="button"
+            onClick={() => setTimerSeconds(s => (s ? null : 30))}
+            className={`pq-dock-btn ${timerSeconds !== null ? 'is-active' : ''}`}
+            title="30s Think Countdown Timer [T]"
+          >
+            <Timer size={16} />
+          </button>
 
-        <button
-          type="button"
-          onClick={toggleFullscreen}
-          className="pq-dock-btn"
-          title="Toggle Fullscreen [F]"
-        >
-          {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-        </button>
+          <button
+            type="button"
+            onClick={() => setIsBlackboard(b => !b)}
+            className={`pq-dock-btn ${isBlackboard ? 'is-active' : ''}`}
+            title={theme === 'light' ? "Whiteboard Mode [B]" : "Blackboard Mode [B]"}
+          >
+            <Layers size={16} />
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setShowHelp(h => !h)}
-          className={`pq-dock-btn ${showHelp ? 'is-active' : ''}`}
-          title="Keyboard Shortcuts [?]"
-        >
-          <HelpCircle size={16} />
-        </button>
-      </footer>
+          <button
+            type="button"
+            onClick={toggleFullscreen}
+            className="pq-dock-btn"
+            title="Toggle Fullscreen [F]"
+          >
+            {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowHelp(h => !h)}
+            className={`pq-dock-btn ${showHelp ? 'is-active' : ''}`}
+            title="Keyboard Shortcuts [?]"
+          >
+            <HelpCircle size={16} />
+          </button>
+
+          <div className="pq-dock-sep" />
+
+          {/* Minimize / Collapse Dock */}
+          <button
+            type="button"
+            onClick={() => setIsDockCollapsed(true)}
+            className="pq-dock-btn"
+            title="Collapse Dock for Recording [D]"
+          >
+            <ChevronDown size={16} />
+          </button>
+        </footer>
+      )}
 
       {/* Keyboard Shortcuts Modal */}
       {showHelp && (
@@ -768,17 +855,18 @@ export default function PyqPresenterClient({ questions = [] }) {
         >
           <div
             style={{
-              width: 440,
+              width: 460,
               padding: '24px 28px',
               borderRadius: 16,
-              background: '#0f172a',
-              border: '1.5px solid rgba(255, 255, 255, 0.15)',
-              color: '#f8fafc',
+              background: theme === 'light' ? '#ffffff' : '#0f172a',
+              border: theme === 'light' ? '1.5px solid rgba(0, 0, 0, 0.15)' : '1.5px solid rgba(255, 255, 255, 0.15)',
+              color: theme === 'light' ? '#0f172a' : '#f8fafc',
+              boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4)',
             }}
             onClick={e => e.stopPropagation()}
           >
             <h3 style={{ fontSize: 20, margin: '0 0 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <HelpCircle size={20} color="#38bdf8" />
+              <HelpCircle size={20} color={theme === 'light' ? '#0284c7' : '#38bdf8'} />
               <span>Studio Keyboard Shortcuts</span>
             </h3>
 
@@ -789,12 +877,14 @@ export default function PyqPresenterClient({ questions = [] }) {
               <strong>H</strong> <span>Highlighter Tool</span>
               <strong>L</strong> <span>Laser Pointer (fading dot)</span>
               <strong>E</strong> <span>Eraser Tool</span>
+              <strong>M</strong> <span>Toggle Dark / Light Whiteboard Mode</span>
+              <strong>D</strong> <span>Collapse / Expand Presenter Dock</span>
               <strong>Cmd + Z</strong> <span>Undo Last Stroke</span>
               <strong>C</strong> <span>Clear Current Step Ink</span>
-              <strong>F</strong> <span>Fullscreen (for OBS recording)</span>
+              <strong>F</strong> <span>Fullscreen (for TV / OBS recording)</span>
               <strong>W</strong> <span>Toggle OBS Webcam Safe Zone</span>
               <strong>T</strong> <span>30s Think Timer</span>
-              <strong>B</strong> <span>Blackboard Mode</span>
+              <strong>B</strong> <span>Blackboard / Whiteboard Mode</span>
               <strong>?</strong> <span>Toggle this help menu</span>
             </div>
 

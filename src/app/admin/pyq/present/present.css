@@ -1,5 +1,6 @@
 /* ==========================================================================
    UPSCGPT PYQ Studio Presenter & Lecture Mode (1920x1080 Broadcast Standard)
+   Responsive Scaling for 13" MacBook, 4K/1080p TV Displays & iPad Sidecar
    ========================================================================== */
 
 .pq-present-root {
@@ -13,9 +14,10 @@
   overflow: hidden;
   user-select: none;
   z-index: 999999;
+  transition: background 0.25s ease, color 0.25s ease;
 }
 
-/* 16:9 Scaled Virtual Stage */
+/* 16:9 Scaled Virtual Stage Container */
 .pq-present-stage-viewport {
   position: absolute;
   inset: 0;
@@ -23,6 +25,9 @@
   align-items: center;
   justify-content: center;
   background: #050811;
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: background 0.25s ease;
 }
 
 .pq-present-stage {
@@ -35,6 +40,8 @@
   display: grid;
   grid-template-columns: 830px 1090px;
   overflow: hidden;
+  box-sizing: border-box;
+  transition: background 0.25s ease, border-color 0.25s ease;
 }
 
 /* Stage Top Brand / Status Banner */
@@ -67,12 +74,23 @@
 
 .pq-present-left-panel {
   position: relative;
-  padding: 36px 36px 80px 44px;
+  padding: 32px 32px 84px 36px;
   border-right: 1.5px solid rgba(255, 255, 255, 0.1);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   background: rgba(10, 15, 29, 0.5);
+  overflow: hidden;
+  height: 100%;
+  box-sizing: border-box;
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+.pq-present-left-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
 
@@ -81,7 +99,8 @@
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
-  margin-bottom: 20px;
+  margin-bottom: 18px;
+  flex-shrink: 0;
 }
 
 .pq-present-tag {
@@ -111,14 +130,16 @@
   border: 1px solid rgba(16, 185, 129, 0.35);
 }
 
-/* Question Content Container */
+/* Question Content Container: Scrollable with momentum */
 .pq-present-q-scrollable {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
   overflow-y: auto;
   padding-right: 8px;
+  -webkit-overflow-scrolling: touch;
 }
 
 .pq-present-q-scrollable::-webkit-scrollbar {
@@ -131,7 +152,7 @@
 
 /* Question Stem Typography */
 .pq-present-stem-lead {
-  font-size: 21.5px;
+  font-size: 21px;
   font-weight: 700;
   line-height: 1.5;
   color: #f8fafc;
@@ -158,6 +179,12 @@
   line-height: 1.48;
   color: #e2e8f0;
   transition: all 0.25s ease;
+  box-sizing: border-box;
+}
+
+/* Clearance when statement has a verdict badge */
+.pq-present-statement-item.has-verdict {
+  padding-right: 124px;
 }
 
 .pq-present-statement-key {
@@ -202,12 +229,12 @@
   border: 1px solid rgba(239, 68, 68, 0.45);
 }
 
-/* Prompt line (e.g. "Which of the statements given above is/are correct?") */
+/* Prompt line */
 .pq-present-stem-ask {
-  font-size: 19px;
+  font-size: 18.5px;
   font-weight: 700;
   color: #94a3b8;
-  margin: 4px 0 0;
+  margin: 2px 0 0;
   font-style: italic;
 }
 
@@ -216,7 +243,7 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 10px;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 .pq-present-option-row {
@@ -246,7 +273,7 @@
 }
 
 .pq-present-opt-text {
-  font-size: 17.5px;
+  font-size: 17px;
   font-weight: 600;
   color: #f1f5f9;
   line-height: 1.35;
@@ -270,7 +297,7 @@
   font-weight: 800;
 }
 
-/* Left Bottom Deck Navigator */
+/* Left Bottom Deck Navigator Tracker */
 .pq-present-left-footer {
   display: flex;
   align-items: center;
@@ -280,6 +307,7 @@
   font-size: 13px;
   color: rgba(255, 255, 255, 0.5);
   font-weight: 700;
+  flex-shrink: 0;
 }
 
 /* ==========================================================================
@@ -288,15 +316,19 @@
 
 .pq-present-right-panel {
   position: relative;
-  padding: 36px 44px 80px 36px;
+  padding: 32px 36px 84px 36px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  height: 100%;
+  box-sizing: border-box;
+  transition: background 0.25s ease;
 }
 
 /* Step Header */
 .pq-present-step-head {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
+  flex-shrink: 0;
 }
 
 .pq-present-step-badge {
@@ -312,7 +344,7 @@
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .pq-present-step-title {
@@ -331,14 +363,17 @@
   line-height: 1.45;
 }
 
-/* Dynamic Slide Body */
+/* Dynamic Slide Body: Protected against Webcam & Dock overlap */
 .pq-present-slide-body {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   gap: 16px;
   overflow-y: auto;
   padding-right: 8px;
+  padding-bottom: 200px; /* Generous clearance for OBS Webcam Safe Zone & Dock */
+  -webkit-overflow-scrolling: touch;
 }
 
 .pq-present-slide-body::-webkit-scrollbar {
@@ -356,12 +391,13 @@
   background: rgba(15, 23, 42, 0.7);
   border: 1.5px solid rgba(255, 255, 255, 0.09);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  box-sizing: border-box;
 }
 
-/* Intro Stage Layout */
+/* Intro Stage Layout: Protected against truncation with minmax(0, 1fr) */
 .pq-present-intro-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 16px;
 }
 
@@ -370,6 +406,9 @@
   border-radius: 14px;
   background: rgba(30, 41, 59, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.08);
+  min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .pq-present-stat-label {
@@ -379,12 +418,15 @@
   color: #94a3b8;
   letter-spacing: 0.05em;
   margin-bottom: 6px;
+  white-space: nowrap;
 }
 
 .pq-present-stat-value {
-  font-size: 20px;
+  font-size: clamp(16px, 1.25vw, 20px);
   font-weight: 800;
   color: #f8fafc;
+  line-height: 1.35;
+  word-break: break-word;
 }
 
 /* Elimination Breakdown Cards */
@@ -396,6 +438,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+  box-sizing: border-box;
 }
 
 .pq-present-breakdown-card.is-correct-card {
@@ -604,21 +647,21 @@
 
 .pq-present-dock {
   position: fixed;
-  bottom: 18px;
+  bottom: 16px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 8px 16px;
+  gap: 10px;
+  padding: 7px 16px;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.88);
+  background: rgba(15, 23, 42, 0.92);
   border: 1.5px solid rgba(255, 255, 255, 0.16);
-  backdrop-filter: blur(14px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7);
   z-index: 10000;
   user-select: none;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease, background 0.25s ease, border-color 0.25s ease;
 }
 
 .pq-present-dock:hover {
@@ -629,8 +672,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border-radius: 999px;
   border: 1px solid transparent;
   background: transparent;
@@ -654,7 +697,7 @@
 
 .pq-dock-sep {
   width: 1px;
-  height: 24px;
+  height: 22px;
   background: rgba(255, 255, 255, 0.15);
 }
 
@@ -689,7 +732,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 0 6px;
+  padding: 0 4px;
 }
 
 .pq-step-dot {
@@ -697,6 +740,8 @@
   height: 9px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.25);
+  border: none;
+  padding: 0;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -709,6 +754,35 @@
 
 .pq-step-dot.is-past {
   background: rgba(59, 130, 246, 0.6);
+}
+
+/* Collapsed Dock Floating Pill */
+.pq-present-dock-pill {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 10000;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+}
+
+.pq-present-dock-pill:hover {
+  background: #1e293b;
+  color: #ffffff;
+  border-color: #3b82f6;
+  transform: translateX(-50%) translateY(-2px);
 }
 
 /* Timer Popup overlay */
@@ -735,4 +809,246 @@
 @keyframes pq-pop {
   0% { transform: scale(0.85); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
+}
+
+/* ==========================================================================
+   LIGHT MODE WHITEBOARD THEME
+   Crisp, Academic Whiteboard for Daytime Lectures, MacBooks, and iPads
+   ========================================================================== */
+
+[data-present-theme="light"].pq-present-root {
+  background: #cbd5e1;
+  color: #0f172a;
+}
+
+[data-present-theme="light"] .pq-present-stage-viewport {
+  background: #94a3b8;
+}
+
+[data-present-theme="light"] .pq-present-stage {
+  background: radial-gradient(circle at 50% 0%, #ffffff 0%, #f8fafc 70%, #f1f5f9 100%);
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.22);
+}
+
+[data-present-theme="light"] .pq-present-brand-watermark {
+  color: rgba(15, 23, 42, 0.45);
+}
+
+[data-present-theme="light"] .pq-present-brand-dot {
+  background: #2563eb;
+  box-shadow: 0 0 10px #2563eb;
+}
+
+[data-present-theme="light"] .pq-present-left-panel {
+  background: rgba(248, 250, 252, 0.7);
+  border-right-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-present-theme="light"] .pq-present-tag-exam {
+  background: #e2e8f0;
+  color: #0284c7;
+  border-color: rgba(2, 132, 199, 0.35);
+}
+
+[data-present-theme="light"] .pq-present-tag-qno {
+  background: #ede9fe;
+  color: #4f46e5;
+  border-color: rgba(79, 70, 229, 0.35);
+}
+
+[data-present-theme="light"] .pq-present-tag-topic {
+  background: #dcfce7;
+  color: #15803d;
+  border-color: rgba(21, 128, 61, 0.35);
+}
+
+[data-present-theme="light"] .pq-present-stem-lead {
+  color: #0f172a;
+}
+
+[data-present-theme="light"] .pq-present-statement-item {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #1e293b;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+[data-present-theme="light"] .pq-present-statement-key {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+[data-present-theme="light"] .pq-present-stem-ask {
+  color: #475569;
+}
+
+[data-present-theme="light"] .pq-present-option-row {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+[data-present-theme="light"] .pq-present-opt-label {
+  background: #f1f5f9;
+  border-color: rgba(0, 0, 0, 0.15);
+  color: #334155;
+}
+
+[data-present-theme="light"] .pq-present-opt-text {
+  color: #1e293b;
+}
+
+[data-present-theme="light"] .pq-present-option-row.is-highlighted {
+  background: #dcfce7;
+  border-color: #22c55e;
+  box-shadow: 0 0 25px rgba(34, 197, 94, 0.2);
+}
+
+[data-present-theme="light"] .pq-present-option-row.is-highlighted .pq-present-opt-text {
+  color: #15803d;
+}
+
+[data-present-theme="light"] .pq-present-left-footer {
+  border-top-color: rgba(0, 0, 0, 0.08);
+  color: #64748b;
+}
+
+[data-present-theme="light"] .pq-present-step-title {
+  color: #0f172a;
+}
+
+[data-present-theme="light"] .pq-present-step-sub {
+  color: #475569;
+}
+
+[data-present-theme="light"] .pq-present-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+[data-present-theme="light"] .pq-present-stat-box {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+[data-present-theme="light"] .pq-present-stat-label {
+  color: #64748b;
+}
+
+[data-present-theme="light"] .pq-present-stat-value {
+  color: #0f172a;
+}
+
+[data-present-theme="light"] .pq-present-breakdown-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+[data-present-theme="light"] .pq-present-breakdown-card.is-correct-card {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.08), #ffffff);
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+[data-present-theme="light"] .pq-present-breakdown-card.is-incorrect-card {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), #ffffff);
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+[data-present-theme="light"] .pq-present-bc-label {
+  color: #0f172a;
+}
+
+[data-present-theme="light"] .pq-present-bc-text {
+  color: #475569;
+}
+
+[data-present-theme="light"] .pq-present-bc-exp {
+  color: #1e293b;
+}
+
+[data-present-theme="light"] .pq-present-concept-card {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), #ffffff);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+[data-present-theme="light"] .pq-present-concept-title {
+  color: #4338ca;
+}
+
+[data-present-theme="light"] .pq-present-concept-note {
+  color: #1e293b;
+}
+
+[data-present-theme="light"] .pq-present-va-item {
+  background: #ffffff;
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #1e293b;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+[data-present-theme="light"] .pq-present-news-card {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), #ffffff);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+[data-present-theme="light"] .pq-present-news-headline {
+  color: #b91c1c;
+}
+
+[data-present-theme="light"] .pq-present-news-context {
+  color: #1e293b;
+}
+
+[data-present-theme="light"] .pq-present-dock {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+}
+
+[data-present-theme="light"] .pq-dock-btn {
+  color: #475569;
+}
+
+[data-present-theme="light"] .pq-dock-btn:hover {
+  background: rgba(0, 0, 0, 0.06);
+  color: #0f172a;
+}
+
+[data-present-theme="light"] .pq-dock-sep {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+[data-present-theme="light"] .pq-step-dot {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+[data-present-theme="light"] .pq-present-dock-pill {
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(0, 0, 0, 0.15);
+  color: #334155;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+[data-present-theme="light"] .pq-present-dock-pill:hover {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: #2563eb;
+}
+
+[data-present-theme="light"] .pq-present-q-scrollable::-webkit-scrollbar-thumb,
+[data-present-theme="light"] .pq-present-slide-body::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.18);
+}
+
+[data-present-theme="light"] .pq-present-webcam-safe-zone {
+  border-color: rgba(202, 138, 4, 0.65);
+  background: rgba(254, 240, 138, 0.2);
+}
+
+[data-present-theme="light"] .pq-webcam-label {
+  color: #854d0e;
 }

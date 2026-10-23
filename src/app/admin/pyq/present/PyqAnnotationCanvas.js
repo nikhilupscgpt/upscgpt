@@ -143,14 +143,16 @@ export default function PyqAnnotationCanvas({
   }, [redraw]);
 
   // -------------------------------------------------------------
-  // Pointer Event Coordinates in 1920x1080 Space
+  // Pointer Event Coordinates in 1920x1080 Space (Resolution Independent)
   // -------------------------------------------------------------
   const getCanvasCoords = (e) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0, pressure: 0.5 };
     const rect = canvas.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / scale;
-    const y = (e.clientY - rect.top) / scale;
+    const scaleX = rect.width / 1920;
+    const scaleY = rect.height / 1080;
+    const x = (e.clientX - rect.left) / (scaleX || scale || 1);
+    const y = (e.clientY - rect.top) / (scaleY || scale || 1);
 
     // Real hardware pressure from XP-Pen tablet stylus
     let pressure = e.pressure;
