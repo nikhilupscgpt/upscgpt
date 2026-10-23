@@ -1,0 +1,500 @@
+/* ==========================================================================
+   PYQ LECTURE STUDIO WORKSTATION CSS
+   Full-featured UPSC Prelims PYQ recording workstation
+   ========================================================================== */
+
+.pq-pyq-studio-root {
+  min-height: 100vh;
+  background: #090d16;
+  color: #f1f5f9;
+  font-family: var(--font-outfit), system-ui, -apple-system, sans-serif;
+  padding: 32px 40px 140px;
+}
+
+/* Header */
+.pq-pyq-studio-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.pq-pyq-head-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.pq-pyq-badge-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba(2, 132, 199, 0.4);
+}
+
+.pq-pyq-studio-title {
+  font-size: 26px;
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.pq-pyq-studio-sub {
+  font-size: 13.5px;
+  color: #94a3b8;
+  margin: 3px 0 0;
+}
+
+/* Filter Box (Comprehensive 2-Row Layout matching backend & frontend) */
+.pq-pyq-filter-container {
+  padding: 22px 24px;
+  border-radius: 18px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.pq-pyq-search-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pq-pyq-search-box {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: rgba(2, 6, 23, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.pq-pyq-search-box:focus-within {
+  border-color: #38bdf8;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+}
+
+.pq-pyq-search-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-size: 14.5px;
+}
+
+.pq-pyq-filter-grid {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pq-pyq-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pq-pyq-filter-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+}
+
+.pq-pyq-select {
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(2, 6, 23, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  min-width: 140px;
+}
+
+.pq-pyq-select:focus {
+  border-color: #38bdf8;
+}
+
+.pq-pyq-select:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Bulk Action / Queue Control Bar */
+.pq-pyq-action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding: 6px 4px;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.pq-pyq-action-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pq-pyq-btn-outline {
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f1f5f9;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pq-pyq-btn-outline:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+.pq-pyq-btn-clear {
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pq-pyq-btn-clear:hover {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.pq-pyq-launch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35);
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.pq-pyq-launch-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(16, 185, 129, 0.5);
+}
+
+.pq-pyq-launch-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Question Cards List */
+.pq-pyq-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pq-pyq-card {
+  padding: 22px 26px;
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1.5px solid rgba(255, 255, 255, 0.09);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: all 0.2s ease;
+}
+
+.pq-pyq-card:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(30, 41, 59, 0.65);
+}
+
+.pq-pyq-card.is-selected {
+  border-color: #38bdf8;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.85));
+  box-shadow: 0 8px 28px rgba(56, 189, 248, 0.18);
+}
+
+.pq-pyq-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pq-pyq-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pq-badge {
+  font-size: 12px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.pq-badge-exam {
+  background: #1e293b;
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+}
+
+.pq-badge-qno {
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.35);
+}
+
+.pq-badge-topic {
+  background: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.pq-badge-pattern {
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+}
+
+.pq-pyq-stem-text {
+  font-size: 16px;
+  line-height: 1.55;
+  color: #f1f5f9;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Options preview row */
+.pq-pyq-opts-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pq-pyq-opt-pill {
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(2, 6, 23, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 13.5px;
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pq-pyq-opt-pill.is-correct {
+  background: rgba(34, 197, 94, 0.18);
+  border-color: #22c55e;
+  color: #4ade80;
+  font-weight: 800;
+}
+
+/* Card bottom actions */
+.pq-pyq-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pq-pyq-action-btns {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pq-pyq-attach-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pq-pyq-attach-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  border-color: #38bdf8;
+}
+
+.pq-pyq-attach-btn.has-attachment {
+  background: rgba(245, 158, 11, 0.18);
+  border-color: #f59e0b;
+  color: #fbbf24;
+}
+
+.pq-pyq-present-solo-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+  font-size: 12.5px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.pq-pyq-present-solo-link:hover {
+  background: #38bdf8;
+  color: #032b43;
+}
+
+/* Pagination Row */
+.pq-pyq-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 32px;
+  padding: 16px 4px;
+}
+
+.pq-pyq-page-btn {
+  padding: 8px 16px;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pq-pyq-page-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.pq-pyq-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Image Attachment Modal */
+.pq-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100000;
+  animation: pq-fade-in 0.2s ease;
+}
+
+@keyframes pq-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.pq-modal-box {
+  width: 520px;
+  padding: 28px 32px;
+  border-radius: 20px;
+  background: #0f172a;
+  border: 1.5px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.pq-modal-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 900;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pq-modal-input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.pq-modal-input:focus {
+  border-color: #38bdf8;
+}
+
+/* Floating Sticky Queue Bar */
+.pq-pyq-floating-queue-bar {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 12px 24px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.94);
+  border: 1.5px solid rgba(16, 185, 129, 0.5);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
+  z-index: 5000;
+  animation: pq-pop 0.25s ease-out;
+}

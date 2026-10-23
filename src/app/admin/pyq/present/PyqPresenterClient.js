@@ -105,14 +105,27 @@ export default function PyqPresenterClient({ questions = [] }) {
 
   const currentQ = questions[qIndex] || null;
 
+  const [customAttachmentsMap] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = sessionStorage.getItem('pq_studio_attachments');
+        if (saved) return JSON.parse(saved);
+      } catch {
+        // ignore
+      }
+    }
+    return {};
+  });
+
   // Build presentation steps dynamically (PYQ vs Topic)
   const steps = useMemo(() => {
     if (!currentQ) return [];
+    const customAsset = customAttachmentsMap[currentQ.id] || currentQ.customAssets || {};
     if (currentQ.type === 'topic') {
-      return buildTopicSteps(currentQ, currentQ.customAssets || {});
+      return buildTopicSteps(currentQ, customAsset);
     }
-    return buildQuestionSteps(currentQ, currentQ.customAssets || {});
-  }, [currentQ]);
+    return buildQuestionSteps(currentQ, customAsset);
+  }, [currentQ, customAttachmentsMap]);
 
   const currentStep = steps[stepIndex] || steps[0] || null;
 
