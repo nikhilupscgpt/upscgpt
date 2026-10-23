@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import {
   X,
@@ -58,6 +59,20 @@ export default function ConceptStudyModal({
   const [editLongContent, setEditLongContent] = useState('');
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   useEffect(() => {
     if (!isOpen || !initialConcept) return;
@@ -108,8 +123,6 @@ export default function ConceptStudyModal({
     };
   }, [isOpen, initialConcept]);
 
-  if (!isOpen || !conceptData) return null;
-
   const handleSaveConcept = async () => {
     setSaving(true);
     setSaveMessage(null);
@@ -146,9 +159,11 @@ export default function ConceptStudyModal({
     }
   };
 
+  if (!isOpen || !conceptData || !mounted) return null;
+
   const longPoints = parseStudyPoints(conceptData.longContent);
 
-  return (
+  const drawerContent = (
     <div
       onClick={onClose}
       style={{
@@ -156,7 +171,7 @@ export default function ConceptStudyModal({
         inset: 0,
         background: 'rgba(15, 23, 42, 0.72)',
         backdropFilter: 'blur(6px)',
-        zIndex: 9999,
+        zIndex: 1000000,
         display: 'flex',
         justifyContent: 'flex-end',
       }}
@@ -170,11 +185,12 @@ export default function ConceptStudyModal({
           background: 'var(--pq-surface, #ffffff)',
           color: 'var(--pq-ink, #0f172a)',
           borderLeft: '1px solid var(--pq-border, #e2e8f0)',
-          boxShadow: '-20px 0 50px rgba(0, 0, 0, 0.35)',
+          boxShadow: '-20px 0 50px rgba(0, 0, 0, 0.45)',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
           fontFamily: 'var(--font-sans, Inter, system-ui, sans-serif)',
+          animation: 'pq-slide-in-right 0.22s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
       >
         {/* Top Sticky Header */}
@@ -187,6 +203,8 @@ export default function ConceptStudyModal({
             alignItems: 'flex-start',
             justifyContent: 'space-between',
             gap: '16px',
+            flexShrink: 0,
+            zIndex: 10,
           }}
         >
           <div style={{ flex: 1 }}>
@@ -882,4 +900,6 @@ export default function ConceptStudyModal({
       </div>
     </div>
   );
+
+  return createPortal(drawerContent, document.body);
 }
