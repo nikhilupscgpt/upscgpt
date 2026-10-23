@@ -22,7 +22,8 @@ import {
   FileText,
   Layers,
   ArrowRight,
-  Printer
+  Printer,
+  Play
 } from 'lucide-react';
 import { isNewPatternQuestion, isPairQuestion, isStatementQuestion } from '@/lib/pyqPattern';
 import { getStructuredExplanation } from '@/lib/pyqExplanationHelper';
@@ -1251,6 +1252,31 @@ export default function PyqAdminClient({ session }) {
                         </span>
                         <button
                           type="button"
+                          onClick={() => {
+                            const ids = Array.from(selectedQIds).join(',');
+                            window.open(`/admin/pyq/present?ids=${ids}`, '_blank');
+                          }}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '7px 16px',
+                            borderRadius: '8px',
+                            background: 'linear-gradient(135deg, #4f46e5, #3b82f6)',
+                            color: '#ffffff',
+                            border: 'none',
+                            fontSize: '0.82rem',
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            boxShadow: '0 2px 10px rgba(79, 70, 229, 0.45)',
+                          }}
+                          title="Open 1080p full-screen Lecture Studio with XP-Pen annotation"
+                        >
+                          <Play size={14} fill="currentColor" />
+                          <span>▶ Present Lecture Deck ({selectedQIds.size})</span>
+                        </button>
+                        <button
+                          type="button"
                           onClick={handlePrintSelectedSlides}
                           style={{
                             display: 'inline-flex',
@@ -1483,6 +1509,31 @@ export default function PyqAdminClient({ session }) {
                             <Printer size={13} />
                             <span>Print Slide</span>
                           </button>
+
+                          <a
+                            href={`/admin/pyq/present?id=${q.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              padding: '6px 14px',
+                              borderRadius: '8px',
+                              background: 'linear-gradient(135deg, #4f46e5, #3b82f6)',
+                              color: '#ffffff',
+                              border: 'none',
+                              fontSize: '0.8rem',
+                              fontWeight: 800,
+                              textDecoration: 'none',
+                              cursor: 'pointer',
+                              boxShadow: '0 2px 8px rgba(79, 70, 229, 0.35)',
+                            }}
+                            title="Open in full-screen 1080p Lecture Studio with XP-Pen pen annotation"
+                          >
+                            <Play size={13} fill="currentColor" />
+                            <span>Present</span>
+                          </a>
 
                           <a
                             href={`/admin/pyq/${q.id}`}

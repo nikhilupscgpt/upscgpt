@@ -1,6 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import ReviewUI from './ReviewUI';
 
+export const dynamic = 'force-dynamic';
+
 const prisma = new PrismaClient();
 
 // Server Actions

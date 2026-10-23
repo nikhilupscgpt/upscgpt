@@ -23,7 +23,8 @@ import {
   Trash2,
   CheckSquare,
   ShieldCheck,
-  Zap
+  Zap,
+  Play
 } from 'lucide-react';
 import { getStructuredExplanation } from '@/lib/pyqExplanationHelper';
 import { normalizeCanonicalSubject } from '@/app/prelims/pyq/topicGroups';
@@ -527,6 +528,31 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
               <CheckCircle2 size={16} /> Changes Saved!
             </span>
           )}
+
+          <a
+            href={`/admin/pyq/present?id=${initialQuestion.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 16px',
+              borderRadius: '8px',
+              background: 'linear-gradient(135deg, #4f46e5, #3b82f6)',
+              color: '#ffffff',
+              border: 'none',
+              fontSize: '0.85rem',
+              fontWeight: 800,
+              textDecoration: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(79, 70, 229, 0.35)',
+            }}
+            title="Open in full-screen 1080p Lecture Studio with XP-Pen pen annotation"
+          >
+            <Play size={15} fill="currentColor" />
+            <span>▶ Present / Lecture Mode</span>
+          </a>
 
           <button
             onClick={handlePrintSlide}

@@ -5,7 +5,7 @@ import React from 'react';
 const STATEMENT_RE = /^(Statement[\s-]*(?:I{1,3}|IV|[1-4])|I{1,3}|IV|V|VI|[1-6]|[A-D])\s*[.:)]\s*(.*)$/i;
 const PROMPT_RE = /\s+((?:Which\s+(?:one\s+of\s+the|of\s+the|pairs?|statements?|of\s+these)|How\s+many\s+of\s+the|Select\s+the\s+correct).*)$/i;
 
-function parseStem(stem) {
+export function parseStem(stem) {
   let raw = String(stem || '').trim();
 
   // Pre-normalization:
