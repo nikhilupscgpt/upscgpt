@@ -15,7 +15,11 @@ import {
   Info,
   Lock,
   Zap,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
+import { normalizeKeywordsList } from '@/lib/pyqKeywords';
+import ConceptStudyModal from './ConceptStudyModal';
 
 function parseValueAdditionPoints(text) {
   if (!text || typeof text !== 'string') return [];
@@ -36,7 +40,9 @@ function parseValueAdditionPoints(text) {
   return items;
 }
 
-export default function PyqDeepDive({ analysis, questionId }) {
+export default function PyqDeepDive({ analysis, questionId, subject, topic, isAdmin = false }) {
+  const [activeKeywordIdx, setActiveKeywordIdx] = useState(null);
+  const [modalConcept, setModalConcept] = useState(null);
   const [usageState, setUsageState] = useState({
     loading: true,
     allowed: true,
@@ -120,34 +126,181 @@ export default function PyqDeepDive({ analysis, questionId }) {
         </div>
       </div>
 
-      {/* 2. Keywords and Concepts (Always visible as teaser) */}
+      {/* 2. Keywords and Concepts (Interactive Concept Pills + Expandable Concept Card) */}
       {keywords && keywords.length > 0 && (() => {
-        // Filter out distractors so only genuine core concepts are shown as keywords
-        const coreKeywords = keywords.filter(kw => {
-          if (typeof kw === 'object' && kw !== null) {
-            return !kw.isDistractor;
-          }
-          return true;
-        });
-
+        const coreKeywords = normalizeKeywordsList(keywords);
         if (coreKeywords.length === 0) return null;
+
+        const selectedKw =
+          activeKeywordIdx !== null && coreKeywords[activeKeywordIdx]
+            ? coreKeywords[activeKeywordIdx]
+            : null;
 
         return (
           <div className="pq-dd-section">
-            <div className="pq-dd-label">
-              <Tag size={14} /> Keywords & Core Concepts
+            <div
+              className="pq-dd-label"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '8px',
+              }}
+            >
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                <Tag size={14} /> Keywords &amp; Core Concepts
+              </span>
+              <span
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  color: 'var(--pq-muted, #64748b)',
+                  textTransform: 'none',
+                  letterSpacing: 0,
+                }}
+              >
+                Click any keyword to open its Concept Card &amp; linked PYQs
+              </span>
             </div>
+
             <div className="pq-keywords">
               {coreKeywords.map((kw, i) => {
-                const text = typeof kw === 'object' && kw !== null ? kw.concept : String(kw);
-                const cleanText = text.replace(/[*~_]/g, '').trim();
+                const isSelected = activeKeywordIdx === i;
                 return (
-                  <span key={i} className="pq-keyword-pill">
-                    #{cleanText}
-                  </span>
+                  <button
+                    key={kw.slug || i}
+                    type="button"
+                    onClick={() =>
+                      setActiveKeywordIdx(prev => (prev === i ? null : i))
+                    }
+                    className={`pq-keyword-pill ${isSelected ? 'is-active' : ''}`}
+                    style={{
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      border: isSelected
+                        ? '1.5px solid #6366f1'
+                        : undefined,
+                      background: isSelected
+                        ? 'rgba(99, 102, 241, 0.16)'
+                        : undefined,
+                      boxShadow: isSelected
+                        ? '0 2px 10px rgba(99, 102, 241, 0.18)'
+                        : undefined,
+                      transition: 'all 0.16s ease',
+                    }}
+                    title={`View concept card for ${kw.term}`}
+                  >
+                    <span>#{kw.term}</span>
+                    {isSelected ? (
+                      <ChevronUp size={13} style={{ opacity: 0.85 }} />
+                    ) : (
+                      <ChevronDown size={13} style={{ opacity: 0.65 }} />
+                    )}
+                  </button>
                 );
               })}
             </div>
+
+            {/* Expandable Inline Short Concept Card */}
+            {selectedKw && (
+              <div
+                style={{
+                  marginTop: '12px',
+                  padding: '16px 18px',
+                  borderRadius: '14px',
+                  background:
+                    'linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(59, 130, 246, 0.05))',
+                  border: '1.5px solid rgba(99, 102, 241, 0.3)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '10px',
+                  animation: 'fadeIn 0.18s ease-out',
+                }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '10px',
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                    }}
+                  >
+                    <span
+                      style={{
+                        padding: '2px 8px',
+                        borderRadius: '6px',
+                        background: 'rgba(99, 102, 241, 0.16)',
+                        color: '#6366f1',
+                        fontSize: '10.5px',
+                        fontWeight: 800,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em',
+                      }}
+                    >
+                      Concept Card
+                    </span>
+                    <strong
+                      style={{
+                        fontSize: '0.96rem',
+                        fontWeight: 800,
+                        color: 'var(--pq-ink, #0f172a)',
+                      }}
+                    >
+                      {selectedKw.term}
+                    </strong>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setModalConcept({
+                        ...selectedKw,
+                        subject: subject || analysis.srcSubject,
+                        topic: topic || analysis.srcTopic,
+                      })
+                    }
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '6px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(59, 130, 246, 0.35)',
+                      background: 'rgba(59, 130, 246, 0.12)',
+                      color: '#3b82f6',
+                      fontSize: '12px',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <BookOpen size={13} />
+                    <span>Study Concept &amp; Associated PYQs →</span>
+                  </button>
+                </div>
+
+                <div
+                  style={{
+                    fontSize: '0.91rem',
+                    lineHeight: 1.6,
+                    color: 'var(--pq-ink, #0f172a)',
+                  }}
+                >
+                  {selectedKw.shortNote ||
+                    `High-yield UPSC Prelims concept tested in this question. Click "Study Concept & Associated PYQs" to view detailed notes and all linked questions.`}
+                </div>
+              </div>
+            )}
           </div>
         );
       })()}
@@ -426,6 +579,13 @@ export default function PyqDeepDive({ analysis, questionId }) {
           )}
         </>
       )}
+
+      <ConceptStudyModal
+        isOpen={Boolean(modalConcept)}
+        onClose={() => setModalConcept(null)}
+        initialConcept={modalConcept}
+        isAdmin={isAdmin}
+      />
     </div>
   );
 }

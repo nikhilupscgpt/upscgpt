@@ -5,6 +5,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import crypto from 'crypto';
 import { normalizeCanonicalSubject } from '@/lib/syllabusTaxonomy';
+import { normalizeKeywordsList } from '@/lib/pyqKeywords';
 
 const prisma = new PrismaClient();
 
@@ -83,11 +84,23 @@ export async function PATCH(req, { params }) {
       updateData.correctLabel = body.correctLabel ? body.correctLabel.trim().toLowerCase() : null;
     }
 
+    let normalizedKeywordsToSync = [];
+
     if (body.explanation !== undefined || body.analysis !== undefined) {
       if (body.analysis && typeof body.analysis === 'object') {
+        const cleanedKws = Array.isArray(body.analysis.keywords)
+          ? normalizeKeywordsList(body.analysis.keywords)
+          : [];
+        normalizedKeywordsToSync = cleanedKws;
+
+        const cleanedAnalysis = {
+          ...body.analysis,
+          keywords: cleanedKws,
+        };
+
         updateData.explanation = JSON.stringify({
           explanation: typeof body.explanation === 'string' ? body.explanation.trim() : '',
-          analysis: body.analysis
+          analysis: cleanedAnalysis
         });
       } else if (body.explanation !== undefined) {
         updateData.explanation = body.explanation ? (typeof body.explanation === 'string' ? body.explanation.trim() : JSON.stringify(body.explanation)) : null;
@@ -153,6 +166,37 @@ export async function PATCH(req, { params }) {
       where: { id },
       data: updateData
     });
+
+    if (normalizedKeywordsToSync.length > 0) {
+      try {
+        for (const kw of normalizedKeywordsToSync) {
+          if (!kw.slug) continue;
+          const key = `pyq_concept:${kw.slug}`;
+          const existingCfg = await prisma.platformConfig.findUnique({ where: { key } });
+          let prev = {};
+          if (existingCfg?.value) {
+            try { prev = JSON.parse(existingCfg.value); } catch { prev = {}; }
+          }
+          const nextConcept = {
+            ...prev,
+            slug: kw.slug,
+            term: kw.term || prev.term || kw.slug,
+            shortNote: kw.shortNote || prev.shortNote || '',
+            longContent: kw.longContent || prev.longContent || '',
+            subject: updated.srcSubject || prev.subject || 'General Studies',
+            topic: updated.srcTopic || prev.topic || 'General',
+            updatedAt: new Date().toISOString()
+          };
+          await prisma.platformConfig.upsert({
+            where: { key },
+            update: { value: JSON.stringify(nextConcept) },
+            create: { key, value: JSON.stringify(nextConcept) }
+          });
+        }
+      } catch (cfgErr) {
+        console.warn('[API Admin PYQ ID] Concept sync warning:', cfgErr);
+      }
+    }
 
     try {
       revalidatePath('/prelims/pyq');

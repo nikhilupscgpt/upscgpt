@@ -382,7 +382,14 @@ export default function StandaloneQuestionClient({ question: q }) {
         </div>
 
         {/* Lecture-Grade Micro Deep-Dive */}
-        {analysis && <PyqDeepDive analysis={analysis} questionId={q.id} />}
+        {analysis && (
+          <PyqDeepDive
+            analysis={analysis}
+            questionId={q.id}
+            subject={q.srcSubject}
+            topic={q.srcTopic}
+          />
+        )}
       </article>
 
       {/* Related Questions Internal Link Mesh (Critical for Search Engine Spidering across all 2,528 PYQs) */}

@@ -10,7 +10,10 @@ Every question deconstruction strictly follows this sequence:
 
 1. **Header & Question Stem**: Original question with `Exam`, `Year`, `Question Number`, `Source Base`, and `Topic Hierarchy`.
 2. **Correct Answer Banner (Green)**: The unambiguous official UPSC answer key with full option text.
-3. **Keywords & Concepts Tested (Blue)**: Core syllabus themes + distractor concepts from the wrong options formatted as struck-through concepts (`~~Concept~~`). Every option is treated as a concept to learn, because UPSC routinely converts yesterday's distractor into tomorrow's question.
+3. **Keywords & Concept Cards (Blue)**: Genuine core syllabus concepts, Constitutional Articles, Acts, or mechanisms tested in the question. **Do NOT include distractors or struck-through items in the keywords list.** Each keyword is stored as a searchable **Concept Card** with two parts:
+   - `term`: Short, clean keyword title shown on the question card pill (e.g., `"Article 394 (Commencement)"`, `"Drafting Committee (29 Aug 1947)"`).
+   - `shortNote`: Concise 1–2 sentence high-yield explanation displayed inside the Concept Card when clicked.
+   - `longContent`: Optional detailed study note (can be omitted or left `""` to be filled later).
 4. **Option-by-Option Elimination Breakdown (Pink)**: Granular analysis of every individual option ((a), (b), (c), (d)) labeled as **Correct** or **Incorrect**, with precise factual and conceptual reasons for elimination.
 5. **Forward-Looking Value Addition (Yellow)**: Strictly capped at 120 words. **Zero generic filler** (never write *"supports sustainability"* or *"globally applicable"*). Must strictly answer: *"What is the adjacent question UPSC will ask next from this syllabus cluster?"* Include mandatory temporal anchors (`"as of [Year/Month]"`) on any changing figures (Ramsar count, MAB network, Tiger reserve numbers, species IUCN status).
 6. **In-News Connection (Cyan)**: A real current affairs headline from *The Hindu*, *Indian Express*, or *PIB*. **Strict Entity Match Rule**: Must mention the specific place, treaty, species, or concept from the question—not general district news. Must include publication name and date (`[Source | Month Year]`).
@@ -61,10 +64,14 @@ Must be valid JSON matching this schema:
   "correctLabel": "a",
   "analysis": {
     "keywords": [
-      { "concept": "Primary Concept 1", "isDistractor": false },
-      { "concept": "Primary Concept 2", "isDistractor": false },
-      { "concept": "Distractor from Option B", "isDistractor": true },
-      { "concept": "Distractor from Option D", "isDistractor": true }
+      {
+        "term": "Article 393 (Short Title)",
+        "shortNote": "Explicitly mandates that 'This Constitution may be called the Constitution of India' under Part XXII."
+      },
+      {
+        "term": "Article 394 (Commencement)",
+        "shortNote": "Specifies the 16 Articles that came into force immediately on 26 Nov 1949; remaining provisions commenced on 26 Jan 1950."
+      }
     ],
     "optionBreakdown": [
       { "label": "a", "verdict": "Correct", "explanation": "<Factual explanation>" },
@@ -72,7 +79,7 @@ Must be valid JSON matching this schema:
       { "label": "c", "verdict": "Incorrect", "explanation": "<Why eliminated>" },
       { "label": "d", "verdict": "Incorrect", "explanation": "<Why eliminated>" }
     ],
-    "valueAddition": "<Forward-looking, high-yield adjacent facts. Strict 120-word cap. Include 'as of [Date]' on dynamic stats>",
+    "valueAddition": "• <Heading 1>: <Forward-looking fact 1>\n• <Heading 2>: <Forward-looking fact 2 with 'as of [Date]' anchor>\n• <Heading 3>: <High-yield distinction>",
     "inNews": {
       "headline": "<Direct entity headline>",
       "source": "<The Hindu / Indian Express / PIB>",
@@ -120,11 +127,9 @@ Format the markdown using this exact visual block structure:
 
 ---
 
-### 🔵 [KEYWORDS & CONCEPTS TESTED]
-* `#PrimaryConcept1`
-* `#PrimaryConcept2`
-* `~~DistractorConceptOptionB~~` *(Distractor concept to note)*
-* `~~DistractorConceptOptionD~~` *(Distractor concept to note)*
+### 🔵 [KEYWORDS & CONCEPT CARDS]
+* **#PrimaryConcept1**: <1-2 sentence high-yield Concept Card summary>
+* **#PrimaryConcept2**: <1-2 sentence high-yield Concept Card summary>
 
 ---
 
@@ -195,5 +200,5 @@ Write a natural, conversational, punchy script designed for an educator recordin
 
 1. **No AI Fluff Rule**: Never write subjective generalizations like *"plays a crucial role in ecological balance"*, *"promotes sustainable development"*, or *"is widely accepted globally"*. Replace them with statutory acts, years, COP numbers, articles, sections, and criteria.
 2. **Temporal Anchors**: Any number that changes over time (Ramsar sites, tiger reserves, elephant corridors, UNESCO sites, forest cover %, GDP numbers) **MUST** include `"As of [Year/Month]"`.
-3. **Struck Distractor Rule**: In the Blue Keywords box, distractor concepts must be rendered with strikethrough (`~~text~~`) so the student immediately recognizes why it was a trap.
-4. **Strict Word Budget for Slide Layout**: Keep Value Addition under 120 words so that printed pages and slide graphics never overflow.
+3. **Pure Concept Keywords Rule**: Only include genuine core concepts in the `keywords` array using `{ "term": "<Short Concept Name>", "shortNote": "<1-2 sentence high-yield Concept Card note>" }`. Never put distractors or strikethroughs in `keywords` (distractors belong in `optionBreakdown`).
+4. **Structured Bullet Value Addition**: Format `valueAddition` as newline-separated bullet points (`• Heading: Explanation\n• Heading: Explanation`) capped at 120 words so both web and slide layouts render cleanly.

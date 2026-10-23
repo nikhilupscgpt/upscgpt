@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { getStructuredExplanation } from '@/lib/pyqExplanationHelper';
 import { normalizeCanonicalSubject } from '@/app/prelims/pyq/topicGroups';
+import { normalizeKeywordsList, slugifyKeyword } from '@/lib/pyqKeywords';
 import '@/app/prelims/pyq/pyq-ui.css';
 
 export default function PyqVisualEditorClient({ initialQuestion }) {
@@ -50,37 +51,19 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
       text: o.text || ''
     }));
 
-    // Clean keywords helper (strips distractors, removes markdown formatting)
+    // Clean keywords helper (strips distractors, splits into term + shortNote + longContent)
     const cleanKeywords = (rawKeywords) => {
-      if (!Array.isArray(rawKeywords)) return [];
-      return rawKeywords
-        .filter(kw => {
-          if (typeof kw === 'object' && kw !== null) return !kw.isDistractor;
-          if (typeof kw === 'string') return !kw.toLowerCase().includes('(distractor)') && !kw.startsWith('~~');
-          return true;
-        })
-        .map(kw => {
-          if (typeof kw === 'object' && kw !== null) {
-            return {
-              concept: (kw.concept || '').replace(/[*~_]/g, '').trim(),
-              isDistractor: false
-            };
-          }
-          return {
-            concept: String(kw).replace(/[*~_]/g, '').trim(),
-            isDistractor: false
-          };
-        });
+      return normalizeKeywordsList(rawKeywords);
     };
 
     const initialAnalysis = structured.analysis ? {
       ...structured.analysis,
       keywords: cleanKeywords(structured.analysis.keywords)
     } : {
-      keywords: [
-        { concept: q.srcSubject || 'General Studies', isDistractor: false },
-        { concept: q.srcTopic || 'Polity & Governance', isDistractor: false }
-      ],
+      keywords: cleanKeywords([
+        { term: q.srcSubject || 'General Studies', shortNote: 'Core UPSC Prelims syllabus subject.' },
+        { term: q.srcTopic || 'Polity & Governance', shortNote: 'Key conceptual theme tested in this question.' }
+      ]),
       optionBreakdown: normalizedOptions.map(o => ({
         label: o.label,
         verdict: o.label === (q.correctLabel || '').toLowerCase() ? 'Correct' : 'Incorrect',
@@ -170,24 +153,11 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
       analysis: {
         ...(currentData.analysis || {}),
         ...(incomingAnalysis || {}),
-        keywords: (Array.isArray(incomingAnalysis.keywords) ? incomingAnalysis.keywords : (currentData.analysis?.keywords || []))
-          .filter(kw => {
-            if (typeof kw === 'object' && kw !== null) return !kw.isDistractor;
-            if (typeof kw === 'string') return !kw.toLowerCase().includes('(distractor)') && !kw.startsWith('~~');
-            return true;
-          })
-          .map(kw => {
-            if (typeof kw === 'object' && kw !== null) {
-              return {
-                concept: (kw.concept || '').replace(/[*~_]/g, '').trim(),
-                isDistractor: false
-              };
-            }
-            return {
-              concept: String(kw).replace(/[*~_]/g, '').trim(),
-              isDistractor: false
-            };
-          }),
+        keywords: normalizeKeywordsList(
+          Array.isArray(incomingAnalysis.keywords)
+            ? incomingAnalysis.keywords
+            : (currentData.analysis?.keywords || [])
+        ),
         optionBreakdown: incomingAnalysis.optionBreakdown || currentData.analysis?.optionBreakdown || [],
         valueAddition: incomingAnalysis.valueAddition || currentData.analysis?.valueAddition || '',
         inNews: incomingAnalysis.inNews !== undefined ? incomingAnalysis.inNews : currentData.analysis?.inNews,
@@ -409,24 +379,57 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
   };
 
   const handleAddKeyword = () => {
-    const concept = window.prompt('Enter new keyword / tested concept:');
-    if (!concept || !concept.trim()) return;
-    const isDistractor = window.confirm('Is this a distractor concept? (Click OK for Distractor, Cancel for Core Concept)');
+    const rawTerm = window.prompt('Enter Keyword / Concept Title (e.g., Article 394 (Commencement)):');
+    if (!rawTerm || !rawTerm.trim()) return;
+    const rawNote = window.prompt('Enter Short Concept Card Note (1-2 sentences shown when keyword is clicked):') || '';
+    const term = rawTerm.trim();
+    const shortNote = rawNote.trim();
+    const slug = slugifyKeyword(term);
     updateDataAndSyncJson(prev => ({
       ...prev,
       analysis: {
         ...(prev.analysis || {}),
         keywords: [
-          ...((prev.analysis && prev.analysis.keywords) || []),
-          { concept: concept.trim(), isDistractor }
+          ...normalizeKeywordsList((prev.analysis && prev.analysis.keywords) || []),
+          {
+            slug,
+            term,
+            shortNote,
+            longContent: '',
+            concept: shortNote ? `${term}: ${shortNote}` : term,
+            isDistractor: false
+          }
         ]
       }
     }));
   };
 
+  const handleKeywordFieldChange = (idx, field, val) => {
+    updateDataAndSyncJson(prev => {
+      const kwList = [...normalizeKeywordsList((prev.analysis && prev.analysis.keywords) || [])];
+      if (!kwList[idx]) return prev;
+      const updatedItem = {
+        ...kwList[idx],
+        [field]: val
+      };
+      const nextTerm = (updatedItem.term || '').trim();
+      const nextShort = (updatedItem.shortNote || '').trim();
+      updatedItem.slug = slugifyKeyword(nextTerm);
+      updatedItem.concept = nextShort ? `${nextTerm}: ${nextShort}` : nextTerm;
+      kwList[idx] = updatedItem;
+      return {
+        ...prev,
+        analysis: {
+          ...(prev.analysis || {}),
+          keywords: kwList
+        }
+      };
+    });
+  };
+
   const handleRemoveKeyword = (idx) => {
     updateDataAndSyncJson(prev => {
-      const kw = [...((prev.analysis && prev.analysis.keywords) || [])];
+      const kw = [...normalizeKeywordsList((prev.analysis && prev.analysis.keywords) || [])];
       kw.splice(idx, 1);
       return {
         ...prev,
@@ -440,12 +443,7 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
 
   const optionsList = Array.isArray(data.options) ? data.options : [];
   const analysisObj = data.analysis || {};
-  const rawKeywordsList = Array.isArray(analysisObj.keywords) ? analysisObj.keywords : [];
-  const keywordsList = rawKeywordsList.filter(kw => {
-    if (typeof kw === 'object' && kw !== null) return !kw.isDistractor;
-    if (typeof kw === 'string') return !kw.toLowerCase().includes('(distractor)') && !kw.startsWith('~~');
-    return true;
-  });
+  const keywordsList = normalizeKeywordsList(analysisObj.keywords || []);
   const optionBreakdownList = Array.isArray(analysisObj.optionBreakdown) ? analysisObj.optionBreakdown : [];
   const inNewsObj = analysisObj.inNews || {};
   const similarPyqObj = analysisObj.similarPyq || {};
@@ -941,7 +939,7 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <CheckSquare size={16} color="#38bdf8" />
-                <strong style={{ fontSize: '14px', color: '#f8fafc' }}>Keywords &amp; Tested Concepts</strong>
+                <strong style={{ fontSize: '14px', color: '#f8fafc' }}>Keywords &amp; Concept Cards</strong>
               </div>
               <button
                 type="button"
@@ -961,52 +959,98 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
                 }}
               >
                 <Plus size={13} />
-                <span>Add Keyword</span>
+                <span>Add Keyword Card</span>
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-              {keywordsList.map((kw, i) => {
-                const rawName = typeof kw === 'object' && kw !== null ? kw.concept : String(kw);
-                const name = rawName.replace(/[*~_]/g, '').trim();
-                return (
-                  <div
-                    key={i}
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      padding: '4px 10px',
-                      borderRadius: '6px',
-                      background: 'rgba(59, 130, 246, 0.12)',
-                      border: '1px solid rgba(59, 130, 246, 0.3)',
-                      color: '#93c5fd',
-                      fontSize: '12.5px',
-                      fontWeight: 600
-                    }}
-                  >
-                    <span>{name}</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {keywordsList.map((kw, i) => (
+                <div
+                  key={kw.slug || i}
+                  style={{
+                    padding: '12px 14px',
+                    borderRadius: '10px',
+                    background: '#070b14',
+                    border: '1px solid rgba(59, 130, 246, 0.28)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '8px'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+                      <span style={{
+                        padding: '2px 7px',
+                        borderRadius: '5px',
+                        background: 'rgba(59, 130, 246, 0.16)',
+                        color: '#60a5fa',
+                        fontSize: '10.5px',
+                        fontWeight: 800,
+                        whiteSpace: 'nowrap'
+                      }}>
+                        #{i + 1} PILL
+                      </span>
+                      <input
+                        type="text"
+                        value={kw.term || ''}
+                        onChange={(e) => handleKeywordFieldChange(i, 'term', e.target.value)}
+                        placeholder="Keyword Title (e.g., Article 394 (Commencement))"
+                        style={{
+                          flex: 1,
+                          background: '#0d1424',
+                          color: '#93c5fd',
+                          border: '1px solid #1e293b',
+                          borderRadius: '6px',
+                          padding: '6px 10px',
+                          fontSize: '13px',
+                          fontWeight: 700,
+                          outline: 'none'
+                        }}
+                      />
+                    </div>
                     <button
                       type="button"
                       onClick={() => handleRemoveKeyword(i)}
                       style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: 'inherit',
+                        background: 'rgba(239, 68, 68, 0.12)',
+                        border: '1px solid rgba(239, 68, 68, 0.25)',
+                        color: '#f87171',
                         cursor: 'pointer',
-                        padding: 0,
-                        marginLeft: '4px',
+                        padding: '5px 7px',
+                        borderRadius: '6px',
                         display: 'flex',
-                        alignItems: 'center',
-                        opacity: 0.6
+                        alignItems: 'center'
                       }}
-                      title="Remove concept"
+                      title="Remove keyword card"
                     >
-                      <Trash2 size={12} />
+                      <Trash2 size={13} />
                     </button>
                   </div>
-                );
-              })}
+
+                  <div>
+                    <textarea
+                      rows={2}
+                      value={kw.shortNote || ''}
+                      onChange={(e) => handleKeywordFieldChange(i, 'shortNote', e.target.value)}
+                      placeholder="Short Concept Card content (1-2 sentences shown when student clicks this keyword)..."
+                      style={{
+                        width: '100%',
+                        background: '#0d1424',
+                        color: '#cbd5e1',
+                        border: '1px solid #1e293b',
+                        borderRadius: '6px',
+                        padding: '7px 10px',
+                        fontSize: '12.5px',
+                        lineHeight: 1.5,
+                        outline: 'none',
+                        resize: 'vertical',
+                        boxSizing: 'border-box',
+                        fontFamily: 'inherit'
+                      }}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 

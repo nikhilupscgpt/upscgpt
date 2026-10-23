@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { getStructuredExplanation } from '@/lib/pyqExplanationHelper';
+import { normalizeKeywordsList } from '@/lib/pyqKeywords';
 import {
   getTopicModule,
   sortQuestionsBySyllabus,
@@ -950,21 +951,13 @@ function buildSlideDocument({ questions }) {
                 <div class="card-kw-blue">
                   <div class="kw-title">Keywords and Concepts:</div>
                   <div class="kw-list">
-                    ${keywords
-                      .filter(kw => {
-                        if (typeof kw === 'object' && kw !== null) return !kw.isDistractor;
-                        if (typeof kw === 'string') return !kw.toLowerCase().includes('(distractor)') && !kw.startsWith('~~');
-                        return true;
-                      })
-                      .map(kw => {
-                        const rawName = typeof kw === 'object' && kw !== null ? kw.concept : String(kw);
-                        const name = rawName.replace(/[*~_]/g, '').trim();
-                        return `
-                          <div class="kw-row">
-                            - ${escapeHtml(name)}
-                          </div>
-                        `;
-                      }).join('')}
+                    ${normalizeKeywordsList(keywords)
+                      .map(kw => `
+                        <div class="kw-row">
+                          - <strong>${escapeHtml(kw.term)}</strong>${kw.shortNote ? `: ${escapeHtml(kw.shortNote)}` : ''}
+                        </div>
+                      `)
+                      .join('')}
                   </div>
                 </div>
               </div>

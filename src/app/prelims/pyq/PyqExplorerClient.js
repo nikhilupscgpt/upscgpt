@@ -20,10 +20,12 @@ import {
   ShieldCheck,
   CheckCircle2,
   X,
+  Tag,
 } from 'lucide-react';
 import StemView from './StemView';
 import QuizSetupModal from './QuizSetupModal';
 import PyqDeepDive from './PyqDeepDive';
+import ConceptStudyModal from './ConceptStudyModal';
 import { getStructuredExplanation } from '@/lib/pyqExplanationHelper';
 import { usePyqStore } from './pyqStore';
 import { SUBJECT_ORDER, SUBJECT_SHORT, groupTopics, getTopicSyllabusOrder } from './topicGroups';
@@ -62,11 +64,15 @@ function difficultyOf(q) {
 export default function PyqExplorerClient({ initialQuestions = [], initialMetadata = null }) {
   const { data: session, status: sessionStatus } = useSession();
   const isAuthenticated = sessionStatus === 'authenticated' && Boolean(session?.user);
+  const isAdmin = session?.user?.role === 'ADMIN';
 
   const [pageItems, setPageItems] = useState(initialQuestions || []);
   const [totalFiltered, setTotalFiltered] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [loadingQuestions, setLoadingQuestions] = useState(false);
+
+  const [matchingConcepts, setMatchingConcepts] = useState([]);
+  const [activeConceptModal, setActiveConceptModal] = useState(null);
 
   const [subject, setSubject] = useState('ALL');
   const [topic, setTopic] = useState('ALL');
@@ -287,6 +293,35 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
     page,
     isAuthenticated,
   ]);
+
+  /* ---- Fetch Matching Concept Cards when Searching ---- */
+  useEffect(() => {
+    if (!urlReady || !debouncedQuery || debouncedQuery.length < 2) {
+      setMatchingConcepts([]);
+      return;
+    }
+
+    let cancelled = false;
+    async function fetchConcepts() {
+      try {
+        const params = new URLSearchParams();
+        params.set('q', debouncedQuery);
+        if (subject !== 'ALL') params.set('subject', subject);
+        const res = await fetch(`/api/pyq/concepts?${params.toString()}`);
+        const data = await res.json();
+        if (!cancelled && data?.success && Array.isArray(data.concepts)) {
+          setMatchingConcepts(data.concepts);
+        }
+      } catch (err) {
+        console.error('Failed to search concepts:', err);
+      }
+    }
+
+    fetchConcepts();
+    return () => {
+      cancelled = true;
+    };
+  }, [urlReady, debouncedQuery, subject]);
 
   // Topics grouped and sorted by canonical syllabus flow for the active subject
   const activeSubjectTopicGroups = useMemo(() => {
@@ -921,6 +956,162 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
 
         {/* Question Feed */}
         <main ref={feedTopRef}>
+          {/* Matching Concept Cards when searching a keyword */}
+          {searching && matchingConcepts.length > 0 && (
+            <div
+              style={{
+                marginBottom: '22px',
+                padding: '18px 20px',
+                borderRadius: '16px',
+                background:
+                  'linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(99, 102, 241, 0.05))',
+                border: '1.5px solid rgba(59, 130, 246, 0.28)',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: '12px',
+                  flexWrap: 'wrap',
+                  gap: '8px',
+                }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '7px',
+                    fontSize: '12px',
+                    fontWeight: 800,
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em',
+                    color: '#3b82f6',
+                  }}
+                >
+                  <Tag size={14} />
+                  <span>
+                    Matching Concepts &amp; Keywords ({matchingConcepts.length})
+                  </span>
+                </div>
+                <span style={{ fontSize: '12px', color: 'var(--pq-muted)' }}>
+                  Click a concept to study its notes &amp; solve associated PYQs
+                </span>
+              </div>
+
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))',
+                  gap: '12px',
+                }}
+              >
+                {matchingConcepts.slice(0, 6).map(concept => (
+                  <button
+                    key={concept.slug}
+                    type="button"
+                    onClick={() => setActiveConceptModal(concept)}
+                    style={{
+                      textAlign: 'left',
+                      padding: '14px 16px',
+                      borderRadius: '12px',
+                      background: 'var(--pq-surface, #ffffff)',
+                      border: '1px solid var(--pq-border, #e2e8f0)',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      gap: '8px',
+                      transition: 'transform 0.14s ease, box-shadow 0.14s ease',
+                    }}
+                  >
+                    <div>
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: '8px',
+                          marginBottom: '6px',
+                        }}
+                      >
+                        <span
+                          style={{
+                            fontSize: '11px',
+                            fontWeight: 800,
+                            color: '#6366f1',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.03em',
+                          }}
+                        >
+                          {concept.subject || 'GS Concept'}
+                        </span>
+                        {concept.questionCount > 0 && (
+                          <span
+                            style={{
+                              fontSize: '11px',
+                              fontWeight: 700,
+                              padding: '2px 7px',
+                              borderRadius: '999px',
+                              background: 'rgba(16, 185, 129, 0.12)',
+                              color: '#10b981',
+                            }}
+                          >
+                            {concept.questionCount} PYQ
+                            {concept.questionCount === 1 ? '' : 's'}
+                          </span>
+                        )}
+                      </div>
+
+                      <div
+                        style={{
+                          fontSize: '14.5px',
+                          fontWeight: 800,
+                          color: 'var(--pq-ink, #0f172a)',
+                          marginBottom: '5px',
+                          lineHeight: 1.35,
+                        }}
+                      >
+                        #{concept.term}
+                      </div>
+
+                      {concept.shortNote && (
+                        <div
+                          style={{
+                            fontSize: '12.5px',
+                            color: 'var(--pq-muted, #64748b)',
+                            lineHeight: 1.5,
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden',
+                          }}
+                        >
+                          {concept.shortNote}
+                        </div>
+                      )}
+                    </div>
+
+                    <div
+                      style={{
+                        fontSize: '12px',
+                        fontWeight: 800,
+                        color: '#3b82f6',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        marginTop: '4px',
+                      }}
+                    >
+                      <span>Open Concept &amp; Associated Questions →</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {loadingQuestions ? (
             <div className="pq-skeleton-list">
               {[1, 2, 3].map(i => (
@@ -958,6 +1149,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
               <QuestionCard
                 key={q.id}
                 q={q}
+                isAdmin={isAdmin}
                 attempt={attempts[q.id]}
                 revealedOnly={!!revealed[q.id]}
                 bookmarked={!!bookmarks[q.id]}
@@ -1054,6 +1246,13 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
       <AuthGateModal
         reason={authGateReason}
         onClose={() => setAuthGateReason(null)}
+      />
+
+      <ConceptStudyModal
+        isOpen={Boolean(activeConceptModal)}
+        onClose={() => setActiveConceptModal(null)}
+        initialConcept={activeConceptModal}
+        isAdmin={isAdmin}
       />
     </div>
   );
@@ -1366,7 +1565,7 @@ function AuthGateModal({ reason, onClose }) {
 
 /* ====================================================================== */
 
-function QuestionCard({ q, attempt, revealedOnly, bookmarked, onPick, onReveal, onTryAgain, onBookmark }) {
+function QuestionCard({ q, isAdmin = false, attempt, revealedOnly, bookmarked, onPick, onReveal, onTryAgain, onBookmark }) {
   const diff = difficultyOf(q);
   const options = q.options || [];
   const twoCol = options.length === 4 && options.every(o => (o.text || '').length <= 70);
@@ -1441,7 +1640,15 @@ function QuestionCard({ q, attempt, revealedOnly, bookmarked, onPick, onReveal, 
             <><b>Answer: ({q.correctLabel.toUpperCase()})</b>{correctOpt ? ` — ${correctOpt.text}` : ''}</>
           )}
           {explanationText && <div className="pq-verdict-exp">{explanationText}</div>}
-          {analysis && <PyqDeepDive analysis={analysis} questionId={q.id} />}
+          {analysis && (
+            <PyqDeepDive
+              analysis={analysis}
+              questionId={q.id}
+              subject={q.srcSubject}
+              topic={q.srcTopic}
+              isAdmin={isAdmin}
+            />
+          )}
         </div>
       )}
 
