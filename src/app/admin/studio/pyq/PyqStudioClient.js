@@ -51,6 +51,7 @@ export default function PyqStudioClient({ initialFilterOptions }) {
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [apiFilterOptions, setApiFilterOptions] = useState(null);
 
   // Selection & Custom Attachment state
   const [selectedIds, setSelectedIds] = useState([]);
@@ -73,12 +74,38 @@ export default function PyqStudioClient({ initialFilterOptions }) {
   const [attachCaption, setAttachCaption] = useState('');
 
   // -------------------------------------------------------------
-  // Dynamic Topic List based on Selected Subject
+  // Dynamic Topic List based on Selected Subject (Defensive against arrays/objects)
   // -------------------------------------------------------------
   const currentTopicGroups = useMemo(() => {
-    if (subject === 'ALL' || !filterOptions.topicGroups) return [];
-    return filterOptions.topicGroups[subject] || [];
-  }, [subject, filterOptions.topicGroups]);
+    // 1. If API returned topicGroups for the active subject, use them
+    if (apiFilterOptions?.topicGroups && Array.isArray(apiFilterOptions.topicGroups) && apiFilterOptions.topicGroups.length > 0) {
+      return apiFilterOptions.topicGroups.map(g => ({
+        label: g.label || 'Topics',
+        topics: Array.isArray(g.topics) ? g.topics : [],
+      }));
+    }
+
+    // 2. Otherwise derive from initialFilterOptions.topicGroups[subject]
+    if (subject !== 'ALL' && filterOptions?.topicGroups) {
+      const raw = filterOptions.topicGroups[subject];
+      if (Array.isArray(raw)) {
+        return raw.map(g => {
+          if (Array.isArray(g)) {
+            return {
+              label: g[0] || 'Topics',
+              topics: Array.isArray(g[1]) ? g[1] : [],
+            };
+          }
+          return {
+            label: g?.label || 'Topics',
+            topics: Array.isArray(g?.topics) ? g.topics : [],
+          };
+        });
+      }
+    }
+
+    return [];
+  }, [apiFilterOptions, subject, filterOptions.topicGroups]);
 
   // -------------------------------------------------------------
   // Fetch Questions from backend API
@@ -106,6 +133,9 @@ export default function PyqStudioClient({ initialFilterOptions }) {
         setQuestions(data.questions);
         setTotal(data.total || data.questions.length);
         setTotalPages(data.totalPages || 1);
+      }
+      if (data?.filterOptions) {
+        setApiFilterOptions(data.filterOptions);
       }
     } catch (e) {
       console.error('[PYQ Studio] Failed to fetch questions:', e);
@@ -314,9 +344,9 @@ export default function PyqStudioClient({ initialFilterOptions }) {
             >
               <option value="ALL">All Themes in {subject === 'ALL' ? 'Subject' : subject}</option>
               {currentTopicGroups.length > 0 ? (
-                currentTopicGroups.map(group => (
-                  <optgroup key={group.label} label={group.label}>
-                    {group.topics.map(t => (
+                currentTopicGroups.map((group, gIdx) => (
+                  <optgroup key={group.label || gIdx} label={group.label}>
+                    {Array.isArray(group.topics) && group.topics.map(t => (
                       <option key={t} value={t}>{t}</option>
                     ))}
                   </optgroup>
