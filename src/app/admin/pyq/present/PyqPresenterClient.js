@@ -26,8 +26,14 @@ import {
   Moon,
   ChevronDown,
   ChevronUp,
+  Image as ImageIcon,
+  ZoomIn,
+  ZoomOut,
+  ListOrdered,
+  X,
+  BookOpen,
 } from 'lucide-react';
-import { buildQuestionSteps } from '@/lib/pyqSlideDeck';
+import { buildQuestionSteps, buildTopicSteps } from '@/lib/pyqSlideDeck';
 import { parseStem } from '@/app/prelims/pyq/StemView';
 import PyqAnnotationCanvas from './PyqAnnotationCanvas';
 import './present.css';
@@ -55,6 +61,9 @@ export default function PyqPresenterClient({ questions = [] }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showWebcamBox, setShowWebcamBox] = useState(true);
   const [isBlackboard, setIsBlackboard] = useState(false);
+  const [isZoomedImage, setIsZoomedImage] = useState(false);
+  const [isQueueOpen, setIsQueueOpen] = useState(false);
+
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -65,7 +74,7 @@ export default function PyqPresenterClient({ questions = [] }) {
       }
     }
     return 'dark';
-  }); // 'dark' | 'light'
+  });
   const [isDockCollapsed, setIsDockCollapsed] = useState(false);
 
   // Annotation state
@@ -87,7 +96,7 @@ export default function PyqPresenterClient({ questions = [] }) {
   const [timerSeconds, setTimerSeconds] = useState(null);
 
   // Ink stroke maps:
-  // 1. Question Panel persistent ink: { [qId]: strokes[] }
+  // 1. Question / Topic Panel persistent anchor ink: { [qId]: strokes[] }
   // 2. Step Explanation Panel ink: { [`${qId}_${stepIndex}`]: strokes[] }
   const [questionInkMap, setQuestionInkMap] = useState({});
   const [stepInkMap, setStepInkMap] = useState({});
@@ -96,16 +105,19 @@ export default function PyqPresenterClient({ questions = [] }) {
 
   const currentQ = questions[qIndex] || null;
 
-  // Build presentation steps for the current question
+  // Build presentation steps dynamically (PYQ vs Topic)
   const steps = useMemo(() => {
     if (!currentQ) return [];
-    return buildQuestionSteps(currentQ);
+    if (currentQ.type === 'topic') {
+      return buildTopicSteps(currentQ, currentQ.customAssets || {});
+    }
+    return buildQuestionSteps(currentQ, currentQ.customAssets || {});
   }, [currentQ]);
 
   const currentStep = steps[stepIndex] || steps[0] || null;
 
   // Active strokes for the canvas
-  const currentQId = currentQ?.id || 'q_0';
+  const currentQId = currentQ?.id || `item_${qIndex}`;
   const currentStepKey = `${currentQId}_${stepIndex}`;
 
   const currentQStrokes = useMemo(() => {
@@ -131,7 +143,6 @@ export default function PyqPresenterClient({ questions = [] }) {
 
   // -------------------------------------------------------------
   // Window Auto-Scaler for Fixed 1920x1080 Broadcast Coordinate System
-  // Accounts for browser chrome & Mac 13" 16:10 / 4K TV screens
   // -------------------------------------------------------------
   useEffect(() => {
     const handleResize = () => {
@@ -181,9 +192,10 @@ export default function PyqPresenterClient({ questions = [] }) {
   }, [timerSeconds]);
 
   // -------------------------------------------------------------
-  // Navigation: Steps & Questions
+  // Navigation: Steps & Items
   // -------------------------------------------------------------
   const handleNext = useCallback(() => {
+    setIsZoomedImage(false);
     if (stepIndex < steps.length - 1) {
       setStepIndex(s => s + 1);
     } else if (qIndex < questions.length - 1) {
@@ -194,17 +206,26 @@ export default function PyqPresenterClient({ questions = [] }) {
   }, [stepIndex, steps.length, qIndex, questions.length]);
 
   const handlePrev = useCallback(() => {
+    setIsZoomedImage(false);
     if (stepIndex > 0) {
       setStepIndex(s => s - 1);
     } else if (qIndex > 0) {
       setQIndex(q => q - 1);
-      // Move to last step of previous question
       const prevQ = questions[qIndex - 1];
-      const prevSteps = buildQuestionSteps(prevQ);
+      const prevSteps = prevQ?.type === 'topic' ? buildTopicSteps(prevQ) : buildQuestionSteps(prevQ);
       setStepIndex(Math.max(0, prevSteps.length - 1));
       setTimerSeconds(null);
     }
   }, [stepIndex, qIndex, questions]);
+
+  const jumpToItem = useCallback((targetIndex) => {
+    if (targetIndex >= 0 && targetIndex < questions.length) {
+      setQIndex(targetIndex);
+      setStepIndex(0);
+      setIsZoomedImage(false);
+      setIsQueueOpen(false);
+    }
+  }, [questions.length]);
 
   // -------------------------------------------------------------
   // Ink management callbacks
@@ -240,7 +261,7 @@ export default function PyqPresenterClient({ questions = [] }) {
   }, [handleUpdateStepStrokes]);
 
   // -------------------------------------------------------------
-  // Keyboard Shortcuts (Space, Arrows, Pen, Highlighter, etc.)
+  // Keyboard Shortcuts (Space, Arrows, Pen, Laser, Zoom, Queue, etc.)
   // -------------------------------------------------------------
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -278,6 +299,14 @@ export default function PyqPresenterClient({ questions = [] }) {
         case 'e':
         case 'E':
           setActiveTool(t => (t === 'eraser' ? 'none' : 'eraser'));
+          break;
+        case 'z':
+        case 'Z':
+          setIsZoomedImage(z => !z);
+          break;
+        case 'q':
+        case 'Q':
+          setIsQueueOpen(o => !o);
           break;
         case 'm':
         case 'M':
@@ -324,18 +353,18 @@ export default function PyqPresenterClient({ questions = [] }) {
     return (
       <div className="pq-present-root" data-present-theme={theme} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center', maxWidth: 480 }}>
-          <h2 style={{ fontSize: 28, margin: '0 0 12px' }}>No Questions Selected</h2>
-          <p style={{ color: '#94a3b8', margin: '0 0 24px' }}>Please select questions in the PYQ Admin table to present.</p>
-          <Link href="/admin/pyq" style={{ padding: '10px 20px', borderRadius: 8, background: '#3b82f6', color: '#fff', textDecoration: 'none', fontWeight: 800 }}>
-            ← Return to PYQ Admin
+          <h2 style={{ fontSize: 28, margin: '0 0 12px' }}>No Lecture Items Queued</h2>
+          <p style={{ color: '#94a3b8', margin: '0 0 24px' }}>Please select questions or topic nodes in the Lecture Studio to present.</p>
+          <Link href="/admin/studio" style={{ padding: '10px 20px', borderRadius: 8, background: '#3b82f6', color: '#fff', textDecoration: 'none', fontWeight: 800 }}>
+            ← Return to Lecture Studio Hub
           </Link>
         </div>
       </div>
     );
   }
 
-  // Parse question stem statements
-  const stemBlocks = parseStem(currentQ.stem);
+  const isTopicMode = currentQ.type === 'topic';
+  const stemBlocks = isTopicMode ? [] : parseStem(currentQ.stem);
   const options = Array.isArray(currentQ.options) ? currentQ.options : [];
   const palette = theme === 'light' ? LIGHT_PALETTE : DARK_PALETTE;
 
@@ -366,98 +395,116 @@ export default function PyqPresenterClient({ questions = [] }) {
           )}
 
           {/* ========================================================= */}
-          {/* LEFT PANEL: PINNED QUESTION STAGE (44%)                   */}
+          {/* LEFT PANEL: PINNED ANCHOR (QUESTION OR TOPIC OVERVIEW)    */}
           {/* ========================================================= */}
           <aside className="pq-present-left-panel">
             <div className="pq-present-left-content">
-              {/* Exam & Subject Meta Tags */}
+              {/* Meta Tags */}
               <div className="pq-present-q-meta">
                 <span className="pq-present-tag pq-present-tag-exam">
-                  {currentQ.examName || 'UPSC CSE Pre'} {currentQ.examYear || ''}
+                  {isTopicMode
+                    ? (Array.isArray(currentQ.gsPapers) ? currentQ.gsPapers.join(', ') : (currentQ.gsPapers || 'GS Paper'))
+                    : (`${currentQ.examName || 'UPSC CSE Pre'} ${currentQ.examYear || ''}`)
+                  }
                 </span>
-                {currentQ.questionNo && (
+                {currentQ.questionNo && !isTopicMode && (
                   <span className="pq-present-tag pq-present-tag-qno">
                     Q{currentQ.questionNo}
                   </span>
                 )}
-                {currentQ.srcTopic && (
+                {(currentQ.srcTopic || currentQ.topic) && (
                   <span className="pq-present-tag pq-present-tag-topic">
-                    {currentQ.srcTopic}
+                    {currentQ.srcTopic || currentQ.topic}
                   </span>
                 )}
               </div>
 
-              {/* Scrollable Stem & Options (Safe against vertical overflow) */}
+              {/* Scrollable Anchor Content */}
               <div className="pq-present-q-scrollable">
-                {stemBlocks.map((b, idx) => {
-                  if (b.type === 'stmts') {
-                    return (
-                      <div className="pq-present-statements" key={idx}>
-                        {b.items.map((s, k) => {
-                          const verdict = currentStep?.verdicts?.[String(s.key).toUpperCase()];
-                          const isCorrect = verdict && verdict.toLowerCase().includes('correct') && !verdict.toLowerCase().includes('incorrect');
-                          const isIncorrect = verdict && verdict.toLowerCase().includes('incorrect');
+                {isTopicMode ? (
+                  /* TOPIC MODE ANCHOR */
+                  <div className="pq-present-anchor-topic">
+                    <h2 className="pq-topic-anchor-title">{currentQ.title}</h2>
+                    <div className="pq-topic-anchor-summary">
+                      {currentQ.cumulativeSummary || currentQ.overview || currentQ.backgroundNote || 'Foundational syllabus topic anchor.'}
+                    </div>
+                  </div>
+                ) : (
+                  /* PYQ MODE ANCHOR */
+                  <>
+                    {stemBlocks.map((b, idx) => {
+                      if (b.type === 'stmts') {
+                        return (
+                          <div className="pq-present-statements" key={idx}>
+                            {b.items.map((s, k) => {
+                              const verdict = currentStep?.verdicts?.[String(s.key).toUpperCase()];
+                              const isCorrect = verdict && verdict.toLowerCase().includes('correct') && !verdict.toLowerCase().includes('incorrect');
+                              const isIncorrect = verdict && verdict.toLowerCase().includes('incorrect');
 
-                          return (
-                            <div className={`pq-present-statement-item ${verdict ? 'has-verdict' : ''}`} key={k}>
-                              <span className="pq-present-statement-key">{s.key}</span>
-                              <div style={{ flex: 1, minWidth: 0 }}>{s.text}</div>
+                              return (
+                                <div className={`pq-present-statement-item ${verdict ? 'has-verdict' : ''}`} key={k}>
+                                  <span className="pq-present-statement-key">{s.key}</span>
+                                  <div style={{ flex: 1, minWidth: 0 }}>{s.text}</div>
 
-                              {verdict && (
-                                <span className={`pq-present-statement-verdict ${isCorrect ? 'is-correct' : isIncorrect ? 'is-incorrect' : ''}`}>
-                                  {isCorrect ? <CheckCircle2 size={13} /> : isIncorrect ? <XCircle size={13} /> : null}
-                                  <span>{verdict}</span>
-                                </span>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    );
-                  }
-                  return (
-                    <p key={idx} className={idx === 0 ? 'pq-present-stem-lead' : 'pq-present-stem-ask'}>
-                      {b.text}
-                    </p>
-                  );
-                })}
+                                  {verdict && (
+                                    <span className={`pq-present-statement-verdict ${isCorrect ? 'is-correct' : isIncorrect ? 'is-incorrect' : ''}`}>
+                                      {isCorrect ? <CheckCircle2 size={13} /> : isIncorrect ? <XCircle size={13} /> : null}
+                                      <span>{verdict}</span>
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+                      }
+                      return (
+                        <p key={idx} className={idx === 0 ? 'pq-present-stem-lead' : 'pq-present-stem-ask'}>
+                          {b.text}
+                        </p>
+                      );
+                    })}
 
-                {/* Options List */}
-                <div className="pq-present-options-grid">
-                  {options.map((opt) => {
-                    const optLabel = String(opt.label).toUpperCase();
-                    const isTarget = currentStep?.showAnswer && currentStep?.highlightedOption === optLabel;
+                    {/* Options List */}
+                    <div className="pq-present-options-grid">
+                      {options.map((opt) => {
+                        const optLabel = String(opt.label).toUpperCase();
+                        const isTarget = currentStep?.showAnswer && currentStep?.highlightedOption === optLabel;
 
-                    return (
-                      <div
-                        key={opt.label}
-                        className={`pq-present-option-row ${isTarget ? 'is-highlighted' : ''}`}
-                      >
-                        <span className="pq-present-opt-label">{optLabel}</span>
-                        <span className="pq-present-opt-text">{opt.text}</span>
-                      </div>
-                    );
-                  })}
-                </div>
+                        return (
+                          <div
+                            key={opt.label}
+                            className={`pq-present-option-row ${isTarget ? 'is-highlighted' : ''}`}
+                          >
+                            <span className="pq-present-opt-label">{optLabel}</span>
+                            <span className="pq-present-opt-text">{opt.text}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
-            {/* Left Bottom Question Tracker */}
+            {/* Left Bottom Tracker */}
             <div className="pq-present-left-footer">
-              <span>QUESTION {qIndex + 1} OF {questions.length}</span>
-              <span style={{ color: theme === 'light' ? '#0284c7' : '#38bdf8' }}>{currentQ.srcSubject || 'General Studies'}</span>
+              <span>ITEM {qIndex + 1} OF {questions.length}</span>
+              <span style={{ color: theme === 'light' ? '#0284c7' : '#38bdf8' }}>
+                {isTopicMode ? (currentQ.domain || 'Thematic Lecture') : (currentQ.srcSubject || 'General Studies')}
+              </span>
             </div>
           </aside>
 
           {/* ========================================================= */}
-          {/* RIGHT PANEL: DYNAMIC EXPLANATION SLIDES (56%)             */}
+          {/* RIGHT PANEL: DYNAMIC EXPLANATION / TOPIC SLIDES (56%)     */}
           {/* ========================================================= */}
           <main className="pq-present-right-panel">
             {/* Step Header */}
             <div className="pq-present-step-head">
               <span className="pq-present-step-badge">
                 <Sparkles size={13} />
-                <span>{currentStep?.badge || 'EXPLANATION STAGE'}</span>
+                <span>{currentStep?.badge || 'LECTURE STAGE'}</span>
               </span>
               <h1 className="pq-present-step-title">{currentStep?.title}</h1>
               {currentStep?.subtitle && (
@@ -465,9 +512,43 @@ export default function PyqPresenterClient({ questions = [] }) {
               )}
             </div>
 
-            {/* Dynamic Step Content Body (Safe against OBS webcam collision) */}
+            {/* Dynamic Step Content Body */}
             <div className="pq-present-slide-body">
-              {/* STAGE 1: INTRO */}
+              {/* IMAGE / INFOGRAPHIC SLIDE (Conditional) */}
+              {currentStep?.type === 'image' && currentStep.imageUrl && (
+                <div className="pq-present-image-container">
+                  <div
+                    className={`pq-present-image-wrap ${isZoomedImage ? 'is-zoomed' : ''}`}
+                    onClick={() => setIsZoomedImage(z => !z)}
+                    title="Click or press Z to Zoom"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={currentStep.imageUrl}
+                      alt={currentStep.caption || 'Infographic'}
+                      className="pq-present-img"
+                    />
+                  </div>
+                  <div className="pq-present-image-caption">
+                    <span>{currentStep.caption || currentStep.title}</span>
+                    <span className="pq-present-zoom-hint">
+                      {isZoomedImage ? <ZoomOut size={13} /> : <ZoomIn size={13} />}
+                      <span>Press Z to {isZoomedImage ? 'Reset' : 'Zoom'}</span>
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* FREEHAND SKETCH CANVAS SLIDE (On-Demand) */}
+              {currentStep?.type === 'sketch' && (
+                <div className="pq-present-sketch-slide">
+                  <span className="pq-sketch-watermark">
+                    FREEHAND SKETCH &amp; MINDMAP CANVAS · DRAW WITH XP-PEN
+                  </span>
+                </div>
+              )}
+
+              {/* PYQ STAGE 1: INTRO */}
               {currentStep?.type === 'intro' && (
                 <div className="pq-present-intro-grid">
                   <div className="pq-present-stat-box">
@@ -489,7 +570,7 @@ export default function PyqPresenterClient({ questions = [] }) {
                 </div>
               )}
 
-              {/* STAGE 2: BREAKDOWN */}
+              {/* PYQ STAGE 2: BREAKDOWN */}
               {currentStep?.type === 'breakdown' && currentStep.items && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                   {currentStep.items.map((item, i) => {
@@ -514,7 +595,7 @@ export default function PyqPresenterClient({ questions = [] }) {
                 </div>
               )}
 
-              {/* STAGE 3: ANSWER */}
+              {/* PYQ STAGE 3: ANSWER */}
               {currentStep?.type === 'answer' && (
                 <div className="pq-present-card" style={{ borderColor: 'rgba(34, 197, 94, 0.45)', background: theme === 'light' ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.12), #ffffff)' : 'linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(15, 23, 42, 0.85))' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
@@ -532,7 +613,7 @@ export default function PyqPresenterClient({ questions = [] }) {
                 </div>
               )}
 
-              {/* STAGE 4: KEYWORDS */}
+              {/* PYQ STAGE 4: KEYWORDS */}
               {currentStep?.type === 'keywords' && currentStep.keywords && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                   {currentStep.keywords.map((kw, i) => (
@@ -549,7 +630,7 @@ export default function PyqPresenterClient({ questions = [] }) {
                 </div>
               )}
 
-              {/* STAGE 5: VALUE ADDITION */}
+              {/* PYQ STAGE 5: VALUE ADDITION */}
               {currentStep?.type === 'valueAddition' && currentStep.points && (
                 <ul className="pq-present-va-list">
                   {currentStep.points.map((pt, i) => (
@@ -561,7 +642,7 @@ export default function PyqPresenterClient({ questions = [] }) {
                 </ul>
               )}
 
-              {/* STAGE 6: IN NEWS */}
+              {/* PYQ STAGE 6: IN NEWS */}
               {currentStep?.type === 'inNews' && currentStep.inNews && (
                 <div className="pq-present-news-card">
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: theme === 'light' ? '#dc2626' : '#f87171', textTransform: 'uppercase' }}>
@@ -575,7 +656,7 @@ export default function PyqPresenterClient({ questions = [] }) {
                 </div>
               )}
 
-              {/* STAGE 7: SIMILAR PYQ */}
+              {/* PYQ STAGE 7: SIMILAR PYQ */}
               {currentStep?.type === 'similarPyq' && currentStep.similarPyq && (
                 <div className="pq-present-card" style={{ borderColor: 'rgba(168, 85, 247, 0.4)', background: theme === 'light' ? 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), #ffffff)' : 'linear-gradient(135deg, rgba(168, 85, 247, 0.12), rgba(15, 23, 42, 0.85))' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: theme === 'light' ? '#7e22ce' : '#c084fc', textTransform: 'uppercase', marginBottom: 10 }}>
@@ -590,6 +671,15 @@ export default function PyqPresenterClient({ questions = [] }) {
                       💡 Pattern Insight: {currentStep.similarPyq.keyTakeaway}
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* TOPIC STAGE: SPOTLIGHT / EVOLUTION / VALUE ADD / FACTS / QUESTIONS */}
+              {currentStep?.type?.startsWith('topic_') && (
+                <div className="pq-present-topic-card">
+                  <p className="pq-present-topic-prose">
+                    {currentStep.content || currentStep.summary || ''}
+                  </p>
                 </div>
               )}
             </div>
@@ -626,6 +716,57 @@ export default function PyqPresenterClient({ questions = [] }) {
             </div>
           )}
 
+          {/* In-Studio Playlist Tray / Queue Drawer */}
+          {isQueueOpen && (
+            <div className="pq-present-queue-drawer">
+              <div className="pq-queue-header">
+                <div className="pq-queue-title">
+                  <ListOrdered size={20} color="#38bdf8" />
+                  <span>Lecture Deck Queue ({questions.length})</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsQueueOpen(false)}
+                  className="pq-queue-close-btn"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="pq-queue-list">
+                {questions.map((item, idx) => {
+                  const isActive = idx === qIndex;
+                  const itemTitle = item.type === 'topic'
+                    ? item.title
+                    : (item.stem ? item.stem.substring(0, 110) + '...' : `Question ${idx + 1}`);
+
+                  return (
+                    <div
+                      key={item.id || idx}
+                      className={`pq-queue-item ${isActive ? 'is-active-item' : ''}`}
+                      onClick={() => jumpToItem(idx)}
+                    >
+                      <span className="pq-queue-item-num">{idx + 1}</span>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                          <span style={{ fontSize: 10.5, fontWeight: 800, textTransform: 'uppercase', color: '#38bdf8' }}>
+                            {item.type === 'topic' ? (item.domain || 'Topic') : `${item.examName || 'CSE'} ${item.examYear || ''}`}
+                          </span>
+                          {item.imageUrl && (
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, fontSize: 10, color: '#f59e0b', fontWeight: 800 }}>
+                              <ImageIcon size={10} /> Image
+                            </span>
+                          )}
+                        </div>
+                        <div className="pq-queue-item-title">{itemTitle}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* ========================================================= */}
           {/* ANNOTATION CANVAS (TOPMOST INTERACTION LAYER)             */}
           {/* ========================================================= */}
@@ -644,7 +785,6 @@ export default function PyqPresenterClient({ questions = [] }) {
 
       {/* ============================================================= */}
       {/* FLOATING PRESENTER DOCK / CONTROL BAR                         */}
-      {/* Minimizable / Non-obstructive for 13" Mac & TV recording      */}
       {/* ============================================================= */}
       {isDockCollapsed ? (
         <button
@@ -769,11 +909,33 @@ export default function PyqPresenterClient({ questions = [] }) {
 
           <div className="pq-dock-sep" />
 
+          {/* Zoom Image (active when on image slide) */}
+          {currentStep?.type === 'image' && (
+            <button
+              type="button"
+              onClick={() => setIsZoomedImage(z => !z)}
+              className={`pq-dock-btn ${isZoomedImage ? 'is-active' : ''}`}
+              title="Zoom Image [Z]"
+            >
+              {isZoomedImage ? <ZoomOut size={16} /> : <ZoomIn size={16} />}
+            </button>
+          )}
+
+          {/* In-Studio Playlist Tray */}
+          <button
+            type="button"
+            onClick={() => setIsQueueOpen(o => !o)}
+            className={`pq-dock-btn ${isQueueOpen ? 'is-active' : ''}`}
+            title="Toggle Lecture Deck Queue [Q]"
+          >
+            <ListOrdered size={16} />
+          </button>
+
           {/* Light / Dark Mode Toggle */}
           <button
             type="button"
             onClick={toggleTheme}
-            className={`pq-dock-btn ${theme === 'light' ? 'is-light-active' : ''}`}
+            className="pq-dock-btn"
             title={`Switch to ${theme === 'dark' ? 'Light / Whiteboard Mode' : 'Dark Mode'} [M]`}
           >
             {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
@@ -877,6 +1039,8 @@ export default function PyqPresenterClient({ questions = [] }) {
               <strong>H</strong> <span>Highlighter Tool</span>
               <strong>L</strong> <span>Laser Pointer (fading dot)</span>
               <strong>E</strong> <span>Eraser Tool</span>
+              <strong>Z</strong> <span>Zoom / Full-Bleed Image Diagram</span>
+              <strong>Q</strong> <span>Toggle In-Studio Playlist Tray</span>
               <strong>M</strong> <span>Toggle Dark / Light Whiteboard Mode</span>
               <strong>D</strong> <span>Collapse / Expand Presenter Dock</span>
               <strong>Cmd + Z</strong> <span>Undo Last Stroke</span>

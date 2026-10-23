@@ -5,7 +5,7 @@ import Link from "next/link"
 import PinAdminClient from "./pin/PinAdminClient"
 import { 
   Users, Map as MapIcon, ShieldCheck, HelpCircle, LogOut,
-  Globe, Zap, BrainCircuit, Newspaper, BookOpen, Trophy, Layers
+  Globe, Zap, BrainCircuit, Newspaper, BookOpen, Trophy, Layers, Video
 } from "lucide-react"
 
 export default function AdminClient({ session }) {
@@ -215,7 +215,20 @@ export default function AdminClient({ session }) {
         </div>
 
         <nav style={{ flex: 1, overflowY: 'auto' }}>
-          <div style={{ margin: '0 0 8px 12px', fontSize: '0.65rem', fontWeight: 900, color: '#38bdf8', letterSpacing: '0.1em' }}>MAPPING & ATLAS</div>
+          <div style={{ margin: '0 0 8px 12px', fontSize: '0.65rem', fontWeight: 900, color: '#10b981', letterSpacing: '0.1em' }}>BROADCAST &amp; RECORDING</div>
+          <Link href="/admin/studio" style={{ textDecoration: 'none' }}>
+            <button style={{
+              display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '14px 20px', borderRadius: '16px', border: '1.5px solid rgba(16, 185, 129, 0.4)', cursor: 'pointer', fontWeight: 800, fontSize: '0.95rem',
+              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(6, 78, 59, 0.25) 100%)', color: '#34d399', transition: 'all 0.2s', marginBottom: '14px',
+              boxShadow: '0 4px 16px rgba(16, 185, 129, 0.2)'
+            }}
+            onMouseOver={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(6, 78, 59, 0.4) 100%)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(6, 78, 59, 0.25) 100%)'; }}>
+              <Video size={20}/> Lecture Studio
+            </button>
+          </Link>
+
+          <div style={{ margin: '8px 0 8px 12px', fontSize: '0.65rem', fontWeight: 900, color: '#38bdf8', letterSpacing: '0.1em' }}>MAPPING & ATLAS</div>
           {sidebarItem("content", <MapIcon size={20}/>, "Geographic & PIN Studio")}
 
           <div style={{ margin: '16px 0 8px 12px', fontSize: '0.65rem', fontWeight: 900, color: '#3b82f6', letterSpacing: '0.1em' }}>SYLLABUS ARCHITECTURE</div>

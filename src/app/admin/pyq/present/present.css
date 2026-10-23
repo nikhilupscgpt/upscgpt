@@ -1052,3 +1052,354 @@
 [data-present-theme="light"] .pq-webcam-label {
   color: #854d0e;
 }
+
+
+/* ==========================================================================
+   IMAGE & INFOGRAPHIC SLIDE STYLES (High-Res Map & Diagram Viewer)
+   ========================================================================== */
+
+.pq-present-image-container {
+  position: relative;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  transition: all 0.25s ease;
+}
+
+.pq-present-image-wrap {
+  position: relative;
+  width: 100%;
+  height: 520px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #060913;
+  cursor: zoom-in;
+}
+
+.pq-present-image-wrap.is-zoomed {
+  position: fixed;
+  inset: 40px;
+  height: auto;
+  z-index: 1000;
+  border-radius: 20px;
+  border: 2px solid #38bdf8;
+  box-shadow: 0 25px 90px rgba(0, 0, 0, 0.95);
+  cursor: zoom-out;
+}
+
+.pq-present-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 8px;
+  user-select: none;
+  pointer-events: none;
+}
+
+.pq-present-image-caption {
+  padding: 12px 18px;
+  background: rgba(10, 15, 29, 0.9);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+
+.pq-present-zoom-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: #38bdf8;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ==========================================================================
+   FREEHAND SKETCH CANVAS SLIDE STYLES
+   ========================================================================== */
+
+.pq-present-sketch-slide {
+  position: relative;
+  width: 100%;
+  height: 540px;
+  border-radius: 16px;
+  background-color: #0b1120;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+  background-size: 24px 24px;
+  border: 1.5px dashed rgba(56, 189, 248, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.pq-sketch-watermark {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.2);
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   TOPIC LECTURE PRESENTATION STYLES (Thematic Masterclass Mode)
+   ========================================================================== */
+
+.pq-present-topic-card {
+  padding: 24px 28px;
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1.5px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pq-present-topic-prose {
+  font-size: 18.5px;
+  line-height: 1.65;
+  color: #f1f5f9;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.pq-present-anchor-topic {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.pq-topic-anchor-title {
+  font-size: 34px;
+  font-weight: 900;
+  line-height: 1.25;
+  color: #ffffff;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.pq-topic-anchor-summary {
+  font-size: 19px;
+  line-height: 1.6;
+  color: #cbd5e1;
+  background: rgba(30, 41, 59, 0.4);
+  border-radius: 14px;
+  padding: 20px 22px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ==========================================================================
+   IN-STUDIO PLAYLIST TRAY / QUEUE DRAWER (Toggle via 'Q' key or Dock)
+   ========================================================================== */
+
+.pq-present-queue-drawer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 440px;
+  background: rgba(10, 15, 29, 0.96);
+  border-left: 1.5px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(24px);
+  box-shadow: -15px 0 50px rgba(0, 0, 0, 0.8);
+  z-index: 50000;
+  display: flex;
+  flex-direction: column;
+  animation: pq-slide-left 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes pq-slide-left {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.pq-queue-header {
+  padding: 24px 26px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pq-queue-title {
+  font-size: 18px;
+  font-weight: 900;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pq-queue-close-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.pq-queue-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.pq-queue-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pq-queue-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.pq-queue-item:hover {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+.pq-queue-item.is-active-item {
+  background: rgba(56, 189, 248, 0.14);
+  border-color: #38bdf8;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.25);
+}
+
+.pq-queue-item-num {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pq-queue-item.is-active-item .pq-queue-item-num {
+  background: #38bdf8;
+  color: #032b43;
+}
+
+.pq-queue-item-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #f1f5f9;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Light Mode Overrides for Images, Sketch & Queue */
+[data-present-theme="light"] .pq-present-image-container {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+[data-present-theme="light"] .pq-present-image-wrap {
+  background: #f1f5f9;
+}
+
+[data-present-theme="light"] .pq-present-image-caption {
+  background: #f8fafc;
+  border-top-color: rgba(0, 0, 0, 0.08);
+  color: #334155;
+}
+
+[data-present-theme="light"] .pq-present-sketch-slide {
+  background-color: #ffffff;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+  border-color: rgba(37, 99, 235, 0.35);
+}
+
+[data-present-theme="light"] .pq-sketch-watermark {
+  color: rgba(0, 0, 0, 0.2);
+}
+
+[data-present-theme="light"] .pq-present-topic-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+[data-present-theme="light"] .pq-present-topic-prose {
+  color: #1e293b;
+}
+
+[data-present-theme="light"] .pq-topic-anchor-title {
+  color: #0f172a;
+}
+
+[data-present-theme="light"] .pq-topic-anchor-summary {
+  background: #ffffff;
+  color: #334155;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-present-theme="light"] .pq-present-queue-drawer {
+  background: rgba(255, 255, 255, 0.97);
+  border-left-color: rgba(0, 0, 0, 0.12);
+  box-shadow: -15px 0 50px rgba(0, 0, 0, 0.15);
+}
+
+[data-present-theme="light"] .pq-queue-header {
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-present-theme="light"] .pq-queue-title {
+  color: #0f172a;
+}
+
+[data-present-theme="light"] .pq-queue-item {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-present-theme="light"] .pq-queue-item:hover {
+  background: #f8fafc;
+  border-color: rgba(37, 99, 235, 0.3);
+}
+
+[data-present-theme="light"] .pq-queue-item.is-active-item {
+  background: #eff6ff;
+  border-color: #2563eb;
+}
+
+[data-present-theme="light"] .pq-queue-item-title {
+  color: #1e293b;
+}
