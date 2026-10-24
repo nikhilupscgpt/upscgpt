@@ -33,7 +33,57 @@
   transition: background 0.25s ease, bottom 0.2s ease;
 }
 
-.pq-present-stage {
+/* ==========================================================================
+   PRESENTATION CANVAS MODES
+   Mode 1: Fluid Screen Responsive (Native Mac & all screens - width 100%)
+   Mode 2: 16:9 Broadcast Standard (Fixed 1920x1080 for OBS Capture)
+   ========================================================================== */
+
+/* MODE 1: FLUID SCREEN RESPONSIVE (Default - zero scaling, 100% fluid) */
+.pq-present-stage.is-mode-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  background: radial-gradient(circle at 50% 0%, #151f38 0%, #0a0f1d 70%, #060913 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.85);
+  display: grid;
+  grid-template-columns: minmax(340px, 44%) minmax(380px, 56%);
+  overflow: hidden;
+  box-sizing: border-box;
+  transform: none !important;
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+.pq-present-stage.is-mode-screen .pq-present-left-panel {
+  padding: 24px 24px 24px 28px;
+}
+
+.pq-present-stage.is-mode-screen .pq-present-right-panel {
+  padding: 24px 28px 24px 24px;
+}
+
+.pq-present-stage.is-mode-screen .pq-present-intro-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.pq-present-stage.is-mode-screen .pq-present-stat-box {
+  padding: 14px 16px;
+}
+
+.pq-present-stage.is-mode-screen .pq-present-webcam-safe-zone {
+  position: absolute;
+  bottom: 16px;
+  right: 20px;
+  width: 260px;
+  height: 145px;
+}
+
+/* MODE 2: 16:9 BROADCAST CANVAS (Fixed 1920x1080 for OBS 1080p recording) */
+.pq-present-stage.is-mode-16-9 {
   position: relative;
   width: 1920px;
   height: 1080px;
@@ -44,30 +94,8 @@
   grid-template-columns: 830px 1090px;
   overflow: hidden;
   box-sizing: border-box;
-  transition: background 0.25s ease, border-color 0.25s ease, width 0.2s ease, grid-template-columns 0.2s ease;
-}
-
-/* 16:10 Native MacBook Ratio Standard (1728x1080) */
-.pq-present-stage.is-ratio-mac {
-  width: 1728px;
-  height: 1080px;
-  grid-template-columns: 740px 988px;
-}
-
-.pq-present-stage.is-ratio-mac .pq-present-left-panel {
-  padding: 30px 26px 84px 28px;
-}
-
-.pq-present-stage.is-ratio-mac .pq-present-right-panel {
-  padding: 30px 30px 84px 30px;
-}
-
-.pq-present-stage.is-ratio-mac .pq-present-intro-grid {
-  gap: 12px;
-}
-
-.pq-present-stage.is-ratio-mac .pq-present-stat-box {
-  padding: 16px 18px;
+  flex-shrink: 0;
+  transition: background 0.25s ease, border-color 0.25s ease;
 }
 
 /* Stage Top Brand / Status Banner */
@@ -1431,161 +1459,54 @@
 }
 
 /* ==========================================================================
-   DISPLAY SCALING, ZOOM POPOVER & TV SAFE MODE
+   PRESENTATION MODE SWITCHER (Screen Fit vs 16:9 Broadcast)
    ========================================================================== */
 
-.pq-dock-btn-zoom,
-.pq-dock-btn-ratio {
+.pq-dock-btn-mode {
   width: auto !important;
-  padding: 0 10px !important;
+  padding: 0 12px !important;
   gap: 6px !important;
   font-size: 12px !important;
   font-weight: 700 !important;
   border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #cbd5e1;
+  transition: all 0.2s ease;
 }
 
-.pq-zoom-pill-label,
-.pq-ratio-pill-label {
+.pq-dock-btn-mode:hover {
+  background: rgba(56, 189, 248, 0.18);
+  border-color: #38bdf8;
+  color: #ffffff;
+}
+
+.pq-dock-btn-mode.is-active {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+.pq-mode-pill-label {
   font-size: 11.5px;
   font-weight: 800;
   letter-spacing: 0.02em;
 }
 
-/* TV Overscan Safe Margins */
-.pq-present-stage.pq-tv-overscan-safe {
-  padding: 24px 28px;
-  box-sizing: border-box;
-}
-
-/* Zoom Mode Selection Popover */
-.pq-zoom-popover {
-  position: absolute;
-  bottom: calc(100% + 14px);
-  left: 50%;
-  transform: translateX(-50%);
-  width: 270px;
-  padding: 14px 16px;
-  border-radius: 16px;
-  background: rgba(15, 23, 42, 0.96);
-  border: 1.5px solid rgba(255, 255, 255, 0.16);
-  backdrop-filter: blur(20px);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
-  color: #f1f5f9;
-  z-index: 10002;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  animation: pq-pop 0.18s ease-out;
-}
-
-.pq-zoom-popover-title {
-  font-size: 11px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: #38bdf8;
-  padding-bottom: 6px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.pq-zoom-options {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.pq-zoom-opt-btn {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 7px 10px;
-  border-radius: 10px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: #cbd5e1;
-  font-size: 12.5px;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.15s ease;
-}
-
-.pq-zoom-opt-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
-}
-
-.pq-zoom-opt-btn.is-active {
-  background: rgba(56, 189, 248, 0.15);
-  border-color: rgba(56, 189, 248, 0.4);
-  color: #38bdf8;
-}
-
-.pq-zoom-stepper-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.pq-zoom-step-btn {
-  padding: 3px 8px;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #f1f5f9;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.pq-zoom-step-btn:hover {
-  background: rgba(56, 189, 248, 0.25);
-  border-color: #38bdf8;
-  color: #ffffff;
-}
-
-/* Light Mode Overrides for Zoom Popover */
-[data-present-theme="light"] .pq-zoom-popover {
-  background: rgba(255, 255, 255, 0.98);
-  border-color: rgba(0, 0, 0, 0.14);
-  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.16);
-  color: #0f172a;
-}
-
-[data-present-theme="light"] .pq-zoom-popover-title {
-  color: #0284c7;
-  border-bottom-color: rgba(0, 0, 0, 0.08);
-}
-
-[data-present-theme="light"] .pq-zoom-opt-btn {
+[data-present-theme="light"] .pq-dock-btn-mode {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.12);
   color: #334155;
 }
 
-[data-present-theme="light"] .pq-zoom-opt-btn:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: #0f172a;
-}
-
-[data-present-theme="light"] .pq-zoom-opt-btn.is-active {
+[data-present-theme="light"] .pq-dock-btn-mode:hover {
   background: #e0f2fe;
-  border-color: #38bdf8;
+  border-color: #0284c7;
   color: #0284c7;
 }
 
-[data-present-theme="light"] .pq-zoom-stepper-row {
-  border-top-color: rgba(0, 0, 0, 0.08);
-}
-
-[data-present-theme="light"] .pq-zoom-step-btn {
-  background: #f1f5f9;
-  border-color: rgba(0, 0, 0, 0.12);
-  color: #1e293b;
-}
-
-[data-present-theme="light"] .pq-zoom-step-btn:hover {
-  background: #e2e8f0;
+[data-present-theme="light"] .pq-dock-btn-mode.is-active {
+  background: #e0f2fe;
   border-color: #0284c7;
   color: #0284c7;
 }

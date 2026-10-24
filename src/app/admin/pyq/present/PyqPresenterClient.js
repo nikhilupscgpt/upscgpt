@@ -144,56 +144,25 @@ export default function PyqPresenterClient({ questions = [] }) {
     return stepInkMap[currentStepKey] || [];
   }, [stepInkMap, currentStepKey]);
 
-  // Display Scaling & Screen Fit Modes: 'auto' | 'mac13' (80%) | 'tv' (90%) | '100' (100%) | 'custom'
-  const [zoomMode, setZoomMode] = useState(() => {
+  // Presentation Canvas Mode: 'screen' (Fluid Responsive Native - fits Mac & all screens) vs '16:9' (1920x1080 Broadcast Standard)
+  const [presentationMode, setPresentationMode] = useState(() => {
     if (typeof window !== 'undefined') {
       try {
-        const saved = localStorage.getItem('pq_present_zoom_mode');
-        if (['auto', 'mac13', 'tv', '100', 'custom'].includes(saved)) return saved;
+        const saved = localStorage.getItem('pq_present_mode');
+        if (saved === 'screen' || saved === '16:9') return saved;
       } catch {
         // ignore
       }
     }
-    return 'auto';
+    return 'screen'; // Default to Fluid Screen Responsive
   });
 
-  const [customScale, setCustomScale] = useState(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('pq_present_custom_scale');
-        const num = parseFloat(saved);
-        if (!isNaN(num) && num >= 0.4 && num <= 1.5) return num;
-      } catch {
-        // ignore
-      }
-    }
-    return 0.8;
-  });
-
-  const [showZoomMenu, setShowZoomMenu] = useState(false);
+  const [screenStageSize, setScreenStageSize] = useState({ width: 1280, height: 720 });
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 
-  // Aspect Ratio Mode: 'mac' (16:10 Native MacBook / 1728x1080) vs '16:9' (1920x1080 Broadcast Standard)
-  const [canvasRatio, setCanvasRatio] = useState(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('pq_present_canvas_ratio');
-        if (saved === 'mac' || saved === '16:9') return saved;
-        // Auto-detect Mac 16:10 aspect ratio or smaller screens
-        const screenRatio = window.screen.width / window.screen.height;
-        if (screenRatio <= 1.68) {
-          return 'mac';
-        }
-      } catch {
-        // ignore
-      }
-    }
-    return 'mac'; // Default to Mac 16:10 responsive ratio
-  });
-
-  const stageWidth = canvasRatio === 'mac' ? 1728 : 1920;
-  const stageHeight = 1080;
-  const leftBoundaryX = canvasRatio === 'mac' ? 740 : 830;
+  const canvasWidth = presentationMode === 'screen' ? screenStageSize.width : 1920;
+  const canvasHeight = presentationMode === 'screen' ? screenStageSize.height : 1080;
+  const leftBoundaryX = presentationMode === 'screen' ? Math.round(screenStageSize.width * 0.44) : 830;
 
   const toggleTheme = useCallback(() => {
     setTheme(prev => {
@@ -208,36 +177,11 @@ export default function PyqPresenterClient({ questions = [] }) {
     });
   }, []);
 
-  const handleToggleRatio = useCallback(() => {
-    setCanvasRatio(prev => {
-      const next = prev === 'mac' ? '16:9' : 'mac';
+  const handleToggleMode = useCallback(() => {
+    setPresentationMode(prev => {
+      const next = prev === 'screen' ? '16:9' : 'screen';
       try {
-        localStorage.setItem('pq_present_canvas_ratio', next);
-      } catch {
-        // ignore
-      }
-      return next;
-    });
-  }, []);
-
-  const handleSetZoomMode = useCallback((mode) => {
-    setZoomMode(mode);
-    try {
-      localStorage.setItem('pq_present_zoom_mode', mode);
-    } catch {
-      // ignore
-    }
-    setShowZoomMenu(false);
-  }, []);
-
-  const handleStepZoom = useCallback((delta) => {
-    setScale(prev => {
-      const next = Math.max(0.4, Math.min(1.5, Number((prev + delta).toFixed(2))));
-      setCustomScale(next);
-      setZoomMode('custom');
-      try {
-        localStorage.setItem('pq_present_zoom_mode', 'custom');
-        localStorage.setItem('pq_present_custom_scale', String(next));
+        localStorage.setItem('pq_present_mode', next);
       } catch {
         // ignore
       }
@@ -246,8 +190,9 @@ export default function PyqPresenterClient({ questions = [] }) {
   }, []);
 
   // -------------------------------------------------------------
-  // Dock-Aware Window Auto-Scaler (Constrained by both width & height)
-  // Reserves bottom clearance for floating dock so it never overlaps stage content
+  // Window Auto-Scaler & Resize Observer
+  // In 'screen' mode: Stage is 100% fluid responsive (scale = 1)
+  // In '16:9' mode: Stage is fixed 1920x1080 scaled within window
   // -------------------------------------------------------------
   useEffect(() => {
     const handleResize = () => {
@@ -257,36 +202,27 @@ export default function PyqPresenterClient({ questions = [] }) {
       setIsSmallScreen(isSmall);
 
       // Dedicated clearance reserved for the floating dock:
-      // Expanded standard: ~54px dock + 16px bottom + 12px buffer = 82px
-      // Expanded on 13" Mac / small: ~44px dock + 12px bottom + 8px buffer = 64px
-      // Collapsed: ~32px pill + 12px bottom = 44px
       const dockClearance = isDockCollapsed ? 36 : (isSmall ? 64 : 80);
       const padTop = isFullscreen ? 8 : 16;
       const padX = isFullscreen ? 8 : 20;
 
       const availW = Math.max(320, w - padX * 2);
       const availH = Math.max(240, h - padTop - dockClearance);
-      const baseFitScale = Math.min(availW / stageWidth, availH / stageHeight);
 
-      let targetScale = baseFitScale;
-      if (zoomMode === 'mac13') {
-        // Guaranteed never to overflow available width on 13" Mac
-        targetScale = Math.min(0.85, baseFitScale);
-      } else if (zoomMode === 'tv') {
-        targetScale = baseFitScale * 0.92; // 8% overscan safety boundary for TVs
-      } else if (zoomMode === '100') {
-        targetScale = 1.0;
-      } else if (zoomMode === 'custom') {
-        targetScale = customScale;
+      setScreenStageSize({ width: availW, height: availH });
+
+      if (presentationMode === '16:9') {
+        const fitScale = Math.min(availW / 1920, availH / 1080);
+        setScale(Number(fitScale.toFixed(3)));
+      } else {
+        setScale(1);
       }
-
-      setScale(Number(targetScale.toFixed(3)));
     };
 
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [isFullscreen, isDockCollapsed, zoomMode, customScale, stageWidth, stageHeight]);
+  }, [isFullscreen, isDockCollapsed, presentationMode]);
 
   // -------------------------------------------------------------
   // Fullscreen state listener
@@ -466,19 +402,7 @@ export default function PyqPresenterClient({ questions = [] }) {
           break;
         case 'r':
         case 'R':
-          handleToggleRatio();
-          break;
-        case '[':
-        case '-':
-          handleStepZoom(-0.05);
-          break;
-        case ']':
-        case '+':
-        case '=':
-          handleStepZoom(0.05);
-          break;
-        case '0':
-          handleSetZoomMode('auto');
+          handleToggleMode();
           break;
         case '?':
           setShowHelp(h => !h);
@@ -490,7 +414,7 @@ export default function PyqPresenterClient({ questions = [] }) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleNext, handlePrev, handleUndo, handleClearStepInk, toggleTheme, handleStepZoom, handleSetZoomMode, handleToggleRatio]);
+  }, [handleNext, handlePrev, handleUndo, handleClearStepInk, toggleTheme, handleToggleMode]);
 
   if (!currentQ) {
     return (
@@ -522,11 +446,11 @@ export default function PyqPresenterClient({ questions = [] }) {
       >
         <div
           ref={stageRef}
-          className={`pq-present-stage ${canvasRatio === 'mac' ? 'is-ratio-mac' : 'is-ratio-16-9'} ${zoomMode === 'tv' ? 'pq-tv-overscan-safe' : ''}`}
-          style={{
+          className={`pq-present-stage ${presentationMode === 'screen' ? 'is-mode-screen' : 'is-mode-16-9'}`}
+          style={presentationMode === '16:9' ? {
             transform: `scale(${scale})`,
             transformOrigin: 'center center',
-          }}
+          } : undefined}
         >
           {/* Brand Watermark (Top Right) */}
           <div className="pq-present-brand-watermark">
@@ -920,8 +844,8 @@ export default function PyqPresenterClient({ questions = [] }) {
           {/* ========================================================= */}
           <PyqAnnotationCanvas
             scale={scale}
-            canvasWidth={stageWidth}
-            canvasHeight={stageHeight}
+            canvasWidth={canvasWidth}
+            canvasHeight={canvasHeight}
             activeTool={activeTool}
             activeColor={activeColor}
             leftBoundaryX={leftBoundaryX}
@@ -1128,119 +1052,18 @@ export default function PyqPresenterClient({ questions = [] }) {
             {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
           </button>
 
-          {/* Aspect Ratio Switcher (16:10 Mac Native vs 16:9 Broadcast) */}
+          {/* Presentation Mode Switcher: Fluid Screen Fit (Mac Native) vs 16:9 Broadcast */}
           <button
             type="button"
-            onClick={handleToggleRatio}
-            className={`pq-dock-btn pq-dock-btn-ratio ${canvasRatio === 'mac' ? 'is-active' : ''}`}
-            title={`Switch Screen Aspect Ratio [R]: Currently in ${canvasRatio === 'mac' ? '16:10 Mac Native (1728x1080)' : '16:9 Broadcast Standard (1920x1080)'}`}
+            onClick={handleToggleMode}
+            className={`pq-dock-btn pq-dock-btn-mode ${presentationMode === 'screen' ? 'is-active' : ''}`}
+            title={`Switch Presentation Canvas [R]: Currently in ${presentationMode === 'screen' ? 'Fluid Screen Fit (Mac / Native)' : '16:9 Broadcast Standard (1080p)'}`}
           >
-            {canvasRatio === 'mac' ? <Laptop size={15} /> : <Tv size={15} />}
-            <span className="pq-ratio-pill-label">
-              {canvasRatio === 'mac' ? '16:10 Mac' : '16:9'}
+            {presentationMode === 'screen' ? <Laptop size={15} /> : <Tv size={15} />}
+            <span className="pq-mode-pill-label">
+              {presentationMode === 'screen' ? 'Screen Fit' : '16:9'}
             </span>
           </button>
-
-          {/* Display Scale & Screen Fit Switcher (Auto / Mac 13" 80% / TV Safe / 100%) */}
-          <div style={{ position: 'relative' }}>
-            <button
-              type="button"
-              onClick={() => setShowZoomMenu(m => !m)}
-              className={`pq-dock-btn pq-dock-btn-zoom ${showZoomMenu || zoomMode !== 'auto' ? 'is-active' : ''}`}
-              title="Screen Fit & Scaling (Mac 13in 80%, TV Safe, Auto Fit) [0 to reset, [ or ] to zoom]"
-            >
-              {zoomMode === 'mac13' ? <Laptop size={15} /> : zoomMode === 'tv' ? <Tv size={15} /> : <Scaling size={15} />}
-              <span className="pq-zoom-pill-label">
-                {zoomMode === 'mac13' ? '80% Mac' : zoomMode === 'tv' ? 'TV Safe' : zoomMode === '100' ? '100%' : `${Math.round(scale * 100)}%`}
-              </span>
-            </button>
-
-            {showZoomMenu && (
-              <div
-                className="pq-zoom-popover"
-                onClick={e => e.stopPropagation()}
-              >
-                <div className="pq-zoom-popover-title">Screen Scaling &amp; Display Fit</div>
-                
-                <div className="pq-zoom-options">
-                  <button
-                    type="button"
-                    onClick={() => handleSetZoomMode('auto')}
-                    className={`pq-zoom-opt-btn ${zoomMode === 'auto' ? 'is-active' : ''}`}
-                  >
-                    <Scaling size={14} />
-                    <div style={{ textAlign: 'left' }}>
-                      <div style={{ fontWeight: 700 }}>Auto-Fit Stage</div>
-                      <small style={{ opacity: 0.75, fontSize: 11 }}>Adapts to window with dock safety</small>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleSetZoomMode('mac13')}
-                    className={`pq-zoom-opt-btn ${zoomMode === 'mac13' ? 'is-active' : ''}`}
-                  >
-                    <Laptop size={14} />
-                    <div style={{ textAlign: 'left' }}>
-                      <div style={{ fontWeight: 700 }}>Mac 13&quot; Fit (80%)</div>
-                      <small style={{ opacity: 0.75, fontSize: 11 }}>Compact fit for MacBook 13-inch displays</small>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleSetZoomMode('tv')}
-                    className={`pq-zoom-opt-btn ${zoomMode === 'tv' ? 'is-active' : ''}`}
-                  >
-                    <Tv size={14} />
-                    <div style={{ textAlign: 'left' }}>
-                      <div style={{ fontWeight: 700 }}>TV Safe Area (90%)</div>
-                      <small style={{ opacity: 0.75, fontSize: 11 }}>8% overscan margin for 4K / 1080p TVs</small>
-                    </div>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleSetZoomMode('100')}
-                    className={`pq-zoom-opt-btn ${zoomMode === '100' ? 'is-active' : ''}`}
-                  >
-                    <Maximize2 size={14} />
-                    <div style={{ textAlign: 'left' }}>
-                      <div style={{ fontWeight: 700 }}>100% Native (1:1)</div>
-                      <small style={{ opacity: 0.75, fontSize: 11 }}>Exact 1920x1080 pixel mapping</small>
-                    </div>
-                  </button>
-                </div>
-
-                <div className="pq-zoom-stepper-row">
-                  <span style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', opacity: 0.75 }}>
-                    Fine Adjust
-                  </span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <button
-                      type="button"
-                      onClick={() => handleStepZoom(-0.05)}
-                      className="pq-zoom-step-btn"
-                      title="Zoom Out [- or []"
-                    >
-                      -5%
-                    </button>
-                    <span style={{ fontSize: 12, fontWeight: 800, minWidth: 42, textAlign: 'center' }}>
-                      {Math.round(scale * 100)}%
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => handleStepZoom(0.05)}
-                      className="pq-zoom-step-btn"
-                      title="Zoom In [+ or ]]"
-                    >
-                      +5%
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
 
           <button
             type="button"
@@ -1309,10 +1132,7 @@ export default function PyqPresenterClient({ questions = [] }) {
               <strong>D</strong> <span>Collapse / Expand Presenter Dock</span>
               <strong>Cmd + Z</strong> <span>Undo Last Stroke</span>
               <strong>C</strong> <span>Clear Current Step Ink</span>
-              <strong>[ / -</strong> <span>Zoom Out / Shrink Stage (5%)</span>
-              <strong>] / +</strong> <span>Zoom In / Enlarge Stage (5%)</span>
-              <strong>0</strong> <span>Reset to Auto-Fit Dock Clearance</span>
-              <strong>R</strong> <span>Toggle Ratio (16:10 Mac vs 16:9 Broadcast)</span>
+              <strong>R</strong> <span>Toggle Mode (Screen Fit vs 16:9 Broadcast)</span>
               <strong>F</strong> <span>Fullscreen (for TV / OBS recording)</span>
               <strong>W</strong> <span>Toggle OBS Webcam Safe Zone</span>
               <strong>T</strong> <span>30s Think Timer</span>
