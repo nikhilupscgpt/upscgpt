@@ -173,6 +173,28 @@ export default function PyqPresenterClient({ questions = [] }) {
   const [showZoomMenu, setShowZoomMenu] = useState(false);
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 
+  // Aspect Ratio Mode: 'mac' (16:10 Native MacBook / 1728x1080) vs '16:9' (1920x1080 Broadcast Standard)
+  const [canvasRatio, setCanvasRatio] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('pq_present_canvas_ratio');
+        if (saved === 'mac' || saved === '16:9') return saved;
+        // Auto-detect Mac 16:10 aspect ratio or smaller screens
+        const screenRatio = window.screen.width / window.screen.height;
+        if (screenRatio <= 1.68) {
+          return 'mac';
+        }
+      } catch {
+        // ignore
+      }
+    }
+    return 'mac'; // Default to Mac 16:10 responsive ratio
+  });
+
+  const stageWidth = canvasRatio === 'mac' ? 1728 : 1920;
+  const stageHeight = 1080;
+  const leftBoundaryX = canvasRatio === 'mac' ? 740 : 830;
+
   const toggleTheme = useCallback(() => {
     setTheme(prev => {
       const next = prev === 'dark' ? 'light' : 'dark';
@@ -182,6 +204,18 @@ export default function PyqPresenterClient({ questions = [] }) {
         // ignore
       }
       setActiveColor(next === 'light' ? '#0f172a' : '#ffffff');
+      return next;
+    });
+  }, []);
+
+  const handleToggleRatio = useCallback(() => {
+    setCanvasRatio(prev => {
+      const next = prev === 'mac' ? '16:9' : 'mac';
+      try {
+        localStorage.setItem('pq_present_canvas_ratio', next);
+      } catch {
+        // ignore
+      }
       return next;
     });
   }, []);
@@ -212,7 +246,7 @@ export default function PyqPresenterClient({ questions = [] }) {
   }, []);
 
   // -------------------------------------------------------------
-  // Dock-Aware Window Auto-Scaler (1920x1080 Broadcast Coordinate System)
+  // Dock-Aware Window Auto-Scaler (Constrained by both width & height)
   // Reserves bottom clearance for floating dock so it never overlaps stage content
   // -------------------------------------------------------------
   useEffect(() => {
@@ -232,14 +266,14 @@ export default function PyqPresenterClient({ questions = [] }) {
 
       const availW = Math.max(320, w - padX * 2);
       const availH = Math.max(240, h - padTop - dockClearance);
-      const fitScale = Math.min(availW / 1920, availH / 1080);
+      const baseFitScale = Math.min(availW / stageWidth, availH / stageHeight);
 
-      let targetScale = fitScale;
+      let targetScale = baseFitScale;
       if (zoomMode === 'mac13') {
-        // 80% scale preferred on Mac 13" (or fitScale if screen is narrower)
-        targetScale = Math.min(0.8, fitScale * 1.05);
+        // Guaranteed never to overflow available width on 13" Mac
+        targetScale = Math.min(0.85, baseFitScale);
       } else if (zoomMode === 'tv') {
-        targetScale = fitScale * 0.92; // 8% overscan safety boundary for TVs
+        targetScale = baseFitScale * 0.92; // 8% overscan safety boundary for TVs
       } else if (zoomMode === '100') {
         targetScale = 1.0;
       } else if (zoomMode === 'custom') {
@@ -252,7 +286,7 @@ export default function PyqPresenterClient({ questions = [] }) {
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [isFullscreen, isDockCollapsed, zoomMode, customScale]);
+  }, [isFullscreen, isDockCollapsed, zoomMode, customScale, stageWidth, stageHeight]);
 
   // -------------------------------------------------------------
   // Fullscreen state listener
@@ -430,6 +464,10 @@ export default function PyqPresenterClient({ questions = [] }) {
         case 'C':
           handleClearStepInk();
           break;
+        case 'r':
+        case 'R':
+          handleToggleRatio();
+          break;
         case '[':
         case '-':
           handleStepZoom(-0.05);
@@ -452,7 +490,7 @@ export default function PyqPresenterClient({ questions = [] }) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleNext, handlePrev, handleUndo, handleClearStepInk, toggleTheme, handleStepZoom, handleSetZoomMode]);
+  }, [handleNext, handlePrev, handleUndo, handleClearStepInk, toggleTheme, handleStepZoom, handleSetZoomMode, handleToggleRatio]);
 
   if (!currentQ) {
     return (
@@ -484,7 +522,7 @@ export default function PyqPresenterClient({ questions = [] }) {
       >
         <div
           ref={stageRef}
-          className={`pq-present-stage ${zoomMode === 'tv' ? 'pq-tv-overscan-safe' : ''}`}
+          className={`pq-present-stage ${canvasRatio === 'mac' ? 'is-ratio-mac' : 'is-ratio-16-9'} ${zoomMode === 'tv' ? 'pq-tv-overscan-safe' : ''}`}
           style={{
             transform: `scale(${scale})`,
             transformOrigin: 'center center',
@@ -882,9 +920,11 @@ export default function PyqPresenterClient({ questions = [] }) {
           {/* ========================================================= */}
           <PyqAnnotationCanvas
             scale={scale}
+            canvasWidth={stageWidth}
+            canvasHeight={stageHeight}
             activeTool={activeTool}
             activeColor={activeColor}
-            leftBoundaryX={830}
+            leftBoundaryX={leftBoundaryX}
             questionStrokes={currentQStrokes}
             stepStrokes={currentStepStrokes}
             onUpdateQuestionStrokes={handleUpdateQStrokes}
@@ -1088,6 +1128,19 @@ export default function PyqPresenterClient({ questions = [] }) {
             {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
           </button>
 
+          {/* Aspect Ratio Switcher (16:10 Mac Native vs 16:9 Broadcast) */}
+          <button
+            type="button"
+            onClick={handleToggleRatio}
+            className={`pq-dock-btn pq-dock-btn-ratio ${canvasRatio === 'mac' ? 'is-active' : ''}`}
+            title={`Switch Screen Aspect Ratio [R]: Currently in ${canvasRatio === 'mac' ? '16:10 Mac Native (1728x1080)' : '16:9 Broadcast Standard (1920x1080)'}`}
+          >
+            {canvasRatio === 'mac' ? <Laptop size={15} /> : <Tv size={15} />}
+            <span className="pq-ratio-pill-label">
+              {canvasRatio === 'mac' ? '16:10 Mac' : '16:9'}
+            </span>
+          </button>
+
           {/* Display Scale & Screen Fit Switcher (Auto / Mac 13" 80% / TV Safe / 100%) */}
           <div style={{ position: 'relative' }}>
             <button
@@ -1259,6 +1312,7 @@ export default function PyqPresenterClient({ questions = [] }) {
               <strong>[ / -</strong> <span>Zoom Out / Shrink Stage (5%)</span>
               <strong>] / +</strong> <span>Zoom In / Enlarge Stage (5%)</span>
               <strong>0</strong> <span>Reset to Auto-Fit Dock Clearance</span>
+              <strong>R</strong> <span>Toggle Ratio (16:10 Mac vs 16:9 Broadcast)</span>
               <strong>F</strong> <span>Fullscreen (for TV / OBS recording)</span>
               <strong>W</strong> <span>Toggle OBS Webcam Safe Zone</span>
               <strong>T</strong> <span>30s Think Timer</span>

@@ -69,6 +69,8 @@ function renderLaser(ctx, trail, now) {
  */
 export default function PyqAnnotationCanvas({
   scale = 1,
+  canvasWidth = 1920,
+  canvasHeight = 1080,
   activeTool = 'pen', // 'pen' | 'highlighter' | 'laser' | 'eraser' | 'none'
   activeColor = '#ffffff',
   penSize = 5,
@@ -87,7 +89,7 @@ export default function PyqAnnotationCanvas({
   const lastPointPosRef = useRef({ x: 0, y: 0 });
 
   // -------------------------------------------------------------
-  // Render all strokes onto the 1920x1080 canvas
+  // Render all strokes onto the canvas
   // -------------------------------------------------------------
   const redraw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -95,7 +97,7 @@ export default function PyqAnnotationCanvas({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    ctx.clearRect(0, 0, 1920, 1080);
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
     // 1. Draw persistent Question Panel strokes
     for (const stroke of questionStrokes) {
@@ -116,7 +118,7 @@ export default function PyqAnnotationCanvas({
     if (activeTool === 'laser' && laserTrailRef.current.length > 0) {
       renderLaser(ctx, laserTrailRef.current, getCurrentTimestamp());
     }
-  }, [questionStrokes, stepStrokes, activeTool, penSize, highlighterSize]);
+  }, [questionStrokes, stepStrokes, activeTool, penSize, highlighterSize, canvasWidth, canvasHeight]);
 
   // Laser animation loop
   useEffect(() => {
@@ -143,14 +145,14 @@ export default function PyqAnnotationCanvas({
   }, [redraw]);
 
   // -------------------------------------------------------------
-  // Pointer Event Coordinates in 1920x1080 Space (Resolution Independent)
+  // Pointer Event Coordinates in Canvas Coordinate Space (Resolution Independent)
   // -------------------------------------------------------------
   const getCanvasCoords = (e) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0, pressure: 0.5 };
     const rect = canvas.getBoundingClientRect();
-    const scaleX = rect.width / 1920;
-    const scaleY = rect.height / 1080;
+    const scaleX = rect.width / canvasWidth;
+    const scaleY = rect.height / canvasHeight;
     const x = (e.clientX - rect.left) / (scaleX || scale || 1);
     const y = (e.clientY - rect.top) / (scaleY || scale || 1);
 
@@ -286,8 +288,8 @@ export default function PyqAnnotationCanvas({
   return (
     <canvas
       ref={canvasRef}
-      width={1920}
-      height={1080}
+      width={canvasWidth}
+      height={canvasHeight}
       className={`pq-annotation-canvas ${activeTool === 'eraser' ? 'is-eraser' : ''} ${activeTool === 'laser' ? 'is-laser' : ''}`}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}

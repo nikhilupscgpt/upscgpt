@@ -44,7 +44,30 @@
   grid-template-columns: 830px 1090px;
   overflow: hidden;
   box-sizing: border-box;
-  transition: background 0.25s ease, border-color 0.25s ease;
+  transition: background 0.25s ease, border-color 0.25s ease, width 0.2s ease, grid-template-columns 0.2s ease;
+}
+
+/* 16:10 Native MacBook Ratio Standard (1728x1080) */
+.pq-present-stage.is-ratio-mac {
+  width: 1728px;
+  height: 1080px;
+  grid-template-columns: 740px 988px;
+}
+
+.pq-present-stage.is-ratio-mac .pq-present-left-panel {
+  padding: 30px 26px 84px 28px;
+}
+
+.pq-present-stage.is-ratio-mac .pq-present-right-panel {
+  padding: 30px 30px 84px 30px;
+}
+
+.pq-present-stage.is-ratio-mac .pq-present-intro-grid {
+  gap: 12px;
+}
+
+.pq-present-stage.is-ratio-mac .pq-present-stat-box {
+  padding: 16px 18px;
 }
 
 /* Stage Top Brand / Status Banner */
@@ -1411,7 +1434,8 @@
    DISPLAY SCALING, ZOOM POPOVER & TV SAFE MODE
    ========================================================================== */
 
-.pq-dock-btn-zoom {
+.pq-dock-btn-zoom,
+.pq-dock-btn-ratio {
   width: auto !important;
   padding: 0 10px !important;
   gap: 6px !important;
@@ -1420,7 +1444,8 @@
   border-radius: 999px !important;
 }
 
-.pq-zoom-pill-label {
+.pq-zoom-pill-label,
+.pq-ratio-pill-label {
   font-size: 11.5px;
   font-weight: 800;
   letter-spacing: 0.02em;
