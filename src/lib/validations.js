@@ -38,7 +38,9 @@ export const adminUserSchema = z.object({
 export const commsSchema = z.object({
   channel: z.enum(["EMAIL", "SMS", "WHATSAPP"]),
   type: z.string().optional().default("MARKETING"),
+  subject: z.string().optional(),
   content: z.string().min(1, "Content is required"),
+  html: z.string().optional(),
   recipients: z.union([
     z.enum(["ALL", "PRO", "FREE"]),
     z.array(z.string())

@@ -8,6 +8,7 @@ import {
   computeValidUntilForPlan,
   incrementCouponUsage,
 } from '@/lib/monetisation';
+import { sendEmail } from '@/lib/comms';
 
 export async function POST(request) {
   try {
@@ -150,6 +151,31 @@ export async function POST(request) {
 
     if (couponCode) {
       await incrementCouponUsage(couponCode);
+    }
+
+    // Dispatch payment confirmation email
+    if (updatedUser?.email) {
+      const formattedDate = newValidUntil.toLocaleDateString('en-IN', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric',
+      });
+      sendEmail({
+        to: updatedUser.email,
+        subject: `🎉 Payment Confirmed: Your ${plan.name} is Active!`,
+        text: `Hi ${updatedUser.name || 'Aspirant'},\n\nYour payment for ${plan.name} has been verified successfully.\nYour PRO access is now active until ${formattedDate}.\n\nThank you for choosing UPSCGPT!\nhttps://upscgpt.in`,
+        html: `
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; background: #0b1120; color: #f1f5f9; padding: 32px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1);">
+            <h2 style="color: #38bdf8; margin: 0 0 12px;">🎉 Subscription Activated!</h2>
+            <p style="font-size: 15px; color: #cbd5e1; line-height: 1.6;">Hi ${updatedUser.name || 'Aspirant'},</p>
+            <p style="font-size: 15px; color: #cbd5e1; line-height: 1.6;">Your payment for <strong>${plan.name}</strong> was confirmed. Your account now has full PRO privileges.</p>
+            <div style="background: rgba(56, 189, 248, 0.1); border-left: 3px solid #38bdf8; padding: 12px 16px; border-radius: 6px; margin: 20px 0;">
+              <p style="margin: 0; font-size: 14px; color: #e2e8f0;">📅 Access Valid Until: <strong>${formattedDate}</strong></p>
+            </div>
+            <p style="font-size: 14px; color: #94a3b8;">Happy Learning,<br>Team UPSCGPT</p>
+          </div>
+        `,
+      }).catch((err) => console.error('[Payment] Confirmation email dispatch error:', err));
     }
 
     return NextResponse.json({

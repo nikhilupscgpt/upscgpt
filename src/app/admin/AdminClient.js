@@ -1,15 +1,17 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { signOut } from "next-auth/react"
 import Link from "next/link"
 import PinAdminClient from "./pin/PinAdminClient"
+import CommsAdminClient from "./comms/CommsAdminClient"
 import { 
   Users, Map as MapIcon, ShieldCheck, HelpCircle, LogOut,
-  Globe, Zap, BrainCircuit, Newspaper, BookOpen, Trophy, Layers, Video
+  Globe, Zap, BrainCircuit, Newspaper, BookOpen, Trophy, Layers, Video, Mail
 } from "lucide-react"
 
 export default function AdminClient({ session }) {
-  const [activeTab, setActiveTab] = useState("content") // content, users, ai
+  const [activeTab, setActiveTab] = useState("content") // content, users, comms, ai
+  const [prefillCommsEmail, setPrefillCommsEmail] = useState("")
   const [users, setUsers] = useState([])
   const [status, setStatus] = useState("")
   const [loading, setLoading] = useState(false)
@@ -17,7 +19,7 @@ export default function AdminClient({ session }) {
   const [savingPromptId, setSavingPromptId] = useState(null)
   const [userFormData, setUserFormData] = useState({ name: '', email: '', password: '', tier: 'FREE' })
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const res = await fetch("/api/admin/users")
       const data = await res.json()
@@ -25,9 +27,9 @@ export default function AdminClient({ session }) {
     } catch (e) {
       console.error("User fetch fail", e)
     }
-  }
+  }, [])
 
-  const fetchAiPrompts = async () => {
+  const fetchAiPrompts = useCallback(async () => {
     try {
       const res = await fetch("/api/admin/ai-prompts")
       const data = await res.json()
@@ -35,13 +37,28 @@ export default function AdminClient({ session }) {
     } catch (e) {
       console.error("AI prompt fetch fail", e)
     }
-  }
+  }, [])
 
   useEffect(() => {
-    if (session?.user?.role === 'ADMIN') {
-      fetchUsers()
-      fetchAiPrompts()
+    let ignore = false;
+    async function initAdminData() {
+      if (session?.user?.role !== 'ADMIN') return;
+      try {
+        const [uRes, pRes] = await Promise.all([
+          fetch("/api/admin/users"),
+          fetch("/api/admin/ai-prompts"),
+        ]);
+        const [uData, pData] = await Promise.all([uRes.json(), pRes.json()]);
+        if (!ignore) {
+          if (Array.isArray(uData)) setUsers(uData);
+          if (Array.isArray(pData?.prompts)) setAiPrompts(pData.prompts);
+        }
+      } catch (e) {
+        console.error("Admin init data fail", e);
+      }
     }
+    initAdminData();
+    return () => { ignore = true; };
   }, [session])
 
   // --- USER ACTIONS ---
@@ -307,6 +324,7 @@ export default function AdminClient({ session }) {
             </button>
           </Link>
           {sidebarItem("users", <Users size={20}/>, "User Management")}
+          {sidebarItem("comms", <Mail size={20}/>, "User Comms & Mailing")}
           {sidebarItem("ai", <BrainCircuit size={20}/>, "AI Prompt Control")}
         </nav>
 
@@ -375,12 +393,45 @@ export default function AdminClient({ session }) {
                         <button onClick={() => toggleUserTier(user)} style={{ padding: '8px 12px', background: 'rgba(255,255,255,0.1)', color: '#f87171', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer' }}>Revoke</button>
                       </div>
                     )}
-                    <button onClick={() => deleteUser(user.id)} style={{ padding: '6px 12px', color: '#ef4444', border: 'none', background: 'transparent', fontWeight: 700, fontSize: '0.7rem', cursor: 'pointer', opacity: 0.6 }}>Delete Account</button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {user.email && (
+                        <button
+                          onClick={() => {
+                            setPrefillCommsEmail(user.email);
+                            setActiveTab('comms');
+                          }}
+                          style={{
+                            padding: '6px 10px',
+                            background: 'rgba(59, 130, 246, 0.15)',
+                            color: '#60a5fa',
+                            border: '1px solid rgba(59, 130, 246, 0.3)',
+                            borderRadius: '10px',
+                            fontWeight: 700,
+                            fontSize: '0.75rem',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 4,
+                          }}
+                          title={`Send direct email to ${user.email}`}
+                        >
+                          <Mail size={12} /> Email
+                        </button>
+                      )}
+                      <button onClick={() => deleteUser(user.id)} style={{ padding: '6px 12px', color: '#ef4444', border: 'none', background: 'transparent', fontWeight: 700, fontSize: '0.7rem', cursor: 'pointer', opacity: 0.6 }}>Delete Account</button>
+                    </div>
                   </div>
                 </div>
               ))}
             </section>
           </div>
+        )}
+
+        {activeTab === 'comms' && (
+          <CommsAdminClient
+            prefillEmail={prefillCommsEmail}
+            onClearPrefill={() => setPrefillCommsEmail('')}
+          />
         )}
 
         {activeTab === 'ai' && (
