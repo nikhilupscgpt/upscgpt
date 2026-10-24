@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
+import { CURATED_MAPPING_NODES } from "@/lib/static-mapping-data";
 import PyqPresenterClient from "../../pyq/present/PyqPresenterClient";
 
 export const dynamic = 'force-dynamic';
@@ -19,9 +20,12 @@ export default async function StudioPresentPage({ searchParams }) {
   }
 
   const sp = await searchParams;
-  const mode = sp?.mode || 'pyq'; // 'pyq' | 'topic' | 'hybrid'
+  const mode = sp?.mode || 'pyq'; // 'pyq' | 'topic' | 'hybrid' | 'mapping'
   const questionIds = sp?.ids ? sp.ids.split(',').map(s => s.trim()).filter(Boolean) : (sp?.id ? [sp.id] : []);
   const topicIds = sp?.topicIds ? sp.topicIds.split(',').map(s => s.trim()).filter(Boolean) : (sp?.topicId ? [sp.topicId] : []);
+  const mappingIds = sp?.mappingIds
+    ? sp.mappingIds.split(',').map(s => s.trim()).filter(Boolean)
+    : (sp?.mappingId ? [sp.mappingId] : (mode === 'mapping' && sp?.ids ? sp.ids.split(',').map(s => s.trim()).filter(Boolean) : []));
   const scratchpadRaw = sp?.scratchpad;
 
   const deckItems = [];
@@ -97,8 +101,162 @@ export default async function StudioPresentPage({ searchParams }) {
     }
   }
 
-  // 3. Fetch Questions if questionIds or filters are provided
-  if (questionIds.length > 0 || (mode === 'pyq' && !scratchpadRaw && topicIds.length === 0)) {
+  // 3. Process Mapping items if mode === 'mapping' or mappingIds are present
+  if (mode === 'mapping' || mappingIds.length > 0) {
+    const requestedIds = mappingIds;
+    const staticMap = new Map();
+    for (const node of CURATED_MAPPING_NODES) {
+      staticMap.set(node.id, node);
+      if (node.slug) staticMap.set(node.slug, node);
+    }
+
+    // Match from static nodes
+    const matchedStatic = [];
+    if (requestedIds.length > 0) {
+      for (const id of requestedIds) {
+        if (staticMap.has(id)) {
+          matchedStatic.push(staticMap.get(id));
+        }
+      }
+    } else {
+      matchedStatic.push(...CURATED_MAPPING_NODES.slice(0, 25));
+    }
+
+    // Match from database PlaceInNews and MappingPyq
+    let matchedPins = [];
+    let matchedPyqs = [];
+    if (requestedIds.length > 0) {
+      try {
+        [matchedPins, matchedPyqs] = await Promise.all([
+          prisma.placeInNews.findMany({
+            where: {
+              OR: [
+                { id: { in: requestedIds } },
+                { pinId: { in: requestedIds } },
+                { slug: { in: requestedIds } },
+              ],
+            },
+          }),
+          prisma.mappingPyq.findMany({
+            where: { id: { in: requestedIds } },
+          }),
+        ]);
+      } catch (e) {
+        console.error('[Studio Present] Error fetching mapping records from DB:', e);
+      }
+    }
+
+    const pinMap = new Map();
+    for (const pin of matchedPins) {
+      pinMap.set(pin.id, pin);
+      if (pin.pinId) pinMap.set(pin.pinId, pin);
+      if (pin.slug) pinMap.set(pin.slug, pin);
+    }
+
+    const pyqMap = new Map();
+    for (const q of matchedPyqs) {
+      pyqMap.set(q.id, q);
+    }
+
+    const idOrder = requestedIds.length > 0 ? requestedIds : matchedStatic.map(n => n.id);
+    const addedKeys = new Set();
+
+    for (const id of idOrder) {
+      if (addedKeys.has(id)) continue;
+
+      if (staticMap.has(id)) {
+        const node = staticMap.get(id);
+        addedKeys.add(id);
+        const locText = node.locatedIn?.stateOrProvince || node.locatedIn?.country || (node.regionScope === 'World' ? 'Global' : 'India');
+        deckItems.push({
+          id: node.id,
+          type: 'mapping',
+          title: node.place,
+          place: node.place,
+          regionScope: node.regionScope || 'India',
+          mapCategory: Array.isArray(node.mapCategory) ? node.mapCategory.join(', ') : (node.mapCategory || 'Physical Geography'),
+          category: Array.isArray(node.mapCategory) ? node.mapCategory[0] : (node.mapCategory || 'Physical Geography'),
+          placeType: node.placeType || 'Geographical Feature',
+          locationText: locText,
+          locatedIn: node.locatedIn,
+          lat: node.lat,
+          lng: node.lng,
+          aliases: node.aliases || [],
+          staticFacts: node.staticFacts || [],
+          upscAngle: node.upscAngle || null,
+          newsHook: node.newsHook || null,
+          similarPYQs: node.similarPYQ || [],
+          imageUrl: node.imageUrl || null,
+          imageCaption: `${node.place} Physical Map`,
+          priority: node.priority || 'High',
+        });
+      } else if (pinMap.has(id)) {
+        const pin = pinMap.get(id);
+        addedKeys.add(id);
+        const loc = pin.locatedIn && typeof pin.locatedIn === 'object'
+          ? Object.values(pin.locatedIn).filter(Boolean).join(', ')
+          : (pin.regionScope === 'World' ? 'World' : 'India');
+
+        deckItems.push({
+          id: pin.id || pin.pinId,
+          type: 'mapping',
+          title: pin.place,
+          place: pin.place,
+          regionScope: pin.regionScope || 'India',
+          mapCategory: Array.isArray(pin.mapCategory) && pin.mapCategory.length > 0 ? pin.mapCategory.join(', ') : 'Places in News',
+          category: Array.isArray(pin.mapCategory) && pin.mapCategory.length > 0 ? pin.mapCategory[0] : 'Places in News',
+          placeType: pin.placeType || 'Place in News',
+          locationText: loc,
+          locatedIn: pin.locatedIn,
+          lat: pin.lat || pin.coordinates?.lat,
+          lng: pin.lng || pin.coordinates?.lng,
+          aliases: pin.aliases || [],
+          staticFacts: Array.isArray(pin.staticFacts) ? pin.staticFacts : [],
+          upscAngle: pin.upscAngle || null,
+          newsHook: Array.isArray(pin.newsTriggers) && pin.newsTriggers.length > 0 ? pin.newsTriggers[0]?.newsHook : null,
+          similarPYQs: pin.similarPYQ || [],
+          imageUrl: null,
+          imageCaption: `${pin.place} Satellite & Map Context`,
+          priority: pin.priority || 'High',
+        });
+      } else if (pyqMap.has(id)) {
+        const q = pyqMap.get(id);
+        addedKeys.add(id);
+        const catList = Array.isArray(q.mapCategory) && q.mapCategory.length > 0 ? q.mapCategory : ['India – rivers, lakes & reservoirs'];
+        const isIndia = catList.some(c => c.toLowerCase().includes('india'));
+
+        deckItems.push({
+          id: q.id,
+          type: 'mapping',
+          title: `Mapping PYQ: ${q.exam} ${q.examYear}`,
+          place: catList[0] || 'Mapping Question',
+          regionScope: isIndia ? 'India' : 'World',
+          mapCategory: catList.join(', '),
+          category: catList[0],
+          placeType: 'Official UPSC PYQ',
+          locationText: `${q.exam} ${q.examYear}`,
+          stem: q.stem,
+          options: q.options || [],
+          correctLabel: q.correctLabel || '',
+          staticFacts: q.answerText ? [q.answerText] : [],
+          pyq: {
+            stem: q.stem,
+            options: q.options,
+            correctLabel: q.correctLabel,
+            answerText: q.answerText,
+            exam: q.exam,
+            examYear: q.examYear,
+          },
+          imageUrl: null,
+          imageCaption: `${q.exam} ${q.examYear} Map Slide`,
+          priority: 'High',
+        });
+      }
+    }
+  }
+
+  // 4. Fetch Questions if questionIds or filters are provided
+  if (mode !== 'mapping' && (questionIds.length > 0 || (mode === 'pyq' && !scratchpadRaw && topicIds.length === 0 && mappingIds.length === 0))) {
     const andConditions = [];
     if (questionIds.length > 0) {
       andConditions.push({ id: { in: questionIds } });

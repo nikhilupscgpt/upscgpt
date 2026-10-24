@@ -12,6 +12,8 @@ import {
   Layers,
   ChevronRight,
   CheckCircle2,
+  MapPin,
+  Compass,
 } from "lucide-react";
 import "./studio.css";
 
@@ -19,7 +21,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "UPSC Lecture Studio Hub | Admin",
-  description: "Select your lecture recording format: Prelims PYQ Studio or Thematic Topic Studio.",
+  description: "Select your lecture recording format: Prelims PYQ Studio, Mapping Lecture Studio, or Thematic Topic Studio.",
 };
 
 export default async function StudioHubPage() {
@@ -63,7 +65,7 @@ export default async function StudioHubPage() {
       </header>
 
       {/* Main Studio Gateway Options */}
-      <div style={{ maxWidth: 1100, margin: "40px auto 0" }}>
+      <div style={{ maxWidth: 1240, margin: "40px auto 0" }}>
         <div style={{ textAlign: "center", marginBottom: 36 }}>
           <h2 style={{ fontSize: 24, fontWeight: 900, color: "#ffffff", margin: "0 0 8px" }}>
             Select Lecture Format
@@ -73,7 +75,7 @@ export default async function StudioHubPage() {
           </p>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 28 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))", gap: 26 }}>
           {/* Card 1: PYQ Lecture Studio (Active & Primary) */}
           <Link
             href="/admin/studio/pyq"
@@ -83,11 +85,11 @@ export default async function StudioHubPage() {
               className="pq-mode-card is-active"
               style={{
                 height: "100%",
-                padding: 36,
+                padding: 32,
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
-                gap: 24,
+                gap: 22,
                 border: "2px solid #38bdf8",
                 boxShadow: "0 16px 48px rgba(56, 189, 248, 0.2)",
               }}
@@ -96,8 +98,8 @@ export default async function StudioHubPage() {
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
                   <div
                     style={{
-                      width: 56,
-                      height: 56,
+                      width: 54,
+                      height: 54,
                       borderRadius: 16,
                       background: "#38bdf8",
                       color: "#032b43",
@@ -106,24 +108,24 @@ export default async function StudioHubPage() {
                       justifyContent: "center",
                     }}
                   >
-                    <GraduationCap size={30} />
+                    <GraduationCap size={28} />
                   </div>
                   <span className="pq-mode-badge pq-mode-badge-blue">
                     Active &amp; Ready
                   </span>
                 </div>
 
-                <h3 style={{ fontSize: 24, fontWeight: 900, color: "#ffffff", margin: "0 0 10px" }}>
+                <h3 style={{ fontSize: 22, fontWeight: 900, color: "#ffffff", margin: "0 0 10px" }}>
                   PYQ Lecture Studio
                 </h3>
-                <p style={{ fontSize: 14.5, color: "#cbd5e1", lineHeight: 1.6, margin: "0 0 20px" }}>
-                  Comprehensive Prelims question library with full syllabus taxonomy filters, statement-by-statement elimination breakdown, verified answer keys, high-yield concept keywords, map/diagram attachments, and 1080p recording stage.
+                <p style={{ fontSize: 14, color: "#cbd5e1", lineHeight: 1.6, margin: "0 0 18px" }}>
+                  Comprehensive Prelims question library with full syllabus taxonomy filters, statement elimination breakdown, verified answer keys, high-yield keywords, and 1080p recording stage.
                 </p>
 
                 <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10, fontSize: 13, color: "#94a3b8" }}>
                   <li style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <CheckCircle2 size={16} color="#34d399" />
-                    <span>Full backend &amp; frontend filters (Subject, Theme, Year, Pattern, Quality)</span>
+                    <span>Full taxonomy filters (Subject, Theme, Year, Pattern)</span>
                   </li>
                   <li style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <CheckCircle2 size={16} color="#34d399" />
@@ -135,7 +137,7 @@ export default async function StudioHubPage() {
                   </li>
                   <li style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <CheckCircle2 size={16} color="#34d399" />
-                    <span>In-Studio playlist tray (Q), XP-Pen stylus pressure &amp; Whiteboard</span>
+                    <span>In-Studio playlist tray (Q), XP-Pen stylus &amp; Screen Fit mode</span>
                   </li>
                 </ul>
               </div>
@@ -145,7 +147,7 @@ export default async function StudioHubPage() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  paddingTop: 20,
+                  paddingTop: 18,
                   borderTop: "1px solid rgba(255, 255, 255, 0.1)",
                 }}
               >
@@ -170,17 +172,113 @@ export default async function StudioHubPage() {
             </div>
           </Link>
 
-          {/* Card 2: Thematic Topic Studio (Next Phase) */}
+          {/* Card 2: Mapping Lecture Studio (Active & Ready) */}
+          <Link
+            href="/admin/studio/mapping"
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            <div
+              className="pq-mode-card is-active"
+              style={{
+                height: "100%",
+                padding: 32,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                gap: 22,
+                border: "2px solid #10b981",
+                boxShadow: "0 16px 48px rgba(16, 185, 129, 0.2)",
+              }}
+            >
+              <div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+                  <div
+                    style={{
+                      width: 54,
+                      height: 54,
+                      borderRadius: 16,
+                      background: "#10b981",
+                      color: "#022c22",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Compass size={28} />
+                  </div>
+                  <span className="pq-mode-badge" style={{ background: "rgba(16, 185, 129, 0.2)", color: "#34d399", border: "1px solid rgba(16, 185, 129, 0.4)" }}>
+                    Active &amp; Ready
+                  </span>
+                </div>
+
+                <h3 style={{ fontSize: 22, fontWeight: 900, color: "#ffffff", margin: "0 0 10px" }}>
+                  Mapping Lecture Studio
+                </h3>
+                <p style={{ fontSize: 14, color: "#cbd5e1", lineHeight: 1.6, margin: "0 0 18px" }}>
+                  Dedicated spatial geography workstation covering 71 curated static nodes, 67 Places in News (PIN), and 236 Mapping PYQs with directional alignment and distractor traps.
+                </p>
+
+                <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10, fontSize: 13, color: "#94a3b8" }}>
+                  <li style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <CheckCircle2 size={16} color="#34d399" />
+                    <span>Scope filters (India &amp; World) + 12 Mapping categories</span>
+                  </li>
+                  <li style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <CheckCircle2 size={16} color="#34d399" />
+                    <span>Geo-coordinates, aliases, tributaries &amp; border country data</span>
+                  </li>
+                  <li style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <CheckCircle2 size={16} color="#34d399" />
+                    <span>5-Stage Deck: Spatial Profile, Map Slide, Facts, Traps &amp; PYQs</span>
+                  </li>
+                  <li style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <CheckCircle2 size={16} color="#34d399" />
+                    <span>XP-Pen boundary tracing &amp; OBS letterbox / fluid screen fit</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  paddingTop: 18,
+                  borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+                }}
+              >
+                <span style={{ fontSize: 13.5, fontWeight: 800, color: "#10b981" }}>
+                  Open Mapping Studio Workstation
+                </span>
+                <div
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 999,
+                    background: "#10b981",
+                    color: "#022c22",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <ArrowRight size={18} />
+                </div>
+              </div>
+            </div>
+          </Link>
+
+          {/* Card 3: Thematic Topic Studio (Next Phase) */}
           <div
             style={{
-              padding: 36,
+              padding: 32,
               borderRadius: 20,
               background: "rgba(15, 23, 42, 0.5)",
               border: "1.5px solid rgba(255, 255, 255, 0.08)",
               display: "flex",
               flexDirection: "column",
               justifyContent: "space-between",
-              gap: 24,
+              gap: 22,
               opacity: 0.85,
             }}
           >
@@ -188,8 +286,8 @@ export default async function StudioHubPage() {
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
                 <div
                   style={{
-                    width: 56,
-                    height: 56,
+                    width: 54,
+                    height: 54,
                     borderRadius: 16,
                     background: "rgba(168, 85, 247, 0.2)",
                     color: "#c084fc",
@@ -201,19 +299,19 @@ export default async function StudioHubPage() {
                   <BookOpen size={28} />
                 </div>
                 <span className="pq-mode-badge pq-mode-badge-purple">
-                  Phase 2 · Next
+                  Phase 3 · Next
                 </span>
               </div>
 
-              <h3 style={{ fontSize: 24, fontWeight: 900, color: "#ffffff", margin: "0 0 10px" }}>
+              <h3 style={{ fontSize: 22, fontWeight: 900, color: "#ffffff", margin: "0 0 10px" }}>
                 Thematic Topic Studio
               </h3>
-              <p style={{ fontSize: 14.5, color: "#94a3b8", lineHeight: 1.6, margin: "0 0 20px" }}>
-                Deliver comprehensive GS 1–4 thematic masterclasses from existing Neural syllabus nodes or custom scratchpad outlines. Features constitutional doctrines, landmark judicial cases, flowcharts, and Mains answer fodder.
+              <p style={{ fontSize: 14, color: "#94a3b8", lineHeight: 1.6, margin: "0 0 18px" }}>
+                Deliver comprehensive GS 1–4 thematic masterclasses from existing Neural syllabus nodes or custom scratchpad outlines. Features constitutional doctrines, landmark judicial cases, and Mains answer fodder.
               </p>
 
               <div style={{ padding: "14px 18px", borderRadius: 12, background: "rgba(30, 41, 59, 0.4)", border: "1px dashed rgba(255, 255, 255, 0.12)", fontSize: 13, color: "#94a3b8" }}>
-                💡 <em>Scheduled for Phase 2 implementation right after PYQ Studio perfection.</em>
+                💡 <em>Scheduled for Phase 3 implementation right after Mapping Studio.</em>
               </div>
             </div>
 
@@ -222,7 +320,7 @@ export default async function StudioHubPage() {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                paddingTop: 20,
+                paddingTop: 18,
                 borderTop: "1px solid rgba(255, 255, 255, 0.08)",
                 color: "#64748b",
               }}

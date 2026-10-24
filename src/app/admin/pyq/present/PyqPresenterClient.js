@@ -35,8 +35,11 @@ import {
   Laptop,
   Tv,
   Scaling,
+  MapPin,
+  Globe,
+  Compass,
 } from 'lucide-react';
-import { buildQuestionSteps, buildTopicSteps } from '@/lib/pyqSlideDeck';
+import { buildQuestionSteps, buildTopicSteps, buildMappingSteps } from '@/lib/pyqSlideDeck';
 import { parseStem } from '@/app/prelims/pyq/StemView';
 import PyqAnnotationCanvas from './PyqAnnotationCanvas';
 import './present.css';
@@ -120,12 +123,15 @@ export default function PyqPresenterClient({ questions = [] }) {
     return {};
   });
 
-  // Build presentation steps dynamically (PYQ vs Topic)
+  // Build presentation steps dynamically (PYQ vs Topic vs Mapping)
   const steps = useMemo(() => {
     if (!currentQ) return [];
     const customAsset = customAttachmentsMap[currentQ.id] || currentQ.customAssets || {};
     if (currentQ.type === 'topic') {
       return buildTopicSteps(currentQ, customAsset);
+    }
+    if (currentQ.type === 'mapping') {
+      return buildMappingSteps(currentQ, customAsset);
     }
     return buildQuestionSteps(currentQ, customAsset);
   }, [currentQ, customAttachmentsMap]);
@@ -275,7 +281,9 @@ export default function PyqPresenterClient({ questions = [] }) {
     } else if (qIndex > 0) {
       setQIndex(q => q - 1);
       const prevQ = questions[qIndex - 1];
-      const prevSteps = prevQ?.type === 'topic' ? buildTopicSteps(prevQ) : buildQuestionSteps(prevQ);
+      const prevSteps = prevQ?.type === 'topic'
+        ? buildTopicSteps(prevQ)
+        : (prevQ?.type === 'mapping' ? buildMappingSteps(prevQ) : buildQuestionSteps(prevQ));
       setStepIndex(Math.max(0, prevSteps.length - 1));
       setTimerSeconds(null);
     }
@@ -431,7 +439,8 @@ export default function PyqPresenterClient({ questions = [] }) {
   }
 
   const isTopicMode = currentQ.type === 'topic';
-  const stemBlocks = isTopicMode ? [] : parseStem(currentQ.stem);
+  const isMappingMode = currentQ.type === 'mapping';
+  const stemBlocks = (isTopicMode || (isMappingMode && !currentQ.stem)) ? [] : parseStem(currentQ.stem);
   const options = Array.isArray(currentQ.options) ? currentQ.options : [];
   const palette = theme === 'light' ? LIGHT_PALETTE : DARK_PALETTE;
 
@@ -467,7 +476,7 @@ export default function PyqPresenterClient({ questions = [] }) {
           )}
 
           {/* ========================================================= */}
-          {/* LEFT PANEL: PINNED ANCHOR (QUESTION OR TOPIC OVERVIEW)    */}
+          {/* LEFT PANEL: PINNED ANCHOR (QUESTION, TOPIC, OR MAPPING)   */}
           {/* ========================================================= */}
           <aside className="pq-present-left-panel">
             <div className="pq-present-left-content">
@@ -476,24 +485,93 @@ export default function PyqPresenterClient({ questions = [] }) {
                 <span className="pq-present-tag pq-present-tag-exam">
                   {isTopicMode
                     ? (Array.isArray(currentQ.gsPapers) ? currentQ.gsPapers.join(', ') : (currentQ.gsPapers || 'GS Paper'))
+                    : isMappingMode
+                    ? (currentQ.regionScope || 'India')
                     : (`${currentQ.examName || 'UPSC CSE Pre'} ${currentQ.examYear || ''}`)
                   }
                 </span>
-                {currentQ.questionNo && !isTopicMode && (
+                {currentQ.questionNo && !isTopicMode && !isMappingMode && (
                   <span className="pq-present-tag pq-present-tag-qno">
                     Q{currentQ.questionNo}
                   </span>
                 )}
-                {(currentQ.srcTopic || currentQ.topic) && (
+                {(currentQ.srcTopic || currentQ.topic || currentQ.placeType) && (
                   <span className="pq-present-tag pq-present-tag-topic">
-                    {currentQ.srcTopic || currentQ.topic}
+                    {currentQ.srcTopic || currentQ.topic || currentQ.placeType}
+                  </span>
+                )}
+                {isMappingMode && currentQ.category && (
+                  <span className="pq-present-tag" style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.35)' }}>
+                    {currentQ.category}
                   </span>
                 )}
               </div>
 
               {/* Scrollable Anchor Content */}
               <div className="pq-present-q-scrollable">
-                {isTopicMode ? (
+                {isMappingMode ? (
+                  /* MAPPING MODE ANCHOR */
+                  <div className="pq-present-anchor-mapping">
+                    <h2 className="pq-topic-anchor-title" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <MapPin size={24} color="#34d399" />
+                      <span>{currentQ.place || currentQ.title}</span>
+                    </h2>
+
+                    {currentQ.locationText && (
+                      <div style={{ fontSize: 14.5, color: theme === 'light' ? '#0369a1' : '#38bdf8', fontWeight: 700, margin: '6px 0 12px' }}>
+                        📍 {currentQ.locationText}
+                      </div>
+                    )}
+
+                    {currentQ.lat && currentQ.lng && (
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 8, background: 'rgba(52, 211, 153, 0.12)', border: '1px solid rgba(52, 211, 153, 0.3)', color: '#34d399', fontSize: 13, fontWeight: 800, fontFamily: 'monospace', marginBottom: 14 }}>
+                        <Globe size={14} />
+                        <span>{Number(currentQ.lat).toFixed(2)}° N, {Number(currentQ.lng).toFixed(2)}° E</span>
+                      </div>
+                    )}
+
+                    {Array.isArray(currentQ.aliases) && currentQ.aliases.length > 0 && (
+                      <div style={{ marginBottom: 14 }}>
+                        <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94a3b8', marginBottom: 6 }}>
+                          Known Aliases &amp; Tributaries
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                          {currentQ.aliases.map((al, idx) => (
+                            <span key={idx} style={{ padding: '3px 8px', borderRadius: 6, background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(255, 255, 255, 0.12)', fontSize: 12, color: theme === 'light' ? '#334155' : '#cbd5e1', fontWeight: 600 }}>
+                              {al}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {stemBlocks.length > 0 ? (
+                      <>
+                        {stemBlocks.map((b, idx) => (
+                          <p key={idx} className={idx === 0 ? 'pq-present-stem-lead' : 'pq-present-stem-ask'}>
+                            {b.text}
+                          </p>
+                        ))}
+                        {options.length > 0 && (
+                          <div className="pq-present-options-grid">
+                            {options.map((opt) => (
+                              <div key={opt.label} className="pq-present-option-row">
+                                <span className="pq-present-opt-label">{opt.label}</span>
+                                <span className="pq-present-opt-text">{opt.text}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      Array.isArray(currentQ.staticFacts) && currentQ.staticFacts.length > 0 && (
+                        <div className="pq-topic-anchor-summary">
+                          {currentQ.staticFacts[0]}
+                        </div>
+                      )
+                    )}
+                  </div>
+                ) : isTopicMode ? (
                   /* TOPIC MODE ANCHOR */
                   <div className="pq-present-anchor-topic">
                     <h2 className="pq-topic-anchor-title">{currentQ.title}</h2>
@@ -563,7 +641,12 @@ export default function PyqPresenterClient({ questions = [] }) {
             <div className="pq-present-left-footer">
               <span>ITEM {qIndex + 1} OF {questions.length}</span>
               <span style={{ color: theme === 'light' ? '#0284c7' : '#38bdf8' }}>
-                {isTopicMode ? (currentQ.domain || 'Thematic Lecture') : (currentQ.srcSubject || 'General Studies')}
+                {isTopicMode
+                  ? (currentQ.domain || 'Thematic Lecture')
+                  : isMappingMode
+                  ? (currentQ.category || currentQ.regionScope || 'Spatial Geography')
+                  : (currentQ.srcSubject || 'General Studies')
+                }
               </span>
             </div>
           </aside>
@@ -754,6 +837,121 @@ export default function PyqPresenterClient({ questions = [] }) {
                   </p>
                 </div>
               )}
+
+              {/* MAPPING STAGE 1: SPATIAL OVERVIEW & PROFILE */}
+              {currentStep?.type === 'mapping_overview' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  <div className="pq-present-intro-grid">
+                    <div className="pq-present-stat-box">
+                      <div className="pq-present-stat-label">Geographic Entity</div>
+                      <div className="pq-present-stat-value">{currentQ.place || currentQ.title}</div>
+                    </div>
+                    <div className="pq-present-stat-box">
+                      <div className="pq-present-stat-label">Geo Coordinates</div>
+                      <div className="pq-present-stat-value" style={{ fontFamily: 'monospace' }}>
+                        {currentQ.lat && currentQ.lng ? `${Number(currentQ.lat).toFixed(2)}° N, ${Number(currentQ.lng).toFixed(2)}° E` : 'Spatial Coordinate Node'}
+                      </div>
+                    </div>
+                    <div className="pq-present-stat-box">
+                      <div className="pq-present-stat-label">Jurisdiction / Location</div>
+                      <div className="pq-present-stat-value">{currentStep.locationText || 'India'}</div>
+                    </div>
+                    <div className="pq-present-stat-box">
+                      <div className="pq-present-stat-label">Category Classification</div>
+                      <div className="pq-present-stat-value">{currentStep.categories || currentQ.placeType || 'Physical Geography'}</div>
+                    </div>
+                  </div>
+
+                  {Array.isArray(currentQ.staticFacts) && currentQ.staticFacts.length > 0 && (
+                    <div className="pq-present-topic-card">
+                      <p className="pq-present-topic-prose">
+                        {currentQ.staticFacts[0]}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* MAPPING STAGE 3: KEY FACTS */}
+              {currentStep?.type === 'mapping_facts' && currentStep.facts && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  {currentStep.facts.map((fact, idx) => (
+                    <div key={idx} className="pq-present-concept-card">
+                      <div className="pq-present-concept-title">
+                        <Compass size={18} color="#34d399" />
+                        <span>Key Geographical Profile #{idx + 1}</span>
+                      </div>
+                      <p className="pq-present-concept-note" style={{ fontSize: 16.5, lineHeight: 1.6 }}>
+                        {fact}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* MAPPING STAGE 4: EXAM ANGLE & DIRECTIONAL TRAPS */}
+              {currentStep?.type === 'mapping_angle' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  {currentStep.upscAngle && (
+                    <div className="pq-present-card" style={{ borderColor: 'rgba(245, 158, 11, 0.45)', background: theme === 'light' ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.1), #ffffff)' : 'linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(15, 23, 42, 0.85))' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: theme === 'light' ? '#b45309' : '#fbbf24', textTransform: 'uppercase', marginBottom: 10 }}>
+                        <Sparkles size={16} />
+                        <span>Directional Ordering &amp; Examiner Traps</span>
+                      </div>
+                      <p style={{ fontSize: 18, lineHeight: 1.6, color: theme === 'light' ? '#0f172a' : '#f8fafc', margin: 0 }}>
+                        {currentStep.upscAngle}
+                      </p>
+                    </div>
+                  )}
+
+                  {currentStep.newsHook && (
+                    <div className="pq-present-news-card">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: theme === 'light' ? '#dc2626' : '#f87171', textTransform: 'uppercase' }}>
+                        <Flame size={14} />
+                        <span>Places in News Contemporary Trigger</span>
+                      </div>
+                      <h3 className="pq-present-news-headline">{currentStep.newsHook}</h3>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* MAPPING STAGE 5: LINKED PYQ */}
+              {currentStep?.type === 'mapping_pyq' && currentStep.pyq && (
+                <div className="pq-present-card" style={{ borderColor: 'rgba(56, 189, 248, 0.4)', background: theme === 'light' ? 'linear-gradient(135deg, rgba(56, 189, 248, 0.1), #ffffff)' : 'linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.85))' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: theme === 'light' ? '#0284c7' : '#38bdf8', textTransform: 'uppercase', marginBottom: 10 }}>
+                    <Layers size={14} />
+                    <span>Past Year UPSC Testing: {currentStep.pyq.exam || 'UPSC CSE Pre'} {currentStep.pyq.examYear || ''}</span>
+                  </div>
+                  <p style={{ fontSize: 17.5, lineHeight: 1.55, color: theme === 'light' ? '#0f172a' : '#f8fafc', margin: '0 0 14px' }}>
+                    {currentStep.pyq.stem}
+                  </p>
+                  {Array.isArray(currentStep.pyq.options) && currentStep.pyq.options.length > 0 && (
+                    <div className="pq-present-options-grid" style={{ marginBottom: 14 }}>
+                      {currentStep.pyq.options.map((opt, oIdx) => {
+                        const optLabel = typeof opt === 'object' && opt.label ? opt.label : String.fromCharCode(65 + oIdx);
+                        const optText = typeof opt === 'object' && opt.text ? opt.text : String(opt);
+                        return (
+                          <div key={oIdx} className="pq-present-option-row">
+                            <span className="pq-present-opt-label">{optLabel}</span>
+                            <span className="pq-present-opt-text">{optText}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                  {currentStep.pyq.correctLabel && (
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 8, background: '#22c55e', color: '#052e16', fontSize: 13, fontWeight: 800, marginBottom: 8 }}>
+                      <span>Correct Answer: Option ({currentStep.pyq.correctLabel})</span>
+                    </div>
+                  )}
+                  {currentStep.pyq.answerText && (
+                    <div style={{ fontSize: 14.5, color: theme === 'light' ? '#334155' : '#cbd5e1', marginTop: 10, lineHeight: 1.5 }}>
+                      {currentStep.pyq.answerText}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* OBS Webcam Safe Zone Visual Boundary Guide (Bottom Right) */}
@@ -810,6 +1008,8 @@ export default function PyqPresenterClient({ questions = [] }) {
                   const isActive = idx === qIndex;
                   const itemTitle = item.type === 'topic'
                     ? item.title
+                    : item.type === 'mapping'
+                    ? (item.place || item.title)
                     : (item.stem ? item.stem.substring(0, 110) + '...' : `Question ${idx + 1}`);
 
                   return (
@@ -821,8 +1021,8 @@ export default function PyqPresenterClient({ questions = [] }) {
                       <span className="pq-queue-item-num">{idx + 1}</span>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                          <span style={{ fontSize: 10.5, fontWeight: 800, textTransform: 'uppercase', color: '#38bdf8' }}>
-                            {item.type === 'topic' ? (item.domain || 'Topic') : `${item.examName || 'CSE'} ${item.examYear || ''}`}
+                          <span style={{ fontSize: 10.5, fontWeight: 800, textTransform: 'uppercase', color: item.type === 'mapping' ? '#34d399' : '#38bdf8' }}>
+                            {item.type === 'topic' ? (item.domain || 'Topic') : item.type === 'mapping' ? (item.regionScope || 'Mapping') : `${item.examName || 'CSE'} ${item.examYear || ''}`}
                           </span>
                           {item.imageUrl && (
                             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, fontSize: 10, color: '#f59e0b', fontWeight: 800 }}>

@@ -15,8 +15,8 @@ function renderStroke(ctx, stroke, defaultPenSize, defaultHighlighterSize) {
 
   const outline = getStroke(stroke.points, {
     size,
-    thinning: isHighlighter ? 0 : 0.65,
-    smoothing: 0.55,
+    thinning: 0, // Solid uniform line thickness - eliminates pressure jitters & faint strokes
+    smoothing: 0.6,
     streamline: 0.5,
     start: { cap: true, taper: 0 },
     end: { cap: true, taper: 0 },
@@ -156,23 +156,8 @@ export default function PyqAnnotationCanvas({
     const x = (e.clientX - rect.left) / (scaleX || scale || 1);
     const y = (e.clientY - rect.top) / (scaleY || scale || 1);
 
-    // Real hardware pressure from XP-Pen tablet stylus
-    let pressure = e.pressure;
-
-    // Fallback simulated velocity pressure for iPad Sidecar mouse mode
-    if (!pressure || pressure === 0) {
-      const now = getCurrentTimestamp();
-      const dt = Math.max(1, now - lastPointTimeRef.current);
-      const dx = x - lastPointPosRef.current.x;
-      const dy = y - lastPointPosRef.current.y;
-      const dist = Math.hypot(dx, dy);
-      const velocity = dist / dt;
-      pressure = Math.max(0.2, Math.min(1.0, 1.15 - velocity * 0.18));
-      lastPointTimeRef.current = now;
-      lastPointPosRef.current = { x, y };
-    }
-
-    return { x, y, pressure };
+    // Uniform solid stroke (pressure variation disabled for clean handwriting)
+    return { x, y, pressure: 0.5 };
   };
 
   // -------------------------------------------------------------

@@ -1552,3 +1552,27 @@
   }
 }
 
+/* ==========================================================================
+   MAPPING MODE PRESENTATION STYLES
+   ========================================================================== */
+
+.pq-present-anchor-mapping {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+[data-present-theme="light"] .pq-present-anchor-mapping .pq-topic-anchor-title {
+  color: #0f172a;
+}
+
+.pq-present-stage.is-mode-screen .pq-present-anchor-mapping .pq-topic-anchor-title {
+  font-size: 26px;
+}
+
+.pq-present-stage.is-mode-screen .pq-present-anchor-mapping .pq-topic-anchor-summary {
+  font-size: 15px;
+  padding: 14px 16px;
+}
+
+

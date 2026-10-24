@@ -359,3 +359,89 @@ export function buildTopicSteps(topic, customAssets = {}) {
 
   return steps;
 }
+
+// ---------------------------------------------------------------------------
+// MAPPING LECTURE STUDIO DECK BUILDER (Spatial & Geo-Intelligence)
+// Stages: 1. Spatial Overview -> 2. Visual Map Slide -> 3. High-Yield Facts
+//         -> 4. UPSC Examiner Traps -> 5. Associated Mapping PYQ
+// ---------------------------------------------------------------------------
+export function buildMappingSteps(item, customAssets = {}) {
+  if (!item) return [];
+  const steps = [];
+
+  const imageUrl = item.imageUrl || customAssets.imageUrl || null;
+  const imageCaption = item.imageCaption || customAssets.imageCaption || `${item.place || item.title || 'Location'} Spatial Map`;
+  const locationText = item.locatedIn 
+    ? (typeof item.locatedIn === 'object' ? Object.values(item.locatedIn).filter(Boolean).join(', ') : String(item.locatedIn))
+    : (item.location || item.state || item.country || 'India');
+  const categories = Array.isArray(item.mapCategory) ? item.mapCategory.join(', ') : (item.mapCategory || item.category || 'Physical Geography');
+
+  // STAGE 1: Spatial Overview & Coordinates
+  steps.push({
+    id: 'map_overview',
+    type: 'mapping_overview',
+    badge: 'STAGE 1 · SPATIAL PROFILE & GEO-COORDINATES',
+    title: item.place || item.title || 'Spatial Anchor',
+    subtitle: `${item.regionScope || 'India'} · ${categories} · ${locationText}`,
+    item,
+    locationText,
+    categories,
+  });
+
+  // STAGE 2: Interactive Visual Map Slide (Always present for mapping or conditional on imageUrl)
+  if (imageUrl) {
+    steps.push({
+      id: 'map_visual',
+      type: 'image',
+      badge: 'STAGE 2 · SPATIAL EXPLORATION & BOUNDARY TRACING',
+      title: imageCaption,
+      subtitle: 'Annotate river courses, mountain passes, buffer zones & borders with XP-Pen stylus',
+      imageUrl,
+      caption: imageCaption,
+    });
+  }
+
+  // STAGE 3: High-Yield Static Geography Facts
+  const facts = Array.isArray(item.staticFacts) 
+    ? item.staticFacts 
+    : (typeof item.staticFacts === 'string' && item.staticFacts.trim() ? [item.staticFacts] : []);
+
+  if (facts.length > 0) {
+    steps.push({
+      id: 'map_facts',
+      type: 'mapping_facts',
+      badge: 'STAGE 3 · KEY GEOGRAPHICAL & ECOLOGICAL FACTS',
+      title: 'Physical Geography & Strategic Profile',
+      subtitle: 'Tributaries, terrain, national parks, flora/fauna & geopolitical context',
+      facts,
+    });
+  }
+
+  // STAGE 4: UPSC Exam Angle & Directional Alignment
+  if (item.upscAngle || item.newsHook) {
+    steps.push({
+      id: 'map_angle',
+      type: 'mapping_angle',
+      badge: 'STAGE 4 · EXAMINER ANGLE & TRAPS',
+      title: 'UPSC Directional Alignment & Distractor Traps',
+      subtitle: 'North-to-South / West-to-East ordering, border disputes, and current news triggers',
+      upscAngle: item.upscAngle,
+      newsHook: item.newsHook,
+    });
+  }
+
+  // STAGE 5: Linked UPSC Prelims PYQ
+  if (item.pyq || item.resolvedPyq || (Array.isArray(item.similarPYQs) && item.similarPYQs.length > 0)) {
+    const pyqObj = item.pyq || item.resolvedPyq || item.similarPYQs[0];
+    steps.push({
+      id: 'map_pyq',
+      type: 'mapping_pyq',
+      badge: 'STAGE 5 · LINKED UPSC PRELIMS PYQ',
+      title: 'How UPSC Tested This Location in Past Years',
+      subtitle: `${pyqObj.exam || 'UPSC CSE Pre'} ${pyqObj.examYear || ''}`,
+      pyq: pyqObj,
+    });
+  }
+
+  return steps;
+}
