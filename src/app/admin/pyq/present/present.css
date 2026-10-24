@@ -797,6 +797,58 @@
   box-shadow: 0 0 8px currentColor;
 }
 
+/* Pen Thickness Selector */
+.pq-dock-sizes {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 2px 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.pq-size-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: all 0.12s ease;
+  padding: 0;
+}
+
+.pq-size-btn:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.pq-size-btn.is-selected {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.2);
+  border-color: rgba(56, 189, 248, 0.45);
+}
+
+[data-present-theme="light"] .pq-dock-sizes {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-present-theme="light"] .pq-size-btn {
+  color: #64748b;
+}
+
+[data-present-theme="light"] .pq-size-btn.is-selected {
+  color: #0284c7;
+  background: rgba(2, 132, 199, 0.15);
+  border-color: rgba(2, 132, 199, 0.4);
+}
+
 /* Step Progress Dots */
 .pq-dock-steps {
   display: flex;

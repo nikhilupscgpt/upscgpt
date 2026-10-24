@@ -100,6 +100,28 @@ export default function PyqPresenterClient({ questions = [] }) {
   });
   const [showHelp, setShowHelp] = useState(false);
 
+  // Pen thickness (3px fine, 5px regular, 8px bold, 12px heavy)
+  const [penSize, setPenSize] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('pq_present_pen_size');
+        if (saved) return Number(saved) || 5;
+      } catch {
+        // ignore
+      }
+    }
+    return 5;
+  });
+
+  const updatePenSize = useCallback((size) => {
+    setPenSize(size);
+    try {
+      localStorage.setItem('pq_present_pen_size', String(size));
+    } catch {
+      // ignore
+    }
+  }, []);
+
   // Think timer (30s)
   const [timerSeconds, setTimerSeconds] = useState(null);
 
@@ -379,6 +401,24 @@ export default function PyqPresenterClient({ questions = [] }) {
         case 'v':
         case 'V':
           setActiveTool('none');
+          break;
+        case '[':
+          setPenSize(curr => {
+            const SIZES = [3, 5, 8, 12];
+            const idx = SIZES.indexOf(curr);
+            const prev = idx > 0 ? SIZES[idx - 1] : SIZES[0];
+            try { localStorage.setItem('pq_present_pen_size', String(prev)); } catch {}
+            return prev;
+          });
+          break;
+        case ']':
+          setPenSize(curr => {
+            const SIZES = [3, 5, 8, 12];
+            const idx = SIZES.indexOf(curr);
+            const next = idx !== -1 && idx < SIZES.length - 1 ? SIZES[idx + 1] : SIZES[SIZES.length - 1];
+            try { localStorage.setItem('pq_present_pen_size', String(next)); } catch {}
+            return next;
+          });
           break;
         case 'z':
         case 'Z':
@@ -1069,6 +1109,7 @@ export default function PyqPresenterClient({ questions = [] }) {
             canvasHeight={canvasHeight}
             activeTool={activeTool}
             activeColor={activeColor}
+            penSize={penSize}
             leftBoundaryX={leftBoundaryX}
             questionStrokes={currentQStrokes}
             stepStrokes={currentStepStrokes}
@@ -1188,6 +1229,39 @@ export default function PyqPresenterClient({ questions = [] }) {
                 style={{ background: c, color: c }}
                 title={`Color: ${c}`}
               />
+            ))}
+          </div>
+
+          <div className="pq-dock-sep" />
+
+          {/* Pen Thickness Selector */}
+          <div className="pq-dock-sizes" title="Pen Thickness: 3px, 5px, 8px, 12px ([ and ] keys)">
+            {[
+              { size: 3, label: 'Fine (3px)', dot: 4 },
+              { size: 5, label: 'Regular (5px)', dot: 7 },
+              { size: 8, label: 'Bold (8px)', dot: 10 },
+              { size: 12, label: 'Heavy (12px)', dot: 14 },
+            ].map((s) => (
+              <button
+                key={s.size}
+                type="button"
+                onClick={() => {
+                  updatePenSize(s.size);
+                  if (activeTool === 'none' || activeTool === 'eraser') setActiveTool('pen');
+                }}
+                className={`pq-size-btn ${penSize === s.size ? 'is-selected' : ''}`}
+                title={s.label}
+              >
+                <span
+                  style={{
+                    width: s.dot,
+                    height: s.dot,
+                    borderRadius: '50%',
+                    background: 'currentColor',
+                    display: 'inline-block',
+                  }}
+                />
+              </button>
             ))}
           </div>
 
