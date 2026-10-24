@@ -39,6 +39,10 @@ import {
   Globe,
   Compass,
   Move,
+  FilePlus2,
+  Columns,
+  Grid,
+  AlignJustify,
 } from 'lucide-react';
 import { buildQuestionSteps, buildTopicSteps, buildMappingSteps } from '@/lib/pyqSlideDeck';
 import { parseStem } from '@/app/prelims/pyq/StemView';
@@ -147,24 +151,39 @@ export default function PyqPresenterClient({ questions = [] }) {
     return {};
   });
 
-  // Build presentation steps dynamically (PYQ vs Topic vs Mapping)
+  // On-demand blank scratchpad slides added dynamically during presentation
+  const [scratchpadsMap, setScratchpadsMap] = useState({});
+
+  // Build presentation steps dynamically (PYQ vs Topic vs Mapping) + dynamic blank scratchpads
   const steps = useMemo(() => {
     if (!currentQ) return [];
     const customAsset = customAttachmentsMap[currentQ.id] || currentQ.customAssets || {};
+    let baseSteps = [];
     if (currentQ.type === 'topic') {
-      return buildTopicSteps(currentQ, customAsset);
+      baseSteps = buildTopicSteps(currentQ, customAsset);
+    } else if (currentQ.type === 'mapping') {
+      baseSteps = buildMappingSteps(currentQ, customAsset);
+    } else {
+      baseSteps = buildQuestionSteps(currentQ, customAsset);
     }
-    if (currentQ.type === 'mapping') {
-      return buildMappingSteps(currentQ, customAsset);
+
+    const currentScratchpads = scratchpadsMap[currentQ.id] || [];
+    if (currentScratchpads.length === 0) return baseSteps;
+
+    const merged = [...baseSteps];
+    const sorted = [...currentScratchpads].sort((a, b) => a.insertIndex - b.insertIndex);
+    for (const sp of sorted) {
+      const idx = Math.min(Math.max(0, sp.insertIndex), merged.length);
+      merged.splice(idx, 0, sp);
     }
-    return buildQuestionSteps(currentQ, customAsset);
-  }, [currentQ, customAttachmentsMap]);
+    return merged;
+  }, [currentQ, customAttachmentsMap, scratchpadsMap]);
 
   const currentStep = steps[stepIndex] || steps[0] || null;
 
-  // Active strokes for the canvas
+  // Active strokes for the canvas (isolated per step ID so dynamic scratchpads persist ink independently)
   const currentQId = currentQ?.id || `item_${qIndex}`;
-  const currentStepKey = `${currentQId}_${stepIndex}`;
+  const currentStepKey = `${currentQId}_${currentStep?.id || stepIndex}`;
 
   const currentQStrokes = useMemo(() => {
     return questionInkMap[currentQId] || [];
@@ -191,6 +210,7 @@ export default function PyqPresenterClient({ questions = [] }) {
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 
   const isMappingMode = currentQ?.type === 'mapping';
+  const isFullStageScratchpad = currentStep?.type === 'scratchpad' && currentStep?.isFullStage;
   const canvasWidth = presentationMode === 'screen' ? screenStageSize.width : 1920;
   const canvasHeight = presentationMode === 'screen' ? screenStageSize.height : 1080;
   const leftBoundaryX = presentationMode === 'screen'
@@ -359,6 +379,77 @@ export default function PyqPresenterClient({ questions = [] }) {
   }, [handleUpdateStepStrokes]);
 
   // -------------------------------------------------------------
+  // Dynamic Blank Slide / Scratchpad Callbacks
+  // -------------------------------------------------------------
+  const handleAddScratchpad = useCallback((isFull = false) => {
+    if (!currentQ) return;
+    const newId = `scratchpad_${Date.now()}`;
+    const newScratchpad = {
+      id: newId,
+      type: 'scratchpad',
+      badge: 'BLANK SCRATCHPAD',
+      title: 'Blank Canvas & Mindmap',
+      pattern: 'plain',
+      isFullStage: isFull,
+      insertIndex: stepIndex + 1,
+    };
+
+    setScratchpadsMap(prev => {
+      const list = prev[currentQ.id] || [];
+      return {
+        ...prev,
+        [currentQ.id]: [...list, newScratchpad],
+      };
+    });
+
+    setActiveTool('pen');
+    setStepIndex(s => s + 1);
+  }, [currentQ, stepIndex]);
+
+  const handleDeleteCurrentScratchpad = useCallback(() => {
+    if (!currentQ || currentStep?.type !== 'scratchpad') return;
+    const scratchpadId = currentStep.id;
+
+    setScratchpadsMap(prev => {
+      const list = prev[currentQ.id] || [];
+      return {
+        ...prev,
+        [currentQ.id]: list.filter(sp => sp.id !== scratchpadId),
+      };
+    });
+
+    setStepInkMap(prev => {
+      const next = { ...prev };
+      delete next[currentStepKey];
+      return next;
+    });
+
+    setStepIndex(prev => Math.max(0, prev - 1));
+  }, [currentQ, currentStep, currentStepKey]);
+
+  const handleUpdateScratchpadPattern = useCallback((pattern) => {
+    if (!currentQ || currentStep?.type !== 'scratchpad') return;
+    setScratchpadsMap(prev => {
+      const list = prev[currentQ.id] || [];
+      return {
+        ...prev,
+        [currentQ.id]: list.map(sp => sp.id === currentStep.id ? { ...sp, pattern } : sp),
+      };
+    });
+  }, [currentQ, currentStep]);
+
+  const handleToggleScratchpadFullStage = useCallback(() => {
+    if (!currentQ || currentStep?.type !== 'scratchpad') return;
+    setScratchpadsMap(prev => {
+      const list = prev[currentQ.id] || [];
+      return {
+        ...prev,
+        [currentQ.id]: list.map(sp => sp.id === currentStep.id ? { ...sp, isFullStage: !sp.isFullStage } : sp),
+      };
+    });
+  }, [currentQ, currentStep]);
+
+  // -------------------------------------------------------------
   // Keyboard Shortcuts (Space, Arrows, Pen, Laser, Zoom, Queue, etc.)
   // -------------------------------------------------------------
   useEffect(() => {
@@ -381,6 +472,11 @@ export default function PyqPresenterClient({ questions = [] }) {
         case 'ArrowLeft':
           e.preventDefault();
           handlePrev();
+          break;
+        case 's':
+        case 'S':
+          e.preventDefault();
+          handleAddScratchpad(false);
           break;
         case 'p':
         case 'P':
@@ -471,7 +567,7 @@ export default function PyqPresenterClient({ questions = [] }) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleNext, handlePrev, handleUndo, handleClearStepInk, toggleTheme, handleToggleMode]);
+  }, [handleNext, handlePrev, handleUndo, handleClearStepInk, toggleTheme, handleToggleMode, handleAddScratchpad]);
 
   if (!currentQ) {
     return (
@@ -503,7 +599,7 @@ export default function PyqPresenterClient({ questions = [] }) {
       >
         <div
           ref={stageRef}
-          className={`pq-present-stage ${presentationMode === 'screen' ? 'is-mode-screen' : 'is-mode-16-9'} ${isMappingMode ? 'is-mapping-layout' : ''}`}
+          className={`pq-present-stage ${presentationMode === 'screen' ? 'is-mode-screen' : 'is-mode-16-9'} ${isMappingMode ? 'is-mapping-layout' : ''} ${isFullStageScratchpad ? 'is-full-stage-scratchpad' : ''}`}
           style={presentationMode === '16:9' ? {
             transform: `scale(${scale})`,
             transformOrigin: 'center center',
@@ -716,20 +812,96 @@ export default function PyqPresenterClient({ questions = [] }) {
               </div>
             )}
 
-            {/* Step Header */}
-            <div className="pq-present-step-head">
-              <span className="pq-present-step-badge">
-                <Sparkles size={13} />
-                <span>{currentStep?.badge || 'LECTURE STAGE'}</span>
-              </span>
-              <h1 className="pq-present-step-title">{currentStep?.title}</h1>
-              {currentStep?.subtitle && (
-                <p className="pq-present-step-sub">{currentStep.subtitle}</p>
-              )}
-            </div>
+            {/* Step Header (Hidden for Scratchpad so canvas has maximum writing height) */}
+            {currentStep?.type !== 'scratchpad' && (
+              <div className="pq-present-step-head">
+                <span className="pq-present-step-badge">
+                  <Sparkles size={13} />
+                  <span>{currentStep?.badge || 'LECTURE STAGE'}</span>
+                </span>
+                <h1 className="pq-present-step-title">{currentStep?.title}</h1>
+                {currentStep?.subtitle && (
+                  <p className="pq-present-step-sub">{currentStep.subtitle}</p>
+                )}
+              </div>
+            )}
 
             {/* Dynamic Step Content Body */}
-            <div className="pq-present-slide-body">
+            <div className={`pq-present-slide-body ${currentStep?.type === 'scratchpad' ? 'is-scratchpad-body' : ''}`}>
+              {/* DYNAMIC BLANK SLIDE / SCRATCHPAD CANVAS */}
+              {currentStep?.type === 'scratchpad' && (
+                <div className={`pq-scratchpad-card pq-pattern-${currentStep.pattern || 'plain'}`}>
+                  <div className="pq-scratchpad-toolbar">
+                    <div className="pq-scratchpad-tool-left">
+                      <span className="pq-scratchpad-badge">
+                        <Sparkles size={13} />
+                        <span>{currentStep.isFullStage ? 'FULL STAGE CANVAS' : 'SPLIT SCRATCHPAD'}</span>
+                      </span>
+                      <span className="pq-scratchpad-title-text">
+                        {currentStep.isFullStage ? '1080p Full Mindmap Canvas' : 'Digital Ink Scratchpad'}
+                      </span>
+                    </div>
+
+                    <div className="pq-scratchpad-tool-right">
+                      {/* Pattern Selector */}
+                      <div className="pq-pattern-selector" title="Pattern: Plain, Dot Grid, Ruled Lines">
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateScratchpadPattern('plain')}
+                          className={`pq-pattern-btn ${currentStep.pattern === 'plain' || !currentStep.pattern ? 'is-active' : ''}`}
+                        >
+                          Plain
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateScratchpadPattern('dots')}
+                          className={`pq-pattern-btn ${currentStep.pattern === 'dots' ? 'is-active' : ''}`}
+                        >
+                          <Grid size={12} />
+                          <span>Dots</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateScratchpadPattern('ruled')}
+                          className={`pq-pattern-btn ${currentStep.pattern === 'ruled' ? 'is-active' : ''}`}
+                        >
+                          <AlignJustify size={12} />
+                          <span>Ruled</span>
+                        </button>
+                      </div>
+
+                      {/* Split / Full Stage Toggle */}
+                      <button
+                        type="button"
+                        onClick={handleToggleScratchpadFullStage}
+                        className="pq-scratchpad-action-btn"
+                        title={currentStep.isFullStage ? 'Switch back to Split View (Pin Question/Map on left)' : 'Expand to Full 16:9 Canvas'}
+                      >
+                        <Columns size={13} />
+                        <span>{currentStep.isFullStage ? 'Split View' : 'Full Stage'}</span>
+                      </button>
+
+                      {/* Delete Scratchpad Slide */}
+                      <button
+                        type="button"
+                        onClick={handleDeleteCurrentScratchpad}
+                        className="pq-scratchpad-del-btn"
+                        title="Delete this scratchpad slide"
+                      >
+                        <Trash2 size={13} />
+                        <span>Delete</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="pq-scratchpad-content-area">
+                    <div className="pq-scratchpad-watermark">
+                      XP-PEN / STYLUS SCRATCHPAD · DRAW FREELY
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* IMAGE / INFOGRAPHIC SLIDE (Conditional) */}
               {currentStep?.type === 'image' && currentStep.imageUrl && (
                 <div className="pq-present-image-container">
@@ -1111,6 +1283,7 @@ export default function PyqPresenterClient({ questions = [] }) {
             activeColor={activeColor}
             penSize={penSize}
             leftBoundaryX={leftBoundaryX}
+            isFullStage={Boolean(isFullStageScratchpad)}
             questionStrokes={currentQStrokes}
             stepStrokes={currentStepStrokes}
             onUpdateQuestionStrokes={handleUpdateQStrokes}
@@ -1214,6 +1387,18 @@ export default function PyqPresenterClient({ questions = [] }) {
           >
             <Eraser size={16} />
           </button>
+
+          {/* Dynamic Blank Scratchpad Slide */}
+          <button
+            type="button"
+            onClick={() => handleAddScratchpad(false)}
+            className="pq-dock-btn pq-dock-scratchpad-btn"
+            title="Insert Blank Scratchpad Slide [S]"
+          >
+            <FilePlus2 size={16} />
+          </button>
+
+          <div className="pq-dock-sep" />
 
           {/* Color Palette */}
           <div className="pq-dock-colors">
@@ -1431,6 +1616,8 @@ export default function PyqPresenterClient({ questions = [] }) {
               <strong>H</strong> <span>Highlighter Tool</span>
               <strong>L</strong> <span>Laser Pointer (fading dot)</span>
               <strong>E</strong> <span>Eraser Tool</span>
+              <strong>[ / ]</strong> <span>Decrease / Increase Pen Thickness</span>
+              <strong>S</strong> <span>Insert Blank Scratchpad Slide</span>
               <strong>Z</strong> <span>Zoom / Full-Bleed Image Diagram</span>
               <strong>Q</strong> <span>Toggle In-Studio Playlist Tray</span>
               <strong>M</strong> <span>Toggle Dark / Light Whiteboard Mode</span>

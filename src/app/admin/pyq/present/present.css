@@ -1772,4 +1772,311 @@
   border: 1px dashed rgba(255, 255, 255, 0.12);
 }
 
+/* ==========================================================================
+   DYNAMIC BLANK SLIDE / SCRATCHPAD (ON-DEMAND WHITEBOARD / BLACKBOARD)
+   Split Screen or Full 16:9 Stage with Plain, Dot Grid, or Ruled Lines
+   ========================================================================== */
+
+/* Full-Stage Scratchpad Stage Override */
+.pq-present-stage.is-full-stage-scratchpad {
+  display: flex !important;
+  flex-direction: column !important;
+  grid-template-columns: none !important;
+}
+
+.pq-present-stage.is-full-stage-scratchpad .pq-present-left-panel {
+  display: none !important;
+}
+
+.pq-present-stage.is-full-stage-scratchpad .pq-present-right-panel {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 100% !important;
+  padding: 20px 24px !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Scratchpad Slide Body Fill */
+.pq-present-slide-body.is-scratchpad-body {
+  flex: 1 1 0%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+/* Scratchpad Main Container Card */
+.pq-scratchpad-card {
+  position: relative;
+  flex: 1 1 0%;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  border-radius: 16px;
+  background-color: #0b1120;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+[data-present-theme="light"] .pq-scratchpad-card {
+  background-color: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* Dot Grid Background Pattern */
+.pq-scratchpad-card.pq-pattern-dots {
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.18) 1.5px, transparent 1.5px);
+  background-size: 26px 26px;
+}
+
+[data-present-theme="light"] .pq-scratchpad-card.pq-pattern-dots {
+  background-image: radial-gradient(circle, rgba(15, 23, 42, 0.16) 1.5px, transparent 1.5px);
+}
+
+/* Ruled Lines Background Pattern */
+.pq-scratchpad-card.pq-pattern-ruled {
+  background-image: repeating-linear-gradient(transparent, transparent 33px, rgba(255, 255, 255, 0.09) 33px, rgba(255, 255, 255, 0.09) 34px);
+  background-size: 100% 34px;
+}
+
+[data-present-theme="light"] .pq-scratchpad-card.pq-pattern-ruled {
+  background-image: repeating-linear-gradient(transparent, transparent 33px, rgba(15, 23, 42, 0.11) 33px, rgba(15, 23, 42, 0.11) 34px);
+}
+
+/* Scratchpad Toolbar */
+.pq-scratchpad-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 12px;
+  z-index: 10;
+  user-select: none;
+}
+
+[data-present-theme="light"] .pq-scratchpad-toolbar {
+  background: rgba(248, 250, 252, 0.9);
+  border-bottom-color: #e2e8f0;
+}
+
+.pq-scratchpad-tool-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pq-scratchpad-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: rgba(234, 179, 8, 0.18);
+  border: 1px solid rgba(234, 179, 8, 0.35);
+  color: #facc15;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+[data-present-theme="light"] .pq-scratchpad-badge {
+  background: #fef9c3;
+  border-color: #fde047;
+  color: #854d0e;
+}
+
+.pq-scratchpad-title-text {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+[data-present-theme="light"] .pq-scratchpad-title-text {
+  color: #64748b;
+}
+
+.pq-scratchpad-tool-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Pattern Segmented Controls */
+.pq-pattern-selector {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(2, 6, 23, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 2px;
+  gap: 2px;
+}
+
+[data-present-theme="light"] .pq-pattern-selector {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+.pq-pattern-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+[data-present-theme="light"] .pq-pattern-btn {
+  color: #475569;
+}
+
+.pq-pattern-btn:hover {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+[data-present-theme="light"] .pq-pattern-btn:hover {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.pq-pattern-btn.is-active {
+  background: #3b82f6;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4);
+}
+
+[data-present-theme="light"] .pq-pattern-btn.is-active {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+/* Scratchpad Action Button (Split <-> Full) */
+.pq-scratchpad-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e2e8f0;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+[data-present-theme="light"] .pq-scratchpad-action-btn {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #1e293b;
+}
+
+.pq-scratchpad-action-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;
+}
+
+[data-present-theme="light"] .pq-scratchpad-action-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Delete Scratchpad Button */
+.pq-scratchpad-del-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+[data-present-theme="light"] .pq-scratchpad-del-btn {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
+.pq-scratchpad-del-btn:hover {
+  background: rgba(239, 68, 68, 0.25);
+  color: #ffffff;
+}
+
+[data-present-theme="light"] .pq-scratchpad-del-btn:hover {
+  background: #fecaca;
+  color: #991b1b;
+}
+
+/* Scratchpad Content Area */
+.pq-scratchpad-content-area {
+  position: relative;
+  flex: 1 1 0%;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pq-scratchpad-watermark {
+  position: absolute;
+  bottom: 22px;
+  right: 26px;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.15);
+  pointer-events: none;
+  user-select: none;
+}
+
+[data-present-theme="light"] .pq-scratchpad-watermark {
+  color: rgba(15, 23, 42, 0.2);
+}
+
+/* Dock Scratchpad Highlight Button */
+.pq-dock-btn.pq-dock-scratchpad-btn {
+  background: rgba(234, 179, 8, 0.18);
+  border-color: rgba(234, 179, 8, 0.4);
+  color: #facc15;
+}
+
+.pq-dock-btn.pq-dock-scratchpad-btn:hover {
+  background: rgba(234, 179, 8, 0.3);
+  color: #fef08a;
+  border-color: rgba(234, 179, 8, 0.6);
+}
+
+[data-present-theme="light"] .pq-dock-btn.pq-dock-scratchpad-btn {
+  background: #fef9c3;
+  border-color: #fde047;
+  color: #854d0e;
+}
+
+
 

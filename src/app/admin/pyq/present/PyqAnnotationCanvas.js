@@ -76,6 +76,7 @@ export default function PyqAnnotationCanvas({
   penSize = 5,
   highlighterSize = 26,
   leftBoundaryX = 830, // boundary separating Left Question Panel from Right Explanation Panel
+  isFullStage = false, // When true, the entire stage is a full blank scratchpad
   questionStrokes = [],
   stepStrokes = [],
   onUpdateQuestionStrokes,
@@ -99,9 +100,11 @@ export default function PyqAnnotationCanvas({
 
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-    // 1. Draw persistent Question Panel strokes
-    for (const stroke of questionStrokes) {
-      renderStroke(ctx, stroke, penSize, highlighterSize);
+    // 1. Draw persistent Question Panel strokes (hidden during full-stage scratchpad)
+    if (!isFullStage) {
+      for (const stroke of questionStrokes) {
+        renderStroke(ctx, stroke, penSize, highlighterSize);
+      }
     }
 
     // 2. Draw active Step Explanation Panel strokes
@@ -118,7 +121,7 @@ export default function PyqAnnotationCanvas({
     if (activeTool === 'laser' && laserTrailRef.current.length > 0) {
       renderLaser(ctx, laserTrailRef.current, getCurrentTimestamp());
     }
-  }, [questionStrokes, stepStrokes, activeTool, penSize, highlighterSize, canvasWidth, canvasHeight]);
+  }, [questionStrokes, stepStrokes, activeTool, penSize, highlighterSize, canvasWidth, canvasHeight, isFullStage]);
 
   // Laser animation loop
   useEffect(() => {
@@ -174,7 +177,12 @@ export default function PyqAnnotationCanvas({
       return false;
     };
 
-    if (isQuestionPanel) {
+    if (isFullStage) {
+      const filtered = stepStrokes.filter(s => !hitStroke(s));
+      if (filtered.length !== stepStrokes.length) {
+        onUpdateStepStrokes?.(filtered);
+      }
+    } else if (isQuestionPanel) {
       const filtered = questionStrokes.filter(s => !hitStroke(s));
       if (filtered.length !== questionStrokes.length) {
         onUpdateQuestionStrokes?.(filtered);
@@ -211,7 +219,7 @@ export default function PyqAnnotationCanvas({
     }
 
     // Pen or Highlighter Tool: Start Stroke
-    const targetLayer = x < leftBoundaryX ? 'question' : 'step';
+    const targetLayer = isFullStage ? 'step' : (x < leftBoundaryX ? 'question' : 'step');
     currentStrokeRef.current = {
       tool: activeTool,
       color: activeColor,
@@ -259,7 +267,7 @@ export default function PyqAnnotationCanvas({
       currentStrokeRef.current = null;
 
       if (stroke.points.length >= 2) {
-        if (stroke.targetLayer === 'question') {
+        if (stroke.targetLayer === 'question' && !isFullStage) {
           onUpdateQuestionStrokes?.([...questionStrokes, stroke]);
         } else {
           onUpdateStepStrokes?.([...stepStrokes, stroke]);
