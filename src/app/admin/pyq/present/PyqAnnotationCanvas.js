@@ -275,7 +275,7 @@ export default function PyqAnnotationCanvas({
       ref={canvasRef}
       width={canvasWidth}
       height={canvasHeight}
-      className={`pq-annotation-canvas ${activeTool === 'eraser' ? 'is-eraser' : ''} ${activeTool === 'laser' ? 'is-laser' : ''}`}
+      className={`pq-annotation-canvas ${activeTool === 'none' ? 'is-tool-none' : ''} ${activeTool === 'eraser' ? 'is-eraser' : ''} ${activeTool === 'laser' ? 'is-laser' : ''}`}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}

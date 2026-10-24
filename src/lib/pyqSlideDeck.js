@@ -388,20 +388,7 @@ export function buildMappingSteps(item, customAssets = {}) {
     categories,
   });
 
-  // STAGE 2: Interactive Visual Map Slide (Always present for mapping or conditional on imageUrl)
-  if (imageUrl) {
-    steps.push({
-      id: 'map_visual',
-      type: 'image',
-      badge: 'STAGE 2 · SPATIAL EXPLORATION & BOUNDARY TRACING',
-      title: imageCaption,
-      subtitle: 'Annotate river courses, mountain passes, buffer zones & borders with XP-Pen stylus',
-      imageUrl,
-      caption: imageCaption,
-    });
-  }
-
-  // STAGE 3: High-Yield Static Geography Facts
+  // STAGE 2: High-Yield Static Geography Facts
   const facts = Array.isArray(item.staticFacts) 
     ? item.staticFacts 
     : (typeof item.staticFacts === 'string' && item.staticFacts.trim() ? [item.staticFacts] : []);
@@ -410,19 +397,19 @@ export function buildMappingSteps(item, customAssets = {}) {
     steps.push({
       id: 'map_facts',
       type: 'mapping_facts',
-      badge: 'STAGE 3 · KEY GEOGRAPHICAL & ECOLOGICAL FACTS',
+      badge: 'STAGE 2 · KEY GEOGRAPHICAL & ECOLOGICAL FACTS',
       title: 'Physical Geography & Strategic Profile',
       subtitle: 'Tributaries, terrain, national parks, flora/fauna & geopolitical context',
       facts,
     });
   }
 
-  // STAGE 4: UPSC Exam Angle & Directional Alignment
+  // STAGE 3: UPSC Exam Angle & Directional Alignment
   if (item.upscAngle || item.newsHook) {
     steps.push({
       id: 'map_angle',
       type: 'mapping_angle',
-      badge: 'STAGE 4 · EXAMINER ANGLE & TRAPS',
+      badge: 'STAGE 3 · EXAMINER ANGLE & DIRECTIONAL TRAPS',
       title: 'UPSC Directional Alignment & Distractor Traps',
       subtitle: 'North-to-South / West-to-East ordering, border disputes, and current news triggers',
       upscAngle: item.upscAngle,
@@ -430,16 +417,29 @@ export function buildMappingSteps(item, customAssets = {}) {
     });
   }
 
-  // STAGE 5: Linked UPSC Prelims PYQ
+  // STAGE 4: Linked UPSC Prelims PYQ
   if (item.pyq || item.resolvedPyq || (Array.isArray(item.similarPYQs) && item.similarPYQs.length > 0)) {
     const pyqObj = item.pyq || item.resolvedPyq || item.similarPYQs[0];
     steps.push({
       id: 'map_pyq',
       type: 'mapping_pyq',
-      badge: 'STAGE 5 · LINKED UPSC PRELIMS PYQ',
+      badge: 'STAGE 4 · LINKED UPSC PRELIMS PYQ',
       title: 'How UPSC Tested This Location in Past Years',
       subtitle: `${pyqObj.exam || 'UPSC CSE Pre'} ${pyqObj.examYear || ''}`,
       pyq: pyqObj,
+    });
+  }
+
+  // STAGE 5: Custom Diagram / Satellite Ingestion Slide (if custom image attached)
+  if (imageUrl) {
+    steps.push({
+      id: 'map_visual',
+      type: 'image',
+      badge: 'STAGE 5 · CUSTOM DIAGRAM & SATELLITE OVERLAY',
+      title: imageCaption,
+      subtitle: 'Annotate river courses, mountain passes, buffer zones & borders with XP-Pen stylus',
+      imageUrl,
+      caption: imageCaption,
     });
   }
 

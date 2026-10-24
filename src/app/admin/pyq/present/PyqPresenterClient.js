@@ -38,10 +38,12 @@ import {
   MapPin,
   Globe,
   Compass,
+  Move,
 } from 'lucide-react';
 import { buildQuestionSteps, buildTopicSteps, buildMappingSteps } from '@/lib/pyqSlideDeck';
 import { parseStem } from '@/app/prelims/pyq/StemView';
 import PyqAnnotationCanvas from './PyqAnnotationCanvas';
+import StudioPresenterMap from './StudioPresenterMap';
 import './present.css';
 
 const DARK_PALETTE = [
@@ -371,6 +373,10 @@ export default function PyqPresenterClient({ questions = [] }) {
         case 'E':
           setActiveTool(t => (t === 'eraser' ? 'none' : 'eraser'));
           break;
+        case 'v':
+        case 'V':
+          setActiveTool('none');
+          break;
         case 'z':
         case 'Z':
           setIsZoomedImage(z => !z);
@@ -455,7 +461,7 @@ export default function PyqPresenterClient({ questions = [] }) {
       >
         <div
           ref={stageRef}
-          className={`pq-present-stage ${presentationMode === 'screen' ? 'is-mode-screen' : 'is-mode-16-9'}`}
+          className={`pq-present-stage ${presentationMode === 'screen' ? 'is-mode-screen' : 'is-mode-16-9'} ${isMappingMode ? 'is-mapping-layout' : ''}`}
           style={presentationMode === '16:9' ? {
             transform: `scale(${scale})`,
             transformOrigin: 'center center',
@@ -476,185 +482,198 @@ export default function PyqPresenterClient({ questions = [] }) {
           )}
 
           {/* ========================================================= */}
-          {/* LEFT PANEL: PINNED ANCHOR (QUESTION, TOPIC, OR MAPPING)   */}
+          {/* LEFT PANEL: MAP CONTAINER (IN MAPPING MODE)               */}
+          {/* OR PINNED QUESTION (IN PYQ/TOPIC MODE)                    */}
           {/* ========================================================= */}
-          <aside className="pq-present-left-panel">
-            <div className="pq-present-left-content">
-              {/* Meta Tags */}
-              <div className="pq-present-q-meta">
-                <span className="pq-present-tag pq-present-tag-exam">
-                  {isTopicMode
-                    ? (Array.isArray(currentQ.gsPapers) ? currentQ.gsPapers.join(', ') : (currentQ.gsPapers || 'GS Paper'))
-                    : isMappingMode
-                    ? (currentQ.regionScope || 'India')
-                    : (`${currentQ.examName || 'UPSC CSE Pre'} ${currentQ.examYear || ''}`)
-                  }
-                </span>
-                {currentQ.questionNo && !isTopicMode && !isMappingMode && (
-                  <span className="pq-present-tag pq-present-tag-qno">
-                    Q{currentQ.questionNo}
-                  </span>
-                )}
-                {(currentQ.srcTopic || currentQ.topic || currentQ.placeType) && (
-                  <span className="pq-present-tag pq-present-tag-topic">
-                    {currentQ.srcTopic || currentQ.topic || currentQ.placeType}
-                  </span>
-                )}
-                {isMappingMode && currentQ.category && (
-                  <span className="pq-present-tag" style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.35)' }}>
-                    {currentQ.category}
-                  </span>
-                )}
+          <aside className={`pq-present-left-panel ${isMappingMode ? 'is-map-panel' : ''}`}>
+            {isMappingMode ? (
+              <div className="pq-present-map-stage-wrap">
+                <StudioPresenterMap currentQ={currentQ} theme={theme} />
               </div>
-
-              {/* Scrollable Anchor Content */}
-              <div className="pq-present-q-scrollable">
-                {isMappingMode ? (
-                  /* MAPPING MODE ANCHOR */
-                  <div className="pq-present-anchor-mapping">
-                    <h2 className="pq-topic-anchor-title" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <MapPin size={24} color="#34d399" />
-                      <span>{currentQ.place || currentQ.title}</span>
-                    </h2>
-
-                    {currentQ.locationText && (
-                      <div style={{ fontSize: 14.5, color: theme === 'light' ? '#0369a1' : '#38bdf8', fontWeight: 700, margin: '6px 0 12px' }}>
-                        📍 {currentQ.locationText}
-                      </div>
+            ) : (
+              <>
+                <div className="pq-present-left-content">
+                  {/* Meta Tags */}
+                  <div className="pq-present-q-meta">
+                    <span className="pq-present-tag pq-present-tag-exam">
+                      {isTopicMode
+                        ? (Array.isArray(currentQ.gsPapers) ? currentQ.gsPapers.join(', ') : (currentQ.gsPapers || 'GS Paper'))
+                        : (`${currentQ.examName || 'UPSC CSE Pre'} ${currentQ.examYear || ''}`)
+                      }
+                    </span>
+                    {currentQ.questionNo && !isTopicMode && (
+                      <span className="pq-present-tag pq-present-tag-qno">
+                        Q{currentQ.questionNo}
+                      </span>
                     )}
-
-                    {currentQ.lat && currentQ.lng && (
-                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 8, background: 'rgba(52, 211, 153, 0.12)', border: '1px solid rgba(52, 211, 153, 0.3)', color: '#34d399', fontSize: 13, fontWeight: 800, fontFamily: 'monospace', marginBottom: 14 }}>
-                        <Globe size={14} />
-                        <span>{Number(currentQ.lat).toFixed(2)}° N, {Number(currentQ.lng).toFixed(2)}° E</span>
-                      </div>
+                    {(currentQ.srcTopic || currentQ.topic) && (
+                      <span className="pq-present-tag pq-present-tag-topic">
+                        {currentQ.srcTopic || currentQ.topic}
+                      </span>
                     )}
+                  </div>
 
-                    {Array.isArray(currentQ.aliases) && currentQ.aliases.length > 0 && (
-                      <div style={{ marginBottom: 14 }}>
-                        <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94a3b8', marginBottom: 6 }}>
-                          Known Aliases &amp; Tributaries
-                        </div>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                          {currentQ.aliases.map((al, idx) => (
-                            <span key={idx} style={{ padding: '3px 8px', borderRadius: 6, background: 'rgba(255, 255, 255, 0.06)', border: '1px solid rgba(255, 255, 255, 0.12)', fontSize: 12, color: theme === 'light' ? '#334155' : '#cbd5e1', fontWeight: 600 }}>
-                              {al}
-                            </span>
-                          ))}
+                  {/* Scrollable Anchor Content */}
+                  <div className="pq-present-q-scrollable">
+                    {isTopicMode ? (
+                      /* TOPIC MODE ANCHOR */
+                      <div className="pq-present-anchor-topic">
+                        <h2 className="pq-topic-anchor-title">{currentQ.title}</h2>
+                        <div className="pq-topic-anchor-summary">
+                          {currentQ.cumulativeSummary || currentQ.overview || currentQ.backgroundNote || 'Foundational syllabus topic anchor.'}
                         </div>
                       </div>
-                    )}
-
-                    {stemBlocks.length > 0 ? (
+                    ) : (
+                      /* PYQ MODE ANCHOR */
                       <>
-                        {stemBlocks.map((b, idx) => (
-                          <p key={idx} className={idx === 0 ? 'pq-present-stem-lead' : 'pq-present-stem-ask'}>
-                            {b.text}
-                          </p>
-                        ))}
-                        {options.length > 0 && (
-                          <div className="pq-present-options-grid">
-                            {options.map((opt) => (
-                              <div key={opt.label} className="pq-present-option-row">
-                                <span className="pq-present-opt-label">{opt.label}</span>
+                        {stemBlocks.map((b, idx) => {
+                          if (b.type === 'stmts') {
+                            return (
+                              <div className="pq-present-statements" key={idx}>
+                                {b.items.map((s, k) => {
+                                  const verdict = currentStep?.verdicts?.[String(s.key).toUpperCase()];
+                                  const isCorrect = verdict && verdict.toLowerCase().includes('correct') && !verdict.toLowerCase().includes('incorrect');
+                                  const isIncorrect = verdict && verdict.toLowerCase().includes('incorrect');
+
+                                  return (
+                                    <div className={`pq-present-statement-item ${verdict ? 'has-verdict' : ''}`} key={k}>
+                                      <span className="pq-present-statement-key">{s.key}</span>
+                                      <div style={{ flex: 1, minWidth: 0 }}>{s.text}</div>
+
+                                      {verdict && (
+                                        <span className={`pq-present-statement-verdict ${isCorrect ? 'is-correct' : isIncorrect ? 'is-incorrect' : ''}`}>
+                                          {isCorrect ? <CheckCircle2 size={13} /> : isIncorrect ? <XCircle size={13} /> : null}
+                                          <span>{verdict}</span>
+                                        </span>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            );
+                          }
+                          return (
+                            <p key={idx} className={idx === 0 ? 'pq-present-stem-lead' : 'pq-present-stem-ask'}>
+                              {b.text}
+                            </p>
+                          );
+                        })}
+
+                        {/* Options List */}
+                        <div className="pq-present-options-grid">
+                          {options.map((opt) => {
+                            const optLabel = String(opt.label).toUpperCase();
+                            const isTarget = currentStep?.showAnswer && currentStep?.highlightedOption === optLabel;
+
+                            return (
+                              <div
+                                key={opt.label}
+                                className={`pq-present-option-row ${isTarget ? 'is-highlighted' : ''}`}
+                              >
+                                <span className="pq-present-opt-label">{optLabel}</span>
                                 <span className="pq-present-opt-text">{opt.text}</span>
                               </div>
-                            ))}
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      Array.isArray(currentQ.staticFacts) && currentQ.staticFacts.length > 0 && (
-                        <div className="pq-topic-anchor-summary">
-                          {currentQ.staticFacts[0]}
+                            );
+                          })}
                         </div>
-                      )
+                      </>
                     )}
                   </div>
-                ) : isTopicMode ? (
-                  /* TOPIC MODE ANCHOR */
-                  <div className="pq-present-anchor-topic">
-                    <h2 className="pq-topic-anchor-title">{currentQ.title}</h2>
-                    <div className="pq-topic-anchor-summary">
-                      {currentQ.cumulativeSummary || currentQ.overview || currentQ.backgroundNote || 'Foundational syllabus topic anchor.'}
-                    </div>
-                  </div>
-                ) : (
-                  /* PYQ MODE ANCHOR */
-                  <>
-                    {stemBlocks.map((b, idx) => {
-                      if (b.type === 'stmts') {
-                        return (
-                          <div className="pq-present-statements" key={idx}>
-                            {b.items.map((s, k) => {
-                              const verdict = currentStep?.verdicts?.[String(s.key).toUpperCase()];
-                              const isCorrect = verdict && verdict.toLowerCase().includes('correct') && !verdict.toLowerCase().includes('incorrect');
-                              const isIncorrect = verdict && verdict.toLowerCase().includes('incorrect');
+                </div>
 
-                              return (
-                                <div className={`pq-present-statement-item ${verdict ? 'has-verdict' : ''}`} key={k}>
-                                  <span className="pq-present-statement-key">{s.key}</span>
-                                  <div style={{ flex: 1, minWidth: 0 }}>{s.text}</div>
-
-                                  {verdict && (
-                                    <span className={`pq-present-statement-verdict ${isCorrect ? 'is-correct' : isIncorrect ? 'is-incorrect' : ''}`}>
-                                      {isCorrect ? <CheckCircle2 size={13} /> : isIncorrect ? <XCircle size={13} /> : null}
-                                      <span>{verdict}</span>
-                                    </span>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        );
-                      }
-                      return (
-                        <p key={idx} className={idx === 0 ? 'pq-present-stem-lead' : 'pq-present-stem-ask'}>
-                          {b.text}
-                        </p>
-                      );
-                    })}
-
-                    {/* Options List */}
-                    <div className="pq-present-options-grid">
-                      {options.map((opt) => {
-                        const optLabel = String(opt.label).toUpperCase();
-                        const isTarget = currentStep?.showAnswer && currentStep?.highlightedOption === optLabel;
-
-                        return (
-                          <div
-                            key={opt.label}
-                            className={`pq-present-option-row ${isTarget ? 'is-highlighted' : ''}`}
-                          >
-                            <span className="pq-present-opt-label">{optLabel}</span>
-                            <span className="pq-present-opt-text">{opt.text}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-
-            {/* Left Bottom Tracker */}
-            <div className="pq-present-left-footer">
-              <span>ITEM {qIndex + 1} OF {questions.length}</span>
-              <span style={{ color: theme === 'light' ? '#0284c7' : '#38bdf8' }}>
-                {isTopicMode
-                  ? (currentQ.domain || 'Thematic Lecture')
-                  : isMappingMode
-                  ? (currentQ.category || currentQ.regionScope || 'Spatial Geography')
-                  : (currentQ.srcSubject || 'General Studies')
-                }
-              </span>
-            </div>
+                {/* Left Bottom Tracker */}
+                <div className="pq-present-left-footer">
+                  <span>ITEM {qIndex + 1} OF {questions.length}</span>
+                  <span style={{ color: theme === 'light' ? '#0284c7' : '#38bdf8' }}>
+                    {isTopicMode ? (currentQ.domain || 'Thematic Lecture') : (currentQ.srcSubject || 'General Studies')}
+                  </span>
+                </div>
+              </>
+            )}
           </aside>
 
           {/* ========================================================= */}
-          {/* RIGHT PANEL: DYNAMIC EXPLANATION / TOPIC SLIDES (56%)     */}
+          {/* RIGHT PANEL: DYNAMIC EXPLANATION / TOPIC SLIDES (52%-56%) */}
           {/* ========================================================= */}
-          <main className="pq-present-right-panel">
+          <main className={`pq-present-right-panel ${isMappingMode ? 'is-map-right-panel' : ''}`}>
+            {/* IN MAPPING MODE: ALL METADATA & ANCHOR DETAILS DISPLAY HERE */}
+            {isMappingMode && (
+              <div className="pq-mapping-anchor-card">
+                {/* Meta Badges */}
+                <div className="pq-present-q-meta" style={{ marginBottom: 10 }}>
+                  <span className="pq-present-tag pq-present-tag-exam" style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.4)' }}>
+                    {currentQ.regionScope || 'India'}
+                  </span>
+                  {currentQ.category && (
+                    <span className="pq-present-tag" style={{ background: 'rgba(255, 255, 255, 0.08)', color: '#e2e8f0', border: '1px solid rgba(255, 255, 255, 0.15)' }}>
+                      {currentQ.category}
+                    </span>
+                  )}
+                  {currentQ.placeType && (
+                    <span className="pq-present-tag" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
+                      {currentQ.placeType}
+                    </span>
+                  )}
+                </div>
+
+                {/* Place Title */}
+                <h2 className="pq-mapping-place-title">
+                  <MapPin size={26} color="#34d399" />
+                  <span>{currentQ.place || currentQ.title}</span>
+                </h2>
+
+                {/* Location & Coordinates Row */}
+                <div className="pq-mapping-loc-row">
+                  <span className="pq-mapping-loc-text">
+                    📍 {currentQ.locationText || currentQ.locatedIn?.stateOrProvince || currentQ.locatedIn?.country || 'India'}
+                  </span>
+                  {currentQ.lat && currentQ.lng && (
+                    <span className="pq-mapping-coords-badge">
+                      <Globe size={13} />
+                      <span>{Number(currentQ.lat).toFixed(2)}° N, {Number(currentQ.lng).toFixed(2)}° E</span>
+                    </span>
+                  )}
+                </div>
+
+                {/* Aliases & Tributaries */}
+                {Array.isArray(currentQ.aliases) && currentQ.aliases.length > 0 && (
+                  <div className="pq-mapping-aliases-section">
+                    <div className="pq-mapping-aliases-label">
+                      Known Aliases &amp; Tributaries
+                    </div>
+                    <div className="pq-mapping-aliases-list">
+                      {currentQ.aliases.map((al, idx) => (
+                        <span key={idx} className="pq-mapping-alias-pill">
+                          {al}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Optional Stem & Options if Mapping PYQ */}
+                {stemBlocks.length > 0 && (
+                  <div className="pq-mapping-stem-box">
+                    {stemBlocks.map((b, idx) => (
+                      <p key={idx} className={idx === 0 ? 'pq-present-stem-lead' : 'pq-present-stem-ask'}>
+                        {b.text}
+                      </p>
+                    ))}
+                    {options.length > 0 && (
+                      <div className="pq-present-options-grid">
+                        {options.map((opt) => (
+                          <div key={opt.label} className="pq-present-option-row">
+                            <span className="pq-present-opt-label">{opt.label}</span>
+                            <span className="pq-present-opt-text">{opt.text}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* Step Header */}
             <div className="pq-present-step-head">
               <span className="pq-present-step-badge">
@@ -1106,12 +1125,22 @@ export default function PyqPresenterClient({ questions = [] }) {
 
           <div className="pq-dock-sep" />
 
+          {/* Pan / Interact Map or Cursor */}
+          <button
+            type="button"
+            onClick={() => setActiveTool('none')}
+            className={`pq-dock-btn ${activeTool === 'none' ? 'is-active' : ''}`}
+            title="Pan / Interact with Map [V]"
+          >
+            <Move size={16} />
+          </button>
+
           {/* Drawing Tools */}
           <button
             type="button"
             onClick={() => setActiveTool(t => (t === 'pen' ? 'none' : 'pen'))}
             className={`pq-dock-btn ${activeTool === 'pen' ? 'is-active' : ''}`}
-            title="Pen Tool [P] (XP-Pen pressure sensitive)"
+            title="Pen Tool [P] (XP-Pen uniform line)"
           >
             <PenTool size={16} />
           </button>

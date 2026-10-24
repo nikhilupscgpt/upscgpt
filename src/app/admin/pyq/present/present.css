@@ -695,6 +695,10 @@
   cursor: none;
 }
 
+.pq-annotation-canvas.is-tool-none {
+  pointer-events: none;
+}
+
 /* ==========================================================================
    FLOATING PRESENTER DOCK / CONTROL BAR
    ========================================================================== */
@@ -1553,26 +1557,155 @@
 }
 
 /* ==========================================================================
-   MAPPING MODE PRESENTATION STYLES
+   MAPPING MODE PRESENTATION STYLES (MAP ON LEFT · ALL DETAILS ON RIGHT)
    ========================================================================== */
 
-.pq-present-anchor-mapping {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+/* Split Grid for Mapping Layout */
+.pq-present-stage.is-mapping-layout.is-mode-screen {
+  grid-template-columns: minmax(380px, 48%) minmax(420px, 52%);
 }
 
-[data-present-theme="light"] .pq-present-anchor-mapping .pq-topic-anchor-title {
+.pq-present-stage.is-mapping-layout.is-mode-16-9 {
+  grid-template-columns: 920px 1000px;
+}
+
+/* Left Map Stage Panel (Full height, full width map viewport) */
+.pq-present-stage.is-mapping-layout .pq-present-left-panel.is-map-panel {
+  padding: 0 !important;
+  background: #060913 !important;
+  border-right: 1.5px solid rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+[data-present-theme="light"] .pq-present-stage.is-mapping-layout .pq-present-left-panel.is-map-panel {
+  background: #f8fafc !important;
+  border-right-color: rgba(0, 0, 0, 0.1);
+}
+
+.pq-present-map-stage-wrap {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Right Information Panel (Scrollable, contains pinned metadata & all stages) */
+.pq-present-stage.is-mapping-layout .pq-present-right-panel.is-map-right-panel {
+  padding: 24px 28px 36px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Pinned Location Anchor Card on Right */
+.pq-mapping-anchor-card {
+  padding: 20px 22px;
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+[data-present-theme="light"] .pq-mapping-anchor-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.pq-mapping-place-title {
+  font-size: 26px;
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: -0.01em;
+}
+
+[data-present-theme="light"] .pq-mapping-place-title {
   color: #0f172a;
 }
 
-.pq-present-stage.is-mode-screen .pq-present-anchor-mapping .pq-topic-anchor-title {
-  font-size: 26px;
+.pq-mapping-loc-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 14px;
 }
 
-.pq-present-stage.is-mode-screen .pq-present-anchor-mapping .pq-topic-anchor-summary {
-  font-size: 15px;
-  padding: 14px 16px;
+.pq-mapping-loc-text {
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+[data-present-theme="light"] .pq-mapping-loc-text {
+  color: #0284c7;
+}
+
+.pq-mapping-coords-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(52, 211, 153, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  color: #34d399;
+  font-size: 12.5px;
+  font-weight: 800;
+  font-family: monospace;
+}
+
+.pq-mapping-aliases-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.pq-mapping-aliases-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+}
+
+.pq-mapping-aliases-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pq-mapping-alias-pill {
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 12px;
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+[data-present-theme="light"] .pq-mapping-alias-pill {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+.pq-mapping-stem-box {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(2, 6, 23, 0.5);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
 }
 
 
