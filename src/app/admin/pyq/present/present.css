@@ -128,6 +128,7 @@
 
 .pq-present-left-panel {
   position: relative;
+  z-index: 10;
   padding: 32px 32px 84px 36px;
   border-right: 1.5px solid rgba(255, 255, 255, 0.1);
   display: flex;
@@ -370,6 +371,7 @@
 
 .pq-present-right-panel {
   position: relative;
+  z-index: 10;
   padding: 32px 36px 84px 36px;
   display: flex;
   flex-direction: column;
@@ -680,11 +682,21 @@
 .pq-annotation-canvas {
   position: absolute;
   inset: 0;
-  width: 1920px;
-  height: 1080px;
   z-index: 50;
   cursor: crosshair;
   touch-action: none;
+}
+
+.pq-present-stage.is-mode-screen .pq-annotation-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+.pq-present-stage.is-mode-16-9 .pq-annotation-canvas {
+  width: 1920px;
+  height: 1080px;
 }
 
 .pq-annotation-canvas.is-eraser {

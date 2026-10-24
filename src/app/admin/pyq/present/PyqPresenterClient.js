@@ -168,9 +168,12 @@ export default function PyqPresenterClient({ questions = [] }) {
   const [screenStageSize, setScreenStageSize] = useState({ width: 1280, height: 720 });
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 
+  const isMappingMode = currentQ?.type === 'mapping';
   const canvasWidth = presentationMode === 'screen' ? screenStageSize.width : 1920;
   const canvasHeight = presentationMode === 'screen' ? screenStageSize.height : 1080;
-  const leftBoundaryX = presentationMode === 'screen' ? Math.round(screenStageSize.width * 0.44) : 830;
+  const leftBoundaryX = presentationMode === 'screen'
+    ? Math.round(screenStageSize.width * (isMappingMode ? 0.48 : 0.44))
+    : (isMappingMode ? 920 : 830);
 
   const toggleTheme = useCallback(() => {
     setTheme(prev => {
@@ -445,7 +448,6 @@ export default function PyqPresenterClient({ questions = [] }) {
   }
 
   const isTopicMode = currentQ.type === 'topic';
-  const isMappingMode = currentQ.type === 'mapping';
   const stemBlocks = (isTopicMode || (isMappingMode && !currentQ.stem)) ? [] : parseStem(currentQ.stem);
   const options = Array.isArray(currentQ.options) ? currentQ.options : [];
   const palette = theme === 'light' ? LIGHT_PALETTE : DARK_PALETTE;
