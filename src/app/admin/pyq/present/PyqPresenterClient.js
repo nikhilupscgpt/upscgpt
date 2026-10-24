@@ -32,6 +32,9 @@ import {
   ListOrdered,
   X,
   BookOpen,
+  Laptop,
+  Tv,
+  Scaling,
 } from 'lucide-react';
 import { buildQuestionSteps, buildTopicSteps } from '@/lib/pyqSlideDeck';
 import { parseStem } from '@/app/prelims/pyq/StemView';
@@ -141,6 +144,35 @@ export default function PyqPresenterClient({ questions = [] }) {
     return stepInkMap[currentStepKey] || [];
   }, [stepInkMap, currentStepKey]);
 
+  // Display Scaling & Screen Fit Modes: 'auto' | 'mac13' (80%) | 'tv' (90%) | '100' (100%) | 'custom'
+  const [zoomMode, setZoomMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('pq_present_zoom_mode');
+        if (['auto', 'mac13', 'tv', '100', 'custom'].includes(saved)) return saved;
+      } catch {
+        // ignore
+      }
+    }
+    return 'auto';
+  });
+
+  const [customScale, setCustomScale] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('pq_present_custom_scale');
+        const num = parseFloat(saved);
+        if (!isNaN(num) && num >= 0.4 && num <= 1.5) return num;
+      } catch {
+        // ignore
+      }
+    }
+    return 0.8;
+  });
+
+  const [showZoomMenu, setShowZoomMenu] = useState(false);
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+
   const toggleTheme = useCallback(() => {
     setTheme(prev => {
       const next = prev === 'dark' ? 'light' : 'dark';
@@ -154,25 +186,73 @@ export default function PyqPresenterClient({ questions = [] }) {
     });
   }, []);
 
+  const handleSetZoomMode = useCallback((mode) => {
+    setZoomMode(mode);
+    try {
+      localStorage.setItem('pq_present_zoom_mode', mode);
+    } catch {
+      // ignore
+    }
+    setShowZoomMenu(false);
+  }, []);
+
+  const handleStepZoom = useCallback((delta) => {
+    setScale(prev => {
+      const next = Math.max(0.4, Math.min(1.5, Number((prev + delta).toFixed(2))));
+      setCustomScale(next);
+      setZoomMode('custom');
+      try {
+        localStorage.setItem('pq_present_zoom_mode', 'custom');
+        localStorage.setItem('pq_present_custom_scale', String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  }, []);
+
   // -------------------------------------------------------------
-  // Window Auto-Scaler for Fixed 1920x1080 Broadcast Coordinate System
+  // Dock-Aware Window Auto-Scaler (1920x1080 Broadcast Coordinate System)
+  // Reserves bottom clearance for floating dock so it never overlaps stage content
   // -------------------------------------------------------------
   useEffect(() => {
     const handleResize = () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
-      const padX = isFullscreen ? 0 : 20;
-      const padY = isFullscreen ? 0 : 20;
+      const isSmall = h <= 850 || w <= 1440;
+      setIsSmallScreen(isSmall);
+
+      // Dedicated clearance reserved for the floating dock:
+      // Expanded standard: ~54px dock + 16px bottom + 12px buffer = 82px
+      // Expanded on 13" Mac / small: ~44px dock + 12px bottom + 8px buffer = 64px
+      // Collapsed: ~32px pill + 12px bottom = 44px
+      const dockClearance = isDockCollapsed ? 36 : (isSmall ? 64 : 80);
+      const padTop = isFullscreen ? 8 : 16;
+      const padX = isFullscreen ? 8 : 20;
+
       const availW = Math.max(320, w - padX * 2);
-      const availH = Math.max(240, h - padY * 2);
-      const s = Math.min(availW / 1920, availH / 1080);
-      setScale(s);
+      const availH = Math.max(240, h - padTop - dockClearance);
+      const fitScale = Math.min(availW / 1920, availH / 1080);
+
+      let targetScale = fitScale;
+      if (zoomMode === 'mac13') {
+        // 80% scale preferred on Mac 13" (or fitScale if screen is narrower)
+        targetScale = Math.min(0.8, fitScale * 1.05);
+      } else if (zoomMode === 'tv') {
+        targetScale = fitScale * 0.92; // 8% overscan safety boundary for TVs
+      } else if (zoomMode === '100') {
+        targetScale = 1.0;
+      } else if (zoomMode === 'custom') {
+        targetScale = customScale;
+      }
+
+      setScale(Number(targetScale.toFixed(3)));
     };
 
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [isFullscreen]);
+  }, [isFullscreen, isDockCollapsed, zoomMode, customScale]);
 
   // -------------------------------------------------------------
   // Fullscreen state listener
@@ -350,6 +430,18 @@ export default function PyqPresenterClient({ questions = [] }) {
         case 'C':
           handleClearStepInk();
           break;
+        case '[':
+        case '-':
+          handleStepZoom(-0.05);
+          break;
+        case ']':
+        case '+':
+        case '=':
+          handleStepZoom(0.05);
+          break;
+        case '0':
+          handleSetZoomMode('auto');
+          break;
         case '?':
           setShowHelp(h => !h);
           break;
@@ -360,7 +452,7 @@ export default function PyqPresenterClient({ questions = [] }) {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleNext, handlePrev, handleUndo, handleClearStepInk, toggleTheme]);
+  }, [handleNext, handlePrev, handleUndo, handleClearStepInk, toggleTheme, handleStepZoom, handleSetZoomMode]);
 
   if (!currentQ) {
     return (
@@ -383,11 +475,16 @@ export default function PyqPresenterClient({ questions = [] }) {
 
   return (
     <div className="pq-present-root" data-present-theme={theme}>
-      {/* 16:9 Scaled Viewport Container */}
-      <div className="pq-present-stage-viewport">
+      {/* 16:9 Scaled Viewport Container (Centered in safe zone ABOVE the floating dock) */}
+      <div
+        className="pq-present-stage-viewport"
+        style={{
+          bottom: isDockCollapsed ? '34px' : (isSmallScreen ? '62px' : '76px'),
+        }}
+      >
         <div
           ref={stageRef}
-          className="pq-present-stage"
+          className={`pq-present-stage ${zoomMode === 'tv' ? 'pq-tv-overscan-safe' : ''}`}
           style={{
             transform: `scale(${scale})`,
             transformOrigin: 'center center',
@@ -991,6 +1088,107 @@ export default function PyqPresenterClient({ questions = [] }) {
             {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
           </button>
 
+          {/* Display Scale & Screen Fit Switcher (Auto / Mac 13" 80% / TV Safe / 100%) */}
+          <div style={{ position: 'relative' }}>
+            <button
+              type="button"
+              onClick={() => setShowZoomMenu(m => !m)}
+              className={`pq-dock-btn pq-dock-btn-zoom ${showZoomMenu || zoomMode !== 'auto' ? 'is-active' : ''}`}
+              title="Screen Fit & Scaling (Mac 13in 80%, TV Safe, Auto Fit) [0 to reset, [ or ] to zoom]"
+            >
+              {zoomMode === 'mac13' ? <Laptop size={15} /> : zoomMode === 'tv' ? <Tv size={15} /> : <Scaling size={15} />}
+              <span className="pq-zoom-pill-label">
+                {zoomMode === 'mac13' ? '80% Mac' : zoomMode === 'tv' ? 'TV Safe' : zoomMode === '100' ? '100%' : `${Math.round(scale * 100)}%`}
+              </span>
+            </button>
+
+            {showZoomMenu && (
+              <div
+                className="pq-zoom-popover"
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="pq-zoom-popover-title">Screen Scaling &amp; Display Fit</div>
+                
+                <div className="pq-zoom-options">
+                  <button
+                    type="button"
+                    onClick={() => handleSetZoomMode('auto')}
+                    className={`pq-zoom-opt-btn ${zoomMode === 'auto' ? 'is-active' : ''}`}
+                  >
+                    <Scaling size={14} />
+                    <div style={{ textAlign: 'left' }}>
+                      <div style={{ fontWeight: 700 }}>Auto-Fit Stage</div>
+                      <small style={{ opacity: 0.75, fontSize: 11 }}>Adapts to window with dock safety</small>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSetZoomMode('mac13')}
+                    className={`pq-zoom-opt-btn ${zoomMode === 'mac13' ? 'is-active' : ''}`}
+                  >
+                    <Laptop size={14} />
+                    <div style={{ textAlign: 'left' }}>
+                      <div style={{ fontWeight: 700 }}>Mac 13&quot; Fit (80%)</div>
+                      <small style={{ opacity: 0.75, fontSize: 11 }}>Compact fit for MacBook 13-inch displays</small>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSetZoomMode('tv')}
+                    className={`pq-zoom-opt-btn ${zoomMode === 'tv' ? 'is-active' : ''}`}
+                  >
+                    <Tv size={14} />
+                    <div style={{ textAlign: 'left' }}>
+                      <div style={{ fontWeight: 700 }}>TV Safe Area (90%)</div>
+                      <small style={{ opacity: 0.75, fontSize: 11 }}>8% overscan margin for 4K / 1080p TVs</small>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSetZoomMode('100')}
+                    className={`pq-zoom-opt-btn ${zoomMode === '100' ? 'is-active' : ''}`}
+                  >
+                    <Maximize2 size={14} />
+                    <div style={{ textAlign: 'left' }}>
+                      <div style={{ fontWeight: 700 }}>100% Native (1:1)</div>
+                      <small style={{ opacity: 0.75, fontSize: 11 }}>Exact 1920x1080 pixel mapping</small>
+                    </div>
+                  </button>
+                </div>
+
+                <div className="pq-zoom-stepper-row">
+                  <span style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', opacity: 0.75 }}>
+                    Fine Adjust
+                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <button
+                      type="button"
+                      onClick={() => handleStepZoom(-0.05)}
+                      className="pq-zoom-step-btn"
+                      title="Zoom Out [- or []"
+                    >
+                      -5%
+                    </button>
+                    <span style={{ fontSize: 12, fontWeight: 800, minWidth: 42, textAlign: 'center' }}>
+                      {Math.round(scale * 100)}%
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleStepZoom(0.05)}
+                      className="pq-zoom-step-btn"
+                      title="Zoom In [+ or ]]"
+                    >
+                      +5%
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           <button
             type="button"
             onClick={() => setShowHelp(h => !h)}
@@ -1058,6 +1256,9 @@ export default function PyqPresenterClient({ questions = [] }) {
               <strong>D</strong> <span>Collapse / Expand Presenter Dock</span>
               <strong>Cmd + Z</strong> <span>Undo Last Stroke</span>
               <strong>C</strong> <span>Clear Current Step Ink</span>
+              <strong>[ / -</strong> <span>Zoom Out / Shrink Stage (5%)</span>
+              <strong>] / +</strong> <span>Zoom In / Enlarge Stage (5%)</span>
+              <strong>0</strong> <span>Reset to Auto-Fit Dock Clearance</span>
               <strong>F</strong> <span>Fullscreen (for TV / OBS recording)</span>
               <strong>W</strong> <span>Toggle OBS Webcam Safe Zone</span>
               <strong>T</strong> <span>30s Think Timer</span>

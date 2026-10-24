@@ -497,4 +497,38 @@
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
   z-index: 5000;
   animation: pq-pop 0.25s ease-out;
+  max-width: calc(100vw - 32px);
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   RESPONSIVE OPTIMIZATIONS FOR 13" MACBOOK & SMALLER LAPTOP SCREENS
+   ========================================================================== */
+
+@media (max-width: 1440px) {
+  .pq-pyq-studio-root {
+    padding: 24px 28px 140px;
+  }
+
+  .pq-pyq-filter-container {
+    padding: 18px 20px;
+  }
+
+  .pq-pyq-select {
+    min-width: 120px;
+    font-size: 13px;
+    padding: 7px 10px;
+  }
+}
+
+@media (max-width: 900px) {
+  .pq-pyq-floating-queue-bar {
+    padding: 10px 16px;
+    gap: 12px;
+    bottom: 16px;
+  }
+
+  .pq-pyq-floating-queue-bar span {
+    font-size: 13px;
+  }
 }
