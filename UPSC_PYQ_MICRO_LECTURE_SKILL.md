@@ -20,7 +20,36 @@ To guarantee manual-level surgical precision and eliminate AI fluff across all s
 
 ---
 
-## 2. The 8-Part Pedagogical Architecture
+## 2. Strict "Humanised Classroom Tone" Rule (Teacher-to-Student Voice)
+
+Every explanation, takeaway, and bullet point must read like an experienced senior UPSC faculty member speaking directly to a student in clean, direct, conversational English.
+
+### Banned Robotic & Bureaucratic AI Vocabulary:
+Do NOT use AI filler words, legalistic clichés, or dense academic jargon:
+- ❌ **"pursuant to"** → Use **"under"**, **"as per"**, or **"according to"**
+- ❌ **"stands eliminated"** / **"stands invalidated"** → Use **"is incorrect because"**, **"rules this option out"**, or **"is wrong"**
+- ❌ **"aforementioned"** / **"herein"** → Use **"this"**, **"that"**, or name the entity directly
+- ❌ **"encapsulates"** / **"delineates"** → Use **"shows"**, **"sets out"**, or **"tells us"**
+- ❌ **"bifurcated"** / **"trifurcated"** → Use **"split into"** or **"divided into"**
+- ❌ **"thereby rendering it erroneous"** → Use **"which is wrong"** or **"making this statement false"**
+- ❌ **"statutory paradigm"** / **"jurisdictional contours"** → Use **"legal authority"**, **"power"**, or **"scope"**
+- ❌ **"interventions were necessitated"** → Use **"steps were taken"** or **"the government stepped in"**
+- ❌ **"consequent to"** → Use **"after"** or **"because of"**
+- ❌ **"nuanced"**, **"holistic"**, **"vector"**, **"taxonomy"** (unless official biological taxonomy)
+
+### Sentence Structure & Delivery:
+1. **No Run-On Multi-Clause Sentences**: Keep sentences under 18–22 words. If an idea has two parts, break it into two crisp sentences.
+2. **Active Voice Always**:
+   - ❌ *"Notification is required to be issued by the President pursuant to Article 356."*
+   - ✅ *"The President issues this proclamation under Article 356."*
+3. **Point Directly to the Examiner's Trap**:
+   - Use clear teacher guidance phrases: *"Notice what UPSC did here:"*, *"Common trap:"*, *"Don't confuse X with Y."*
+4. **Practical Exam Hall Mindset**:
+   - Focus on what the student needs to spot on their question paper under pressure, not an academic thesis.
+
+---
+
+## 3. The 8-Part Pedagogical Architecture
 
 Every question deconstruction strictly follows this sequence:
 
@@ -39,7 +68,7 @@ Every question deconstruction strictly follows this sequence:
 
 ---
 
-## 3. Output Format Specification
+## 4. Output Format Specification
 
 Whenever a question is provided, generate **ALL THREE** of the following outputs:
 
