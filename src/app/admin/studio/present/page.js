@@ -190,6 +190,7 @@ export default async function StudioPresentPage({ searchParams }) {
           imageUrl: node.imageUrl || null,
           imageCaption: `${node.place} Physical Map`,
           priority: node.priority || 'High',
+          riverDetails: node.riverDetails || null,
         });
       } else if (pinMap.has(id)) {
         const pin = pinMap.get(id);

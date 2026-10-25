@@ -42,6 +42,7 @@ export async function GET(req) {
           imageUrl: node.imageUrl || null,
           imageCaption: `${node.place} Physical Map`,
           priority: node.priority || 'Medium',
+          riverDetails: node.riverDetails || null,
         });
       }
     }

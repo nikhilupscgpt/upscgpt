@@ -1,5 +1,6 @@
 import { getStructuredExplanation } from './pyqExplanationHelper';
 import { normalizeKeywordsList } from './pyqKeywords';
+import { CURATED_MAPPING_NODES } from './static-mapping-data';
 
 /**
  * Builds structured presentation slide steps for a given PYQ.
@@ -416,19 +417,25 @@ export function buildMappingSteps(item, customAssets = {}) {
     : (item.location || item.state || item.country || 'India');
   const categories = Array.isArray(item.mapCategory) ? item.mapCategory.join(', ') : (item.mapCategory || item.category || 'Physical Geography');
 
+  // Look up curated riverDetails if not passed directly
+  const matchedCurated = (item?.id || item?.slug || item?.place)
+    ? CURATED_MAPPING_NODES.find(
+        (n) => n.id === item.id || (item.slug && n.slug === item.slug) || (item.place && n.place === item.place)
+      )
+    : null;
+  const rd = item?.riverDetails || matchedCurated?.riverDetails || null;
+
   // -------------------------------------------------------------
   // BRANCH A: Dedicated 9-Point Humanized River Slide Sequence
   // -------------------------------------------------------------
-  if (item.riverDetails) {
-    const rd = item.riverDetails;
-
+  if (rd) {
     // STAGE 1: Course, Origin & States
     steps.push({
       id: 'river_course',
       type: 'river_course',
-      badge: 'STAGE 1 · COURSE, ORIGIN & STATES',
-      title: `${item.place} — Where It Starts, Flows & Ends`,
-      subtitle: 'Origin, length, direct flow states, and total basin catchment',
+      badge: 'STAGE 1 · WHERE IT STARTS & ENDS',
+      title: `${item.place} — Origin, Course & Basin States`,
+      subtitle: 'Where it starts, how long it is, and the states it passes through',
       riverDetails: rd,
       item,
       locationText,
@@ -441,7 +448,7 @@ export function buildMappingSteps(item, customAssets = {}) {
       type: 'river_tributaries',
       badge: 'STAGE 2 · LEFT-BANK VS RIGHT-BANK TRIBUTARIES',
       title: `${item.place} — Left-Bank vs Right-Bank Tributaries`,
-      subtitle: 'Dual-bank tributary alignment and high-yield Prelims memory hooks',
+      subtitle: 'Which tributaries join from the left vs right (and key facts to remember)',
       riverDetails: rd,
       item,
     });
@@ -450,8 +457,8 @@ export function buildMappingSteps(item, customAssets = {}) {
     steps.push({
       id: 'river_dams_confluences',
       type: 'river_dams_confluences',
-      badge: 'STAGE 3 · SANGAMS & MAJOR DAMS',
-      title: `${item.place} — Important Sangams & Major Dams`,
+      badge: 'STAGE 3 · IMPORTANT SANGAMS & MAJOR DAMS',
+      title: `${item.place} — Confluences & Major Dams`,
       subtitle: 'Where tributaries meet the main river and major dams (with their states)',
       riverDetails: rd,
       item,
@@ -461,23 +468,27 @@ export function buildMappingSteps(item, customAssets = {}) {
     steps.push({
       id: 'river_ecology_towns',
       type: 'river_ecology_towns',
-      badge: 'STAGE 4 · PARKS, TOWNS & WILDLIFE',
-      title: `${item.place} — Protected Areas, Cities & Wildlife`,
-      subtitle: 'National parks crossed, historic cities on the banks, and indicator animals',
+      badge: 'STAGE 4 · PARKS, TOWNS & ANIMALS',
+      title: `${item.place} — National Parks, Cities & River Wildlife`,
+      subtitle: 'National parks it flows through, historical towns on its banks, and animals/birds',
       riverDetails: rd,
       item,
     });
 
     // STAGE 5: Linked UPSC Prelims PYQ
-    if (item.pyq || item.resolvedPyq || (Array.isArray(item.similarPYQs) && item.similarPYQs.length > 0)) {
-      const pyqObj = item.pyq || item.resolvedPyq || item.similarPYQs[0];
+    if (item.pyq || item.resolvedPyq || (Array.isArray(item.similarPYQs) && item.similarPYQs.length > 0) || (Array.isArray(matchedCurated?.similarPYQ) && matchedCurated.similarPYQ.length > 0)) {
+      const pyqObj = item.pyq || item.resolvedPyq || item.similarPYQs?.[0] || matchedCurated?.similarPYQ?.[0];
+      const pyqFormatted = typeof pyqObj === 'string'
+        ? { stem: `Previous UPSC examination question linked to ${item.place} (${pyqObj})`, exam: 'UPSC CSE Pre' }
+        : pyqObj;
+
       steps.push({
         id: 'map_pyq',
         type: 'mapping_pyq',
-        badge: 'STAGE 5 · LINKED UPSC PRELIMS PYQ',
-        title: 'How UPSC Tested This River in Past Years',
-        subtitle: `${pyqObj.exam || 'UPSC CSE Pre'} ${pyqObj.examYear || ''}`,
-        pyq: pyqObj,
+        badge: 'STAGE 5 · PAST UPSC PRELIMS QUESTION',
+        title: 'How UPSC Asked About This River',
+        subtitle: `${pyqFormatted.exam || 'UPSC CSE Pre'} ${pyqFormatted.examYear || ''}`,
+        pyq: pyqFormatted,
       });
     }
 
@@ -486,9 +497,9 @@ export function buildMappingSteps(item, customAssets = {}) {
       steps.push({
         id: 'map_visual',
         type: 'image',
-        badge: 'STAGE 6 · CUSTOM DIAGRAM & SATELLITE OVERLAY',
+        badge: 'STAGE 6 · MAP DIAGRAM & SATELLITE VIEW',
         title: imageCaption,
-        subtitle: 'Annotate river courses, mountain passes, buffer zones & borders with XP-Pen stylus',
+        subtitle: 'Draw freely on the river course and boundaries with your stylus',
         imageUrl,
         caption: imageCaption,
       });
@@ -500,19 +511,19 @@ export function buildMappingSteps(item, customAssets = {}) {
   // -------------------------------------------------------------
   // BRANCH B: Standard Mapping Slide Sequence (Hills, Seas, PIN)
   // -------------------------------------------------------------
-  // STAGE 1: Spatial Overview & Coordinates
+  // STAGE 1: Location & Overview
   steps.push({
     id: 'map_overview',
     type: 'mapping_overview',
-    badge: 'STAGE 1 · SPATIAL PROFILE & GEO-COORDINATES',
-    title: item.place || item.title || 'Spatial Anchor',
+    badge: 'STAGE 1 · BASIC LOCATION & OVERVIEW',
+    title: item.place || item.title || 'Location Overview',
     subtitle: `${item.regionScope || 'India'} · ${categories} · ${locationText}`,
     item,
     locationText,
     categories,
   });
 
-  // STAGE 2: High-Yield Static Geography Facts
+  // STAGE 2: Important Facts for Prelims
   const facts = Array.isArray(item.staticFacts) 
     ? item.staticFacts 
     : (typeof item.staticFacts === 'string' && item.staticFacts.trim() ? [item.staticFacts] : []);
@@ -521,21 +532,21 @@ export function buildMappingSteps(item, customAssets = {}) {
     steps.push({
       id: 'map_facts',
       type: 'mapping_facts',
-      badge: 'STAGE 2 · KEY GEOGRAPHICAL & ECOLOGICAL FACTS',
-      title: 'Physical Geography & Strategic Profile',
-      subtitle: 'Tributaries, terrain, national parks, flora/fauna & geopolitical context',
+      badge: 'STAGE 2 · IMPORTANT FACTS FOR PRELIMS',
+      title: 'Key Facts & What to Remember',
+      subtitle: 'Important geography facts, terrain, and background for prelims',
       facts,
     });
   }
 
-  // STAGE 3: UPSC Exam Angle & Directional Alignment
+  // STAGE 3: Common Mistakes & Traps
   if (item.upscAngle || item.newsHook) {
     steps.push({
       id: 'map_angle',
       type: 'mapping_angle',
-      badge: 'STAGE 3 · EXAMINER ANGLE & DIRECTIONAL TRAPS',
-      title: 'UPSC Directional Alignment & Distractor Traps',
-      subtitle: 'North-to-South / West-to-East ordering, border disputes, and current news triggers',
+      badge: 'STAGE 3 · COMMON MISTAKES & UPSC TRAPS',
+      title: "Examiner's Trap & Ordering Traps",
+      subtitle: 'Watch out for North-to-South ordering, border questions, and news context',
       upscAngle: item.upscAngle,
       newsHook: item.newsHook,
     });
@@ -544,13 +555,16 @@ export function buildMappingSteps(item, customAssets = {}) {
   // STAGE 4: Linked UPSC Prelims PYQ
   if (item.pyq || item.resolvedPyq || (Array.isArray(item.similarPYQs) && item.similarPYQs.length > 0)) {
     const pyqObj = item.pyq || item.resolvedPyq || item.similarPYQs[0];
+    const pyqFormatted = typeof pyqObj === 'string'
+      ? { stem: `Previous UPSC examination question linked to ${item.place} (${pyqObj})`, exam: 'UPSC CSE Pre' }
+      : pyqObj;
     steps.push({
       id: 'map_pyq',
       type: 'mapping_pyq',
-      badge: 'STAGE 4 · LINKED UPSC PRELIMS PYQ',
-      title: 'How UPSC Tested This Location in Past Years',
-      subtitle: `${pyqObj.exam || 'UPSC CSE Pre'} ${pyqObj.examYear || ''}`,
-      pyq: pyqObj,
+      badge: 'STAGE 4 · PAST UPSC PRELIMS QUESTION',
+      title: 'How UPSC Tested This Location',
+      subtitle: `${pyqFormatted.exam || 'UPSC CSE Pre'} ${pyqFormatted.examYear || ''}`,
+      pyq: pyqFormatted,
     });
   }
 

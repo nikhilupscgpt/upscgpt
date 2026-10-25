@@ -1393,27 +1393,27 @@ export default function PyqPresenterClient({ questions = [] }) {
                 );
               })()}
 
-              {/* MAPPING STAGE 1: SPATIAL OVERVIEW & PROFILE */}
+              {/* MAPPING STAGE 1: LOCATION & OVERVIEW */}
               {currentStep?.type === 'mapping_overview' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   <div className="pq-present-intro-grid">
                     <div className="pq-present-stat-box">
-                      <div className="pq-present-stat-label">Geographic Entity</div>
+                      <div className="pq-present-stat-label">Place / Feature Name</div>
                       <div className="pq-present-stat-value">{currentQ.place || currentQ.title}</div>
                     </div>
                     <div className="pq-present-stat-box">
-                      <div className="pq-present-stat-label">Geo Coordinates</div>
+                      <div className="pq-present-stat-label">Latitude &amp; Longitude</div>
                       <div className="pq-present-stat-value" style={{ fontFamily: 'monospace' }}>
-                        {currentQ.lat && currentQ.lng ? `${Number(currentQ.lat).toFixed(2)}° N, ${Number(currentQ.lng).toFixed(2)}° E` : 'Spatial Coordinate Node'}
+                        {currentQ.lat && currentQ.lng ? `${Number(currentQ.lat).toFixed(2)}° N, ${Number(currentQ.lng).toFixed(2)}° E` : 'Coordinates on Map'}
                       </div>
                     </div>
                     <div className="pq-present-stat-box">
-                      <div className="pq-present-stat-label">Jurisdiction / Location</div>
+                      <div className="pq-present-stat-label">State / Region</div>
                       <div className="pq-present-stat-value">{currentStep.locationText || 'India'}</div>
                     </div>
                     <div className="pq-present-stat-box">
-                      <div className="pq-present-stat-label">Category Classification</div>
-                      <div className="pq-present-stat-value">{currentStep.categories || currentQ.placeType || 'Physical Geography'}</div>
+                      <div className="pq-present-stat-label">Topic / Category</div>
+                      <div className="pq-present-stat-value">{currentStep.categories || currentQ.placeType || 'Geography'}</div>
                     </div>
                   </div>
 
@@ -1427,14 +1427,14 @@ export default function PyqPresenterClient({ questions = [] }) {
                 </div>
               )}
 
-              {/* MAPPING STAGE 3: KEY FACTS */}
+              {/* MAPPING STAGE 2: KEY FACTS */}
               {currentStep?.type === 'mapping_facts' && currentStep.facts && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                   {currentStep.facts.map((fact, idx) => (
                     <div key={idx} className="pq-present-concept-card">
                       <div className="pq-present-concept-title">
                         <Compass size={18} color="#34d399" />
-                        <span>Key Geographical Profile #{idx + 1}</span>
+                        <span>Key Fact #{idx + 1}</span>
                       </div>
                       <p className="pq-present-concept-note" style={{ fontSize: 16.5, lineHeight: 1.6 }}>
                         {fact}
@@ -1444,14 +1444,14 @@ export default function PyqPresenterClient({ questions = [] }) {
                 </div>
               )}
 
-              {/* MAPPING STAGE 4: EXAM ANGLE & DIRECTIONAL TRAPS */}
+              {/* MAPPING STAGE 3: EXAM TRAPS */}
               {currentStep?.type === 'mapping_angle' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   {currentStep.upscAngle && (
                     <div className="pq-present-card" style={{ borderColor: 'rgba(245, 158, 11, 0.45)', background: theme === 'light' ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.1), #ffffff)' : 'linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(15, 23, 42, 0.85))' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: theme === 'light' ? '#b45309' : '#fbbf24', textTransform: 'uppercase', marginBottom: 10 }}>
                         <Sparkles size={16} />
-                        <span>Directional Ordering &amp; Examiner Traps</span>
+                        <span>⚠️ Common UPSC Mistake / Examiner Trap</span>
                       </div>
                       <p style={{ fontSize: 18, lineHeight: 1.6, color: theme === 'light' ? '#0f172a' : '#f8fafc', margin: 0 }}>
                         {currentStep.upscAngle}
@@ -1463,7 +1463,7 @@ export default function PyqPresenterClient({ questions = [] }) {
                     <div className="pq-present-news-card">
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: theme === 'light' ? '#dc2626' : '#f87171', textTransform: 'uppercase' }}>
                         <Flame size={14} />
-                        <span>Places in News Contemporary Trigger</span>
+                        <span>📰 Why in the News Recently</span>
                       </div>
                       <h3 className="pq-present-news-headline">{currentStep.newsHook}</h3>
                     </div>
@@ -1471,12 +1471,12 @@ export default function PyqPresenterClient({ questions = [] }) {
                 </div>
               )}
 
-              {/* MAPPING STAGE 5: LINKED PYQ */}
+              {/* MAPPING STAGE 4/5: LINKED PYQ */}
               {currentStep?.type === 'mapping_pyq' && currentStep.pyq && (
                 <div className="pq-present-card" style={{ borderColor: 'rgba(56, 189, 248, 0.4)', background: theme === 'light' ? 'linear-gradient(135deg, rgba(56, 189, 248, 0.1), #ffffff)' : 'linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.85))' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: theme === 'light' ? '#0284c7' : '#38bdf8', textTransform: 'uppercase', marginBottom: 10 }}>
                     <Layers size={14} />
-                    <span>Past Year UPSC Testing: {currentStep.pyq.exam || 'UPSC CSE Pre'} {currentStep.pyq.examYear || ''}</span>
+                    <span>Past Year UPSC Question: {currentStep.pyq.exam || 'UPSC CSE Pre'} {currentStep.pyq.examYear || ''}</span>
                   </div>
                   <p style={{ fontSize: 17.5, lineHeight: 1.55, color: theme === 'light' ? '#0f172a' : '#f8fafc', margin: '0 0 14px' }}>
                     {currentStep.pyq.stem}
