@@ -181,8 +181,9 @@ export function buildQuestionSteps(q, customAssets = {}) {
         if (typeof card === 'string') {
           points.push(card);
         } else if (card && typeof card === 'object') {
-          const cardTitle = card.title ? `[${card.title}]` : '';
-          const cardBullets = card.bullets || card.points || [];
+          const rawTitle = card.title || card.heading || '';
+          const cardTitle = rawTitle ? `[${rawTitle}]` : '';
+          const cardBullets = card.bullets || card.points || card.items || [];
           if (Array.isArray(cardBullets) && cardBullets.length > 0) {
             for (const b of cardBullets) {
               const text = typeof b === 'string' ? b : (b?.text || JSON.stringify(b));
@@ -190,9 +191,11 @@ export function buildQuestionSteps(q, customAssets = {}) {
             }
           } else if (Array.isArray(card.sections)) {
             for (const sec of card.sections) {
-              const secHead = sec.heading ? `(${sec.heading})` : '';
-              for (const pt of (sec.points || [])) {
-                points.push(`${cardTitle} ${secHead} ${pt}`.trim());
+              const secHead = (sec.heading || sec.title) ? `(${sec.heading || sec.title})` : '';
+              const secPts = sec.points || sec.bullets || [];
+              for (const pt of secPts) {
+                const ptText = typeof pt === 'string' ? pt : JSON.stringify(pt);
+                points.push(`${cardTitle} ${secHead} ${ptText}`.trim());
               }
             }
           } else if (card.description) {

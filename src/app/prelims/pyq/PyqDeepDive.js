@@ -502,42 +502,58 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
                 );
               })() : Array.isArray(valueAddition) ? (
                 <div className="pq-va-grid">
-                  {valueAddition.map((card, i) => (
-                    <div key={i} className="pq-va-card">
-                      {typeof card === 'string' ? (
-                        <p className="pq-va-desc">{card}</p>
-                      ) : (
-                        <>
+                  {valueAddition.map((card, i) => {
+                    if (typeof card === 'string') {
+                      return (
+                        <div key={i} className="pq-va-card">
+                          <p className="pq-va-desc">{card}</p>
+                        </div>
+                      );
+                    }
+                    const title = card?.title || card?.heading;
+                    const tag = card?.tag;
+                    const bullets = card?.bullets || card?.points || card?.items;
+                    const sections = card?.sections;
+
+                    return (
+                      <div key={i} className="pq-va-card">
+                        {(title || tag) && (
                           <div className="pq-va-head">
-                            <h4 className="pq-va-title">{card.title}</h4>
-                            {card.tag && <span className="pq-va-tag">{card.tag}</span>}
+                            {title && <h4 className="pq-va-title">{title}</h4>}
+                            {tag && <span className="pq-va-tag">{tag}</span>}
                           </div>
-                          {card.description && <p className="pq-va-desc">{card.description}</p>}
-                          {Array.isArray(card.bullets || card.points) && (
-                            <ul className="pq-va-list" style={{ margin: '8px 0 0', paddingLeft: 18 }}>
-                              {(card.bullets || card.points).map((b, k) => (
-                                <li key={k} style={{ marginBottom: 6, lineHeight: 1.55 }}>
-                                  {typeof b === 'string' ? b : JSON.stringify(b)}
-                                </li>
-                              ))}
-                            </ul>
-                          )}
-                          {card.sections &&
-                            card.sections.map((sec, j) => (
-                              <div key={j} className="pq-va-subblock">
-                                <h5 className="pq-va-subtitle">{sec.heading}</h5>
-                                <ul className="pq-va-list">
-                                  {sec.points &&
-                                    sec.points.map((pt, k) => (
-                                      <li key={k} dangerouslySetInnerHTML={{ __html: pt }} />
-                                    ))}
-                                </ul>
-                              </div>
+                        )}
+                        {card?.description && <p className="pq-va-desc">{card.description}</p>}
+                        {Array.isArray(bullets) && bullets.length > 0 && (
+                          <ul className="pq-va-list" style={{ margin: '8px 0 0', paddingLeft: 18 }}>
+                            {bullets.map((b, k) => (
+                              <li key={k} style={{ marginBottom: 6, lineHeight: 1.55 }}>
+                                {typeof b === 'string' ? b : JSON.stringify(b)}
+                              </li>
                             ))}
-                        </>
-                      )}
-                    </div>
-                  ))}
+                          </ul>
+                        )}
+                        {Array.isArray(sections) &&
+                          sections.map((sec, j) => (
+                            <div key={j} className="pq-va-subblock">
+                              {(sec.heading || sec.title) && (
+                                <h5 className="pq-va-subtitle">{sec.heading || sec.title}</h5>
+                              )}
+                              <ul className="pq-va-list">
+                                {(sec.points || sec.bullets || []).map((pt, k) => (
+                                  <li
+                                    key={k}
+                                    dangerouslySetInnerHTML={{
+                                      __html: typeof pt === 'string' ? pt : JSON.stringify(pt),
+                                    }}
+                                  />
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
+                      </div>
+                    );
+                  })}
                 </div>
               ) : null}
             </div>
