@@ -18,6 +18,7 @@ import {
   BookOpen, 
   X, 
   Check, 
+  Copy,
   HelpCircle,
   FileText,
   Layers,
@@ -26,7 +27,7 @@ import {
   Play
 } from 'lucide-react';
 import { isNewPatternQuestion, isPairQuestion, isStatementQuestion } from '@/lib/pyqPattern';
-import { getStructuredExplanation } from '@/lib/pyqExplanationHelper';
+import { getStructuredExplanation, formatQuestionForCopy } from '@/lib/pyqExplanationHelper';
 import { TOPIC_GROUPS, SUBJECT_ORDER } from '@/app/prelims/pyq/topicGroups';
 
 export default function PyqAdminClient({ session }) {
@@ -42,6 +43,7 @@ export default function PyqAdminClient({ session }) {
   const [error, setError] = useState(null);
 
   const [updatingTopicId, setUpdatingTopicId] = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
 
   const [search, setSearch] = useState('');
@@ -469,6 +471,18 @@ export default function PyqAdminClient({ session }) {
         explanation: JSON.stringify({ analysis: templateAnalysis }, null, 2)
       }));
     }
+  };
+
+  const handleCopyQuestionText = (q) => {
+    const textToCopy = formatQuestionForCopy(q);
+    if (!textToCopy) return;
+    navigator.clipboard.writeText(textToCopy);
+    setCopiedId(q.id);
+    setToastMessage(`✓ Q#${q.questionNo || q.id} text copied to clipboard! Ready to paste in Gemini.`);
+    setTimeout(() => {
+      setCopiedId(null);
+      setToastMessage(null);
+    }, 2500);
   };
 
   // Save Edit
@@ -1535,6 +1549,28 @@ export default function PyqAdminClient({ session }) {
                             <span>Present</span>
                           </a>
 
+                          <button
+                            onClick={() => handleCopyQuestionText(q)}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '5px',
+                              padding: '6px 12px',
+                              borderRadius: '8px',
+                              background: copiedId === q.id ? 'rgba(16, 185, 129, 0.15)' : 'rgba(168, 85, 247, 0.12)',
+                              color: copiedId === q.id ? '#34d399' : '#c084fc',
+                              border: copiedId === q.id ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(168, 85, 247, 0.35)',
+                              fontSize: '0.8rem',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease'
+                            }}
+                            title="Copy clean question text and options to clipboard (ready to paste directly into Gemini)"
+                          >
+                            {copiedId === q.id ? <Check size={13} /> : <Copy size={13} />}
+                            <span>{copiedId === q.id ? 'Copied!' : 'Copy Question'}</span>
+                          </button>
+
                           <a
                             href={`/admin/pyq/${q.id}`}
                             target="_blank"
@@ -2348,6 +2384,28 @@ export default function PyqAdminClient({ session }) {
                       }}
                     >
                       ⚡ JSON / JSONL Mode
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleCopyQuestionText(editingQuestion)}
+                      style={{
+                        padding: '5px 12px',
+                        borderRadius: '6px',
+                        border: 'none',
+                        background: copiedId === editingQuestion.id ? 'rgba(16, 185, 129, 0.25)' : 'rgba(168, 85, 247, 0.2)',
+                        color: copiedId === editingQuestion.id ? '#34d399' : '#c084fc',
+                        fontWeight: 800,
+                        fontSize: '0.78rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                      title="Copy clean question text and options to clipboard (ready for Gemini)"
+                    >
+                      {copiedId === editingQuestion.id ? <Check size={12} /> : <Copy size={12} />}
+                      <span>{copiedId === editingQuestion.id ? 'Copied!' : 'Copy for Gemini'}</span>
                     </button>
                   </div>
                 </div>

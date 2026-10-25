@@ -26,7 +26,7 @@ import {
   Zap,
   Play
 } from 'lucide-react';
-import { getStructuredExplanation } from '@/lib/pyqExplanationHelper';
+import { getStructuredExplanation, formatQuestionForCopy } from '@/lib/pyqExplanationHelper';
 import { normalizeCanonicalSubject } from '@/app/prelims/pyq/topicGroups';
 import { normalizeKeywordsList, slugifyKeyword } from '@/lib/pyqKeywords';
 import '@/app/prelims/pyq/pyq-ui.css';
@@ -110,6 +110,7 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
   const [saving, setSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copiedQuestion, setCopiedQuestion] = useState(false);
   const [safeMergeEnabled, setSafeMergeEnabled] = useState(true);
   const [toastMessage, setToastMessage] = useState(null);
 
@@ -246,6 +247,18 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
     navigator.clipboard.writeText(rawJsonText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleCopyQuestion = () => {
+    const textToCopy = formatQuestionForCopy(data);
+    if (!textToCopy) return;
+    navigator.clipboard.writeText(textToCopy);
+    setCopiedQuestion(true);
+    setToastMessage('✓ Clean question & options copied to clipboard! Ready to paste in Gemini.');
+    setTimeout(() => {
+      setCopiedQuestion(false);
+      setToastMessage(null);
+    }, 3000);
   };
 
   // Save to DB
@@ -576,6 +589,28 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
           </button>
 
           <button
+            onClick={handleCopyQuestion}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 15px',
+              borderRadius: '8px',
+              background: copiedQuestion ? 'rgba(16, 185, 129, 0.15)' : 'rgba(168, 85, 247, 0.14)',
+              color: copiedQuestion ? '#34d399' : '#c084fc',
+              border: copiedQuestion ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(168, 85, 247, 0.35)',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'all 0.15s ease'
+            }}
+            title="Copy clean question text and options to clipboard (ready to paste directly into Gemini)"
+          >
+            {copiedQuestion ? <Check size={15} /> : <Copy size={15} />}
+            <span>{copiedQuestion ? 'Question Copied!' : 'Copy Question for Gemini'}</span>
+          </button>
+
+          <button
             onClick={handleSave}
             disabled={saving || Boolean(parseError)}
             style={{
@@ -654,6 +689,28 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
               >
                 <Zap size={12} fill="#ffffff" />
                 <span>Merge Gemini Answer</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCopyQuestion}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  padding: '4px 8px',
+                  borderRadius: '6px',
+                  background: copiedQuestion ? 'rgba(16, 185, 129, 0.15)' : 'rgba(168, 85, 247, 0.12)',
+                  color: copiedQuestion ? '#34d399' : '#c084fc',
+                  border: copiedQuestion ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(168, 85, 247, 0.3)',
+                  fontSize: '0.75rem',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+                title="Copy clean question text and options to clipboard (ready to paste directly into Gemini)"
+              >
+                {copiedQuestion ? <Check size={12} color="#10b981" /> : <Copy size={12} />}
+                <span>{copiedQuestion ? 'Copied' : 'Copy Question'}</span>
               </button>
 
               <button
