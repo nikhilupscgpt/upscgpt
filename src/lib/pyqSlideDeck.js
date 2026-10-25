@@ -177,10 +177,29 @@ export function buildQuestionSteps(q, customAssets = {}) {
         }
       }
     } else if (Array.isArray(analysis.valueAddition)) {
-      points = analysis.valueAddition.map(item => {
-        if (typeof item === 'string') return item;
-        return item.title ? `${item.title}: ${item.description || ''}` : JSON.stringify(item);
-      });
+      for (const card of analysis.valueAddition) {
+        if (typeof card === 'string') {
+          points.push(card);
+        } else if (card && typeof card === 'object') {
+          const cardTitle = card.title ? `[${card.title}]` : '';
+          const cardBullets = card.bullets || card.points || [];
+          if (Array.isArray(cardBullets) && cardBullets.length > 0) {
+            for (const b of cardBullets) {
+              const text = typeof b === 'string' ? b : (b?.text || JSON.stringify(b));
+              points.push(cardTitle ? `${cardTitle} ${text}` : text);
+            }
+          } else if (Array.isArray(card.sections)) {
+            for (const sec of card.sections) {
+              const secHead = sec.heading ? `(${sec.heading})` : '';
+              for (const pt of (sec.points || [])) {
+                points.push(`${cardTitle} ${secHead} ${pt}`.trim());
+              }
+            }
+          } else if (card.description) {
+            points.push(cardTitle ? `${cardTitle} ${card.description}` : card.description);
+          }
+        }
+      }
     }
 
     if (points.length > 0) {
@@ -234,6 +253,24 @@ export function buildQuestionSteps(q, customAssets = {}) {
       title: 'Interlinked Previous Year Question',
       subtitle: 'How UPSC tests this recurring theme across multiple examination years',
       similarPyq: analysis.similarPyq,
+      showAnswer: true,
+      highlightedOption: correctLabel,
+      verdicts,
+    });
+  }
+
+  // -------------------------------------------------------------
+  // STEP 7: High-Yield Comparison Matrix Table (if present)
+  // -------------------------------------------------------------
+  if (analysis?.visualSuggestion && (analysis.visualSuggestion.tableData || analysis.visualSuggestion.caption || analysis.visualSuggestion.title)) {
+    steps.push({
+      id: 'visual_table',
+      type: 'table',
+      badge: 'STAGE 9 · HIGH-YIELD COMPARISON MATRIX',
+      title: analysis.visualSuggestion.title || 'High-Yield Comparison Matrix',
+      subtitle: analysis.visualSuggestion.caption || 'Side-by-side comparative examination framework',
+      tableData: analysis.visualSuggestion.tableData || null,
+      caption: analysis.visualSuggestion.caption || '',
       showAnswer: true,
       highlightedOption: correctLabel,
       verdicts,

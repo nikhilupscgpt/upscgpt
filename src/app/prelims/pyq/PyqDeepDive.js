@@ -17,6 +17,7 @@ import {
   Zap,
   ChevronDown,
   ChevronUp,
+  Table2,
 } from 'lucide-react';
 import { normalizeKeywordsList } from '@/lib/pyqKeywords';
 import ConceptStudyModal from './ConceptStudyModal';
@@ -91,7 +92,7 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
 
   if (!analysis) return null;
 
-  const { keywords, optionBreakdown, valueAddition, inNews, similarPyq } = analysis;
+  const { keywords, optionBreakdown, valueAddition, inNews, similarPyq, visualSuggestion } = analysis;
   const isLocked = !usageState.loading && !usageState.allowed;
 
   return (
@@ -418,6 +419,24 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
                           {isCorrect ? <CheckCircle2 size={13} /> : <XCircle size={13} />}
                           {opt.verdict || (isCorrect ? 'Correct' : 'Incorrect')}
                         </span>
+                        {opt.reference && (
+                          <span
+                            className="pq-bc-ref-badge"
+                            style={{
+                              marginLeft: 'auto',
+                              padding: '2px 8px',
+                              borderRadius: '6px',
+                              background: 'rgba(59, 130, 246, 0.12)',
+                              border: '1px solid rgba(59, 130, 246, 0.28)',
+                              color: 'var(--pq-blue, #3b82f6)',
+                              fontSize: '11px',
+                              fontWeight: 800,
+                              letterSpacing: '0.02em',
+                            }}
+                          >
+                            {opt.reference}
+                          </span>
+                        )}
                       </div>
                       {opt.text && <p className="pq-bc-opt-text">{opt.text}</p>}
                       <p className="pq-bc-exp">{opt.explanation}</p>
@@ -494,6 +513,15 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
                             {card.tag && <span className="pq-va-tag">{card.tag}</span>}
                           </div>
                           {card.description && <p className="pq-va-desc">{card.description}</p>}
+                          {Array.isArray(card.bullets || card.points) && (
+                            <ul className="pq-va-list" style={{ margin: '8px 0 0', paddingLeft: 18 }}>
+                              {(card.bullets || card.points).map((b, k) => (
+                                <li key={k} style={{ marginBottom: 6, lineHeight: 1.55 }}>
+                                  {typeof b === 'string' ? b : JSON.stringify(b)}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
                           {card.sections &&
                             card.sections.map((sec, j) => (
                               <div key={j} className="pq-va-subblock">
@@ -573,6 +601,101 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
                     <span>Attempt this Question on Portal</span>
                     <ArrowRight size={15} />
                   </Link>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* 7. Comparison Matrix Table / Visual Suggestion */}
+          {visualSuggestion && (
+            <div className="pq-dd-section">
+              <div className="pq-dd-label">
+                <Table2 size={14} /> {visualSuggestion.title || 'High-Yield Comparison Matrix'}
+              </div>
+              <div
+                className="pq-visual-table-card"
+                style={{
+                  overflowX: 'auto',
+                  borderRadius: '14px',
+                  border: '1px solid var(--pq-border, rgba(255, 255, 255, 0.12))',
+                  background: 'var(--pq-card-bg, rgba(15, 23, 42, 0.6))',
+                  padding: '16px',
+                }}
+              >
+                {visualSuggestion.tableData && Array.isArray(visualSuggestion.tableData.headers) && (
+                  <table
+                    style={{
+                      width: '100%',
+                      borderCollapse: 'collapse',
+                      fontSize: '0.88rem',
+                      textAlign: 'left',
+                    }}
+                  >
+                    <thead>
+                      <tr
+                        style={{
+                          borderBottom: '2px solid rgba(59, 130, 246, 0.35)',
+                          background: 'rgba(59, 130, 246, 0.08)',
+                        }}
+                      >
+                        {visualSuggestion.tableData.headers.map((h, hIdx) => (
+                          <th
+                            key={hIdx}
+                            style={{
+                              padding: '10px 14px',
+                              fontWeight: 800,
+                              color: 'var(--pq-blue, #60a5fa)',
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.04em',
+                              fontSize: '0.78rem',
+                            }}
+                          >
+                            {h}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {Array.isArray(visualSuggestion.tableData.rows) &&
+                        visualSuggestion.tableData.rows.map((row, rIdx) => (
+                          <tr
+                            key={rIdx}
+                            style={{
+                              borderBottom: '1px solid var(--pq-border, rgba(255, 255, 255, 0.06))',
+                              background: rIdx % 2 === 0 ? 'transparent' : 'rgba(255, 255, 255, 0.02)',
+                            }}
+                          >
+                            {Array.isArray(row) &&
+                              row.map((cell, cIdx) => (
+                                <td
+                                  key={cIdx}
+                                  style={{
+                                    padding: '10px 14px',
+                                    color: cIdx === 0 ? 'var(--pq-ink, #ffffff)' : 'var(--pq-muted, #cbd5e1)',
+                                    fontWeight: cIdx === 0 ? 700 : 400,
+                                    lineHeight: 1.5,
+                                  }}
+                                >
+                                  {typeof cell === 'string' ? cell : JSON.stringify(cell)}
+                                </td>
+                              ))}
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                )}
+
+                {visualSuggestion.caption && (
+                  <p
+                    style={{
+                      margin: '12px 0 0',
+                      fontSize: '0.82rem',
+                      color: 'var(--pq-muted, #94a3b8)',
+                      fontStyle: 'italic',
+                    }}
+                  >
+                    💡 {visualSuggestion.caption}
+                  </p>
                 )}
               </div>
             </div>

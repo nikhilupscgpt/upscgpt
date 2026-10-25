@@ -974,6 +974,24 @@ export default function PyqPresenterClient({ questions = [] }) {
                             {isCorrect ? <CheckCircle2 size={13} /> : <XCircle size={13} />}
                             {item.verdict || (isCorrect ? 'Correct' : 'Incorrect')}
                           </span>
+                          {item.reference && (
+                            <span
+                              className="pq-present-bc-ref"
+                              style={{
+                                marginLeft: 'auto',
+                                padding: '3px 9px',
+                                borderRadius: '6px',
+                                background: 'rgba(56, 189, 248, 0.15)',
+                                border: '1px solid rgba(56, 189, 248, 0.35)',
+                                color: '#38bdf8',
+                                fontSize: '12px',
+                                fontWeight: 800,
+                                letterSpacing: '0.02em',
+                              }}
+                            >
+                              {item.reference}
+                            </span>
+                          )}
                         </div>
                         {item.text && <p className="pq-present-bc-text">{item.text}</p>}
                         <p className="pq-present-bc-exp">{item.explanation}</p>
@@ -1058,6 +1076,78 @@ export default function PyqPresenterClient({ questions = [] }) {
                     <div style={{ fontSize: 15, color: theme === 'light' ? '#b45309' : '#fbbf24', fontStyle: 'italic' }}>
                       💡 Pattern Insight: {currentStep.similarPyq.keyTakeaway}
                     </div>
+                  )}
+                </div>
+              )}
+
+              {/* PYQ STAGE 8: COMPARISON MATRIX TABLE */}
+              {currentStep?.type === 'table' && (
+                <div
+                  className="pq-present-card"
+                  style={{
+                    padding: '24px 28px',
+                    overflowX: 'auto',
+                    borderColor: 'rgba(56, 189, 248, 0.4)',
+                    background:
+                      theme === 'light'
+                        ? 'linear-gradient(135deg, rgba(56, 189, 248, 0.08), #ffffff)'
+                        : 'linear-gradient(135deg, rgba(56, 189, 248, 0.1), rgba(15, 23, 42, 0.85))',
+                  }}
+                >
+                  {currentStep.tableData?.headers && (
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '16px' }}>
+                      <thead>
+                        <tr style={{ borderBottom: '2px solid rgba(56, 189, 248, 0.4)', background: 'rgba(56, 189, 248, 0.12)' }}>
+                          {currentStep.tableData.headers.map((h, i) => (
+                            <th
+                              key={i}
+                              style={{
+                                padding: '12px 16px',
+                                color: theme === 'light' ? '#0369a1' : '#38bdf8',
+                                fontWeight: 800,
+                                textAlign: 'left',
+                                fontSize: '13.5px',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.04em',
+                              }}
+                            >
+                              {h}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {currentStep.tableData.rows?.map((row, rIdx) => (
+                          <tr
+                            key={rIdx}
+                            style={{
+                              borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                              background: rIdx % 2 === 0 ? 'transparent' : 'rgba(255, 255, 255, 0.03)'
+                            }}
+                          >
+                            {row.map((cell, cIdx) => (
+                              <td
+                                key={cIdx}
+                                style={{
+                                  padding: '12px 16px',
+                                  color: cIdx === 0 ? (theme === 'light' ? '#0f172a' : '#ffffff') : (theme === 'light' ? '#334155' : '#cbd5e1'),
+                                  fontWeight: cIdx === 0 ? 800 : 500,
+                                  lineHeight: 1.5,
+                                }}
+                              >
+                                {cell}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+
+                  {currentStep.caption && (
+                    <p style={{ margin: '14px 0 0', fontSize: '14.5px', color: theme === 'light' ? '#64748b' : '#94a3b8', fontStyle: 'italic' }}>
+                      💡 {currentStep.caption}
+                    </p>
                   )}
                 </div>
               )}
