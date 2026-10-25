@@ -134,14 +134,15 @@ export default function StudioPresenterMap({
     return activeNode ? [activeNode] : [];
   }, [currentQ, isRiver, activeLayers, activeNode]);
 
-  // If teacher spotlights a numbered card (1..6) on the right slide, spotlight its marker & line on the map
+  // If teacher spotlights a numbered card (1..12) on the right slide, spotlight its marker & line on the map.
+  // For rivers without an active spotlight, leave selectedNode null so the main river spine stays in clean River Blue (#0284c7) instead of turning red.
   const effectiveSelectedNode = useMemo(() => {
     if (spotlightIndex != null) {
       const matched = nodes.find((n) => n.displayIndex === spotlightIndex);
       if (matched) return matched;
     }
-    return activeNode;
-  }, [spotlightIndex, nodes, activeNode]);
+    return isRiver ? null : activeNode;
+  }, [spotlightIndex, nodes, isRiver, activeNode]);
 
   const cameraTarget = useMemo(() => {
     return {

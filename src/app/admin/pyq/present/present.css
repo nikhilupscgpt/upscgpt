@@ -419,14 +419,18 @@
   line-height: 1.45;
 }
 
-/* Dynamic Slide Body: Protected against Webcam & Dock overlap */
+/* Dynamic Slide Body: Protected against Webcam, Dock & horizontal overflow */
 .pq-present-slide-body {
   flex: 1;
   min-height: 0;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   gap: 16px;
   overflow-y: auto;
+  overflow-x: hidden;
   padding-right: 8px;
   padding-bottom: 200px; /* Generous clearance for OBS Webcam Safe Zone & Dock */
   -webkit-overflow-scrolling: touch;
@@ -1677,11 +1681,14 @@
 
 /* Right Information Panel (Scrollable, contains pinned metadata & all stages) */
 .pq-present-stage.is-mapping-layout .pq-present-right-panel.is-map-right-panel {
-  padding: 24px 28px 36px;
+  padding: 22px 24px 36px;
   overflow-y: auto;
+  overflow-x: hidden;
+  min-width: 0;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 16px;
 }
 
 /* Pinned Location Anchor Card on Right */

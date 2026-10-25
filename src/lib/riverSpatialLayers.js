@@ -13,12 +13,14 @@ export const RIVER_GIS_REGISTRY = {
   // GANGA RIVER SYSTEM
   // -------------------------------------------------------------
   'IND-RIV-01': {
-    origin: { place: 'Gangotri / Devprayag (Origin)', lat: 30.15, lng: 78.60, placeType: 'River Origin', customEmoji: '🟢', badgeColor: '#10b981' },
-    mouth: { place: 'Sundarbans Delta (Mouth)', lat: 21.95, lng: 88.80, placeType: 'River Mouth', customEmoji: '🔴', badgeColor: '#ef4444' },
+    origin: { place: 'Gangotri / Devprayag (Origin)', shortLabel: 'Origin (Gangotri)', labelDir: 'top-left', lat: 30.15, lng: 78.60, placeType: 'River Origin', customEmoji: '🟢', badgeColor: '#10b981' },
+    mouth: { place: 'Sundarbans Delta (Mouth)', shortLabel: 'Mouth (Sundarbans)', labelDir: 'bottom-left', lat: 21.95, lng: 88.80, placeType: 'River Mouth', customEmoji: '🔴', badgeColor: '#ef4444' },
     leftBank: [
       {
         id: 'ganga_trib_ramganga',
         place: 'Ramganga River',
+        shortLabel: 'Ramganga',
+        labelDir: 'left',
         placeType: 'Left-Bank Tributary',
         lat: 27.20,
         lng: 79.90,
@@ -32,6 +34,8 @@ export const RIVER_GIS_REGISTRY = {
       {
         id: 'ganga_trib_gomti',
         place: 'Gomti River',
+        shortLabel: 'Gomti',
+        labelDir: 'bottom-left',
         placeType: 'Left-Bank Tributary',
         lat: 25.50,
         lng: 83.10,
@@ -45,6 +49,8 @@ export const RIVER_GIS_REGISTRY = {
       {
         id: 'ganga_trib_ghaghara',
         place: 'Ghaghara (Karnali) River',
+        shortLabel: 'Ghaghara',
+        labelDir: 'top',
         placeType: 'Left-Bank Tributary',
         lat: 25.75,
         lng: 84.65,
@@ -58,6 +64,8 @@ export const RIVER_GIS_REGISTRY = {
       {
         id: 'ganga_trib_gandak',
         place: 'Gandak River',
+        shortLabel: 'Gandak',
+        labelDir: 'top-right',
         placeType: 'Left-Bank Tributary',
         lat: 25.65,
         lng: 85.18,
@@ -71,6 +79,8 @@ export const RIVER_GIS_REGISTRY = {
       {
         id: 'ganga_trib_kosi',
         place: 'Kosi River',
+        shortLabel: 'Kosi',
+        labelDir: 'top-left',
         placeType: 'Left-Bank Tributary',
         lat: 25.40,
         lng: 87.25,
@@ -84,6 +94,8 @@ export const RIVER_GIS_REGISTRY = {
       {
         id: 'ganga_trib_mahananda',
         place: 'Mahananda River',
+        shortLabel: 'Mahananda',
+        labelDir: 'right',
         placeType: 'Left-Bank Tributary',
         lat: 24.50,
         lng: 88.30,
@@ -99,6 +111,8 @@ export const RIVER_GIS_REGISTRY = {
       {
         id: 'ganga_trib_yamuna',
         place: 'Yamuna River',
+        shortLabel: 'Yamuna',
+        labelDir: 'bottom-left',
         placeType: 'Right-Bank Tributary',
         lat: 25.43,
         lng: 81.88,
@@ -112,6 +126,8 @@ export const RIVER_GIS_REGISTRY = {
       {
         id: 'ganga_trib_tamsa',
         place: 'Tamsa (Tons) River',
+        shortLabel: 'Tamsa (Tons)',
+        labelDir: 'bottom-left',
         placeType: 'Right-Bank Tributary',
         lat: 25.28,
         lng: 82.05,
@@ -125,6 +141,8 @@ export const RIVER_GIS_REGISTRY = {
       {
         id: 'ganga_trib_son',
         place: 'Son River',
+        shortLabel: 'Son',
+        labelDir: 'bottom',
         placeType: 'Right-Bank Tributary',
         lat: 25.60,
         lng: 84.85,
@@ -138,6 +156,8 @@ export const RIVER_GIS_REGISTRY = {
       {
         id: 'ganga_trib_punpun',
         place: 'Punpun River',
+        shortLabel: 'Punpun',
+        labelDir: 'bottom-right',
         placeType: 'Right-Bank Tributary',
         lat: 25.50,
         lng: 85.30,
@@ -150,30 +170,30 @@ export const RIVER_GIS_REGISTRY = {
       },
     ],
     damsAndSangams: [
-      { id: 'sangam_devprayag', place: 'Devprayag Sangam', lat: 30.15, lng: 78.60, placeType: 'Confluence (Sangam)', customEmoji: '🤝', badgeColor: '#8b5cf6', note: 'Meeting of Bhagirathi and Alaknanda' },
-      { id: 'sangam_triveni', place: 'Triveni Sangam (Prayagraj)', lat: 25.43, lng: 81.88, placeType: 'Confluence (Sangam)', customEmoji: '🤝', badgeColor: '#8b5cf6', note: 'Ganga + Yamuna + mythical Saraswati' },
-      { id: 'sangam_saidpur', place: 'Saidpur Sangam (Ghazipur)', lat: 25.50, lng: 83.10, placeType: 'Confluence (Sangam)', customEmoji: '🤝', badgeColor: '#8b5cf6', note: 'Ganga + Gomti' },
-      { id: 'sangam_revelganj', place: 'Revelganj Sangam (Chhapra)', lat: 25.75, lng: 84.65, placeType: 'Confluence (Sangam)', customEmoji: '🤝', badgeColor: '#8b5cf6', note: 'Ganga + Ghaghara' },
-      { id: 'sangam_sonpur', place: 'Sonpur / Danapur Sangam', lat: 25.65, lng: 85.18, placeType: 'Confluence (Sangam)', customEmoji: '🤝', badgeColor: '#8b5cf6', note: 'Ganga + Gandak and Son (Patna)' },
-      { id: 'sangam_kursela', place: 'Kursela Sangam (Katihar)', lat: 25.40, lng: 87.25, placeType: 'Confluence (Sangam)', customEmoji: '🤝', badgeColor: '#8b5cf6', note: 'Ganga + Kosi' },
-      { id: 'dam_tehri', place: 'Tehri Dam (Bhagirathi)', lat: 30.38, lng: 78.48, placeType: 'Major Dam', customEmoji: '⚡', badgeColor: '#0284c7', note: 'Highest dam in India (Uttarakhand)' },
-      { id: 'dam_narora', place: 'Narora Barrage', lat: 28.20, lng: 78.38, placeType: 'Major Dam', customEmoji: '⚡', badgeColor: '#0284c7', note: 'Atomic plant cooling barrage (UP)' },
-      { id: 'dam_kanpur', place: 'Kanpur Barrage (Luv Kush)', lat: 26.50, lng: 80.32, placeType: 'Major Dam', customEmoji: '⚡', badgeColor: '#0284c7', note: 'Drinking water barrage (UP)' },
-      { id: 'dam_farakka', place: 'Farakka Barrage', lat: 24.80, lng: 87.92, placeType: 'Major Dam', customEmoji: '⚡', badgeColor: '#0284c7', note: 'Hooghly diversion for Kolkata port (WB / 1996 Treaty)' },
+      { id: 'sangam_devprayag', place: 'Devprayag Sangam', shortLabel: 'Devprayag', labelDir: 'right', lat: 30.15, lng: 78.60, placeType: 'Confluence (Sangam)', customEmoji: '🤝', badgeColor: '#8b5cf6', note: 'Meeting of Bhagirathi and Alaknanda' },
+      { id: 'sangam_triveni', place: 'Triveni Sangam (Prayagraj)', shortLabel: 'Prayagraj', labelDir: 'bottom', lat: 25.43, lng: 81.88, placeType: 'Confluence (Sangam)', customEmoji: '🤝', badgeColor: '#8b5cf6', note: 'Ganga + Yamuna + mythical Saraswati' },
+      { id: 'sangam_saidpur', place: 'Saidpur Sangam (Ghazipur)', shortLabel: 'Ghazipur', labelDir: 'top-left', lat: 25.50, lng: 83.10, placeType: 'Confluence (Sangam)', customEmoji: '🤝', badgeColor: '#8b5cf6', note: 'Ganga + Gomti' },
+      { id: 'sangam_revelganj', place: 'Revelganj Sangam (Chhapra)', shortLabel: 'Chhapra', labelDir: 'top', lat: 25.75, lng: 84.65, placeType: 'Confluence (Sangam)', customEmoji: '🤝', badgeColor: '#8b5cf6', note: 'Ganga + Ghaghara' },
+      { id: 'sangam_sonpur', place: 'Sonpur / Danapur Sangam', shortLabel: 'Patna / Sonpur', labelDir: 'bottom', lat: 25.65, lng: 85.18, placeType: 'Confluence (Sangam)', customEmoji: '🤝', badgeColor: '#8b5cf6', note: 'Ganga + Gandak and Son (Patna)' },
+      { id: 'sangam_kursela', place: 'Kursela Sangam (Katihar)', shortLabel: 'Kursela', labelDir: 'top-right', lat: 25.40, lng: 87.25, placeType: 'Confluence (Sangam)', customEmoji: '🤝', badgeColor: '#8b5cf6', note: 'Ganga + Kosi' },
+      { id: 'dam_tehri', place: 'Tehri Dam (Bhagirathi)', shortLabel: 'Tehri Dam', labelDir: 'top-left', lat: 30.38, lng: 78.48, placeType: 'Major Dam', customEmoji: '⚡', badgeColor: '#0284c7', note: 'Highest dam in India (Uttarakhand)' },
+      { id: 'dam_narora', place: 'Narora Barrage', shortLabel: 'Narora', labelDir: 'left', lat: 28.20, lng: 78.38, placeType: 'Major Dam', customEmoji: '⚡', badgeColor: '#0284c7', note: 'Atomic plant cooling barrage (UP)' },
+      { id: 'dam_kanpur', place: 'Kanpur Barrage (Luv Kush)', shortLabel: 'Kanpur', labelDir: 'bottom-left', lat: 26.50, lng: 80.32, placeType: 'Major Dam', customEmoji: '⚡', badgeColor: '#0284c7', note: 'Drinking water barrage (UP)' },
+      { id: 'dam_farakka', place: 'Farakka Barrage', shortLabel: 'Farakka', labelDir: 'bottom-right', lat: 24.80, lng: 87.92, placeType: 'Major Dam', customEmoji: '⚡', badgeColor: '#0284c7', note: 'Hooghly diversion for Kolkata port (WB / 1996 Treaty)' },
     ],
     protectedAreasAndTowns: [
-      { id: 'pa_gangotri', place: 'Gangotri National Park', lat: 30.98, lng: 78.93, placeType: 'Protected Area', customEmoji: '🌿', badgeColor: '#10b981', note: 'Contains Gaumukh source glacier' },
-      { id: 'pa_corbett', place: 'Jim Corbett National Park', lat: 29.53, lng: 78.77, placeType: 'Protected Area', customEmoji: '🐅', badgeColor: '#10b981', note: 'Drained by Ramganga tributary' },
-      { id: 'pa_dudhwa', place: 'Dudhwa National Park', lat: 28.51, lng: 80.65, placeType: 'Protected Area', customEmoji: '🌿', badgeColor: '#10b981', note: 'Ghaghara/Sharda basin marshland' },
-      { id: 'pa_valmiki', place: 'Valmiki National Park & Tiger Reserve', lat: 27.35, lng: 84.18, placeType: 'Protected Area', customEmoji: '🐅', badgeColor: '#10b981', note: 'Situated on the banks of Gandak river (Bihar)' },
-      { id: 'pa_dolphin', place: 'Vikramshila Dolphin Sanctuary', lat: 25.32, lng: 87.25, placeType: 'Protected Area', customEmoji: '🐬', badgeColor: '#0284c7', note: '50 km stretch dedicated to Gangetic Dolphins' },
-      { id: 'pa_sundarbans', place: 'Sundarbans National Park', lat: 21.94, lng: 88.85, placeType: 'Protected Area', customEmoji: '🐅', badgeColor: '#10b981', note: "World's largest mangrove delta at Ganga mouth" },
-      { id: 'town_haridwar', place: 'Haridwar & Rishikesh', lat: 29.95, lng: 78.16, placeType: 'Historic / Cultural Town', customEmoji: '🏛️', badgeColor: '#eab308', note: 'Where Ganga enters the northern plains' },
-      { id: 'town_kanpur', place: 'Kanpur', lat: 26.45, lng: 80.33, placeType: 'Historic / Cultural Town', customEmoji: '🏛️', badgeColor: '#eab308', note: 'Major industrial & leather hub' },
-      { id: 'town_prayagraj', place: 'Prayagraj', lat: 25.43, lng: 81.88, placeType: 'Historic / Cultural Town', customEmoji: '🏛️', badgeColor: '#eab308', note: 'Ancient Prayag & Kumbh Mela' },
-      { id: 'town_varanasi', place: 'Varanasi (Kashi)', lat: 25.32, lng: 82.97, placeType: 'Historic / Cultural Town', customEmoji: '🏛️', badgeColor: '#eab308', note: 'Continuous ancient living city' },
-      { id: 'town_patna', place: 'Patna (Pataliputra)', lat: 25.60, lng: 85.14, placeType: 'Historic / Cultural Town', customEmoji: '🏛️', badgeColor: '#eab308', note: 'Ancient capital of Magadha & Mauryas' },
-      { id: 'town_kolkata', place: 'Kolkata', lat: 22.57, lng: 88.36, placeType: 'Historic / Cultural Town', customEmoji: '🏛️', badgeColor: '#eab308', note: 'Historic port on Hooghly distributary' },
+      { id: 'pa_gangotri', place: 'Gangotri National Park', shortLabel: 'Gangotri NP', labelDir: 'top-right', lat: 30.98, lng: 78.93, placeType: 'Protected Area', customEmoji: '🌿', badgeColor: '#10b981', note: 'Contains Gaumukh source glacier' },
+      { id: 'pa_corbett', place: 'Jim Corbett National Park', shortLabel: 'Corbett NP', labelDir: 'right', lat: 29.53, lng: 78.77, placeType: 'Protected Area', customEmoji: '🐅', badgeColor: '#10b981', note: 'Drained by Ramganga tributary' },
+      { id: 'pa_dudhwa', place: 'Dudhwa National Park', shortLabel: 'Dudhwa NP', labelDir: 'top', lat: 28.51, lng: 80.65, placeType: 'Protected Area', customEmoji: '🌿', badgeColor: '#10b981', note: 'Ghaghara/Sharda basin marshland' },
+      { id: 'pa_valmiki', place: 'Valmiki National Park & Tiger Reserve', shortLabel: 'Valmiki TR', labelDir: 'top', lat: 27.35, lng: 84.18, placeType: 'Protected Area', customEmoji: '🐅', badgeColor: '#10b981', note: 'Situated on the banks of Gandak river (Bihar)' },
+      { id: 'pa_dolphin', place: 'Vikramshila Dolphin Sanctuary', shortLabel: 'Vikramshila', labelDir: 'top-right', lat: 25.32, lng: 87.25, placeType: 'Protected Area', customEmoji: '🐬', badgeColor: '#0284c7', note: '50 km stretch dedicated to Gangetic Dolphins' },
+      { id: 'pa_sundarbans', place: 'Sundarbans National Park', shortLabel: 'Sundarbans NP', labelDir: 'bottom-right', lat: 21.94, lng: 88.85, placeType: 'Protected Area', customEmoji: '🐅', badgeColor: '#10b981', note: "World's largest mangrove delta at Ganga mouth" },
+      { id: 'town_haridwar', place: 'Haridwar & Rishikesh', shortLabel: 'Haridwar', labelDir: 'left', lat: 29.95, lng: 78.16, placeType: 'Historic / Cultural Town', customEmoji: '🏛️', badgeColor: '#eab308', note: 'Where Ganga enters the northern plains' },
+      { id: 'town_kanpur', place: 'Kanpur', shortLabel: 'Kanpur', labelDir: 'bottom-left', lat: 26.45, lng: 80.33, placeType: 'Historic / Cultural Town', customEmoji: '🏛️', badgeColor: '#eab308', note: 'Major industrial & leather hub' },
+      { id: 'town_prayagraj', place: 'Prayagraj', shortLabel: 'Prayagraj', labelDir: 'bottom', lat: 25.43, lng: 81.88, placeType: 'Historic / Cultural Town', customEmoji: '🏛️', badgeColor: '#eab308', note: 'Ancient Prayag & Kumbh Mela' },
+      { id: 'town_varanasi', place: 'Varanasi (Kashi)', shortLabel: 'Varanasi', labelDir: 'top-left', lat: 25.32, lng: 82.97, placeType: 'Historic / Cultural Town', customEmoji: '🏛️', badgeColor: '#eab308', note: 'Continuous ancient living city' },
+      { id: 'town_patna', place: 'Patna (Pataliputra)', shortLabel: 'Patna', labelDir: 'bottom', lat: 25.60, lng: 85.14, placeType: 'Historic / Cultural Town', customEmoji: '🏛️', badgeColor: '#eab308', note: 'Ancient capital of Magadha & Mauryas' },
+      { id: 'town_kolkata', place: 'Kolkata', shortLabel: 'Kolkata', labelDir: 'left', lat: 22.57, lng: 88.36, placeType: 'Historic / Cultural Town', customEmoji: '🏛️', badgeColor: '#eab308', note: 'Historic port on Hooghly distributary' },
     ],
   },
 
@@ -342,10 +362,17 @@ export function getRiverSpatialNodes(riverNode, activeLayers = {}) {
 
   const riverId = riverNode.id;
   const reg = RIVER_GIS_REGISTRY[riverId] || null;
+  const hasSubLayer = Boolean(
+    activeLayers.leftBank ||
+    activeLayers.rightBank ||
+    activeLayers.dams ||
+    activeLayers.protectedAreas
+  );
+  const DEFAULT_DIRS = ['top', 'bottom', 'right', 'left', 'top-left', 'bottom-right'];
 
   const result = [];
 
-  // 1. River Spine
+  // 1. River Spine (Polyline always shown when spine=true; Origin/Mouth pins shown only on Stage 1 so they never collide with tributary/sangam pins)
   if (activeLayers.spine !== false) {
     result.push({
       id: riverNode.id || 'river_spine',
@@ -353,18 +380,19 @@ export function getRiverSpatialNodes(riverNode, activeLayers = {}) {
       placeType: riverNode.placeType || 'River System',
       lat: riverNode.lat,
       lng: riverNode.lng,
+      hideMarker: Boolean(reg),
       shape: Array.isArray(riverNode.shape) ? riverNode.shape : null,
       strokeColor: '#0284c7',
       glowColor: '#38bdf8',
       weight: 5,
       glow: true,
       glowWeight: 14,
-      glowOpacity: 0.5,
+      glowOpacity: 0.45,
       mapCategory: ['India – rivers, lakes, reservoirs & glaciers'],
       staticFacts: riverNode.staticFacts || [],
     });
 
-    if (reg?.origin) {
+    if (!hasSubLayer && reg?.origin) {
       result.push({
         id: `${riverId}_origin`,
         ...reg.origin,
@@ -372,7 +400,7 @@ export function getRiverSpatialNodes(riverNode, activeLayers = {}) {
       });
     }
 
-    if (reg?.mouth) {
+    if (!hasSubLayer && reg?.mouth) {
       result.push({
         id: `${riverId}_mouth`,
         ...reg.mouth,
@@ -393,6 +421,7 @@ export function getRiverSpatialNodes(riverNode, activeLayers = {}) {
         lat: midPt[0],
         lng: midPt[1],
         displayIndex: idx + 1,
+        labelDir: item.labelDir || DEFAULT_DIRS[idx % DEFAULT_DIRS.length],
         mapCategory: ['India – rivers, lakes, reservoirs & glaciers'],
       });
     });
@@ -410,6 +439,7 @@ export function getRiverSpatialNodes(riverNode, activeLayers = {}) {
         lat: midPt[0],
         lng: midPt[1],
         displayIndex: idx + 1,
+        labelDir: item.labelDir || DEFAULT_DIRS[idx % DEFAULT_DIRS.length],
         mapCategory: ['India – rivers, lakes, reservoirs & glaciers'],
       });
     });
@@ -421,6 +451,7 @@ export function getRiverSpatialNodes(riverNode, activeLayers = {}) {
       result.push({
         ...item,
         displayIndex: idx + 1,
+        labelDir: item.labelDir || DEFAULT_DIRS[idx % DEFAULT_DIRS.length],
         mapCategory: item.placeType.includes('Confluence')
           ? ['India – rivers, lakes, reservoirs & glaciers']
           : ['Infrastructure & Projects'],
@@ -434,6 +465,7 @@ export function getRiverSpatialNodes(riverNode, activeLayers = {}) {
       result.push({
         ...item,
         displayIndex: idx + 1,
+        labelDir: item.labelDir || DEFAULT_DIRS[idx % DEFAULT_DIRS.length],
         mapCategory: item.placeType.includes('Protected Area')
           ? ['Protected areas & biodiversity']
           : ['Ancient & Medieval India'],

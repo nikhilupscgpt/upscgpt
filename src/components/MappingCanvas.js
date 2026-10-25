@@ -174,6 +174,32 @@ export function getCategoryVisual(node) {
 }
 
 /**
+ * Computes CSS positioning for directional map callout pills so closely-spaced
+ * river confluences, dams, and tributaries never pile up on top of each other.
+ */
+function getLabelDirStyle(dir = 'right') {
+  switch (dir) {
+    case 'left':
+      return 'top:50%;right:30px;transform:translateY(-50%);';
+    case 'top':
+      return 'bottom:30px;left:50%;transform:translateX(-50%);';
+    case 'bottom':
+      return 'top:30px;left:50%;transform:translateX(-50%);';
+    case 'top-left':
+      return 'bottom:27px;right:20px;';
+    case 'top-right':
+      return 'bottom:27px;left:20px;';
+    case 'bottom-left':
+      return 'top:27px;right:20px;';
+    case 'bottom-right':
+      return 'top:27px;left:20px;';
+    case 'right':
+    default:
+      return 'top:50%;left:30px;transform:translateY(-50%);';
+  }
+}
+
+/**
  * Numbered circular map badge with crisp double-ring border; when selected, transforms into a
  * crimson-red glowing & pulsating beacon with dual radar rings + floating title pill.
  */
@@ -186,53 +212,54 @@ function createNodeIcon(node, isSelected, showLabels = false) {
   const rawPlace = node.place || '';
   const matchParen = rawPlace.match(/^([^(]+)\(([^)]+)\)$/);
   const mainTitle = matchParen ? matchParen[1].trim() : rawPlace;
-  const shortTitle = mainTitle.replace(/\s+River$/i, '').trim();
+  const shortTitle = (node.shortLabel || mainTitle.replace(/\s+(River|Sangam|Barrage|National Park)$/i, '')).trim();
   const subDetail = matchParen
     ? matchParen[2].trim()
     : [node.locatedIn?.stateOrProvince, node.locatedIn?.country].filter(Boolean).join(', ') || node.regionScope || '';
 
   const cleanMain = mainTitle.length > 22 ? `${mainTitle.slice(0, 20)}…` : mainTitle;
-  const cleanShort = shortTitle.length > 18 ? `${shortTitle.slice(0, 17)}…` : shortTitle;
+  const cleanShort = shortTitle.length > 16 ? `${shortTitle.slice(0, 15)}…` : shortTitle;
   const cleanSub = subDetail.length > 26 ? `${subDetail.slice(0, 24)}…` : subDetail;
+  const dirPosStyle = getLabelDirStyle(node.labelDir || 'right');
 
   if (!isSelected) {
     const badgeContent = idxNum
-      ? `<span style="font-family:Inter,system-ui,sans-serif;font-size:13px;font-weight:800;color:#ffffff;line-height:1;">${idxNum}</span>`
-      : `<span style="font-size:13px;line-height:1;">${emoji}</span>`;
+      ? `<span style="font-family:Inter,system-ui,sans-serif;font-size:12px;font-weight:900;color:#ffffff;line-height:1;">${idxNum}</span>`
+      : `<span style="font-size:12px;line-height:1;">${emoji}</span>`;
 
     const labelPillHtml = showLabels
       ? `<div style="
-          position:absolute;top:50%;left:32px;transform:translateY(-50%);
+          position:absolute;${dirPosStyle}
           background:rgba(15, 23, 42, 0.92);backdrop-filter:blur(4px);color:#ffffff;
           border:1.5px solid ${color};
-          border-radius:7px;padding:3px 9px;
+          border-radius:6px;padding:2px 7px;
           font-family:Inter,system-ui,sans-serif;
-          font-size:12.5px;font-weight:800;letter-spacing:0.01em;
+          font-size:11.5px;font-weight:800;letter-spacing:0.01em;
           white-space:nowrap;
-          box-shadow:0 4px 12px rgba(15,23,42,0.55);
+          box-shadow:0 3px 10px rgba(15,23,42,0.5);
           pointer-events:none;z-index:9;
         ">${cleanShort}</div>`
       : '';
 
     return L.divIcon({
       html: `
-        <div style="position:relative;width:30px;height:30px;">
+        <div style="position:relative;width:26px;height:26px;">
           <div style="
             position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);
-            width:28px;height:28px;border-radius:50%;
+            width:24px;height:24px;border-radius:50%;
             background:${idxNum ? color : '#0f172a'};
-            border:2.5px solid #ffffff;
+            border:2px solid #ffffff;
             outline:1.5px solid ${color};
             display:flex;align-items:center;justify-content:center;
-            box-shadow:0 3px 10px rgba(15,23,42,0.45);cursor:pointer;
+            box-shadow:0 3px 8px rgba(15,23,42,0.45);cursor:pointer;
             transition:transform 0.15s ease;
           ">
             ${badgeContent}
           </div>
           ${labelPillHtml}
         </div>`,
-      iconSize: [30, 30],
-      iconAnchor: [15, 15],
+      iconSize: [26, 26],
+      iconAnchor: [13, 13],
       className: '',
     });
   }
@@ -667,6 +694,11 @@ export default function MappingCanvas({
     [validNodes]
   );
 
+  const markerNodes = useMemo(
+    () => validNodes.filter((n) => !n.hideMarker),
+    [validNodes]
+  );
+
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
       <style>{`
@@ -817,7 +849,7 @@ export default function MappingCanvas({
 
         {/* Interactive Markers (Direct when disableClustering is active in Presenter Mode, Clustered otherwise) */}
         {disableClustering ? (
-          validNodes.map((node) => {
+          markerNodes.map((node) => {
             const isSelected = selectedNode?.id === node.id;
 
             return (
@@ -856,7 +888,7 @@ export default function MappingCanvas({
             spiderfyOnMaxZoom={true}
             disableClusteringAtZoom={4}
           >
-            {validNodes.map((node) => {
+            {markerNodes.map((node) => {
               const isSelected = selectedNode?.id === node.id;
 
               return (
