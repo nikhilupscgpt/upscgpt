@@ -75,6 +75,17 @@ export async function GET(req) {
       where.explanation = { not: null };
     } else if (answerStatus === 'MISSING_EXPL') {
       where.OR = [{ explanation: null }, { explanation: '' }];
+    } else if (answerStatus === 'DEEPDIVE_READY') {
+      where.AND = [
+        { explanation: { not: null } },
+        { explanation: { contains: 'optionBreakdown' } }
+      ];
+    } else if (answerStatus === 'DEEPDIVE_PENDING') {
+      where.OR = [
+        { explanation: null },
+        { explanation: '' },
+        { NOT: { explanation: { contains: 'optionBreakdown' } } }
+      ];
     }
 
     if (search) {

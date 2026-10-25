@@ -27,7 +27,7 @@ import {
   Play
 } from 'lucide-react';
 import { isNewPatternQuestion, isPairQuestion, isStatementQuestion } from '@/lib/pyqPattern';
-import { getStructuredExplanation, formatQuestionForCopy } from '@/lib/pyqExplanationHelper';
+import { getStructuredExplanation, formatQuestionForCopy, isDeepDiveReady } from '@/lib/pyqExplanationHelper';
 import { TOPIC_GROUPS, SUBJECT_ORDER } from '@/app/prelims/pyq/topicGroups';
 
 export default function PyqAdminClient({ session }) {
@@ -160,6 +160,33 @@ export default function PyqAdminClient({ session }) {
   useEffect(() => {
     fetchQuestions();
   }, [fetchQuestions]);
+
+  // Cross-tab live synchronization: when a question is saved in any visual editor tab,
+  // update the record directly in the list so curators never lose track of progress
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('BroadcastChannel' in window)) return;
+    const bc = new BroadcastChannel('pyq_admin_sync');
+    bc.onmessage = (event) => {
+      if (event.data?.type === 'PYQ_UPDATED') {
+        const { id, explanation, correctLabel, srcTopic, srcSubject } = event.data;
+        setQuestions(prev => prev.map(q => {
+          if (q.id === id) {
+            return {
+              ...q,
+              explanation: explanation !== undefined ? explanation : q.explanation,
+              correctLabel: correctLabel !== undefined ? correctLabel : q.correctLabel,
+              srcTopic: srcTopic !== undefined ? srcTopic : q.srcTopic,
+              srcSubject: srcSubject !== undefined ? srcSubject : q.srcSubject,
+            };
+          }
+          return q;
+        }));
+      }
+    };
+    return () => {
+      bc.close();
+    };
+  }, []);
 
   // Fetch taxonomy options & live question count when Print Modal is opened or selections change
   useEffect(() => {
@@ -1111,6 +1138,8 @@ export default function PyqAdminClient({ session }) {
                     }}
                   >
                     <option value="ALL">All Status</option>
+                    <option value="DEEPDIVE_READY">✓ Deep-Dive Ready</option>
+                    <option value="DEEPDIVE_PENDING">⏳ Needs Deep-Dive</option>
                     <option value="MISSING_ANSWER">⚠️ Missing Answer</option>
                     <option value="HAS_ANSWER">Has Correct Answer</option>
                     <option value="MISSING_EXPL">⚠️ Missing Explanation</option>
@@ -1358,6 +1387,7 @@ export default function PyqAdminClient({ session }) {
                   const isStmt = isStatementQuestion(q);
                   const hasAnswer = !!q.correctLabel;
                   const hasExpl = !!q.explanation;
+                  const isDeepDive = isDeepDiveReady(q);
                   const isSelected = selectedQIds.has(q.id);
 
                   return (
@@ -1496,6 +1526,42 @@ export default function PyqAdminClient({ session }) {
                               fontWeight: 700
                             }}>
                               ⚠️ No Explanation
+                            </span>
+                          )}
+
+                          {isDeepDive ? (
+                            <span style={{
+                              background: 'rgba(16, 185, 129, 0.16)',
+                              color: '#34d399',
+                              border: '1px solid rgba(16, 185, 129, 0.4)',
+                              padding: '3px 8px',
+                              borderRadius: '6px',
+                              fontSize: '0.72rem',
+                              fontWeight: 800,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}
+                            title="Complete 8-part Lecture Grade Deep Dive is present in this question"
+                            >
+                              <CheckCircle2 size={12} /> Deep-Dive Ready
+                            </span>
+                          ) : (
+                            <span style={{
+                              background: 'rgba(245, 158, 11, 0.15)',
+                              color: '#fbbf24',
+                              border: '1px solid rgba(245, 158, 11, 0.35)',
+                              padding: '3px 8px',
+                              borderRadius: '6px',
+                              fontSize: '0.72rem',
+                              fontWeight: 800,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}
+                            title="Question still needs full analysis / breakdown from Gemini"
+                            >
+                              <AlertCircle size={12} /> Needs Deep-Dive
                             </span>
                           )}
                         </div>

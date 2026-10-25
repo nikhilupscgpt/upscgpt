@@ -78,3 +78,24 @@ export function formatQuestionForCopy(q) {
   const sections = [header, stem, optionsText].filter(s => s && s.trim());
   return sections.join('\n\n');
 }
+
+/**
+ * Evaluates whether a question already has a complete, lecture-grade deep dive
+ * (has analysis with breakdown, keywords, or core takeaway).
+ */
+export function isDeepDiveReady(q) {
+  if (!q) return false;
+  const { analysis } = getStructuredExplanation(q);
+  if (!analysis || typeof analysis !== 'object') return false;
+
+  const hasKeywords = Array.isArray(analysis.keywords) && analysis.keywords.length > 0;
+  const hasOptions = Array.isArray(analysis.optionBreakdown) && analysis.optionBreakdown.length > 0;
+  const hasStatements = Array.isArray(analysis.statementBreakdown) && analysis.statementBreakdown.length > 0;
+  const hasTakeaway = Boolean(analysis.coreTakeaway && typeof analysis.coreTakeaway === 'string' && analysis.coreTakeaway.trim().length > 10);
+  const hasValueAddition = Boolean(
+    (Array.isArray(analysis.valueAddition) && analysis.valueAddition.length > 0) ||
+    (typeof analysis.valueAddition === 'string' && analysis.valueAddition.trim().length > 20)
+  );
+
+  return (hasOptions || hasStatements) && (hasKeywords || hasTakeaway || hasValueAddition);
+}

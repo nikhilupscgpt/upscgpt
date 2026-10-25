@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   ArrowLeft, 
@@ -94,12 +94,40 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
       questionNo: q.questionNo ?? null,
       srcSubject: q.srcSubject || '',
       srcTopic: q.srcTopic || '',
+      srcTheme: q.srcTheme || '',
       sourceBase: q.sourceBase || '',
       stem: q.stem || '',
       options: normalizedOptions,
       correctLabel: (q.correctLabel || 'a').toLowerCase(),
-      analysis: initialAnalysis
+      analysis: initialAnalysis,
+      explanation: typeof q.explanation === 'string' ? q.explanation : ''
     };
+  }, []);
+
+  // Deterministic serializer for exact dirty state comparison
+  const serializeForDiff = useCallback((obj) => {
+    if (!obj) return '';
+    try {
+      return JSON.stringify({
+        stem: (obj.stem || '').trim(),
+        options: Array.isArray(obj.options) ? obj.options.map(o => ({
+          label: (o.label || '').toLowerCase(),
+          text: (o.text || '').trim()
+        })) : [],
+        correctLabel: (obj.correctLabel || '').toLowerCase().trim(),
+        srcSubject: (obj.srcSubject || '').trim(),
+        srcTopic: (obj.srcTopic || '').trim(),
+        srcTheme: (obj.srcTheme || '').trim(),
+        sourceBase: (obj.sourceBase || '').trim(),
+        examName: (obj.examName || '').trim(),
+        examYear: obj.examYear,
+        questionNo: obj.questionNo,
+        analysis: obj.analysis || null,
+        explanation: obj.explanation || null
+      });
+    } catch {
+      return '';
+    }
   }, []);
 
   // Primary Source of Truth: parsed data object
@@ -114,6 +142,63 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
   const [copiedQuestion, setCopiedQuestion] = useState(false);
   const [safeMergeEnabled, setSafeMergeEnabled] = useState(true);
   const [toastMessage, setToastMessage] = useState(null);
+
+  // Snapshot tracking for dirty state & unsaved changes guard
+  const initialSnapshot = useMemo(() => {
+    return serializeForDiff(buildInitialData(initialQuestion, initialStructured));
+  }, [initialQuestion, initialStructured, buildInitialData, serializeForDiff]);
+
+  const [lastSavedSnapshot, setLastSavedSnapshot] = useState(initialSnapshot);
+
+  const currentSnapshot = useMemo(() => serializeForDiff(data), [data, serializeForDiff]);
+  const isDirty = useMemo(() => {
+    return currentSnapshot !== lastSavedSnapshot;
+  }, [currentSnapshot, lastSavedSnapshot]);
+
+  // Preference: Auto-Save on Merge (persisted in localStorage, default: true)
+  const [autoSaveOnMerge, setAutoSaveOnMerge] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('pyq_auto_save_on_merge');
+      return stored !== null ? stored === 'true' : true;
+    }
+    return true;
+  });
+
+  const handleToggleAutoSave = (val) => {
+    setAutoSaveOnMerge(val);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pyq_auto_save_on_merge', String(val));
+    }
+  };
+
+  // Block accidental tab closing when unsaved changes exist
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = 'You have unsaved changes to this question. Do you want to leave without saving?';
+        return e.returnValue;
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isDirty]);
+
+  // Dynamic Browser Tab Title: gives immediate visual cues across 10+ tabs
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const qNum = data.questionNo ? `Q${data.questionNo}` : 'PYQ';
+    const yr = data.examYear ? `(${data.examYear})` : '';
+    const label = `${qNum} ${yr}`.trim();
+
+    if (isDirty) {
+      document.title = `⚠️ [UNSAVED] ${label} | PYQ Editor`;
+    } else if (saveSuccess) {
+      document.title = `✅ [SAVED] ${label} | PYQ Editor`;
+    } else {
+      document.title = `✓ ${label} | PYQ Editor`;
+    }
+  }, [isDirty, saveSuccess, data.questionNo, data.examYear]);
 
   // Helper to merge incoming JSON while protecting the canonical question and syllabus taxonomy
   const mergeIncomingJson = useCallback((incomingObj, currentData) => {
@@ -207,6 +292,87 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
     }
   };
 
+  // Save to DB (supports optional override payload for atomic auto-save on merge)
+  const handleSave = useCallback(async (overrideData = null) => {
+    if (parseError) {
+      alert('Please fix the JSON errors before saving: ' + parseError);
+      return false;
+    }
+
+    const payload = overrideData || data;
+
+    setSaving(true);
+    setSaveSuccess(false);
+
+    try {
+      const res = await fetch(`/api/admin/pyq/${initialQuestion.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          stem: payload.stem,
+          options: payload.options,
+          correctLabel: payload.correctLabel,
+          srcSubject: payload.srcSubject,
+          srcTopic: payload.srcTopic,
+          srcTheme: payload.srcTheme,
+          sourceBase: payload.sourceBase,
+          examName: payload.examName,
+          examYear: payload.examYear,
+          questionNo: payload.questionNo,
+          analysis: payload.analysis || null,
+          explanation: payload.explanation || null,
+        })
+      });
+
+      const resData = await res.json();
+      if (!res.ok) throw new Error(resData.error || 'Failed to update question');
+
+      setLastSavedSnapshot(serializeForDiff(payload));
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 3000);
+
+      // Broadcast update across open tabs (admin list view updates live)
+      try {
+        if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+          const bc = new BroadcastChannel('pyq_admin_sync');
+          bc.postMessage({
+            type: 'PYQ_UPDATED',
+            id: initialQuestion.id,
+            questionNo: payload.questionNo,
+            examYear: payload.examYear,
+            explanation: JSON.stringify({ explanation: payload.explanation, analysis: payload.analysis }),
+            correctLabel: payload.correctLabel,
+            srcTopic: payload.srcTopic,
+            srcSubject: payload.srcSubject,
+            updatedAt: new Date().toISOString()
+          });
+          bc.close();
+        }
+      } catch (bcErr) {
+        console.warn('BroadcastChannel sync error:', bcErr);
+      }
+
+      return true;
+    } catch (err) {
+      alert('Error saving question: ' + err.message);
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  }, [parseError, data, initialQuestion.id, serializeForDiff]);
+
+  // Keyboard Shortcut: Cmd+S or Ctrl+S to save instantly
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        handleSave();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleSave]);
+
   const handlePasteGeminiAnswer = async () => {
     try {
       let text = '';
@@ -228,7 +394,17 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
       setData(merged);
       setRawJsonText(JSON.stringify(merged, null, 2));
       setParseError(null);
-      setToastMessage('✓ Gemini Answer & Analysis safely merged! (Question & Topic protected)');
+
+      if (autoSaveOnMerge) {
+        const saved = await handleSave(merged);
+        if (saved) {
+          setToastMessage('✓ Gemini Answer safely merged AND saved to database! ✓');
+        } else {
+          setToastMessage('⚠️ Merged, but auto-save encountered an issue. Please click Save.');
+        }
+      } else {
+        setToastMessage('✓ Gemini Answer safely merged! Click Save (Cmd+S) to commit.');
+      }
       setTimeout(() => setToastMessage(null), 4000);
     } catch (err) {
       alert('Failed to parse and merge Gemini JSON: ' + err.message);
@@ -261,46 +437,6 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
       setCopiedQuestion(false);
       setToastMessage(null);
     }, 3000);
-  };
-
-  // Save to DB
-  const handleSave = async () => {
-    if (parseError) {
-      alert('Please fix the JSON errors before saving: ' + parseError);
-      return;
-    }
-
-    setSaving(true);
-    setSaveSuccess(false);
-
-    try {
-      const res = await fetch(`/api/admin/pyq/${initialQuestion.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          stem: data.stem,
-          options: data.options,
-          correctLabel: data.correctLabel,
-          srcSubject: data.srcSubject,
-          srcTopic: data.srcTopic,
-          examName: data.examName,
-          examYear: data.examYear,
-          questionNo: data.questionNo,
-          analysis: data.analysis || null,
-          explanation: data.explanation || null,
-        })
-      });
-
-      const resData = await res.json();
-      if (!res.ok) throw new Error(resData.error || 'Failed to update question');
-
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
-    } catch (err) {
-      alert('Error saving question: ' + err.message);
-    } finally {
-      setSaving(false);
-    }
   };
 
   const handlePrintSlide = () => {
@@ -939,6 +1075,39 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
             <span>Print Slide / PDF</span>
           </button>
 
+          {/* Unsaved status badge */}
+          {isDirty ? (
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '5px',
+              padding: '5px 10px',
+              borderRadius: '6px',
+              background: 'rgba(245, 158, 11, 0.15)',
+              color: '#fbbf24',
+              border: '1px solid rgba(245, 158, 11, 0.4)',
+              fontSize: '0.78rem',
+              fontWeight: 800
+            }}>
+              <AlertCircle size={14} /> Unsaved Changes
+            </span>
+          ) : saveSuccess ? (
+            <span style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '5px',
+              padding: '5px 10px',
+              borderRadius: '6px',
+              background: 'rgba(16, 185, 129, 0.15)',
+              color: '#34d399',
+              border: '1px solid rgba(16, 185, 129, 0.4)',
+              fontSize: '0.78rem',
+              fontWeight: 800
+            }}>
+              <CheckCircle2 size={14} /> Saved to Database
+            </span>
+          ) : null}
+
           <button
             onClick={handleCopyQuestion}
             style={{
@@ -962,25 +1131,40 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
           </button>
 
           <button
-            onClick={handleSave}
+            onClick={() => handleSave()}
             disabled={saving || Boolean(parseError)}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              padding: '8px 18px',
+              padding: '8px 20px',
               borderRadius: '8px',
-              background: parseError ? '#475569' : '#10b981',
+              background: parseError
+                ? '#475569'
+                : isDirty
+                  ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)'
+                  : '#059669',
               color: '#ffffff',
-              border: 'none',
+              border: isDirty ? '1.5px solid #fbbf24' : '1px solid rgba(16, 185, 129, 0.4)',
               fontSize: '0.85rem',
               fontWeight: 800,
               cursor: parseError ? 'not-allowed' : 'pointer',
-              opacity: saving ? 0.7 : 1
+              opacity: saving ? 0.7 : 1,
+              boxShadow: isDirty ? '0 0 16px rgba(245, 158, 11, 0.5)' : 'none',
+              transition: 'all 0.2s ease'
             }}
+            title={isDirty ? "Save changes to database (Cmd+S / Ctrl+S)" : "Question is saved to database"}
           >
-            {saving ? <RefreshCw size={15} className="animate-spin" /> : <Save size={15} />}
-            <span>{saving ? 'Saving...' : 'Save Question & Answer'}</span>
+            {saving ? <RefreshCw size={15} className="animate-spin" /> : isDirty ? <AlertCircle size={15} /> : <CheckCircle2 size={15} />}
+            <span>
+              {saving
+                ? 'Saving...'
+                : isDirty
+                  ? '⚠️ Save Changes (Cmd+S)'
+                  : saveSuccess
+                    ? 'Saved ✓'
+                    : 'Saved ✓ (Cmd+S)'}
+            </span>
           </button>
         </div>
       </header>
@@ -1019,6 +1203,32 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <label
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
+                  color: autoSaveOnMerge ? '#34d399' : '#94a3b8',
+                  cursor: 'pointer',
+                  background: autoSaveOnMerge ? 'rgba(16, 185, 129, 0.12)' : 'rgba(255, 255, 255, 0.04)',
+                  border: autoSaveOnMerge ? '1px solid rgba(16, 185, 129, 0.35)' : '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '6px',
+                  padding: '3px 8px',
+                  userSelect: 'none'
+                }}
+                title="When enabled, merging Gemini JSON will immediately persist changes to the database without needing manual save"
+              >
+                <input
+                  type="checkbox"
+                  checked={autoSaveOnMerge}
+                  onChange={e => handleToggleAutoSave(e.target.checked)}
+                  style={{ accentColor: '#10b981', cursor: 'pointer', width: '13px', height: '13px' }}
+                />
+                <span>Auto-Save on Merge</span>
+              </label>
+
               <button
                 type="button"
                 onClick={handlePasteGeminiAnswer}
