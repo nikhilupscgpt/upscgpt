@@ -122,27 +122,21 @@ export default async function StudioPresentPage({ searchParams }) {
       matchedStatic.push(...CURATED_MAPPING_NODES.slice(0, 25));
     }
 
-    // Match from database PlaceInNews and MappingPyq
+    // Match from database PlaceInNews
     let matchedPins = [];
-    let matchedPyqs = [];
     if (requestedIds.length > 0) {
       try {
-        [matchedPins, matchedPyqs] = await Promise.all([
-          prisma.placeInNews.findMany({
-            where: {
-              OR: [
-                { id: { in: requestedIds } },
-                { pinId: { in: requestedIds } },
-                { slug: { in: requestedIds } },
-              ],
-            },
-          }),
-          prisma.mappingPyq.findMany({
-            where: { id: { in: requestedIds } },
-          }),
-        ]);
+        matchedPins = await prisma.placeInNews.findMany({
+          where: {
+            OR: [
+              { id: { in: requestedIds } },
+              { pinId: { in: requestedIds } },
+              { slug: { in: requestedIds } },
+            ],
+          },
+        });
       } catch (e) {
-        console.error('[Studio Present] Error fetching mapping records from DB:', e);
+        console.error('[Studio Present] Error fetching PIN records from DB:', e);
       }
     }
 
@@ -151,6 +145,35 @@ export default async function StudioPresentPage({ searchParams }) {
       pinMap.set(pin.id, pin);
       if (pin.pinId) pinMap.set(pin.pinId, pin);
       if (pin.slug) pinMap.set(pin.slug, pin);
+    }
+
+    // Collect all linked PYQ IDs from requested IDs, static nodes, and matched PINs
+    const allLinkedPyqIds = new Set(requestedIds);
+    for (const node of matchedStatic) {
+      if (Array.isArray(node.similarPYQ)) {
+        node.similarPYQ.forEach(id => {
+          if (id) allLinkedPyqIds.add(id);
+        });
+      }
+    }
+    for (const pin of matchedPins) {
+      if (Array.isArray(pin.similarPYQ)) {
+        pin.similarPYQ.forEach(id => {
+          if (id) allLinkedPyqIds.add(id);
+        });
+      }
+    }
+
+    // Query all referenced Mapping PYQs from the database
+    let matchedPyqs = [];
+    if (allLinkedPyqIds.size > 0) {
+      try {
+        matchedPyqs = await prisma.mappingPyq.findMany({
+          where: { id: { in: Array.from(allLinkedPyqIds) } },
+        });
+      } catch (e) {
+        console.error('[Studio Present] Error fetching mapping PYQs from DB:', e);
+      }
     }
 
     const pyqMap = new Map();
@@ -168,6 +191,11 @@ export default async function StudioPresentPage({ searchParams }) {
         const node = staticMap.get(id);
         addedKeys.add(id);
         const locText = node.locatedIn?.stateOrProvince || node.locatedIn?.country || (node.regionScope === 'World' ? 'Global' : 'India');
+        const resolvedPyqs = (node.similarPYQ || [])
+          .map(qId => pyqMap.get(qId))
+          .filter(Boolean);
+        const primaryPyq = resolvedPyqs[0] || null;
+
         deckItems.push({
           id: node.id,
           type: 'mapping',
@@ -186,7 +214,9 @@ export default async function StudioPresentPage({ searchParams }) {
           staticFacts: node.staticFacts || [],
           upscAngle: node.upscAngle || null,
           newsHook: node.newsHook || null,
-          similarPYQs: node.similarPYQ || [],
+          similarPYQs: resolvedPyqs.length > 0 ? resolvedPyqs : (node.similarPYQ || []),
+          resolvedPyq: primaryPyq,
+          pyq: primaryPyq,
           imageUrl: node.imageUrl || null,
           imageCaption: `${node.place} Physical Map`,
           priority: node.priority || 'High',
@@ -198,6 +228,10 @@ export default async function StudioPresentPage({ searchParams }) {
         const loc = pin.locatedIn && typeof pin.locatedIn === 'object'
           ? Object.values(pin.locatedIn).filter(Boolean).join(', ')
           : (pin.regionScope === 'World' ? 'World' : 'India');
+        const resolvedPyqs = (pin.similarPYQ || [])
+          .map(qId => pyqMap.get(qId))
+          .filter(Boolean);
+        const primaryPyq = resolvedPyqs[0] || null;
 
         deckItems.push({
           id: pin.id || pin.pinId,
@@ -217,7 +251,9 @@ export default async function StudioPresentPage({ searchParams }) {
           staticFacts: Array.isArray(pin.staticFacts) ? pin.staticFacts : [],
           upscAngle: pin.upscAngle || null,
           newsHook: Array.isArray(pin.newsTriggers) && pin.newsTriggers.length > 0 ? pin.newsTriggers[0]?.newsHook : null,
-          similarPYQs: pin.similarPYQ || [],
+          similarPYQs: resolvedPyqs.length > 0 ? resolvedPyqs : (pin.similarPYQ || []),
+          resolvedPyq: primaryPyq,
+          pyq: primaryPyq,
           imageUrl: null,
           imageCaption: `${pin.place} Satellite & Map Context`,
           priority: pin.priority || 'High',

@@ -477,17 +477,25 @@ export function buildMappingSteps(item, customAssets = {}) {
 
     // STAGE 5: Linked UPSC Prelims PYQ
     if (item.pyq || item.resolvedPyq || (Array.isArray(item.similarPYQs) && item.similarPYQs.length > 0) || (Array.isArray(matchedCurated?.similarPYQ) && matchedCurated.similarPYQ.length > 0)) {
-      const pyqObj = item.pyq || item.resolvedPyq || item.similarPYQs?.[0] || matchedCurated?.similarPYQ?.[0];
-      const pyqFormatted = typeof pyqObj === 'string'
+      const pyqObj = item.pyq || item.resolvedPyq || (Array.isArray(item.similarPYQs) && item.similarPYQs.length > 0 ? item.similarPYQs[0] : null) || (Array.isArray(matchedCurated?.similarPYQ) && matchedCurated.similarPYQ.length > 0 ? matchedCurated.similarPYQ[0] : null);
+      let pyqFormatted = typeof pyqObj === 'string'
         ? { stem: `Previous UPSC examination question linked to ${item.place} (${pyqObj})`, exam: 'UPSC CSE Pre' }
-        : pyqObj;
+        : { ...pyqObj };
+
+      if (typeof pyqFormatted.options === 'string') {
+        try {
+          pyqFormatted.options = JSON.parse(pyqFormatted.options);
+        } catch {
+          pyqFormatted.options = [];
+        }
+      }
 
       steps.push({
         id: 'map_pyq',
         type: 'mapping_pyq',
         badge: 'STAGE 5 · PAST UPSC PRELIMS QUESTION',
         title: 'How UPSC Asked About This River',
-        subtitle: `${pyqFormatted.exam || 'UPSC CSE Pre'} ${pyqFormatted.examYear || ''}`,
+        subtitle: `${pyqFormatted.exam || 'UPSC CSE Pre'} ${pyqFormatted.examYear || ''}`.trim(),
         pyq: pyqFormatted,
       });
     }
@@ -555,15 +563,24 @@ export function buildMappingSteps(item, customAssets = {}) {
   // STAGE 4: Linked UPSC Prelims PYQ
   if (item.pyq || item.resolvedPyq || (Array.isArray(item.similarPYQs) && item.similarPYQs.length > 0)) {
     const pyqObj = item.pyq || item.resolvedPyq || item.similarPYQs[0];
-    const pyqFormatted = typeof pyqObj === 'string'
+    let pyqFormatted = typeof pyqObj === 'string'
       ? { stem: `Previous UPSC examination question linked to ${item.place} (${pyqObj})`, exam: 'UPSC CSE Pre' }
-      : pyqObj;
+      : { ...pyqObj };
+
+    if (typeof pyqFormatted.options === 'string') {
+      try {
+        pyqFormatted.options = JSON.parse(pyqFormatted.options);
+      } catch {
+        pyqFormatted.options = [];
+      }
+    }
+
     steps.push({
       id: 'map_pyq',
       type: 'mapping_pyq',
       badge: 'STAGE 4 · PAST UPSC PRELIMS QUESTION',
       title: 'How UPSC Tested This Location',
-      subtitle: `${pyqFormatted.exam || 'UPSC CSE Pre'} ${pyqFormatted.examYear || ''}`,
+      subtitle: `${pyqFormatted.exam || 'UPSC CSE Pre'} ${pyqFormatted.examYear || ''}`.trim(),
       pyq: pyqFormatted,
     });
   }

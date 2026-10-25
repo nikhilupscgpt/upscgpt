@@ -734,79 +734,22 @@ export default function PyqPresenterClient({ questions = [] }) {
           {/* RIGHT PANEL: DYNAMIC EXPLANATION / TOPIC SLIDES (52%-56%) */}
           {/* ========================================================= */}
           <main className={`pq-present-right-panel ${isMappingMode ? 'is-map-right-panel' : ''}`}>
-            {/* IN MAPPING MODE: ALL METADATA & ANCHOR DETAILS DISPLAY HERE */}
-            {isMappingMode && (
-              <div className="pq-mapping-anchor-card">
-                {/* Meta Badges */}
-                <div className="pq-present-q-meta" style={{ marginBottom: 10 }}>
-                  <span className="pq-present-tag pq-present-tag-exam" style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.4)' }}>
-                    {currentQ.regionScope || 'India'}
-                  </span>
-                  {currentQ.category && (
-                    <span className="pq-present-tag" style={{ background: 'rgba(255, 255, 255, 0.08)', color: '#e2e8f0', border: '1px solid rgba(255, 255, 255, 0.15)' }}>
-                      {currentQ.category}
-                    </span>
-                  )}
-                  {currentQ.placeType && (
-                    <span className="pq-present-tag" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
-                      {currentQ.placeType}
-                    </span>
-                  )}
-                </div>
-
-                {/* Place Title */}
-                <h2 className="pq-mapping-place-title">
-                  <MapPin size={26} color="#34d399" />
-                  <span>{currentQ.place || currentQ.title}</span>
-                </h2>
-
-                {/* Location & Coordinates Row */}
-                <div className="pq-mapping-loc-row">
-                  <span className="pq-mapping-loc-text">
-                    📍 {currentQ.locationText || currentQ.locatedIn?.stateOrProvince || currentQ.locatedIn?.country || 'India'}
-                  </span>
-                  {currentQ.lat && currentQ.lng && (
-                    <span className="pq-mapping-coords-badge">
-                      <Globe size={13} />
-                      <span>{Number(currentQ.lat).toFixed(2)}° N, {Number(currentQ.lng).toFixed(2)}° E</span>
-                    </span>
-                  )}
-                </div>
-
-                {/* Aliases & Tributaries */}
-                {Array.isArray(currentQ.aliases) && currentQ.aliases.length > 0 && (
-                  <div className="pq-mapping-aliases-section">
-                    <div className="pq-mapping-aliases-label">
-                      Known Aliases &amp; Tributaries
-                    </div>
-                    <div className="pq-mapping-aliases-list">
-                      {currentQ.aliases.map((al, idx) => (
-                        <span key={idx} className="pq-mapping-alias-pill">
-                          {al}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Optional Stem & Options if Mapping PYQ */}
-                {stemBlocks.length > 0 && (
-                  <div className="pq-mapping-stem-box">
-                    {stemBlocks.map((b, idx) => (
-                      <p key={idx} className={idx === 0 ? 'pq-present-stem-lead' : 'pq-present-stem-ask'}>
-                        {b.text}
-                      </p>
-                    ))}
-                    {options.length > 0 && (
-                      <div className="pq-present-options-grid">
-                        {options.map((opt) => (
-                          <div key={opt.label} className="pq-present-option-row">
-                            <span className="pq-present-opt-label">{opt.label}</span>
-                            <span className="pq-present-opt-text">{opt.text}</span>
-                          </div>
-                        ))}
+            {/* IN MAPPING MODE: Only render stem box if this mapping item is a question with a question stem */}
+            {isMappingMode && stemBlocks.length > 0 && (
+              <div className="pq-mapping-stem-box" style={{ marginBottom: 14 }}>
+                {stemBlocks.map((b, idx) => (
+                  <p key={idx} className={idx === 0 ? 'pq-present-stem-lead' : 'pq-present-stem-ask'}>
+                    {b.text}
+                  </p>
+                ))}
+                {options.length > 0 && (
+                  <div className="pq-present-options-grid">
+                    {options.map((opt) => (
+                      <div key={opt.label} className="pq-present-option-row">
+                        <span className="pq-present-opt-label">{opt.label}</span>
+                        <span className="pq-present-opt-text">{opt.text}</span>
                       </div>
-                    )}
+                    ))}
                   </div>
                 )}
               </div>

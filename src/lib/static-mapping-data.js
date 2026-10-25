@@ -161,8 +161,8 @@ export const CURATED_MAPPING_NODES = [
       "Son River rises near Amarkantak and joins the Ganga directly on its right bank near Patna (CDS 2020)."
     ],
     "similarPYQ": [
-      "GEO-UPSC-2026-11",
       "GEO-UPSC-2024-06",
+      "GEO-UPSC-2026-11",
       "GEO-UPSC-2023-07",
       "GEO-CDS1-2020-05",
       "GEO-UPSC-2019-04",
@@ -635,11 +635,11 @@ export const CURATED_MAPPING_NODES = [
       "UPSC 2016: Godavari and Krishna rivers were linked via the Pattiseema Lift Irrigation Project; Ancient Mahajanapada Asmaka was located on the banks of the Godavari (UPSC 2025)."
     ],
     "similarPYQ": [
+      "GEO-UPSC-2015-07",
       "ANC-UPSC-2025-17",
       "GEO-CDS1-2017-08",
       "GEO-UPSC-2016-03",
-      "GEO-UPSC-2016-01",
-      "GEO-UPSC-2015-07"
+      "GEO-UPSC-2016-01"
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
