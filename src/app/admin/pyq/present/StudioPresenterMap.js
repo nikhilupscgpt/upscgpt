@@ -60,7 +60,9 @@ export default function StudioPresenterMap({ currentQ, currentStep, theme = 'dar
     currentQ?.riverDetails ||
     RIVER_GIS_REGISTRY[currentQ?.id] ||
     (currentQ?.category || '').toLowerCase().includes('river') ||
-    (currentQ?.placeType || '').toLowerCase().includes('river')
+    (currentQ?.placeType || '').toLowerCase().includes('river') ||
+    (currentQ?.place || '').toLowerCase().includes('river') ||
+    (currentQ?.title || '').toLowerCase().includes('river')
   );
 
   // Auto-sync map layer when teacher advances slides
@@ -144,22 +146,33 @@ export default function StudioPresenterMap({ currentQ, currentStep, theme = 'dar
         background: '#060913',
       }}
     >
-      {/* Floating Basemap Controls & Recenter Button (Top Left) */}
+      {/* 1. Interactive Leaflet Map Canvas (Base Map Viewport) */}
+      <MappingCanvas
+        nodes={nodes}
+        selectedNode={activeNode}
+        basemap={basemap}
+        showIndiaStates={true}
+        showGraticules={true}
+        cameraTarget={cameraTarget}
+      />
+
+      {/* 2. Floating Basemap Controls & Recenter Button (Top Left - Above Leaflet) */}
       <div
         style={{
           position: 'absolute',
           top: 14,
           left: 14,
-          zIndex: 400,
+          zIndex: 1200,
           display: 'flex',
           alignItems: 'center',
           gap: 6,
-          background: 'rgba(15, 23, 42, 0.88)',
+          background: 'rgba(15, 23, 42, 0.92)',
           backdropFilter: 'blur(12px)',
           padding: '4px 6px',
           borderRadius: 12,
-          border: '1px solid rgba(255, 255, 255, 0.15)',
-          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+          border: '1.5px solid rgba(255, 255, 255, 0.2)',
+          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.45)',
+          pointerEvents: 'auto',
         }}
       >
         <button
@@ -234,7 +247,7 @@ export default function StudioPresenterMap({ currentQ, currentStep, theme = 'dar
             fontWeight: 700,
             cursor: 'pointer',
             border: 'none',
-            background: 'rgba(56, 189, 248, 0.15)',
+            background: 'rgba(56, 189, 248, 0.18)',
             color: '#38bdf8',
             transition: 'all 0.15s ease',
           }}
@@ -245,25 +258,26 @@ export default function StudioPresenterMap({ currentQ, currentStep, theme = 'dar
         </button>
       </div>
 
-      {/* Floating Teacher Layer Override HUD (Directly Below Basemap Bar) */}
+      {/* 3. Floating Teacher Layer Override HUD (Directly Below Basemap Bar - Above Leaflet) */}
       {isRiver && (
         <div
           style={{
             position: 'absolute',
             top: 58,
             left: 14,
-            zIndex: 400,
+            zIndex: 1200,
             display: 'flex',
             alignItems: 'center',
             flexWrap: 'wrap',
             gap: 5,
-            background: 'rgba(15, 23, 42, 0.92)',
+            background: 'rgba(15, 23, 42, 0.94)',
             backdropFilter: 'blur(12px)',
             padding: '4px 8px',
             borderRadius: 12,
-            border: '1px solid rgba(255, 255, 255, 0.15)',
-            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+            border: '1.5px solid rgba(255, 255, 255, 0.2)',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.45)',
             maxWidth: 'calc(100% - 28px)',
+            pointerEvents: 'auto',
           }}
         >
           <div
@@ -295,7 +309,7 @@ export default function StudioPresenterMap({ currentQ, currentStep, theme = 'dar
               fontWeight: 700,
               cursor: 'pointer',
               border: 'none',
-              background: activeLayers.spine ? '#0284c7' : 'rgba(255, 255, 255, 0.06)',
+              background: activeLayers.spine ? '#0284c7' : 'rgba(255, 255, 255, 0.08)',
               color: activeLayers.spine ? '#ffffff' : '#94a3b8',
               transition: 'all 0.15s ease',
             }}
@@ -315,7 +329,7 @@ export default function StudioPresenterMap({ currentQ, currentStep, theme = 'dar
               fontWeight: 700,
               cursor: 'pointer',
               border: 'none',
-              background: activeLayers.leftBank ? '#06b6d4' : 'rgba(255, 255, 255, 0.06)',
+              background: activeLayers.leftBank ? '#06b6d4' : 'rgba(255, 255, 255, 0.08)',
               color: activeLayers.leftBank ? '#ffffff' : '#94a3b8',
               transition: 'all 0.15s ease',
             }}
@@ -335,7 +349,7 @@ export default function StudioPresenterMap({ currentQ, currentStep, theme = 'dar
               fontWeight: 700,
               cursor: 'pointer',
               border: 'none',
-              background: activeLayers.rightBank ? '#f59e0b' : 'rgba(255, 255, 255, 0.06)',
+              background: activeLayers.rightBank ? '#f59e0b' : 'rgba(255, 255, 255, 0.08)',
               color: activeLayers.rightBank ? '#ffffff' : '#94a3b8',
               transition: 'all 0.15s ease',
             }}
@@ -355,7 +369,7 @@ export default function StudioPresenterMap({ currentQ, currentStep, theme = 'dar
               fontWeight: 700,
               cursor: 'pointer',
               border: 'none',
-              background: activeLayers.dams ? '#8b5cf6' : 'rgba(255, 255, 255, 0.06)',
+              background: activeLayers.dams ? '#8b5cf6' : 'rgba(255, 255, 255, 0.08)',
               color: activeLayers.dams ? '#ffffff' : '#94a3b8',
               transition: 'all 0.15s ease',
             }}
@@ -375,7 +389,7 @@ export default function StudioPresenterMap({ currentQ, currentStep, theme = 'dar
               fontWeight: 700,
               cursor: 'pointer',
               border: 'none',
-              background: activeLayers.protectedAreas ? '#10b981' : 'rgba(255, 255, 255, 0.06)',
+              background: activeLayers.protectedAreas ? '#10b981' : 'rgba(255, 255, 255, 0.08)',
               color: activeLayers.protectedAreas ? '#ffffff' : '#94a3b8',
               transition: 'all 0.15s ease',
             }}
@@ -386,48 +400,49 @@ export default function StudioPresenterMap({ currentQ, currentStep, theme = 'dar
         </div>
       )}
 
-      {/* Floating Spatial Engine Watermark (Top Right of Map) */}
+      {/* 4. Floating Spatial Engine Watermark (Top Right of Map) */}
       <div
         style={{
           position: 'absolute',
           top: 14,
           right: 14,
-          zIndex: 400,
+          zIndex: 1200,
           display: 'flex',
           alignItems: 'center',
           gap: 6,
-          background: 'rgba(15, 23, 42, 0.85)',
+          background: 'rgba(15, 23, 42, 0.88)',
           backdropFilter: 'blur(10px)',
           padding: '5px 12px',
           borderRadius: 10,
-          border: '1px solid rgba(255, 255, 255, 0.12)',
+          border: '1.5px solid rgba(255, 255, 255, 0.15)',
           fontSize: 11,
           fontWeight: 800,
           letterSpacing: '0.06em',
           textTransform: 'uppercase',
           color: '#34d399',
           pointerEvents: 'none',
+          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)',
         }}
       >
         <Compass size={14} />
         <span>UPSC SPATIAL ENGINE</span>
       </div>
 
-      {/* Bottom Coordinates HUD Pill (Bottom Left of Map) */}
+      {/* 5. Bottom Coordinates HUD Pill (Bottom Left of Map) */}
       <div
         style={{
           position: 'absolute',
           bottom: 14,
           left: 14,
-          zIndex: 400,
+          zIndex: 1200,
           display: 'flex',
           alignItems: 'center',
           gap: 8,
-          background: 'rgba(15, 23, 42, 0.9)',
+          background: 'rgba(15, 23, 42, 0.92)',
           backdropFilter: 'blur(10px)',
           padding: '6px 14px',
           borderRadius: 10,
-          border: '1px solid rgba(255, 255, 255, 0.15)',
+          border: '1.5px solid rgba(255, 255, 255, 0.18)',
           fontSize: 12,
           fontWeight: 800,
           fontFamily: 'monospace',
@@ -443,16 +458,6 @@ export default function StudioPresenterMap({ currentQ, currentStep, theme = 'dar
           {currentQ?.place || 'Location'}
         </span>
       </div>
-
-      {/* Interactive Leaflet Map Canvas */}
-      <MappingCanvas
-        nodes={nodes}
-        selectedNode={activeNode}
-        basemap={basemap}
-        showIndiaStates={true}
-        showGraticules={true}
-        cameraTarget={cameraTarget}
-      />
     </div>
   );
 }
