@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { Layers, Target, Compass, Globe } from 'lucide-react';
+import { Layers, Target, Compass, Globe, Move, PenTool } from 'lucide-react';
 import { getRiverSpatialNodes, RIVER_GIS_REGISTRY } from '@/lib/riverSpatialLayers';
 
 const MappingCanvas = dynamic(() => import('@/components/MappingCanvas'), {
@@ -39,7 +39,13 @@ const MappingCanvas = dynamic(() => import('@/components/MappingCanvas'), {
   ),
 });
 
-export default function StudioPresenterMap({ currentQ, currentStep, theme = 'dark' }) {
+export default function StudioPresenterMap({
+  currentQ,
+  currentStep,
+  theme = 'dark',
+  activeTool = 'pen',
+  onSetActiveTool,
+}) {
   const [basemap, setBasemap] = useState('topo'); // 'topo' | 'satellite' | 'light' | 'natgeo'
   const [cameraTrigger, setCameraTrigger] = useState(0);
 
@@ -146,23 +152,25 @@ export default function StudioPresenterMap({ currentQ, currentStep, theme = 'dar
         background: '#060913',
       }}
     >
-      {/* 1. Interactive Leaflet Map Canvas (Base Map Viewport) */}
-      <MappingCanvas
-        nodes={nodes}
-        selectedNode={activeNode}
-        basemap={basemap}
-        showIndiaStates={true}
-        showGraticules={true}
-        cameraTarget={cameraTarget}
-      />
+      {/* 1. Interactive Leaflet Map Canvas (Base Map Viewport at z-index 10 below annotation layer) */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
+        <MappingCanvas
+          nodes={nodes}
+          selectedNode={activeNode}
+          basemap={basemap}
+          showIndiaStates={true}
+          showGraticules={true}
+          cameraTarget={cameraTarget}
+        />
+      </div>
 
-      {/* 2. Floating Basemap Controls & Recenter Button (Top Left - Above Leaflet) */}
+      {/* 2. Floating Basemap Controls & Recenter Button (Top Left - Above Annotation Canvas at z-index 65) */}
       <div
         style={{
           position: 'absolute',
           top: 14,
           left: 14,
-          zIndex: 1200,
+          zIndex: 65,
           display: 'flex',
           alignItems: 'center',
           gap: 6,
@@ -256,16 +264,45 @@ export default function StudioPresenterMap({ currentQ, currentStep, theme = 'dar
           <Target size={13} />
           <span>Focus</span>
         </button>
+
+        {onSetActiveTool && (
+          <button
+            type="button"
+            onClick={() => onSetActiveTool(activeTool === 'none' ? 'pen' : 'none')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 4,
+              padding: '5px 10px',
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: 'pointer',
+              border: 'none',
+              background: activeTool === 'none' ? '#10b981' : 'rgba(245, 158, 11, 0.2)',
+              color: activeTool === 'none' ? '#ffffff' : '#fbbf24',
+              transition: 'all 0.15s ease',
+            }}
+            title={
+              activeTool === 'none'
+                ? 'Map Pan/Zoom Active — Click to switch back to Stylus Drawing [P]'
+                : 'Stylus Drawing Active — Click to Pan/Zoom Map [N]'
+            }
+          >
+            {activeTool === 'none' ? <Move size={13} /> : <PenTool size={13} />}
+            <span>{activeTool === 'none' ? 'Panning Map' : 'Draw Mode'}</span>
+          </button>
+        )}
       </div>
 
-      {/* 3. Floating Teacher Layer Override HUD (Directly Below Basemap Bar - Above Leaflet) */}
+      {/* 3. Floating Teacher Layer Override HUD (Directly Below Basemap Bar - Above Annotation Canvas at z-index 65) */}
       {isRiver && (
         <div
           style={{
             position: 'absolute',
             top: 58,
             left: 14,
-            zIndex: 1200,
+            zIndex: 65,
             display: 'flex',
             alignItems: 'center',
             flexWrap: 'wrap',

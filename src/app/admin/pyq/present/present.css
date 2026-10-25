@@ -1635,6 +1635,7 @@
 
 /* Left Map Stage Panel (Full height, full width map viewport) */
 .pq-present-stage.is-mapping-layout .pq-present-left-panel.is-map-panel {
+  z-index: auto !important;
   padding: 0 !important;
   background: #060913 !important;
   border-right: 1.5px solid rgba(255, 255, 255, 0.12);

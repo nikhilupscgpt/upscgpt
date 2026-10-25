@@ -626,7 +626,13 @@ export default function PyqPresenterClient({ questions = [] }) {
           <aside className={`pq-present-left-panel ${isMappingMode ? 'is-map-panel' : ''}`}>
             {isMappingMode ? (
               <div className="pq-present-map-stage-wrap">
-                <StudioPresenterMap currentQ={currentQ} currentStep={currentStep} theme={theme} />
+                <StudioPresenterMap
+                  currentQ={currentQ}
+                  currentStep={currentStep}
+                  theme={theme}
+                  activeTool={activeTool}
+                  onSetActiveTool={setActiveTool}
+                />
               </div>
             ) : (
               <>
