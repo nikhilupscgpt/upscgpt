@@ -230,8 +230,8 @@
   background: rgba(30, 41, 59, 0.6);
   border: 1.5px solid rgba(255, 255, 255, 0.09);
   border-radius: 12px;
-  font-size: 18px;
-  line-height: 1.48;
+  font-size: 19.5px;
+  line-height: 1.5;
   color: #e2e8f0;
   transition: all 0.25s ease;
   box-sizing: border-box;
@@ -328,10 +328,10 @@
 }
 
 .pq-present-opt-text {
-  font-size: 17px;
+  font-size: 19px;
   font-weight: 600;
   color: #f1f5f9;
-  line-height: 1.35;
+  line-height: 1.4;
 }
 
 /* Option Revealed / Highlighted */
@@ -414,7 +414,7 @@
 
 .pq-present-step-sub {
   margin: 0;
-  font-size: 17px;
+  font-size: 18.5px;
   color: #94a3b8;
   line-height: 1.45;
 }
@@ -468,7 +468,7 @@
 }
 
 .pq-present-stat-label {
-  font-size: 12px;
+  font-size: 13.5px;
   font-weight: 800;
   text-transform: uppercase;
   color: #94a3b8;
@@ -478,7 +478,7 @@
 }
 
 .pq-present-stat-value {
-  font-size: clamp(16px, 1.25vw, 20px);
+  font-size: clamp(18px, 1.4vw, 22px);
   font-weight: 800;
   color: #f8fafc;
   line-height: 1.35;
@@ -514,7 +514,7 @@
 }
 
 .pq-present-bc-label {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 800;
   color: #f8fafc;
 }
@@ -525,7 +525,7 @@
   gap: 5px;
   padding: 3px 10px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 800;
   text-transform: uppercase;
 }
@@ -541,14 +541,14 @@
 }
 
 .pq-present-bc-text {
-  font-size: 16px;
+  font-size: 18px;
   color: #cbd5e1;
-  line-height: 1.45;
+  line-height: 1.48;
   margin: 0;
 }
 
 .pq-present-bc-exp {
-  font-size: 16.5px;
+  font-size: 18.5px;
   color: #f8fafc;
   line-height: 1.55;
   margin: 0;
@@ -566,7 +566,7 @@
 }
 
 .pq-present-concept-title {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 800;
   color: #a5b4fc;
   display: flex;
@@ -575,7 +575,7 @@
 }
 
 .pq-present-concept-note {
-  font-size: 17px;
+  font-size: 19px;
   color: #f1f5f9;
   line-height: 1.55;
   margin: 0;
@@ -599,7 +599,7 @@
   border-radius: 14px;
   background: rgba(15, 23, 42, 0.75);
   border: 1.5px solid rgba(245, 158, 11, 0.25);
-  font-size: 18px;
+  font-size: 19.5px;
   line-height: 1.55;
   color: #f8fafc;
 }
@@ -623,14 +623,14 @@
 }
 
 .pq-present-news-headline {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 800;
   color: #fca5a5;
   margin: 0;
 }
 
 .pq-present-news-context {
-  font-size: 17.5px;
+  font-size: 19px;
   color: #f1f5f9;
   line-height: 1.55;
   margin: 0;
@@ -1624,13 +1624,32 @@
    MAPPING MODE PRESENTATION STYLES (MAP ON LEFT · ALL DETAILS ON RIGHT)
    ========================================================================== */
 
-/* Split Grid for Mapping Layout */
+/* Split Grid for Mapping Layout — Default 58% Map / 42% Slide for OBS clarity */
 .pq-present-stage.is-mapping-layout.is-mode-screen {
-  grid-template-columns: minmax(380px, 48%) minmax(420px, 52%);
+  grid-template-columns: minmax(420px, 58%) minmax(340px, 42%);
 }
 
 .pq-present-stage.is-mapping-layout.is-mode-16-9 {
-  grid-template-columns: 920px 1000px;
+  grid-template-columns: 1114px 806px;
+}
+
+/* Wide Map Mode (70% Map / 30% Slide) */
+.pq-present-stage.is-mapping-layout.is-map-wide.is-mode-screen {
+  grid-template-columns: minmax(500px, 70%) minmax(280px, 30%);
+}
+
+.pq-present-stage.is-mapping-layout.is-map-wide.is-mode-16-9 {
+  grid-template-columns: 1344px 576px;
+}
+
+/* Full Map Mode (100% Map Viewport) */
+.pq-present-stage.is-mapping-layout.is-map-full.is-mode-screen,
+.pq-present-stage.is-mapping-layout.is-map-full.is-mode-16-9 {
+  grid-template-columns: 1fr;
+}
+
+.pq-present-stage.is-mapping-layout.is-map-full .pq-present-right-panel.is-map-right-panel {
+  display: none !important;
 }
 
 /* Left Map Stage Panel (Full height, full width map viewport) */

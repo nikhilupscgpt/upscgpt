@@ -381,48 +381,64 @@ export function getRiverSpatialNodes(riverNode, activeLayers = {}) {
     }
   }
 
-  // 2. Left-Bank Tributaries
+  // 2. Left-Bank Tributaries (Numbered 1..N at mid-course so labels never pile up at confluence)
   if (activeLayers.leftBank && reg?.leftBank) {
-    for (const item of reg.leftBank) {
+    reg.leftBank.forEach((item, idx) => {
+      const midPt =
+        Array.isArray(item.shape) && item.shape.length >= 2
+          ? item.shape[Math.floor((item.shape.length - 1) / 2)]
+          : [item.lat, item.lng];
       result.push({
         ...item,
+        lat: midPt[0],
+        lng: midPt[1],
+        displayIndex: idx + 1,
         mapCategory: ['India – rivers, lakes, reservoirs & glaciers'],
       });
-    }
+    });
   }
 
-  // 3. Right-Bank Tributaries
+  // 3. Right-Bank Tributaries (Numbered 1..N at mid-course)
   if (activeLayers.rightBank && reg?.rightBank) {
-    for (const item of reg.rightBank) {
+    reg.rightBank.forEach((item, idx) => {
+      const midPt =
+        Array.isArray(item.shape) && item.shape.length >= 2
+          ? item.shape[Math.floor((item.shape.length - 1) / 2)]
+          : [item.lat, item.lng];
       result.push({
         ...item,
+        lat: midPt[0],
+        lng: midPt[1],
+        displayIndex: idx + 1,
         mapCategory: ['India – rivers, lakes, reservoirs & glaciers'],
       });
-    }
+    });
   }
 
   // 4. Confluences (Sangams) & Major Dams
   if (activeLayers.dams && reg?.damsAndSangams) {
-    for (const item of reg.damsAndSangams) {
+    reg.damsAndSangams.forEach((item, idx) => {
       result.push({
         ...item,
+        displayIndex: idx + 1,
         mapCategory: item.placeType.includes('Confluence')
           ? ['India – rivers, lakes, reservoirs & glaciers']
           : ['Infrastructure & Projects'],
       });
-    }
+    });
   }
 
   // 5. Protected Areas & Historic Towns
   if (activeLayers.protectedAreas && reg?.protectedAreasAndTowns) {
-    for (const item of reg.protectedAreasAndTowns) {
+    reg.protectedAreasAndTowns.forEach((item, idx) => {
       result.push({
         ...item,
+        displayIndex: idx + 1,
         mapCategory: item.placeType.includes('Protected Area')
           ? ['Protected areas & biodiversity']
           : ['Ancient & Medieval India'],
       });
-    }
+    });
   }
 
   return result;

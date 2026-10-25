@@ -209,13 +209,51 @@ export default function PyqPresenterClient({ questions = [] }) {
   const [screenStageSize, setScreenStageSize] = useState({ width: 1280, height: 720 });
   const [isSmallScreen, setIsSmallScreen] = useState(false);
 
+  // Mapping Layout Width Mode: 'split' (58% Map / 42% Slide), 'wide' (70% Map / 30% Slide), 'full' (100% Map)
+  const [mapWidthMode, setMapWidthMode] = useState('split');
+  // Interactive Card-to-Map Spotlight index (1-based displayIndex)
+  const [spotlightIndex, setSpotlightIndex] = useState(null);
+  // OBS Content Font Zoom Scale (1 = 100%, 1.12 = 112%, 1.24 = 124%) — leaves slide title untouched
+  const [contentFontScale, setContentFontScale] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = Number(localStorage.getItem('pq_present_font_scale'));
+        if (saved === 1 || saved === 1.12 || saved === 1.24) return saved;
+      } catch {
+        // ignore
+      }
+    }
+    return 1;
+  });
+
+  const handleCycleFontScale = useCallback(() => {
+    setContentFontScale(prev => {
+      const SCALES = [1, 1.12, 1.24];
+      const idx = SCALES.indexOf(prev);
+      const next = SCALES[(idx + 1) % SCALES.length];
+      try { localStorage.setItem('pq_present_font_scale', String(next)); } catch {}
+      return next;
+    });
+  }, []);
+
+  const handleCycleMapWidth = useCallback(() => {
+    setMapWidthMode(prev => (prev === 'split' ? 'wide' : prev === 'wide' ? 'full' : 'split'));
+  }, []);
+
+  // Reset card-to-map spotlight when step or item changes
+  useEffect(() => {
+    setSpotlightIndex(null);
+  }, [qIndex, stepIndex]);
+
   const isMappingMode = currentQ?.type === 'mapping';
   const isFullStageScratchpad = currentStep?.type === 'scratchpad' && currentStep?.isFullStage;
   const canvasWidth = presentationMode === 'screen' ? screenStageSize.width : 1920;
   const canvasHeight = presentationMode === 'screen' ? screenStageSize.height : 1080;
+  const mapSplitRatio = mapWidthMode === 'full' ? 1.0 : mapWidthMode === 'wide' ? 0.70 : 0.58;
+  const mapSplitPx169 = mapWidthMode === 'full' ? 1920 : mapWidthMode === 'wide' ? 1344 : 1114;
   const leftBoundaryX = presentationMode === 'screen'
-    ? Math.round(screenStageSize.width * (isMappingMode ? 0.48 : 0.44))
-    : (isMappingMode ? 920 : 830);
+    ? Math.round(screenStageSize.width * (isMappingMode ? mapSplitRatio : 0.44))
+    : (isMappingMode ? mapSplitPx169 : 830);
 
   const toggleTheme = useCallback(() => {
     setTheme(prev => {
@@ -560,6 +598,18 @@ export default function PyqPresenterClient({ questions = [] }) {
         case '?':
           setShowHelp(h => !h);
           break;
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8': {
+          const num = Number(e.key);
+          setSpotlightIndex(prev => (prev === num ? null : num));
+          break;
+        }
         default:
           break;
       }
@@ -599,7 +649,7 @@ export default function PyqPresenterClient({ questions = [] }) {
       >
         <div
           ref={stageRef}
-          className={`pq-present-stage ${presentationMode === 'screen' ? 'is-mode-screen' : 'is-mode-16-9'} ${isMappingMode ? 'is-mapping-layout' : ''} ${isFullStageScratchpad ? 'is-full-stage-scratchpad' : ''}`}
+          className={`pq-present-stage ${presentationMode === 'screen' ? 'is-mode-screen' : 'is-mode-16-9'} ${isMappingMode ? 'is-mapping-layout' : ''} ${isMappingMode && mapWidthMode === 'wide' ? 'is-map-wide' : ''} ${isMappingMode && mapWidthMode === 'full' ? 'is-map-full' : ''} ${isFullStageScratchpad ? 'is-full-stage-scratchpad' : ''}`}
           style={presentationMode === '16:9' ? {
             transform: `scale(${scale})`,
             transformOrigin: 'center center',
@@ -632,6 +682,9 @@ export default function PyqPresenterClient({ questions = [] }) {
                   theme={theme}
                   activeTool={activeTool}
                   onSetActiveTool={setActiveTool}
+                  mapWidthMode={mapWidthMode}
+                  onCycleMapWidth={handleCycleMapWidth}
+                  spotlightIndex={spotlightIndex}
                 />
               </div>
             ) : (
@@ -776,7 +829,10 @@ export default function PyqPresenterClient({ questions = [] }) {
             )}
 
             {/* Dynamic Step Content Body */}
-            <div className={`pq-present-slide-body ${currentStep?.type === 'scratchpad' ? 'is-scratchpad-body' : ''}`}>
+            <div
+              className={`pq-present-slide-body ${currentStep?.type === 'scratchpad' ? 'is-scratchpad-body' : ''}`}
+              style={currentStep?.type !== 'scratchpad' && contentFontScale !== 1 ? { zoom: contentFontScale } : undefined}
+            >
               {/* DYNAMIC BLANK SLIDE / SCRATCHPAD CANVAS */}
               {currentStep?.type === 'scratchpad' && (
                 <div className={`pq-scratchpad-card pq-pattern-${currentStep.pattern || 'plain'}`}>
@@ -1127,37 +1183,37 @@ export default function PyqPresenterClient({ questions = [] }) {
                       </div>
                       <div className="pq-present-stat-box">
                         <div className="pq-present-stat-label">Source / Origin</div>
-                        <div className="pq-present-stat-value" style={{ fontSize: 16, lineHeight: 1.3 }}>{rd.origin}</div>
+                        <div className="pq-present-stat-value" style={{ fontSize: 18.5, lineHeight: 1.35 }}>{rd.origin}</div>
                       </div>
                       <div className="pq-present-stat-box">
                         <div className="pq-present-stat-label">Outflow / Mouth</div>
-                        <div className="pq-present-stat-value" style={{ fontSize: 16, lineHeight: 1.3 }}>{rd.mouth}</div>
+                        <div className="pq-present-stat-value" style={{ fontSize: 18.5, lineHeight: 1.35 }}>{rd.mouth}</div>
                       </div>
                       <div className="pq-present-stat-box">
                         <div className="pq-present-stat-label">River Classification</div>
-                        <div className="pq-present-stat-value">{currentQ.placeType || 'Major River System'}</div>
+                        <div className="pq-present-stat-value" style={{ fontSize: 18.5 }}>{currentQ.placeType || 'Major River System'}</div>
                       </div>
                     </div>
 
                     {rd.states && (
-                      <div className="pq-present-card" style={{ padding: '16px 20px' }}>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <div className="pq-present-card" style={{ padding: '18px 22px' }}>
+                        <div style={{ fontSize: 14.5, fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
                           <span>🗺️</span>
                           <span>States It Passes Through vs Total Catchment Basin</span>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>
-                          <span style={{ fontSize: 13, fontWeight: 700, color: theme === 'light' ? '#475569' : '#94a3b8' }}>Direct River Flow:</span>
+                        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 12 }}>
+                          <span style={{ fontSize: 15.5, fontWeight: 800, color: theme === 'light' ? '#334155' : '#cbd5e1' }}>Direct River Flow:</span>
                           {rd.states.flowsThrough?.map((st, idx) => (
-                            <span key={idx} style={{ fontSize: 14, fontWeight: 800, padding: '4px 12px', borderRadius: 8, background: '#0284c7', color: '#ffffff' }}>
+                            <span key={idx} style={{ fontSize: 16.5, fontWeight: 800, padding: '5px 14px', borderRadius: 8, background: '#0284c7', color: '#ffffff' }}>
                               {st}
                             </span>
                           ))}
                         </div>
                         {rd.states.basinStates && (
-                          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
-                            <span style={{ fontSize: 12.5, fontWeight: 600, color: theme === 'light' ? '#64748b' : '#64748b' }}>Basin Catchment:</span>
+                          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+                            <span style={{ fontSize: 15, fontWeight: 700, color: theme === 'light' ? '#475569' : '#94a3b8' }}>Basin Catchment:</span>
                             {rd.states.basinStates.map((st, idx) => (
-                              <span key={idx} style={{ fontSize: 12, fontWeight: 700, padding: '2px 9px', borderRadius: 6, background: theme === 'light' ? '#f1f5f9' : 'rgba(255, 255, 255, 0.08)', color: theme === 'light' ? '#334155' : '#cbd5e1' }}>
+                              <span key={idx} style={{ fontSize: 14.5, fontWeight: 700, padding: '4px 11px', borderRadius: 6, background: theme === 'light' ? '#f1f5f9' : 'rgba(255, 255, 255, 0.1)', color: theme === 'light' ? '#1e293b' : '#e2e8f0' }}>
                                 {st}
                               </span>
                             ))}
@@ -1173,35 +1229,54 @@ export default function PyqPresenterClient({ questions = [] }) {
               {currentStep?.type === 'river_left_tributaries' && currentStep.riverDetails && (() => {
                 const rd = currentStep.riverDetails;
                 const leftList = rd.tributaries?.leftBank || [];
+                const useTwoCols = leftList.length > 3 && mapWidthMode === 'split';
                 return (
                   <div className="pq-present-card" style={{ borderColor: 'rgba(56, 189, 248, 0.45)', background: theme === 'light' ? '#f0f9ff' : 'rgba(15, 23, 42, 0.9)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, borderBottom: '2px solid rgba(2, 132, 199, 0.3)', paddingBottom: 8 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 16, fontWeight: 800, color: '#0284c7', textTransform: 'uppercase' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, borderBottom: '2px solid rgba(2, 132, 199, 0.3)', paddingBottom: 10 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 17, fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase' }}>
                         <span>⬅️</span>
-                        <span>Left-Bank Tributaries (Joining from Left Bank)</span>
+                        <span>Left-Bank Tributaries (Click or press 1–{leftList.length} to spotlight)</span>
                       </div>
-                      <span style={{ fontSize: 12, fontWeight: 800, padding: '3px 10px', borderRadius: 8, background: '#0284c7', color: '#ffffff' }}>
+                      <span style={{ fontSize: 13, fontWeight: 800, padding: '4px 12px', borderRadius: 8, background: '#0284c7', color: '#ffffff' }}>
                         MAP LAYER: CYAN
                       </span>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: leftList.length > 3 ? '1fr 1fr' : '1fr', gap: 12 }}>
-                      {leftList.map((trib, idx) => (
-                        <div key={idx} style={{ background: theme === 'light' ? '#ffffff' : 'rgba(255, 255, 255, 0.05)', padding: '12px 16px', borderRadius: 10, borderLeft: '5px solid #0284c7', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(2, 132, 199, 0.2)', color: '#0284c7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800 }}>
-                              {idx + 1}
-                            </span>
-                            <span style={{ fontSize: 17, fontWeight: 800, color: theme === 'light' ? '#0f172a' : '#f8fafc' }}>
-                              {trib.name}
-                            </span>
-                          </div>
-                          {trib.note && (
-                            <div style={{ fontSize: 14, color: theme === 'light' ? '#334155' : '#94a3b8', marginTop: 4, lineHeight: 1.45, paddingLeft: 30 }}>
-                              {trib.note}
+                    <div style={{ display: 'grid', gridTemplateColumns: useTwoCols ? '1fr 1fr' : '1fr', gap: 14 }}>
+                      {leftList.map((trib, idx) => {
+                        const isSpotlit = spotlightIndex === idx + 1;
+                        return (
+                          <div
+                            key={idx}
+                            onClick={() => setSpotlightIndex(prev => (prev === idx + 1 ? null : idx + 1))}
+                            style={{
+                              cursor: 'pointer',
+                              background: isSpotlit
+                                ? (theme === 'light' ? '#e0f2fe' : 'rgba(14, 165, 233, 0.22)')
+                                : (theme === 'light' ? '#ffffff' : 'rgba(255, 255, 255, 0.05)'),
+                              padding: '14px 18px',
+                              borderRadius: 12,
+                              borderLeft: '6px solid #0284c7',
+                              outline: isSpotlit ? '2px solid #38bdf8' : 'none',
+                              boxShadow: isSpotlit ? '0 0 18px rgba(56, 189, 248, 0.35)' : '0 2px 8px rgba(0,0,0,0.08)',
+                              transition: 'all 0.15s ease',
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                              <span style={{ width: 28, height: 28, borderRadius: '50%', background: '#0284c7', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14.5, fontWeight: 900, flexShrink: 0 }}>
+                                {idx + 1}
+                              </span>
+                              <span style={{ fontSize: 20, fontWeight: 800, color: theme === 'light' ? '#0f172a' : '#ffffff', lineHeight: 1.25 }}>
+                                {trib.name}
+                              </span>
                             </div>
-                          )}
-                        </div>
-                      ))}
+                            {trib.note && (
+                              <div style={{ fontSize: 16.5, fontWeight: 500, color: theme === 'light' ? '#1e293b' : '#e2e8f0', marginTop: 6, lineHeight: 1.5, paddingLeft: 38 }}>
+                                {trib.note}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 );
@@ -1211,61 +1286,80 @@ export default function PyqPresenterClient({ questions = [] }) {
               {currentStep?.type === 'river_right_tributaries' && currentStep.riverDetails && (() => {
                 const rd = currentStep.riverDetails;
                 const rightList = rd.tributaries?.rightBank || [];
+                const useTwoCols = rightList.length > 3 && mapWidthMode === 'split';
                 return (
                   <div className="pq-present-card" style={{ borderColor: 'rgba(245, 158, 11, 0.45)', background: theme === 'light' ? '#fffbeb' : 'rgba(15, 23, 42, 0.9)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, borderBottom: '2px solid rgba(217, 119, 6, 0.3)', paddingBottom: 8 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 16, fontWeight: 800, color: '#d97706', textTransform: 'uppercase' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, borderBottom: '2px solid rgba(217, 119, 6, 0.3)', paddingBottom: 10 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 17, fontWeight: 800, color: '#fbbf24', textTransform: 'uppercase' }}>
                         <span>➡️</span>
-                        <span>Right-Bank Tributaries (Joining from Right Bank)</span>
+                        <span>Right-Bank Tributaries (Click or press 1–{rightList.length} to spotlight)</span>
                       </div>
-                      <span style={{ fontSize: 12, fontWeight: 800, padding: '3px 10px', borderRadius: 8, background: '#d97706', color: '#ffffff' }}>
+                      <span style={{ fontSize: 13, fontWeight: 800, padding: '4px 12px', borderRadius: 8, background: '#d97706', color: '#ffffff' }}>
                         MAP LAYER: AMBER
                       </span>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: rightList.length > 3 ? '1fr 1fr' : '1fr', gap: 12 }}>
-                      {rightList.map((trib, idx) => (
-                        <div key={idx} style={{ background: theme === 'light' ? '#ffffff' : 'rgba(255, 255, 255, 0.05)', padding: '12px 16px', borderRadius: 10, borderLeft: '5px solid #d97706', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(217, 119, 6, 0.2)', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800 }}>
-                              {idx + 1}
-                            </span>
-                            <span style={{ fontSize: 17, fontWeight: 800, color: theme === 'light' ? '#0f172a' : '#f8fafc' }}>
-                              {trib.name}
-                            </span>
-                          </div>
-                          {trib.note && (
-                            <div style={{ fontSize: 14, color: theme === 'light' ? '#334155' : '#94a3b8', marginTop: 4, lineHeight: 1.45, paddingLeft: 30 }}>
-                              {trib.note}
+                    <div style={{ display: 'grid', gridTemplateColumns: useTwoCols ? '1fr 1fr' : '1fr', gap: 14 }}>
+                      {rightList.map((trib, idx) => {
+                        const isSpotlit = spotlightIndex === idx + 1;
+                        return (
+                          <div
+                            key={idx}
+                            onClick={() => setSpotlightIndex(prev => (prev === idx + 1 ? null : idx + 1))}
+                            style={{
+                              cursor: 'pointer',
+                              background: isSpotlit
+                                ? (theme === 'light' ? '#fef3c7' : 'rgba(245, 158, 11, 0.22)')
+                                : (theme === 'light' ? '#ffffff' : 'rgba(255, 255, 255, 0.05)'),
+                              padding: '14px 18px',
+                              borderRadius: 12,
+                              borderLeft: '6px solid #d97706',
+                              outline: isSpotlit ? '2px solid #fbbf24' : 'none',
+                              boxShadow: isSpotlit ? '0 0 18px rgba(245, 158, 11, 0.35)' : '0 2px 8px rgba(0,0,0,0.08)',
+                              transition: 'all 0.15s ease',
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                              <span style={{ width: 28, height: 28, borderRadius: '50%', background: '#d97706', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14.5, fontWeight: 900, flexShrink: 0 }}>
+                                {idx + 1}
+                              </span>
+                              <span style={{ fontSize: 20, fontWeight: 800, color: theme === 'light' ? '#0f172a' : '#ffffff', lineHeight: 1.25 }}>
+                                {trib.name}
+                              </span>
                             </div>
-                          )}
-                        </div>
-                      ))}
+                            {trib.note && (
+                              <div style={{ fontSize: 16.5, fontWeight: 500, color: theme === 'light' ? '#1e293b' : '#e2e8f0', marginTop: 6, lineHeight: 1.5, paddingLeft: 38 }}>
+                                {trib.note}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 );
               })()}
 
-              {/* RIVER STAGE 3: SANGAMS & MAJOR DAMS */}
+              {/* RIVER STAGE 4: SANGAMS & MAJOR DAMS */}
               {currentStep?.type === 'river_dams_confluences' && currentStep.riverDetails && (() => {
                 const rd = currentStep.riverDetails;
                 return (
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: mapWidthMode === 'wide' ? '1fr' : '1fr 1fr', gap: 18 }}>
                     {/* Confluences (Sangams) */}
                     <div className="pq-present-card" style={{ borderColor: 'rgba(245, 158, 11, 0.45)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 15, fontWeight: 800, color: '#d97706', textTransform: 'uppercase', marginBottom: 14, borderBottom: '2px solid rgba(217, 119, 6, 0.3)', paddingBottom: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 16.5, fontWeight: 800, color: '#fbbf24', textTransform: 'uppercase', marginBottom: 14, borderBottom: '2px solid rgba(217, 119, 6, 0.3)', paddingBottom: 8 }}>
                         <span>🤝</span>
                         <span>Important Sangams (Confluences)</span>
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                         {rd.confluences?.map((c, idx) => (
-                          <div key={idx} style={{ background: theme === 'light' ? '#f8fafc' : 'rgba(255, 255, 255, 0.04)', padding: '9px 13px', borderRadius: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                          <div key={idx} style={{ background: theme === 'light' ? '#f8fafc' : 'rgba(255, 255, 255, 0.05)', padding: '12px 15px', borderRadius: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
                             <div>
-                              <div style={{ fontSize: 15.5, fontWeight: 800, color: theme === 'light' ? '#0f172a' : '#f8fafc' }}>{c.sangam}</div>
-                              {c.note && <div style={{ fontSize: 12.5, color: theme === 'light' ? '#64748b' : '#94a3b8', marginTop: 2 }}>{c.note}</div>}
+                              <div style={{ fontSize: 18, fontWeight: 800, color: theme === 'light' ? '#0f172a' : '#ffffff' }}>{c.sangam}</div>
+                              {c.note && <div style={{ fontSize: 15, color: theme === 'light' ? '#334155' : '#e2e8f0', marginTop: 4, lineHeight: 1.45 }}>{c.note}</div>}
                             </div>
-                            <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                              <span style={{ fontSize: 12, fontWeight: 800, padding: '2px 8px', borderRadius: 5, background: '#dbeafe', color: '#1e40af' }}>{c.tributary}</span>
-                              <span style={{ fontSize: 12, fontWeight: 600, padding: '2px 8px', borderRadius: 5, background: '#f1f5f9', color: '#334155' }}>{c.state}</span>
+                            <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                              <span style={{ fontSize: 13.5, fontWeight: 800, padding: '3px 10px', borderRadius: 6, background: '#dbeafe', color: '#1e40af' }}>{c.tributary}</span>
+                              <span style={{ fontSize: 13.5, fontWeight: 700, padding: '3px 10px', borderRadius: 6, background: '#f1f5f9', color: '#334155' }}>{c.state}</span>
                             </div>
                           </div>
                         ))}
@@ -1274,18 +1368,18 @@ export default function PyqPresenterClient({ questions = [] }) {
 
                     {/* Major Dams & Projects */}
                     <div className="pq-present-card" style={{ borderColor: 'rgba(239, 68, 68, 0.45)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 15, fontWeight: 800, color: '#dc2626', textTransform: 'uppercase', marginBottom: 14, borderBottom: '2px solid rgba(220, 38, 38, 0.3)', paddingBottom: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 16.5, fontWeight: 800, color: '#f87171', textTransform: 'uppercase', marginBottom: 14, borderBottom: '2px solid rgba(220, 38, 38, 0.3)', paddingBottom: 8 }}>
                         <span>🏗️</span>
                         <span>Major Dams &amp; Multipurpose Projects</span>
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                         {rd.dams?.map((dam, idx) => (
-                          <div key={idx} style={{ background: theme === 'light' ? '#f8fafc' : 'rgba(255, 255, 255, 0.04)', padding: '9px 13px', borderRadius: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                          <div key={idx} style={{ background: theme === 'light' ? '#f8fafc' : 'rgba(255, 255, 255, 0.05)', padding: '12px 15px', borderRadius: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 10 }}>
                             <div>
-                              <div style={{ fontSize: 15.5, fontWeight: 800, color: theme === 'light' ? '#0f172a' : '#f8fafc' }}>{dam.name}</div>
-                              {dam.type && <div style={{ fontSize: 12.5, color: theme === 'light' ? '#64748b' : '#94a3b8', marginTop: 2 }}>{dam.type}</div>}
+                              <div style={{ fontSize: 18, fontWeight: 800, color: theme === 'light' ? '#0f172a' : '#ffffff' }}>{dam.name}</div>
+                              {dam.type && <div style={{ fontSize: 15, color: theme === 'light' ? '#334155' : '#e2e8f0', marginTop: 4, lineHeight: 1.45 }}>{dam.type}</div>}
                             </div>
-                            <span style={{ fontSize: 12, fontWeight: 800, padding: '3px 9px', borderRadius: 6, background: '#fee2e2', color: '#991b1b', flexShrink: 0 }}>
+                            <span style={{ fontSize: 13.5, fontWeight: 800, padding: '4px 10px', borderRadius: 6, background: '#fee2e2', color: '#991b1b', flexShrink: 0 }}>
                               {dam.state}
                             </span>
                           </div>
@@ -1296,23 +1390,23 @@ export default function PyqPresenterClient({ questions = [] }) {
                 );
               })()}
 
-              {/* RIVER STAGE 4: PARKS, TOWNS & WILDLIFE */}
+              {/* RIVER STAGE 5: PARKS, TOWNS & WILDLIFE */}
               {currentStep?.type === 'river_ecology_towns' && currentStep.riverDetails && (() => {
                 const rd = currentStep.riverDetails;
                 return (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: mapWidthMode === 'wide' ? '1fr' : '1fr 1fr', gap: 16 }}>
                       {/* Protected Areas */}
                       <div className="pq-present-card" style={{ borderColor: 'rgba(16, 185, 129, 0.4)' }}>
-                        <div style={{ fontSize: 13.5, fontWeight: 800, color: '#059669', textTransform: 'uppercase', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <div style={{ fontSize: 15.5, fontWeight: 800, color: '#10b981', textTransform: 'uppercase', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                           <span>🌲</span>
                           <span>National Parks &amp; Sanctuaries in Basin</span>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                           {rd.protectedAreas?.map((pa, idx) => (
-                            <div key={idx} style={{ fontSize: 13.5, lineHeight: 1.4, paddingBottom: 6, borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                              <strong style={{ color: '#10b981' }}>{pa.name}</strong> ({pa.state}):
-                              <span style={{ color: theme === 'light' ? '#475569' : '#cbd5e1', marginLeft: 4 }}>{pa.relation}</span>
+                            <div key={idx} style={{ fontSize: 16, lineHeight: 1.5, paddingBottom: 8, borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                              <strong style={{ color: '#34d399', fontSize: 17 }}>{pa.name}</strong> ({pa.state}):
+                              <span style={{ color: theme === 'light' ? '#1e293b' : '#e2e8f0', marginLeft: 6 }}>{pa.relation}</span>
                             </div>
                           ))}
                         </div>
@@ -1320,15 +1414,15 @@ export default function PyqPresenterClient({ questions = [] }) {
 
                       {/* Historic & Cultural Towns */}
                       <div className="pq-present-card" style={{ borderColor: 'rgba(168, 85, 247, 0.4)' }}>
-                        <div style={{ fontSize: 13.5, fontWeight: 800, color: '#9333ea', textTransform: 'uppercase', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <div style={{ fontSize: 15.5, fontWeight: 800, color: '#c084fc', textTransform: 'uppercase', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
                           <span>🏛️</span>
                           <span>Important Cities &amp; Historical Capitals</span>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                           {rd.towns?.map((tw, idx) => (
-                            <div key={idx} style={{ fontSize: 13.5, lineHeight: 1.4, paddingBottom: 6, borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}>
-                              <strong style={{ color: theme === 'light' ? '#0f172a' : '#f8fafc' }}>{tw.name}</strong> ({tw.state}) — 
-                              <span style={{ color: theme === 'light' ? '#475569' : '#cbd5e1', marginLeft: 4 }}>{tw.significance}</span>
+                            <div key={idx} style={{ fontSize: 16, lineHeight: 1.5, paddingBottom: 8, borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                              <strong style={{ color: theme === 'light' ? '#0f172a' : '#ffffff', fontSize: 17 }}>{tw.name}</strong> ({tw.state}) — 
+                              <span style={{ color: theme === 'light' ? '#1e293b' : '#e2e8f0', marginLeft: 6 }}>{tw.significance}</span>
                             </div>
                           ))}
                         </div>
@@ -1337,19 +1431,19 @@ export default function PyqPresenterClient({ questions = [] }) {
 
                     {/* Indicator Species Grid */}
                     {rd.species && (
-                      <div className="pq-present-card" style={{ padding: '12px 16px', borderColor: 'rgba(56, 189, 248, 0.35)' }}>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: '#0284c7', textTransform: 'uppercase', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <div className="pq-present-card" style={{ padding: '14px 18px', borderColor: 'rgba(56, 189, 248, 0.35)' }}>
+                        <div style={{ fontSize: 15, fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
                           <span>🐬</span>
                           <span>Important Animals &amp; Birds in the River</span>
                         </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 8 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 10 }}>
                           {rd.species.map((sp, idx) => (
-                            <div key={idx} style={{ background: theme === 'light' ? '#f8fafc' : 'rgba(255, 255, 255, 0.04)', padding: '7px 10px', borderRadius: 6, fontSize: 13 }}>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <strong style={{ color: theme === 'light' ? '#0f172a' : '#f8fafc' }}>{sp.name}</strong>
-                                <span style={{ fontSize: 11, fontWeight: 800, padding: '1px 6px', borderRadius: 4, background: '#fee2e2', color: '#991b1b' }}>{sp.iucn}</span>
+                            <div key={idx} style={{ background: theme === 'light' ? '#f8fafc' : 'rgba(255, 255, 255, 0.05)', padding: '10px 14px', borderRadius: 8, fontSize: 15.5 }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6 }}>
+                                <strong style={{ color: theme === 'light' ? '#0f172a' : '#ffffff', fontSize: 16.5 }}>{sp.name}</strong>
+                                <span style={{ fontSize: 12.5, fontWeight: 800, padding: '2px 8px', borderRadius: 5, background: '#fee2e2', color: '#991b1b' }}>{sp.iucn}</span>
                               </div>
-                              {sp.role && <div style={{ fontSize: 11.5, color: '#64748b', marginTop: 2 }}>{sp.role}</div>}
+                              {sp.role && <div style={{ fontSize: 14, color: theme === 'light' ? '#334155' : '#cbd5e1', marginTop: 4 }}>{sp.role}</div>}
                             </div>
                           ))}
                         </div>
@@ -1358,11 +1452,11 @@ export default function PyqPresenterClient({ questions = [] }) {
 
                     {/* Common Mistake / UPSC Trap */}
                     {rd.commonMistake && (
-                      <div className="pq-present-card" style={{ borderColor: 'rgba(245, 158, 11, 0.5)', background: theme === 'light' ? '#fffbeb' : 'rgba(245, 158, 11, 0.08)', padding: '12px 16px' }}>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: '#b45309', textTransform: 'uppercase', marginBottom: 4 }}>
+                      <div className="pq-present-card" style={{ borderColor: 'rgba(245, 158, 11, 0.5)', background: theme === 'light' ? '#fffbeb' : 'rgba(245, 158, 11, 0.1)', padding: '14px 18px' }}>
+                        <div style={{ fontSize: 15, fontWeight: 800, color: '#f59e0b', textTransform: 'uppercase', marginBottom: 6 }}>
                           ⚠️ Common Student Mistake / UPSC Trap:
                         </div>
-                        <p style={{ fontSize: 15, lineHeight: 1.5, color: theme === 'light' ? '#78350f' : '#fef3c7', margin: 0 }}>
+                        <p style={{ fontSize: 17.5, lineHeight: 1.55, color: theme === 'light' ? '#78350f' : '#fef3c7', margin: 0, fontWeight: 600 }}>
                           {rd.commonMistake}
                         </p>
                       </div>
@@ -1411,10 +1505,10 @@ export default function PyqPresenterClient({ questions = [] }) {
                   {currentStep.facts.map((fact, idx) => (
                     <div key={idx} className="pq-present-concept-card">
                       <div className="pq-present-concept-title">
-                        <Compass size={18} color="#34d399" />
+                        <Compass size={19} color="#34d399" />
                         <span>Key Fact #{idx + 1}</span>
                       </div>
-                      <p className="pq-present-concept-note" style={{ fontSize: 16.5, lineHeight: 1.6 }}>
+                      <p className="pq-present-concept-note" style={{ fontSize: 18.5, lineHeight: 1.6 }}>
                         {fact}
                       </p>
                     </div>
@@ -1427,11 +1521,11 @@ export default function PyqPresenterClient({ questions = [] }) {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                   {currentStep.upscAngle && (
                     <div className="pq-present-card" style={{ borderColor: 'rgba(245, 158, 11, 0.45)', background: theme === 'light' ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.1), #ffffff)' : 'linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(15, 23, 42, 0.85))' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: theme === 'light' ? '#b45309' : '#fbbf24', textTransform: 'uppercase', marginBottom: 10 }}>
-                        <Sparkles size={16} />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 15, fontWeight: 800, color: theme === 'light' ? '#b45309' : '#fbbf24', textTransform: 'uppercase', marginBottom: 10 }}>
+                        <Sparkles size={17} />
                         <span>⚠️ Common UPSC Mistake / Examiner Trap</span>
                       </div>
-                      <p style={{ fontSize: 18, lineHeight: 1.6, color: theme === 'light' ? '#0f172a' : '#f8fafc', margin: 0 }}>
+                      <p style={{ fontSize: 19.5, lineHeight: 1.6, color: theme === 'light' ? '#0f172a' : '#f8fafc', margin: 0 }}>
                         {currentStep.upscAngle}
                       </p>
                     </div>
@@ -1439,8 +1533,8 @@ export default function PyqPresenterClient({ questions = [] }) {
 
                   {currentStep.newsHook && (
                     <div className="pq-present-news-card">
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: theme === 'light' ? '#dc2626' : '#f87171', textTransform: 'uppercase' }}>
-                        <Flame size={14} />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14.5, fontWeight: 800, color: theme === 'light' ? '#dc2626' : '#f87171', textTransform: 'uppercase' }}>
+                        <Flame size={15} />
                         <span>📰 Why in the News Recently</span>
                       </div>
                       <h3 className="pq-present-news-headline">{currentStep.newsHook}</h3>
@@ -1452,11 +1546,11 @@ export default function PyqPresenterClient({ questions = [] }) {
               {/* MAPPING STAGE 4/5: LINKED PYQ */}
               {currentStep?.type === 'mapping_pyq' && currentStep.pyq && (
                 <div className="pq-present-card" style={{ borderColor: 'rgba(56, 189, 248, 0.4)', background: theme === 'light' ? 'linear-gradient(135deg, rgba(56, 189, 248, 0.1), #ffffff)' : 'linear-gradient(135deg, rgba(56, 189, 248, 0.12), rgba(15, 23, 42, 0.85))' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: theme === 'light' ? '#0284c7' : '#38bdf8', textTransform: 'uppercase', marginBottom: 10 }}>
-                    <Layers size={14} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14.5, fontWeight: 800, color: theme === 'light' ? '#0284c7' : '#38bdf8', textTransform: 'uppercase', marginBottom: 10 }}>
+                    <Layers size={15} />
                     <span>Past Year UPSC Question: {currentStep.pyq.exam || 'UPSC CSE Pre'} {currentStep.pyq.examYear || ''}</span>
                   </div>
-                  <p style={{ fontSize: 17.5, lineHeight: 1.55, color: theme === 'light' ? '#0f172a' : '#f8fafc', margin: '0 0 14px' }}>
+                  <p style={{ fontSize: 19, lineHeight: 1.55, color: theme === 'light' ? '#0f172a' : '#f8fafc', margin: '0 0 14px' }}>
                     {currentStep.pyq.stem}
                   </p>
                   {Array.isArray(currentStep.pyq.options) && currentStep.pyq.options.length > 0 && (
@@ -1474,12 +1568,12 @@ export default function PyqPresenterClient({ questions = [] }) {
                     </div>
                   )}
                   {currentStep.pyq.correctLabel && (
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 8, background: '#22c55e', color: '#052e16', fontSize: 13, fontWeight: 800, marginBottom: 8 }}>
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 8, background: '#22c55e', color: '#052e16', fontSize: 15, fontWeight: 800, marginBottom: 8 }}>
                       <span>Correct Answer: Option ({currentStep.pyq.correctLabel})</span>
                     </div>
                   )}
                   {currentStep.pyq.answerText && (
-                    <div style={{ fontSize: 14.5, color: theme === 'light' ? '#334155' : '#cbd5e1', marginTop: 10, lineHeight: 1.5 }}>
+                    <div style={{ fontSize: 16.5, color: theme === 'light' ? '#1e293b' : '#e2e8f0', marginTop: 10, lineHeight: 1.55 }}>
                       {currentStep.pyq.answerText}
                     </div>
                   )}
@@ -1803,6 +1897,18 @@ export default function PyqPresenterClient({ questions = [] }) {
             title={`Switch to ${theme === 'dark' ? 'Light / Whiteboard Mode' : 'Dark Mode'} [M]`}
           >
             {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+          </button>
+
+          {/* Content Font Zoom (100% / 112% / 124%) for OBS Readability */}
+          <button
+            type="button"
+            onClick={handleCycleFontScale}
+            className={`pq-dock-btn ${contentFontScale > 1 ? 'is-active' : ''}`}
+            style={{ width: 'auto', padding: '0 9px', fontSize: 11.5, fontWeight: 800, gap: 4 }}
+            title="Cycle Content Text Size for OBS (100% → 112% → 124% — keeps slide title fixed)"
+          >
+            <span>A+</span>
+            <span style={{ fontSize: 10, opacity: 0.85 }}>{Math.round(contentFontScale * 100)}%</span>
           </button>
 
           {/* Utility Toggles */}

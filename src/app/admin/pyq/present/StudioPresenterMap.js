@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import dynamic from 'next/dynamic';
-import { Layers, Target, Compass, Globe, Move, PenTool } from 'lucide-react';
+import { Layers, Target, Compass, Globe, Move, PenTool, Tag, Columns } from 'lucide-react';
 import { getRiverSpatialNodes, RIVER_GIS_REGISTRY } from '@/lib/riverSpatialLayers';
 
 const MappingCanvas = dynamic(() => import('@/components/MappingCanvas'), {
@@ -45,8 +45,12 @@ export default function StudioPresenterMap({
   theme = 'dark',
   activeTool = 'pen',
   onSetActiveTool,
+  mapWidthMode = 'split', // 'split' (58%) | 'wide' (72%) | 'full' (100%)
+  onCycleMapWidth,
+  spotlightIndex = null,
 }) {
   const [basemap, setBasemap] = useState('topo'); // 'topo' | 'satellite' | 'light' | 'natgeo'
+  const [showLabels, setShowLabels] = useState(true);
   const [cameraTrigger, setCameraTrigger] = useState(0);
 
   // Active Spatial Layers
@@ -130,10 +134,19 @@ export default function StudioPresenterMap({
     return activeNode ? [activeNode] : [];
   }, [currentQ, isRiver, activeLayers, activeNode]);
 
+  // If teacher spotlights a numbered card (1..6) on the right slide, spotlight its marker & line on the map
+  const effectiveSelectedNode = useMemo(() => {
+    if (spotlightIndex != null) {
+      const matched = nodes.find((n) => n.displayIndex === spotlightIndex);
+      if (matched) return matched;
+    }
+    return activeNode;
+  }, [spotlightIndex, nodes, activeNode]);
+
   const cameraTarget = useMemo(() => {
     return {
       center: [lat, lng],
-      zoom: isWorld ? 4.5 : (isRiver ? 6.2 : 6),
+      zoom: isWorld ? 4.5 : (isRiver ? 6.0 : 6),
       ts: `${lat}-${lng}-${cameraTrigger}`,
     };
   }, [lat, lng, isWorld, isRiver, cameraTrigger]);
@@ -141,6 +154,9 @@ export default function StudioPresenterMap({
   const handleRecenter = () => {
     setCameraTrigger((prev) => prev + 1);
   };
+
+  const widthLabel =
+    mapWidthMode === 'full' ? '100% Map' : mapWidthMode === 'wide' ? '70% Map' : '58% Map';
 
   return (
     <div
@@ -156,10 +172,12 @@ export default function StudioPresenterMap({
       <div style={{ position: 'absolute', inset: 0, zIndex: 10 }}>
         <MappingCanvas
           nodes={nodes}
-          selectedNode={activeNode}
+          selectedNode={effectiveSelectedNode}
           basemap={basemap}
           showIndiaStates={true}
           showGraticules={true}
+          showLabels={showLabels}
+          disableClustering={true}
           cameraTarget={cameraTarget}
         />
       </div>
@@ -173,7 +191,8 @@ export default function StudioPresenterMap({
           zIndex: 65,
           display: 'flex',
           alignItems: 'center',
-          gap: 6,
+          flexWrap: 'wrap',
+          gap: 5,
           background: 'rgba(15, 23, 42, 0.92)',
           backdropFilter: 'blur(12px)',
           padding: '4px 6px',
@@ -181,6 +200,7 @@ export default function StudioPresenterMap({
           border: '1.5px solid rgba(255, 255, 255, 0.2)',
           boxShadow: '0 8px 24px rgba(0, 0, 0, 0.45)',
           pointerEvents: 'auto',
+          maxWidth: 'calc(100% - 28px)',
         }}
       >
         <button
@@ -244,6 +264,29 @@ export default function StudioPresenterMap({
 
         <button
           type="button"
+          onClick={() => setShowLabels((prev) => !prev)}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 4,
+            padding: '5px 10px',
+            borderRadius: 8,
+            fontSize: 12,
+            fontWeight: 700,
+            cursor: 'pointer',
+            border: 'none',
+            background: showLabels ? 'rgba(16, 185, 129, 0.22)' : 'rgba(255, 255, 255, 0.08)',
+            color: showLabels ? '#34d399' : '#94a3b8',
+            transition: 'all 0.15s ease',
+          }}
+          title="Toggle numbered name labels on map (Hide labels for student quiz mode)"
+        >
+          <Tag size={13} />
+          <span>{showLabels ? 'Labels: ON' : 'Labels: OFF'}</span>
+        </button>
+
+        <button
+          type="button"
           onClick={handleRecenter}
           style={{
             display: 'inline-flex',
@@ -291,6 +334,31 @@ export default function StudioPresenterMap({
           >
             {activeTool === 'none' ? <Move size={13} /> : <PenTool size={13} />}
             <span>{activeTool === 'none' ? 'Panning Map' : 'Draw Mode'}</span>
+          </button>
+        )}
+
+        {onCycleMapWidth && (
+          <button
+            type="button"
+            onClick={onCycleMapWidth}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 4,
+              padding: '5px 10px',
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 800,
+              cursor: 'pointer',
+              border: '1px solid rgba(168, 85, 247, 0.45)',
+              background: 'rgba(168, 85, 247, 0.2)',
+              color: '#c084fc',
+              transition: 'all 0.15s ease',
+            }}
+            title="Cycle Map Real Estate: 58% Default Split → 70% Wide Map → 100% Full Screen Map [M]"
+          >
+            <Columns size={13} />
+            <span>{widthLabel}</span>
           </button>
         )}
       </div>

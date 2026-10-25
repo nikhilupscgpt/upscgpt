@@ -177,46 +177,65 @@ export function getCategoryVisual(node) {
  * Numbered circular map badge with crisp double-ring border; when selected, transforms into a
  * crimson-red glowing & pulsating beacon with dual radar rings + floating title pill.
  */
-function createNodeIcon(node, isSelected) {
+function createNodeIcon(node, isSelected, showLabels = false) {
   const vis = getCategoryVisual(node);
   const color = node.badgeColor || node.customColor || vis.color;
   const emoji = node.customEmoji || vis.emoji;
   const idxNum = node?.displayIndex;
 
-  if (!isSelected) {
-    const badgeContent = idxNum
-      ? `<span style="font-family:Inter,system-ui,sans-serif;font-size:12px;font-weight:800;color:#ffffff;line-height:1;">${idxNum}</span>`
-      : `<span style="font-size:13px;line-height:1;">${emoji}</span>`;
-
-    return L.divIcon({
-      html: `
-        <div style="
-          position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);
-          width:28px;height:28px;border-radius:50%;
-          background:${idxNum ? color : '#0f172a'};
-          border:2.5px solid #ffffff;
-          outline:1.5px solid ${color};
-          display:flex;align-items:center;justify-content:center;
-          box-shadow:0 3px 10px rgba(15,23,42,0.45);cursor:pointer;
-          transition:transform 0.15s ease;
-        ">
-          ${badgeContent}
-        </div>`,
-      iconSize: [28, 28],
-      iconAnchor: [14, 14],
-      className: '',
-    });
-  }
-
   const rawPlace = node.place || '';
   const matchParen = rawPlace.match(/^([^(]+)\(([^)]+)\)$/);
   const mainTitle = matchParen ? matchParen[1].trim() : rawPlace;
+  const shortTitle = mainTitle.replace(/\s+River$/i, '').trim();
   const subDetail = matchParen
     ? matchParen[2].trim()
     : [node.locatedIn?.stateOrProvince, node.locatedIn?.country].filter(Boolean).join(', ') || node.regionScope || '';
 
   const cleanMain = mainTitle.length > 22 ? `${mainTitle.slice(0, 20)}…` : mainTitle;
+  const cleanShort = shortTitle.length > 18 ? `${shortTitle.slice(0, 17)}…` : shortTitle;
   const cleanSub = subDetail.length > 26 ? `${subDetail.slice(0, 24)}…` : subDetail;
+
+  if (!isSelected) {
+    const badgeContent = idxNum
+      ? `<span style="font-family:Inter,system-ui,sans-serif;font-size:13px;font-weight:800;color:#ffffff;line-height:1;">${idxNum}</span>`
+      : `<span style="font-size:13px;line-height:1;">${emoji}</span>`;
+
+    const labelPillHtml = showLabels
+      ? `<div style="
+          position:absolute;top:50%;left:32px;transform:translateY(-50%);
+          background:rgba(15, 23, 42, 0.92);backdrop-filter:blur(4px);color:#ffffff;
+          border:1.5px solid ${color};
+          border-radius:7px;padding:3px 9px;
+          font-family:Inter,system-ui,sans-serif;
+          font-size:12.5px;font-weight:800;letter-spacing:0.01em;
+          white-space:nowrap;
+          box-shadow:0 4px 12px rgba(15,23,42,0.55);
+          pointer-events:none;z-index:9;
+        ">${cleanShort}</div>`
+      : '';
+
+    return L.divIcon({
+      html: `
+        <div style="position:relative;width:30px;height:30px;">
+          <div style="
+            position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);
+            width:28px;height:28px;border-radius:50%;
+            background:${idxNum ? color : '#0f172a'};
+            border:2.5px solid #ffffff;
+            outline:1.5px solid ${color};
+            display:flex;align-items:center;justify-content:center;
+            box-shadow:0 3px 10px rgba(15,23,42,0.45);cursor:pointer;
+            transition:transform 0.15s ease;
+          ">
+            ${badgeContent}
+          </div>
+          ${labelPillHtml}
+        </div>`,
+      iconSize: [30, 30],
+      iconAnchor: [15, 15],
+      className: '',
+    });
+  }
 
   const activeBadgeContent = idxNum
     ? `<span style="font-family:Inter,system-ui,sans-serif;font-size:13px;font-weight:800;color:#ffffff;line-height:1;">${idxNum}</span>`
@@ -247,8 +266,8 @@ function createNodeIcon(node, isSelected) {
           box-shadow:0 6px 20px rgba(15,23,42,0.5), 0 0 12px rgba(239,68,68,0.35);
           pointer-events:none;z-index:11;
         ">
-          <div style="font-size:12px;font-weight:800;color:#ffffff;line-height:1.2;overflow:hidden;text-overflow:ellipsis;">${cleanMain}</div>
-          ${cleanSub ? `<div style="font-size:10px;font-weight:600;color:#94a3b8;margin-top:2px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;">${cleanSub}</div>` : ''}
+          <div style="font-size:12.5px;font-weight:800;color:#ffffff;line-height:1.2;overflow:hidden;text-overflow:ellipsis;">${cleanMain}</div>
+          ${cleanSub ? `<div style="font-size:10.5px;font-weight:600;color:#94a3b8;margin-top:2px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;">${cleanSub}</div>` : ''}
         </div>
       </div>`,
     iconSize: [34, 34],
@@ -271,6 +290,18 @@ function CameraController({ cameraTarget, selectedNode }) {
   const map = useMap();
   const lastNodeId = useRef(null);
   const lastCameraKey = useRef('');
+
+  // Auto-invalidate map size when stage split width changes (58% / 72% / 100%)
+  useEffect(() => {
+    if (!map) return;
+    const container = map.getContainer();
+    if (!container || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => {
+      map.invalidateSize({ animate: false });
+    });
+    ro.observe(container);
+    return () => ro.disconnect();
+  }, [map]);
 
   useEffect(() => {
     if (!map || !cameraTarget) return;
@@ -604,6 +635,8 @@ export default function MappingCanvas({
   basemap = 'topo',
   showIndiaStates = true,
   showGraticules = true,
+  showLabels = false,
+  disableClustering = false,
   cameraTarget,
   activeOrg = null,
   onStateClick,
@@ -782,24 +815,17 @@ export default function MappingCanvas({
           );
         })}
 
-        {/* Clustered Interactive Markers */}
-        <MarkerClusterGroup
-          chunkedLoading
-          iconCreateFunction={createClusterIcon}
-          maxClusterRadius={28}
-          showCoverageOnHover={false}
-          spiderfyOnMaxZoom={true}
-          disableClusteringAtZoom={4}
-        >
-          {validNodes.map((node) => {
+        {/* Interactive Markers (Direct when disableClustering is active in Presenter Mode, Clustered otherwise) */}
+        {disableClustering ? (
+          validNodes.map((node) => {
             const isSelected = selectedNode?.id === node.id;
 
             return (
               <Marker
                 key={node.id}
                 position={[Number(node.lat), Number(node.lng)]}
-                icon={createNodeIcon(node, isSelected)}
-                zIndexOffset={isSelected ? 1000 : 0}
+                icon={createNodeIcon(node, isSelected, showLabels)}
+                zIndexOffset={isSelected ? 1000 : (node.displayIndex ? 500 : 0)}
                 eventHandlers={{
                   click: () => onSelectNode && onSelectNode(node),
                 }}
@@ -820,8 +846,48 @@ export default function MappingCanvas({
                 </Tooltip>
               </Marker>
             );
-          })}
-        </MarkerClusterGroup>
+          })
+        ) : (
+          <MarkerClusterGroup
+            chunkedLoading
+            iconCreateFunction={createClusterIcon}
+            maxClusterRadius={28}
+            showCoverageOnHover={false}
+            spiderfyOnMaxZoom={true}
+            disableClusteringAtZoom={4}
+          >
+            {validNodes.map((node) => {
+              const isSelected = selectedNode?.id === node.id;
+
+              return (
+                <Marker
+                  key={node.id}
+                  position={[Number(node.lat), Number(node.lng)]}
+                  icon={createNodeIcon(node, isSelected, showLabels)}
+                  zIndexOffset={isSelected ? 1000 : 0}
+                  eventHandlers={{
+                    click: () => onSelectNode && onSelectNode(node),
+                  }}
+                >
+                  <Tooltip direction="top" offset={[0, -16]}>
+                    <div style={{ fontSize: 12 }}>
+                      <strong>
+                        {node.displayIndex ? `#${node.displayIndex} · ` : ''}
+                        {node.place}
+                      </strong>
+                      <div style={{ fontSize: 11, color: '#475569' }}>
+                        {node.placeType} •{' '}
+                        {node.locatedIn?.stateOrProvince ||
+                          node.locatedIn?.country ||
+                          node.regionScope}
+                      </div>
+                    </div>
+                  </Tooltip>
+                </Marker>
+              );
+            })}
+          </MarkerClusterGroup>
+        )}
       </MapContainer>
     </div>
   );
