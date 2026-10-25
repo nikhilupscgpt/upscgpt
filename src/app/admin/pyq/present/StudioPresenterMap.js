@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { Layers, Target, Compass, Globe } from 'lucide-react';
+import { getRiverSpatialNodes, RIVER_GIS_REGISTRY } from '@/lib/riverSpatialLayers';
 
 const MappingCanvas = dynamic(() => import('@/components/MappingCanvas'), {
   ssr: false,
@@ -38,13 +39,58 @@ const MappingCanvas = dynamic(() => import('@/components/MappingCanvas'), {
   ),
 });
 
-export default function StudioPresenterMap({ currentQ, theme = 'dark' }) {
+export default function StudioPresenterMap({ currentQ, currentStep, theme = 'dark' }) {
   const [basemap, setBasemap] = useState('topo'); // 'topo' | 'satellite' | 'light' | 'natgeo'
   const [cameraTrigger, setCameraTrigger] = useState(0);
+
+  // Active Spatial Layers
+  const [activeLayers, setActiveLayers] = useState({
+    spine: true,
+    leftBank: false,
+    rightBank: false,
+    dams: false,
+    protectedAreas: false,
+  });
 
   const lat = currentQ?.lat != null ? Number(currentQ.lat) : 22.5;
   const lng = currentQ?.lng != null ? Number(currentQ.lng) : 80.5;
   const isWorld = (currentQ?.regionScope || '').toLowerCase() === 'world';
+
+  const isRiver = Boolean(
+    currentQ?.riverDetails ||
+    RIVER_GIS_REGISTRY[currentQ?.id] ||
+    (currentQ?.category || '').toLowerCase().includes('river') ||
+    (currentQ?.placeType || '').toLowerCase().includes('river')
+  );
+
+  // Auto-sync map layer when teacher advances slides
+  useEffect(() => {
+    if (!currentStep) return;
+    const type = currentStep.type;
+    const stepId = currentStep.id;
+
+    if (stepId === 'river_course' || type === 'mapping_overview') {
+      setActiveLayers({ spine: true, leftBank: false, rightBank: false, dams: false, protectedAreas: false });
+    } else if (stepId === 'river_left_tributaries') {
+      setActiveLayers({ spine: true, leftBank: true, rightBank: false, dams: false, protectedAreas: false });
+    } else if (stepId === 'river_right_tributaries') {
+      setActiveLayers({ spine: true, leftBank: false, rightBank: true, dams: false, protectedAreas: false });
+    } else if (stepId === 'river_dams_confluences') {
+      setActiveLayers({ spine: true, leftBank: false, rightBank: false, dams: true, protectedAreas: false });
+    } else if (stepId === 'river_ecology_towns') {
+      setActiveLayers({ spine: true, leftBank: false, rightBank: false, dams: false, protectedAreas: true });
+    } else if (stepId === 'map_pyq') {
+      // In PYQ stage, show river spine + both banks to illustrate question options
+      setActiveLayers({ spine: true, leftBank: true, rightBank: true, dams: false, protectedAreas: false });
+    }
+  }, [currentStep?.id, currentStep?.type]);
+
+  const handleToggleLayer = (key) => {
+    setActiveLayers((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  };
 
   // Build active node payload for MappingCanvas
   const activeNode = useMemo(() => {
@@ -67,17 +113,22 @@ export default function StudioPresenterMap({ currentQ, theme = 'dark' }) {
     };
   }, [currentQ, lat, lng, isWorld]);
 
+  // Compute dynamic GIS nodes based on active layers
   const nodes = useMemo(() => {
+    if (!currentQ) return [];
+    if (isRiver) {
+      return getRiverSpatialNodes(currentQ, activeLayers);
+    }
     return activeNode ? [activeNode] : [];
-  }, [activeNode]);
+  }, [currentQ, isRiver, activeLayers, activeNode]);
 
   const cameraTarget = useMemo(() => {
     return {
       center: [lat, lng],
-      zoom: isWorld ? 4.5 : 6,
+      zoom: isWorld ? 4.5 : (isRiver ? 6.2 : 6),
       ts: `${lat}-${lng}-${cameraTrigger}`,
     };
-  }, [lat, lng, isWorld, cameraTrigger]);
+  }, [lat, lng, isWorld, isRiver, cameraTrigger]);
 
   const handleRecenter = () => {
     setCameraTrigger((prev) => prev + 1);
@@ -97,8 +148,8 @@ export default function StudioPresenterMap({ currentQ, theme = 'dark' }) {
       <div
         style={{
           position: 'absolute',
-          top: 16,
-          left: 16,
+          top: 14,
+          left: 14,
           zIndex: 400,
           display: 'flex',
           alignItems: 'center',
@@ -194,12 +245,153 @@ export default function StudioPresenterMap({ currentQ, theme = 'dark' }) {
         </button>
       </div>
 
+      {/* Floating Teacher Layer Override HUD (Directly Below Basemap Bar) */}
+      {isRiver && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 58,
+            left: 14,
+            zIndex: 400,
+            display: 'flex',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 5,
+            background: 'rgba(15, 23, 42, 0.92)',
+            backdropFilter: 'blur(12px)',
+            padding: '4px 8px',
+            borderRadius: 12,
+            border: '1px solid rgba(255, 255, 255, 0.15)',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.4)',
+            maxWidth: 'calc(100% - 28px)',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              fontSize: 11,
+              fontWeight: 800,
+              color: '#38bdf8',
+              paddingRight: 6,
+              borderRight: '1px solid rgba(255, 255, 255, 0.15)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em',
+            }}
+          >
+            <Layers size={13} />
+            <span>Layers:</span>
+          </div>
+
+          {/* Spine */}
+          <button
+            type="button"
+            onClick={() => handleToggleLayer('spine')}
+            style={{
+              padding: '4px 8px',
+              borderRadius: 7,
+              fontSize: 11,
+              fontWeight: 700,
+              cursor: 'pointer',
+              border: 'none',
+              background: activeLayers.spine ? '#0284c7' : 'rgba(255, 255, 255, 0.06)',
+              color: activeLayers.spine ? '#ffffff' : '#94a3b8',
+              transition: 'all 0.15s ease',
+            }}
+            title="Toggle Main River Spine & Origin/Mouth"
+          >
+            📍 Spine
+          </button>
+
+          {/* Left Bank */}
+          <button
+            type="button"
+            onClick={() => handleToggleLayer('leftBank')}
+            style={{
+              padding: '4px 8px',
+              borderRadius: 7,
+              fontSize: 11,
+              fontWeight: 700,
+              cursor: 'pointer',
+              border: 'none',
+              background: activeLayers.leftBank ? '#06b6d4' : 'rgba(255, 255, 255, 0.06)',
+              color: activeLayers.leftBank ? '#ffffff' : '#94a3b8',
+              transition: 'all 0.15s ease',
+            }}
+            title="Toggle Left-Bank Tributaries (Cyan)"
+          >
+            ⬅️ Left Bank
+          </button>
+
+          {/* Right Bank */}
+          <button
+            type="button"
+            onClick={() => handleToggleLayer('rightBank')}
+            style={{
+              padding: '4px 8px',
+              borderRadius: 7,
+              fontSize: 11,
+              fontWeight: 700,
+              cursor: 'pointer',
+              border: 'none',
+              background: activeLayers.rightBank ? '#f59e0b' : 'rgba(255, 255, 255, 0.06)',
+              color: activeLayers.rightBank ? '#ffffff' : '#94a3b8',
+              transition: 'all 0.15s ease',
+            }}
+            title="Toggle Right-Bank Tributaries (Amber)"
+          >
+            ➡️ Right Bank
+          </button>
+
+          {/* Dams & Sangams */}
+          <button
+            type="button"
+            onClick={() => handleToggleLayer('dams')}
+            style={{
+              padding: '4px 8px',
+              borderRadius: 7,
+              fontSize: 11,
+              fontWeight: 700,
+              cursor: 'pointer',
+              border: 'none',
+              background: activeLayers.dams ? '#8b5cf6' : 'rgba(255, 255, 255, 0.06)',
+              color: activeLayers.dams ? '#ffffff' : '#94a3b8',
+              transition: 'all 0.15s ease',
+            }}
+            title="Toggle Confluences & Major Dams"
+          >
+            ⚡ Dams &amp; Sangams
+          </button>
+
+          {/* Protected Areas & Towns */}
+          <button
+            type="button"
+            onClick={() => handleToggleLayer('protectedAreas')}
+            style={{
+              padding: '4px 8px',
+              borderRadius: 7,
+              fontSize: 11,
+              fontWeight: 700,
+              cursor: 'pointer',
+              border: 'none',
+              background: activeLayers.protectedAreas ? '#10b981' : 'rgba(255, 255, 255, 0.06)',
+              color: activeLayers.protectedAreas ? '#ffffff' : '#94a3b8',
+              transition: 'all 0.15s ease',
+            }}
+            title="Toggle National Parks & Historic Towns"
+          >
+            🌿 Parks &amp; Towns
+          </button>
+        </div>
+      )}
+
       {/* Floating Spatial Engine Watermark (Top Right of Map) */}
       <div
         style={{
           position: 'absolute',
-          top: 16,
-          right: 16,
+          top: 14,
+          right: 14,
           zIndex: 400,
           display: 'flex',
           alignItems: 'center',
@@ -225,8 +417,8 @@ export default function StudioPresenterMap({ currentQ, theme = 'dark' }) {
       <div
         style={{
           position: 'absolute',
-          bottom: 16,
-          left: 16,
+          bottom: 14,
+          left: 14,
           zIndex: 400,
           display: 'flex',
           alignItems: 'center',

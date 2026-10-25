@@ -442,40 +442,51 @@ export function buildMappingSteps(item, customAssets = {}) {
       categories,
     });
 
-    // STAGE 2: Left-Bank vs Right-Bank Tributaries
+    // STAGE 2: Left-Bank Tributaries (Cyan Layer)
     steps.push({
-      id: 'river_tributaries',
-      type: 'river_tributaries',
-      badge: 'STAGE 2 · LEFT-BANK VS RIGHT-BANK TRIBUTARIES',
-      title: `${item.place} — Left-Bank vs Right-Bank Tributaries`,
-      subtitle: 'Which tributaries join from the left vs right (and key facts to remember)',
+      id: 'river_left_tributaries',
+      type: 'river_left_tributaries',
+      badge: 'STAGE 2 · LEFT-BANK TRIBUTARIES',
+      title: `${item.place} — Left-Bank Tributaries`,
+      subtitle: 'Which tributaries join from the left bank (and key facts to remember)',
       riverDetails: rd,
       item,
     });
 
-    // STAGE 3: Sangams & Major Dams (with States)
+    // STAGE 3: Right-Bank Tributaries (Amber Layer)
+    steps.push({
+      id: 'river_right_tributaries',
+      type: 'river_right_tributaries',
+      badge: 'STAGE 3 · RIGHT-BANK TRIBUTARIES',
+      title: `${item.place} — Right-Bank Tributaries`,
+      subtitle: 'Which tributaries join from the right bank (and key facts to remember)',
+      riverDetails: rd,
+      item,
+    });
+
+    // STAGE 4: Sangams & Major Dams (with States)
     steps.push({
       id: 'river_dams_confluences',
       type: 'river_dams_confluences',
-      badge: 'STAGE 3 · IMPORTANT SANGAMS & MAJOR DAMS',
+      badge: 'STAGE 4 · IMPORTANT SANGAMS & MAJOR DAMS',
       title: `${item.place} — Confluences & Major Dams`,
       subtitle: 'Where tributaries meet the main river and major dams (with their states)',
       riverDetails: rd,
       item,
     });
 
-    // STAGE 4: National Parks, Historic Cities & Indicator Species
+    // STAGE 5: National Parks, Historic Cities & Indicator Species
     steps.push({
       id: 'river_ecology_towns',
       type: 'river_ecology_towns',
-      badge: 'STAGE 4 · PARKS, TOWNS & ANIMALS',
+      badge: 'STAGE 5 · PARKS, TOWNS & ANIMALS',
       title: `${item.place} — National Parks, Cities & River Wildlife`,
       subtitle: 'National parks it flows through, historical towns on its banks, and animals/birds',
       riverDetails: rd,
       item,
     });
 
-    // STAGE 5: Linked UPSC Prelims PYQ
+    // STAGE 6: Linked UPSC Prelims PYQ
     if (item.pyq || item.resolvedPyq || (Array.isArray(item.similarPYQs) && item.similarPYQs.length > 0) || (Array.isArray(matchedCurated?.similarPYQ) && matchedCurated.similarPYQ.length > 0)) {
       const pyqObj = item.pyq || item.resolvedPyq || (Array.isArray(item.similarPYQs) && item.similarPYQs.length > 0 ? item.similarPYQs[0] : null) || (Array.isArray(matchedCurated?.similarPYQ) && matchedCurated.similarPYQ.length > 0 ? matchedCurated.similarPYQ[0] : null);
       let pyqFormatted = typeof pyqObj === 'string'
@@ -493,19 +504,19 @@ export function buildMappingSteps(item, customAssets = {}) {
       steps.push({
         id: 'map_pyq',
         type: 'mapping_pyq',
-        badge: 'STAGE 5 · PAST UPSC PRELIMS QUESTION',
+        badge: 'STAGE 6 · PAST UPSC PRELIMS QUESTION',
         title: 'How UPSC Asked About This River',
         subtitle: `${pyqFormatted.exam || 'UPSC CSE Pre'} ${pyqFormatted.examYear || ''}`.trim(),
         pyq: pyqFormatted,
       });
     }
 
-    // STAGE 6: Custom Diagram / Satellite Ingestion Slide (if custom image attached)
+    // STAGE 7: Custom Diagram / Satellite Ingestion Slide (if custom image attached)
     if (imageUrl) {
       steps.push({
         id: 'map_visual',
         type: 'image',
-        badge: 'STAGE 6 · MAP DIAGRAM & SATELLITE VIEW',
+        badge: 'STAGE 7 · MAP DIAGRAM & SATELLITE VIEW',
         title: imageCaption,
         subtitle: 'Draw freely on the river course and boundaries with your stylus',
         imageUrl,

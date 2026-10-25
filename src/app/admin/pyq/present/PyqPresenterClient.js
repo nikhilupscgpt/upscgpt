@@ -626,7 +626,7 @@ export default function PyqPresenterClient({ questions = [] }) {
           <aside className={`pq-present-left-panel ${isMappingMode ? 'is-map-panel' : ''}`}>
             {isMappingMode ? (
               <div className="pq-present-map-stage-wrap">
-                <StudioPresenterMap currentQ={currentQ} theme={theme} />
+                <StudioPresenterMap currentQ={currentQ} currentStep={currentStep} theme={theme} />
               </div>
             ) : (
               <>
@@ -1158,53 +1158,77 @@ export default function PyqPresenterClient({ questions = [] }) {
                 );
               })()}
 
-              {/* RIVER STAGE 2: LEFT-BANK VS RIGHT-BANK TRIBUTARIES */}
-              {currentStep?.type === 'river_tributaries' && currentStep.riverDetails && (() => {
+              {/* RIVER STAGE 2: LEFT-BANK TRIBUTARIES (CYAN LAYER) */}
+              {currentStep?.type === 'river_left_tributaries' && currentStep.riverDetails && (() => {
                 const rd = currentStep.riverDetails;
+                const leftList = rd.tributaries?.leftBank || [];
                 return (
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-                    {/* Left Bank */}
-                    <div className="pq-present-card" style={{ borderColor: 'rgba(56, 189, 248, 0.45)', background: theme === 'light' ? '#f0f9ff' : 'rgba(15, 23, 42, 0.9)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 15, fontWeight: 800, color: '#0284c7', textTransform: 'uppercase', marginBottom: 14, borderBottom: '2px solid rgba(2, 132, 199, 0.3)', paddingBottom: 8 }}>
+                  <div className="pq-present-card" style={{ borderColor: 'rgba(56, 189, 248, 0.45)', background: theme === 'light' ? '#f0f9ff' : 'rgba(15, 23, 42, 0.9)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, borderBottom: '2px solid rgba(2, 132, 199, 0.3)', paddingBottom: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 16, fontWeight: 800, color: '#0284c7', textTransform: 'uppercase' }}>
                         <span>⬅️</span>
-                        <span>Left-Bank Tributaries</span>
+                        <span>Left-Bank Tributaries (Joining from Left Bank)</span>
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                        {rd.tributaries?.leftBank?.map((trib, idx) => (
-                          <div key={idx} style={{ background: theme === 'light' ? '#ffffff' : 'rgba(255, 255, 255, 0.05)', padding: '10px 14px', borderRadius: 8, borderLeft: '4px solid #0284c7' }}>
-                            <div style={{ fontSize: 16.5, fontWeight: 800, color: theme === 'light' ? '#0f172a' : '#f8fafc' }}>
-                              {trib.name}
-                            </div>
-                            {trib.note && (
-                              <div style={{ fontSize: 13.5, color: theme === 'light' ? '#475569' : '#94a3b8', marginTop: 2, lineHeight: 1.4 }}>
-                                {trib.note}
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
+                      <span style={{ fontSize: 12, fontWeight: 800, padding: '3px 10px', borderRadius: 8, background: '#0284c7', color: '#ffffff' }}>
+                        MAP LAYER: CYAN
+                      </span>
                     </div>
-
-                    {/* Right Bank */}
-                    <div className="pq-present-card" style={{ borderColor: 'rgba(34, 197, 94, 0.45)', background: theme === 'light' ? '#f0fdf4' : 'rgba(15, 23, 42, 0.9)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 15, fontWeight: 800, color: '#16a34a', textTransform: 'uppercase', marginBottom: 14, borderBottom: '2px solid rgba(22, 163, 74, 0.3)', paddingBottom: 8 }}>
-                        <span>➡️</span>
-                        <span>Right-Bank Tributaries</span>
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                        {rd.tributaries?.rightBank?.map((trib, idx) => (
-                          <div key={idx} style={{ background: theme === 'light' ? '#ffffff' : 'rgba(255, 255, 255, 0.05)', padding: '10px 14px', borderRadius: 8, borderLeft: '4px solid #16a34a' }}>
-                            <div style={{ fontSize: 16.5, fontWeight: 800, color: theme === 'light' ? '#0f172a' : '#f8fafc' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: leftList.length > 3 ? '1fr 1fr' : '1fr', gap: 12 }}>
+                      {leftList.map((trib, idx) => (
+                        <div key={idx} style={{ background: theme === 'light' ? '#ffffff' : 'rgba(255, 255, 255, 0.05)', padding: '12px 16px', borderRadius: 10, borderLeft: '5px solid #0284c7', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(2, 132, 199, 0.2)', color: '#0284c7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800 }}>
+                              {idx + 1}
+                            </span>
+                            <span style={{ fontSize: 17, fontWeight: 800, color: theme === 'light' ? '#0f172a' : '#f8fafc' }}>
                               {trib.name}
-                            </div>
-                            {trib.note && (
-                              <div style={{ fontSize: 13.5, color: theme === 'light' ? '#475569' : '#94a3b8', marginTop: 2, lineHeight: 1.4 }}>
-                                {trib.note}
-                              </div>
-                            )}
+                            </span>
                           </div>
-                        ))}
+                          {trib.note && (
+                            <div style={{ fontSize: 14, color: theme === 'light' ? '#334155' : '#94a3b8', marginTop: 4, lineHeight: 1.45, paddingLeft: 30 }}>
+                              {trib.note}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* RIVER STAGE 3: RIGHT-BANK TRIBUTARIES (AMBER LAYER) */}
+              {currentStep?.type === 'river_right_tributaries' && currentStep.riverDetails && (() => {
+                const rd = currentStep.riverDetails;
+                const rightList = rd.tributaries?.rightBank || [];
+                return (
+                  <div className="pq-present-card" style={{ borderColor: 'rgba(245, 158, 11, 0.45)', background: theme === 'light' ? '#fffbeb' : 'rgba(15, 23, 42, 0.9)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, borderBottom: '2px solid rgba(217, 119, 6, 0.3)', paddingBottom: 8 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 16, fontWeight: 800, color: '#d97706', textTransform: 'uppercase' }}>
+                        <span>➡️</span>
+                        <span>Right-Bank Tributaries (Joining from Right Bank)</span>
                       </div>
+                      <span style={{ fontSize: 12, fontWeight: 800, padding: '3px 10px', borderRadius: 8, background: '#d97706', color: '#ffffff' }}>
+                        MAP LAYER: AMBER
+                      </span>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: rightList.length > 3 ? '1fr 1fr' : '1fr', gap: 12 }}>
+                      {rightList.map((trib, idx) => (
+                        <div key={idx} style={{ background: theme === 'light' ? '#ffffff' : 'rgba(255, 255, 255, 0.05)', padding: '12px 16px', borderRadius: 10, borderLeft: '5px solid #d97706', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <span style={{ width: 22, height: 22, borderRadius: '50%', background: 'rgba(217, 119, 6, 0.2)', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800 }}>
+                              {idx + 1}
+                            </span>
+                            <span style={{ fontSize: 17, fontWeight: 800, color: theme === 'light' ? '#0f172a' : '#f8fafc' }}>
+                              {trib.name}
+                            </span>
+                          </div>
+                          {trib.note && (
+                            <div style={{ fontSize: 14, color: theme === 'light' ? '#334155' : '#94a3b8', marginTop: 4, lineHeight: 1.45, paddingLeft: 30 }}>
+                              {trib.note}
+                            </div>
+                          )}
+                        </div>
+                      ))}
                     </div>
                   </div>
                 );

@@ -178,7 +178,9 @@ export function getCategoryVisual(node) {
  * crimson-red glowing & pulsating beacon with dual radar rings + floating title pill.
  */
 function createNodeIcon(node, isSelected) {
-  const { color, emoji } = getCategoryVisual(node);
+  const vis = getCategoryVisual(node);
+  const color = node.badgeColor || node.customColor || vis.color;
+  const emoji = node.customEmoji || vis.emoji;
   const idxNum = node?.displayIndex;
 
   if (!isSelected) {
@@ -741,18 +743,18 @@ export default function MappingCanvas({
         {polylineNodes.map((node) => {
           const isSelected = selectedNode?.id === node.id;
           const vis = getCategoryVisual(node);
-          const strokeColor = vis.isRiver ? '#0284c7' : '#7c3aed';
-          const glowColor = isSelected ? '#ef4444' : vis.isRiver ? '#38bdf8' : '#a78bfa';
+          const strokeColor = node.strokeColor || node.customColor || (vis.isRiver ? '#0284c7' : '#7c3aed');
+          const glowColor = isSelected ? '#ef4444' : (node.glowColor || (vis.isRiver ? '#38bdf8' : '#a78bfa'));
 
           return (
             <React.Fragment key={`poly-${node.id}`}>
-              {isSelected && (
+              {(isSelected || node.glow) && (
                 <Polyline
                   positions={node.shape}
                   pathOptions={{
                     color: glowColor,
-                    weight: 12,
-                    opacity: 0.45,
+                    weight: node.glowWeight || 12,
+                    opacity: node.glowOpacity || 0.45,
                     lineCap: 'round',
                     lineJoin: 'round',
                   }}
@@ -762,9 +764,9 @@ export default function MappingCanvas({
                 positions={node.shape}
                 pathOptions={{
                   color: isSelected ? '#dc2626' : strokeColor,
-                  weight: isSelected ? 4 : 2.5,
-                  opacity: isSelected ? 1 : 0.78,
-                  dashArray: vis.isMountain ? '7,4' : undefined,
+                  weight: node.weight || (isSelected ? 4 : 2.5),
+                  opacity: node.opacity != null ? node.opacity : (isSelected ? 1 : 0.78),
+                  dashArray: node.dashArray || (vis.isMountain ? '7,4' : undefined),
                   lineCap: 'round',
                   lineJoin: 'round',
                 }}
@@ -773,7 +775,7 @@ export default function MappingCanvas({
                 }}
               >
                 <Tooltip direction="top" sticky>
-                  {vis.emoji} <strong>{node.place}</strong> ({node.placeType})
+                  {node.customEmoji || vis.emoji} <strong>{node.place}</strong> ({node.placeType})
                 </Tooltip>
               </Polyline>
             </React.Fragment>
