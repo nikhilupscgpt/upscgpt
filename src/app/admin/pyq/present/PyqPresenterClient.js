@@ -901,18 +901,23 @@ export default function PyqPresenterClient({ questions = [] }) {
                 </div>
               )}
 
-              {/* PYQ STAGE 2: BREAKDOWN */}
-              {currentStep?.type === 'breakdown' && currentStep.items && (
+              {/* PYQ STAGE 2: BREAKDOWN & STEM STATEMENTS */}
+              {(currentStep?.type === 'breakdown' || currentStep?.type === 'statement_breakdown') && currentStep.items && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                   {currentStep.items.map((item, i) => {
-                    const isCorrect = (item.verdict || '').toLowerCase().includes('correct') && !(item.verdict || '').toLowerCase().includes('incorrect');
+                    const isCorrect = (item.verdict || '').toLowerCase().includes('correct') && !(item.verdict || '').toLowerCase().includes('incorrect') && !(item.verdict || '').toLowerCase().includes('false');
+                    const isStmt = currentStep.type === 'statement_breakdown' || item.statementNo != null;
+                    const labelText = isStmt
+                      ? `Statement ${item.statementNo || i + 1}`
+                      : `Option (${String(item.label || i + 1).toUpperCase()})`;
+
                     return (
                       <div
                         key={i}
                         className={`pq-present-breakdown-card ${isCorrect ? 'is-correct-card' : 'is-incorrect-card'}`}
                       >
                         <div className="pq-present-bc-head">
-                          <span className="pq-present-bc-label">Option ({String(item.label || i + 1).toUpperCase()})</span>
+                          <span className="pq-present-bc-label">{labelText}</span>
                           <span className={`pq-present-bc-badge ${isCorrect ? 'is-correct' : 'is-incorrect'}`}>
                             {isCorrect ? <CheckCircle2 size={13} /> : <XCircle size={13} />}
                             {item.verdict || (isCorrect ? 'Correct' : 'Incorrect')}

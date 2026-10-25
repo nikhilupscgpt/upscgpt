@@ -905,6 +905,10 @@ function buildSlideDocument({ questions }) {
       ? analysis.optionBreakdown
       : null;
 
+    const statementBreakdown = (analysis && Array.isArray(analysis.statementBreakdown) && analysis.statementBreakdown.length > 0)
+      ? analysis.statementBreakdown
+      : null;
+
     const valueAddition = analysis ? analysis.valueAddition : null;
     const inNews = analysis ? analysis.inNews : null;
     const similarPyq = analysis ? analysis.similarPyq : null;
@@ -988,9 +992,28 @@ function buildSlideDocument({ questions }) {
 
           <!-- RIGHT COLUMN (66%): High-Capacity Knowledge Hub (Explanation, Value Addition, Similar PYQ) -->
           <div class="slide-right-col">
+            ${statementBreakdown ? `
+              <!-- Row 0: Stem Statements Evaluation -->
+              <div class="right-stmt-block" style="margin-bottom: 8px;">
+                <div><span class="badge-pill badge-blue">Stem Statements Evaluation</span></div>
+                <div class="card-expl-blue" style="margin-top: 4px;">
+                  ${statementBreakdown.map(stmt => {
+                    const isCorr = (stmt.verdict || '').toLowerCase().includes('correct') && !(stmt.verdict || '').toLowerCase().includes('incorrect') && !(stmt.verdict || '').toLowerCase().includes('false');
+                    const stmtNum = stmt.statementNo != null ? stmt.statementNo : '';
+                    return `
+                      <div class="opt-row">
+                        <strong>Statement ${escapeHtml(String(stmtNum))}: <span class="${isCorr ? 'verdict-correct' : 'verdict-incorrect'}">${escapeHtml(stmt.verdict || (isCorr ? 'Correct' : 'Incorrect'))}.</span> ${stmt.reference ? `<span class="va-tag">${escapeHtml(stmt.reference)}</span>` : ''}</strong>
+                        <span>${escapeHtml(stmt.explanation || '')}</span>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+            ` : ''}
+
             <!-- Row 1: Option Breakdown Box -->
             <div class="right-expl-block">
-              <div><span class="badge-pill badge-black">Explanation</span></div>
+              <div><span class="badge-pill badge-black">${statementBreakdown ? 'Code / Option Elimination' : 'Explanation'}</span></div>
               <div class="card-expl-pink">
                 ${optionBreakdown ? optionBreakdown.map(opt => {
                   const isCorr = (opt.verdict || '').toLowerCase().includes('correct') && !(opt.verdict || '').toLowerCase().includes('incorrect');

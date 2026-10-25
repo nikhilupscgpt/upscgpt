@@ -162,6 +162,7 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
             : (currentData.analysis?.keywords || [])
         ),
         optionBreakdown: incomingAnalysis.optionBreakdown || currentData.analysis?.optionBreakdown || [],
+        statementBreakdown: incomingAnalysis.statementBreakdown !== undefined ? incomingAnalysis.statementBreakdown : currentData.analysis?.statementBreakdown,
         valueAddition: incomingAnalysis.valueAddition !== undefined ? incomingAnalysis.valueAddition : (currentData.analysis?.valueAddition || ''),
         inNews: incomingAnalysis.inNews !== undefined ? incomingAnalysis.inNews : currentData.analysis?.inNews,
         similarPyq: incomingAnalysis.similarPyq !== undefined ? incomingAnalysis.similarPyq : currentData.analysis?.similarPyq,
@@ -404,6 +405,54 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
         analysis: {
           ...(prev.analysis || {}),
           optionBreakdown: breakdown
+        }
+      };
+    });
+  };
+
+  const handleStatementVerdictChange = (sIdx, val) => {
+    updateDataAndSyncJson(prev => {
+      const stmts = [...((prev.analysis && prev.analysis.statementBreakdown) || [])];
+      if (stmts[sIdx]) {
+        stmts[sIdx] = { ...stmts[sIdx], verdict: val };
+      }
+      return {
+        ...prev,
+        analysis: {
+          ...(prev.analysis || {}),
+          statementBreakdown: stmts
+        }
+      };
+    });
+  };
+
+  const handleStatementReferenceChange = (sIdx, val) => {
+    updateDataAndSyncJson(prev => {
+      const stmts = [...((prev.analysis && prev.analysis.statementBreakdown) || [])];
+      if (stmts[sIdx]) {
+        stmts[sIdx] = { ...stmts[sIdx], reference: val };
+      }
+      return {
+        ...prev,
+        analysis: {
+          ...(prev.analysis || {}),
+          statementBreakdown: stmts
+        }
+      };
+    });
+  };
+
+  const handleStatementExplanationChange = (sIdx, val) => {
+    updateDataAndSyncJson(prev => {
+      const stmts = [...((prev.analysis && prev.analysis.statementBreakdown) || [])];
+      if (stmts[sIdx]) {
+        stmts[sIdx] = { ...stmts[sIdx], explanation: val };
+      }
+      return {
+        ...prev,
+        analysis: {
+          ...(prev.analysis || {}),
+          statementBreakdown: stmts
         }
       };
     });
@@ -1439,21 +1488,137 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
             </div>
           </div>
 
-          {/* Card 3: Option-by-Option Breakdown */}
+          {/* Card 3: Option-by-Option Breakdown & Stem Statements */}
           <div style={{
             background: '#0d1424',
             border: '1px solid #1c263c',
             borderRadius: '16px',
-            padding: '20px 24px'
+            padding: '20px 24px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-              <BookOpen size={16} color="#f43f5e" />
-              <strong style={{ fontSize: '14.5px', color: '#f8fafc' }}>
-                Option-by-Option Explanation Breakdown
-              </strong>
-            </div>
+            {/* Track 1: Stem Statements Evaluation (if present) */}
+            {data.analysis?.statementBreakdown && Array.isArray(data.analysis.statementBreakdown) && data.analysis.statementBreakdown.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <CheckSquare size={16} color="#38bdf8" />
+                  <strong style={{ fontSize: '14.5px', color: '#38bdf8' }}>
+                    Track 1: Stem Statements Evaluation
+                  </strong>
+                  <span style={{
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    color: '#38bdf8',
+                    background: 'rgba(56, 189, 248, 0.15)',
+                    padding: '2px 8px',
+                    borderRadius: '4px'
+                  }}>
+                    {data.analysis.statementBreakdown.length} Statements
+                  </span>
+                </div>
 
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {data.analysis.statementBreakdown.map((stmt, sIdx) => {
+                    const isCorr = (stmt.verdict || '').toLowerCase().includes('correct') && !(stmt.verdict || '').toLowerCase().includes('incorrect') && !(stmt.verdict || '').toLowerCase().includes('false');
+                    const stmtNum = stmt.statementNo != null ? stmt.statementNo : (sIdx + 1);
+
+                    return (
+                      <div
+                        key={sIdx}
+                        style={{
+                          background: '#090e1a',
+                          border: '1px solid #1c263c',
+                          borderRadius: '10px',
+                          padding: '12px 14px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '8px'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                          <span style={{
+                            background: isCorr ? '#10b981' : '#ef4444',
+                            color: '#ffffff',
+                            fontWeight: 800,
+                            fontSize: '11px',
+                            padding: '1px 8px',
+                            borderRadius: '4px'
+                          }}>
+                            Statement {stmtNum}
+                          </span>
+                          <input
+                            type="text"
+                            value={stmt.verdict || ''}
+                            onChange={(e) => handleStatementVerdictChange(sIdx, e.target.value)}
+                            placeholder="Verdict (e.g. Correct / Incorrect)..."
+                            style={{
+                              background: 'transparent',
+                              border: 'none',
+                              color: isCorr ? '#34d399' : '#f87171',
+                              fontWeight: 800,
+                              fontSize: '12px',
+                              outline: 'none',
+                              width: '130px'
+                            }}
+                          />
+                          <input
+                            type="text"
+                            value={stmt.reference || ''}
+                            onChange={(e) => handleStatementReferenceChange(sIdx, e.target.value)}
+                            placeholder="Statutory / Book Ref (e.g. Article 393)..."
+                            style={{
+                              flex: 1,
+                              minWidth: '200px',
+                              background: 'rgba(56, 189, 248, 0.1)',
+                              border: '1px solid rgba(56, 189, 248, 0.25)',
+                              borderRadius: '6px',
+                              color: '#7dd3fc',
+                              fontSize: '11.5px',
+                              fontWeight: 600,
+                              padding: '3px 8px',
+                              outline: 'none'
+                            }}
+                          />
+                        </div>
+                        <textarea
+                          value={stmt.explanation || ''}
+                          onChange={(e) => handleStatementExplanationChange(sIdx, e.target.value)}
+                          rows={2}
+                          placeholder={`Explanation for Statement ${stmtNum}...`}
+                          style={{
+                            width: '100%',
+                            background: '#070b14',
+                            color: '#cbd5e1',
+                            border: '1px solid #1c263c',
+                            borderRadius: '6px',
+                            padding: '8px 10px',
+                            fontSize: '13px',
+                            lineHeight: 1.5,
+                            outline: 'none',
+                            resize: 'vertical',
+                            boxSizing: 'border-box',
+                            fontFamily: 'inherit'
+                          }}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Track 2: Option Breakdown / Code Elimination */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <BookOpen size={16} color="#f43f5e" />
+                <strong style={{ fontSize: '14.5px', color: '#f8fafc' }}>
+                  {data.analysis?.statementBreakdown && Array.isArray(data.analysis.statementBreakdown) && data.analysis.statementBreakdown.length > 0
+                    ? 'Track 2: Code / Option Elimination'
+                    : 'Option-by-Option Explanation Breakdown'}
+                </strong>
+              </div>
+
               {optionBreakdownList.map((opt, i) => {
                 const isCorr = (opt.verdict || '').toLowerCase().includes('correct') && !(opt.verdict || '').toLowerCase().includes('incorrect');
                 return (

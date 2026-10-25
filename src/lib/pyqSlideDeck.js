@@ -46,9 +46,27 @@ export function buildQuestionSteps(q, customAssets = {}) {
   });
 
   // -------------------------------------------------------------
-  // STEP 1+: Elimination Breakdown (Statement by statement)
+  // STEP 1A: Stem Statements Evaluation (if statementBreakdown exists)
+  // -------------------------------------------------------------
+  if (analysis?.statementBreakdown && Array.isArray(analysis.statementBreakdown) && analysis.statementBreakdown.length > 0) {
+    steps.push({
+      id: 'statement_breakdown',
+      type: 'statement_breakdown',
+      badge: 'STAGE 2A · STEM STATEMENTS EVALUATION',
+      title: 'Stem Statements Evaluation',
+      subtitle: 'Evaluate statutory citations, factual veracity, and examiner traps for each numbered statement',
+      items: analysis.statementBreakdown,
+      showAnswer: false,
+      highlightedOption: null,
+      verdicts,
+    });
+  }
+
+  // -------------------------------------------------------------
+  // STEP 1B: Elimination Breakdown (Statement by statement / Code elimination)
   // -------------------------------------------------------------
   if (analysis?.optionBreakdown && Array.isArray(analysis.optionBreakdown) && analysis.optionBreakdown.length > 0) {
+    const hasStatementBreakdown = Boolean(analysis?.statementBreakdown && Array.isArray(analysis.statementBreakdown) && analysis.statementBreakdown.length > 0);
     const chunkSize = 3;
     const totalParts = Math.ceil(analysis.optionBreakdown.length / chunkSize);
 
@@ -68,9 +86,11 @@ export function buildQuestionSteps(q, customAssets = {}) {
       steps.push({
         id: `breakdown_${partNum}`,
         type: 'breakdown',
-        badge: totalParts > 1 ? `STAGE 2 · ELIMINATION BREAKDOWN (${partNum}/${totalParts})` : 'STAGE 2 · ELIMINATION BREAKDOWN',
-        title: 'Option & Statement Elimination Analysis',
-        subtitle: 'Evaluate validity, historical/constitutional accuracy, and distractor traps',
+        badge: hasStatementBreakdown
+          ? `STAGE 2B · CODE / OPTION ELIMINATION`
+          : (totalParts > 1 ? `STAGE 2 · ELIMINATION BREAKDOWN (${partNum}/${totalParts})` : 'STAGE 2 · ELIMINATION BREAKDOWN'),
+        title: hasStatementBreakdown ? 'Code / Option Elimination' : 'Option & Statement Elimination Analysis',
+        subtitle: hasStatementBreakdown ? 'Deduce final answer from statement evaluations' : 'Evaluate validity, historical/constitutional accuracy, and distractor traps',
         items: chunk,
         showAnswer: false,
         highlightedOption: null,
