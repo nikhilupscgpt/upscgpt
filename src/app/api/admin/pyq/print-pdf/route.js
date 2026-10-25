@@ -362,10 +362,16 @@ function renderValueAdditionHtml(va, q) {
               </div>
             `;
           }
+          const bullets = item.bullets || item.points || item.items;
           return `
             <div class="va-col">
               ${item.title ? `<div class="va-lead-bold">${escapeHtml(item.title)} ${item.tag ? `<span class="va-tag">${escapeHtml(item.tag)}</span>` : ''}</div>` : ''}
               ${item.description ? `<p class="va-para">${escapeHtml(item.description)}</p>` : ''}
+              ${Array.isArray(bullets) && bullets.length > 0 ? `
+                <ul class="va-bullet-list">
+                  ${bullets.map(pt => `<li>${formatBulletText(typeof pt === 'string' ? pt : JSON.stringify(pt))}</li>`).join('')}
+                </ul>
+              ` : ''}
               ${item.sections && Array.isArray(item.sections) ? item.sections.map(sec => `
                 <div class="va-sec">
                   ${sec.heading ? `<div class="va-subhead">${escapeHtml(sec.heading)}</div>` : ''}
@@ -902,6 +908,7 @@ function buildSlideDocument({ questions }) {
     const valueAddition = analysis ? analysis.valueAddition : null;
     const inNews = analysis ? analysis.inNews : null;
     const similarPyq = analysis ? analysis.similarPyq : null;
+    const visualSuggestion = analysis ? analysis.visualSuggestion : null;
 
     const qSub = q.srcSubject || 'General Studies';
     const qModule = getTopicModule(qSub, q.srcTopic);
@@ -1026,6 +1033,30 @@ function buildSlideDocument({ questions }) {
                 `}
               </div>
             </div>
+
+            <!-- Row 4: Comparison Matrix Table (if present) -->
+            ${visualSuggestion && visualSuggestion.tableData && Array.isArray(visualSuggestion.tableData.headers) ? `
+              <div class="right-table-block" style="margin-top: 8px;">
+                <div><span class="badge-pill badge-blue">${escapeHtml(visualSuggestion.title || 'High-Yield Comparison Matrix')}</span></div>
+                <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 10px; margin-top: 4px; overflow-x: auto;">
+                  <table style="width: 100%; border-collapse: collapse; font-size: 0.68rem; text-align: left;">
+                    <thead>
+                      <tr style="background: #f1f5f9; border-bottom: 2px solid #3b82f6;">
+                        ${visualSuggestion.tableData.headers.map(h => `<th style="padding: 5px 6px; font-weight: 800; color: #1e40af; text-transform: uppercase; font-size: 0.65rem;">${escapeHtml(h)}</th>`).join('')}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${(visualSuggestion.tableData.rows || []).map((row, rIdx) => `
+                        <tr style="border-bottom: 1px solid #e2e8f0; background: ${rIdx % 2 === 0 ? '#ffffff' : '#f8fafc'};">
+                          ${(Array.isArray(row) ? row : []).map(cell => `<td style="padding: 4px 6px; color: #334155; line-height: 1.35;">${escapeHtml(typeof cell === 'string' ? cell : JSON.stringify(cell))}</td>`).join('')}
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                  ${visualSuggestion.caption ? `<div style="font-size: 0.65rem; color: #64748b; font-style: italic; margin-top: 4px;">💡 ${escapeHtml(visualSuggestion.caption)}</div>` : ''}
+                </div>
+              </div>
+            ` : ''}
           </div>
 
         </div>
