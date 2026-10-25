@@ -628,44 +628,13 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
               <div className="pq-dd-label">
                 <Table2 size={14} /> {visualSuggestion.title || 'High-Yield Comparison Matrix'}
               </div>
-              <div
-                className="pq-visual-table-card"
-                style={{
-                  overflowX: 'auto',
-                  borderRadius: '14px',
-                  border: '1px solid var(--pq-border, rgba(255, 255, 255, 0.12))',
-                  background: 'var(--pq-card-bg, rgba(15, 23, 42, 0.6))',
-                  padding: '16px',
-                }}
-              >
+              <div className="pq-visual-table-card">
                 {visualSuggestion.tableData && Array.isArray(visualSuggestion.tableData.headers) && (
-                  <table
-                    style={{
-                      width: '100%',
-                      borderCollapse: 'collapse',
-                      fontSize: '0.88rem',
-                      textAlign: 'left',
-                    }}
-                  >
+                  <table className="pq-visual-table">
                     <thead>
-                      <tr
-                        style={{
-                          borderBottom: '2px solid rgba(59, 130, 246, 0.35)',
-                          background: 'rgba(59, 130, 246, 0.08)',
-                        }}
-                      >
+                      <tr>
                         {visualSuggestion.tableData.headers.map((h, hIdx) => (
-                          <th
-                            key={hIdx}
-                            style={{
-                              padding: '10px 14px',
-                              fontWeight: 800,
-                              color: 'var(--pq-blue, #60a5fa)',
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.04em',
-                              fontSize: '0.78rem',
-                            }}
-                          >
+                          <th key={hIdx}>
                             {h}
                           </th>
                         ))}
@@ -674,23 +643,12 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
                     <tbody>
                       {Array.isArray(visualSuggestion.tableData.rows) &&
                         visualSuggestion.tableData.rows.map((row, rIdx) => (
-                          <tr
-                            key={rIdx}
-                            style={{
-                              borderBottom: '1px solid var(--pq-border, rgba(255, 255, 255, 0.06))',
-                              background: rIdx % 2 === 0 ? 'transparent' : 'rgba(255, 255, 255, 0.02)',
-                            }}
-                          >
+                          <tr key={rIdx}>
                             {Array.isArray(row) &&
                               row.map((cell, cIdx) => (
                                 <td
                                   key={cIdx}
-                                  style={{
-                                    padding: '10px 14px',
-                                    color: cIdx === 0 ? 'var(--pq-ink, #ffffff)' : 'var(--pq-muted, #cbd5e1)',
-                                    fontWeight: cIdx === 0 ? 700 : 400,
-                                    lineHeight: 1.5,
-                                  }}
+                                  className={cIdx === 0 ? 'pq-table-col-entity' : ''}
                                 >
                                   {typeof cell === 'string' ? cell : JSON.stringify(cell)}
                                 </td>
@@ -702,14 +660,7 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
                 )}
 
                 {visualSuggestion.caption && (
-                  <p
-                    style={{
-                      margin: '12px 0 0',
-                      fontSize: '0.82rem',
-                      color: 'var(--pq-muted, #94a3b8)',
-                      fontStyle: 'italic',
-                    }}
-                  >
+                  <p className="pq-visual-table-caption">
                     💡 {visualSuggestion.caption}
                   </p>
                 )}

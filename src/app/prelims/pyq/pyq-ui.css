@@ -828,6 +828,154 @@
 }
 
 /* ==========================================================================
+   Visual Suggestion / High-Yield Comparison Matrix Table
+   Theme-aware: adapts cleanly to dark, light, and sepia themes.
+   ========================================================================== */
+
+.pq-visual-table-card {
+  overflow-x: auto;
+  border-radius: 14px;
+  background: var(--pq-inset, #0b1120);
+  border: 1px solid var(--pq-line, rgba(255, 255, 255, 0.1));
+  padding: 16px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+[data-theme='light'] .pq-visual-table-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme='sepia'] .pq-visual-table-card {
+  background: #fbf7ee !important;
+  border-color: #e7dcce !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.pq-visual-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  text-align: left;
+}
+
+.pq-visual-table thead tr {
+  border-bottom: 2px solid rgba(59, 130, 246, 0.4);
+  background: rgba(59, 130, 246, 0.08);
+}
+
+[data-theme='light'] .pq-visual-table thead tr {
+  background: #eff6ff !important;
+  border-bottom: 2px solid #3b82f6 !important;
+}
+
+[data-theme='sepia'] .pq-visual-table thead tr {
+  background: #f4ecdc !important;
+  border-bottom: 2px solid #b45309 !important;
+}
+
+.pq-visual-table th {
+  padding: 10px 14px;
+  font-weight: 800;
+  color: #60a5fa;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+[data-theme='light'] .pq-visual-table th {
+  color: #1d4ed8 !important;
+}
+
+[data-theme='sepia'] .pq-visual-table th {
+  color: #92400e !important;
+}
+
+.pq-visual-table tbody tr {
+  border-bottom: 1px solid var(--pq-line, rgba(255, 255, 255, 0.06));
+  transition: background 0.12s ease;
+}
+
+[data-theme='light'] .pq-visual-table tbody tr {
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+[data-theme='sepia'] .pq-visual-table tbody tr {
+  border-bottom: 1px solid #ebdccb !important;
+}
+
+.pq-visual-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+[data-theme='light'] .pq-visual-table tbody tr:nth-child(even) {
+  background: #f8fafc !important;
+}
+
+[data-theme='sepia'] .pq-visual-table tbody tr:nth-child(even) {
+  background: #f7f1e4 !important;
+}
+
+.pq-visual-table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.06);
+}
+
+[data-theme='light'] .pq-visual-table tbody tr:hover {
+  background: #f1f5f9 !important;
+}
+
+[data-theme='sepia'] .pq-visual-table tbody tr:hover {
+  background: #eee3ce !important;
+}
+
+.pq-visual-table td {
+  padding: 10px 14px;
+  line-height: 1.55;
+  color: var(--pq-sub, #cbd5e1);
+  font-size: 0.88rem;
+}
+
+.pq-visual-table td.pq-table-col-entity {
+  font-weight: 800;
+  color: var(--pq-ink, #ffffff);
+}
+
+[data-theme='light'] .pq-visual-table td {
+  color: #334155 !important;
+}
+
+[data-theme='light'] .pq-visual-table td.pq-table-col-entity {
+  color: #0f172a !important;
+}
+
+[data-theme='sepia'] .pq-visual-table td {
+  color: #4a3e31 !important;
+}
+
+[data-theme='sepia'] .pq-visual-table td.pq-table-col-entity {
+  color: #292117 !important;
+}
+
+.pq-visual-table-caption {
+  margin: 12px 0 0;
+  font-size: 0.82rem;
+  color: var(--pq-muted, #94a3b8);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+[data-theme='light'] .pq-visual-table-caption {
+  color: #475569 !important;
+  font-weight: 500;
+}
+
+[data-theme='sepia'] .pq-visual-table-caption {
+  color: #6c5a45 !important;
+}
+
+/* ==========================================================================
    Precision Lecture UI Styles (Pixel-matched to design spec)
    ========================================================================== */
 
