@@ -91,6 +91,70 @@ export const CURATED_MAPPING_NODES = [
       "Left-bank (W→E): Ramganga, Gomti, Ghaghara, Gandak, Kosi, Mahananda",
       "Right-bank: Yamuna, Tamsa, Son, Punpun"
     ],
+    "riverDetails": {
+      "length": "2,525 km",
+      "origin": "Formed at Devprayag (Uttarakhand) by the meeting of Bhagirathi (Gangotri Glacier) and Alaknanda (Satopanth Glacier)",
+      "mouth": "Bay of Bengal (splits into Padma in Bangladesh and Hooghly in West Bengal; forms Sundarbans delta)",
+      "states": {
+        "flowsThrough": ["Uttarakhand", "Uttar Pradesh", "Bihar", "West Bengal"],
+        "basinStates": ["Uttarakhand", "Uttar Pradesh", "Bihar", "West Bengal", "Delhi", "Haryana", "Rajasthan", "Madhya Pradesh", "Himachal Pradesh", "Chhattisgarh", "Jharkhand"]
+      },
+      "tributaries": {
+        "leftBank": [
+          { "name": "Ramganga", "note": "Rises in Garhwal; passes through Jim Corbett National Park" },
+          { "name": "Gomti", "note": "Only major tributary rising in the plains (Gomat Taal/Fulhar Jheel, Pilibhit)" },
+          { "name": "Ghaghara (Karnali)", "note": "Rises near Gurla Mandhata (Tibet); largest tributary by water volume; joined by Sarda (Kali)" },
+          { "name": "Gandak", "note": "Rises in Nepal Himalayas (Dhaulagiri & Mt Everest); enters near Champaran" },
+          { "name": "Kosi", "note": "'Sorrow of Bihar'; 7 streams (Saptakoshi); famous for severe course shifts and silt" },
+          { "name": "Mahananda", "note": "Last major left-bank tributary; rises in Darjeeling hills" }
+        ],
+        "rightBank": [
+          { "name": "Yamuna", "note": "Largest and longest right-bank tributary (1,376 km); rises at Yamunotri" },
+          { "name": "Tamsa (Tons)", "note": "Rises in Kaimur Range; joins downstream of Prayagraj" },
+          { "name": "Son", "note": "Rises in Amarkantak Plateau (MP); joins directly on right bank near Patna" },
+          { "name": "Punpun", "note": "Rises in Palamu hills (Jharkhand); joins near Fatuha" }
+        ]
+      },
+      "confluences": [
+        { "tributary": "Panch Prayag", "sangam": "Vishnuprayag (Alaknanda+Dhauliganga), Nandaprayag (+Nandakini), Karnaprayag (+Pindar), Rudraprayag (+Mandakini), Devprayag (+Bhagirathi)", "state": "Uttarakhand" },
+        { "tributary": "Yamuna", "sangam": "Triveni Sangam (Prayagraj)", "state": "Uttar Pradesh" },
+        { "tributary": "Gomti", "sangam": "Saidpur (Ghazipur)", "state": "Uttar Pradesh" },
+        { "tributary": "Ghaghara", "sangam": "Revelganj (Chhapra)", "state": "Bihar" },
+        { "tributary": "Son", "sangam": "Danapur / Patna", "state": "Bihar" },
+        { "tributary": "Gandak", "sangam": "Sonpur (near Patna)", "state": "Bihar" },
+        { "tributary": "Kosi", "sangam": "Kursela (Katihar)", "state": "Bihar" }
+      ],
+      "towns": [
+        { "name": "Haridwar & Rishikesh", "type": "Cultural", "significance": "Where Ganga leaves the Himalayas and enters the plains", "state": "Uttarakhand" },
+        { "name": "Kanpur", "type": "Economic", "significance": "Major industrial city and leather hub", "state": "Uttar Pradesh" },
+        { "name": "Prayagraj", "type": "Cultural", "significance": "Triveni Sangam (Kumbh Mela)", "state": "Uttar Pradesh" },
+        { "name": "Varanasi", "type": "Cultural / Historical", "significance": "Continuous ancient living city; Kashi Vishwanath", "state": "Uttar Pradesh" },
+        { "name": "Patna (Pataliputra)", "type": "Historical / Economic", "significance": "Ancient capital of Magadha & Mauryan Empire", "state": "Bihar" },
+        { "name": "Kolkata", "type": "Economic", "significance": "Major port city situated on the Hooghly distributary", "state": "West Bengal" }
+      ],
+      "dams": [
+        { "name": "Tehri Dam", "state": "Uttarakhand", "type": "Highest dam in India (on Bhagirathi river)" },
+        { "name": "Bhimawala / Pashulok Barrage", "state": "Uttarakhand", "type": "Rishikesh hydro diversion" },
+        { "name": "Narora Atomic Power Station Barrage", "state": "Uttar Pradesh", "type": "Cooling water barrage" },
+        { "name": "Kanpur Barrage (Luv Kush Barrage)", "state": "Uttar Pradesh", "type": "Drinking water supply" },
+        { "name": "Farakka Barrage", "state": "West Bengal", "type": "Diverts water into Hooghly to flush silt from Kolkata Port; major Indo-Bangladesh treaty (1996)" }
+      ],
+      "protectedAreas": [
+        { "name": "Gangotri National Park", "relation": "Contains the origin glacier (Gaumukh)", "state": "Uttarakhand" },
+        { "name": "Jim Corbett National Park", "relation": "Drained by Ramganga tributary", "state": "Uttarakhand" },
+        { "name": "Dudhwa National Park", "relation": "Drained by Suheli and Mohana (Ghaghara/Sharda basin)", "state": "Uttar Pradesh" },
+        { "name": "Valmiki National Park & Tiger Reserve", "relation": "Situated on the banks of River Gandak", "state": "Bihar" },
+        { "name": "Vikramshila Gangetic Dolphin Sanctuary", "relation": "50 km stretch of the Ganga in Bhagalpur district dedicated to dolphins", "state": "Bihar" },
+        { "name": "Sundarbans National Park & Biosphere Reserve", "relation": "World's largest mangrove delta formed at Ganga-Brahmaputra mouth", "state": "West Bengal" }
+      ],
+      "species": [
+        { "name": "Gangetic River Dolphin (Susu)", "iucn": "Endangered", "role": "India's National Aquatic Animal; blind, uses echolocation; lives only in freshwater" },
+        { "name": "Gharial", "iucn": "Critically Endangered", "role": "Found in tributaries like Chambal and Son" },
+        { "name": "Ganges River Shark", "iucn": "Critically Endangered", "role": "Rare true freshwater shark found in Hooghly/Ganga waters" },
+        { "name": "Hilsa Fish (Tenualosa ilisha)", "iucn": "Least Concern", "role": "Anadromous fish; migrates from sea to Ganga to spawn (impacted by Farakka barrage)" }
+      ],
+      "commonMistake": "Remember the West-to-East sequence of left-bank tributaries downstream of Prayagraj: Gomti → Ghaghara → Gandak → Kosi. Also note that Chambal, Betwa, and Ken do NOT join Ganga directly; they join Yamuna!"
+    },
     "staticFacts": [
       "Formed at Devprayag by the confluence of Bhagirathi (Gangotri Glacier) and Alaknanda (Satopanth Glacier).",
       "UPSC 2024 Sequence downstream of Prayagraj (West to East): Gomti → Ghaghara → Gandak → Kosi.",
@@ -508,6 +572,63 @@ export const CURATED_MAPPING_NODES = [
       "Left-bank: Purna, Pranhita (Wainganga+Penganga+Wardha), Indravati, Sabari",
       "Right-bank: Pravara, Manjira"
     ],
+    "riverDetails": {
+      "length": "1,465 km",
+      "origin": "Trimbakeshwar in the Brahmagiri hills (Nashik, Maharashtra)",
+      "mouth": "Bay of Bengal, forming a large mangrove delta at Coringa (Andhra Pradesh)",
+      "states": {
+        "flowsThrough": ["Maharashtra", "Telangana", "Andhra Pradesh", "Puducherry (Yanam)"],
+        "basinStates": ["Maharashtra", "Telangana", "Andhra Pradesh", "Madhya Pradesh", "Chhattisgarh", "Odisha", "Karnataka"]
+      },
+      "tributaries": {
+        "leftBank": [
+          { "name": "Purna", "note": "Rises in Ajanta Hills" },
+          { "name": "Pranhita", "note": "Wainganga + Wardha + Penganga combined; largest tributary" },
+          { "name": "Indravati", "note": "Rises in Dandakaranya; famous for Chitrakote waterfall" },
+          { "name": "Sabari", "note": "Sinkaram Hill; Kolab is its upper course" },
+          { "name": "Sileru", "note": "Tributary of Sabari; hydro projects" }
+        ],
+        "rightBank": [
+          { "name": "Pravara", "note": "Rises in Kalsubai; joins at Nevasa Sangam" },
+          { "name": "Sindphana", "note": "Flows from Chhatrapati Sambhajinagar" },
+          { "name": "Manjira", "note": "Only major right-bank tributary; hosts Nizam Sagar dam" },
+          { "name": "Maner", "note": "Rises in Telangana; joins downstream of Pochampad" }
+        ]
+      },
+      "confluences": [
+        { "tributary": "Pravara", "sangam": "Pravara Sangam (Nevasa)", "state": "Maharashtra" },
+        { "tributary": "Pranhita", "sangam": "Kaleshwaram", "state": "Telangana", "note": "Site of Kaleshwaram Lift Irrigation" },
+        { "tributary": "Indravati", "sangam": "Somnoor / Bhadrakali", "state": "Telangana/Chhattisgarh border" },
+        { "tributary": "Sabari", "sangam": "Kunavaram", "state": "Andhra Pradesh" }
+      ],
+      "towns": [
+        { "name": "Nashik", "type": "Cultural", "significance": "Kumbh Mela & Trimbakeshwar Jyotirlinga", "state": "Maharashtra" },
+        { "name": "Paithan", "type": "Historical", "significance": "Ancient capital of Satavahanas (Pratishthana)", "state": "Maharashtra" },
+        { "name": "Nanded", "type": "Cultural", "significance": "Hazur Sahib Gurudwara", "state": "Maharashtra" },
+        { "name": "Bodhan", "type": "Historical", "significance": "Ancient capital of Asmaka Mahajanapada (UPSC 2025)", "state": "Telangana" },
+        { "name": "Rajahmundry", "type": "Economic", "significance": "Delta cultural capital, Arthur Cotton Barrage", "state": "Andhra Pradesh" }
+      ],
+      "dams": [
+        { "name": "Jayakwadi Dam (Nath Sagar)", "state": "Maharashtra", "type": "Major irrigation & bird sanctuary" },
+        { "name": "Sriram Sagar Project (Pochampad)", "state": "Telangana", "type": "Key Telangana reservoir" },
+        { "name": "Kaleshwaram Lift Irrigation", "state": "Telangana", "type": "World's largest multi-stage lift project" },
+        { "name": "Polavaram National Project", "state": "Andhra Pradesh", "type": "Interstate multi-purpose project" },
+        { "name": "Dowleswaram (Sir Arthur Cotton) Barrage", "state": "Andhra Pradesh", "type": "Delta canal headworks" }
+      ],
+      "protectedAreas": [
+        { "name": "Papikonda National Park", "relation": "River cuts right through the middle through Papikonda hills gorge", "state": "Andhra Pradesh" },
+        { "name": "Indravati National Park", "relation": "Indravati river flows along its northern boundary", "state": "Chhattisgarh" },
+        { "name": "Coringa Wildlife Sanctuary", "relation": "Located in the mangrove estuary of Godavari delta", "state": "Andhra Pradesh" },
+        { "name": "Kawal & Tadoba-Andhari Tiger Reserves", "relation": "Fall within the wider Godavari/Pranhita basin", "state": "Telangana / Maharashtra" }
+      ],
+      "species": [
+        { "name": "Indian Skimmer", "iucn": "Endangered", "role": "Nests on river sandbars and delta" },
+        { "name": "Mugger Crocodile", "iucn": "Vulnerable", "role": "Found in main river & Manjira sanctuary" },
+        { "name": "Smooth-coated Otter", "iucn": "Vulnerable", "role": "Estuary and mangrove creeks" },
+        { "name": "Fishing Cat", "iucn": "Vulnerable", "role": "Coringa mangrove delta" }
+      ],
+      "commonMistake": "Don't confuse Pennar or Vamsadhara as Godavari tributaries—they are completely independent east-flowing rivers. Also remember Bhima is a tributary of Krishna, not Godavari."
+    },
     "staticFacts": [
       "Largest Peninsular river system (1,465 km); rises at Trimbakeshwar (Nashik district, Western Ghats).",
       "UPSC 2015 Exact Question: Indravati and Pranahita are major left-bank tributaries of Godavari (Vamsadhara and Pennar are independent east-flowing rivers).",

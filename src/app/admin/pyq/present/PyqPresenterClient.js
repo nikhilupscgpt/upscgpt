@@ -1161,6 +1161,238 @@ export default function PyqPresenterClient({ questions = [] }) {
                 </div>
               )}
 
+              {/* RIVER STAGE 1: COURSE, ORIGIN & STATES */}
+              {currentStep?.type === 'river_course' && currentStep.riverDetails && (() => {
+                const rd = currentStep.riverDetails;
+                return (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                    <div className="pq-present-intro-grid">
+                      <div className="pq-present-stat-box">
+                        <div className="pq-present-stat-label">Total River Length</div>
+                        <div className="pq-present-stat-value" style={{ color: '#38bdf8' }}>{rd.length || 'Major System'}</div>
+                      </div>
+                      <div className="pq-present-stat-box">
+                        <div className="pq-present-stat-label">Source / Origin</div>
+                        <div className="pq-present-stat-value" style={{ fontSize: 16, lineHeight: 1.3 }}>{rd.origin}</div>
+                      </div>
+                      <div className="pq-present-stat-box">
+                        <div className="pq-present-stat-label">Outflow / Mouth</div>
+                        <div className="pq-present-stat-value" style={{ fontSize: 16, lineHeight: 1.3 }}>{rd.mouth}</div>
+                      </div>
+                      <div className="pq-present-stat-box">
+                        <div className="pq-present-stat-label">River Classification</div>
+                        <div className="pq-present-stat-value">{currentQ.placeType || 'Major River System'}</div>
+                      </div>
+                    </div>
+
+                    {rd.states && (
+                      <div className="pq-present-card" style={{ padding: '16px 20px' }}>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span>🗺️</span>
+                          <span>States It Passes Through vs Total Catchment Basin</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 10 }}>
+                          <span style={{ fontSize: 13, fontWeight: 700, color: theme === 'light' ? '#475569' : '#94a3b8' }}>Direct River Flow:</span>
+                          {rd.states.flowsThrough?.map((st, idx) => (
+                            <span key={idx} style={{ fontSize: 14, fontWeight: 800, padding: '4px 12px', borderRadius: 8, background: '#0284c7', color: '#ffffff' }}>
+                              {st}
+                            </span>
+                          ))}
+                        </div>
+                        {rd.states.basinStates && (
+                          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+                            <span style={{ fontSize: 12.5, fontWeight: 600, color: theme === 'light' ? '#64748b' : '#64748b' }}>Basin Catchment:</span>
+                            {rd.states.basinStates.map((st, idx) => (
+                              <span key={idx} style={{ fontSize: 12, fontWeight: 700, padding: '2px 9px', borderRadius: 6, background: theme === 'light' ? '#f1f5f9' : 'rgba(255, 255, 255, 0.08)', color: theme === 'light' ? '#334155' : '#cbd5e1' }}>
+                                {st}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* RIVER STAGE 2: LEFT-BANK VS RIGHT-BANK TRIBUTARIES */}
+              {currentStep?.type === 'river_tributaries' && currentStep.riverDetails && (() => {
+                const rd = currentStep.riverDetails;
+                return (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                    {/* Left Bank */}
+                    <div className="pq-present-card" style={{ borderColor: 'rgba(56, 189, 248, 0.45)', background: theme === 'light' ? '#f0f9ff' : 'rgba(15, 23, 42, 0.9)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 15, fontWeight: 800, color: '#0284c7', textTransform: 'uppercase', marginBottom: 14, borderBottom: '2px solid rgba(2, 132, 199, 0.3)', paddingBottom: 8 }}>
+                        <span>⬅️</span>
+                        <span>Left-Bank Tributaries</span>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                        {rd.tributaries?.leftBank?.map((trib, idx) => (
+                          <div key={idx} style={{ background: theme === 'light' ? '#ffffff' : 'rgba(255, 255, 255, 0.05)', padding: '10px 14px', borderRadius: 8, borderLeft: '4px solid #0284c7' }}>
+                            <div style={{ fontSize: 16.5, fontWeight: 800, color: theme === 'light' ? '#0f172a' : '#f8fafc' }}>
+                              {trib.name}
+                            </div>
+                            {trib.note && (
+                              <div style={{ fontSize: 13.5, color: theme === 'light' ? '#475569' : '#94a3b8', marginTop: 2, lineHeight: 1.4 }}>
+                                {trib.note}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Right Bank */}
+                    <div className="pq-present-card" style={{ borderColor: 'rgba(34, 197, 94, 0.45)', background: theme === 'light' ? '#f0fdf4' : 'rgba(15, 23, 42, 0.9)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 15, fontWeight: 800, color: '#16a34a', textTransform: 'uppercase', marginBottom: 14, borderBottom: '2px solid rgba(22, 163, 74, 0.3)', paddingBottom: 8 }}>
+                        <span>➡️</span>
+                        <span>Right-Bank Tributaries</span>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                        {rd.tributaries?.rightBank?.map((trib, idx) => (
+                          <div key={idx} style={{ background: theme === 'light' ? '#ffffff' : 'rgba(255, 255, 255, 0.05)', padding: '10px 14px', borderRadius: 8, borderLeft: '4px solid #16a34a' }}>
+                            <div style={{ fontSize: 16.5, fontWeight: 800, color: theme === 'light' ? '#0f172a' : '#f8fafc' }}>
+                              {trib.name}
+                            </div>
+                            {trib.note && (
+                              <div style={{ fontSize: 13.5, color: theme === 'light' ? '#475569' : '#94a3b8', marginTop: 2, lineHeight: 1.4 }}>
+                                {trib.note}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* RIVER STAGE 3: SANGAMS & MAJOR DAMS */}
+              {currentStep?.type === 'river_dams_confluences' && currentStep.riverDetails && (() => {
+                const rd = currentStep.riverDetails;
+                return (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+                    {/* Confluences (Sangams) */}
+                    <div className="pq-present-card" style={{ borderColor: 'rgba(245, 158, 11, 0.45)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 15, fontWeight: 800, color: '#d97706', textTransform: 'uppercase', marginBottom: 14, borderBottom: '2px solid rgba(217, 119, 6, 0.3)', paddingBottom: 8 }}>
+                        <span>🤝</span>
+                        <span>Important Sangams (Confluences)</span>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        {rd.confluences?.map((c, idx) => (
+                          <div key={idx} style={{ background: theme === 'light' ? '#f8fafc' : 'rgba(255, 255, 255, 0.04)', padding: '9px 13px', borderRadius: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                            <div>
+                              <div style={{ fontSize: 15.5, fontWeight: 800, color: theme === 'light' ? '#0f172a' : '#f8fafc' }}>{c.sangam}</div>
+                              {c.note && <div style={{ fontSize: 12.5, color: theme === 'light' ? '#64748b' : '#94a3b8', marginTop: 2 }}>{c.note}</div>}
+                            </div>
+                            <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+                              <span style={{ fontSize: 12, fontWeight: 800, padding: '2px 8px', borderRadius: 5, background: '#dbeafe', color: '#1e40af' }}>{c.tributary}</span>
+                              <span style={{ fontSize: 12, fontWeight: 600, padding: '2px 8px', borderRadius: 5, background: '#f1f5f9', color: '#334155' }}>{c.state}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Major Dams & Projects */}
+                    <div className="pq-present-card" style={{ borderColor: 'rgba(239, 68, 68, 0.45)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 15, fontWeight: 800, color: '#dc2626', textTransform: 'uppercase', marginBottom: 14, borderBottom: '2px solid rgba(220, 38, 38, 0.3)', paddingBottom: 8 }}>
+                        <span>🏗️</span>
+                        <span>Major Dams &amp; Multipurpose Projects</span>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                        {rd.dams?.map((dam, idx) => (
+                          <div key={idx} style={{ background: theme === 'light' ? '#f8fafc' : 'rgba(255, 255, 255, 0.04)', padding: '9px 13px', borderRadius: 8, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                            <div>
+                              <div style={{ fontSize: 15.5, fontWeight: 800, color: theme === 'light' ? '#0f172a' : '#f8fafc' }}>{dam.name}</div>
+                              {dam.type && <div style={{ fontSize: 12.5, color: theme === 'light' ? '#64748b' : '#94a3b8', marginTop: 2 }}>{dam.type}</div>}
+                            </div>
+                            <span style={{ fontSize: 12, fontWeight: 800, padding: '3px 9px', borderRadius: 6, background: '#fee2e2', color: '#991b1b', flexShrink: 0 }}>
+                              {dam.state}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* RIVER STAGE 4: PARKS, TOWNS & WILDLIFE */}
+              {currentStep?.type === 'river_ecology_towns' && currentStep.riverDetails && (() => {
+                const rd = currentStep.riverDetails;
+                return (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                      {/* Protected Areas */}
+                      <div className="pq-present-card" style={{ borderColor: 'rgba(16, 185, 129, 0.4)' }}>
+                        <div style={{ fontSize: 13.5, fontWeight: 800, color: '#059669', textTransform: 'uppercase', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span>🌲</span>
+                          <span>National Parks &amp; Sanctuaries in Basin</span>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          {rd.protectedAreas?.map((pa, idx) => (
+                            <div key={idx} style={{ fontSize: 13.5, lineHeight: 1.4, paddingBottom: 6, borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                              <strong style={{ color: '#10b981' }}>{pa.name}</strong> ({pa.state}):
+                              <span style={{ color: theme === 'light' ? '#475569' : '#cbd5e1', marginLeft: 4 }}>{pa.relation}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Historic & Cultural Towns */}
+                      <div className="pq-present-card" style={{ borderColor: 'rgba(168, 85, 247, 0.4)' }}>
+                        <div style={{ fontSize: 13.5, fontWeight: 800, color: '#9333ea', textTransform: 'uppercase', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span>🏛️</span>
+                          <span>Important Cities &amp; Historical Capitals</span>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                          {rd.towns?.map((tw, idx) => (
+                            <div key={idx} style={{ fontSize: 13.5, lineHeight: 1.4, paddingBottom: 6, borderBottom: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                              <strong style={{ color: theme === 'light' ? '#0f172a' : '#f8fafc' }}>{tw.name}</strong> ({tw.state}) — 
+                              <span style={{ color: theme === 'light' ? '#475569' : '#cbd5e1', marginLeft: 4 }}>{tw.significance}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Indicator Species Grid */}
+                    {rd.species && (
+                      <div className="pq-present-card" style={{ padding: '12px 16px', borderColor: 'rgba(56, 189, 248, 0.35)' }}>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#0284c7', textTransform: 'uppercase', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <span>🐬</span>
+                          <span>Important Animals &amp; Birds in the River</span>
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 8 }}>
+                          {rd.species.map((sp, idx) => (
+                            <div key={idx} style={{ background: theme === 'light' ? '#f8fafc' : 'rgba(255, 255, 255, 0.04)', padding: '7px 10px', borderRadius: 6, fontSize: 13 }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <strong style={{ color: theme === 'light' ? '#0f172a' : '#f8fafc' }}>{sp.name}</strong>
+                                <span style={{ fontSize: 11, fontWeight: 800, padding: '1px 6px', borderRadius: 4, background: '#fee2e2', color: '#991b1b' }}>{sp.iucn}</span>
+                              </div>
+                              {sp.role && <div style={{ fontSize: 11.5, color: '#64748b', marginTop: 2 }}>{sp.role}</div>}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Common Mistake / UPSC Trap */}
+                    {rd.commonMistake && (
+                      <div className="pq-present-card" style={{ borderColor: 'rgba(245, 158, 11, 0.5)', background: theme === 'light' ? '#fffbeb' : 'rgba(245, 158, 11, 0.08)', padding: '12px 16px' }}>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#b45309', textTransform: 'uppercase', marginBottom: 4 }}>
+                          ⚠️ Common Student Mistake / UPSC Trap:
+                        </div>
+                        <p style={{ fontSize: 15, lineHeight: 1.5, color: theme === 'light' ? '#78350f' : '#fef3c7', margin: 0 }}>
+                          {rd.commonMistake}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
               {/* MAPPING STAGE 1: SPATIAL OVERVIEW & PROFILE */}
               {currentStep?.type === 'mapping_overview' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>

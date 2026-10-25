@@ -2942,6 +2942,241 @@ export default function MappingWorkspace({
                     </div>
                   </div>
 
+                  {/* 2B. DEDICATED 9-POINT HUMANIZED RIVER DOSSIER */}
+                  {selectedNode.riverDetails && (() => {
+                    const rd = selectedNode.riverDetails;
+                    return (
+                      <div
+                        style={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 12,
+                          background: '#f0f9ff',
+                          border: '1px solid #bae6fd',
+                          borderRadius: 14,
+                          padding: '14px 16px',
+                        }}
+                      >
+                        {/* Section Header */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e0f2fe', paddingBottom: 8 }}>
+                          <span style={{ fontSize: 12, fontWeight: 800, color: '#0369a1', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span>🌊</span> River Study Dossier ({rd.length || 'Full Course'})
+                          </span>
+                        </div>
+
+                        {/* Point 2: Origin and Mouth */}
+                        <div style={{ background: '#ffffff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e2e8f0', fontSize: 12.5, lineHeight: 1.5 }}>
+                          <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 5 }}>
+                            <span>📍</span> Where it starts &amp; where it ends
+                          </div>
+                          <div style={{ color: '#334155' }}>
+                            <strong>Origin:</strong> {rd.origin}
+                          </div>
+                          <div style={{ color: '#334155', marginTop: 3 }}>
+                            <strong>Mouth:</strong> {rd.mouth}
+                          </div>
+                        </div>
+
+                        {/* Point 3: States it flows through vs basin */}
+                        {rd.states && (
+                          <div style={{ background: '#ffffff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e2e8f0', fontSize: 12.5, lineHeight: 1.5 }}>
+                            <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 5 }}>
+                              <span>🗺️</span> States it passes through
+                            </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 4 }}>
+                              <span style={{ fontSize: 11, color: '#64748b', fontWeight: 600, alignSelf: 'center', marginRight: 2 }}>Direct Flow:</span>
+                              {rd.states.flowsThrough?.map((st, sIdx) => (
+                                <span key={sIdx} style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 999, background: '#dbeafe', color: '#1e40af' }}>
+                                  {st}
+                                </span>
+                              ))}
+                            </div>
+                            {rd.states.basinStates && (
+                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 6 }}>
+                                <span style={{ fontSize: 11, color: '#64748b', fontWeight: 600, alignSelf: 'center', marginRight: 2 }}>Basin Catchment:</span>
+                                {rd.states.basinStates.map((st, bIdx) => (
+                                  <span key={bIdx} style={{ fontSize: 11, fontWeight: 600, padding: '1px 7px', borderRadius: 999, background: '#f1f5f9', color: '#475569' }}>
+                                    {st}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Point 4: Left-Bank & Right-Bank Tributaries */}
+                        {rd.tributaries && (
+                          <div style={{ background: '#ffffff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e2e8f0', fontSize: 12.5 }}>
+                            <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
+                              <span>⚖️</span> Left-bank vs Right-bank Tributaries
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                              {/* Left Bank */}
+                              <div style={{ background: '#f8fafc', padding: '8px 10px', borderRadius: 8, borderLeft: '3px solid #3b82f6' }}>
+                                <div style={{ fontSize: 11, fontWeight: 800, color: '#1d4ed8', textTransform: 'uppercase', marginBottom: 4 }}>
+                                  ⬅️ Left-Bank
+                                </div>
+                                <ul style={{ margin: 0, paddingLeft: 14, fontSize: 11.5, color: '#334155', lineHeight: 1.45 }}>
+                                  {rd.tributaries.leftBank?.map((trib, tIdx) => (
+                                    <li key={tIdx} style={{ marginBottom: 4 }}>
+                                      <strong>{trib.name}</strong>
+                                      {trib.note && <span style={{ color: '#64748b' }}> — {trib.note}</span>}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+
+                              {/* Right Bank */}
+                              <div style={{ background: '#f8fafc', padding: '8px 10px', borderRadius: 8, borderLeft: '3px solid #10b981' }}>
+                                <div style={{ fontSize: 11, fontWeight: 800, color: '#047857', textTransform: 'uppercase', marginBottom: 4 }}>
+                                  ➡️ Right-Bank
+                                </div>
+                                <ul style={{ margin: 0, paddingLeft: 14, fontSize: 11.5, color: '#334155', lineHeight: 1.45 }}>
+                                  {rd.tributaries.rightBank?.map((trib, tIdx) => (
+                                    <li key={tIdx} style={{ marginBottom: 4 }}>
+                                      <strong>{trib.name}</strong>
+                                      {trib.note && <span style={{ color: '#64748b' }}> — {trib.note}</span>}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Point 5: Important Sangams (Confluences) */}
+                        {Array.isArray(rd.confluences) && rd.confluences.length > 0 && (
+                          <div style={{ background: '#ffffff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e2e8f0', fontSize: 12.5 }}>
+                            <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
+                              <span>🤝</span> Important Sangams (Confluences)
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                              {rd.confluences.map((c, cIdx) => (
+                                <div key={cIdx} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, fontSize: 12, borderBottom: cIdx === rd.confluences.length - 1 ? 'none' : '1px dashed #f1f5f9', paddingBottom: 4 }}>
+                                  <div>
+                                    <span style={{ fontWeight: 700, color: '#0f172a' }}>{c.sangam}</span>
+                                    {c.note && <div style={{ fontSize: 11, color: '#64748b' }}>{c.note}</div>}
+                                  </div>
+                                  <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+                                    <span style={{ fontSize: 10.5, fontWeight: 700, padding: '1px 6px', borderRadius: 4, background: '#e0f2fe', color: '#0369a1' }}>{c.tributary}</span>
+                                    <span style={{ fontSize: 10.5, fontWeight: 600, padding: '1px 6px', borderRadius: 4, background: '#f1f5f9', color: '#475569' }}>{c.state}</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Point 6: Important Towns & Cities on the banks */}
+                        {Array.isArray(rd.towns) && rd.towns.length > 0 && (
+                          <div style={{ background: '#ffffff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e2e8f0', fontSize: 12.5 }}>
+                            <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
+                              <span>🏛️</span> Important cities &amp; historical towns on the river
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                              {rd.towns.map((tw, twIdx) => (
+                                <div key={twIdx} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, fontSize: 12, borderBottom: twIdx === rd.towns.length - 1 ? 'none' : '1px dashed #f1f5f9', paddingBottom: 4 }}>
+                                  <div>
+                                    <strong style={{ color: '#0f172a' }}>{tw.name}</strong>
+                                    <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 5px', borderRadius: 4, background: tw.type === 'Cultural' ? '#fef3c7' : tw.type === 'Historical' ? '#f3e8ff' : '#e0f2fe', color: tw.type === 'Cultural' ? '#b45309' : tw.type === 'Historical' ? '#7e22ce' : '#0369a1', marginLeft: 6 }}>
+                                      {tw.type}
+                                    </span>
+                                    <div style={{ fontSize: 11, color: '#64748b' }}>{tw.significance}</div>
+                                  </div>
+                                  <span style={{ fontSize: 10.5, fontWeight: 600, padding: '1px 6px', borderRadius: 4, background: '#f1f5f9', color: '#475569', flexShrink: 0 }}>
+                                    {tw.state}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Point 7: Major Dams & Projects (with State) */}
+                        {Array.isArray(rd.dams) && rd.dams.length > 0 && (
+                          <div style={{ background: '#ffffff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e2e8f0', fontSize: 12.5 }}>
+                            <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
+                              <span>🏗️</span> Major dams and barrages (and which state)
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                              {rd.dams.map((dam, dIdx) => (
+                                <div key={dIdx} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, fontSize: 12, borderBottom: dIdx === rd.dams.length - 1 ? 'none' : '1px dashed #f1f5f9', paddingBottom: 4 }}>
+                                  <div>
+                                    <strong style={{ color: '#0f172a' }}>{dam.name}</strong>
+                                    {dam.type && <div style={{ fontSize: 11, color: '#64748b' }}>{dam.type}</div>}
+                                  </div>
+                                  <span style={{ fontSize: 10.5, fontWeight: 700, padding: '2px 7px', borderRadius: 6, background: '#fee2e2', color: '#b91c1c', flexShrink: 0 }}>
+                                    {dam.state}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Point 8: National Parks & Sanctuaries */}
+                        {Array.isArray(rd.protectedAreas) && rd.protectedAreas.length > 0 && (
+                          <div style={{ background: '#ffffff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e2e8f0', fontSize: 12.5 }}>
+                            <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
+                              <span>🌲</span> National parks &amp; sanctuaries on river or in basin
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                              {rd.protectedAreas.map((pa, paIdx) => (
+                                <div key={paIdx} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, fontSize: 12, borderBottom: paIdx === rd.protectedAreas.length - 1 ? 'none' : '1px dashed #f1f5f9', paddingBottom: 4 }}>
+                                  <div>
+                                    <strong style={{ color: '#047857' }}>{pa.name}</strong>
+                                    <div style={{ fontSize: 11, color: '#64748b' }}>{pa.relation}</div>
+                                  </div>
+                                  <span style={{ fontSize: 10.5, fontWeight: 600, padding: '1px 6px', borderRadius: 4, background: '#f1f5f9', color: '#475569', flexShrink: 0 }}>
+                                    {pa.state}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Point 9: Important Animals & Birds in the river */}
+                        {Array.isArray(rd.species) && rd.species.length > 0 && (
+                          <div style={{ background: '#ffffff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e2e8f0', fontSize: 12.5 }}>
+                            <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
+                              <span>🐬</span> Important animals &amp; birds in the river
+                            </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                              {rd.species.map((sp, spIdx) => {
+                                const isCrit = sp.iucn === 'Critically Endangered' || sp.iucn === 'CR';
+                                const isEn = sp.iucn === 'Endangered' || sp.iucn === 'EN';
+                                const badgeBg = isCrit ? '#fee2e2' : isEn ? '#ffedd5' : '#fef9c3';
+                                const badgeColor = isCrit ? '#991b1b' : isEn ? '#9a3412' : '#854d0e';
+                                return (
+                                  <div key={spIdx} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: '6px 9px', flex: '1 1 calc(50% - 6px)', minWidth: 140 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 }}>
+                                      <strong style={{ fontSize: 12, color: '#0f172a' }}>{sp.name}</strong>
+                                      {sp.iucn && (
+                                        <span style={{ fontSize: 9.5, fontWeight: 800, padding: '1px 5px', borderRadius: 4, background: badgeBg, color: badgeColor }}>
+                                          {sp.iucn}
+                                        </span>
+                                      )}
+                                    </div>
+                                    {sp.role && <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>{sp.role}</div>}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Humanised Common Mistake / UPSC Trap */}
+                        {rd.commonMistake && (
+                          <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 10, padding: '10px 12px', fontSize: 12, lineHeight: 1.5, color: '#92400e' }}>
+                            <strong style={{ color: '#b45309', fontWeight: 800 }}>⚠️ Common student mistake / UPSC Trap: </strong>
+                            <span>{rd.commonMistake}</span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+
                   {/* 3. Warm Amber Examiner's Trap Callout Box */}
                   {examinerTrapText && (
                     <div

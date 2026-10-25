@@ -416,6 +416,90 @@ export function buildMappingSteps(item, customAssets = {}) {
     : (item.location || item.state || item.country || 'India');
   const categories = Array.isArray(item.mapCategory) ? item.mapCategory.join(', ') : (item.mapCategory || item.category || 'Physical Geography');
 
+  // -------------------------------------------------------------
+  // BRANCH A: Dedicated 9-Point Humanized River Slide Sequence
+  // -------------------------------------------------------------
+  if (item.riverDetails) {
+    const rd = item.riverDetails;
+
+    // STAGE 1: Course, Origin & States
+    steps.push({
+      id: 'river_course',
+      type: 'river_course',
+      badge: 'STAGE 1 · COURSE, ORIGIN & STATES',
+      title: `${item.place} — Where It Starts, Flows & Ends`,
+      subtitle: 'Origin, length, direct flow states, and total basin catchment',
+      riverDetails: rd,
+      item,
+      locationText,
+      categories,
+    });
+
+    // STAGE 2: Left-Bank vs Right-Bank Tributaries
+    steps.push({
+      id: 'river_tributaries',
+      type: 'river_tributaries',
+      badge: 'STAGE 2 · LEFT-BANK VS RIGHT-BANK TRIBUTARIES',
+      title: `${item.place} — Left-Bank vs Right-Bank Tributaries`,
+      subtitle: 'Dual-bank tributary alignment and high-yield Prelims memory hooks',
+      riverDetails: rd,
+      item,
+    });
+
+    // STAGE 3: Sangams & Major Dams (with States)
+    steps.push({
+      id: 'river_dams_confluences',
+      type: 'river_dams_confluences',
+      badge: 'STAGE 3 · SANGAMS & MAJOR DAMS',
+      title: `${item.place} — Important Sangams & Major Dams`,
+      subtitle: 'Where tributaries meet the main river and major dams (with their states)',
+      riverDetails: rd,
+      item,
+    });
+
+    // STAGE 4: National Parks, Historic Cities & Indicator Species
+    steps.push({
+      id: 'river_ecology_towns',
+      type: 'river_ecology_towns',
+      badge: 'STAGE 4 · PARKS, TOWNS & WILDLIFE',
+      title: `${item.place} — Protected Areas, Cities & Wildlife`,
+      subtitle: 'National parks crossed, historic cities on the banks, and indicator animals',
+      riverDetails: rd,
+      item,
+    });
+
+    // STAGE 5: Linked UPSC Prelims PYQ
+    if (item.pyq || item.resolvedPyq || (Array.isArray(item.similarPYQs) && item.similarPYQs.length > 0)) {
+      const pyqObj = item.pyq || item.resolvedPyq || item.similarPYQs[0];
+      steps.push({
+        id: 'map_pyq',
+        type: 'mapping_pyq',
+        badge: 'STAGE 5 · LINKED UPSC PRELIMS PYQ',
+        title: 'How UPSC Tested This River in Past Years',
+        subtitle: `${pyqObj.exam || 'UPSC CSE Pre'} ${pyqObj.examYear || ''}`,
+        pyq: pyqObj,
+      });
+    }
+
+    // STAGE 6: Custom Diagram / Satellite Ingestion Slide (if custom image attached)
+    if (imageUrl) {
+      steps.push({
+        id: 'map_visual',
+        type: 'image',
+        badge: 'STAGE 6 · CUSTOM DIAGRAM & SATELLITE OVERLAY',
+        title: imageCaption,
+        subtitle: 'Annotate river courses, mountain passes, buffer zones & borders with XP-Pen stylus',
+        imageUrl,
+        caption: imageCaption,
+      });
+    }
+
+    return steps;
+  }
+
+  // -------------------------------------------------------------
+  // BRANCH B: Standard Mapping Slide Sequence (Hills, Seas, PIN)
+  // -------------------------------------------------------------
   // STAGE 1: Spatial Overview & Coordinates
   steps.push({
     id: 'map_overview',
