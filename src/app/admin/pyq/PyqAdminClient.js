@@ -54,6 +54,31 @@ export default function PyqAdminClient({ session }) {
   const [pattern, setPattern] = useState('ALL');
   const [answerStatus, setAnswerStatus] = useState('ALL');
   const [sortOrder, setSortOrder] = useState('syllabus'); // 'syllabus' | 'exam'
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  // Active filter count and quick reset
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (subject !== 'ALL') count++;
+    if (topic !== 'ALL') count++;
+    if (exam !== 'ALL') count++;
+    if (year !== 'ALL') count++;
+    if (pattern !== 'ALL') count++;
+    if (answerStatus !== 'ALL') count++;
+    if (sortOrder !== 'syllabus') count++;
+    return count;
+  }, [subject, topic, exam, year, pattern, answerStatus, sortOrder]);
+
+  const resetAllFilters = useCallback(() => {
+    setSubject('ALL');
+    setTopic('ALL');
+    setExam('ALL');
+    setYear('ALL');
+    setPattern('ALL');
+    setAnswerStatus('ALL');
+    setSortOrder('syllabus');
+    setPage(1);
+  }, []);
 
   const [filterOptions, setFilterOptions] = useState({ subjects: [], years: [], exams: [], topics: [], topicGroups: [] });
 
@@ -694,7 +719,7 @@ export default function PyqAdminClient({ session }) {
       fontFamily: 'var(--font-outfit), system-ui, -apple-system, sans-serif',
       padding: '30px 24px 80px',
     }}>
-      <div style={{ maxWidth: '1360px', margin: '0 auto' }}>
+      <div style={{ maxWidth: '1560px', margin: '0 auto' }}>
 
         {/* TOP ADMIN BAR */}
         <div style={{
@@ -868,19 +893,57 @@ export default function PyqAdminClient({ session }) {
         {/* ========================================================================= */}
         {activeTab === 'list' && (
           <div>
-            {/* SEARCH & FILTERS PANEL */}
+            {/* TOP UNIVERSAL SEARCH BAR & QUICK ACTIONS */}
             <div style={{
               background: 'rgba(15, 23, 42, 0.7)',
               border: '1.5px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '18px',
-              padding: '20px 24px',
-              marginBottom: '24px',
+              borderRadius: '16px',
+              padding: '14px 18px',
+              marginBottom: '20px',
               boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)'
             }}>
-              {/* Universal Search Bar */}
-              <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '10px', marginBottom: '18px' }}>
+              <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                {/* Toggle Sidebar Button */}
+                <button
+                  type="button"
+                  onClick={() => setSidebarOpen(v => !v)}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '10px 16px',
+                    borderRadius: '12px',
+                    background: sidebarOpen ? 'rgba(56, 189, 248, 0.15)' : 'rgba(255, 255, 255, 0.06)',
+                    color: sidebarOpen ? '#38bdf8' : '#cbd5e1',
+                    border: sidebarOpen ? '1.5px solid rgba(56, 189, 248, 0.4)' : '1px solid rgba(255, 255, 255, 0.12)',
+                    fontWeight: 800,
+                    fontSize: '0.88rem',
+                    cursor: 'pointer',
+                    flexShrink: 0
+                  }}
+                  title={sidebarOpen ? "Hide Filters Sidebar" : "Show Filters Sidebar"}
+                >
+                  <Filter size={16} />
+                  <span>{sidebarOpen ? 'Hide Filters' : 'Show Filters'}</span>
+                  {activeFilterCount > 0 && (
+                    <span style={{
+                      background: '#38bdf8',
+                      color: '#0f172a',
+                      fontSize: '0.72rem',
+                      fontWeight: 900,
+                      padding: '1px 7px',
+                      borderRadius: '999px',
+                      marginLeft: '2px'
+                    }}>
+                      {activeFilterCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* Universal Search Input */}
                 <div style={{
                   flex: 1,
+                  minWidth: '280px',
                   display: 'flex',
                   alignItems: 'center',
                   background: 'rgba(2, 6, 23, 0.8)',
@@ -888,7 +951,7 @@ export default function PyqAdminClient({ session }) {
                   borderRadius: '12px',
                   padding: '4px 14px'
                 }}>
-                  <Search size={18} style={{ color: '#64748b', marginRight: '10px' }} />
+                  <Search size={18} style={{ color: '#64748b', marginRight: '10px', flexShrink: 0 }} />
                   <input
                     type="text"
                     value={search}
@@ -900,9 +963,10 @@ export default function PyqAdminClient({ session }) {
                       border: 'none',
                       outline: 'none',
                       color: '#ffffff',
-                      fontSize: '0.95rem',
+                      fontSize: '0.92rem',
                       fontWeight: 500,
-                      padding: '8px 0'
+                      padding: '8px 0',
+                      minWidth: 0
                     }}
                   />
                   {search && (
@@ -932,7 +996,8 @@ export default function PyqAdminClient({ session }) {
                     border: 'none',
                     fontWeight: 800,
                     fontSize: '0.9rem',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    flexShrink: 0
                   }}
                 >
                   Search
@@ -962,7 +1027,8 @@ export default function PyqAdminClient({ session }) {
                     cursor: 'pointer',
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: '6px'
+                    gap: '6px',
+                    flexShrink: 0
                   }}
                   title="Print all matching filtered questions in colour PDF"
                 >
@@ -970,207 +1036,303 @@ export default function PyqAdminClient({ session }) {
                   <span>Print All ({total})</span>
                 </button>
               </form>
-
-              {/* Filters Row */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '14px', alignItems: 'center' }}>
-                {/* Subject Filter */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Subject</label>
-                  <select
-                    value={subject}
-                    onChange={e => { setSubject(e.target.value); setTopic('ALL'); setPage(1); }}
-                    style={{
-                      background: 'rgba(2, 6, 23, 0.8)',
-                      border: '1px solid rgba(255, 255, 255, 0.15)',
-                      borderRadius: '8px',
-                      color: '#ffffff',
-                      padding: '8px 12px',
-                      fontSize: '0.85rem',
-                      fontWeight: 600
-                    }}
-                  >
-                    <option value="ALL">All Subjects</option>
-                    {filterOptions.subjects.map(s => (
-                      <option key={s} value={s}>{s}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Theme / Topic Filter */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Theme / Topic</label>
-                  <select
-                    value={topic}
-                    onChange={e => { setTopic(e.target.value); setPage(1); }}
-                    disabled={subject === 'ALL'}
-                    style={{
-                      background: 'rgba(2, 6, 23, 0.8)',
-                      border: '1px solid rgba(255, 255, 255, 0.15)',
-                      borderRadius: '8px',
-                      color: '#ffffff',
-                      padding: '8px 12px',
-                      fontSize: '0.85rem',
-                      fontWeight: 600,
-                      opacity: subject === 'ALL' ? 0.5 : 1,
-                      maxWidth: '240px'
-                    }}
-                  >
-                    <option value="ALL">All Themes in {subject === 'ALL' ? 'Subject' : subject}</option>
-                    {filterOptions.topicGroups && filterOptions.topicGroups.length > 0 ? (
-                      filterOptions.topicGroups.map(group => (
-                        <optgroup key={group.label} label={group.label}>
-                          {group.topics.map(t => (
-                            <option key={t} value={t}>{t}</option>
-                          ))}
-                        </optgroup>
-                      ))
-                    ) : (
-                      (filterOptions.topics || []).map(t => (
-                        <option key={t} value={t}>{t}</option>
-                      ))
-                    )}
-                  </select>
-                </div>
-
-                {/* Sequence Order Filter */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Sequence Order</label>
-                  <select
-                    value={sortOrder}
-                    onChange={e => { setSortOrder(e.target.value); setPage(1); }}
-                    style={{
-                      background: 'rgba(2, 6, 23, 0.8)',
-                      border: '1px solid rgba(255, 255, 255, 0.15)',
-                      borderRadius: '8px',
-                      color: '#ffffff',
-                      padding: '8px 12px',
-                      fontSize: '0.85rem',
-                      fontWeight: 600
-                    }}
-                  >
-                    <option value="syllabus">📖 Syllabus Sequence (NCERT Chapters)</option>
-                    <option value="exam">📅 Exam Year (Recent First)</option>
-                  </select>
-                </div>
-
-                {/* Exam Filter */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Exam</label>
-                  <select
-                    value={exam}
-                    onChange={e => { setExam(e.target.value); setPage(1); }}
-                    style={{
-                      background: 'rgba(2, 6, 23, 0.8)',
-                      border: '1px solid rgba(255, 255, 255, 0.15)',
-                      borderRadius: '8px',
-                      color: '#ffffff',
-                      padding: '8px 12px',
-                      fontSize: '0.85rem',
-                      fontWeight: 600
-                    }}
-                  >
-                    <option value="ALL">All Exams</option>
-                    <option value="UPSC CSE">UPSC CSE</option>
-                    <option value="CDS">CDS</option>
-                  </select>
-                </div>
-
-                {/* Year Filter */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Year</label>
-                  <select
-                    value={year}
-                    onChange={e => { setYear(e.target.value); setPage(1); }}
-                    style={{
-                      background: 'rgba(2, 6, 23, 0.8)',
-                      border: '1px solid rgba(255, 255, 255, 0.15)',
-                      borderRadius: '8px',
-                      color: '#ffffff',
-                      padding: '8px 12px',
-                      fontSize: '0.85rem',
-                      fontWeight: 600
-                    }}
-                  >
-                    <option value="ALL">All Years</option>
-                    {filterOptions.years.map(y => (
-                      <option key={y} value={y}>{y}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Format / Pattern Filter */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Pattern / Format</label>
-                  <select
-                    value={pattern}
-                    onChange={e => { setPattern(e.target.value); setPage(1); }}
-                    style={{
-                      background: 'rgba(2, 6, 23, 0.8)',
-                      border: '1px solid rgba(255, 255, 255, 0.15)',
-                      borderRadius: '8px',
-                      color: '#ffffff',
-                      padding: '8px 12px',
-                      fontSize: '0.85rem',
-                      fontWeight: 600
-                    }}
-                  >
-                    <option value="ALL">All Formats</option>
-                    <option value="NEW">🔥 New Pattern (Pairs &amp; Statements)</option>
-                    <option value="PAIR">Pair-Based Only</option>
-                    <option value="STATEMENT">Statement I &amp; II Only</option>
-                  </select>
-                </div>
-
-                {/* Answer / Quality Filter */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Content Quality</label>
-                  <select
-                    value={answerStatus}
-                    onChange={e => { setAnswerStatus(e.target.value); setPage(1); }}
-                    style={{
-                      background: 'rgba(2, 6, 23, 0.8)',
-                      border: '1px solid rgba(255, 255, 255, 0.15)',
-                      borderRadius: '8px',
-                      color: '#ffffff',
-                      padding: '8px 12px',
-                      fontSize: '0.85rem',
-                      fontWeight: 600
-                    }}
-                  >
-                    <option value="ALL">All Status</option>
-                    <option value="DEEPDIVE_READY">✓ Deep-Dive Ready</option>
-                    <option value="DEEPDIVE_PENDING">⏳ Needs Deep-Dive</option>
-                    <option value="MISSING_ANSWER">⚠️ Missing Answer</option>
-                    <option value="HAS_ANSWER">Has Correct Answer</option>
-                    <option value="MISSING_EXPL">⚠️ Missing Explanation</option>
-                    <option value="HAS_EXPL">Has Explanation</option>
-                  </select>
-                </div>
-
-                {/* Limit Filter */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginLeft: 'auto' }}>
-                  <label style={{ fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Per Page</label>
-                  <select
-                    value={limit}
-                    onChange={e => { setLimit(parseInt(e.target.value, 10)); setPage(1); }}
-                    style={{
-                      background: 'rgba(2, 6, 23, 0.8)',
-                      border: '1px solid rgba(255, 255, 255, 0.15)',
-                      borderRadius: '8px',
-                      color: '#ffffff',
-                      padding: '8px 12px',
-                      fontSize: '0.85rem',
-                      fontWeight: 600
-                    }}
-                  >
-                    <option value={20}>20</option>
-                    <option value={25}>25</option>
-                    <option value={50}>50</option>
-                    <option value={100}>100</option>
-                  </select>
-                </div>
-              </div>
             </div>
+
+            {/* 2-COLUMN VIEW: SIDEBAR (FILTERS) + MAIN (QUESTIONS) */}
+            <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', position: 'relative' }}>
+              
+              {/* LEFT SIDEBAR FILTERS */}
+              {sidebarOpen && (
+                <aside style={{
+                  width: '290px',
+                  minWidth: '290px',
+                  flexShrink: 0,
+                  position: 'sticky',
+                  top: '20px',
+                  maxHeight: 'calc(100vh - 40px)',
+                  overflowY: 'auto',
+                  background: 'rgba(15, 23, 42, 0.8)',
+                  backdropFilter: 'blur(16px)',
+                  border: '1.5px solid rgba(255, 255, 255, 0.12)',
+                  borderRadius: '16px',
+                  padding: '20px 18px',
+                  boxShadow: '0 8px 30px rgba(0, 0, 0, 0.35)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '16px',
+                  scrollbarWidth: 'thin'
+                }}>
+                  {/* Sidebar Header */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    paddingBottom: '12px',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Filter size={18} style={{ color: '#38bdf8' }} />
+                      <span style={{ fontSize: '0.95rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.01em' }}>
+                        Filters
+                      </span>
+                      {activeFilterCount > 0 && (
+                        <span style={{
+                          background: '#38bdf8',
+                          color: '#0f172a',
+                          fontSize: '0.72rem',
+                          fontWeight: 900,
+                          padding: '2px 7px',
+                          borderRadius: '999px'
+                        }}>
+                          {activeFilterCount}
+                        </span>
+                      )}
+                    </div>
+
+                    {activeFilterCount > 0 && (
+                      <button
+                        type="button"
+                        onClick={resetAllFilters}
+                        style={{
+                          background: 'rgba(239, 68, 68, 0.12)',
+                          color: '#f87171',
+                          border: '1px solid rgba(239, 68, 68, 0.3)',
+                          borderRadius: '8px',
+                          padding: '4px 10px',
+                          fontSize: '0.74rem',
+                          fontWeight: 700,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Reset All
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Subject Filter */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <label style={{ fontSize: '0.74rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Subject</label>
+                    <select
+                      value={subject}
+                      onChange={e => { setSubject(e.target.value); setTopic('ALL'); setPage(1); }}
+                      style={{
+                        background: 'rgba(2, 6, 23, 0.85)',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        borderRadius: '10px',
+                        color: '#ffffff',
+                        padding: '9px 12px',
+                        fontSize: '0.86rem',
+                        fontWeight: 600,
+                        width: '100%',
+                        outline: 'none',
+                        boxSizing: 'border-box'
+                      }}
+                    >
+                      <option value="ALL">All Subjects</option>
+                      {filterOptions.subjects.map(s => (
+                        <option key={s} value={s}>{s}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Theme / Topic Filter */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <label style={{ fontSize: '0.74rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Theme / Topic</label>
+                    <select
+                      value={topic}
+                      onChange={e => { setTopic(e.target.value); setPage(1); }}
+                      disabled={subject === 'ALL'}
+                      style={{
+                        background: 'rgba(2, 6, 23, 0.85)',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        borderRadius: '10px',
+                        color: '#ffffff',
+                        padding: '9px 12px',
+                        fontSize: '0.86rem',
+                        fontWeight: 600,
+                        width: '100%',
+                        outline: 'none',
+                        boxSizing: 'border-box',
+                        opacity: subject === 'ALL' ? 0.5 : 1
+                      }}
+                    >
+                      <option value="ALL">All Themes in {subject === 'ALL' ? 'Subject' : subject}</option>
+                      {filterOptions.topicGroups && filterOptions.topicGroups.length > 0 ? (
+                        filterOptions.topicGroups.map(group => (
+                          <optgroup key={group.label} label={group.label}>
+                            {group.topics.map(t => (
+                              <option key={t} value={t}>{t}</option>
+                            ))}
+                          </optgroup>
+                        ))
+                      ) : (
+                        (filterOptions.topics || []).map(t => (
+                          <option key={t} value={t}>{t}</option>
+                        ))
+                      )}
+                    </select>
+                  </div>
+
+                  {/* Sequence Order Filter */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <label style={{ fontSize: '0.74rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Sequence Order</label>
+                    <select
+                      value={sortOrder}
+                      onChange={e => { setSortOrder(e.target.value); setPage(1); }}
+                      style={{
+                        background: 'rgba(2, 6, 23, 0.85)',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        borderRadius: '10px',
+                        color: '#ffffff',
+                        padding: '9px 12px',
+                        fontSize: '0.86rem',
+                        fontWeight: 600,
+                        width: '100%',
+                        outline: 'none',
+                        boxSizing: 'border-box'
+                      }}
+                    >
+                      <option value="syllabus">📖 Syllabus Sequence (NCERT)</option>
+                      <option value="exam">📅 Exam Year (Recent First)</option>
+                    </select>
+                  </div>
+
+                  {/* Exam Filter */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <label style={{ fontSize: '0.74rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Exam</label>
+                    <select
+                      value={exam}
+                      onChange={e => { setExam(e.target.value); setPage(1); }}
+                      style={{
+                        background: 'rgba(2, 6, 23, 0.85)',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        borderRadius: '10px',
+                        color: '#ffffff',
+                        padding: '9px 12px',
+                        fontSize: '0.86rem',
+                        fontWeight: 600,
+                        width: '100%',
+                        outline: 'none',
+                        boxSizing: 'border-box'
+                      }}
+                    >
+                      <option value="ALL">All Exams</option>
+                      <option value="UPSC CSE">UPSC CSE</option>
+                      <option value="CDS">CDS</option>
+                    </select>
+                  </div>
+
+                  {/* Year Filter */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <label style={{ fontSize: '0.74rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Year</label>
+                    <select
+                      value={year}
+                      onChange={e => { setYear(e.target.value); setPage(1); }}
+                      style={{
+                        background: 'rgba(2, 6, 23, 0.85)',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        borderRadius: '10px',
+                        color: '#ffffff',
+                        padding: '9px 12px',
+                        fontSize: '0.86rem',
+                        fontWeight: 600,
+                        width: '100%',
+                        outline: 'none',
+                        boxSizing: 'border-box'
+                      }}
+                    >
+                      <option value="ALL">All Years</option>
+                      {filterOptions.years.map(y => (
+                        <option key={y} value={y}>{y}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Pattern / Format Filter */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <label style={{ fontSize: '0.74rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Pattern / Format</label>
+                    <select
+                      value={pattern}
+                      onChange={e => { setPattern(e.target.value); setPage(1); }}
+                      style={{
+                        background: 'rgba(2, 6, 23, 0.85)',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        borderRadius: '10px',
+                        color: '#ffffff',
+                        padding: '9px 12px',
+                        fontSize: '0.86rem',
+                        fontWeight: 600,
+                        width: '100%',
+                        outline: 'none',
+                        boxSizing: 'border-box'
+                      }}
+                    >
+                      <option value="ALL">All Formats</option>
+                      <option value="NEW">🔥 New Pattern (Pairs &amp; Statements)</option>
+                      <option value="PAIR">Pair-Based Only</option>
+                      <option value="STATEMENT">Statement I &amp; II Only</option>
+                    </select>
+                  </div>
+
+                  {/* Content Quality */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <label style={{ fontSize: '0.74rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Content Quality</label>
+                    <select
+                      value={answerStatus}
+                      onChange={e => { setAnswerStatus(e.target.value); setPage(1); }}
+                      style={{
+                        background: 'rgba(2, 6, 23, 0.85)',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        borderRadius: '10px',
+                        color: '#ffffff',
+                        padding: '9px 12px',
+                        fontSize: '0.86rem',
+                        fontWeight: 600,
+                        width: '100%',
+                        outline: 'none',
+                        boxSizing: 'border-box'
+                      }}
+                    >
+                      <option value="ALL">All Status</option>
+                      <option value="DEEPDIVE_READY">✓ Deep-Dive Ready</option>
+                      <option value="DEEPDIVE_PENDING">⏳ Needs Deep-Dive</option>
+                      <option value="MISSING_ANSWER">⚠️ Missing Answer</option>
+                      <option value="HAS_ANSWER">Has Correct Answer</option>
+                      <option value="MISSING_EXPL">⚠️ Missing Explanation</option>
+                      <option value="HAS_EXPL">Has Explanation</option>
+                    </select>
+                  </div>
+
+                  {/* Per Page */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <label style={{ fontSize: '0.74rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Per Page</label>
+                    <select
+                      value={limit}
+                      onChange={e => { setLimit(parseInt(e.target.value, 10)); setPage(1); }}
+                      style={{
+                        background: 'rgba(2, 6, 23, 0.85)',
+                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        borderRadius: '10px',
+                        color: '#ffffff',
+                        padding: '9px 12px',
+                        fontSize: '0.86rem',
+                        fontWeight: 600,
+                        width: '100%',
+                        outline: 'none',
+                        boxSizing: 'border-box'
+                      }}
+                    >
+                      <option value={20}>20</option>
+                      <option value={25}>25</option>
+                      <option value={50}>50</option>
+                      <option value={100}>100</option>
+                    </select>
+                  </div>
+                </aside>
+              )}
+
+              {/* RIGHT MAIN CONTENT: QUESTIONS LIST */}
+              <main style={{ flex: 1, minWidth: 0 }}>
 
             {/* ERROR BANNER */}
             {error && (
@@ -1768,6 +1930,66 @@ export default function PyqAdminClient({ session }) {
                 })}
               </div>
             )}
+
+            {/* BOTTOM PAGINATION BAR */}
+            {totalPages > 1 && (
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginTop: '28px',
+                paddingTop: '18px',
+                borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+                flexWrap: 'wrap',
+                gap: '12px'
+              }}>
+                <span style={{ fontSize: '0.85rem', color: '#94a3b8', fontWeight: 600 }}>
+                  Showing <strong>{questions.length}</strong> of <strong>{total}</strong> questions
+                </span>
+
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <button
+                    disabled={page <= 1 || loading}
+                    onClick={() => { setPage(p => Math.max(1, p - 1)); window.scrollTo({ top: 120, behavior: 'smooth' }); }}
+                    style={{
+                      padding: '6px 14px',
+                      borderRadius: '8px',
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      color: page <= 1 ? '#64748b' : '#ffffff',
+                      fontSize: '0.82rem',
+                      fontWeight: 700,
+                      cursor: page <= 1 ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    ← Prev
+                  </button>
+
+                  <span style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 700 }}>
+                    Page {page} / {totalPages}
+                  </span>
+
+                  <button
+                    disabled={page >= totalPages || loading}
+                    onClick={() => { setPage(p => Math.min(totalPages, p + 1)); window.scrollTo({ top: 120, behavior: 'smooth' }); }}
+                    style={{
+                      padding: '6px 14px',
+                      borderRadius: '8px',
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid rgba(255, 255, 255, 0.12)',
+                      color: page >= totalPages ? '#64748b' : '#ffffff',
+                      fontSize: '0.82rem',
+                      fontWeight: 700,
+                      cursor: page >= totalPages ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    Next →
+                  </button>
+                </div>
+              </div>
+            )}
+              </main>
+            </div>
 
             {/* Sticky Floating Action Bar for Selected Questions */}
             {selectedQIds.size > 0 && (
