@@ -993,8 +993,8 @@ function buildSlideDocument({ questions }) {
           <!-- RIGHT COLUMN (66%): High-Capacity Knowledge Hub (Explanation, Value Addition, Similar PYQ) -->
           <div class="slide-right-col">
             ${statementBreakdown ? `
-              <!-- Row 0: Stem Statements Evaluation -->
-              <div class="right-stmt-block" style="margin-bottom: 8px;">
+              <!-- Row 0: Stem Statements Evaluation (Exclusive for statement-based questions) -->
+              <div class="right-stmt-block">
                 <div><span class="badge-pill badge-blue">Stem Statements Evaluation</span></div>
                 <div class="card-expl-blue" style="margin-top: 4px;">
                   ${statementBreakdown.map(stmt => {
@@ -1009,25 +1009,25 @@ function buildSlideDocument({ questions }) {
                   }).join('')}
                 </div>
               </div>
-            ` : ''}
-
-            <!-- Row 1: Option Breakdown Box -->
-            <div class="right-expl-block">
-              <div><span class="badge-pill badge-black">${statementBreakdown ? 'Code / Option Elimination' : 'Explanation'}</span></div>
-              <div class="card-expl-pink">
-                ${optionBreakdown ? optionBreakdown.map(opt => {
-                  const isCorr = (opt.verdict || '').toLowerCase().includes('correct') && !(opt.verdict || '').toLowerCase().includes('incorrect');
-                  return `
-                    <div class="opt-row">
-                      <strong>(${escapeHtml((opt.label || '').toLowerCase())}) ${opt.text ? escapeHtml(opt.text) + '. ' : ''}<span class="${isCorr ? 'verdict-correct' : 'verdict-incorrect'}">${escapeHtml(opt.verdict || (isCorr ? 'Correct' : 'Incorrect'))}.</span></strong>
-                      <span>${escapeHtml(opt.explanation || '')}</span>
-                    </div>
-                  `;
-                }).join('') : `
-                  <div class="opt-row" style="white-space: pre-wrap;">${escapeHtml(explanationText || 'Detailed explanation provided in study module.')}</div>
-                `}
+            ` : `
+              <!-- Row 1: Option Breakdown Box (For direct single-choice questions without stem statements) -->
+              <div class="right-expl-block">
+                <div><span class="badge-pill badge-black">Explanation</span></div>
+                <div class="card-expl-pink">
+                  ${optionBreakdown ? optionBreakdown.map(opt => {
+                    const isCorr = (opt.verdict || '').toLowerCase().includes('correct') && !(opt.verdict || '').toLowerCase().includes('incorrect');
+                    return `
+                      <div class="opt-row">
+                        <strong>(${escapeHtml((opt.label || '').toLowerCase())}) ${opt.text ? escapeHtml(opt.text) + '. ' : ''}<span class="${isCorr ? 'verdict-correct' : 'verdict-incorrect'}">${escapeHtml(opt.verdict || (isCorr ? 'Correct' : 'Incorrect'))}.</span></strong>
+                        <span>${escapeHtml(opt.explanation || '')}</span>
+                      </div>
+                    `;
+                  }).join('') : `
+                    <div class="opt-row" style="white-space: pre-wrap;">${escapeHtml(explanationText || 'Detailed explanation provided in study module.')}</div>
+                  `}
+                </div>
               </div>
-            </div>
+            `}
 
             <!-- Row 2: Value Addition (Spanning full 66% width with internal 2-column grid) -->
             <div class="right-va-block">

@@ -45,14 +45,18 @@ export function buildQuestionSteps(q, customAssets = {}) {
     verdicts: {},
   });
 
+  const hasStatementBreakdown = Boolean(analysis?.statementBreakdown && Array.isArray(analysis.statementBreakdown) && analysis.statementBreakdown.length > 0);
+
   // -------------------------------------------------------------
-  // STEP 1A: Stem Statements Evaluation (if statementBreakdown exists)
+  // STEP 2: Stem Statements Evaluation OR Option Elimination Breakdown
+  // (Mutually exclusive: statement-based questions evaluate the statements directly;
+  // direct single-choice questions evaluate options a, b, c, d)
   // -------------------------------------------------------------
-  if (analysis?.statementBreakdown && Array.isArray(analysis.statementBreakdown) && analysis.statementBreakdown.length > 0) {
+  if (hasStatementBreakdown) {
     steps.push({
       id: 'statement_breakdown',
       type: 'statement_breakdown',
-      badge: 'STAGE 2A · STEM STATEMENTS EVALUATION',
+      badge: 'STAGE 2 · STEM STATEMENTS EVALUATION',
       title: 'Stem Statements Evaluation',
       subtitle: 'Evaluate statutory citations, factual veracity, and examiner traps for each numbered statement',
       items: analysis.statementBreakdown,
@@ -60,13 +64,7 @@ export function buildQuestionSteps(q, customAssets = {}) {
       highlightedOption: null,
       verdicts,
     });
-  }
-
-  // -------------------------------------------------------------
-  // STEP 1B: Elimination Breakdown (Statement by statement / Code elimination)
-  // -------------------------------------------------------------
-  if (analysis?.optionBreakdown && Array.isArray(analysis.optionBreakdown) && analysis.optionBreakdown.length > 0) {
-    const hasStatementBreakdown = Boolean(analysis?.statementBreakdown && Array.isArray(analysis.statementBreakdown) && analysis.statementBreakdown.length > 0);
+  } else if (analysis?.optionBreakdown && Array.isArray(analysis.optionBreakdown) && analysis.optionBreakdown.length > 0) {
     const chunkSize = 3;
     const totalParts = Math.ceil(analysis.optionBreakdown.length / chunkSize);
 
@@ -86,11 +84,9 @@ export function buildQuestionSteps(q, customAssets = {}) {
       steps.push({
         id: `breakdown_${partNum}`,
         type: 'breakdown',
-        badge: hasStatementBreakdown
-          ? `STAGE 2B · CODE / OPTION ELIMINATION`
-          : (totalParts > 1 ? `STAGE 2 · ELIMINATION BREAKDOWN (${partNum}/${totalParts})` : 'STAGE 2 · ELIMINATION BREAKDOWN'),
-        title: hasStatementBreakdown ? 'Code / Option Elimination' : 'Option & Statement Elimination Analysis',
-        subtitle: hasStatementBreakdown ? 'Deduce final answer from statement evaluations' : 'Evaluate validity, historical/constitutional accuracy, and distractor traps',
+        badge: totalParts > 1 ? `STAGE 2 · ELIMINATION BREAKDOWN (${partNum}/${totalParts})` : 'STAGE 2 · ELIMINATION BREAKDOWN',
+        title: 'Option & Statement Elimination Analysis',
+        subtitle: 'Evaluate validity, historical/constitutional accuracy, and distractor traps',
         items: chunk,
         showAnswer: false,
         highlightedOption: null,

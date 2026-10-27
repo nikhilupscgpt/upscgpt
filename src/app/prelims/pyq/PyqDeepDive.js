@@ -397,8 +397,8 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
         </div>
       ) : (
         <>
-          {/* 3A. Stem Statements Evaluation (for questions with numbered statements 1, 2, 3...) */}
-          {statementBreakdown && Array.isArray(statementBreakdown) && statementBreakdown.length > 0 && (
+          {/* 3. Stem Statements Evaluation (if numbered statements exist) OR Option-by-Option Breakdown */}
+          {statementBreakdown && Array.isArray(statementBreakdown) && statementBreakdown.length > 0 ? (
             <div className="pq-dd-section">
               <div className="pq-dd-label">
                 <CheckSquare size={14} /> Stem Statements Evaluation
@@ -448,57 +448,56 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
                 })}
               </div>
             </div>
-          )}
-
-          {/* 3B. Option-by-Option / Code Elimination Breakdown */}
-          {optionBreakdown && optionBreakdown.length > 0 && (
-            <div className="pq-dd-section">
-              <div className="pq-dd-label">
-                <Layers size={14} /> {statementBreakdown && Array.isArray(statementBreakdown) && statementBreakdown.length > 0 ? 'Code / Option Elimination' : 'Option-by-Option Elimination Breakdown'}
-              </div>
-              <div className="pq-breakdown-grid">
-                {optionBreakdown.map((opt, i) => {
-                  const isCorrect =
-                    (opt.verdict || '').toLowerCase().includes('correct') &&
-                    !(opt.verdict || '').toLowerCase().includes('incorrect');
-                  const labelStr = String(opt.label || i + 1).toUpperCase();
-                  return (
-                    <div
-                      key={i}
-                      className={`pq-breakdown-card ${isCorrect ? 'is-correct-card' : 'is-incorrect-card'}`}
-                    >
-                      <div className="pq-bc-head">
-                        <span className="pq-bc-label">({labelStr})</span>
-                        <span className={`pq-bc-badge ${isCorrect ? 'is-correct' : 'is-incorrect'}`}>
-                          {isCorrect ? <CheckCircle2 size={13} /> : <XCircle size={13} />}
-                          {opt.verdict || (isCorrect ? 'Correct' : 'Incorrect')}
-                        </span>
-                        {opt.reference && (
-                          <span
-                            className="pq-bc-ref-badge"
-                            style={{
-                              marginLeft: 'auto',
-                              padding: '2px 8px',
-                              borderRadius: '6px',
-                              background: 'rgba(59, 130, 246, 0.12)',
-                              border: '1px solid rgba(59, 130, 246, 0.28)',
-                              color: 'var(--pq-blue, #3b82f6)',
-                              fontSize: '11px',
-                              fontWeight: 800,
-                              letterSpacing: '0.02em',
-                            }}
-                          >
-                            {opt.reference}
+          ) : (
+            optionBreakdown && optionBreakdown.length > 0 && (
+              <div className="pq-dd-section">
+                <div className="pq-dd-label">
+                  <Layers size={14} /> Option-by-Option Elimination Breakdown
+                </div>
+                <div className="pq-breakdown-grid">
+                  {optionBreakdown.map((opt, i) => {
+                    const isCorrect =
+                      (opt.verdict || '').toLowerCase().includes('correct') &&
+                      !(opt.verdict || '').toLowerCase().includes('incorrect');
+                    const labelStr = String(opt.label || i + 1).toUpperCase();
+                    return (
+                      <div
+                        key={i}
+                        className={`pq-breakdown-card ${isCorrect ? 'is-correct-card' : 'is-incorrect-card'}`}
+                      >
+                        <div className="pq-bc-head">
+                          <span className="pq-bc-label">({labelStr})</span>
+                          <span className={`pq-bc-badge ${isCorrect ? 'is-correct' : 'is-incorrect'}`}>
+                            {isCorrect ? <CheckCircle2 size={13} /> : <XCircle size={13} />}
+                            {opt.verdict || (isCorrect ? 'Correct' : 'Incorrect')}
                           </span>
-                        )}
+                          {opt.reference && (
+                            <span
+                              className="pq-bc-ref-badge"
+                              style={{
+                                marginLeft: 'auto',
+                                padding: '2px 8px',
+                                borderRadius: '6px',
+                                background: 'rgba(59, 130, 246, 0.12)',
+                                border: '1px solid rgba(59, 130, 246, 0.28)',
+                                color: 'var(--pq-blue, #3b82f6)',
+                                fontSize: '11px',
+                                fontWeight: 800,
+                                letterSpacing: '0.02em',
+                              }}
+                            >
+                              {opt.reference}
+                            </span>
+                          )}
+                        </div>
+                        {opt.text && <p className="pq-bc-opt-text">{opt.text}</p>}
+                        <p className="pq-bc-exp">{opt.explanation}</p>
                       </div>
-                      {opt.text && <p className="pq-bc-opt-text">{opt.text}</p>}
-                      <p className="pq-bc-exp">{opt.explanation}</p>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            )
           )}
 
           {/* 4. Value Addition Notes */}

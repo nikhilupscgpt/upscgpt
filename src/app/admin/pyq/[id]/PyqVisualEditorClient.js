@@ -1708,13 +1708,13 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
             flexDirection: 'column',
             gap: '16px'
           }}>
-            {/* Track 1: Stem Statements Evaluation (if present) */}
-            {data.analysis?.statementBreakdown && Array.isArray(data.analysis.statementBreakdown) && data.analysis.statementBreakdown.length > 0 && (
+            {/* Stem Statements Evaluation (if present) OR Option-by-Option Breakdown */}
+            {data.analysis?.statementBreakdown && Array.isArray(data.analysis.statementBreakdown) && data.analysis.statementBreakdown.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <CheckSquare size={16} color="#38bdf8" />
                   <strong style={{ fontSize: '14.5px', color: '#38bdf8' }}>
-                    Track 1: Stem Statements Evaluation
+                    Stem Statements Evaluation
                   </strong>
                   <span style={{
                     fontSize: '11px',
@@ -1816,103 +1816,101 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
                   })}
                 </div>
               </div>
-            )}
+            ) : (
+              /* Option-by-Option Explanation Breakdown (only for direct 4-option questions without stem statements) */
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <BookOpen size={16} color="#f43f5e" />
+                  <strong style={{ fontSize: '14.5px', color: '#f8fafc' }}>
+                    Option-by-Option Explanation Breakdown
+                  </strong>
+                </div>
 
-            {/* Track 2: Option Breakdown / Code Elimination */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <BookOpen size={16} color="#f43f5e" />
-                <strong style={{ fontSize: '14.5px', color: '#f8fafc' }}>
-                  {data.analysis?.statementBreakdown && Array.isArray(data.analysis.statementBreakdown) && data.analysis.statementBreakdown.length > 0
-                    ? 'Track 2: Code / Option Elimination'
-                    : 'Option-by-Option Explanation Breakdown'}
-                </strong>
-              </div>
-
-              {optionBreakdownList.map((opt, i) => {
-                const isCorr = (opt.verdict || '').toLowerCase().includes('correct') && !(opt.verdict || '').toLowerCase().includes('incorrect');
-                return (
-                  <div
-                    key={i}
-                    style={{
-                      background: '#090e1a',
-                      border: '1px solid #1c263c',
-                      borderRadius: '10px',
-                      padding: '12px 14px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '8px'
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                      <span style={{
-                        background: isCorr ? '#10b981' : '#ef4444',
-                        color: '#ffffff',
-                        fontWeight: 800,
-                        fontSize: '11px',
-                        padding: '1px 8px',
-                        borderRadius: '4px'
-                      }}>
-                        Option ({opt.label})
-                      </span>
-                      <input
-                        type="text"
-                        value={opt.verdict || ''}
-                        onChange={(e) => handleOptionVerdictChange(i, e.target.value)}
-                        placeholder="Verdict (e.g. Correct / Incorrect)..."
-                        style={{
-                          background: 'transparent',
-                          border: 'none',
-                          color: isCorr ? '#34d399' : '#f87171',
+                {optionBreakdownList.map((opt, i) => {
+                  const isCorr = (opt.verdict || '').toLowerCase().includes('correct') && !(opt.verdict || '').toLowerCase().includes('incorrect');
+                  return (
+                    <div
+                      key={i}
+                      style={{
+                        background: '#090e1a',
+                        border: '1px solid #1c263c',
+                        borderRadius: '10px',
+                        padding: '12px 14px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '8px'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <span style={{
+                          background: isCorr ? '#10b981' : '#ef4444',
+                          color: '#ffffff',
                           fontWeight: 800,
-                          fontSize: '12px',
-                          outline: 'none',
-                          width: '130px'
-                        }}
-                      />
-                      <input
-                        type="text"
-                        value={opt.reference || ''}
-                        onChange={(e) => handleOptionReferenceChange(i, e.target.value)}
-                        placeholder="Statutory / Book Ref (e.g. Article 393)..."
+                          fontSize: '11px',
+                          padding: '1px 8px',
+                          borderRadius: '4px'
+                        }}>
+                          Option ({opt.label})
+                        </span>
+                        <input
+                          type="text"
+                          value={opt.verdict || ''}
+                          onChange={(e) => handleOptionVerdictChange(i, e.target.value)}
+                          placeholder="Verdict (e.g. Correct / Incorrect)..."
+                          style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: isCorr ? '#34d399' : '#f87171',
+                            fontWeight: 800,
+                            fontSize: '12px',
+                            outline: 'none',
+                            width: '130px'
+                          }}
+                        />
+                        <input
+                          type="text"
+                          value={opt.reference || ''}
+                          onChange={(e) => handleOptionReferenceChange(i, e.target.value)}
+                          placeholder="Statutory / Book Ref (e.g. Article 393)..."
+                          style={{
+                            flex: 1,
+                            minWidth: '200px',
+                            background: 'rgba(59, 130, 246, 0.1)',
+                            border: '1px solid rgba(59, 130, 246, 0.25)',
+                            borderRadius: '6px',
+                            color: '#93c5fd',
+                            fontSize: '11.5px',
+                            fontWeight: 600,
+                            padding: '3px 8px',
+                            outline: 'none'
+                          }}
+                        />
+                      </div>
+                      <textarea
+                        value={opt.explanation || ''}
+                        onChange={(e) => handleOptionExplanationChange(i, e.target.value)}
+                        rows={2}
+                        placeholder={`Explanation for option (${opt.label})...`}
                         style={{
-                          flex: 1,
-                          minWidth: '200px',
-                          background: 'rgba(59, 130, 246, 0.1)',
-                          border: '1px solid rgba(59, 130, 246, 0.25)',
+                          width: '100%',
+                          background: '#070b14',
+                          color: '#cbd5e1',
+                          border: '1px solid #1c263c',
                           borderRadius: '6px',
-                          color: '#93c5fd',
-                          fontSize: '11.5px',
-                          fontWeight: 600,
-                          padding: '3px 8px',
-                          outline: 'none'
+                          padding: '8px 10px',
+                          fontSize: '13px',
+                          lineHeight: 1.5,
+                          outline: 'none',
+                          resize: 'vertical',
+                          boxSizing: 'border-box',
+                          fontFamily: 'inherit'
                         }}
                       />
                     </div>
-                    <textarea
-                      value={opt.explanation || ''}
-                      onChange={(e) => handleOptionExplanationChange(i, e.target.value)}
-                      rows={2}
-                      placeholder={`Explanation for option (${opt.label})...`}
-                      style={{
-                        width: '100%',
-                        background: '#070b14',
-                        color: '#cbd5e1',
-                        border: '1px solid #1c263c',
-                        borderRadius: '6px',
-                        padding: '8px 10px',
-                        fontSize: '13px',
-                        lineHeight: 1.5,
-                        outline: 'none',
-                        resize: 'vertical',
-                        boxSizing: 'border-box',
-                        fontFamily: 'inherit'
-                      }}
-                    />
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Card 4: Value Addition Container */}
