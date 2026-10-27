@@ -37,8 +37,7 @@ export async function GET(req) {
           },
           _count: {
             select: {
-              questions: true,
-              testPacks: true
+              articles: true
             }
           }
         },
@@ -54,18 +53,7 @@ export async function GET(req) {
       const issue = await prisma.issue.findUnique({
         where: { id: issueId },
         include: {
-          nodeContent: true,
-          questions: {
-            orderBy: { createdAt: 'desc' }
-          },
-          testPacks: {
-            include: {
-              _count: {
-                select: { questions: true }
-              }
-            },
-            orderBy: { createdAt: 'desc' }
-          }
+          nodeContent: true
         }
       });
 

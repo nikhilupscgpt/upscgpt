@@ -42,25 +42,18 @@ export default async function NodePreparePage(props) {
 
   const issue = await prisma.issue.findFirst({
     where: {
-      AND: [
-        { id: { equals: issueId } }
+      OR: [
+        { id: issueId },
+        { slug: issueId }
       ]
     },
     include: {
-      
       articles: {
         where: { status: 'DONE' },
         orderBy: { publishedAt: 'desc' },
         take: 5
       },
-      testPacks: {
-        where: { type: 'PRACTICE' },
-        include: {
-          questions: true
-        }
-      },
-      nodeContent: true,
-      questions: true
+      nodeContent: true
     }
   });
 
@@ -68,11 +61,32 @@ export default async function NodePreparePage(props) {
     return <div className="mt-page"><div className="mt-container">Node not found.</div></div>;
   }
 
+  // Fetch relevant questions matching this issue's topic or title
+  let matchedQuestions = [];
+  try {
+    matchedQuestions = await prisma.question.findMany({
+      where: {
+        OR: [
+          issue.topic ? { topic: { name: { contains: issue.topic, mode: 'insensitive' } } } : undefined,
+          issue.title ? { stem: { contains: issue.title, mode: 'insensitive' } } : undefined
+        ].filter(Boolean)
+      },
+      take: 10,
+      orderBy: { examYear: 'desc' }
+    });
+  } catch (qErr) {
+    console.warn('[PrelimsPrepare] Failed to load matched questions:', qErr.message);
+  }
+
   // Only show articles directly associated with this issue
   const articles = issue.articles || [];
 
-  // Safe serialization
-  const serializedIssue = JSON.parse(JSON.stringify(issue));
+  // Safe serialization with attached questions
+  const serializedIssue = JSON.parse(JSON.stringify({
+    ...issue,
+    questions: matchedQuestions || [],
+    testPacks: []
+  }));
   const serializedArticles = JSON.parse(JSON.stringify(articles));
 
   return (

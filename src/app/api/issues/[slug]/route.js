@@ -71,11 +71,6 @@ export async function GET(req, { params }) {
             }
           },
           orderBy: { orderIndex: 'asc' }
-        },
-        testPacks: {
-          where: { type: 'PRACTICE' },
-          select: { id: true },
-          take: 1
         }
       }
     });
@@ -96,7 +91,7 @@ export async function GET(req, { params }) {
     
     issue.subNodes = manualSubNodes;
 
-    const testPackId = issue.testPacks?.[0]?.id || null;
+    const testPackId = null;
 
     const session = await getServerSession(authOptions);
     let userContext = { followed: false, status: 'UNSTARTED' };

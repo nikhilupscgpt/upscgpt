@@ -32,9 +32,7 @@ export async function GET() {
         _count: {
           select: {
             articles: true,
-            editorials: true,
-            testPacks: true,
-            
+            editorials: true
           }
         },
         subNodes: {
