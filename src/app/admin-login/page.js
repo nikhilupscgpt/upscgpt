@@ -21,6 +21,18 @@ export default function Login() {
       setError("Invalid credentials")
       setLoading(false)
     } else {
+      // Check session to route FACULTY straight to lecture studio
+      try {
+        const sessionRes = await fetch("/api/auth/session")
+        const sessionData = await sessionRes.json()
+        if (sessionData?.user?.role === "FACULTY") {
+          router.push("/admin/studio")
+          router.refresh()
+          return
+        }
+      } catch (e) {
+        // fallback
+      }
       router.push("/admin")
       router.refresh()
     }
@@ -42,8 +54,8 @@ export default function Login() {
       }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <div style={{ width: '48px', height: '48px', background: 'var(--primary-gradient)', borderRadius: '12px', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '24px', boxShadow: 'var(--primary-shadow)' }}>🌍</div>
-          <h2 style={{ fontSize: '1.6rem', color: 'var(--text-primary)', fontWeight: 800 }}>Lecturer Login</h2>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>Secure access to the database</p>
+          <h2 style={{ fontSize: '1.6rem', color: 'var(--text-primary)', fontWeight: 800 }}>Faculty &amp; Admin Login</h2>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>Secure access to Lecture Studio &amp; Admin</p>
         </div>
 
         {error && <div style={{ padding:'12px', background:'rgba(239, 68, 68, 0.1)', color: '#ef4444', marginBottom: '20px', fontSize: '0.85rem', borderRadius:'10px', textAlign: 'center', fontWeight: 600 }}>{error}</div>}

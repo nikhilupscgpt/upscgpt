@@ -15,8 +15,8 @@ export const metadata = {
 export default async function StudioPresentPage({ searchParams }) {
   const session = await getServerSession(authOptions);
 
-  if (!session || session.user?.role !== 'ADMIN') {
-    redirect("/login");
+  if (!session || (session.user?.role !== 'ADMIN' && session.user?.role !== 'FACULTY')) {
+    redirect("/admin-login");
   }
 
   const sp = await searchParams;

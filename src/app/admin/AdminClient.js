@@ -17,7 +17,7 @@ export default function AdminClient({ session }) {
   const [loading, setLoading] = useState(false)
   const [aiPrompts, setAiPrompts] = useState([])
   const [savingPromptId, setSavingPromptId] = useState(null)
-  const [userFormData, setUserFormData] = useState({ name: '', email: '', password: '', tier: 'FREE' })
+  const [userFormData, setUserFormData] = useState({ name: '', username: '', email: '', password: '', tier: 'FREE', role: 'USER' })
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -70,7 +70,7 @@ export default function AdminClient({ session }) {
       headers: { "Content-Type": "application/json" }
     })
     if (res.ok) {
-      setUserFormData({ name: '', email: '', password: '', tier: 'FREE' })
+      setUserFormData({ name: '', username: '', email: '', password: '', tier: 'FREE', role: 'USER' })
       fetchUsers()
       setStatus("User Created Successfully.")
     }
@@ -371,11 +371,19 @@ export default function AdminClient({ session }) {
               <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '24px' }}>Manual Access Grant</h2>
               <form onSubmit={handleUserCreate} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <input required placeholder="Full Name" value={userFormData.name} onChange={e=>setUserFormData({...userFormData, name: e.target.value})} style={{ padding:'16px', borderRadius:'14px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }} />
-                <input required placeholder="Email Address" type="email" value={userFormData.email} onChange={e=>setUserFormData({...userFormData, email: e.target.value})} style={{ padding:'16px', borderRadius:'14px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }} />
-                <select value={userFormData.tier} onChange={e=>setUserFormData({...userFormData, tier: e.target.value})} style={{ padding:'16px', borderRadius:'14px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }}>
-                  <option value="FREE">Free User</option><option value="PRO">Pro Lifetime Access</option>
+                <input placeholder="Username (required for Faculty login)" value={userFormData.username} onChange={e=>setUserFormData({...userFormData, username: e.target.value})} style={{ padding:'16px', borderRadius:'14px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }} />
+                <input placeholder="Email Address (optional)" type="email" value={userFormData.email} onChange={e=>setUserFormData({...userFormData, email: e.target.value})} style={{ padding:'16px', borderRadius:'14px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }} />
+                <input placeholder="Password / Passkey (required for Faculty)" type="password" value={userFormData.password} onChange={e=>setUserFormData({...userFormData, password: e.target.value})} style={{ padding:'16px', borderRadius:'14px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }} />
+                <select value={userFormData.role} onChange={e=>setUserFormData({...userFormData, role: e.target.value})} style={{ padding:'16px', borderRadius:'14px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }}>
+                  <option value="USER">Standard User</option>
+                  <option value="FACULTY">Faculty / Presenter (Lecture Studio Access Only)</option>
+                  <option value="ADMIN">Full Administrator</option>
                 </select>
-                <button type="submit" style={{ padding: '18px', background: 'white', color: 'black', borderRadius: '16px', border:'none', cursor: 'pointer', fontWeight: 800 }}>Provision Now</button>
+                <select value={userFormData.tier} onChange={e=>setUserFormData({...userFormData, tier: e.target.value})} style={{ padding:'16px', borderRadius:'14px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }}>
+                  <option value="FREE">Free Tier</option>
+                  <option value="PRO">Pro Lifetime Access</option>
+                </select>
+                <button type="submit" style={{ padding: '18px', background: 'white', color: 'black', borderRadius: '16px', border:'none', cursor: 'pointer', fontWeight: 800 }}>Provision User</button>
               </form>
             </section>
             
@@ -384,8 +392,12 @@ export default function AdminClient({ session }) {
               {(users || []).map(user => (
                 <div key={user.id} style={{ padding: '20px', background: 'rgba(255,255,255,0.03)', borderRadius: '20px', marginBottom: '16px', border: '1px solid var(--card-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
-                    <div style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--text-primary)' }}>{user.name}</div>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>{user.email} · <span style={{ color: user.tier === 'PRO' ? '#3b82f6' : 'var(--text-secondary)', fontWeight: 800 }}>{user.tier}</span></div>
+                    <div style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--text-primary)' }}>
+                      {user.name} {user.username && <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>({user.username})</span>}
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                      {user.email || 'No email'} · <span style={{ color: user.role === 'FACULTY' ? '#a855f7' : user.role === 'ADMIN' ? '#f43f5e' : 'var(--text-secondary)', fontWeight: 800 }}>{user.role}</span> · <span style={{ color: user.tier === 'PRO' ? '#3b82f6' : 'var(--text-secondary)', fontWeight: 800 }}>{user.tier}</span>
+                    </div>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end' }}>
                     {user.tier !== 'PRO' ? (

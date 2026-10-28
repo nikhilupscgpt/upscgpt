@@ -30,7 +30,7 @@ export const adminUserSchema = z.object({
   username: z.string().min(3, "Username must be at least 3 characters").optional().nullable(),
   name: z.string().min(1, "Name is required").max(100),
   tier: z.enum(["FREE", "PRO"]).default("FREE"),
-  role: z.enum(["USER", "ADMIN"]).default("USER"),
+  role: z.enum(["USER", "ADMIN", "FACULTY"]).default("USER"),
   password: z.string().min(8, "Password must be at least 8 characters").optional().nullable(),
 });
 

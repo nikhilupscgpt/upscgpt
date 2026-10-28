@@ -29,8 +29,8 @@ function normalizeOptions(opts) {
 export async function GET(req) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || session.user?.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized. Admin access required.' }, { status: 401 });
+    if (!session || (session.user?.role !== 'ADMIN' && session.user?.role !== 'FACULTY')) {
+      return NextResponse.json({ error: 'Unauthorized. Admin or Faculty access required.' }, { status: 401 });
     }
 
     const { searchParams } = new URL(req.url);

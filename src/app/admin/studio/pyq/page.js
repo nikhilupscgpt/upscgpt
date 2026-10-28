@@ -15,8 +15,8 @@ export const metadata = {
 export default async function PyqStudioPage() {
   const session = await getServerSession(authOptions);
 
-  if (!session || session.user?.role !== 'ADMIN') {
-    redirect("/login");
+  if (!session || (session.user?.role !== 'ADMIN' && session.user?.role !== 'FACULTY')) {
+    redirect("/admin-login");
   }
 
   // Pre-fetch distinct filter options directly from database
