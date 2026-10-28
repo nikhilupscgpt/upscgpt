@@ -153,7 +153,30 @@ function buildChapterLabel(item, index) {
   return `Q${index + 1} [${examTag} · ${topicTag}]: ${snippet}...`;
 }
 
-export default function RecordingPresenterClient({ questions = [] }) {
+export default function RecordingPresenterClient({ questions: initialQuestions = [] }) {
+  const [customDeckItems] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const sp = new URLSearchParams(window.location.search);
+        if (sp.get('mode') === 'custom' || initialQuestions.length === 0) {
+          const raw = localStorage.getItem('pq_custom_recording_deck');
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+    return [];
+  });
+
+  const questions = useMemo(
+    () => (initialQuestions.length > 0 ? initialQuestions : customDeckItems),
+    [initialQuestions, customDeckItems]
+  );
+
   const [qIndex, setQIndex] = useState(0);
   const [stepIndex, setStepIndex] = useState(0);
   const [scale, setScale] = useState(1);

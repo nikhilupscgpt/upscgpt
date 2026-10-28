@@ -13,6 +13,7 @@ import {
   X,
   AlertCircle,
   RefreshCw,
+  Sparkles,
 } from 'lucide-react';
 import {
   listVaultRecordings,
@@ -21,6 +22,7 @@ import {
   formatDurationTimestamp,
   formatYouTubeChapters,
 } from '@/lib/recordingVaultDb';
+import CustomExternalContentModal from './CustomExternalContentModal';
 
 export default function RecordingsVaultBanner() {
   const [recordings, setRecordings] = useState([]);
@@ -28,6 +30,7 @@ export default function RecordingsVaultBanner() {
   const [previewRec, setPreviewRec] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
+  const [showCustomModal, setShowCustomModal] = useState(false);
 
   const loadVault = useCallback(async () => {
     setLoading(true);
@@ -102,16 +105,86 @@ export default function RecordingsVaultBanner() {
   };
 
   return (
-    <section
-      style={{
-        marginTop: 40,
-        padding: '28px 32px',
-        borderRadius: 20,
-        background: 'rgba(15, 23, 42, 0.78)',
-        border: '1.5px solid rgba(244, 63, 94, 0.3)',
-        boxShadow: '0 16px 40px rgba(0, 0, 0, 0.35)',
-      }}
-    >
+    <>
+      <CustomExternalContentModal
+        isOpen={showCustomModal}
+        onClose={() => setShowCustomModal(false)}
+      />
+
+      {/* 1-Click External / Custom Content Studio Banner */}
+      <div
+        style={{
+          marginTop: 28,
+          padding: '22px 28px',
+          borderRadius: 18,
+          background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.16), rgba(236, 72, 153, 0.12))',
+          border: '1.5px solid rgba(168, 85, 247, 0.45)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 16,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: 14,
+              background: 'linear-gradient(135deg, #a855f7, #ec4899)',
+              color: '#ffffff',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <Sparkles size={24} />
+          </div>
+          <div>
+            <h3 style={{ margin: 0, fontSize: 17.5, fontWeight: 900, color: '#ffffff' }}>
+              Want to Record Content Not on the Platform?
+            </h3>
+            <p style={{ margin: '3px 0 0', fontSize: 13, color: '#cbd5e1' }}>
+              Paste any external MCQ, current affairs news, or coaching question and launch a formatted <strong>16:9 Lecture</strong> or <strong>9:16 Reel</strong> in 1 click.
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setShowCustomModal(true)}
+          style={{
+            padding: '12px 22px',
+            borderRadius: 12,
+            background: 'linear-gradient(135deg, #a855f7, #ec4899)',
+            border: 'none',
+            color: '#ffffff',
+            fontSize: 13.5,
+            fontWeight: 900,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            boxShadow: '0 8px 24px rgba(236, 72, 153, 0.35)',
+          }}
+        >
+          <Sparkles size={16} />
+          <span>Create 1-Click Custom Lecture / Reel</span>
+        </button>
+      </div>
+
+      <section
+        style={{
+          marginTop: 28,
+          padding: '28px 32px',
+          borderRadius: 20,
+          background: 'rgba(15, 23, 42, 0.78)',
+          border: '1.5px solid rgba(244, 63, 94, 0.3)',
+          boxShadow: '0 16px 40px rgba(0, 0, 0, 0.35)',
+        }}
+      >
       <div
         style={{
           display: 'flex',
@@ -511,6 +584,7 @@ export default function RecordingsVaultBanner() {
           </div>
         </div>
       )}
-    </section>
+      </section>
+    </>
   );
 }

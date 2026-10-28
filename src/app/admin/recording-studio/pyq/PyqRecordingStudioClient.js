@@ -10,8 +10,10 @@ import {
   ExternalLink,
   X,
   ArrowLeft,
+  Sparkles,
 } from 'lucide-react';
 import '../../studio/pyq/pyq-studio.css';
+import CustomExternalContentModal from '../CustomExternalContentModal';
 
 export default function PyqRecordingStudioClient({ initialFilterOptions }) {
   const filterOptions = initialFilterOptions || {
@@ -54,6 +56,7 @@ export default function PyqRecordingStudioClient({ initialFilterOptions }) {
   const [activeAttachQ, setActiveAttachQ] = useState(null);
   const [attachUrl, setAttachUrl] = useState('');
   const [attachCaption, setAttachCaption] = useState('');
+  const [showCustomModal, setShowCustomModal] = useState(false);
 
   const currentTopicGroups = useMemo(() => {
     if (apiFilterOptions?.topicGroups && Array.isArray(apiFilterOptions.topicGroups) && apiFilterOptions.topicGroups.length > 0) {
@@ -196,6 +199,11 @@ export default function PyqRecordingStudioClient({ initialFilterOptions }) {
 
   return (
     <div className="pq-pyq-studio-root">
+      <CustomExternalContentModal
+        isOpen={showCustomModal}
+        onClose={() => setShowCustomModal(false)}
+        defaultTarget="lecture"
+      />
       {/* Top Header */}
       <header className="pq-pyq-studio-head">
         <div className="pq-pyq-head-left">
@@ -253,26 +261,49 @@ export default function PyqRecordingStudioClient({ initialFilterOptions }) {
           </div>
         </div>
 
-        <Link
-          href="/admin/pyq"
-          target="_blank"
-          style={{
-            padding: '8px 14px',
-            borderRadius: 10,
-            background: 'transparent',
-            border: '1px solid rgba(56, 189, 248, 0.3)',
-            color: '#38bdf8',
-            fontSize: 13,
-            fontWeight: 700,
-            textDecoration: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-          }}
-        >
-          <span>Open PYQ Central Editor</span>
-          <ExternalLink size={13} />
-        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <button
+            type="button"
+            onClick={() => setShowCustomModal(true)}
+            style={{
+              padding: '8px 14px',
+              borderRadius: 10,
+              background: 'rgba(168, 85, 247, 0.16)',
+              border: '1px solid rgba(168, 85, 247, 0.45)',
+              color: '#e879f9',
+              fontSize: 13,
+              fontWeight: 800,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            <Sparkles size={14} />
+            <span>+ Record External / Custom Content</span>
+          </button>
+
+          <Link
+            href="/admin/pyq"
+            target="_blank"
+            style={{
+              padding: '8px 14px',
+              borderRadius: 10,
+              background: 'transparent',
+              border: '1px solid rgba(56, 189, 248, 0.3)',
+              color: '#38bdf8',
+              fontSize: 13,
+              fontWeight: 700,
+              textDecoration: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            <span>Open PYQ Central Editor</span>
+            <ExternalLink size={13} />
+          </Link>
+        </div>
       </header>
 
       {/* Filters */}

@@ -324,6 +324,7 @@ export default async function RecordingStudioPresentPage({ searchParams }) {
 
   if (
     mode !== "mapping" &&
+    mode !== "custom" &&
     (questionIds.length > 0 ||
       (mode === "pyq" && !scratchpadRaw && topicIds.length === 0 && mappingIds.length === 0))
   ) {

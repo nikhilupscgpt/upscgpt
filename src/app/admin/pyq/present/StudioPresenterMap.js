@@ -48,6 +48,7 @@ export default function StudioPresenterMap({
   mapWidthMode = 'split', // 'split' (58%) | 'wide' (72%) | 'full' (100%)
   onCycleMapWidth,
   spotlightIndex = null,
+  minimalReelMode = false,
 }) {
   const [basemap, setBasemap] = useState('topo'); // 'topo' | 'satellite' | 'light' | 'natgeo'
   const [showLabels, setShowLabels] = useState(true);
@@ -81,8 +82,12 @@ export default function StudioPresenterMap({
     const type = currentStep.type;
     const stepId = currentStep.id;
 
-    if (stepId === 'river_course' || type === 'mapping_overview') {
+    if (stepId === 'river_course' || type === 'mapping_overview' || type === 'reel_map_hook') {
       setActiveLayers({ spine: true, leftBank: false, rightBank: false, dams: false, protectedAreas: false });
+    } else if (type === 'reel_map_analysis') {
+      setActiveLayers({ spine: true, leftBank: true, rightBank: true, dams: false, protectedAreas: false });
+    } else if (type === 'reel_map_keywords') {
+      setActiveLayers({ spine: true, leftBank: false, rightBank: false, dams: true, protectedAreas: true });
     } else if (stepId === 'river_left_tributaries') {
       setActiveLayers({ spine: true, leftBank: true, rightBank: false, dams: false, protectedAreas: false });
     } else if (stepId === 'river_right_tributaries') {
@@ -184,135 +189,237 @@ export default function StudioPresenterMap({
       </div>
 
       {/* 2. Floating Basemap Controls & Recenter Button (Top Left - Above Annotation Canvas at z-index 65) */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 14,
-          left: 14,
-          zIndex: 65,
-          display: 'flex',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 5,
-          background: 'rgba(15, 23, 42, 0.92)',
-          backdropFilter: 'blur(12px)',
-          padding: '4px 6px',
-          borderRadius: 12,
-          border: '1.5px solid rgba(255, 255, 255, 0.2)',
-          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.45)',
-          pointerEvents: 'auto',
-          maxWidth: 'calc(100% - 28px)',
-        }}
-      >
-        <button
-          type="button"
-          onClick={() => setBasemap('topo')}
+      {minimalReelMode ? (
+        /* Ultra-Clean Micro Pill Bar for 9:16 Vertical Reels (Zero Map Obstruction) */
+        <div
           style={{
-            padding: '5px 10px',
-            borderRadius: 8,
-            fontSize: 12,
-            fontWeight: 700,
-            cursor: 'pointer',
-            border: 'none',
-            background: basemap === 'topo' ? '#0284c7' : 'transparent',
-            color: basemap === 'topo' ? '#ffffff' : '#94a3b8',
-            transition: 'all 0.15s ease',
-          }}
-          title="Topographic Physical Map (Contours & Rivers)"
-        >
-          Topo
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setBasemap('satellite')}
-          style={{
-            padding: '5px 10px',
-            borderRadius: 8,
-            fontSize: 12,
-            fontWeight: 700,
-            cursor: 'pointer',
-            border: 'none',
-            background: basemap === 'satellite' ? '#0284c7' : 'transparent',
-            color: basemap === 'satellite' ? '#ffffff' : '#94a3b8',
-            transition: 'all 0.15s ease',
-          }}
-          title="Satellite Imagery"
-        >
-          Satellite
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setBasemap('light')}
-          style={{
-            padding: '5px 10px',
-            borderRadius: 8,
-            fontSize: 12,
-            fontWeight: 700,
-            cursor: 'pointer',
-            border: 'none',
-            background: basemap === 'light' ? '#0284c7' : 'transparent',
-            color: basemap === 'light' ? '#ffffff' : '#94a3b8',
-            transition: 'all 0.15s ease',
-          }}
-          title="Clean Light Canvas"
-        >
-          Light
-        </button>
-
-        <div style={{ width: 1, height: 16, background: 'rgba(255, 255, 255, 0.2)', margin: '0 2px' }} />
-
-        <button
-          type="button"
-          onClick={() => setShowLabels((prev) => !prev)}
-          style={{
-            display: 'inline-flex',
+            position: 'absolute',
+            top: 8,
+            left: 8,
+            right: 8,
+            zIndex: 65,
+            display: 'flex',
             alignItems: 'center',
-            gap: 4,
-            padding: '5px 10px',
-            borderRadius: 8,
-            fontSize: 12,
-            fontWeight: 700,
-            cursor: 'pointer',
-            border: 'none',
-            background: showLabels ? 'rgba(16, 185, 129, 0.22)' : 'rgba(255, 255, 255, 0.08)',
-            color: showLabels ? '#34d399' : '#94a3b8',
-            transition: 'all 0.15s ease',
+            justifyContent: 'space-between',
+            pointerEvents: 'none',
           }}
-          title="Toggle numbered name labels on map (Hide labels for student quiz mode)"
         >
-          <Tag size={13} />
-          <span>{showLabels ? 'Labels: ON' : 'Labels: OFF'}</span>
-        </button>
+          <div
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 3,
+              background: 'rgba(15, 23, 42, 0.78)',
+              backdropFilter: 'blur(8px)',
+              padding: '3px 5px',
+              borderRadius: 9,
+              border: '1px solid rgba(255, 255, 255, 0.16)',
+              pointerEvents: 'auto',
+            }}
+          >
+            {['topo', 'satellite', 'light'].map((b) => (
+              <button
+                key={b}
+                type="button"
+                onClick={() => setBasemap(b)}
+                style={{
+                  padding: '3px 7px',
+                  borderRadius: 6,
+                  fontSize: 10.5,
+                  fontWeight: 800,
+                  textTransform: 'capitalize',
+                  cursor: 'pointer',
+                  border: 'none',
+                  background: basemap === b ? '#0284c7' : 'transparent',
+                  color: basemap === b ? '#ffffff' : '#94a3b8',
+                }}
+              >
+                {b === 'satellite' ? 'Sat' : b}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => setShowLabels((prev) => !prev)}
+              style={{
+                padding: '3px 7px',
+                borderRadius: 6,
+                fontSize: 10.5,
+                fontWeight: 800,
+                cursor: 'pointer',
+                border: 'none',
+                background: showLabels ? 'rgba(16, 185, 129, 0.22)' : 'transparent',
+                color: showLabels ? '#34d399' : '#94a3b8',
+              }}
+            >
+              {showLabels ? 'Labels' : 'No Labels'}
+            </button>
+            <button
+              type="button"
+              onClick={handleRecenter}
+              style={{
+                padding: '3px 7px',
+                borderRadius: 6,
+                fontSize: 10.5,
+                fontWeight: 800,
+                cursor: 'pointer',
+                border: 'none',
+                background: 'rgba(56, 189, 248, 0.18)',
+                color: '#38bdf8',
+              }}
+              title="Recenter Map"
+            >
+              Focus
+            </button>
+          </div>
 
-        <button
-          type="button"
-          onClick={handleRecenter}
+          {isRiver && (
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 3,
+                background: 'rgba(15, 23, 42, 0.78)',
+                backdropFilter: 'blur(8px)',
+                padding: '3px 5px',
+                borderRadius: 9,
+                border: '1px solid rgba(255, 255, 255, 0.16)',
+                pointerEvents: 'auto',
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => handleToggleLayer('leftBank')}
+                style={{
+                  padding: '3px 6px',
+                  borderRadius: 6,
+                  fontSize: 10,
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  border: 'none',
+                  background: activeLayers.leftBank ? '#06b6d4' : 'transparent',
+                  color: activeLayers.leftBank ? '#fff' : '#94a3b8',
+                }}
+              >
+                L-Bank
+              </button>
+              <button
+                type="button"
+                onClick={() => handleToggleLayer('rightBank')}
+                style={{
+                  padding: '3px 6px',
+                  borderRadius: 6,
+                  fontSize: 10,
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  border: 'none',
+                  background: activeLayers.rightBank ? '#f59e0b' : 'transparent',
+                  color: activeLayers.rightBank ? '#fff' : '#94a3b8',
+                }}
+              >
+                R-Bank
+              </button>
+              <button
+                type="button"
+                onClick={() => handleToggleLayer('protectedAreas')}
+                style={{
+                  padding: '3px 6px',
+                  borderRadius: 6,
+                  fontSize: 10,
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  border: 'none',
+                  background: activeLayers.protectedAreas ? '#10b981' : 'transparent',
+                  color: activeLayers.protectedAreas ? '#fff' : '#94a3b8',
+                }}
+              >
+                Parks
+              </button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div
           style={{
-            display: 'inline-flex',
+            position: 'absolute',
+            top: 14,
+            left: 14,
+            zIndex: 65,
+            display: 'flex',
             alignItems: 'center',
-            gap: 4,
-            padding: '5px 10px',
-            borderRadius: 8,
-            fontSize: 12,
-            fontWeight: 700,
-            cursor: 'pointer',
-            border: 'none',
-            background: 'rgba(56, 189, 248, 0.18)',
-            color: '#38bdf8',
-            transition: 'all 0.15s ease',
+            flexWrap: 'wrap',
+            gap: 5,
+            background: 'rgba(15, 23, 42, 0.92)',
+            backdropFilter: 'blur(12px)',
+            padding: '4px 6px',
+            borderRadius: 12,
+            border: '1.5px solid rgba(255, 255, 255, 0.2)',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.45)',
+            pointerEvents: 'auto',
+            maxWidth: 'calc(100% - 28px)',
           }}
-          title="Focus on this location"
         >
-          <Target size={13} />
-          <span>Focus</span>
-        </button>
-
-        {onSetActiveTool && (
           <button
             type="button"
-            onClick={() => onSetActiveTool(activeTool === 'none' ? 'pen' : 'none')}
+            onClick={() => setBasemap('topo')}
+            style={{
+              padding: '5px 10px',
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: 'pointer',
+              border: 'none',
+              background: basemap === 'topo' ? '#0284c7' : 'transparent',
+              color: basemap === 'topo' ? '#ffffff' : '#94a3b8',
+              transition: 'all 0.15s ease',
+            }}
+            title="Topographic Physical Map (Contours & Rivers)"
+          >
+            Topo
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setBasemap('satellite')}
+            style={{
+              padding: '5px 10px',
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: 'pointer',
+              border: 'none',
+              background: basemap === 'satellite' ? '#0284c7' : 'transparent',
+              color: basemap === 'satellite' ? '#ffffff' : '#94a3b8',
+              transition: 'all 0.15s ease',
+            }}
+            title="Satellite Imagery"
+          >
+            Satellite
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setBasemap('light')}
+            style={{
+              padding: '5px 10px',
+              borderRadius: 8,
+              fontSize: 12,
+              fontWeight: 700,
+              cursor: 'pointer',
+              border: 'none',
+              background: basemap === 'light' ? '#0284c7' : 'transparent',
+              color: basemap === 'light' ? '#ffffff' : '#94a3b8',
+              transition: 'all 0.15s ease',
+            }}
+            title="Clean Light Canvas"
+          >
+            Light
+          </button>
+
+          <div style={{ width: 1, height: 16, background: 'rgba(255, 255, 255, 0.2)', margin: '0 2px' }} />
+
+          <button
+            type="button"
+            onClick={() => setShowLabels((prev) => !prev)}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -323,25 +430,19 @@ export default function StudioPresenterMap({
               fontWeight: 700,
               cursor: 'pointer',
               border: 'none',
-              background: activeTool === 'none' ? '#10b981' : 'rgba(245, 158, 11, 0.2)',
-              color: activeTool === 'none' ? '#ffffff' : '#fbbf24',
+              background: showLabels ? 'rgba(16, 185, 129, 0.22)' : 'rgba(255, 255, 255, 0.08)',
+              color: showLabels ? '#34d399' : '#94a3b8',
               transition: 'all 0.15s ease',
             }}
-            title={
-              activeTool === 'none'
-                ? 'Map Pan/Zoom Active — Click to switch back to Stylus Drawing [P]'
-                : 'Stylus Drawing Active — Click to Pan/Zoom Map [N]'
-            }
+            title="Toggle numbered name labels on map (Hide labels for student quiz mode)"
           >
-            {activeTool === 'none' ? <Move size={13} /> : <PenTool size={13} />}
-            <span>{activeTool === 'none' ? 'Panning Map' : 'Draw Mode'}</span>
+            <Tag size={13} />
+            <span>{showLabels ? 'Labels: ON' : 'Labels: OFF'}</span>
           </button>
-        )}
 
-        {onCycleMapWidth && (
           <button
             type="button"
-            onClick={onCycleMapWidth}
+            onClick={handleRecenter}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -349,23 +450,77 @@ export default function StudioPresenterMap({
               padding: '5px 10px',
               borderRadius: 8,
               fontSize: 12,
-              fontWeight: 800,
+              fontWeight: 700,
               cursor: 'pointer',
-              border: '1px solid rgba(168, 85, 247, 0.45)',
-              background: 'rgba(168, 85, 247, 0.2)',
-              color: '#c084fc',
+              border: 'none',
+              background: 'rgba(56, 189, 248, 0.18)',
+              color: '#38bdf8',
               transition: 'all 0.15s ease',
             }}
-            title="Cycle Map Real Estate: 58% Default Split → 70% Wide Map → 100% Full Screen Map [M]"
+            title="Focus on this location"
           >
-            <Columns size={13} />
-            <span>{widthLabel}</span>
+            <Target size={13} />
+            <span>Focus</span>
           </button>
-        )}
-      </div>
+
+          {onSetActiveTool && (
+            <button
+              type="button"
+              onClick={() => onSetActiveTool(activeTool === 'none' ? 'pen' : 'none')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4,
+                padding: '5px 10px',
+                borderRadius: 8,
+                fontSize: 12,
+                fontWeight: 700,
+                cursor: 'pointer',
+                border: 'none',
+                background: activeTool === 'none' ? '#10b981' : 'rgba(245, 158, 11, 0.2)',
+                color: activeTool === 'none' ? '#ffffff' : '#fbbf24',
+                transition: 'all 0.15s ease',
+              }}
+              title={
+                activeTool === 'none'
+                  ? 'Map Pan/Zoom Active — Click to switch back to Stylus Drawing [P]'
+                  : 'Stylus Drawing Active — Click to Pan/Zoom Map [N]'
+              }
+            >
+              {activeTool === 'none' ? <Move size={13} /> : <PenTool size={13} />}
+              <span>{activeTool === 'none' ? 'Panning Map' : 'Draw Mode'}</span>
+            </button>
+          )}
+
+          {onCycleMapWidth && (
+            <button
+              type="button"
+              onClick={onCycleMapWidth}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 4,
+                padding: '5px 10px',
+                borderRadius: 8,
+                fontSize: 12,
+                fontWeight: 800,
+                cursor: 'pointer',
+                border: '1px solid rgba(168, 85, 247, 0.45)',
+                background: 'rgba(168, 85, 247, 0.2)',
+                color: '#c084fc',
+                transition: 'all 0.15s ease',
+              }}
+              title="Cycle Map Real Estate: 58% Default Split → 70% Wide Map → 100% Full Screen Map [M]"
+            >
+              <Columns size={13} />
+              <span>{widthLabel}</span>
+            </button>
+          )}
+        </div>
+      )}
 
       {/* 3. Floating Teacher Layer Override HUD (Directly Below Basemap Bar - Above Annotation Canvas at z-index 65) */}
-      {isRiver && (
+      {isRiver && !minimalReelMode && (
         <div
           style={{
             position: 'absolute',
@@ -507,63 +662,67 @@ export default function StudioPresenterMap({
       )}
 
       {/* 4. Floating Spatial Engine Watermark (Top Right of Map) */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 14,
-          right: 14,
-          zIndex: 1200,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 6,
-          background: 'rgba(15, 23, 42, 0.88)',
-          backdropFilter: 'blur(10px)',
-          padding: '5px 12px',
-          borderRadius: 10,
-          border: '1.5px solid rgba(255, 255, 255, 0.15)',
-          fontSize: 11,
-          fontWeight: 800,
-          letterSpacing: '0.06em',
-          textTransform: 'uppercase',
-          color: '#34d399',
-          pointerEvents: 'none',
-          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)',
-        }}
-      >
-        <Compass size={14} />
-        <span>UPSC SPATIAL ENGINE</span>
-      </div>
+      {!minimalReelMode && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 14,
+            right: 14,
+            zIndex: 1200,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            background: 'rgba(15, 23, 42, 0.88)',
+            backdropFilter: 'blur(10px)',
+            padding: '5px 12px',
+            borderRadius: 10,
+            border: '1.5px solid rgba(255, 255, 255, 0.15)',
+            fontSize: 11,
+            fontWeight: 800,
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+            color: '#34d399',
+            pointerEvents: 'none',
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.3)',
+          }}
+        >
+          <Compass size={14} />
+          <span>UPSC SPATIAL ENGINE</span>
+        </div>
+      )}
 
       {/* 5. Bottom Coordinates HUD Pill (Bottom Left of Map) */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 14,
-          left: 14,
-          zIndex: 1200,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          background: 'rgba(15, 23, 42, 0.92)',
-          backdropFilter: 'blur(10px)',
-          padding: '6px 14px',
-          borderRadius: 10,
-          border: '1.5px solid rgba(255, 255, 255, 0.18)',
-          fontSize: 12,
-          fontWeight: 800,
-          fontFamily: 'monospace',
-          color: '#f1f5f9',
-          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.5)',
-          pointerEvents: 'none',
-        }}
-      >
-        <Globe size={14} color="#34d399" />
-        <span>{lat.toFixed(2)}° N, {lng.toFixed(2)}° E</span>
-        <span style={{ color: 'rgba(255, 255, 255, 0.3)' }}>|</span>
-        <span style={{ fontFamily: 'var(--font-outfit), sans-serif', color: '#94a3b8' }}>
-          {currentQ?.place || 'Location'}
-        </span>
-      </div>
+      {!minimalReelMode && (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 14,
+            left: 14,
+            zIndex: 1200,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            background: 'rgba(15, 23, 42, 0.92)',
+            backdropFilter: 'blur(10px)',
+            padding: '6px 14px',
+            borderRadius: 10,
+            border: '1.5px solid rgba(255, 255, 255, 0.18)',
+            fontSize: 12,
+            fontWeight: 800,
+            fontFamily: 'monospace',
+            color: '#f1f5f9',
+            boxShadow: '0 4px 16px rgba(0, 0, 0, 0.5)',
+            pointerEvents: 'none',
+          }}
+        >
+          <Globe size={14} color="#34d399" />
+          <span>{lat.toFixed(2)}° N, {lng.toFixed(2)}° E</span>
+          <span style={{ color: 'rgba(255, 255, 255, 0.3)' }}>|</span>
+          <span style={{ fontFamily: 'var(--font-outfit), sans-serif', color: '#94a3b8' }}>
+            {currentQ?.place || 'Location'}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

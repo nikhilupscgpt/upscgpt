@@ -197,7 +197,7 @@ export default async function ReelsPresentPage({ searchParams }) {
     }
   }
 
-  if (mode !== "mapping") {
+  if (mode !== "mapping" && mode !== "custom") {
     const andConditions = [];
     if (questionIds.length > 0) {
       andConditions.push({ id: { in: questionIds } });

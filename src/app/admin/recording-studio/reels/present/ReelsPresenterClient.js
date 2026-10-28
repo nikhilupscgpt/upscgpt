@@ -121,14 +121,39 @@ function buildSocialCaption(item) {
   return `🔥 ${item.examName || 'UPSC CSE'} ${item.examYear || ''} Prelims Challenge · ${item.srcSubject || 'GS'}\n\nComment your option (A/B/C/D) before watching the analysis! 👇\n\n#UPSC #UPSCPrelims #${subjectTag} #${topicTag} #IASPreparation #UPSCGPT`;
 }
 
-export default function ReelsPresenterClient({ questions = [] }) {
+export default function ReelsPresenterClient({ questions: initialQuestions = [] }) {
+  const [customDeckItems] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const sp = new URLSearchParams(window.location.search);
+        if (sp.get('mode') === 'custom' || initialQuestions.length === 0) {
+          const raw = localStorage.getItem('pq_custom_recording_deck');
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+    return [];
+  });
+
+  const questions = useMemo(
+    () => (initialQuestions.length > 0 ? initialQuestions : customDeckItems),
+    [initialQuestions, customDeckItems]
+  );
+
   const [qIndex, setQIndex] = useState(0);
   const [stepIndex, setStepIndex] = useState(0);
   const [scale, setScale] = useState(1);
   const [isQueueOpen, setIsQueueOpen] = useState(false);
 
   // Webcam style inside 9:16 stage: 'strip' (bottom split) | 'bubble' (circle corner) | 'hidden'
-  const [webcamLayout, setWebcamLayout] = useState('strip');
+  const [webcamLayout, setWebcamLayout] = useState(() =>
+    questions[0]?.type === 'mapping' ? 'hidden' : 'strip'
+  );
   // Strip height in 9:16 stage: 'standard' (220px ~23%) | 'tall' (275px ~29%) | 'compact' (175px ~18%)
   const [stripHeightMode, setStripHeightMode] = useState('standard');
 
@@ -144,6 +169,14 @@ export default function ReelsPresenterClient({ questions = [] }) {
 
   const stageRef = useRef(null);
   const currentQ = questions[qIndex] || null;
+  const isMappingItem = currentQ?.type === 'mapping';
+
+  // First-principles Mapping Reel rule: Map is the hero, hide webcam by default when switching to a Mapping item
+  useEffect(() => {
+    if (isMappingItem) {
+      setWebcamLayout('hidden');
+    }
+  }, [qIndex, isMappingItem]);
 
   const [customAttachmentsMap] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -1024,125 +1057,152 @@ export default function ReelsPresenterClient({ questions = [] }) {
               </div>
             )}
 
-            {/* MAPPING REEL SLIDE 1: VERTICAL MAP & HOOK */}
-            {currentStep?.type === 'reel_map_hook' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {/* ========================================================= */}
+            {/* MAPPING REEL: LARGE HERO MAP ON TOP + DOCKED BOTTOM CARDS */}
+            {/* ========================================================= */}
+            {(currentStep?.type === 'reel_map_hook' ||
+              currentStep?.type === 'reel_map_analysis' ||
+              currentStep?.type === 'reel_map_keywords') && (
+              <div
+                style={{
+                  flex: 1,
+                  minHeight: 0,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  gap: 10,
+                }}
+              >
+                {/* TOP: Large Clutter-Free Hero Map Container */}
                 <div
                   style={{
                     width: '100%',
-                    height: 310,
-                    borderRadius: 14,
+                    flex: 1,
+                    minHeight: 450,
+                    borderRadius: 16,
                     overflow: 'hidden',
-                    border: '1.5px solid rgba(56, 189, 248, 0.35)',
+                    border: '1.5px solid rgba(56, 189, 248, 0.4)',
                     position: 'relative',
+                    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.45)',
                   }}
                 >
                   <StudioPresenterMap
                     currentQ={currentQ}
-                    currentStep={{ type: currentStep.riverDetails ? 'river_course' : 'mapping_overview' }}
+                    currentStep={currentStep}
                     theme={theme}
                     activeTool={activeTool}
                     onSetActiveTool={setActiveTool}
                     mapWidthMode="split"
                     onCycleMapWidth={() => {}}
                     spotlightIndex={null}
+                    minimalReelMode={true}
                   />
                 </div>
 
-                {currentStep.riverDetails ? (
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                    <div className="pq-reel-stmt-card" style={{ flexDirection: 'column', gap: 3 }}>
-                      <span style={{ fontSize: 10.5, fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase' }}>Origin</span>
-                      <strong style={{ fontSize: fs(13.8) }}>{currentStep.riverDetails.origin}</strong>
-                    </div>
-                    <div className="pq-reel-stmt-card" style={{ flexDirection: 'column', gap: 3 }}>
-                      <span style={{ fontSize: 10.5, fontWeight: 800, color: '#34d399', textTransform: 'uppercase' }}>Outflow / Length</span>
-                      <strong style={{ fontSize: fs(13.8) }}>
-                        {currentStep.riverDetails.mouth} ({currentStep.riverDetails.length})
-                      </strong>
-                    </div>
-                  </div>
-                ) : currentStep.stem ? (
-                  <p className="pq-reel-stem-lead" style={{ fontSize: fs(14.5) }}>
-                    {currentStep.stem}
-                  </p>
-                ) : (
-                  <div className="pq-reel-stmt-card" style={{ fontSize: fs(14.5) }}>
-                    {currentQ.staticFacts?.[0] || currentStep.locationText}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* MAPPING REEL SLIDE 2: TRIBUTARIES OR SPATIAL FACTS */}
-            {currentStep?.type === 'reel_map_analysis' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {currentStep.riverDetails ? (
-                  <>
-                    <div className="pq-reel-kw-card" style={{ borderLeftColor: '#38bdf8' }}>
-                      <div style={{ fontSize: 12, fontWeight: 900, color: '#38bdf8', textTransform: 'uppercase' }}>
-                        ⬅️ Left-Bank Tributaries
+                {/* BOTTOM: Docked Content Cards Anchored Cleanly at Bottom */}
+                <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {currentStep.type === 'reel_map_hook' && (
+                    currentStep.riverDetails ? (
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                        <div className="pq-reel-stmt-card" style={{ flexDirection: 'column', gap: 3, padding: '10px 12px' }}>
+                          <span style={{ fontSize: 10.5, fontWeight: 900, color: '#38bdf8', textTransform: 'uppercase' }}>
+                            Origin &amp; Source
+                          </span>
+                          <strong style={{ fontSize: fs(13.2), lineHeight: 1.35 }}>
+                            {currentStep.riverDetails.origin}
+                          </strong>
+                        </div>
+                        <div className="pq-reel-stmt-card" style={{ flexDirection: 'column', gap: 3, padding: '10px 12px' }}>
+                          <span style={{ fontSize: 10.5, fontWeight: 900, color: '#34d399', textTransform: 'uppercase' }}>
+                            Outflow &amp; Length
+                          </span>
+                          <strong style={{ fontSize: fs(13.2), lineHeight: 1.35 }}>
+                            {currentStep.riverDetails.mouth} ({currentStep.riverDetails.length})
+                          </strong>
+                        </div>
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 4 }}>
-                        {(currentStep.riverDetails.tributaries?.leftBank || []).slice(0, 4).map((t, i) => (
-                          <div key={i} style={{ fontSize: fs(13.8), lineHeight: 1.4 }}>
-                            <strong style={{ color: '#38bdf8' }}>{t.name}:</strong> {t.note}
+                    ) : currentStep.stem ? (
+                      <div className="pq-reel-stmt-card" style={{ fontSize: fs(14), lineHeight: 1.4 }}>
+                        {currentStep.stem}
+                      </div>
+                    ) : (
+                      <div className="pq-reel-stmt-card" style={{ fontSize: fs(14), lineHeight: 1.4 }}>
+                        {currentQ.staticFacts?.[0] || currentStep.locationText}
+                      </div>
+                    )
+                  )}
+
+                  {currentStep.type === 'reel_map_analysis' && (
+                    currentStep.riverDetails ? (
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                        <div className="pq-reel-kw-card" style={{ borderLeftColor: '#06b6d4', padding: '10px 12px' }}>
+                          <div style={{ fontSize: 11, fontWeight: 900, color: '#22d3ee', textTransform: 'uppercase' }}>
+                            ⬅️ Left-Bank Tributaries
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 2 }}>
+                            {(currentStep.riverDetails.tributaries?.leftBank || []).slice(0, 4).map((t, i) => (
+                              <div key={i} style={{ fontSize: fs(12.6), lineHeight: 1.32 }}>
+                                <strong style={{ color: '#38bdf8' }}>{t.name}</strong>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="pq-reel-kw-card" style={{ borderLeftColor: '#f59e0b', padding: '10px 12px' }}>
+                          <div style={{ fontSize: 11, fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase' }}>
+                            ➡️ Right-Bank Tributaries
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 2 }}>
+                            {(currentStep.riverDetails.tributaries?.rightBank || []).slice(0, 4).map((t, i) => (
+                              <div key={i} style={{ fontSize: fs(12.6), lineHeight: 1.32 }}>
+                                <strong style={{ color: '#fbbf24' }}>{t.name}</strong>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        {(currentStep.staticFacts || []).slice(0, 2).map((f, idx) => (
+                          <div key={idx} className="pq-reel-stmt-card" style={{ fontSize: fs(13.2), padding: '9px 12px' }}>
+                            <span className="pq-reel-stmt-num">{idx + 1}</span>
+                            <div>{f}</div>
                           </div>
                         ))}
                       </div>
-                    </div>
+                    )
+                  )}
 
-                    <div className="pq-reel-kw-card" style={{ borderLeftColor: '#f59e0b' }}>
-                      <div style={{ fontSize: 12, fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase' }}>
-                        ➡️ Right-Bank Tributaries
+                  {currentStep.type === 'reel_map_keywords' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <div
+                        className="pq-reel-analysis-card is-incorrect"
+                        style={{ borderColor: '#f59e0b', background: 'rgba(245, 158, 11, 0.14)', padding: '10px 12px' }}
+                      >
+                        <div style={{ fontSize: 11.5, fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase' }}>
+                          ⚠️ #1 UPSC Examiner Trap
+                        </div>
+                        <p style={{ margin: 0, fontSize: fs(13.2), lineHeight: 1.4, fontWeight: 600 }}>
+                          {currentStep.upscTrap}
+                        </p>
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 4 }}>
-                        {(currentStep.riverDetails.tributaries?.rightBank || []).slice(0, 4).map((t, i) => (
-                          <div key={i} style={{ fontSize: fs(13.8), lineHeight: 1.4 }}>
-                            <strong style={{ color: '#fbbf24' }}>{t.name}:</strong> {t.note}
+
+                      {currentStep.riverDetails?.protectedAreas?.length > 0 && (
+                        <div className="pq-reel-kw-card" style={{ borderLeftColor: '#10b981', padding: '9px 12px' }}>
+                          <div style={{ fontSize: 11, fontWeight: 900, color: '#34d399', textTransform: 'uppercase' }}>
+                            🌲 National Parks on River Bank
                           </div>
-                        ))}
-                      </div>
+                          <div style={{ fontSize: fs(12.8), lineHeight: 1.35 }}>
+                            {currentStep.riverDetails.protectedAreas
+                              .slice(0, 3)
+                              .map((pa) => `${pa.name} (${pa.state})`)
+                              .join(' • ')}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </>
-                ) : (
-                  currentStep.staticFacts.map((f, idx) => (
-                    <div key={idx} className="pq-reel-stmt-card" style={{ fontSize: fs(14.5) }}>
-                      <span className="pq-reel-stmt-num">{idx + 1}</span>
-                      <div>{f}</div>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-
-            {/* MAPPING REEL SLIDE 3: KEYWORDS & UPSC TRAP */}
-            {currentStep?.type === 'reel_map_keywords' && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <div
-                  className="pq-reel-analysis-card is-incorrect"
-                  style={{ borderColor: '#f59e0b', background: 'rgba(245, 158, 11, 0.14)' }}
-                >
-                  <div style={{ fontSize: 12.5, fontWeight: 900, color: '#fbbf24', textTransform: 'uppercase' }}>
-                    ⚠️ #1 UPSC Examiner Trap
-                  </div>
-                  <p style={{ margin: 0, fontSize: fs(14.5), lineHeight: 1.5, fontWeight: 600 }}>
-                    {currentStep.upscTrap}
-                  </p>
+                  )}
                 </div>
-
-                {currentStep.riverDetails?.protectedAreas?.length > 0 && (
-                  <div className="pq-reel-kw-card" style={{ borderLeftColor: '#10b981' }}>
-                    <div style={{ fontSize: 12, fontWeight: 900, color: '#34d399', textTransform: 'uppercase' }}>
-                      🌲 Protected Areas &amp; National Parks
-                    </div>
-                    {currentStep.riverDetails.protectedAreas.slice(0, 3).map((pa, i) => (
-                      <div key={i} style={{ fontSize: fs(13.8), lineHeight: 1.4 }}>
-                        <strong style={{ color: '#34d399' }}>{pa.name} ({pa.state}):</strong> {pa.relation}
-                      </div>
-                    ))}
-                  </div>
-                )}
               </div>
             )}
 

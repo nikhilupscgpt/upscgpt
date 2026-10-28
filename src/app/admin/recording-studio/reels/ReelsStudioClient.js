@@ -16,6 +16,7 @@ import {
   MapPin,
 } from 'lucide-react';
 import '../../studio/pyq/pyq-studio.css';
+import CustomExternalContentModal from '../CustomExternalContentModal';
 
 const MAPPING_CATEGORIES = [
   { value: 'ALL', label: 'All Mapping Categories' },
@@ -39,6 +40,7 @@ export default function ReelsStudioClient({ initialFilterOptions }) {
 
   // Mode tab: 'pyq' | 'mapping'
   const [contentMode, setContentMode] = useState('pyq');
+  const [showCustomModal, setShowCustomModal] = useState(false);
 
   // PYQ Filters
   const [search, setSearch] = useState('');
@@ -179,6 +181,11 @@ export default function ReelsStudioClient({ initialFilterOptions }) {
 
   return (
     <div className="pq-pyq-studio-root">
+      <CustomExternalContentModal
+        isOpen={showCustomModal}
+        onClose={() => setShowCustomModal(false)}
+        defaultTarget="reels"
+      />
       {/* Top Header */}
       <header className="pq-pyq-studio-head">
         <div className="pq-pyq-head-left">
@@ -288,6 +295,27 @@ export default function ReelsStudioClient({ initialFilterOptions }) {
           >
             <Compass size={15} />
             <span>Mapping &amp; River Reels</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setShowCustomModal(true)}
+            style={{
+              padding: '8px 16px',
+              borderRadius: 9,
+              border: '1px solid rgba(236, 72, 153, 0.5)',
+              background: 'rgba(236, 72, 153, 0.16)',
+              color: '#f472b6',
+              fontSize: 13,
+              fontWeight: 900,
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            <Sparkles size={15} />
+            <span>+ External / Custom Content</span>
           </button>
         </div>
       </header>
