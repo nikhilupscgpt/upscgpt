@@ -6,6 +6,7 @@ import {
   Radio,
   GraduationCap,
   Compass,
+  Smartphone,
   ArrowRight,
   CheckCircle2,
   Camera,
@@ -175,7 +176,7 @@ export default async function RecordingStudioHubPage() {
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(420px, 1fr))", gap: 26 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))", gap: 24 }}>
           {/* Card 1: PYQ Recording Studio */}
           <Link
             href="/admin/recording-studio/pyq"
@@ -371,6 +372,109 @@ export default async function RecordingStudioHubPage() {
                     borderRadius: 999,
                     background: "#10b981",
                     color: "#022c22",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <ArrowRight size={18} />
+                </div>
+              </div>
+            </div>
+          </Link>
+
+          {/* Card 3: 9:16 Vertical Reels & Shorts Studio */}
+          <Link
+            href="/admin/recording-studio/reels"
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            <div
+              className="pq-mode-card is-active"
+              style={{
+                height: "100%",
+                padding: 32,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                gap: 22,
+                border: "2px solid #a855f7",
+                boxShadow: "0 16px 48px rgba(168, 85, 247, 0.2)",
+              }}
+            >
+              <div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+                  <div
+                    style={{
+                      width: 54,
+                      height: 54,
+                      borderRadius: 16,
+                      background: "linear-gradient(135deg, #f43f5e, #a855f7)",
+                      color: "#ffffff",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Smartphone size={28} />
+                  </div>
+                  <span
+                    className="pq-mode-badge"
+                    style={{
+                      background: "rgba(168, 85, 247, 0.22)",
+                      color: "#c084fc",
+                      border: "1px solid rgba(168, 85, 247, 0.45)",
+                    }}
+                  >
+                    9:16 Vertical · 3 Slides
+                  </span>
+                </div>
+
+                <h3 style={{ fontSize: 22, fontWeight: 900, color: "#ffffff", margin: "0 0 10px" }}>
+                  Reels &amp; Shorts Studio
+                </h3>
+                <p style={{ fontSize: 14, color: "#cbd5e1", lineHeight: 1.6, margin: "0 0 18px" }}>
+                  Turn any UPSC Prelims PYQ or Mapping node into a crisp 3-slide vertical (`9:16`) Reel for Instagram Reels &amp; YouTube Shorts — stripped of bulky value-addition blocks for punchy 60-second delivery.
+                </p>
+
+                <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10, fontSize: 13, color: "#94a3b8" }}>
+                  <li style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <CheckCircle2 size={16} color="#c084fc" />
+                    <span>Slide 1: Question Hook · Slide 2: Statement/Option Breakdown · Slide 3: Keywords</span>
+                  </li>
+                  <li style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <CheckCircle2 size={16} color="#c084fc" />
+                    <span>Bottom Split-Screen or Corner Bubble live webcam inside `9:16` stage</span>
+                  </li>
+                  <li style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <CheckCircle2 size={16} color="#c084fc" />
+                    <span>Stage-cropped vertical capture (~5 MB per 60-sec Reel)</span>
+                  </li>
+                  <li style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <CheckCircle2 size={16} color="#c084fc" />
+                    <span>Auto-generates Instagram &amp; YouTube Shorts caption + hashtags</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  paddingTop: 18,
+                  borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+                }}
+              >
+                <span style={{ fontSize: 13.5, fontWeight: 800, color: "#c084fc" }}>
+                  Open 9:16 Reels Studio
+                </span>
+                <div
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 999,
+                    background: "linear-gradient(135deg, #f43f5e, #a855f7)",
+                    color: "#ffffff",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
