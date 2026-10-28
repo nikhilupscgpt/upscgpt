@@ -81,11 +81,48 @@ const LIGHT_PALETTE = [
   '#d97706',
 ];
 
-function getSupportedMimeType() {
+const RECORDING_PRESETS = {
+  compact_1080p: {
+    label: '1080p Smart Lecture (24 fps · ~7.5 MB/min — Recommended)',
+    width: 1920,
+    height: 1080,
+    fps: 24,
+    videoBitsPerSecond: 1000000, // 1.0 Mbps
+    audioBitsPerSecond: 64000,   // 64 kbps voice
+  },
+  ultra_compact_720p: {
+    label: '720p Ultra-Compact (24 fps · ~4.8 MB/min)',
+    width: 1280,
+    height: 720,
+    fps: 24,
+    videoBitsPerSecond: 650000,  // 650 kbps
+    audioBitsPerSecond: 64000,
+  },
+  high_1080p: {
+    label: '1080p High Bitrate (30 fps · ~16 MB/min)',
+    width: 1920,
+    height: 1080,
+    fps: 30,
+    videoBitsPerSecond: 2200000, // 2.2 Mbps
+    audioBitsPerSecond: 96000,
+  },
+};
+
+function getSupportedMimeType(preferredFormat = 'vp9') {
   if (typeof window === 'undefined' || typeof window.MediaRecorder === 'undefined') {
     return 'video/webm';
   }
-  const candidates = [
+  // VP9 has dedicated screen-content coding tools for static slides & text,
+  // strictly obeys 1.0 Mbps bitrate on macOS Retina, and uploads natively to YouTube.
+  const vp9First = [
+    'video/webm;codecs=vp9,opus',
+    'video/webm;codecs=vp8,opus',
+    'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
+    'video/mp4;codecs=avc1,mp4a.40.2',
+    'video/mp4',
+    'video/webm',
+  ];
+  const mp4First = [
     'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
     'video/mp4;codecs=avc1,mp4a.40.2',
     'video/mp4',
@@ -93,6 +130,7 @@ function getSupportedMimeType() {
     'video/webm;codecs=vp8,opus',
     'video/webm',
   ];
+  const candidates = preferredFormat === 'mp4' ? mp4First : vp9First;
   for (const mime of candidates) {
     if (window.MediaRecorder.isTypeSupported(mime)) {
       return mime;
@@ -203,6 +241,8 @@ export default function RecordingPresenterClient({ questions = [] }) {
   // IN-BROWSER STAGE RECORDER STATE
   // =============================================================
   const [recState, setRecState] = useState('idle'); // 'idle' | 'countdown' | 'recording' | 'paused'
+  const [recordingPreset, setRecordingPreset] = useState('compact_1080p'); // 'compact_1080p' | 'ultra_compact_720p' | 'high_1080p'
+  const [preferredFormat, setPreferredFormat] = useState('vp9'); // 'vp9' (WebM smallest size) | 'mp4' (H.264)
   const [countdownNum, setCountdownNum] = useState(3);
   const [recSeconds, setRecSeconds] = useState(0);
   const [recError, setRecError] = useState('');
@@ -437,12 +477,14 @@ export default function RecordingPresenterClient({ questions = [] }) {
     }
 
     try {
-      // 1. Request current browser tab video stream (60fps 1080p)
+      const preset = RECORDING_PRESETS[recordingPreset] || RECORDING_PRESETS.compact_1080p;
+
+      // 1. Request current browser tab video stream clamped to preset resolution & frame rate
       const displayStream = await navigator.mediaDevices.getDisplayMedia({
         video: {
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-          frameRate: { ideal: 60 },
+          width: { ideal: preset.width, max: preset.width },
+          height: { ideal: preset.height, max: preset.height },
+          frameRate: { ideal: preset.fps, max: preset.fps },
         },
         audio: false,
         preferCurrentTab: true,
@@ -450,6 +492,28 @@ export default function RecordingPresenterClient({ questions = [] }) {
       });
 
       const videoTrack = displayStream.getVideoTracks()[0];
+
+      // Hint encoder that this is a slide/text presentation (prioritizes text sharpness over motion)
+      if ('contentHint' in videoTrack) {
+        try {
+          videoTrack.contentHint = 'detail';
+        } catch {
+          // ignore
+        }
+      }
+
+      // Enforce max resolution & frame rate on macOS Retina displays
+      if (typeof videoTrack.applyConstraints === 'function') {
+        try {
+          await videoTrack.applyConstraints({
+            width: { ideal: preset.width, max: preset.width },
+            height: { ideal: preset.height, max: preset.height },
+            frameRate: { ideal: preset.fps, max: preset.fps },
+          });
+        } catch {
+          // ignore
+        }
+      }
 
       // 2. Crop strictly to the 16:9 Stage element if Region Capture API is available
       if (
@@ -545,11 +609,11 @@ export default function RecordingPresenterClient({ questions = [] }) {
         ...processedAudioTracks,
       ]);
 
-      const mimeType = getSupportedMimeType();
+      const mimeType = getSupportedMimeType(preferredFormat);
       const recorder = new MediaRecorder(combinedStream, {
         mimeType,
-        videoBitsPerSecond: 4500000, // 4.5 Mbps crisp 1080p text & maps
-        audioBitsPerSecond: 128000,
+        videoBitsPerSecond: preset.videoBitsPerSecond,
+        audioBitsPerSecond: preset.audioBitsPerSecond,
       });
 
       const recId = `rec_${Date.now()}`;
@@ -601,7 +665,7 @@ export default function RecordingPresenterClient({ questions = [] }) {
       console.warn('[Recording Studio] Recording start cancelled or failed:', err);
       setRecState('idle');
     }
-  }, [selectedAudioId, micGain, micMuted, qIndex, currentQ, questions, stopRecordingInternal]);
+  }, [recordingPreset, preferredFormat, selectedAudioId, micGain, micMuted, qIndex, currentQ, questions, stopRecordingInternal]);
 
   const handleTogglePauseRecording = useCallback(() => {
     const recorder = mediaRecorderRef.current;
@@ -2379,6 +2443,53 @@ export default function RecordingPresenterClient({ questions = [] }) {
               onChange={(e) => setMicGain(Number(e.target.value))}
               style={{ accentColor: '#38bdf8' }}
             />
+          </div>
+
+          {/* Recording Quality & Size Preset */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+            <label style={{ fontSize: 11.5, fontWeight: 800, color: '#34d399', textTransform: 'uppercase' }}>
+              Recording Quality &amp; File Size
+            </label>
+            <select
+              value={recordingPreset}
+              onChange={(e) => setRecordingPreset(e.target.value)}
+              style={{
+                padding: '7px 10px',
+                borderRadius: 8,
+                background: '#020617',
+                border: '1px solid rgba(52, 211, 153, 0.35)',
+                color: '#f8fafc',
+                fontSize: 12,
+              }}
+            >
+              {Object.entries(RECORDING_PRESETS).map(([key, p]) => (
+                <option key={key} value={key}>
+                  {p.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Video Codec / Format Selector */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+            <label style={{ fontSize: 11.5, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>
+              Video Encoder Format
+            </label>
+            <select
+              value={preferredFormat}
+              onChange={(e) => setPreferredFormat(e.target.value)}
+              style={{
+                padding: '7px 10px',
+                borderRadius: 8,
+                background: '#020617',
+                border: '1px solid rgba(255,255,255,0.15)',
+                color: '#f8fafc',
+                fontSize: 12,
+              }}
+            >
+              <option value="vp9">WebM (VP9 Screen Codec · 85% Smaller · YouTube Ready)</option>
+              <option value="mp4">MP4 (H.264 Hardware Codec · QuickTime / Premiere)</option>
+            </select>
           </div>
         </div>
       )}
