@@ -81,10 +81,20 @@ const REEL_PRESETS = {
   },
 };
 
-function getSupportedMimeType(preferredFormat = 'vp9') {
+function getSupportedMimeType(preferredFormat = 'mp4') {
   if (typeof window === 'undefined' || typeof window.MediaRecorder === 'undefined') {
-    return 'video/webm';
+    return 'video/mp4';
   }
+  const mp4First = [
+    'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
+    'video/mp4;codecs=avc1.4d002a,mp4a.40.2',
+    'video/mp4;codecs=avc1,mp4a.40.2',
+    'video/mp4;codecs=avc1',
+    'video/mp4',
+    'video/webm;codecs=vp9,opus',
+    'video/webm;codecs=vp8,opus',
+    'video/webm',
+  ];
   const vp9First = [
     'video/webm;codecs=vp9,opus',
     'video/webm;codecs=vp8,opus',
@@ -93,15 +103,7 @@ function getSupportedMimeType(preferredFormat = 'vp9') {
     'video/mp4',
     'video/webm',
   ];
-  const mp4First = [
-    'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
-    'video/mp4;codecs=avc1,mp4a.40.2',
-    'video/mp4',
-    'video/webm;codecs=vp9,opus',
-    'video/webm;codecs=vp8,opus',
-    'video/webm',
-  ];
-  const list = preferredFormat === 'mp4' ? mp4First : vp9First;
+  const list = preferredFormat === 'vp9' ? vp9First : mp4First;
   for (const m of list) {
     if (window.MediaRecorder.isTypeSupported(m)) return m;
   }
@@ -127,6 +129,8 @@ export default function ReelsPresenterClient({ questions = [] }) {
 
   // Webcam style inside 9:16 stage: 'strip' (bottom split) | 'bubble' (circle corner) | 'hidden'
   const [webcamLayout, setWebcamLayout] = useState('strip');
+  // Strip height in 9:16 stage: 'standard' (220px ~23%) | 'tall' (275px ~29%) | 'compact' (175px ~18%)
+  const [stripHeightMode, setStripHeightMode] = useState('standard');
 
   const [theme, setTheme] = useState('dark');
   const [isDockCollapsed, setIsDockCollapsed] = useState(false);
@@ -202,7 +206,7 @@ export default function ReelsPresenterClient({ questions = [] }) {
   // =============================================================
   const [recState, setRecState] = useState('idle');
   const [recordingPreset, setRecordingPreset] = useState('vertical_1080p');
-  const [preferredFormat, setPreferredFormat] = useState('vp9');
+  const [preferredFormat, setPreferredFormat] = useState('mp4');
   const [countdownNum, setCountdownNum] = useState(3);
   const [recSeconds, setRecSeconds] = useState(0);
   const [recError, setRecError] = useState('');
@@ -1178,20 +1182,22 @@ export default function ReelsPresenterClient({ questions = [] }) {
           {/* LIVE WEBCAM ZONE INSIDE 9:16 VERTICAL FRAME               */}
           {/* ========================================================= */}
           {webcamLayout === 'strip' && (
-            <div className={`pq-reel-webcam-strip ${webcamLive ? 'is-live' : ''}`}>
+            <div className={`pq-reel-webcam-strip is-strip-${stripHeightMode} ${webcamLive ? 'is-live' : ''}`}>
               {webcamLive ? (
-                <video
-                  ref={webcamVideoRef}
-                  autoPlay
-                  playsInline
-                  muted
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    transform: webcamMirrored ? 'scaleX(-1)' : 'none',
-                  }}
-                />
+                <>
+                  <video
+                    ref={webcamVideoRef}
+                    autoPlay
+                    playsInline
+                    muted
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      transform: webcamMirrored ? 'scaleX(-1)' : 'none',
+                    }}
+                  />
+                </>
               ) : (
                 <div
                   onClick={() => startWebcam()}
@@ -1389,6 +1395,23 @@ export default function ReelsPresenterClient({ questions = [] }) {
             </select>
           </div>
 
+          {webcamLayout === 'strip' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+              <label style={{ fontSize: 11, fontWeight: 800, color: '#f472b6', textTransform: 'uppercase' }}>
+                Camera Strip Height
+              </label>
+              <select
+                value={stripHeightMode}
+                onChange={(e) => setStripHeightMode(e.target.value)}
+                style={{ padding: '7px 10px', borderRadius: 8, background: '#020617', border: '1px solid rgba(236, 72, 153, 0.35)', color: '#fff', fontSize: 11.5 }}
+              >
+                <option value="standard">Standard Split (225px · ~25% Stage — Recommended)</option>
+                <option value="tall">Large Educator Split (280px · ~30% Stage)</option>
+                <option value="compact">Compact Strip (175px · ~18% Stage)</option>
+              </select>
+            </div>
+          )}
+
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             <label style={{ fontSize: 11, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Microphone</label>
             <select
@@ -1416,6 +1439,18 @@ export default function ReelsPresenterClient({ questions = [] }) {
                   {p.label}
                 </option>
               ))}
+            </select>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <label style={{ fontSize: 11, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>Video Format</label>
+            <select
+              value={preferredFormat}
+              onChange={(e) => setPreferredFormat(e.target.value)}
+              style={{ padding: '7px 10px', borderRadius: 8, background: '#020617', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', fontSize: 11.5 }}
+            >
+              <option value="mp4">MP4 (H.264 · Instagram Reels / Shorts / QuickTime — Default)</option>
+              <option value="vp9">WebM (VP9 · YouTube Backup)</option>
             </select>
           </div>
         </div>
@@ -1548,6 +1583,20 @@ export default function ReelsPresenterClient({ questions = [] }) {
             <Smartphone size={13} />
             <span style={{ textTransform: 'capitalize' }}>{webcamLayout}</span>
           </button>
+
+          {webcamLayout === 'strip' && (
+            <button
+              type="button"
+              onClick={() =>
+                setStripHeightMode((m) => (m === 'standard' ? 'tall' : m === 'tall' ? 'compact' : 'standard'))
+              }
+              className="pq-dock-btn"
+              style={{ width: 'auto', padding: '0 7px', fontSize: 10.5, fontWeight: 800, color: '#f472b6' }}
+              title="Cycle Camera Strip Size: Standard (25%) → Tall (30%) → Compact (18%)"
+            >
+              {stripHeightMode === 'tall' ? 'Cam: L' : stripHeightMode === 'compact' ? 'Cam: S' : 'Cam: M'}
+            </button>
+          )}
 
           <button
             type="button"

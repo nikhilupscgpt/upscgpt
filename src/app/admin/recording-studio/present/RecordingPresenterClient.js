@@ -108,12 +108,20 @@ const RECORDING_PRESETS = {
   },
 };
 
-function getSupportedMimeType(preferredFormat = 'vp9') {
+function getSupportedMimeType(preferredFormat = 'mp4') {
   if (typeof window === 'undefined' || typeof window.MediaRecorder === 'undefined') {
-    return 'video/webm';
+    return 'video/mp4';
   }
-  // VP9 has dedicated screen-content coding tools for static slides & text,
-  // strictly obeys 1.0 Mbps bitrate on macOS Retina, and uploads natively to YouTube.
+  const mp4First = [
+    'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
+    'video/mp4;codecs=avc1.4d002a,mp4a.40.2',
+    'video/mp4;codecs=avc1,mp4a.40.2',
+    'video/mp4;codecs=avc1',
+    'video/mp4',
+    'video/webm;codecs=vp9,opus',
+    'video/webm;codecs=vp8,opus',
+    'video/webm',
+  ];
   const vp9First = [
     'video/webm;codecs=vp9,opus',
     'video/webm;codecs=vp8,opus',
@@ -122,15 +130,7 @@ function getSupportedMimeType(preferredFormat = 'vp9') {
     'video/mp4',
     'video/webm',
   ];
-  const mp4First = [
-    'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
-    'video/mp4;codecs=avc1,mp4a.40.2',
-    'video/mp4',
-    'video/webm;codecs=vp9,opus',
-    'video/webm;codecs=vp8,opus',
-    'video/webm',
-  ];
-  const candidates = preferredFormat === 'mp4' ? mp4First : vp9First;
+  const candidates = preferredFormat === 'vp9' ? vp9First : mp4First;
   for (const mime of candidates) {
     if (window.MediaRecorder.isTypeSupported(mime)) {
       return mime;
@@ -242,7 +242,7 @@ export default function RecordingPresenterClient({ questions = [] }) {
   // =============================================================
   const [recState, setRecState] = useState('idle'); // 'idle' | 'countdown' | 'recording' | 'paused'
   const [recordingPreset, setRecordingPreset] = useState('compact_1080p'); // 'compact_1080p' | 'ultra_compact_720p' | 'high_1080p'
-  const [preferredFormat, setPreferredFormat] = useState('vp9'); // 'vp9' (WebM smallest size) | 'mp4' (H.264)
+  const [preferredFormat, setPreferredFormat] = useState('mp4'); // 'mp4' (H.264 default) | 'vp9' (WebM)
   const [countdownNum, setCountdownNum] = useState(3);
   const [recSeconds, setRecSeconds] = useState(0);
   const [recError, setRecError] = useState('');
@@ -2487,8 +2487,8 @@ export default function RecordingPresenterClient({ questions = [] }) {
                 fontSize: 12,
               }}
             >
-              <option value="vp9">WebM (VP9 Screen Codec · 85% Smaller · YouTube Ready)</option>
-              <option value="mp4">MP4 (H.264 Hardware Codec · QuickTime / Premiere)</option>
+              <option value="mp4">MP4 (H.264 Universal · QuickTime / Instagram / YouTube — Recommended)</option>
+              <option value="vp9">WebM (VP9 Screen Codec · Ultra-Small Backup)</option>
             </select>
           </div>
         </div>

@@ -340,7 +340,7 @@
 /* Webcam Docked Strip or Floating Bubble inside the 9:16 Stage */
 .pq-reel-webcam-strip {
   margin: 0 18px 16px;
-  height: 175px;
+  height: 225px;
   border-radius: 16px;
   overflow: hidden;
   background: rgba(15, 23, 42, 0.9);
@@ -351,6 +351,19 @@
   flex-shrink: 0;
   position: relative;
   z-index: 12;
+  transition: height 0.2s ease;
+}
+
+.pq-reel-webcam-strip.is-strip-compact {
+  height: 175px;
+}
+
+.pq-reel-webcam-strip.is-strip-standard {
+  height: 225px;
+}
+
+.pq-reel-webcam-strip.is-strip-tall {
+  height: 280px;
 }
 
 .pq-reel-webcam-strip.is-live {
@@ -364,8 +377,8 @@
   position: absolute;
   bottom: 18px;
   right: 18px;
-  width: 152px;
-  height: 152px;
+  width: 172px;
+  height: 172px;
   border-radius: 50%;
   overflow: hidden;
   background: rgba(15, 23, 42, 0.92);
