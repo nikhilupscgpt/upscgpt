@@ -27,22 +27,9 @@ import {
   ArrowLeft,
   Video,
 } from 'lucide-react';
-import { buildPyqReelStoryboard, buildMappingReelStoryboard } from '@/lib/reelStoryboard';
+import { buildPyqReelStoryboard, buildMappingReelStoryboard, renderHighlightedText } from '@/lib/reelStoryboard';
 import { formatDurationTimestamp } from '@/lib/recordingVaultDb';
 import './reels-present.css';
-
-const STEPS_CONFIG = [
-  { id: 'hook', screen: 'hook', label: '1. Question Hook' },
-  { id: 'statements', screen: 'statements', label: '2. Question' },
-  { id: 'options', screen: 'options', label: '3. Options Preview' },
-  { id: 'pause', screen: 'options', label: '3. Pause & Attempt (5s)' },
-  { id: 'keywords', screen: 'keywords', label: '4. Keywords' },
-  { id: 'v1', screen: 'analysis', label: '5. Statement 1 Verdict' },
-  { id: 'v2', screen: 'analysis', label: '5. Statement 2 Verdict' },
-  { id: 'v3', screen: 'analysis', label: '5. Statement 3 Verdict' },
-  { id: 'answer', screen: 'analysis', label: '6. Official Answer' },
-  { id: 'takeaway', screen: 'takeaway', label: '7. Value Addition' },
-];
 
 export default function ReelsPresenterClient({ questions: initialQuestions = [] }) {
   // Custom deck items from local storage if launched with custom content
@@ -71,6 +58,7 @@ export default function ReelsPresenterClient({ questions: initialQuestions = [] 
 
   const [qIndex, setQIndex] = useState(0);
   const [stepIndex, setStepIndex] = useState(0);
+  const [activeVaRow, setActiveVaRow] = useState(0);
 
   // Clean Recording Mode (Hide controls so OBS or Screen capture sees only the 9:16 phone)
   const [cleanMode, setCleanMode] = useState(false);
@@ -128,6 +116,70 @@ export default function ReelsPresenterClient({ questions: initialQuestions = [] 
     };
   }, [baseStoryboard, storyboardOverrides, currentQId]);
 
+  // Build dynamic 7-stage Step Flow
+  const stepsConfig = useMemo(() => {
+    const list = [
+      { id: 'hook', screen: 'hook', stepNum: 1, name: 'Question hook', label: '1. Question Hook' },
+      { id: 'statements', screen: 'statements', stepNum: 2, name: 'Question', label: '2. Question' },
+      { id: 'options', screen: 'options', stepNum: 3, name: 'Options', label: '3. Options Preview' },
+      { id: 'pause', screen: 'options', stepNum: 3, name: 'Options', label: '3. Pause & Attempt (5s)' },
+    ];
+
+    const kwList = Array.isArray(storyboard?.keywords) && storyboard.keywords.length > 0
+      ? storyboard.keywords
+      : [{ term: 'Core Concept', note: 'Notice key terms in the stem' }];
+
+    kwList.forEach((kw, i) => {
+      list.push({
+        id: `kw_${i}`,
+        screen: 'keywords',
+        stepNum: 4,
+        name: 'Keywords',
+        label: kwList.length > 1 ? `4. Keywords (Spotlight ${i + 1})` : '4. Keywords',
+        kwIndex: i,
+      });
+    });
+
+    const verdicts = Array.isArray(storyboard?.analysis?.verdicts) && storyboard.analysis.verdicts.length > 0
+      ? storyboard.analysis.verdicts
+      : [1, 2, 3];
+
+    verdicts.forEach((v, idx) => {
+      list.push({
+        id: `v${idx + 1}`,
+        screen: 'analysis',
+        stepNum: 5,
+        name: 'Statement Analysis',
+        label: `5. Statement ${idx + 1} Verdict`,
+        verdictNum: idx + 1,
+      });
+    });
+
+    list.push({
+      id: 'answer',
+      screen: 'analysis',
+      stepNum: 6,
+      name: 'Answer',
+      label: '6. Official Answer',
+      verdictNum: 99,
+    });
+
+    list.push({
+      id: 'takeaway',
+      screen: 'takeaway',
+      stepNum: 7,
+      name: 'Value addition',
+      label: '7. Value Addition',
+    });
+
+    return list;
+  }, [storyboard]);
+
+  useEffect(() => {
+    setActiveVaRow(0);
+    setStepIndex(0);
+  }, [qIndex]);
+
   // Fit the 1080 × 1920 canvas to viewport
   const handleFit = useCallback(() => {
     if (!wrapRef.current || !stageRef.current || !reelRef.current) return;
@@ -181,14 +233,14 @@ export default function ReelsPresenterClient({ questions: initialQuestions = [] 
   }, [stopTimer]);
 
   useEffect(() => {
-    const currentStepConfig = STEPS_CONFIG[stepIndex];
+    const currentStepConfig = stepsConfig[stepIndex];
     if (currentStepConfig?.id === 'pause') {
       startTimer();
     } else {
       stopTimer();
     }
     return () => stopTimer();
-  }, [stepIndex, startTimer, stopTimer]);
+  }, [stepIndex, stepsConfig, startTimer, stopTimer]);
 
   // Shrink text dynamically on long questions until it fits the safe area
   useEffect(() => {
@@ -209,9 +261,9 @@ export default function ReelsPresenterClient({ questions: initialQuestions = [] 
   // Step Navigation
   // -------------------------------------------------------------
   const goToStep = useCallback((n) => {
-    const next = Math.max(0, Math.min(STEPS_CONFIG.length - 1, n));
+    const next = Math.max(0, Math.min(stepsConfig.length - 1, n));
     setStepIndex(next);
-  }, []);
+  }, [stepsConfig.length]);
 
   const nextStep = useCallback(() => {
     goToStep(stepIndex + 1);
@@ -417,9 +469,12 @@ export default function ReelsPresenterClient({ questions: initialQuestions = [] 
     );
   }
 
-  const currentStepConfig = STEPS_CONFIG[stepIndex];
-  const order = ['v1', 'v2', 'v3', 'answer', 'takeaway'];
-  const verdictAt = order.indexOf(currentStepConfig.id);
+  const currentStepConfig = stepsConfig[stepIndex] || stepsConfig[0];
+  const currentStepNum = currentStepConfig.stepNum || 1;
+  const currentStepName = currentStepConfig.name || 'Question hook';
+  const verdictAt = currentStepConfig.screen === 'analysis'
+    ? (currentStepConfig.verdictNum ? currentStepConfig.verdictNum - 1 : 0)
+    : (currentStepConfig.stepNum > 5 ? 99 : -1);
 
   return (
     <div className="pq-reel-root">
@@ -471,11 +526,16 @@ export default function ReelsPresenterClient({ questions: initialQuestions = [] 
                 <div className="pq-reel-exam">{storyboard.examHeader}</div>
               </div>
 
-              {/* 9-Segment Story Progress Bar */}
+              {/* 7-Segment Story Progress Bar */}
               <div className="pq-reel-progress">
-                {STEPS_CONFIG.map((s, idx) => (
-                  <span key={s.id} className={idx <= stepIndex ? 'on' : ''} />
+                {[1, 2, 3, 4, 5, 6, 7].map((num) => (
+                  <span key={num} className={num <= currentStepNum ? 'on' : ''} />
                 ))}
+              </div>
+
+              {/* Step Indicator (e.g., 4 of 7 Keywords / 7 of 7 Value addition) */}
+              <div className="pq-reel-step-indicator">
+                {currentStepNum} of 7 <b>{currentStepName}</b>
               </div>
 
               {/* Content Area (Safe-Zone Enforced) */}
@@ -539,24 +599,41 @@ export default function ReelsPresenterClient({ questions: initialQuestions = [] 
                   </div>
                 </section>
 
-                {/* SCREEN 4: KEYWORDS */}
+                {/* SCREEN 4: KEYWORDS ("Spot the keywords") */}
                 <section
                   className={`pq-reel-screen ${currentStepConfig.screen === 'keywords' ? 'active' : ''}`}
                   data-fit
                 >
-                  <div className="tag">Keywords to Watch</div>
-                  <h2 className="pq-reel-topic">Core Concepts &amp; Anchors</h2>
-                  <p className="pq-reel-lead">
-                    Before evaluating the statements, notice the key terms UPSC is testing:
-                  </p>
-                  <ul className="pq-reel-keywords-list">
-                    {(storyboard.keywords || []).map((kw, idx) => (
-                      <li key={idx}>
-                        <span className="kw-badge">{kw.term}</span>
-                        <p>{kw.note}</p>
+                  <h2 className="pq-reel-serif-title">Spot the keywords</h2>
+                  <ol className="pq-reel-stmts">
+                    {storyboard.statements.items.map((stmt) => (
+                      <li key={stmt.num}>
+                        <span className="pq-reel-num">{stmt.num}</span>
+                        <p>
+                          {renderHighlightedText(
+                            stmt.text,
+                            storyboard.keywords?.[currentStepConfig.kwIndex || 0] || storyboard.keywords?.[0]
+                          )}
+                        </p>
                       </li>
                     ))}
-                  </ul>
+                  </ol>
+
+                  {/* Docked Yellow Focus Card */}
+                  {(() => {
+                    const activeKw = storyboard.keywords?.[currentStepConfig.kwIndex || 0] || storyboard.keywords?.[0];
+                    if (!activeKw) return null;
+                    return (
+                      <div className="pq-reel-kw-focus-card">
+                        <div className="pq-reel-kw-focus-term">
+                          {activeKw.calloutTerm || `“${activeKw.term}”`}
+                        </div>
+                        <div className="pq-reel-kw-focus-note">
+                          {activeKw.calloutNote || activeKw.note}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </section>
 
                 {/* SCREEN 5: STATEMENT ANALYSIS & VERDICTS */}
@@ -606,22 +683,35 @@ export default function ReelsPresenterClient({ questions: initialQuestions = [] 
                   </div>
                 </section>
 
-                {/* SCREEN 7: WHAT VALUE ADDITION IS NEEDED */}
-                <section className={`pq-reel-screen pq-reel-take ${currentStepConfig.screen === 'takeaway' ? 'active' : ''}`}>
-                  <div className="tag" style={{ color: '#ec4899', fontWeight: 800 }}>Prelims Value Addition</div>
-                  <h2>{storyboard.valueAddition?.title || storyboard.takeaway?.title || 'What to Remember for Prelims'}</h2>
-                  <ul className="pq-reel-trio">
-                    {(storyboard.valueAddition?.trio || storyboard.takeaway?.trio || []).map((item, idx) => (
-                      <li key={idx}>
-                        <span className="art">{item.art}</span>
-                        <div>
-                          <div className="what">{item.what}</div>
-                          <div className="how">{item.how}</div>
+                {/* SCREEN 7: VALUE ADDITION */}
+                <section className={`pq-reel-screen pq-reel-value-add ${currentStepConfig.screen === 'takeaway' ? 'active' : ''}`} data-fit>
+                  <div className="pq-reel-va-header">
+                    <h2 className="pq-reel-serif-title">{storyboard.valueAddition?.title || 'Value addition'}</h2>
+                    <p className="pq-reel-va-subtitle">
+                      {storyboard.valueAddition?.subtitle || `Add these to your ${storyboard.topic || 'Prelims'} notes`}
+                    </p>
+                  </div>
+
+                  <div className="pq-reel-va-divider" />
+
+                  <div className="pq-reel-va-list">
+                    {(storyboard.valueAddition?.items || []).map((item, idx) => {
+                      const isActive = activeVaRow === idx;
+                      return (
+                        <div
+                          key={idx}
+                          className={`pq-reel-va-row ${isActive ? 'active' : 'dimmed'}`}
+                          onClick={() => setActiveVaRow(idx)}
+                        >
+                          <div className="pq-reel-va-art">{item.art}</div>
+                          <div className="pq-reel-va-body">
+                            <h3 className="pq-reel-va-title">{item.title}</h3>
+                            <p className="pq-reel-va-desc">{item.desc}</p>
+                          </div>
                         </div>
-                      </li>
-                    ))}
-                  </ul>
-                  <p className="note">{storyboard.valueAddition?.note || storyboard.takeaway?.note}</p>
+                      );
+                    })}
+                  </div>
                 </section>
               </div>
 
@@ -670,7 +760,7 @@ export default function ReelsPresenterClient({ questions: initialQuestions = [] 
               <button type="button" onClick={prevStep} disabled={stepIndex === 0} className="pq-reel-btn">
                 ← Back
               </button>
-              <button type="button" onClick={nextStep} disabled={stepIndex === STEPS_CONFIG.length - 1} className="pq-reel-btn primary">
+              <button type="button" onClick={nextStep} disabled={stepIndex === stepsConfig.length - 1} className="pq-reel-btn primary">
                 Next Step →
               </button>
               <button type="button" onClick={() => goToStep(0)} className="pq-reel-btn">
@@ -678,9 +768,9 @@ export default function ReelsPresenterClient({ questions: initialQuestions = [] 
               </button>
             </div>
 
-            {/* 9 Steps List Teleprompter */}
+            {/* 7-Stage Teleprompter List */}
             <ol className="pq-reel-steps-list">
-              {STEPS_CONFIG.map((s, idx) => (
+              {stepsConfig.map((s, idx) => (
                 <li key={s.id}>
                   <button
                     type="button"

@@ -35,7 +35,7 @@ import {
 import { getStructuredExplanation, formatQuestionForCopy } from '@/lib/pyqExplanationHelper';
 import { normalizeCanonicalSubject } from '@/app/prelims/pyq/topicGroups';
 import { normalizeKeywordsList, slugifyKeyword } from '@/lib/pyqKeywords';
-import { parseStemForReels } from '@/lib/reelStoryboard';
+import { parseStemForReels, buildPyqReelStoryboard, renderHighlightedText } from '@/lib/reelStoryboard';
 import '@/app/prelims/pyq/pyq-ui.css';
 
 export default function PyqVisualEditorClient({ initialQuestion }) {
@@ -572,6 +572,8 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
   // 9:16 Reel Storyboard & Hook Preview Handlers
   // -------------------------------------------------------------
   const [reelPreviewStep, setReelPreviewStep] = useState(0);
+  const [reelKwSpotlightIdx, setReelKwSpotlightIdx] = useState(0);
+  const [activeVaPreviewRow, setActiveVaPreviewRow] = useState(0);
   const [isPolishingReel, setIsPolishingReel] = useState(false);
 
   const handleReelDataChange = (field, val) => {
@@ -666,65 +668,34 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
       ? `${parsedStemData.statements.length} statements testing foundational conceptual clarity.`
       : 'Read the statements carefully before picking an option.');
 
+  const reelStoryboard = useMemo(() => {
+    return buildPyqReelStoryboard(data);
+  }, [data]);
+
   const reelKeywords = useMemo(() => {
-    if (Array.isArray(data.analysis?.reelData?.keywords) && data.analysis.reelData.keywords.length > 0) {
-      return data.analysis.reelData.keywords;
-    }
-    if (Array.isArray(data.analysis?.keywords) && data.analysis.keywords.length > 0) {
-      return data.analysis.keywords.slice(0, 3).map(k => ({
-        term: k.term || k.keyword || 'Concept',
-        note: k.shortNote || k.significance || 'Foundational syllabus anchor'
-      }));
-    }
-    return [
-      { term: data.srcTopic || 'Core Concept', note: 'Central syllabus anchor for this question' },
-      { term: 'Phrasing', note: 'Watch out for absolute words in the statements' }
-    ];
-  }, [data.analysis, data.srcTopic]);
+    return reelStoryboard?.keywords || [];
+  }, [reelStoryboard]);
 
   const reelVerdicts = useMemo(() => {
-    if (Array.isArray(data.analysis?.reelData?.verdicts) && data.analysis.reelData.verdicts.length > 0) {
-      return data.analysis.reelData.verdicts;
-    }
-    if (Array.isArray(data.analysis?.statementBreakdown) && data.analysis.statementBreakdown.length > 0) {
-      return data.analysis.statementBreakdown.map(sb => ({
-        num: sb.num,
-        isCorrect: Boolean(sb.isCorrect),
-        stamp: sb.isCorrect ? '✓ Correct' : '✗ Incorrect',
-        mini: sb.claim ? sb.claim.slice(0, 24) : `Statement ${sb.num}`,
-        source: sb.text || sb.explanation || 'Verified reference'
-      }));
-    }
-    return parsedStemData.statements.map(s => ({
-      num: s.num,
-      isCorrect: true,
-      stamp: '✓ Correct',
-      mini: `Statement ${s.num}`,
-      source: 'Verified based on standard reference materials.'
-    }));
-  }, [data.analysis, parsedStemData]);
+    return reelStoryboard?.analysis?.verdicts || [];
+  }, [reelStoryboard]);
 
-  const reelAnswerText = data.analysis?.reelData?.answer?.text ||
+  const reelAnswerText = reelStoryboard?.analysis?.answer?.text ||
     (data.options.find(o => o.label === (data.correctLabel || '').toLowerCase())?.text || 'Official verified answer.');
 
-  const reelValueAdditionTitle = data.analysis?.reelData?.valueAddition?.title ||
-    data.analysis?.reelData?.takeaway?.title ||
-    `What to Remember: ${data.srcTopic || 'Prelims Focus'}`;
+  const reelValueAdditionTitle = reelStoryboard?.valueAddition?.title || 'Value addition';
+  const reelValueAdditionSubtitle = reelStoryboard?.valueAddition?.subtitle || (data.srcTopic ? `Add these to your ${data.srcTopic} notes` : 'Add these to your notes');
+
+  const reelValueAdditionItems = useMemo(() => {
+    return reelStoryboard?.valueAddition?.items || [];
+  }, [reelStoryboard]);
 
   const reelValueAdditionTrio = useMemo(() => {
-    const trio = data.analysis?.reelData?.valueAddition?.trio || data.analysis?.reelData?.takeaway?.trio;
-    if (Array.isArray(trio) && trio.length > 0) return trio;
-    return [
-      { art: '01', what: 'Core Rule', how: 'Verify exact legal or constitutional citations' },
-      { art: '02', what: 'Trap Lens', how: 'Examiners use negative words to test certainty' },
-      { art: '03', what: 'Memory Peg', how: 'Revise boundary articles and statutory provisions' },
-    ];
-  }, [data.analysis]);
+    return reelStoryboard?.valueAddition?.trio || [];
+  }, [reelStoryboard]);
 
-  const reelExaminerLens = data.analysis?.reelData?.valueAddition?.note ||
-    data.analysis?.reelData?.valueAddition?.examinerLens ||
-    data.analysis?.reelData?.takeaway?.note ||
-    (typeof data.analysis?.valueAddition === 'string' ? data.analysis.valueAddition.slice(0, 140) : 'Notice absolute qualifiers like "no", "only", or "all" in Prelims questions.');
+  const reelExaminerLens = reelStoryboard?.valueAddition?.note ||
+    'Notice absolute qualifiers like "no", "only", or "all" in Prelims questions.';
 
   const handleStatementReferenceChange = (sIdx, val) => {
     updateDataAndSyncJson(prev => {
@@ -1997,27 +1968,91 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
                     </div>
                   )}
 
-                  {/* STEP 3: KEYWORDS */}
+                  {/* STEP 3: KEYWORDS ("Spot the keywords") */}
                   {reelPreviewStep === 3 && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-                      <span style={{ fontSize: '8.5px', fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase' }}>Keywords to Watch</span>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                        {reelKeywords.map((kw, idx) => (
-                          <div key={idx} style={{
-                            padding: '6px 8px',
-                            background: 'rgba(255, 255, 255, 0.04)',
-                            border: '1px solid rgba(255, 255, 255, 0.08)',
-                            borderRadius: '8px'
-                          }}>
-                            <span style={{ fontSize: '8px', fontWeight: 800, color: '#38bdf8', background: 'rgba(56, 189, 248, 0.15)', padding: '1px 5px', borderRadius: '4px' }}>
-                              {kw.term || kw.keyword}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', height: '100%' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <h4 style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: '12px', fontWeight: 800, color: '#ffffff', margin: 0 }}>
+                          Spot the keywords
+                        </h4>
+                        {reelKeywords.length > 1 && (
+                          <div style={{ display: 'flex', gap: '3px' }}>
+                            {reelKeywords.map((_, kIdx) => (
+                              <button
+                                key={kIdx}
+                                type="button"
+                                onClick={() => setReelKwSpotlightIdx(kIdx)}
+                                style={{
+                                  fontSize: '7.5px',
+                                  padding: '1px 5px',
+                                  borderRadius: '4px',
+                                  border: 'none',
+                                  background: reelKwSpotlightIdx === kIdx ? '#facc15' : 'rgba(255, 255, 255, 0.1)',
+                                  color: reelKwSpotlightIdx === kIdx ? '#000' : '#cbd5e1',
+                                  fontWeight: 800,
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                {kIdx + 1}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                        {parsedStemData.statements.map((s) => (
+                          <div
+                            key={s.num}
+                            style={{
+                              display: 'flex',
+                              gap: '6px',
+                              padding: '5px 7px',
+                              background: 'rgba(255, 255, 255, 0.04)',
+                              border: '1px solid rgba(255, 255, 255, 0.08)',
+                              borderRadius: '7px',
+                              fontSize: '8px',
+                              lineHeight: 1.35
+                            }}
+                          >
+                            <span style={{ color: '#c084fc', fontWeight: 800, flexShrink: 0 }}>{s.num}</span>
+                            <span style={{ color: '#f1f5f9' }}>
+                              {renderHighlightedText(
+                                s.text,
+                                reelKeywords[reelKwSpotlightIdx] || reelKeywords[0]
+                              )}
                             </span>
-                            <p style={{ margin: '3px 0 0', fontSize: '9px', color: '#cbd5e1', lineHeight: 1.3 }}>
-                              {kw.note || kw.significance || kw.shortNote}
-                            </p>
                           </div>
                         ))}
                       </div>
+
+                      {/* Docked Yellow Focus Card */}
+                      {(() => {
+                        const activeKw = reelKeywords[reelKwSpotlightIdx] || reelKeywords[0];
+                        if (!activeKw) return null;
+                        return (
+                          <div
+                            style={{
+                              marginTop: 'auto',
+                              padding: '6px 8px',
+                              background: 'rgba(18, 19, 36, 0.98)',
+                              border: '1.5px solid #facc15',
+                              borderRadius: '7px',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '2px',
+                              boxShadow: '0 4px 12px rgba(250, 204, 21, 0.12)'
+                            }}
+                          >
+                            <div style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: '9.5px', fontWeight: 800, color: '#facc15' }}>
+                              {activeKw.calloutTerm || `“${activeKw.term || activeKw.keyword}”`}
+                            </div>
+                            <div style={{ fontSize: '7.5px', color: '#f8fafc', lineHeight: 1.3, fontWeight: 500 }}>
+                              {activeKw.calloutNote || activeKw.note || activeKw.significance}
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </div>
                   )}
 
@@ -2075,32 +2110,53 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
 
                   {/* STEP 6: WHAT VALUE ADDITION IS NEEDED */}
                   {reelPreviewStep === 6 && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-                      <span style={{ fontSize: '8.5px', fontWeight: 800, color: '#ec4899', textTransform: 'uppercase' }}>What to Remember</span>
-                      <h4 style={{ fontSize: '11.5px', fontWeight: 800, color: '#fff', margin: 0 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                      <h4 style={{ fontFamily: "'Fraunces', Georgia, serif", fontSize: '13px', fontWeight: 800, color: '#fff', margin: 0 }}>
                         {reelValueAdditionTitle}
                       </h4>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                        {reelValueAdditionTrio.map((item, idx) => (
-                          <div key={idx} style={{
-                            display: 'flex',
-                            gap: '5px',
-                            padding: '5px 7px',
-                            background: 'rgba(255, 255, 255, 0.04)',
-                            border: '1px solid rgba(255, 255, 255, 0.08)',
-                            borderRadius: '7px',
-                            fontSize: '9px'
-                          }}>
-                            <span style={{ color: '#ec4899', fontWeight: 800 }}>{item.art}</span>
-                            <div>
-                              <strong style={{ color: '#fff' }}>{item.what}</strong>: <span style={{ color: '#cbd5e1' }}>{item.how}</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      <p style={{ margin: 'auto 0 0', fontSize: '8.5px', color: '#94a3b8', fontStyle: 'italic', lineHeight: 1.3 }}>
-                        {reelExaminerLens}
+                      <p style={{ margin: '2px 0 6px 0', fontSize: '8px', color: '#94a3b8' }}>
+                        {reelValueAdditionSubtitle}
                       </p>
+                      <div style={{ height: '1px', background: 'rgba(255, 255, 255, 0.1)', marginBottom: '6px' }} />
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', overflowY: 'auto' }}>
+                        {reelValueAdditionItems.map((item, idx) => {
+                          const isActive = activeVaPreviewRow === idx;
+                          return (
+                            <div
+                              key={idx}
+                              onClick={() => setActiveVaPreviewRow(idx)}
+                              style={{
+                                display: 'flex',
+                                gap: '7px',
+                                padding: '4px 2px',
+                                borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              <div style={{
+                                fontFamily: "'Fraunces', Georgia, serif",
+                                fontSize: '16px',
+                                fontWeight: 900,
+                                width: '38px',
+                                flexShrink: 0,
+                                lineHeight: 1,
+                                color: isActive ? '#f472b6' : '#3b2d54',
+                                letterSpacing: '-0.02em'
+                              }}>
+                                {item.art}
+                              </div>
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                                <div style={{ fontSize: '9px', fontWeight: 800, color: isActive ? '#ffffff' : '#475569' }}>
+                                  {item.title}
+                                </div>
+                                <div style={{ fontSize: '7.5px', color: isActive ? '#cbd5e1' : '#334155', lineHeight: 1.3 }}>
+                                  {item.desc}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   )}
                 </div>

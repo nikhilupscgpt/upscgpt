@@ -121,7 +121,7 @@ body.clean .pq-reel-stage {
   position: absolute;
   left: 72px;
   right: 150px;
-  top: 410px;
+  top: 404px;
   display: flex;
   gap: 8px;
 }
@@ -138,12 +138,30 @@ body.clean .pq-reel-stage {
   background: linear-gradient(90deg, var(--violet), var(--pink));
 }
 
+/* Step Indicator (e.g. 4 of 7 Keywords / 7 of 7 Value addition) */
+.pq-reel-step-indicator {
+  position: absolute;
+  left: 72px;
+  right: 150px;
+  top: 428px;
+  font-size: 28px;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: -0.01em;
+}
+
+.pq-reel-step-indicator b {
+  color: #ffffff;
+  font-weight: 800;
+  margin-left: 6px;
+}
+
 /* Main Content Window (Safe-Zone Enforced) */
 .pq-reel-content {
   position: absolute;
   left: 72px;
   right: 150px;
-  top: 452px;
+  top: 472px;
   bottom: 390px;
 }
 
@@ -297,7 +315,73 @@ body.clean .pq-reel-stage {
   border: 2px solid rgba(56, 189, 248, 0.45);
 }
 
-/* 4. Keywords Screen */
+/* 4. Keywords Screen ("Spot the keywords") */
+.pq-reel-serif-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 800;
+  font-size: calc(72px * var(--k));
+  line-height: 1.05;
+  margin: 0 0 calc(28px * var(--k));
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.pq-reel-kw-mark {
+  border-radius: 6px;
+  padding: 2px 8px;
+  display: inline;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  transition: all 0.2s ease;
+}
+
+.pq-reel-kw-mark.active {
+  background: #facc15;
+  color: #000000;
+  font-weight: 800;
+  box-shadow: 0 2px 10px rgba(250, 204, 21, 0.45);
+}
+
+.pq-reel-kw-mark.dimmed {
+  background: #3e3328;
+  color: #fef08a;
+  font-weight: 700;
+}
+
+.pq-reel-kw-mark.context {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* Docked Yellow Focus Card */
+.pq-reel-kw-focus-card {
+  margin-top: auto;
+  background: rgba(18, 19, 36, 0.98);
+  border: 2.5px solid #facc15;
+  border-radius: calc(24px * var(--k));
+  padding: calc(24px * var(--k)) calc(30px * var(--k));
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 24px rgba(250, 204, 21, 0.14);
+  display: flex;
+  flex-direction: column;
+  gap: calc(10px * var(--k));
+}
+
+.pq-reel-kw-focus-term {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: calc(44px * var(--k));
+  font-weight: 800;
+  color: #facc15;
+  line-height: 1.15;
+}
+
+.pq-reel-kw-focus-note {
+  font-size: calc(30px * var(--k));
+  font-weight: 600;
+  color: #f8fafc;
+  line-height: 1.35;
+}
+
 .pq-reel-keywords-list {
   list-style: none;
   margin: 0;
@@ -580,7 +664,118 @@ body.clean .pq-reel-stage {
   color: #ffffff;
 }
 
-/* 6. Takeaway Card */
+/* 7. Value Addition Screen */
+.pq-reel-value-add {
+  display: flex;
+  flex-direction: column;
+}
+
+.pq-reel-va-header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pq-reel-va-header h2 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: calc(76px * var(--k));
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  line-height: 1.05;
+}
+
+.pq-reel-va-subtitle {
+  font-size: calc(34px * var(--k));
+  font-weight: 600;
+  color: #94a3b8;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.pq-reel-va-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: calc(28px * var(--k)) 0 calc(14px * var(--k));
+}
+
+.pq-reel-va-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.pq-reel-va-row {
+  display: flex;
+  align-items: flex-start;
+  gap: calc(28px * var(--k));
+  padding: calc(32px * var(--k)) 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.pq-reel-va-art {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 900;
+  font-size: calc(88px * var(--k));
+  line-height: 0.95;
+  min-width: calc(230px * var(--k));
+  flex-shrink: 0;
+  letter-spacing: -0.02em;
+  transition: all 0.25s ease;
+}
+
+.pq-reel-va-row.active .pq-reel-va-art {
+  background: linear-gradient(135deg, #f472b6 0%, #c084fc 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.pq-reel-va-row.dimmed .pq-reel-va-art {
+  color: #3b2d54;
+}
+
+.pq-reel-va-body {
+  display: flex;
+  flex-direction: column;
+  gap: calc(10px * var(--k));
+}
+
+.pq-reel-va-title {
+  font-size: calc(38px * var(--k));
+  font-weight: 800;
+  margin: 0;
+  line-height: 1.2;
+  transition: color 0.25s ease;
+}
+
+.pq-reel-va-row.active .pq-reel-va-title {
+  color: #ffffff;
+}
+
+.pq-reel-va-row.dimmed .pq-reel-va-title {
+  color: #475569;
+}
+
+.pq-reel-va-desc {
+  font-size: calc(28px * var(--k));
+  font-weight: 500;
+  line-height: 1.36;
+  margin: 0;
+  transition: color 0.25s ease;
+}
+
+.pq-reel-va-row.active .pq-reel-va-desc {
+  color: #cbd5e1;
+}
+
+.pq-reel-va-row.dimmed .pq-reel-va-desc {
+  color: #334155;
+}
+
+/* 6. Takeaway Card (Legacy Support) */
 .pq-reel-take {
   justify-content: center;
 }

@@ -1,6 +1,205 @@
+import React from 'react';
 import { getStructuredExplanation } from './pyqExplanationHelper';
 import { normalizeKeywordsList } from './pyqKeywords';
 import { parseStem } from '@/app/prelims/pyq/StemView';
+
+/**
+ * Renders statement text with inline <mark> keyword highlights:
+ * - active: bright yellow background (#facc15), black text
+ * - dimmed: muted taupe/dark-yellow background, muted text
+ * - context: subtle white pill background
+ */
+export function renderHighlightedText(text, keywordSpotlight) {
+  if (!text || typeof text !== 'string') return text;
+  if (!keywordSpotlight) return text;
+
+  const activePhrases = Array.isArray(keywordSpotlight.activePhrases) && keywordSpotlight.activePhrases.length > 0
+    ? keywordSpotlight.activePhrases
+    : [keywordSpotlight.term || keywordSpotlight.keyword || ''].filter(Boolean);
+
+  const dimmedPhrases = Array.isArray(keywordSpotlight.dimmedPhrases)
+    ? keywordSpotlight.dimmedPhrases.filter(Boolean)
+    : [];
+
+  const contextPhrases = Array.isArray(keywordSpotlight.contextPhrases)
+    ? keywordSpotlight.contextPhrases.filter(Boolean)
+    : [];
+
+  const targets = [];
+  activePhrases.forEach((p) => targets.push({ phrase: String(p).trim(), type: 'active' }));
+  contextPhrases.forEach((p) => targets.push({ phrase: String(p).trim(), type: 'context' }));
+  dimmedPhrases.forEach((p) => targets.push({ phrase: String(p).trim(), type: 'dimmed' }));
+
+  const validTargets = targets.filter((t) => t.phrase.length > 0);
+  if (validTargets.length === 0) return text;
+
+  // Sort longest phrase first so longer matches take precedence
+  validTargets.sort((a, b) => b.phrase.length - a.phrase.length);
+
+  const escapeRegex = (s) => s.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+  const pattern = new RegExp(`(${validTargets.map((t) => escapeRegex(t.phrase)).join('|')})`, 'gi');
+
+  const parts = text.split(pattern);
+  return parts.map((part, i) => {
+    const match = validTargets.find((t) => t.phrase.toLowerCase() === part.toLowerCase());
+    if (match) {
+      return (
+        <mark key={i} className={`pq-reel-kw-mark ${match.type}`}>
+          {part}
+        </mark>
+      );
+    }
+    return part;
+  });
+}
+
+function normalizeReelKeywordSpotlights(rawKeywords, statements, topic, stem) {
+  const isConstitutionPartXXII = (stem || '').includes('officially called') || (stem || '').includes('stand repealed') || (stem || '').includes('There is no Article');
+
+  if (Array.isArray(rawKeywords) && rawKeywords.length > 0) {
+    return rawKeywords.map((k, idx) => {
+      const term = k.term || k.keyword || k.concept || 'Key Anchor';
+      const calloutTerm = k.calloutTerm || (term.startsWith('“') ? term : `“${term}”`);
+      const calloutNote = k.calloutNote || k.note || k.significance || k.explanation || 'Essential exam context';
+      const activePhrases = Array.isArray(k.activePhrases) && k.activePhrases.length > 0
+        ? k.activePhrases
+        : [term].filter(Boolean);
+      const dimmedPhrases = Array.isArray(k.dimmedPhrases)
+        ? k.dimmedPhrases
+        : rawKeywords.slice(0, idx).map(prev => prev.term || prev.keyword).filter(Boolean);
+      const contextPhrases = Array.isArray(k.contextPhrases) ? k.contextPhrases : [];
+
+      return {
+        term,
+        calloutTerm,
+        calloutNote,
+        activePhrases,
+        dimmedPhrases,
+        contextPhrases,
+        note: calloutNote,
+      };
+    });
+  }
+
+  // Automatic high-yield defaults
+  if (isConstitutionPartXXII) {
+    return [
+      {
+        term: 'There is no Article',
+        calloutTerm: '“There is no Article”',
+        calloutNote: 'An absolute claim. Finding a single Article is enough to prove it wrong.',
+        activePhrases: ['There is no Article'],
+        dimmedPhrases: [],
+        contextPhrases: [],
+        note: 'An absolute claim. Finding a single Article is enough to prove it wrong.',
+      },
+      {
+        term: 'stand repealed',
+        calloutTerm: '“stand repealed”',
+        calloutNote: 'Points to the repeal clause. Which earlier Acts did the Constitution end?',
+        activePhrases: ['stand repealed'],
+        dimmedPhrases: ['There is no Article'],
+        contextPhrases: ['officially called'],
+        note: 'Points to the repeal clause. Which earlier Acts did the Constitution end?',
+      },
+    ];
+  }
+
+  // General questions fallback: look for absolute qualifiers or keywords in statements
+  const stmtTexts = statements.map(s => s.text).join(' ');
+  const absoluteMatches = ['only', 'all', 'neither', 'always', 'never', 'any', 'exclusively'].filter(w =>
+    new RegExp(`\\b${w}\\b`, 'i').test(stmtTexts)
+  );
+
+  const spotlights = [];
+  if (absoluteMatches.length > 0) {
+    const firstAbs = absoluteMatches[0];
+    spotlights.push({
+      term: firstAbs,
+      calloutTerm: `“${firstAbs}”`,
+      calloutNote: 'Extreme qualifier. UPSC frequently tests extreme words to create distractor traps.',
+      activePhrases: [firstAbs],
+      dimmedPhrases: [],
+      contextPhrases: [],
+      note: 'Notice the absolute qualifier in the statement.',
+    });
+  }
+
+  spotlights.push({
+    term: topic || 'Core Anchor',
+    calloutTerm: `“${topic || 'Core Anchor'}”`,
+    calloutNote: 'Verify the statutory and constitutional provisions governing this concept.',
+    activePhrases: [topic || ''].filter(Boolean),
+    dimmedPhrases: spotlights.length > 0 ? [spotlights[0].term] : [],
+    contextPhrases: [],
+    note: 'Central syllabus anchor for this question.',
+  });
+
+  return spotlights;
+}
+
+function normalizeReelValueAddition(rdVa, topic, stem, analysis) {
+  const isConstitutionPartXXII = (stem || '').includes('officially called') || (stem || '').includes('stand repealed') || (stem || '').includes('There is no Article');
+
+  const rawItems = rdVa?.items || rdVa?.trio || null;
+  let items = [];
+
+  if (Array.isArray(rawItems) && rawItems.length > 0) {
+    items = rawItems.map((item, idx) => ({
+      art: item.art || item.num || `0${idx + 1}`,
+      title: item.title || item.what || `Key Takeaway ${idx + 1}`,
+      desc: item.desc || item.how || item.note || '',
+    }));
+  } else if (isConstitutionPartXXII) {
+    items = [
+      {
+        art: '394',
+        title: 'Came into force early',
+        desc: 'Arts. 5–9, 60, 324, 366, 367, 379, 380, 388 and 391–394 came into force on 26 November 1949.',
+      },
+      {
+        art: '394A',
+        title: 'Authoritative Hindi text',
+        desc: 'Inserted by the 58th Amendment, 1987.',
+      },
+      {
+        art: '395',
+        title: 'Not repealed',
+        desc: 'The Abolition of Privy Council Jurisdiction Act, 1949 is expressly excluded from the repeal.',
+      },
+    ];
+  } else {
+    items = [
+      {
+        art: '01',
+        title: 'Core Rule',
+        desc: 'Verify exact constitutional and statutory provisions before choosing an option.',
+      },
+      {
+        art: '02',
+        title: 'Examiner Lens',
+        desc: 'Watch for negative and absolute qualifiers designed to provoke uncertainty.',
+      },
+      {
+        art: '03',
+        title: 'Memory Anchor',
+        desc: `Revise key provisions and exceptions under ${topic || 'this theme'} for Prelims.`,
+      },
+    ];
+  }
+
+  const title = rdVa?.title || 'Value addition';
+  const subtitle = rdVa?.subtitle || (isConstitutionPartXXII ? 'Add these to your Part XXII notes' : (topic ? `Add these to your ${topic} notes` : 'Add these to your revision notes'));
+  const note = rdVa?.note || extractValueAdditionNote(analysis?.valueAddition);
+
+  return {
+    title,
+    subtitle,
+    items,
+    trio: items.map(it => ({ art: it.art, what: it.title, how: it.desc })),
+    note,
+  };
+}
 
 /**
  * Deterministic (0ms, 0-cost) rule-based parser that transforms a UPSC PYQ
@@ -116,15 +315,24 @@ export function buildPyqReelStoryboard(q) {
 
   // If human reelData was ingested or pre-generated, adopt it directly!
   const reelData = analysis?.reelData || null;
+
+  const normalizedKeywords = normalizeReelKeywordSpotlights(
+    reelData?.keywords || analysis?.keywords,
+    statements,
+    q.srcTopic || q.srcSubject,
+    q.stem
+  );
+
+  const normalizedValueAddition = normalizeReelValueAddition(
+    reelData?.valueAddition || reelData?.takeaway,
+    q.srcTopic || q.srcSubject,
+    q.stem,
+    analysis
+  );
+
   if (reelData) {
     const rd = reelData;
     const rdVerdicts = Array.isArray(rd.verdicts) && rd.verdicts.length > 0 ? rd.verdicts : [];
-    const rdKeywords = Array.isArray(rd.keywords) && rd.keywords.length > 0
-      ? rd.keywords.map((k) => ({
-          term: k.term || k.keyword || k.concept || 'Key Anchor',
-          note: k.note || k.significance || k.explanation || 'Essential exam context',
-        }))
-      : [];
 
     return {
       examHeader: `${q.examName || 'UPSC CSE'} ${q.examYear || 'Prelims'} / ${q.srcSubject || 'General Studies'}`,
@@ -145,14 +353,7 @@ export function buildPyqReelStoryboard(q) {
           text: o.text || '',
         })),
       },
-      keywords: rdKeywords.length > 0 ? rdKeywords : (
-        Array.isArray(analysis?.keywords) && analysis.keywords.length > 0
-          ? normalizeKeywordsList(analysis.keywords).slice(0, 3).map(k => ({ term: k.keyword, note: k.significance }))
-          : [
-              { term: q.srcTopic || 'Core Concept', note: 'Central syllabus anchor for this question' },
-              { term: 'Phrasing', note: 'Notice the absolute/negative phrasing in the stem' }
-            ]
-      ),
+      keywords: normalizedKeywords,
       pause: {
         seconds: 5,
         title: 'Pause & Attempt',
@@ -173,24 +374,8 @@ export function buildPyqReelStoryboard(q) {
           text: rd.answer?.text || (correctOpt ? correctOpt.text : 'Official UPSC verified answer.'),
         },
       },
-      valueAddition: {
-        title: rd.valueAddition?.title || rd.takeaway?.title || `What to Remember: ${q.srcTopic || 'Prelims Focus'}`,
-        trio: rd.valueAddition?.trio || rd.takeaway?.trio || [
-          { art: '01', what: 'Core Rule', how: 'Verify exact legal or constitutional citations' },
-          { art: '02', what: 'Trap Lens', how: 'Examiners use negative words to test certainty' },
-          { art: '03', what: 'Memory Anchor', how: 'Revise boundary articles and statutory provisions' },
-        ],
-        note: rd.valueAddition?.note || rd.valueAddition?.examinerLens || rd.takeaway?.note || extractValueAdditionNote(analysis?.valueAddition),
-      },
-      takeaway: {
-        title: rd.valueAddition?.title || rd.takeaway?.title || `What to Remember: ${q.srcTopic || 'Prelims Focus'}`,
-        trio: rd.valueAddition?.trio || rd.takeaway?.trio || [
-          { art: '01', what: 'Core Rule', how: 'Verify exact legal or constitutional citations' },
-          { art: '02', what: 'Trap Lens', how: 'Examiners use negative words to test certainty' },
-          { art: '03', what: 'Memory Anchor', how: 'Revise boundary articles and statutory provisions' },
-        ],
-        note: rd.valueAddition?.note || rd.valueAddition?.examinerLens || rd.takeaway?.note || extractValueAdditionNote(analysis?.valueAddition),
-      },
+      valueAddition: normalizedValueAddition,
+      takeaway: normalizedValueAddition,
     };
   }
 
@@ -322,7 +507,7 @@ export function buildPyqReelStoryboard(q) {
         text: o.text || '',
       })),
     },
-    keywords: keywordsList,
+    keywords: normalizedKeywords,
     pause: {
       seconds: 5,
       title: 'Pause & Attempt',
@@ -336,16 +521,8 @@ export function buildPyqReelStoryboard(q) {
         text: correctOpt ? correctOpt.text : 'Official verified key.',
       },
     },
-    valueAddition: {
-      title: q.srcTopic ? `What to Remember: ${q.srcTopic}` : 'What to Remember for Prelims',
-      trio,
-      note: extractValueAdditionNote(analysis?.valueAddition) || 'Notice absolute qualifiers like "no", "only", or "all" in Prelims questions.',
-    },
-    takeaway: {
-      title: q.srcTopic ? `What to Remember: ${q.srcTopic}` : 'What to Remember for Prelims',
-      trio,
-      note: extractValueAdditionNote(analysis?.valueAddition) || 'Notice absolute qualifiers like "no", "only", or "all" in Prelims questions.',
-    },
+    valueAddition: normalizedValueAddition,
+    takeaway: normalizedValueAddition,
   };
 }
 
