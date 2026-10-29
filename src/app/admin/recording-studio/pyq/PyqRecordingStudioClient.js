@@ -11,6 +11,7 @@ import {
   X,
   ArrowLeft,
   Sparkles,
+  Filter,
 } from 'lucide-react';
 import '../../studio/pyq/pyq-studio.css';
 import CustomExternalContentModal from '../CustomExternalContentModal';
@@ -33,6 +34,30 @@ export default function PyqRecordingStudioClient({ initialFilterOptions }) {
   const [answerStatus, setAnswerStatus] = useState('ALL');
   const [limit, setLimit] = useState(25);
   const [page, setPage] = useState(1);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (subject !== 'ALL') count++;
+    if (topic !== 'ALL') count++;
+    if (exam !== 'ALL') count++;
+    if (year !== 'ALL') count++;
+    if (pattern !== 'ALL') count++;
+    if (answerStatus !== 'ALL') count++;
+    if (sortOrder !== 'syllabus') count++;
+    return count;
+  }, [subject, topic, exam, year, pattern, answerStatus, sortOrder]);
+
+  const resetAllFilters = useCallback(() => {
+    setSubject('ALL');
+    setTopic('ALL');
+    setExam('ALL');
+    setYear('ALL');
+    setPattern('ALL');
+    setAnswerStatus('ALL');
+    setSortOrder('syllabus');
+    setPage(1);
+  }, []);
 
   const [questions, setQuestions] = useState([]);
   const [total, setTotal] = useState(0);
@@ -306,150 +331,193 @@ export default function PyqRecordingStudioClient({ initialFilterOptions }) {
         </div>
       </header>
 
-      {/* Filters */}
-      <section className="pq-pyq-filter-container">
-        <div className="pq-pyq-search-row">
-          <div className="pq-pyq-search-box">
-            <Search size={18} color="#94a3b8" />
-            <input
-              type="text"
-              placeholder="Search by keywords, question stem text, articles, case laws, or question number..."
-              value={search}
-              onChange={e => { setSearch(e.target.value); setPage(1); }}
-              className="pq-pyq-search-input"
-            />
-            {search && (
-              <button
-                type="button"
-                onClick={() => { setSearch(''); setPage(1); }}
-                style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
-              >
-                <X size={16} />
-              </button>
-            )}
-          </div>
-        </div>
+      {/* 2-Column Layout: Left Filter Sidebar + Right Main Content */}
+      <div className="pq-pyq-workspace-layout">
+        {sidebarOpen && (
+          <aside className="pq-pyq-sidebar">
+            <div className="pq-pyq-sidebar-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Filter size={18} color="#fb7185" />
+                <span style={{ fontSize: 15, fontWeight: 800, color: '#f8fafc' }}>Filters</span>
+                {activeFilterCount > 0 && (
+                  <span style={{ background: '#fb7185', color: '#0f172a', fontSize: 11.5, fontWeight: 900, padding: '2px 7px', borderRadius: 999 }}>
+                    {activeFilterCount}
+                  </span>
+                )}
+              </div>
+              {activeFilterCount > 0 && (
+                <button
+                  type="button"
+                  onClick={resetAllFilters}
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.12)',
+                    color: '#f87171',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: 8,
+                    padding: '4px 10px',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Reset All
+                </button>
+              )}
+            </div>
 
-        <div className="pq-pyq-filter-grid">
-          <div className="pq-pyq-filter-group">
-            <label className="pq-pyq-filter-label">Subject</label>
-            <select
-              value={subject}
-              onChange={e => { setSubject(e.target.value); setTopic('ALL'); setPage(1); }}
-              className="pq-pyq-select"
-            >
-              <option value="ALL">All Subjects</option>
-              {filterOptions.subjects.map(s => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-          </div>
+            <div className="pq-pyq-filter-grid">
+              <div className="pq-pyq-filter-group">
+                <label className="pq-pyq-filter-label">Subject</label>
+                <select
+                  value={subject}
+                  onChange={e => { setSubject(e.target.value); setTopic('ALL'); setPage(1); }}
+                  className="pq-pyq-select"
+                >
+                  <option value="ALL">All Subjects</option>
+                  {filterOptions.subjects.map(s => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
 
-          <div className="pq-pyq-filter-group">
-            <label className="pq-pyq-filter-label">Theme / Topic</label>
-            <select
-              value={topic}
-              onChange={e => { setTopic(e.target.value); setPage(1); }}
-              disabled={subject === 'ALL'}
-              className="pq-pyq-select"
-              style={{ maxWidth: 220 }}
-            >
-              <option value="ALL">All Themes in {subject === 'ALL' ? 'Subject' : subject}</option>
-              {currentTopicGroups.length > 0 ? (
-                currentTopicGroups.map((group, gIdx) => (
-                  <optgroup key={group.label || gIdx} label={group.label}>
-                    {Array.isArray(group.topics) && group.topics.map(t => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
-                  </optgroup>
-                ))
-              ) : null}
-            </select>
-          </div>
+              <div className="pq-pyq-filter-group">
+                <label className="pq-pyq-filter-label">Theme / Topic</label>
+                <select
+                  value={topic}
+                  onChange={e => { setTopic(e.target.value); setPage(1); }}
+                  disabled={subject === 'ALL'}
+                  className="pq-pyq-select"
+                >
+                  <option value="ALL">All Themes in {subject === 'ALL' ? 'Subject' : subject}</option>
+                  {currentTopicGroups.length > 0 ? (
+                    currentTopicGroups.map((group, gIdx) => (
+                      <optgroup key={group.label || gIdx} label={group.label}>
+                        {Array.isArray(group.topics) && group.topics.map(t => (
+                          <option key={t} value={t}>{t}</option>
+                        ))}
+                      </optgroup>
+                    ))
+                  ) : null}
+                </select>
+              </div>
 
-          <div className="pq-pyq-filter-group">
-            <label className="pq-pyq-filter-label">Sequence Order</label>
-            <select
-              value={sortOrder}
-              onChange={e => { setSortOrder(e.target.value); setPage(1); }}
-              className="pq-pyq-select"
-            >
-              <option value="syllabus">📖 Syllabus Sequence (NCERT Chapters)</option>
-              <option value="exam">📅 Exam Year (Recent First)</option>
-            </select>
-          </div>
+              <div className="pq-pyq-filter-group">
+                <label className="pq-pyq-filter-label">Sequence Order</label>
+                <select
+                  value={sortOrder}
+                  onChange={e => { setSortOrder(e.target.value); setPage(1); }}
+                  className="pq-pyq-select"
+                >
+                  <option value="syllabus">📖 Syllabus Sequence (NCERT)</option>
+                  <option value="exam">📅 Exam Year (Recent First)</option>
+                </select>
+              </div>
 
-          <div className="pq-pyq-filter-group">
-            <label className="pq-pyq-filter-label">Exam</label>
-            <select
-              value={exam}
-              onChange={e => { setExam(e.target.value); setPage(1); }}
-              className="pq-pyq-select"
-            >
-              <option value="ALL">All Exams</option>
-              <option value="UPSC CSE">UPSC CSE</option>
-              <option value="CDS">CDS</option>
-            </select>
-          </div>
+              <div className="pq-pyq-filter-group">
+                <label className="pq-pyq-filter-label">Exam</label>
+                <select
+                  value={exam}
+                  onChange={e => { setExam(e.target.value); setPage(1); }}
+                  className="pq-pyq-select"
+                >
+                  <option value="ALL">All Exams</option>
+                  <option value="UPSC CSE">UPSC CSE</option>
+                  <option value="CDS">CDS</option>
+                </select>
+              </div>
 
-          <div className="pq-pyq-filter-group">
-            <label className="pq-pyq-filter-label">Year</label>
-            <select
-              value={year}
-              onChange={e => { setYear(e.target.value); setPage(1); }}
-              className="pq-pyq-select"
-            >
-              <option value="ALL">All Years</option>
-              {filterOptions.years.map(y => (
-                <option key={y} value={y}>{y}</option>
-              ))}
-            </select>
-          </div>
+              <div className="pq-pyq-filter-group">
+                <label className="pq-pyq-filter-label">Year</label>
+                <select
+                  value={year}
+                  onChange={e => { setYear(e.target.value); setPage(1); }}
+                  className="pq-pyq-select"
+                >
+                  <option value="ALL">All Years</option>
+                  {filterOptions.years.map(y => (
+                    <option key={y} value={y}>{y}</option>
+                  ))}
+                </select>
+              </div>
 
-          <div className="pq-pyq-filter-group">
-            <label className="pq-pyq-filter-label">Format / Pattern</label>
-            <select
-              value={pattern}
-              onChange={e => { setPattern(e.target.value); setPage(1); }}
-              className="pq-pyq-select"
-            >
-              <option value="ALL">All Formats</option>
-              <option value="NEW">🔥 New Pattern (Pairs &amp; Statements)</option>
-              <option value="PAIR">Pair-Based Only</option>
-              <option value="STATEMENT">Statement I &amp; II Only</option>
-            </select>
-          </div>
+              <div className="pq-pyq-filter-group">
+                <label className="pq-pyq-filter-label">Format / Pattern</label>
+                <select
+                  value={pattern}
+                  onChange={e => { setPattern(e.target.value); setPage(1); }}
+                  className="pq-pyq-select"
+                >
+                  <option value="ALL">All Formats</option>
+                  <option value="NEW">🔥 New Pattern (Pairs &amp; Statements)</option>
+                  <option value="PAIR">Pair-Based Only</option>
+                  <option value="STATEMENT">Statement I &amp; II Only</option>
+                </select>
+              </div>
 
-          <div className="pq-pyq-filter-group">
-            <label className="pq-pyq-filter-label">Content Quality</label>
-            <select
-              value={answerStatus}
-              onChange={e => { setAnswerStatus(e.target.value); setPage(1); }}
-              className="pq-pyq-select"
-            >
-              <option value="ALL">All Status</option>
-              <option value="HAS_ANSWER">Has Correct Answer</option>
-              <option value="MISSING_ANSWER">⚠️ Missing Answer</option>
-              <option value="HAS_EXPL">Has Explanation</option>
-              <option value="MISSING_EXPL">⚠️ Missing Explanation</option>
-            </select>
-          </div>
+              <div className="pq-pyq-filter-group">
+                <label className="pq-pyq-filter-label">Content Quality</label>
+                <select
+                  value={answerStatus}
+                  onChange={e => { setAnswerStatus(e.target.value); setPage(1); }}
+                  className="pq-pyq-select"
+                >
+                  <option value="ALL">All Status</option>
+                  <option value="HAS_ANSWER">Has Correct Answer</option>
+                  <option value="MISSING_ANSWER">⚠️ Missing Answer</option>
+                  <option value="HAS_EXPL">Has Explanation</option>
+                  <option value="MISSING_EXPL">⚠️ Missing Explanation</option>
+                </select>
+              </div>
 
-          <div className="pq-pyq-filter-group" style={{ marginLeft: 'auto' }}>
-            <label className="pq-pyq-filter-label">Per Page</label>
-            <select
-              value={limit}
-              onChange={e => { setLimit(parseInt(e.target.value, 10)); setPage(1); }}
-              className="pq-pyq-select"
-              style={{ minWidth: 90 }}
+              <div className="pq-pyq-filter-group">
+                <label className="pq-pyq-filter-label">Per Page</label>
+                <select
+                  value={limit}
+                  onChange={e => { setLimit(parseInt(e.target.value, 10)); setPage(1); }}
+                  className="pq-pyq-select"
+                >
+                  <option value={25}>25</option>
+                  <option value={50}>50</option>
+                  <option value={100}>100</option>
+                </select>
+              </div>
+            </div>
+          </aside>
+        )}
+
+        <main className="pq-pyq-main">
+          <div className="pq-pyq-top-search-bar">
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(prev => !prev)}
+              className="pq-pyq-btn-outline"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '11px 14px' }}
+              title="Toggle Filter Sidebar"
             >
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-            </select>
+              <Filter size={16} color="#fb7185" />
+              <span>{sidebarOpen ? 'Hide Filters' : 'Filters'}</span>
+            </button>
+
+            <div className="pq-pyq-search-box">
+              <Search size={18} color="#94a3b8" />
+              <input
+                type="text"
+                placeholder="Search by keywords, question stem text, articles, case laws, or question number..."
+                value={search}
+                onChange={e => { setSearch(e.target.value); setPage(1); }}
+                className="pq-pyq-search-input"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => { setSearch(''); setPage(1); }}
+                  style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
           </div>
-        </div>
-      </section>
 
       {/* Bulk Action Bar */}
       <section className="pq-pyq-action-bar">
@@ -614,31 +682,33 @@ export default function PyqRecordingStudioClient({ initialFilterOptions }) {
         </div>
       )}
 
-      {totalPages > 1 && (
-        <footer className="pq-pyq-pagination">
-          <button
-            type="button"
-            onClick={() => setPage(p => Math.max(1, p - 1))}
-            disabled={page <= 1}
-            className="pq-pyq-page-btn"
-          >
-            ← Previous Page
-          </button>
+          {totalPages > 1 && (
+            <footer className="pq-pyq-pagination">
+              <button
+                type="button"
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page <= 1}
+                className="pq-pyq-page-btn"
+              >
+                ← Previous Page
+              </button>
 
-          <span style={{ fontSize: 13.5, color: '#94a3b8', fontWeight: 600 }}>
-            Page <strong style={{ color: '#ffffff' }}>{page}</strong> of <strong>{totalPages}</strong> ({total} total questions)
-          </span>
+              <span style={{ fontSize: 13.5, color: '#94a3b8', fontWeight: 600 }}>
+                Page <strong style={{ color: '#ffffff' }}>{page}</strong> of <strong>{totalPages}</strong> ({total} total questions)
+              </span>
 
-          <button
-            type="button"
-            onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-            disabled={page >= totalPages}
-            className="pq-pyq-page-btn"
-          >
-            Next Page →
-          </button>
-        </footer>
-      )}
+              <button
+                type="button"
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages}
+                className="pq-pyq-page-btn"
+              >
+                Next Page →
+              </button>
+            </footer>
+          )}
+        </main>
+      </div>
 
       {activeAttachQ && (
         <div className="pq-modal-overlay" onClick={() => setActiveAttachQ(null)}>

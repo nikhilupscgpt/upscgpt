@@ -14,6 +14,7 @@ import {
   CheckSquare,
   Square,
   MapPin,
+  Filter,
 } from 'lucide-react';
 import '../../studio/pyq/pyq-studio.css';
 import CustomExternalContentModal from '../CustomExternalContentModal';
@@ -41,6 +42,7 @@ export default function ReelsStudioClient({ initialFilterOptions }) {
   // Mode tab: 'pyq' | 'mapping'
   const [contentMode, setContentMode] = useState('pyq');
   const [showCustomModal, setShowCustomModal] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   // PYQ Filters
   const [search, setSearch] = useState('');
@@ -321,12 +323,156 @@ export default function ReelsStudioClient({ initialFilterOptions }) {
       </header>
 
       {/* ========================================================= */}
-      {/* PYQ REELS MODE                                            */}
+      {/* PYQ REELS MODE (2-COLUMN SIDEBAR LAYOUT)                  */}
       {/* ========================================================= */}
       {contentMode === 'pyq' ? (
-        <>
-          <section className="pq-pyq-filter-container">
-            <div className="pq-pyq-search-row">
+        <div className="pq-pyq-workspace-layout">
+          {sidebarOpen && (
+            <aside className="pq-pyq-sidebar">
+              <div className="pq-pyq-sidebar-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Filter size={18} color="#e879f9" />
+                  <span style={{ fontSize: 15, fontWeight: 800, color: '#f8fafc' }}>Filters</span>
+                </div>
+                {(subject !== 'ALL' || topic !== 'ALL' || year !== 'ALL' || pattern !== 'ALL' || sortOrder !== 'syllabus') && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSubject('ALL');
+                      setTopic('ALL');
+                      setYear('ALL');
+                      setPattern('ALL');
+                      setSortOrder('syllabus');
+                      setPage(1);
+                    }}
+                    style={{
+                      background: 'rgba(239, 68, 68, 0.12)',
+                      color: '#f87171',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      borderRadius: 8,
+                      padding: '4px 10px',
+                      fontSize: 12,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Reset All
+                  </button>
+                )}
+              </div>
+
+              <div className="pq-pyq-filter-grid">
+                <div className="pq-pyq-filter-group">
+                  <label className="pq-pyq-filter-label">Subject</label>
+                  <select
+                    value={subject}
+                    onChange={(e) => {
+                      setSubject(e.target.value);
+                      setTopic('ALL');
+                      setPage(1);
+                    }}
+                    className="pq-pyq-select"
+                  >
+                    <option value="ALL">All Subjects</option>
+                    {filterOptions.subjects.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="pq-pyq-filter-group">
+                  <label className="pq-pyq-filter-label">Theme / Topic</label>
+                  <select
+                    value={topic}
+                    onChange={(e) => {
+                      setTopic(e.target.value);
+                      setPage(1);
+                    }}
+                    disabled={subject === 'ALL'}
+                    className="pq-pyq-select"
+                  >
+                    <option value="ALL">All Themes</option>
+                    {currentTopicGroups.map((group, gIdx) => (
+                      <optgroup key={group.label || gIdx} label={group.label}>
+                        {Array.isArray(group.topics) &&
+                          group.topics.map((t) => (
+                            <option key={t} value={t}>
+                              {t}
+                            </option>
+                          ))}
+                      </optgroup>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="pq-pyq-filter-group">
+                  <label className="pq-pyq-filter-label">Sequence</label>
+                  <select
+                    value={sortOrder}
+                    onChange={(e) => {
+                      setSortOrder(e.target.value);
+                      setPage(1);
+                    }}
+                    className="pq-pyq-select"
+                  >
+                    <option value="syllabus">📖 Syllabus Sequence</option>
+                    <option value="exam">📅 Exam Year (Recent First)</option>
+                  </select>
+                </div>
+
+                <div className="pq-pyq-filter-group">
+                  <label className="pq-pyq-filter-label">Year</label>
+                  <select
+                    value={year}
+                    onChange={(e) => {
+                      setYear(e.target.value);
+                      setPage(1);
+                    }}
+                    className="pq-pyq-select"
+                  >
+                    <option value="ALL">All Years</option>
+                    {filterOptions.years.map((y) => (
+                      <option key={y} value={y}>
+                        {y}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="pq-pyq-filter-group">
+                  <label className="pq-pyq-filter-label">Format</label>
+                  <select
+                    value={pattern}
+                    onChange={(e) => {
+                      setPattern(e.target.value);
+                      setPage(1);
+                    }}
+                    className="pq-pyq-select"
+                  >
+                    <option value="ALL">All Formats</option>
+                    <option value="NEW">🔥 New Pattern (Pairs &amp; Statements)</option>
+                    <option value="PAIR">Pair-Based Only</option>
+                    <option value="STATEMENT">Statement I &amp; II Only</option>
+                  </select>
+                </div>
+              </div>
+            </aside>
+          )}
+
+          <main className="pq-pyq-main">
+            <div className="pq-pyq-top-search-bar">
+              <button
+                type="button"
+                onClick={() => setSidebarOpen((prev) => !prev)}
+                className="pq-pyq-btn-outline"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '11px 14px' }}
+              >
+                <Filter size={16} color="#e879f9" />
+                <span>{sidebarOpen ? 'Hide Filters' : 'Filters'}</span>
+              </button>
+
               <div className="pq-pyq-search-box">
                 <Search size={18} color="#94a3b8" />
                 <input
@@ -353,106 +499,6 @@ export default function ReelsStudioClient({ initialFilterOptions }) {
                 )}
               </div>
             </div>
-
-            <div className="pq-pyq-filter-grid">
-              <div className="pq-pyq-filter-group">
-                <label className="pq-pyq-filter-label">Subject</label>
-                <select
-                  value={subject}
-                  onChange={(e) => {
-                    setSubject(e.target.value);
-                    setTopic('ALL');
-                    setPage(1);
-                  }}
-                  className="pq-pyq-select"
-                >
-                  <option value="ALL">All Subjects</option>
-                  {filterOptions.subjects.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="pq-pyq-filter-group">
-                <label className="pq-pyq-filter-label">Theme / Topic</label>
-                <select
-                  value={topic}
-                  onChange={(e) => {
-                    setTopic(e.target.value);
-                    setPage(1);
-                  }}
-                  disabled={subject === 'ALL'}
-                  className="pq-pyq-select"
-                  style={{ maxWidth: 220 }}
-                >
-                  <option value="ALL">All Themes</option>
-                  {currentTopicGroups.map((group, gIdx) => (
-                    <optgroup key={group.label || gIdx} label={group.label}>
-                      {Array.isArray(group.topics) &&
-                        group.topics.map((t) => (
-                          <option key={t} value={t}>
-                            {t}
-                          </option>
-                        ))}
-                    </optgroup>
-                  ))}
-                </select>
-              </div>
-
-              <div className="pq-pyq-filter-group">
-                <label className="pq-pyq-filter-label">Sequence</label>
-                <select
-                  value={sortOrder}
-                  onChange={(e) => {
-                    setSortOrder(e.target.value);
-                    setPage(1);
-                  }}
-                  className="pq-pyq-select"
-                >
-                  <option value="syllabus">📖 Syllabus Sequence</option>
-                  <option value="exam">📅 Exam Year (Recent First)</option>
-                </select>
-              </div>
-
-              <div className="pq-pyq-filter-group">
-                <label className="pq-pyq-filter-label">Year</label>
-                <select
-                  value={year}
-                  onChange={(e) => {
-                    setYear(e.target.value);
-                    setPage(1);
-                  }}
-                  className="pq-pyq-select"
-                >
-                  <option value="ALL">All Years</option>
-                  {filterOptions.years.map((y) => (
-                    <option key={y} value={y}>
-                      {y}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="pq-pyq-filter-group">
-                <label className="pq-pyq-filter-label">Format</label>
-                <select
-                  value={pattern}
-                  onChange={(e) => {
-                    setPattern(e.target.value);
-                    setPage(1);
-                  }}
-                  className="pq-pyq-select"
-                >
-                  <option value="ALL">All Formats</option>
-                  <option value="NEW">🔥 New Pattern (Pairs &amp; Statements)</option>
-                  <option value="PAIR">Pair-Based Only</option>
-                  <option value="STATEMENT">Statement I &amp; II Only</option>
-                </select>
-              </div>
-            </div>
-          </section>
 
           <section className="pq-pyq-action-bar">
             <div className="pq-pyq-action-left">
@@ -560,37 +606,125 @@ export default function ReelsStudioClient({ initialFilterOptions }) {
             </div>
           )}
 
-          {totalPages > 1 && (
-            <footer className="pq-pyq-pagination">
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1}
-                className="pq-pyq-page-btn"
-              >
-                ← Previous Page
-              </button>
-              <span style={{ fontSize: 13.5, color: '#94a3b8', fontWeight: 600 }}>
-                Page <strong style={{ color: '#ffffff' }}>{page}</strong> of <strong>{totalPages}</strong> ({total} questions)
-              </span>
-              <button
-                type="button"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages}
-                className="pq-pyq-page-btn"
-              >
-                Next Page →
-              </button>
-            </footer>
-          )}
-        </>
+            {totalPages > 1 && (
+              <footer className="pq-pyq-pagination">
+                <button
+                  type="button"
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page <= 1}
+                  className="pq-pyq-page-btn"
+                >
+                  ← Previous Page
+                </button>
+                <span style={{ fontSize: 13.5, color: '#94a3b8', fontWeight: 600 }}>
+                  Page <strong style={{ color: '#ffffff' }}>{page}</strong> of <strong>{totalPages}</strong> ({total} questions)
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page >= totalPages}
+                  className="pq-pyq-page-btn"
+                >
+                  Next Page →
+                </button>
+              </footer>
+            )}
+          </main>
+        </div>
       ) : (
         /* ========================================================= */
-        /* MAPPING & RIVER REELS MODE                                */
+        /* MAPPING & RIVER REELS MODE (2-COLUMN SIDEBAR LAYOUT)      */
         /* ========================================================= */
-        <>
-          <section className="pq-pyq-filter-container">
-            <div className="pq-pyq-search-row">
+        <div className="pq-pyq-workspace-layout">
+          {sidebarOpen && (
+            <aside className="pq-pyq-sidebar">
+              <div className="pq-pyq-sidebar-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Filter size={18} color="#34d399" />
+                  <span style={{ fontSize: 15, fontWeight: 800, color: '#f8fafc' }}>Filters</span>
+                </div>
+                {(mapScope !== 'ALL' || mapCategory !== 'ALL' || mapType !== 'ALL') && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMapScope('ALL');
+                      setMapCategory('ALL');
+                      setMapType('ALL');
+                    }}
+                    style={{
+                      background: 'rgba(239, 68, 68, 0.12)',
+                      color: '#f87171',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      borderRadius: 8,
+                      padding: '4px 10px',
+                      fontSize: 12,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Reset All
+                  </button>
+                )}
+              </div>
+
+              <div className="pq-pyq-filter-grid">
+                <div className="pq-pyq-filter-group">
+                  <label className="pq-pyq-filter-label">Scope</label>
+                  <select
+                    value={mapScope}
+                    onChange={(e) => setMapScope(e.target.value)}
+                    className="pq-pyq-select"
+                  >
+                    <option value="ALL">All Regions (India &amp; World)</option>
+                    <option value="India">India Only</option>
+                    <option value="World">World Only</option>
+                  </select>
+                </div>
+
+                <div className="pq-pyq-filter-group">
+                  <label className="pq-pyq-filter-label">Category</label>
+                  <select
+                    value={mapCategory}
+                    onChange={(e) => setMapCategory(e.target.value)}
+                    className="pq-pyq-select"
+                  >
+                    {MAPPING_CATEGORIES.map((c) => (
+                      <option key={c.value} value={c.value}>
+                        {c.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="pq-pyq-filter-group">
+                  <label className="pq-pyq-filter-label">Data Source</label>
+                  <select
+                    value={mapType}
+                    onChange={(e) => setMapType(e.target.value)}
+                    className="pq-pyq-select"
+                  >
+                    <option value="ALL">All Sources ({mapTotal})</option>
+                    <option value="STATIC">Curated Static Atlas</option>
+                    <option value="PIN">Places in News (PIN)</option>
+                    <option value="PYQ">Official Mapping PYQs</option>
+                  </select>
+                </div>
+              </div>
+            </aside>
+          )}
+
+          <main className="pq-pyq-main">
+            <div className="pq-pyq-top-search-bar">
+              <button
+                type="button"
+                onClick={() => setSidebarOpen((prev) => !prev)}
+                className="pq-pyq-btn-outline"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '11px 14px' }}
+              >
+                <Filter size={16} color="#34d399" />
+                <span>{sidebarOpen ? 'Hide Filters' : 'Filters'}</span>
+              </button>
+
               <div className="pq-pyq-search-box">
                 <Search size={18} color="#94a3b8" />
                 <input
@@ -602,51 +736,6 @@ export default function ReelsStudioClient({ initialFilterOptions }) {
                 />
               </div>
             </div>
-
-            <div className="pq-pyq-filter-grid">
-              <div className="pq-pyq-filter-group">
-                <label className="pq-pyq-filter-label">Scope</label>
-                <select
-                  value={mapScope}
-                  onChange={(e) => setMapScope(e.target.value)}
-                  className="pq-pyq-select"
-                >
-                  <option value="ALL">All Regions (India &amp; World)</option>
-                  <option value="India">India Only</option>
-                  <option value="World">World Only</option>
-                </select>
-              </div>
-
-              <div className="pq-pyq-filter-group">
-                <label className="pq-pyq-filter-label">Category</label>
-                <select
-                  value={mapCategory}
-                  onChange={(e) => setMapCategory(e.target.value)}
-                  className="pq-pyq-select"
-                >
-                  {MAPPING_CATEGORIES.map((c) => (
-                    <option key={c.value} value={c.value}>
-                      {c.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="pq-pyq-filter-group">
-                <label className="pq-pyq-filter-label">Data Source</label>
-                <select
-                  value={mapType}
-                  onChange={(e) => setMapType(e.target.value)}
-                  className="pq-pyq-select"
-                >
-                  <option value="ALL">All Sources ({mapTotal})</option>
-                  <option value="STATIC">Curated Static Atlas</option>
-                  <option value="PIN">Places in News (PIN)</option>
-                  <option value="PYQ">Official Mapping PYQs</option>
-                </select>
-              </div>
-            </div>
-          </section>
 
           <section className="pq-pyq-action-bar">
             <div className="pq-pyq-action-left">
@@ -722,7 +811,8 @@ export default function ReelsStudioClient({ initialFilterOptions }) {
               })}
             </div>
           )}
-        </>
+          </main>
+        </div>
       )}
 
       {/* Floating Queue Bar */}

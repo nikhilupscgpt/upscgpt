@@ -44,6 +44,9 @@ export default function MappingStudioClient() {
   const [type, setType] = useState('ALL'); // 'ALL' | 'STATIC' | 'PIN' | 'PYQ'
   const [category, setCategory] = useState('ALL');
   const [limit, setLimit] = useState(50);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+
+  const activeFilterCount = (scope !== 'ALL' ? 1 : 0) + (type !== 'ALL' ? 1 : 0) + (category !== 'ALL' ? 1 : 0);
 
   // Data
   const [items, setItems] = useState([]);
@@ -207,111 +210,140 @@ export default function MappingStudioClient() {
         </div>
       </header>
 
-      {/* Comprehensive Filter Box */}
-      <div className="pq-map-filter-container">
-        {/* Search Row */}
-        <div className="pq-map-search-row">
-          <div className="pq-map-search-box">
-            <Search size={18} color="#94a3b8" />
-            <input
-              type="text"
-              placeholder="Search by place name, tributary, national park, coordinates, border, or news hook..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pq-map-search-input"
-            />
-            {search && (
-              <button
-                type="button"
-                onClick={() => setSearch('')}
-                style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
-              >
-                <X size={16} />
-              </button>
-            )}
-          </div>
-        </div>
+      {/* 2-Column Layout: Left Filter Sidebar + Right Main Content */}
+      <div className="pq-map-workspace-layout">
+        {sidebarOpen && (
+          <aside className="pq-map-sidebar">
+            <div className="pq-map-sidebar-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Filter size={18} color="#34d399" />
+                <span style={{ fontSize: 15, fontWeight: 800, color: '#f8fafc' }}>Filters</span>
+                {activeFilterCount > 0 && (
+                  <span style={{ background: '#34d399', color: '#022c22', fontSize: 11.5, fontWeight: 900, padding: '2px 7px', borderRadius: 999 }}>
+                    {activeFilterCount}
+                  </span>
+                )}
+              </div>
+              {activeFilterCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setScope('ALL');
+                    setType('ALL');
+                    setCategory('ALL');
+                  }}
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.12)',
+                    color: '#f87171',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    borderRadius: 8,
+                    padding: '4px 10px',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Reset All
+                </button>
+              )}
+            </div>
 
-        {/* Filter Selects Row */}
-        <div className="pq-map-filter-grid">
-          {/* Scope Filter */}
-          <div className="pq-map-filter-group">
-            <label className="pq-map-filter-label">Regional Scope</label>
-            <select
-              value={scope}
-              onChange={(e) => setScope(e.target.value)}
-              className="pq-map-select"
+            <div className="pq-map-filter-grid">
+              {/* Scope Filter */}
+              <div className="pq-map-filter-group">
+                <label className="pq-map-filter-label">Regional Scope</label>
+                <select
+                  value={scope}
+                  onChange={(e) => setScope(e.target.value)}
+                  className="pq-map-select"
+                >
+                  <option value="ALL">All Regions (India &amp; World)</option>
+                  <option value="India">India Only</option>
+                  <option value="World">World Only</option>
+                </select>
+              </div>
+
+              {/* Source Type Filter */}
+              <div className="pq-map-filter-group">
+                <label className="pq-map-filter-label">Data Source</label>
+                <select
+                  value={type}
+                  onChange={(e) => setType(e.target.value)}
+                  className="pq-map-select"
+                >
+                  <option value="ALL">All Sources ({stats.staticCount + stats.pinCount + stats.pyqCount})</option>
+                  <option value="STATIC">Curated Static Atlas ({stats.staticCount})</option>
+                  <option value="PIN">Places in News / PIN ({stats.pinCount})</option>
+                  <option value="PYQ">Official Mapping PYQs ({stats.pyqCount})</option>
+                </select>
+              </div>
+
+              {/* Category Filter */}
+              <div className="pq-map-filter-group">
+                <label className="pq-map-filter-label">Syllabus Category</label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="pq-map-select"
+                >
+                  {MAPPING_CATEGORIES.map((cat) => (
+                    <option key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Page Limit */}
+              <div className="pq-map-filter-group">
+                <label className="pq-map-filter-label">Display Limit</label>
+                <select
+                  value={limit}
+                  onChange={(e) => setLimit(Number(e.target.value))}
+                  className="pq-map-select"
+                >
+                  <option value={25}>25 Items</option>
+                  <option value={50}>50 Items</option>
+                  <option value={100}>100 Items</option>
+                </select>
+              </div>
+            </div>
+          </aside>
+        )}
+
+        <main className="pq-map-main">
+          <div className="pq-map-top-search-bar">
+            <button
+              type="button"
+              onClick={() => setSidebarOpen(prev => !prev)}
+              className="pq-map-btn-outline"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '11px 14px' }}
+              title="Toggle Filter Sidebar"
             >
-              <option value="ALL">All Regions (India &amp; World)</option>
-              <option value="India">India Only</option>
-              <option value="World">World Only</option>
-            </select>
-          </div>
+              <Filter size={16} color="#34d399" />
+              <span>{sidebarOpen ? 'Hide Filters' : 'Filters'}</span>
+            </button>
 
-          {/* Source Type Filter */}
-          <div className="pq-map-filter-group">
-            <label className="pq-map-filter-label">Data Source</label>
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              className="pq-map-select"
-            >
-              <option value="ALL">All Sources ({stats.staticCount + stats.pinCount + stats.pyqCount})</option>
-              <option value="STATIC">Curated Static Atlas ({stats.staticCount})</option>
-              <option value="PIN">Places in News / PIN ({stats.pinCount})</option>
-              <option value="PYQ">Official Mapping PYQs ({stats.pyqCount})</option>
-            </select>
+            <div className="pq-map-search-box">
+              <Search size={18} color="#94a3b8" />
+              <input
+                type="text"
+                placeholder="Search by place name, tributary, national park, coordinates, border, or news hook..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pq-map-search-input"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch('')}
+                  style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
+                >
+                  <X size={16} />
+                </button>
+              )}
+            </div>
           </div>
-
-          {/* Category Filter */}
-          <div className="pq-map-filter-group">
-            <label className="pq-map-filter-label">Syllabus Category</label>
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="pq-map-select"
-            >
-              {MAPPING_CATEGORIES.map((cat) => (
-                <option key={cat.value} value={cat.value}>
-                  {cat.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Page Limit */}
-          <div className="pq-map-filter-group">
-            <label className="pq-map-filter-label">Display Limit</label>
-            <select
-              value={limit}
-              onChange={(e) => setLimit(Number(e.target.value))}
-              className="pq-map-select"
-              style={{ minWidth: 100 }}
-            >
-              <option value={25}>25 Items</option>
-              <option value={50}>50 Items</option>
-              <option value={100}>100 Items</option>
-            </select>
-          </div>
-
-          {/* Reset Filters */}
-          <button
-            type="button"
-            onClick={() => {
-              setSearch('');
-              setScope('ALL');
-              setType('ALL');
-              setCategory('ALL');
-            }}
-            className="pq-map-btn-outline"
-            style={{ marginTop: 18 }}
-            title="Reset all filters"
-          >
-            <RotateCcw size={14} />
-            <span>Reset</span>
-          </button>
-        </div>
-      </div>
 
       {/* Bulk Action & Queue Control Bar */}
       <div className="pq-map-action-bar">
@@ -496,6 +528,8 @@ export default function MappingStudioClient() {
           })}
         </div>
       )}
+        </main>
+      </div>
 
       {/* Floating Deck Dock at Bottom of Screen */}
       {selectedIds.length > 0 && (
