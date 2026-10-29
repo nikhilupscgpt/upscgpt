@@ -32,15 +32,16 @@ import { formatDurationTimestamp } from '@/lib/recordingVaultDb';
 import './reels-present.css';
 
 const STEPS_CONFIG = [
-  { id: 'hook', screen: 'hook', label: '1. Hook Headline' },
-  { id: 'statements', screen: 'statements', label: '2. Stem Statements' },
+  { id: 'hook', screen: 'hook', label: '1. Question Hook' },
+  { id: 'statements', screen: 'statements', label: '2. Question' },
   { id: 'options', screen: 'options', label: '3. Options Preview' },
-  { id: 'pause', screen: 'options', label: '4. Pause & Attempt (5s)' },
+  { id: 'pause', screen: 'options', label: '3. Pause & Attempt (5s)' },
+  { id: 'keywords', screen: 'keywords', label: '4. Keywords' },
   { id: 'v1', screen: 'analysis', label: '5. Statement 1 Verdict' },
-  { id: 'v2', screen: 'analysis', label: '6. Statement 2 Verdict' },
-  { id: 'v3', screen: 'analysis', label: '7. Statement 3 Verdict' },
-  { id: 'answer', screen: 'analysis', label: '8. Official Answer' },
-  { id: 'takeaway', screen: 'takeaway', label: '9. Takeaway Card' },
+  { id: 'v2', screen: 'analysis', label: '5. Statement 2 Verdict' },
+  { id: 'v3', screen: 'analysis', label: '5. Statement 3 Verdict' },
+  { id: 'answer', screen: 'analysis', label: '6. Official Answer' },
+  { id: 'takeaway', screen: 'takeaway', label: '7. Value Addition' },
 ];
 
 export default function ReelsPresenterClient({ questions: initialQuestions = [] }) {
@@ -531,14 +532,34 @@ export default function ReelsPresenterClient({ questions: initialQuestions = [] 
                     </div>
                     <div>
                       <div className="tt">
-                        {timerSeconds > 0 ? storyboard.pause.title : 'Now the analysis'}
+                        {timerSeconds > 0 ? storyboard.pause.title : 'Now the keywords & analysis'}
                       </div>
                       <div className="ts">{storyboard.pause.sub}</div>
                     </div>
                   </div>
                 </section>
 
-                {/* SCREEN 4: STATEMENT ANALYSIS & VERDICTS */}
+                {/* SCREEN 4: KEYWORDS */}
+                <section
+                  className={`pq-reel-screen ${currentStepConfig.screen === 'keywords' ? 'active' : ''}`}
+                  data-fit
+                >
+                  <div className="tag">Keywords to Watch</div>
+                  <h2 className="pq-reel-topic">Core Concepts &amp; Anchors</h2>
+                  <p className="pq-reel-lead">
+                    Before evaluating the statements, notice the key terms UPSC is testing:
+                  </p>
+                  <ul className="pq-reel-keywords-list">
+                    {(storyboard.keywords || []).map((kw, idx) => (
+                      <li key={idx}>
+                        <span className="kw-badge">{kw.term}</span>
+                        <p>{kw.note}</p>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+
+                {/* SCREEN 5: STATEMENT ANALYSIS & VERDICTS */}
                 <section className={`pq-reel-screen ${currentStepConfig.screen === 'analysis' ? 'active' : ''}`}>
                   <h2 className="pq-reel-an-title">{storyboard.analysis.title}</h2>
                   <ol className="pq-reel-verdicts">
@@ -585,11 +606,12 @@ export default function ReelsPresenterClient({ questions: initialQuestions = [] 
                   </div>
                 </section>
 
-                {/* SCREEN 5: TAKEAWAY CARD */}
+                {/* SCREEN 7: WHAT VALUE ADDITION IS NEEDED */}
                 <section className={`pq-reel-screen pq-reel-take ${currentStepConfig.screen === 'takeaway' ? 'active' : ''}`}>
-                  <h2>{storyboard.takeaway.title}</h2>
+                  <div className="tag" style={{ color: '#ec4899', fontWeight: 800 }}>Prelims Value Addition</div>
+                  <h2>{storyboard.valueAddition?.title || storyboard.takeaway?.title || 'What to Remember for Prelims'}</h2>
                   <ul className="pq-reel-trio">
-                    {storyboard.takeaway.trio.map((item, idx) => (
+                    {(storyboard.valueAddition?.trio || storyboard.takeaway?.trio || []).map((item, idx) => (
                       <li key={idx}>
                         <span className="art">{item.art}</span>
                         <div>
@@ -599,7 +621,7 @@ export default function ReelsPresenterClient({ questions: initialQuestions = [] 
                       </li>
                     ))}
                   </ul>
-                  <p className="note">{storyboard.takeaway.note}</p>
+                  <p className="note">{storyboard.valueAddition?.note || storyboard.takeaway?.note}</p>
                 </section>
               </div>
 

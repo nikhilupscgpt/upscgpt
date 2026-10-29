@@ -22,12 +22,37 @@ export async function POST(req) {
       return new Response(JSON.stringify({ error: 'AI service currently unavailable' }), { status: 503 });
     }
 
-    const prompt = `You are an elite UPSC Prelims Educator and Short-Form Video Director crafting a 9:16 vertical Reel / YouTube Short script for UPSC civil services aspirants.
+    const prompt = `You are a real, veteran UPSC mentor speaking directly into a camera to explain a Prelims question to an aspirant. 
 
-Convert the following UPSC question into a high-retention 9-step Reels storyboard:
-1. "hook": A punchy, curiosity-inducing headline (under 12 words) that stops the scroll (e.g. "Does the Constitution of India give itself a name?") plus a 1-sentence teaser.
-2. "verdicts": For each statement in the question, determine if it is correct or incorrect, supply an authoritative stamp ("✓ Correct" or "✗ Incorrect"), a 2-4 word mini-anchor tag (e.g. "Art. 393 · Short title" or "Ramsar Site · Kerala") for collapsed display, and a punchy 1-2 sentence source explanation.
-3. "takeaway": A screenshot-worthy 3-item summary ("trio") where students save the reel. Each item in the trio has "art" (e.g. "393" or "01"), "what" (e.g. "Short title"), and "how" (e.g. "Constitution of India"), plus 1 "note" pointing out common examiner traps.
+CORE TONE RULE:
+Write in natural, plain-spoken, human educator language. 
+STRICTLY FORBIDDEN ROBOTIC CLICHÉS:
+- DO NOT say: "spot the trap", "delve", "test your knowledge", "crucial", "mind-blowing", "in accordance with", "statutory veracity", "statutory guidelines", "let's dive in", "high-yield", "elimination matrix".
+- DO speak like a mentor across a desk: "Look at the wording here", "Here's where people slip", "Notice Article 393—it's literally one sentence", "The catch is simple".
+
+Generate the 7-step pedagogical script:
+1. "hook": 
+   - "headline": A genuine, spoken curiosity question or counter-intuitive truth (under 12 words). E.g.: "Does the Constitution actually call itself 'Constitution of India'?" or "Why doesn't the Gomti River start in the Himalayas?"
+   - "teaser": A natural 1-line conversational setup (under 16 words). E.g.: "UPSC tested the very last 3 articles of the Constitution in 2024. Let's see if you catch it."
+2. "keywords": 2 to 3 anchor terms students must watch out for before attempting the question:
+   - "term": Short name (e.g. "Short Title", "Repeals Clause", "Commencement")
+   - "note": 1 plain-spoken sentence explaining what it is (e.g. "Article 393 gives the official legal name to the document.")
+3. "verdicts": For each statement in the question:
+   - "num": Statement number
+   - "isCorrect": boolean (true/false)
+   - "stamp": "✓ Correct" OR "✗ Incorrect"
+   - "mini": 2-4 word clean memory tag (e.g. "Article 393 · The Name")
+   - "source": 1-2 conversational sentences explaining the truth with zero jargon. E.g. "Article 393 explicitly says: 'This Constitution may be called the Constitution of India.' Statement 1 is completely false."
+4. "answer":
+   - "label": Correct letter ("A", "B", "C", "D")
+   - "text": Conversational 1-sentence bottom line.
+5. "valueAddition": What forward-looking insight or memory peg saves marks in the next Prelims:
+   - "title": A memorable rule (e.g. "The Last 3 Articles to Remember")
+   - "trio": Exactly 3 crisp memory pegs:
+     - "art": E.g. "393", "394", "395" (or "01", "02", "03")
+     - "what": Core concept (e.g. "The Name")
+     - "how": Plain explanation (e.g. "Names the Constitution officially")
+   - "note": The examiner's actual psychology in plain English. E.g.: "UPSC loves testing the very end (Articles 393–395) because most aspirants stop revising after Emergency provisions."
 
 Question Details:
 Subject: ${question.srcSubject || 'General Studies'}
@@ -39,27 +64,32 @@ Existing Explanation: ${question.explanation || ''}
 
 ${customInstructions ? `Additional Teacher Note: ${customInstructions}` : ''}
 
-Respond ONLY with valid, raw JSON (no markdown formatting, no code fencing):
+Respond ONLY with valid, raw JSON (no markdown formatting, no code fences):
 {
   "hook": {
     "headline": "...",
     "teaser": "..."
   },
+  "keywords": [
+    { "term": "...", "note": "..." }
+  ],
   "verdicts": [
     {
       "num": 1,
       "isCorrect": false,
       "stamp": "✗ Incorrect",
-      "mini": "Art. 393 · Short title",
+      "mini": "...",
       "source": "..."
     }
   ],
-  "takeaway": {
+  "answer": {
+    "label": "...",
+    "text": "..."
+  },
+  "valueAddition": {
     "title": "...",
     "trio": [
-      { "art": "393", "what": "Short title", "how": "..." },
-      { "art": "394", "what": "Commencement", "how": "..." },
-      { "art": "395", "what": "Repeals", "how": "..." }
+      { "art": "...", "what": "...", "how": "..." }
     ],
     "note": "..."
   }

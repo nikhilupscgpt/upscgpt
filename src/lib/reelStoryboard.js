@@ -114,6 +114,86 @@ export function buildPyqReelStoryboard(q) {
   // Parse stem cleanly into lead preamble, statements 1/2/3, and prompt
   const { lead: rawLead, statements, prompt: optionsLead } = parseStemForReels(q.stem || '', analysis);
 
+  // If human reelData was ingested or pre-generated, adopt it directly!
+  const reelData = analysis?.reelData || null;
+  if (reelData) {
+    const rd = reelData;
+    const rdVerdicts = Array.isArray(rd.verdicts) && rd.verdicts.length > 0 ? rd.verdicts : [];
+    const rdKeywords = Array.isArray(rd.keywords) && rd.keywords.length > 0
+      ? rd.keywords.map((k) => ({
+          term: k.term || k.keyword || k.concept || 'Key Anchor',
+          note: k.note || k.significance || k.explanation || 'Essential exam context',
+        }))
+      : [];
+
+    return {
+      examHeader: `${q.examName || 'UPSC CSE'} ${q.examYear || 'Prelims'} / ${q.srcSubject || 'General Studies'}`,
+      topic: q.srcTopic || q.srcSubject || 'Core Concept',
+      hook: {
+        tag: 'UPSC Prelims Question',
+        headline: rd.hookHeadline || rd.hook?.headline || `How well do you know ${q.srcTopic || 'this topic'}?`,
+        teaser: rd.hookTeaser || rd.hook?.teaser || `Read these statements carefully before picking an option.`,
+      },
+      statements: {
+        lead: rawLead,
+        items: Array.isArray(rd.statements) && rd.statements.length > 0 ? rd.statements : statements,
+      },
+      options: {
+        lead: optionsLead,
+        items: options.map((o) => ({
+          label: String(o.label || '').toUpperCase(),
+          text: o.text || '',
+        })),
+      },
+      keywords: rdKeywords.length > 0 ? rdKeywords : (
+        Array.isArray(analysis?.keywords) && analysis.keywords.length > 0
+          ? normalizeKeywordsList(analysis.keywords).slice(0, 3).map(k => ({ term: k.keyword, note: k.significance }))
+          : [
+              { term: q.srcTopic || 'Core Concept', note: 'Central syllabus anchor for this question' },
+              { term: 'Phrasing', note: 'Notice the absolute/negative phrasing in the stem' }
+            ]
+      ),
+      pause: {
+        seconds: 5,
+        title: 'Pause & Attempt',
+        sub: 'Take 5 seconds. Decide your option before the reveal.',
+      },
+      analysis: {
+        title: 'Statement breakdown',
+        verdicts: rdVerdicts.length > 0 ? rdVerdicts : statements.map((s) => ({
+          num: s.num,
+          claim: s.text,
+          isCorrect: true,
+          stamp: '✓ Correct',
+          mini: `Statement ${s.num}`,
+          source: explanationText || 'Verified UPSC standard reference.',
+        })),
+        answer: {
+          label: correctLabel,
+          text: rd.answer?.text || (correctOpt ? correctOpt.text : 'Official UPSC verified answer.'),
+        },
+      },
+      valueAddition: {
+        title: rd.valueAddition?.title || rd.takeaway?.title || `What to Remember: ${q.srcTopic || 'Prelims Focus'}`,
+        trio: rd.valueAddition?.trio || rd.takeaway?.trio || [
+          { art: '01', what: 'Core Rule', how: 'Verify exact legal or constitutional citations' },
+          { art: '02', what: 'Trap Lens', how: 'Examiners use negative words to test certainty' },
+          { art: '03', what: 'Memory Anchor', how: 'Revise boundary articles and statutory provisions' },
+        ],
+        note: rd.valueAddition?.note || rd.valueAddition?.examinerLens || rd.takeaway?.note || extractValueAdditionNote(analysis?.valueAddition),
+      },
+      takeaway: {
+        title: rd.valueAddition?.title || rd.takeaway?.title || `What to Remember: ${q.srcTopic || 'Prelims Focus'}`,
+        trio: rd.valueAddition?.trio || rd.takeaway?.trio || [
+          { art: '01', what: 'Core Rule', how: 'Verify exact legal or constitutional citations' },
+          { art: '02', what: 'Trap Lens', how: 'Examiners use negative words to test certainty' },
+          { art: '03', what: 'Memory Anchor', how: 'Revise boundary articles and statutory provisions' },
+        ],
+        note: rd.valueAddition?.note || rd.valueAddition?.examinerLens || rd.takeaway?.note || extractValueAdditionNote(analysis?.valueAddition),
+      },
+    };
+  }
+
   // Parse statement verdicts from explanation
   const breakdownList = Array.isArray(analysis?.statementBreakdown)
     ? analysis.statementBreakdown
@@ -171,39 +251,46 @@ export function buildPyqReelStoryboard(q) {
     };
   });
 
-  // Build Hook Headline
+  // Build Human Conversational Hook Headline
   let hookHeadline = '';
   const stem = q.stem || '';
   if (q.srcTopic && q.srcTopic.length < 50) {
-    hookHeadline = `Can you solve this UPSC question on ${q.srcTopic}?`;
+    hookHeadline = `How well do you know ${q.srcTopic}?`;
   } else if (stem.includes('?')) {
     const qPart = stem.split('?')[0] + '?';
-    hookHeadline = qPart.length < 90 ? qPart : `Master this UPSC Prelims Challenge`;
+    hookHeadline = qPart.length < 90 ? qPart : `Can you solve this UPSC Prelims question?`;
   } else {
-    hookHeadline = `Can you crack this UPSC Prelims Statement Trap?`;
+    hookHeadline = `Can you catch the catch in this UPSC question?`;
   }
 
   const hookTeaser = statements.length > 1
-    ? `${statements.length} statements testing core UPSC Prelims precision. Attempt it before the analysis.`
-    : `Test your elimination and core concept clarity. Attempt it before the analysis.`;
+    ? `${statements.length} statements testing your foundational conceptual clarity.`
+    : `Read the statements carefully before picking an option.`;
 
-  // Build Takeaway Trio
-  const keywords = Array.isArray(analysis?.keywords)
+  // Build Keywords
+  const rawKeywords = Array.isArray(analysis?.keywords)
     ? normalizeKeywordsList(analysis.keywords).slice(0, 3)
     : [];
 
+  const keywordsList = rawKeywords.length > 0
+    ? rawKeywords.map(k => ({ term: k.keyword, note: k.significance }))
+    : [
+        { term: q.srcTopic || 'Core Concept', note: 'Central syllabus anchor for this question' },
+        { term: 'Phrasing', note: 'Notice the absolute or negative phrasing in the stem' }
+      ];
+
+  // Build Takeaway Trio
   const trio = [];
-  if (keywords.length >= 3) {
-    trio.push({ art: '01', what: keywords[0].keyword || 'Anchor Concept', how: keywords[0].significance || 'High-Yield Prelims Rule' });
-    trio.push({ art: '02', what: keywords[1].keyword || 'Trap Area', how: keywords[1].significance || 'Elimination Anchor' });
-    trio.push({ art: '03', what: keywords[2].keyword || 'Core Fact', how: keywords[2].significance || 'Repeated Theme' });
+  if (rawKeywords.length >= 3) {
+    trio.push({ art: '01', what: rawKeywords[0].keyword || 'Anchor Concept', how: rawKeywords[0].significance || 'Foundational Rule' });
+    trio.push({ art: '02', what: rawKeywords[1].keyword || 'Trap Area', how: rawKeywords[1].significance || 'Elimination Anchor' });
+    trio.push({ art: '03', what: rawKeywords[2].keyword || 'Core Fact', how: rawKeywords[2].significance || 'Repeated Theme' });
   } else {
-    // Fallback trio based on statements / subject
     verdicts.slice(0, 3).forEach((v, i) => {
       trio.push({
         art: `0${i + 1}`,
         what: v.mini || `Key Fact ${i + 1}`,
-        how: v.isCorrect ? 'True Statement' : 'Common Trap / Incorrect',
+        how: v.isCorrect ? 'True Statement' : 'Watch out for distractor trap',
       });
     });
   }
@@ -218,9 +305,9 @@ export function buildPyqReelStoryboard(q) {
 
   return {
     examHeader: `${q.examName || 'UPSC CSE'} ${q.examYear || 'Prelims'} / ${q.srcSubject || 'General Studies'}`,
-    topic: q.srcTopic || q.srcSubject || 'Historical Background',
+    topic: q.srcTopic || q.srcSubject || 'General Studies',
     hook: {
-      tag: 'Previous year question',
+      tag: 'UPSC Prelims Question',
       headline: hookHeadline,
       teaser: hookTeaser,
     },
@@ -235,23 +322,29 @@ export function buildPyqReelStoryboard(q) {
         text: o.text || '',
       })),
     },
+    keywords: keywordsList,
     pause: {
       seconds: 5,
-      title: 'Pause and attempt',
-      sub: 'Write your answer in the comments',
+      title: 'Pause & Attempt',
+      sub: 'Take 5 seconds. Decide your option before the reveal.',
     },
     analysis: {
-      title: 'Statement analysis',
+      title: 'Statement breakdown',
       verdicts,
       answer: {
         label: correctLabel,
         text: correctOpt ? correctOpt.text : 'Official verified key.',
       },
     },
-    takeaway: {
-      title: q.srcTopic ? `Key Takeaways: ${q.srcTopic}` : 'High-Yield Prelims Takeaways',
+    valueAddition: {
+      title: q.srcTopic ? `What to Remember: ${q.srcTopic}` : 'What to Remember for Prelims',
       trio,
-      note: extractValueAdditionNote(analysis?.valueAddition),
+      note: extractValueAdditionNote(analysis?.valueAddition) || 'Notice absolute qualifiers like "no", "only", or "all" in Prelims questions.',
+    },
+    takeaway: {
+      title: q.srcTopic ? `What to Remember: ${q.srcTopic}` : 'What to Remember for Prelims',
+      trio,
+      note: extractValueAdditionNote(analysis?.valueAddition) || 'Notice absolute qualifiers like "no", "only", or "all" in Prelims questions.',
     },
   };
 }
