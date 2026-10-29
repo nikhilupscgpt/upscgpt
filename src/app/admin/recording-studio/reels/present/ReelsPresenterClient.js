@@ -189,6 +189,21 @@ export default function ReelsPresenterClient({ questions: initialQuestions = [] 
     return () => stopTimer();
   }, [stepIndex, startTimer, stopTimer]);
 
+  // Shrink text dynamically on long questions until it fits the safe area
+  useEffect(() => {
+    if (!stageRef.current) return;
+    const screens = stageRef.current.querySelectorAll('.pq-reel-screen[data-fit]');
+    screens.forEach((sc) => {
+      sc.style.setProperty('--k', '1');
+      let k = 1.0;
+      let guard = 0;
+      while (sc.scrollHeight > sc.clientHeight + 2 && k > 0.55 && guard++ < 35) {
+        k -= 0.02;
+        sc.style.setProperty('--k', k.toFixed(2));
+      }
+    });
+  }, [stepIndex, storyboard, qIndex]);
+
   // -------------------------------------------------------------
   // Step Navigation
   // -------------------------------------------------------------
@@ -472,7 +487,10 @@ export default function ReelsPresenterClient({ questions: initialQuestions = [] 
                 </section>
 
                 {/* SCREEN 2: STATEMENTS */}
-                <section className={`pq-reel-screen ${currentStepConfig.screen === 'statements' ? 'active' : ''}`}>
+                <section
+                  className={`pq-reel-screen ${currentStepConfig.screen === 'statements' ? 'active' : ''}`}
+                  data-fit
+                >
                   <h2 className="pq-reel-topic">{storyboard.topic}</h2>
                   <p className="pq-reel-lead">{storyboard.statements.lead}</p>
                   <ol className="pq-reel-stmts">
@@ -490,6 +508,7 @@ export default function ReelsPresenterClient({ questions: initialQuestions = [] 
                   className={`pq-reel-screen ${currentStepConfig.screen === 'options' ? 'active' : ''} ${
                     currentStepConfig.id === 'pause' ? 'pausing' : ''
                   }`}
+                  data-fit
                 >
                   <p className="pq-reel-lead">{storyboard.options.lead}</p>
                   <ul className="pq-reel-opts">

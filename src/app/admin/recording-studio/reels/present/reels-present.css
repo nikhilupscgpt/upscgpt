@@ -156,6 +156,12 @@ body.clean .pq-reel-stage {
   visibility: hidden;
   transition: opacity 0.25s ease;
   --k: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.pq-reel-screen::-webkit-scrollbar {
+  display: none;
 }
 
 .pq-reel-screen.active {
@@ -198,17 +204,17 @@ body.clean .pq-reel-stage {
 /* 2. Statements Screen */
 .pq-reel-topic {
   font-family: 'Fraunces', Georgia, serif;
-  font-size: calc(52px * var(--k));
+  font-size: calc(46px * var(--k));
   font-weight: 800;
-  margin: 0 0 calc(22px * var(--k));
+  margin: 0 0 calc(16px * var(--k));
   color: var(--cyan);
 }
 
 .pq-reel-lead {
-  font-size: calc(44px * var(--k));
+  font-size: calc(38px * var(--k));
   font-weight: 700;
-  line-height: 1.4;
-  margin: 0 0 calc(30px * var(--k));
+  line-height: 1.36;
+  margin: 0 0 calc(24px * var(--k));
   color: #f1f5f9;
 }
 
@@ -218,26 +224,26 @@ body.clean .pq-reel-stage {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: calc(24px * var(--k));
+  gap: calc(20px * var(--k));
 }
 
 .pq-reel-stmts li {
   display: flex;
-  gap: 26px;
+  gap: calc(22px * var(--k));
   background: var(--surface);
   border: 2px solid var(--rline);
-  border-radius: 28px;
-  padding: calc(30px * var(--k)) 32px;
+  border-radius: calc(26px * var(--k));
+  padding: calc(22px * var(--k)) calc(26px * var(--k));
 }
 
 .pq-reel-num {
   flex: none;
-  width: 64px;
-  height: 64px;
-  border-radius: 16px;
+  width: calc(56px * var(--k));
+  height: calc(56px * var(--k));
+  border-radius: calc(14px * var(--k));
   display: grid;
   place-items: center;
-  font-size: 34px;
+  font-size: calc(30px * var(--k));
   font-weight: 800;
   color: #d8b4fe;
   background: rgba(168, 85, 247, 0.16);
@@ -246,8 +252,8 @@ body.clean .pq-reel-stage {
 
 .pq-reel-stmts p {
   margin: 0;
-  font-size: calc(46px * var(--k));
-  line-height: 1.38;
+  font-size: calc(40px * var(--k));
+  line-height: 1.36;
   font-weight: 600;
   color: #f8fafc;
 }
@@ -259,20 +265,21 @@ body.clean .pq-reel-stage {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: calc(18px * var(--k));
 }
 
 .pq-reel-opts li {
   display: flex;
   align-items: center;
-  gap: 26px;
+  gap: calc(22px * var(--k));
   background: var(--surface);
   border: 2px solid var(--rline);
-  border-radius: 26px;
-  padding: calc(24px * var(--k)) 30px;
-  font-size: calc(46px * var(--k));
+  border-radius: calc(22px * var(--k));
+  padding: calc(20px * var(--k)) calc(26px * var(--k));
+  font-size: calc(38px * var(--k));
   font-weight: 700;
   line-height: 1.3;
+  color: #f8fafc;
   transition: border-color 0.3s, background 0.3s;
 }
 

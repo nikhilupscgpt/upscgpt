@@ -32,6 +32,77 @@ function extractValueAdditionNote(va) {
   return 'Master core statutory provisions and examiner traps for UPSC Prelims.';
 }
 
+/**
+ * Intelligent parser that extracts lead preamble, individual numbered statements,
+ * and closing prompt from raw UPSC stems (including inline "1. ... 2. ..." formats).
+ */
+export function parseStemForReels(rawStem, analysis) {
+  let text = String(rawStem || '').trim();
+
+  // 1. Detach closing question prompt if attached at the end
+  const PROMPT_RE = /\s+((?:Which\s+(?:one\s+of\s+the|of\s+the|pairs?|statements?|of\s+these)|How\s+many\s+of\s+the|Select\s+the\s+correct).*)$/i;
+  let prompt = 'Which one of the statements given above is/are correct?';
+  const pMatch = text.match(PROMPT_RE);
+  if (pMatch) {
+    prompt = pMatch[1].trim();
+    text = text.slice(0, pMatch.index).trim();
+  }
+
+  // 2. Pre-normalize statement delimiters (newlines before Statement I / 1. / (1) / etc.)
+  text = text.replace(/([.:;]|\b)\s*(Statement[\s-]*(?:I{1,3}|IV|[1-4])\s*[.:])/gi, '$1\n$2');
+  text = text.replace(/([.:;]|\s+)\s*(\(?([1-6])\)\.?\s+|\b([1-6])\.\s+)/g, '$1\n$2');
+
+  const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
+  const STMT_RE = /^(?:Statement[\s-]*(?:I{1,3}|IV|[1-4])|\(?[1-6]\)?)\s*[.:)]\s*(.*)$/i;
+
+  let lead = '';
+  const statements = [];
+
+  for (const line of lines) {
+    const m = line.match(STMT_RE);
+    if (m && m[1]) {
+      statements.push({
+        num: statements.length + 1,
+        text: m[1].trim(),
+      });
+    } else {
+      if (statements.length === 0) {
+        lead = lead ? `${lead} ${line}` : line;
+      }
+    }
+  }
+
+  // 3. Fallback: If no statements found from regex, check analysis.statementBreakdown
+  if (statements.length === 0 && Array.isArray(analysis?.statementBreakdown) && analysis.statementBreakdown.length > 0) {
+    analysis.statementBreakdown.forEach((item, idx) => {
+      const stmtText = item.claim || item.statement || item.text || '';
+      if (stmtText) {
+        statements.push({
+          num: item.num || idx + 1,
+          text: stmtText,
+        });
+      }
+    });
+  }
+
+  // 4. Final fallback if question is a direct short single prompt
+  if (statements.length === 0) {
+    statements.push({
+      num: 1,
+      text: text || 'Analyze the given question and choose the correct answer.',
+    });
+  }
+
+  lead = lead.replace(/\s*[:]\s*$/, '').trim();
+  if (lead) {
+    lead = lead.endsWith(':') ? lead : `${lead}:`;
+  } else {
+    lead = 'Consider the following statements:';
+  }
+
+  return { lead, statements, prompt };
+}
+
 export function buildPyqReelStoryboard(q) {
   if (!q) return null;
 
@@ -40,21 +111,8 @@ export function buildPyqReelStoryboard(q) {
   const options = Array.isArray(q.options) ? q.options : [];
   const correctOpt = options.find((o) => String(o.label).toUpperCase() === correctLabel);
 
-  // Parse stem into lead preamble and numbered statements
-  const parsedStem = parseStem(q.stem || '');
-  const rawLead = parsedStem.lead || 'Consider the following statements:';
-  const statements = (parsedStem.statements || []).map((stmt, idx) => ({
-    num: stmt.num || idx + 1,
-    text: stmt.text || '',
-  }));
-
-  // If no numbered statements were found, create fallback statements or single-statement
-  if (statements.length === 0) {
-    statements.push({
-      num: 1,
-      text: q.stem || 'Analyze the given question and choose the correct answer.',
-    });
-  }
+  // Parse stem cleanly into lead preamble, statements 1/2/3, and prompt
+  const { lead: rawLead, statements, prompt: optionsLead } = parseStemForReels(q.stem || '', analysis);
 
   // Parse statement verdicts from explanation
   const breakdownList = Array.isArray(analysis?.statementBreakdown)
@@ -171,7 +229,7 @@ export function buildPyqReelStoryboard(q) {
       items: statements,
     },
     options: {
-      lead: 'Which one of the following conclusions based on the above statements is correct?',
+      lead: optionsLead,
       items: options.map((o) => ({
         label: String(o.label || '').toUpperCase(),
         text: o.text || '',
