@@ -34,9 +34,20 @@ Generate the 7-step pedagogical script:
 1. "hook": 
    - "headline": A genuine, spoken curiosity question or counter-intuitive truth (under 12 words). E.g.: "Does the Constitution actually call itself 'Constitution of India'?" or "Why doesn't the Gomti River start in the Himalayas?"
    - "teaser": A natural 1-line conversational setup (under 16 words). E.g.: "UPSC tested the very last 3 articles of the Constitution in 2024. Let's see if you catch it."
-2. "keywords": 2 to 3 anchor terms students must watch out for before attempting the question:
-   - "term": Short name (e.g. "Short Title", "Repeals Clause", "Commencement")
-   - "note": 1 plain-spoken sentence explaining what it is (e.g. "Article 393 gives the official legal name to the document.")
+2. "keywords": 2 keyword spotlight stages to highlight exact words in the statements:
+   - Spotlight 1: Focus on the major recurring phrase or absolute qualifier (e.g. "There is no Article", "only", "all", etc.)
+     - "term": The exact phrase
+     - "calloutTerm": Quoted display name (e.g. "“There is no Article”")
+     - "calloutNote": 1 punchy human sentence (e.g. "An absolute claim. Finding a single Article is enough to prove it wrong.")
+     - "activePhrases": Array containing the exact phrase as it appears in the statements (e.g. ["There is no Article"])
+     - "dimmedPhrases": []
+   - Spotlight 2: Focus on the specific substantive anchor or legal verb in the statements (e.g. "stand repealed", "scheduled areas")
+     - "term": The exact phrase
+     - "calloutTerm": Quoted display name (e.g. "“stand repealed”")
+     - "calloutNote": 1 punchy human sentence (e.g. "Points to the repeal clause. Which earlier Acts did the Constitution end?")
+     - "activePhrases": [the second phrase]
+     - "dimmedPhrases": [the first phrase from spotlight 1]
+     - "contextPhrases": [any optional secondary keyword phrase]
 3. "verdicts": For each statement in the question:
    - "num": Statement number
    - "isCorrect": boolean (true/false)
@@ -46,12 +57,13 @@ Generate the 7-step pedagogical script:
 4. "answer":
    - "label": Correct letter ("A", "B", "C", "D")
    - "text": Conversational 1-sentence bottom line.
-5. "valueAddition": What forward-looking insight or memory peg saves marks in the next Prelims:
-   - "title": A memorable rule (e.g. "The Last 3 Articles to Remember")
-   - "trio": Exactly 3 crisp memory pegs:
-     - "art": E.g. "393", "394", "395" (or "01", "02", "03")
-     - "what": Core concept (e.g. "The Name")
-     - "how": Plain explanation (e.g. "Names the Constitution officially")
+5. "valueAddition": High-yield factual notes students should add to their syllabus notebooks:
+   - "title": "Value addition"
+   - "subtitle": "Add these to your [Topic/Part] notes" (e.g. "Add these to your Part XXII notes")
+   - "items": Exactly 3 high-yield factual rows:
+     - "art": Large Article number or section/topic number (e.g. "394", "394A", "395")
+     - "title": Short punchy bold title (e.g. "Came into force early", "Authoritative Hindi text", "Not repealed")
+     - "desc": Crisp factual bullet note (e.g. "Arts. 5–9, 60, 324, 366, 367, 379, 380, 388 and 391–394 came into force on 26 November 1949.")
    - "note": The examiner's actual psychology in plain English. E.g.: "UPSC loves testing the very end (Articles 393–395) because most aspirants stop revising after Emergency provisions."
 
 Question Details:
@@ -71,7 +83,21 @@ Respond ONLY with valid, raw JSON (no markdown formatting, no code fences):
     "teaser": "..."
   },
   "keywords": [
-    { "term": "...", "note": "..." }
+    {
+      "term": "...",
+      "calloutTerm": "“...”",
+      "calloutNote": "...",
+      "activePhrases": ["..."],
+      "dimmedPhrases": []
+    },
+    {
+      "term": "...",
+      "calloutTerm": "“...”",
+      "calloutNote": "...",
+      "activePhrases": ["..."],
+      "dimmedPhrases": ["..."],
+      "contextPhrases": ["..."]
+    }
   ],
   "verdicts": [
     {
@@ -87,9 +113,12 @@ Respond ONLY with valid, raw JSON (no markdown formatting, no code fences):
     "text": "..."
   },
   "valueAddition": {
-    "title": "...",
-    "trio": [
-      { "art": "...", "what": "...", "how": "..." }
+    "title": "Value addition",
+    "subtitle": "Add these to your ... notes",
+    "items": [
+      { "art": "394", "title": "...", "desc": "..." },
+      { "art": "394A", "title": "...", "desc": "..." },
+      { "art": "395", "title": "...", "desc": "..." }
     ],
     "note": "..."
   }
