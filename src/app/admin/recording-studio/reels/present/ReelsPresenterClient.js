@@ -547,7 +547,11 @@ export default function ReelsPresenterClient({ questions: initialQuestions = [] 
                           </span>
 
                           <div className="pq-reel-source">
-                            <b>{v.mini.split('·')[0].trim()}</b>
+                            <b>
+                              {typeof v.mini === 'string'
+                                ? v.mini.split('·')[0].trim()
+                                : (v.mini || '')}
+                            </b>
                             <span>{v.source}</span>
                           </div>
                         </li>

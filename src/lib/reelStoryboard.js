@@ -13,6 +13,25 @@ import { parseStem } from '@/app/prelims/pyq/StemView';
  * 8. Answer (highlighting correct option)
  * 9. Takeaway (high-yield 3-row summary card)
  */
+function extractValueAdditionNote(va) {
+  if (!va) return 'Master core statutory provisions and examiner traps for UPSC Prelims.';
+  if (typeof va === 'string') return va.trim().substring(0, 180);
+  if (Array.isArray(va) && va.length > 0) {
+    const first = va[0];
+    if (typeof first === 'string') return first.trim().substring(0, 180);
+    if (first && typeof first === 'object') {
+      const text =
+        first.description ||
+        first.title ||
+        first.heading ||
+        (Array.isArray(first.bullets) && typeof first.bullets[0] === 'string' ? first.bullets[0] : '') ||
+        '';
+      if (typeof text === 'string' && text.trim()) return text.trim().substring(0, 180);
+    }
+  }
+  return 'Master core statutory provisions and examiner traps for UPSC Prelims.';
+}
+
 export function buildPyqReelStoryboard(q) {
   if (!q) return null;
 
@@ -174,9 +193,7 @@ export function buildPyqReelStoryboard(q) {
     takeaway: {
       title: q.srcTopic ? `Key Takeaways: ${q.srcTopic}` : 'High-Yield Prelims Takeaways',
       trio,
-      note: Array.isArray(analysis?.valueAddition) && analysis.valueAddition[0]
-        ? analysis.valueAddition[0].substring(0, 180)
-        : 'Master core statutory provisions and examiner traps for UPSC Prelims.',
+      note: extractValueAdditionNote(analysis?.valueAddition),
     },
   };
 }
