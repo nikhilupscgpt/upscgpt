@@ -25,11 +25,17 @@ import {
   ShieldCheck,
   Zap,
   Play,
-  Table2
+  Table2,
+  Video,
+  Smartphone,
+  ExternalLink,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { getStructuredExplanation, formatQuestionForCopy } from '@/lib/pyqExplanationHelper';
 import { normalizeCanonicalSubject } from '@/app/prelims/pyq/topicGroups';
 import { normalizeKeywordsList, slugifyKeyword } from '@/lib/pyqKeywords';
+import { parseStemForReels } from '@/lib/reelStoryboard';
 import '@/app/prelims/pyq/pyq-ui.css';
 
 export default function PyqVisualEditorClient({ initialQuestion }) {
@@ -561,6 +567,164 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
       };
     });
   };
+
+  // -------------------------------------------------------------
+  // 9:16 Reel Storyboard & Hook Preview Handlers
+  // -------------------------------------------------------------
+  const [reelPreviewStep, setReelPreviewStep] = useState(0);
+  const [isPolishingReel, setIsPolishingReel] = useState(false);
+
+  const handleReelDataChange = (field, val) => {
+    updateDataAndSyncJson(prev => ({
+      ...prev,
+      analysis: {
+        ...(prev.analysis || {}),
+        reelData: {
+          ...((prev.analysis && prev.analysis.reelData) || {}),
+          [field]: val
+        }
+      }
+    }));
+  };
+
+  const handleReelNestedChange = (parent, field, val) => {
+    updateDataAndSyncJson(prev => {
+      const existingReel = (prev.analysis && prev.analysis.reelData) || {};
+      const existingParent = existingReel[parent] || {};
+      return {
+        ...prev,
+        analysis: {
+          ...(prev.analysis || {}),
+          reelData: {
+            ...existingReel,
+            [parent]: {
+              ...existingParent,
+              [field]: val
+            }
+          }
+        }
+      };
+    });
+  };
+
+  const handleAiPolishReel = async () => {
+    setIsPolishingReel(true);
+    try {
+      const res = await fetch('/api/admin/studio/reels/ai-polish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: {
+            stem: data.stem,
+            options: data.options,
+            correctLabel: data.correctLabel,
+            srcSubject: data.srcSubject,
+            srcTopic: data.srcTopic,
+            explanation: data.explanation || (typeof data.analysis?.valueAddition === 'string' ? data.analysis.valueAddition : ''),
+          }
+        })
+      });
+      const result = await res.json();
+      if (result.success && result.polished) {
+        updateDataAndSyncJson(prev => ({
+          ...prev,
+          analysis: {
+            ...(prev.analysis || {}),
+            reelData: {
+              ...((prev.analysis && prev.analysis.reelData) || {}),
+              hookHeadline: result.polished.hook?.headline,
+              hookTeaser: result.polished.hook?.teaser,
+              keywords: result.polished.keywords,
+              verdicts: result.polished.verdicts,
+              answer: result.polished.answer,
+              valueAddition: result.polished.valueAddition,
+            }
+          }
+        }));
+      } else {
+        alert('Could not polish reel: ' + (result.error || 'Unknown error'));
+      }
+    } catch (err) {
+      console.error('Failed to polish reel:', err);
+      alert('Failed to polish reel: ' + err.message);
+    } finally {
+      setIsPolishingReel(false);
+    }
+  };
+
+  const parsedStemData = useMemo(() => {
+    return parseStemForReels(data.stem || '', data.analysis || {});
+  }, [data.stem, data.analysis]);
+
+  const reelHookHeadline = data.analysis?.reelData?.hookHeadline ||
+    data.analysis?.reelData?.hook?.headline ||
+    (data.srcTopic ? `How well do you know ${data.srcTopic}?` : 'Can you solve this UPSC question?');
+
+  const reelHookTeaser = data.analysis?.reelData?.hookTeaser ||
+    data.analysis?.reelData?.hook?.teaser ||
+    (parsedStemData.statements.length > 1
+      ? `${parsedStemData.statements.length} statements testing foundational conceptual clarity.`
+      : 'Read the statements carefully before picking an option.');
+
+  const reelKeywords = useMemo(() => {
+    if (Array.isArray(data.analysis?.reelData?.keywords) && data.analysis.reelData.keywords.length > 0) {
+      return data.analysis.reelData.keywords;
+    }
+    if (Array.isArray(data.analysis?.keywords) && data.analysis.keywords.length > 0) {
+      return data.analysis.keywords.slice(0, 3).map(k => ({
+        term: k.term || k.keyword || 'Concept',
+        note: k.shortNote || k.significance || 'Foundational syllabus anchor'
+      }));
+    }
+    return [
+      { term: data.srcTopic || 'Core Concept', note: 'Central syllabus anchor for this question' },
+      { term: 'Phrasing', note: 'Watch out for absolute words in the statements' }
+    ];
+  }, [data.analysis, data.srcTopic]);
+
+  const reelVerdicts = useMemo(() => {
+    if (Array.isArray(data.analysis?.reelData?.verdicts) && data.analysis.reelData.verdicts.length > 0) {
+      return data.analysis.reelData.verdicts;
+    }
+    if (Array.isArray(data.analysis?.statementBreakdown) && data.analysis.statementBreakdown.length > 0) {
+      return data.analysis.statementBreakdown.map(sb => ({
+        num: sb.num,
+        isCorrect: Boolean(sb.isCorrect),
+        stamp: sb.isCorrect ? '✓ Correct' : '✗ Incorrect',
+        mini: sb.claim ? sb.claim.slice(0, 24) : `Statement ${sb.num}`,
+        source: sb.text || sb.explanation || 'Verified reference'
+      }));
+    }
+    return parsedStemData.statements.map(s => ({
+      num: s.num,
+      isCorrect: true,
+      stamp: '✓ Correct',
+      mini: `Statement ${s.num}`,
+      source: 'Verified based on standard reference materials.'
+    }));
+  }, [data.analysis, parsedStemData]);
+
+  const reelAnswerText = data.analysis?.reelData?.answer?.text ||
+    (data.options.find(o => o.label === (data.correctLabel || '').toLowerCase())?.text || 'Official verified answer.');
+
+  const reelValueAdditionTitle = data.analysis?.reelData?.valueAddition?.title ||
+    data.analysis?.reelData?.takeaway?.title ||
+    `What to Remember: ${data.srcTopic || 'Prelims Focus'}`;
+
+  const reelValueAdditionTrio = useMemo(() => {
+    const trio = data.analysis?.reelData?.valueAddition?.trio || data.analysis?.reelData?.takeaway?.trio;
+    if (Array.isArray(trio) && trio.length > 0) return trio;
+    return [
+      { art: '01', what: 'Core Rule', how: 'Verify exact legal or constitutional citations' },
+      { art: '02', what: 'Trap Lens', how: 'Examiners use negative words to test certainty' },
+      { art: '03', what: 'Memory Peg', how: 'Revise boundary articles and statutory provisions' },
+    ];
+  }, [data.analysis]);
+
+  const reelExaminerLens = data.analysis?.reelData?.valueAddition?.note ||
+    data.analysis?.reelData?.valueAddition?.examinerLens ||
+    data.analysis?.reelData?.takeaway?.note ||
+    (typeof data.analysis?.valueAddition === 'string' ? data.analysis.valueAddition.slice(0, 140) : 'Notice absolute qualifiers like "no", "only", or "all" in Prelims questions.');
 
   const handleStatementReferenceChange = (sIdx, val) => {
     updateDataAndSyncJson(prev => {
@@ -1570,6 +1734,518 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
                   </div>
                 );
               })}
+            </div>
+          </div>
+
+          {/* ========================================================================= */}
+          {/* Card: 9:16 Vertical Reel Storyboard & Live Phone Preview                 */}
+          {/* ========================================================================= */}
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(13, 20, 36, 0.95) 0%, rgba(20, 15, 35, 0.95) 100%)',
+            border: '1.5px solid rgba(236, 72, 153, 0.35)',
+            borderRadius: '18px',
+            padding: '22px 24px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px',
+            boxShadow: '0 12px 32px rgba(0, 0, 0, 0.35)'
+          }}>
+            {/* Reel Card Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '10px',
+                  background: 'rgba(236, 72, 153, 0.15)',
+                  border: '1px solid rgba(236, 72, 153, 0.4)',
+                  display: 'grid',
+                  placeItems: 'center'
+                }}>
+                  <Video size={17} color="#ec4899" />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <strong style={{ fontSize: '15px', color: '#ffffff' }}>9:16 Vertical Reel Storyboard &amp; Live Phone Preview</strong>
+                    <span style={{
+                      fontSize: '10.5px',
+                      fontWeight: 800,
+                      color: '#f472b6',
+                      background: 'rgba(236, 72, 153, 0.15)',
+                      padding: '2px 8px',
+                      borderRadius: '6px',
+                      border: '1px solid rgba(236, 72, 153, 0.3)'
+                    }}>
+                      7 Steps · Instagram / Shorts
+                    </span>
+                  </div>
+                  <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#94a3b8' }}>
+                    Verify how this question renders in the 9:16 mobile stage and tweak the curiosity hook before recording.
+                  </p>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <button
+                  type="button"
+                  onClick={handleAiPolishReel}
+                  disabled={isPolishingReel}
+                  style={{
+                    background: isPolishingReel ? 'rgba(168, 85, 247, 0.1)' : 'rgba(168, 85, 247, 0.15)',
+                    color: '#c084fc',
+                    border: '1px solid rgba(168, 85, 247, 0.4)',
+                    borderRadius: '8px',
+                    padding: '6px 12px',
+                    fontSize: '11.5px',
+                    fontWeight: 700,
+                    cursor: isPolishingReel ? 'wait' : 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    transition: 'all 0.2s'
+                  }}
+                  title="Generate or polish hook and 7-step reel script using Gemini"
+                >
+                  <Sparkles size={13} />
+                  <span>{isPolishingReel ? 'Polishing Script...' : '✨ AI Polish Hook'}</span>
+                </button>
+
+                <a
+                  href={`/admin/recording-studio/reels/present?id=${initialQuestion.id}&mode=pyq`}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '6px 14px',
+                    fontSize: '11.5px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    textDecoration: 'none',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 4px 14px rgba(236, 72, 153, 0.4)'
+                  }}
+                >
+                  <Smartphone size={13} />
+                  <span>Open in Reels Studio ↗</span>
+                </a>
+              </div>
+            </div>
+
+            {/* Main Content: Phone Preview + Hook Fields */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '270px 1fr',
+              gap: '24px',
+              alignItems: 'start',
+              paddingTop: '6px'
+            }}>
+              {/* LEFT: Mini Phone Frame (9:16 Aspect Ratio) */}
+              <div style={{
+                width: '270px',
+                height: '475px',
+                background: 'linear-gradient(180deg, #070710 0%, #0e0e1a 100%)',
+                borderRadius: '26px',
+                border: '3px solid #1e293b',
+                boxShadow: '0 16px 40px rgba(0, 0, 0, 0.6), inset 0 0 0 1px rgba(255, 255, 255, 0.08)',
+                position: 'relative',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+                flexShrink: 0,
+                padding: '16px 14px',
+                boxSizing: 'border-box'
+              }}>
+                {/* Phone Top Header */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <div style={{
+                    background: 'rgba(236, 72, 153, 0.15)',
+                    border: '1px solid rgba(236, 72, 153, 0.4)',
+                    color: '#f472b6',
+                    fontSize: '8px',
+                    fontWeight: 800,
+                    padding: '2px 6px',
+                    borderRadius: '6px',
+                    letterSpacing: '0.04em'
+                  }}>
+                    UPSCGPT REELS
+                  </div>
+                  {/* Top-Right Camera Bubble Mockup */}
+                  <div style={{
+                    width: '26px',
+                    height: '26px',
+                    borderRadius: '50%',
+                    border: '1.5px solid #ec4899',
+                    background: '#1e1b4b',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '7px',
+                    color: '#fff',
+                    fontWeight: 700
+                  }}>
+                    CAM
+                  </div>
+                </div>
+
+                {/* 7-Segment Progress Dots */}
+                <div style={{ display: 'flex', gap: '3px', marginBottom: '12px' }}>
+                  {[0, 1, 2, 3, 4, 5, 6].map(idx => (
+                    <div
+                      key={idx}
+                      onClick={() => setReelPreviewStep(idx)}
+                      style={{
+                        flex: 1,
+                        height: '3px',
+                        borderRadius: '2px',
+                        background: idx <= reelPreviewStep ? '#ec4899' : 'rgba(255, 255, 255, 0.15)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s'
+                      }}
+                      title={`Step ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+
+                {/* Step Content Screen */}
+                <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+                  {/* STEP 0: HOOK */}
+                  {reelPreviewStep === 0 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%', gap: '10px' }}>
+                      <span style={{ fontSize: '9px', fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                        {data.srcSubject || 'UPSC Prelims Question'}
+                      </span>
+                      <h3 style={{
+                        fontFamily: "'Fraunces', Georgia, serif",
+                        fontSize: '19px',
+                        fontWeight: 800,
+                        color: '#ffffff',
+                        lineHeight: 1.15,
+                        margin: 0
+                      }}>
+                        {reelHookHeadline}
+                      </h3>
+                      <p style={{ fontSize: '11px', color: '#94a3b8', lineHeight: 1.4, margin: 0 }}>
+                        {reelHookTeaser}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* STEP 1: QUESTION */}
+                  {reelPreviewStep === 1 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <span style={{ fontSize: '9px', fontWeight: 700, color: '#38bdf8' }}>{data.srcTopic || 'Prelims Question'}</span>
+                      <p style={{ fontSize: '10px', fontWeight: 700, color: '#f1f5f9', margin: 0, lineHeight: 1.3 }}>
+                        {parsedStemData.lead}
+                      </p>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        {parsedStemData.statements.map(s => (
+                          <div key={s.num} style={{
+                            display: 'flex',
+                            gap: '6px',
+                            padding: '6px 8px',
+                            background: 'rgba(255, 255, 255, 0.04)',
+                            border: '1px solid rgba(255, 255, 255, 0.08)',
+                            borderRadius: '8px',
+                            fontSize: '9.5px',
+                            color: '#e2e8f0',
+                            lineHeight: 1.35
+                          }}>
+                            <span style={{ color: '#c084fc', fontWeight: 800 }}>{s.num}</span>
+                            <span>{s.text}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* STEP 2: OPTIONS & ATTEMPT */}
+                  {reelPreviewStep === 2 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <p style={{ fontSize: '9.5px', color: '#cbd5e1', margin: 0 }}>
+                        {parsedStemData.prompt || 'Which of the statements given above is/are correct?'}
+                      </p>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                        {data.options.map(o => (
+                          <div key={o.label} style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '5px 8px',
+                            background: 'rgba(255, 255, 255, 0.04)',
+                            border: '1px solid rgba(255, 255, 255, 0.08)',
+                            borderRadius: '8px',
+                            fontSize: '9.5px',
+                            color: '#e2e8f0'
+                          }}>
+                            <span style={{ width: '15px', height: '15px', borderRadius: '50%', background: 'rgba(56, 189, 248, 0.2)', color: '#38bdf8', display: 'grid', placeItems: 'center', fontSize: '8.5px', fontWeight: 800 }}>
+                              {o.label.toUpperCase()}
+                            </span>
+                            <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{o.text}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div style={{ marginTop: 'auto', padding: '7px', background: 'rgba(236, 72, 153, 0.1)', border: '1px dashed rgba(236, 72, 153, 0.3)', borderRadius: '10px', textAlign: 'center' }}>
+                        <span style={{ fontSize: '10.5px', fontWeight: 800, color: '#f472b6' }}>⏱️ 5s Pause Ring</span>
+                        <div style={{ fontSize: '8.5px', color: '#cbd5e1' }}>Decide your option before reveal</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* STEP 3: KEYWORDS */}
+                  {reelPreviewStep === 3 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+                      <span style={{ fontSize: '8.5px', fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase' }}>Keywords to Watch</span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                        {reelKeywords.map((kw, idx) => (
+                          <div key={idx} style={{
+                            padding: '6px 8px',
+                            background: 'rgba(255, 255, 255, 0.04)',
+                            border: '1px solid rgba(255, 255, 255, 0.08)',
+                            borderRadius: '8px'
+                          }}>
+                            <span style={{ fontSize: '8px', fontWeight: 800, color: '#38bdf8', background: 'rgba(56, 189, 248, 0.15)', padding: '1px 5px', borderRadius: '4px' }}>
+                              {kw.term || kw.keyword}
+                            </span>
+                            <p style={{ margin: '3px 0 0', fontSize: '9px', color: '#cbd5e1', lineHeight: 1.3 }}>
+                              {kw.note || kw.significance || kw.shortNote}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* STEP 4: STATEMENT ANALYSIS & VERDICTS */}
+                  {reelPreviewStep === 4 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+                      <span style={{ fontSize: '8.5px', fontWeight: 800, color: '#a855f7', textTransform: 'uppercase' }}>Statement Verdicts</span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                        {reelVerdicts.map(v => (
+                          <div key={v.num} style={{
+                            padding: '6px 8px',
+                            background: 'rgba(255, 255, 255, 0.04)',
+                            border: '1px solid rgba(255, 255, 255, 0.08)',
+                            borderRadius: '8px'
+                          }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
+                              <span style={{ fontSize: '8.5px', fontWeight: 800, color: '#c084fc' }}>Statement {v.num}</span>
+                              <span style={{ fontSize: '8px', fontWeight: 800, color: v.isCorrect ? '#34d399' : '#f87171' }}>
+                                {v.stamp || (v.isCorrect ? '✓ Correct' : '✗ Incorrect')}
+                              </span>
+                            </div>
+                            <p style={{ margin: 0, fontSize: '8.5px', color: '#cbd5e1', lineHeight: 1.3 }}>
+                              {v.source || v.explanation}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* STEP 5: OFFICIAL ANSWER */}
+                  {reelPreviewStep === 5 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%', gap: '8px', textAlign: 'center' }}>
+                      <span style={{ fontSize: '8.5px', fontWeight: 800, color: '#34d399', textTransform: 'uppercase' }}>Official Verified Answer</span>
+                      <div style={{
+                        width: '46px',
+                        height: '46px',
+                        margin: '0 auto',
+                        borderRadius: '50%',
+                        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                        color: '#ffffff',
+                        fontSize: '22px',
+                        fontWeight: 800,
+                        display: 'grid',
+                        placeItems: 'center',
+                        boxShadow: '0 8px 20px rgba(16, 185, 129, 0.4)'
+                      }}>
+                        {data.correctLabel?.toUpperCase()}
+                      </div>
+                      <p style={{ fontSize: '10.5px', color: '#f1f5f9', lineHeight: 1.35, margin: 0, fontWeight: 600 }}>
+                        {reelAnswerText}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* STEP 6: WHAT VALUE ADDITION IS NEEDED */}
+                  {reelPreviewStep === 6 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+                      <span style={{ fontSize: '8.5px', fontWeight: 800, color: '#ec4899', textTransform: 'uppercase' }}>What to Remember</span>
+                      <h4 style={{ fontSize: '11.5px', fontWeight: 800, color: '#fff', margin: 0 }}>
+                        {reelValueAdditionTitle}
+                      </h4>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                        {reelValueAdditionTrio.map((item, idx) => (
+                          <div key={idx} style={{
+                            display: 'flex',
+                            gap: '5px',
+                            padding: '5px 7px',
+                            background: 'rgba(255, 255, 255, 0.04)',
+                            border: '1px solid rgba(255, 255, 255, 0.08)',
+                            borderRadius: '7px',
+                            fontSize: '9px'
+                          }}>
+                            <span style={{ color: '#ec4899', fontWeight: 800 }}>{item.art}</span>
+                            <div>
+                              <strong style={{ color: '#fff' }}>{item.what}</strong>: <span style={{ color: '#cbd5e1' }}>{item.how}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <p style={{ margin: 'auto 0 0', fontSize: '8.5px', color: '#94a3b8', fontStyle: 'italic', lineHeight: 1.3 }}>
+                        {reelExaminerLens}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Bottom Step Nav */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px', paddingTop: '6px', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                  <button
+                    type="button"
+                    onClick={() => setReelPreviewStep(s => Math.max(0, s - 1))}
+                    disabled={reelPreviewStep === 0}
+                    style={{ background: 'transparent', border: 'none', color: reelPreviewStep === 0 ? '#475569' : '#fff', cursor: reelPreviewStep === 0 ? 'default' : 'pointer', padding: 2 }}
+                  >
+                    <ChevronLeft size={15} />
+                  </button>
+                  <span style={{ fontSize: '9.5px', fontWeight: 700, color: '#94a3b8' }}>
+                    {reelPreviewStep + 1}/7 · {['Hook', 'Question', 'Options', 'Keywords', 'Verdicts', 'Answer', 'Value Addition'][reelPreviewStep]}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setReelPreviewStep(s => Math.min(6, s + 1))}
+                    disabled={reelPreviewStep === 6}
+                    style={{ background: 'transparent', border: 'none', color: reelPreviewStep === 6 ? '#475569' : '#fff', cursor: reelPreviewStep === 6 ? 'default' : 'pointer', padding: 2 }}
+                  >
+                    <ChevronRight size={15} />
+                  </button>
+                </div>
+              </div>
+
+              {/* RIGHT: Live Script & Hook Form Fields */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                {/* Field 1: Hook Headline */}
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <label style={{ fontSize: '11px', fontWeight: 800, color: '#f472b6', textTransform: 'uppercase' }}>
+                      1. Curiosity Hook Headline (Spoken On Camera)
+                    </label>
+                    <span style={{ fontSize: '10px', color: '#64748b' }}>Live syncs to phone preview</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={data.analysis?.reelData?.hookHeadline || ''}
+                    onChange={(e) => handleReelDataChange('hookHeadline', e.target.value)}
+                    placeholder={reelHookHeadline}
+                    style={{
+                      width: '100%',
+                      background: '#070b14',
+                      color: '#ffffff',
+                      border: '1.5px solid rgba(236, 72, 153, 0.35)',
+                      borderRadius: '8px',
+                      padding: '8px 12px',
+                      fontSize: '13.5px',
+                      fontFamily: "'Fraunces', Georgia, serif",
+                      fontWeight: 700,
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                {/* Field 2: Hook Teaser */}
+                <div>
+                  <label style={{ fontSize: '11px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>
+                    2. Conversational Teaser (1 Line Under Hook)
+                  </label>
+                  <input
+                    type="text"
+                    value={data.analysis?.reelData?.hookTeaser || ''}
+                    onChange={(e) => handleReelDataChange('hookTeaser', e.target.value)}
+                    placeholder={reelHookTeaser}
+                    style={{
+                      width: '100%',
+                      background: '#070b14',
+                      color: '#cbd5e1',
+                      border: '1px solid #1c263c',
+                      borderRadius: '8px',
+                      padding: '8px 12px',
+                      fontSize: '12.5px',
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                {/* Field 3: What Value Addition is Needed (Title) */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                  <div>
+                    <label style={{ fontSize: '11px', fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>
+                      7. Value Addition Title
+                    </label>
+                    <input
+                      type="text"
+                      value={data.analysis?.reelData?.valueAddition?.title || ''}
+                      onChange={(e) => handleReelNestedChange('valueAddition', 'title', e.target.value)}
+                      placeholder={reelValueAdditionTitle}
+                      style={{
+                        width: '100%',
+                        background: '#070b14',
+                        color: '#f8fafc',
+                        border: '1px solid #1c263c',
+                        borderRadius: '8px',
+                        padding: '7px 10px',
+                        fontSize: '12px',
+                        fontWeight: 700,
+                        outline: 'none',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '11px', fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>
+                      Examiner Lens / Psychology
+                    </label>
+                    <input
+                      type="text"
+                      value={data.analysis?.reelData?.valueAddition?.note || ''}
+                      onChange={(e) => handleReelNestedChange('valueAddition', 'note', e.target.value)}
+                      placeholder={reelExaminerLens}
+                      style={{
+                        width: '100%',
+                        background: '#070b14',
+                        color: '#cbd5e1',
+                        border: '1px solid #1c263c',
+                        borderRadius: '8px',
+                        padding: '7px 10px',
+                        fontSize: '12px',
+                        outline: 'none',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Tips Box */}
+                <div style={{
+                  padding: '10px 14px',
+                  background: 'rgba(0, 0, 0, 0.25)',
+                  border: '1px solid rgba(255, 255, 255, 0.06)',
+                  borderRadius: '10px',
+                  fontSize: '11.5px',
+                  color: '#94a3b8',
+                  lineHeight: 1.5
+                }}>
+                  💡 <strong>Direct Sync &amp; Recording:</strong> Any edit made here is automatically saved to <code>question.analysis.reelData</code> when you click <strong>Save Changes</strong> at the top. The Reels Studio will immediately load this exact human script!
+                </div>
+              </div>
             </div>
           </div>
 
