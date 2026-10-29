@@ -26,12 +26,22 @@ export const bulkEntriesSchema = z.object({
 
 // Admin User Schema
 export const adminUserSchema = z.object({
-  email: z.string().email("Invalid email").optional().nullable(),
-  username: z.string().min(3, "Username must be at least 3 characters").optional().nullable(),
-  name: z.string().min(1, "Name is required").max(100),
+  email: z.preprocess(
+    (v) => (typeof v === 'string' && v.trim() === '' ? null : typeof v === 'string' ? v.trim() : v),
+    z.string().email("Invalid email").optional().nullable()
+  ),
+  username: z.preprocess(
+    (v) => (typeof v === 'string' && v.trim() === '' ? null : typeof v === 'string' ? v.trim() : v),
+    z.string().min(3, "Username must be at least 3 characters").optional().nullable()
+  ),
+  name: z.string().trim().min(1, "Name is required").max(100),
   tier: z.enum(["FREE", "PRO"]).default("FREE"),
   role: z.enum(["USER", "ADMIN", "FACULTY"]).default("USER"),
-  password: z.string().min(8, "Password must be at least 8 characters").optional().nullable(),
+  password: z.preprocess(
+    (v) => (typeof v === 'string' && v.trim() === '' ? null : v),
+    z.string().min(6, "Password must be at least 6 characters").optional().nullable()
+  ),
+  validUntil: z.string().optional().nullable(),
 });
 
 // Communication Schema

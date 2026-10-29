@@ -92,21 +92,37 @@ export default async function RecordingStudioHubPage() {
             <span>Classic Lecture Studio (OBS)</span>
           </Link>
 
-          <Link
-            href="/admin"
-            style={{
-              padding: "10px 18px",
-              borderRadius: 12,
-              background: "rgba(255, 255, 255, 0.08)",
-              border: "1px solid rgba(255, 255, 255, 0.15)",
-              color: "#cbd5e1",
-              textDecoration: "none",
-              fontSize: 13.5,
-              fontWeight: 700,
-            }}
-          >
-            ← Return to Admin Control Center
-          </Link>
+          {session.user?.role === "ADMIN" ? (
+            <Link
+              href="/admin"
+              style={{
+                padding: "10px 18px",
+                borderRadius: 12,
+                background: "rgba(255, 255, 255, 0.08)",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                color: "#cbd5e1",
+                textDecoration: "none",
+                fontSize: 13.5,
+                fontWeight: 700,
+              }}
+            >
+              ← Return to Admin Control Center
+            </Link>
+          ) : (
+            <span
+              style={{
+                padding: "10px 16px",
+                borderRadius: 12,
+                background: "rgba(168, 85, 247, 0.15)",
+                border: "1px solid rgba(168, 85, 247, 0.35)",
+                color: "#c084fc",
+                fontSize: 13,
+                fontWeight: 800,
+              }}
+            >
+              🎓 Faculty / Presenter Mode ({session.user?.name || "Faculty"})
+            </span>
+          )}
         </div>
       </header>
 

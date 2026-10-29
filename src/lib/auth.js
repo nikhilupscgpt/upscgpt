@@ -74,21 +74,30 @@ export const authOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        if (!credentials?.username || !credentials?.password) return null;
-        
-        let user = await prisma.user.findUnique({
-          where: { username: credentials.username }
+        const identifier = credentials?.username?.trim();
+        const password = credentials?.password;
+        if (!identifier || !password) return null;
+
+        const user = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { username: { equals: identifier, mode: 'insensitive' } },
+              { email: { equals: identifier, mode: 'insensitive' } }
+            ]
+          }
         });
 
-        if (!user) return null;
+        if (!user || !user.password) return null;
 
-        const isMatch = await bcrypt.compare(credentials.password, user.password);
+        const isMatch = await bcrypt.compare(password, user.password);
         if (isMatch) {
-          const role = credentials.username === 'admin' ? 'ADMIN' : (user.role || 'USER');
-          const tier = credentials.username === 'admin' ? 'PRO' : (user.tier || 'FREE');
+          const isSuperAdmin = user.username?.toLowerCase() === 'admin';
+          const role = isSuperAdmin ? 'ADMIN' : (user.role || 'USER');
+          const tier = (isSuperAdmin || role === 'ADMIN' || role === 'FACULTY') ? 'PRO' : (user.tier || 'FREE');
           return {
             id: user.id,
-            name: user.username,
+            name: user.name || user.username,
+            email: user.email,
             role,
             tier,
             validUntil: user.validUntil ? user.validUntil.toISOString() : null

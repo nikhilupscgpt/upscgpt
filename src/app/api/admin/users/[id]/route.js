@@ -25,13 +25,17 @@ export async function PATCH(req, { params }) {
     const validation = adminUserSchema.partial().safeParse(body)
     
     if (!validation.success) {
-      return NextResponse.json({ error: validation.error.format() }, { status: 400 })
+      const flat = validation.error.flatten().fieldErrors;
+      const firstMsg = Object.values(flat).flat()[0] || 'Invalid input fields';
+      return NextResponse.json({ error: firstMsg, details: flat }, { status: 400 })
     }
 
     const updateData = { ...validation.data }
     
     if (updateData.password) {
       updateData.password = await bcrypt.hash(updateData.password, 10)
+    } else {
+      delete updateData.password
     }
     
     const user = await prisma.user.update({
@@ -39,19 +43,25 @@ export async function PATCH(req, { params }) {
       data: updateData
     })
 
-    // Audit the action
-    await prisma.actionLog.create({
-      data: {
-        action: 'USER_MOD',
-        message: `Updated user: ${user.email || user.username} (ID: ${user.id})`,
-        userId: session.user.id
+    // Audit the action (non-blocking)
+    try {
+      if (session?.user?.id) {
+        await prisma.actionLog.create({
+          data: {
+            action: 'USER_MOD',
+            message: `Updated user: ${user.email || user.username} (ID: ${user.id})`,
+            userId: session.user.id
+          }
+        })
       }
-    })
+    } catch (logErr) {
+      console.warn('ActionLog skipped:', logErr?.message)
+    }
 
     return NextResponse.json(user)
   } catch (error) {
     console.error("User update failed:", error)
-    return NextResponse.json({ error: "Failed to update user" }, { status: 500 })
+    return NextResponse.json({ error: error?.message || "Failed to update user" }, { status: 500 })
   }
 }
 
@@ -65,18 +75,24 @@ export async function DELETE(req, { params }) {
     const { id } = await params
     const user = await prisma.user.delete({ where: { id } })
     
-    // Audit the action
-    await prisma.actionLog.create({
-      data: {
-        action: 'USER_MOD',
-        message: `Deleted user: ${user.email || user.username} (ID: ${user.id})`,
-        userId: session.user.id
+    // Audit the action (non-blocking)
+    try {
+      if (session?.user?.id) {
+        await prisma.actionLog.create({
+          data: {
+            action: 'USER_MOD',
+            message: `Deleted user: ${user.email || user.username} (ID: ${user.id})`,
+            userId: session.user.id
+          }
+        })
       }
-    })
+    } catch (logErr) {
+      console.warn('ActionLog skipped:', logErr?.message)
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("User deletion failed:", error)
-    return NextResponse.json({ error: "Failed to delete user" }, { status: 500 })
+    return NextResponse.json({ error: error?.message || "Failed to delete user" }, { status: 500 })
   }
 }

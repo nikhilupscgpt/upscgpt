@@ -17,7 +17,10 @@ export default function AdminClient({ session }) {
   const [loading, setLoading] = useState(false)
   const [aiPrompts, setAiPrompts] = useState([])
   const [savingPromptId, setSavingPromptId] = useState(null)
-  const [userFormData, setUserFormData] = useState({ name: '', username: '', email: '', password: '', tier: 'FREE', role: 'USER' })
+  const [userFormData, setUserFormData] = useState({ name: '', username: '', email: '', password: '', tier: 'FREE', role: 'FACULTY' })
+  const [userRoleFilter, setUserRoleFilter] = useState('ALL')
+  const [editingUserId, setEditingUserId] = useState(null)
+  const [editUserForm, setEditUserForm] = useState({ username: '', password: '', role: 'USER' })
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -64,15 +67,71 @@ export default function AdminClient({ session }) {
   // --- USER ACTIONS ---
   const handleUserCreate = async (e) => {
     e.preventDefault()
-    const res = await fetch("/api/admin/users", {
-      method: "POST",
-      body: JSON.stringify(userFormData),
-      headers: { "Content-Type": "application/json" }
-    })
-    if (res.ok) {
-      setUserFormData({ name: '', username: '', email: '', password: '', tier: 'FREE', role: 'USER' })
-      fetchUsers()
-      setStatus("User Created Successfully.")
+    if ((userFormData.role === 'FACULTY' || userFormData.role === 'ADMIN') && (!userFormData.username.trim() || !userFormData.password.trim())) {
+      setStatus("⚠️ Please provide both a Username (min 3 chars) and Password (min 6 chars) for Faculty/Admin login.")
+      return
+    }
+    setLoading(true)
+    try {
+      const payload = {
+        ...userFormData,
+        tier: (userFormData.role === 'FACULTY' || userFormData.role === 'ADMIN') ? 'PRO' : userFormData.tier
+      }
+      const res = await fetch("/api/admin/users", {
+        method: "POST",
+        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/json" }
+      })
+      const data = await res.json().catch(() => ({}))
+      if (res.ok) {
+        const createdRole = userFormData.role
+        const createdUsername = userFormData.username
+        setUserFormData({ name: '', username: '', email: '', password: '', tier: 'FREE', role: 'FACULTY' })
+        fetchUsers()
+        setStatus(
+          createdRole === 'FACULTY'
+            ? `✅ Faculty Account "${createdUsername}" provisioned! Login at /admin-login`
+            : `✅ User "${data.username || data.email || 'Account'}" created successfully.`
+        )
+      } else {
+        setStatus(`❌ Failed to create user: ${data.error || 'Validation error'}`)
+      }
+    } catch (err) {
+      setStatus(`❌ Network error while creating user.`)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSaveUserCredentials = async (userId) => {
+    setLoading(true)
+    try {
+      const payload = {
+        role: editUserForm.role,
+        username: editUserForm.username?.trim() || undefined,
+        tier: (editUserForm.role === 'FACULTY' || editUserForm.role === 'ADMIN') ? 'PRO' : undefined,
+      }
+      if (editUserForm.password && editUserForm.password.trim().length > 0) {
+        payload.password = editUserForm.password.trim()
+      }
+      const res = await fetch(`/api/admin/users/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      const data = await res.json().catch(() => ({}))
+      if (res.ok) {
+        setStatus(`✅ Updated credentials & role (${data.role}) for ${data.name || data.username}`)
+        setEditingUserId(null)
+        setEditUserForm({ username: '', password: '', role: 'USER' })
+        fetchUsers()
+      } else {
+        setStatus(`❌ Update failed: ${data.error || 'Could not update credentials'}`)
+      }
+    } catch (e) {
+      setStatus("❌ Network error updating user credentials")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -366,85 +425,274 @@ export default function AdminClient({ session }) {
         )}
 
         {activeTab === 'users' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '40px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '40px', alignItems: 'start' }}>
             <section style={cardStyle}>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '24px' }}>Manual Access Grant</h2>
-              <form onSubmit={handleUserCreate} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <input required placeholder="Full Name" value={userFormData.name} onChange={e=>setUserFormData({...userFormData, name: e.target.value})} style={{ padding:'16px', borderRadius:'14px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }} />
-                <input placeholder="Username (required for Faculty login)" value={userFormData.username} onChange={e=>setUserFormData({...userFormData, username: e.target.value})} style={{ padding:'16px', borderRadius:'14px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }} />
-                <input placeholder="Email Address (optional)" type="email" value={userFormData.email} onChange={e=>setUserFormData({...userFormData, email: e.target.value})} style={{ padding:'16px', borderRadius:'14px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }} />
-                <input placeholder="Password / Passkey (required for Faculty)" type="password" value={userFormData.password} onChange={e=>setUserFormData({...userFormData, password: e.target.value})} style={{ padding:'16px', borderRadius:'14px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }} />
-                <select value={userFormData.role} onChange={e=>setUserFormData({...userFormData, role: e.target.value})} style={{ padding:'16px', borderRadius:'14px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }}>
-                  <option value="USER">Standard User</option>
-                  <option value="FACULTY">Faculty / Presenter (Lecture Studio Access Only)</option>
-                  <option value="ADMIN">Full Administrator</option>
-                </select>
-                <select value={userFormData.tier} onChange={e=>setUserFormData({...userFormData, tier: e.target.value})} style={{ padding:'16px', borderRadius:'14px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }}>
-                  <option value="FREE">Free Tier</option>
-                  <option value="PRO">Pro Lifetime Access</option>
-                </select>
-                <button type="submit" style={{ padding: '18px', background: 'white', color: 'black', borderRadius: '16px', border:'none', cursor: 'pointer', fontWeight: 800 }}>Provision User</button>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '8px' }}>Provision Faculty / User Account</h2>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: '20px', lineHeight: 1.5 }}>
+                Faculty / Presenter accounts log in via <code>/admin-login</code> using their Username &amp; Password and have dedicated access only to Lecture &amp; Recording Studios.
+              </p>
+              <form onSubmit={handleUserCreate} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', marginBottom: '6px', letterSpacing: '0.06em' }}>ACCOUNT ROLE</label>
+                  <select
+                    value={userFormData.role}
+                    onChange={e => {
+                      const newRole = e.target.value;
+                      setUserFormData({
+                        ...userFormData,
+                        role: newRole,
+                        tier: (newRole === 'FACULTY' || newRole === 'ADMIN') ? 'PRO' : userFormData.tier
+                      });
+                    }}
+                    style={{ width: '100%', padding: '14px 16px', borderRadius: '14px', border: '1px solid rgba(168, 85, 247, 0.4)', background: 'rgba(15, 23, 42, 0.9)', color: 'white', fontWeight: 700 }}
+                  >
+                    <option value="FACULTY">🎓 Faculty / Presenter (Lecture &amp; Recording Studio Only)</option>
+                    <option value="USER">👤 Standard Student User</option>
+                    <option value="ADMIN">🛡️ Full Administrator</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', marginBottom: '6px', letterSpacing: '0.06em' }}>FULL NAME *</label>
+                  <input required placeholder="e.g. Dr. Ramesh Sharma" value={userFormData.name} onChange={e=>setUserFormData({...userFormData, name: e.target.value})} style={{ width: '100%', padding:'14px 16px', borderRadius:'14px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }} />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: '#c084fc', marginBottom: '6px', letterSpacing: '0.06em' }}>
+                    LOGIN USERNAME {(userFormData.role === 'FACULTY' || userFormData.role === 'ADMIN') ? '* (MIN 3 CHARS)' : '(OPTIONAL)'}
+                  </label>
+                  <input
+                    required={userFormData.role === 'FACULTY' || userFormData.role === 'ADMIN'}
+                    minLength={3}
+                    placeholder="e.g. faculty_geo"
+                    value={userFormData.username}
+                    onChange={e=>setUserFormData({...userFormData, username: e.target.value})}
+                    style={{ width: '100%', padding:'14px 16px', borderRadius:'14px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: '#c084fc', marginBottom: '6px', letterSpacing: '0.06em' }}>
+                    LOGIN PASSWORD / PASSKEY {(userFormData.role === 'FACULTY' || userFormData.role === 'ADMIN') ? '* (MIN 6 CHARS)' : '(OPTIONAL)'}
+                  </label>
+                  <input
+                    required={userFormData.role === 'FACULTY' || userFormData.role === 'ADMIN'}
+                    minLength={6}
+                    placeholder="Enter at least 6 characters"
+                    type="text"
+                    value={userFormData.password}
+                    onChange={e=>setUserFormData({...userFormData, password: e.target.value})}
+                    style={{ width: '100%', padding:'14px 16px', borderRadius:'14px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white', fontFamily: 'monospace' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', marginBottom: '6px', letterSpacing: '0.06em' }}>EMAIL ADDRESS (OPTIONAL FOR FACULTY)</label>
+                  <input placeholder="faculty@example.com (optional)" type="email" value={userFormData.email} onChange={e=>setUserFormData({...userFormData, email: e.target.value})} style={{ width: '100%', padding:'14px 16px', borderRadius:'14px', border: '1px solid var(--card-border)', background: 'rgba(0,0,0,0.2)', color: 'white' }} />
+                </div>
+
+                {userFormData.role === 'USER' && (
+                  <div>
+                    <label style={{ display: 'block', fontSize: '0.72rem', fontWeight: 800, color: '#94a3b8', marginBottom: '6px', letterSpacing: '0.06em' }}>SUBSCRIPTION TIER</label>
+                    <select value={userFormData.tier} onChange={e=>setUserFormData({...userFormData, tier: e.target.value})} style={{ width: '100%', padding:'14px 16px', borderRadius:'14px', border: '1px solid var(--card-border)', background: 'rgba(15, 23, 42, 0.9)', color: 'white' }}>
+                      <option value="FREE">Free Tier</option>
+                      <option value="PRO">Pro Lifetime Access</option>
+                    </select>
+                  </div>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  style={{
+                    padding: '16px',
+                    background: userFormData.role === 'FACULTY'
+                      ? 'linear-gradient(135deg, #a855f7 0%, #6366f1 100%)'
+                      : 'white',
+                    color: userFormData.role === 'FACULTY' ? 'white' : 'black',
+                    borderRadius: '16px',
+                    border: 'none',
+                    cursor: loading ? 'wait' : 'pointer',
+                    fontWeight: 800,
+                    fontSize: '0.95rem',
+                    marginTop: '4px',
+                    boxShadow: userFormData.role === 'FACULTY' ? '0 8px 24px rgba(168, 85, 247, 0.35)' : 'none'
+                  }}
+                >
+                  {loading ? 'Provisioning...' : userFormData.role === 'FACULTY' ? '🎓 Create / Update Faculty Account' : 'Provision User Account'}
+                </button>
               </form>
             </section>
             
             <section style={cardStyle}>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '24px' }}>Global User Base ({(users || []).length})</h2>
-              {(users || []).map(user => (
-                <div key={user.id} style={{ padding: '20px', background: 'rgba(255,255,255,0.03)', borderRadius: '20px', marginBottom: '16px', border: '1px solid var(--card-border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <div style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--text-primary)' }}>
-                      {user.name} {user.username && <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>({user.username})</span>}
-                    </div>
-                    <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                      {user.email || 'No email'} · <span style={{ color: user.role === 'FACULTY' ? '#a855f7' : user.role === 'ADMIN' ? '#f43f5e' : 'var(--text-secondary)', fontWeight: 800 }}>{user.role}</span> · <span style={{ color: user.tier === 'PRO' ? '#3b82f6' : 'var(--text-secondary)', fontWeight: 800 }}>{user.tier}</span>
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end' }}>
-                    {user.tier !== 'PRO' ? (
-                      <div style={{ display: 'flex', gap: '8px' }}>
-                        {[3, 6, 12].map(m => (
-                          <button key={m} disabled={loading} onClick={() => grantPro(user, m)} style={{ padding: '8px 12px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer' }}>
-                            +{m}M
-                          </button>
-                        ))}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '20px' }}>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>Global User Base ({(users || []).length})</h2>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  {[
+                    { id: 'ALL', label: `All (${(users || []).length})` },
+                    { id: 'FACULTY', label: `🎓 Faculty (${(users || []).filter(u => u.role === 'FACULTY').length})` },
+                    { id: 'ADMIN', label: `🛡️ Admin (${(users || []).filter(u => u.role === 'ADMIN').length})` },
+                    { id: 'USER', label: `👤 Students (${(users || []).filter(u => u.role === 'USER').length})` },
+                  ].map(tab => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setUserRoleFilter(tab.id)}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: '10px',
+                        border: userRoleFilter === tab.id ? '1px solid #3b82f6' : '1px solid rgba(255,255,255,0.1)',
+                        background: userRoleFilter === tab.id ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255,255,255,0.04)',
+                        color: userRoleFilter === tab.id ? '#60a5fa' : '#94a3b8',
+                        fontSize: '0.75rem',
+                        fontWeight: 800,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {(users || [])
+                .filter(u => userRoleFilter === 'ALL' ? true : u.role === userRoleFilter)
+                .map(user => (
+                <div key={user.id} style={{ padding: '20px', background: 'rgba(255,255,255,0.03)', borderRadius: '20px', marginBottom: '16px', border: user.role === 'FACULTY' ? '1px solid rgba(168, 85, 247, 0.4)' : '1px solid var(--card-border)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <span style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--text-primary)' }}>
+                          {user.name || user.username || 'Unnamed User'}
+                        </span>
+                        {user.username && (
+                          <span style={{ fontSize: '0.78rem', padding: '2px 8px', borderRadius: '6px', background: 'rgba(255,255,255,0.07)', color: '#cbd5e1', fontFamily: 'monospace' }}>
+                            @{user.username}
+                          </span>
+                        )}
+                        <span style={{
+                          fontSize: '0.7rem',
+                          padding: '3px 9px',
+                          borderRadius: '999px',
+                          fontWeight: 900,
+                          background: user.role === 'FACULTY' ? 'rgba(168, 85, 247, 0.2)' : user.role === 'ADMIN' ? 'rgba(244, 63, 94, 0.2)' : 'rgba(148, 163, 184, 0.12)',
+                          color: user.role === 'FACULTY' ? '#c084fc' : user.role === 'ADMIN' ? '#fb7185' : '#94a3b8',
+                          border: user.role === 'FACULTY' ? '1px solid rgba(168, 85, 247, 0.4)' : 'none'
+                        }}>
+                          {user.role === 'FACULTY' ? '🎓 FACULTY / PRESENTER' : user.role}
+                        </span>
                       </div>
-                    ) : (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={{ textAlign: 'right' }}>
-                          <div style={{ color: '#10b981', fontWeight: 800, fontSize: '0.7rem' }}>PRO ACTIVE</div>
-                          <div style={{ color: 'var(--text-secondary)', fontSize: '0.65rem' }}>Expires: {user.validUntil ? new Date(user.validUntil).toLocaleDateString() : 'Lifetime'}</div>
+                      <div style={{ fontSize: '0.83rem', color: 'var(--text-secondary)', marginTop: '6px' }}>
+                        {user.email || 'No email set (Username Login)'} · <span style={{ color: user.tier === 'PRO' ? '#3b82f6' : 'var(--text-secondary)', fontWeight: 800 }}>{user.tier}</span>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end' }}>
+                      {user.tier !== 'PRO' ? (
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          {[3, 6, 12].map(m => (
+                            <button key={m} disabled={loading} onClick={() => grantPro(user, m)} style={{ padding: '8px 12px', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer' }}>
+                              +{m}M
+                            </button>
+                          ))}
                         </div>
-                        <button onClick={() => toggleUserTier(user)} style={{ padding: '8px 12px', background: 'rgba(255,255,255,0.1)', color: '#f87171', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer' }}>Revoke</button>
-                      </div>
-                    )}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      {user.email && (
+                      ) : (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{ textAlign: 'right' }}>
+                            <div style={{ color: '#10b981', fontWeight: 800, fontSize: '0.7rem' }}>PRO ACTIVE</div>
+                            <div style={{ color: 'var(--text-secondary)', fontSize: '0.65rem' }}>Expires: {user.validUntil ? new Date(user.validUntil).toLocaleDateString() : 'Lifetime'}</div>
+                          </div>
+                          <button onClick={() => toggleUserTier(user)} style={{ padding: '8px 12px', background: 'rgba(255,255,255,0.1)', color: '#f87171', border: 'none', borderRadius: '10px', fontWeight: 700, fontSize: '0.75rem', cursor: 'pointer' }}>Revoke</button>
+                        </div>
+                      )}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <button
                           onClick={() => {
-                            setPrefillCommsEmail(user.email);
-                            setActiveTab('comms');
+                            if (editingUserId === user.id) {
+                              setEditingUserId(null);
+                            } else {
+                              setEditingUserId(user.id);
+                              setEditUserForm({
+                                username: user.username || '',
+                                password: '',
+                                role: user.role || 'USER'
+                              });
+                            }
                           }}
                           style={{
                             padding: '6px 10px',
-                            background: 'rgba(59, 130, 246, 0.15)',
-                            color: '#60a5fa',
-                            border: '1px solid rgba(59, 130, 246, 0.3)',
+                            background: 'rgba(168, 85, 247, 0.15)',
+                            color: '#c084fc',
+                            border: '1px solid rgba(168, 85, 247, 0.35)',
                             borderRadius: '10px',
                             fontWeight: 700,
                             fontSize: '0.75rem',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 4,
+                            cursor: 'pointer'
                           }}
-                          title={`Send direct email to ${user.email}`}
                         >
-                          <Mail size={12} /> Email
+                          🔑 {editingUserId === user.id ? 'Close' : 'Role / Password'}
                         </button>
-                      )}
-                      <button onClick={() => deleteUser(user.id)} style={{ padding: '6px 12px', color: '#ef4444', border: 'none', background: 'transparent', fontWeight: 700, fontSize: '0.7rem', cursor: 'pointer', opacity: 0.6 }}>Delete Account</button>
+                        {user.email && (
+                          <button
+                            onClick={() => {
+                              setPrefillCommsEmail(user.email);
+                              setActiveTab('comms');
+                            }}
+                            style={{
+                              padding: '6px 10px',
+                              background: 'rgba(59, 130, 246, 0.15)',
+                              color: '#60a5fa',
+                              border: '1px solid rgba(59, 130, 246, 0.3)',
+                              borderRadius: '10px',
+                              fontWeight: 700,
+                              fontSize: '0.75rem',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 4,
+                            }}
+                            title={`Send direct email to ${user.email}`}
+                          >
+                            <Mail size={12} /> Email
+                          </button>
+                        )}
+                        <button onClick={() => deleteUser(user.id)} style={{ padding: '6px 12px', color: '#ef4444', border: 'none', background: 'transparent', fontWeight: 700, fontSize: '0.7rem', cursor: 'pointer', opacity: 0.6 }}>Delete</button>
+                      </div>
                     </div>
                   </div>
+
+                  {editingUserId === user.id && (
+                    <div style={{ marginTop: '14px', paddingTop: '14px', borderTop: '1px solid rgba(255,255,255,0.08)', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr auto', gap: '10px', alignItems: 'center' }}>
+                      <select
+                        value={editUserForm.role}
+                        onChange={e => setEditUserForm({ ...editUserForm, role: e.target.value })}
+                        style={{ padding: '10px 12px', borderRadius: '10px', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255,255,255,0.15)', color: 'white', fontSize: '0.8rem', fontWeight: 700 }}
+                      >
+                        <option value="USER">Role: USER</option>
+                        <option value="FACULTY">Role: FACULTY (Studio)</option>
+                        <option value="ADMIN">Role: ADMIN</option>
+                      </select>
+                      <input
+                        placeholder="Username (min 3 chars)"
+                        value={editUserForm.username}
+                        onChange={e => setEditUserForm({ ...editUserForm, username: e.target.value })}
+                        style={{ padding: '10px 12px', borderRadius: '10px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.15)', color: 'white', fontSize: '0.8rem' }}
+                      />
+                      <input
+                        placeholder="New Password (leave blank to keep)"
+                        value={editUserForm.password}
+                        onChange={e => setEditUserForm({ ...editUserForm, password: e.target.value })}
+                        style={{ padding: '10px 12px', borderRadius: '10px', background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.15)', color: 'white', fontSize: '0.8rem', fontFamily: 'monospace' }}
+                      />
+                      <button
+                        type="button"
+                        disabled={loading}
+                        onClick={() => handleSaveUserCredentials(user.id)}
+                        style={{ padding: '10px 16px', borderRadius: '10px', background: '#a855f7', color: 'white', border: 'none', fontWeight: 800, fontSize: '0.8rem', cursor: 'pointer' }}
+                      >
+                        Save
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </section>
