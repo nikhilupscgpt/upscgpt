@@ -1,397 +1,874 @@
 /* ==========================================================================
-   9:16 VERTICAL REELS & SHORTS RECORDING STUDIO CSS
-   Logical Stage: 540px × 960px (True 9:16 Aspect Ratio, auto-scaled to screen)
+   UPSCGPT REELS — 9-STEP REEL MODE PROTOTYPE & PRESENTATION ENGINE
+   True 1080 × 1920 Hardware-Resolution Canvas with Safe-Zone Compliance
    ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
 
 .pq-reel-root {
   position: fixed;
   inset: 0;
-  background: radial-gradient(circle at 50% 35%, #1e1b4b 0%, #090d16 55%, #020617 100%);
-  color: #f8fafc;
+  background: #06060c;
+  color: #ecebf6;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  display: flex;
   overflow: hidden;
   user-select: none;
-  font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
 }
 
-.pq-reel-viewport {
-  position: absolute;
-  top: 10px;
-  left: 16px;
-  right: 16px;
-  bottom: 72px;
+.pq-reel-app {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  min-width: 0;
+}
+
+/* Staging Area for Scaled 1080×1920 Stage */
+.pq-reel-stagewrap {
+  flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 16px;
+  position: relative;
 }
 
-/* 540 × 960 Logical 9:16 Vertical Phone Stage */
 .pq-reel-stage {
   position: relative;
-  width: 540px;
-  height: 960px;
-  border-radius: 26px;
-  background: linear-gradient(180deg, #0b1120 0%, #0f172a 55%, #090d16 100%);
-  border: 2px solid rgba(168, 85, 247, 0.38);
-  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.78), 0 0 40px rgba(168, 85, 247, 0.14);
-  display: flex;
-  flex-direction: column;
+  flex: none;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.7);
+  border-radius: 18px;
   overflow: hidden;
-  flex-shrink: 0;
+  background: #0d0f1e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.pq-reel-root[data-present-theme="light"] .pq-reel-stage {
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 60%, #f1f5f9 100%);
-  border-color: rgba(15, 23, 42, 0.22);
-  color: #0f172a;
+body.clean .pq-reel-stagewrap {
+  padding: 0;
 }
 
-/* Top Header & 3-Step Tab Strip inside the 9:16 Frame */
+body.clean .pq-reel-stage {
+  border-radius: 0;
+  box-shadow: none;
+  border: none;
+}
+
+/* ==========================================================================
+   THE 1080 × 1920 REEL CANVAS (ALWAYS NATIVE HIGH RESOLUTION)
+   ========================================================================== */
+
+.pq-reel-canvas {
+  --bg: #0d0f1e;
+  --surface: #161a2f;
+  --surface2: #1c2140;
+  --rline: #2c3152;
+  --rink: #f3f2fc;
+  --rmuted: #a4a8c8;
+  --pink: #ec4899;
+  --violet: #a855f7;
+  --cyan: #38bdf8;
+  --wrong: #fb5a7a;
+  --right: #3ee0a1;
+
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1080px;
+  height: 1920px;
+  transform-origin: 0 0;
+  overflow: hidden;
+  color: var(--rink);
+  background:
+    radial-gradient(900px 600px at 85% -5%, rgba(168, 85, 247, 0.22), transparent 70%),
+    radial-gradient(700px 500px at -10% 110%, rgba(236, 72, 153, 0.14), transparent 70%),
+    var(--bg);
+}
+
+/* Canvas Header (Top Safe Zone: top 236px) */
 .pq-reel-header {
-  padding: 18px 22px 12px;
-  background: rgba(15, 23, 42, 0.75);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: absolute;
+  left: 72px;
+  right: 260px;
+  top: 236px;
+  height: 150px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  z-index: 10;
+  justify-content: center;
+  gap: 14px;
 }
 
-.pq-reel-root[data-present-theme="light"] .pq-reel-header {
-  background: rgba(248, 250, 252, 0.92);
-  border-bottom-color: rgba(15, 23, 42, 0.1);
-}
-
-.pq-reel-top-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.pq-reel-brand-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
+.pq-reel-brand {
+  align-self: flex-start;
+  font-weight: 800;
+  font-size: 30px;
+  letter-spacing: 0.02em;
+  padding: 10px 22px;
   border-radius: 999px;
-  background: linear-gradient(135deg, rgba(168, 85, 247, 0.22), rgba(236, 72, 153, 0.22));
-  border: 1px solid rgba(236, 72, 153, 0.45);
+  border: 2px solid rgba(236, 72, 153, 0.55);
   color: #f472b6;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  background: rgba(236, 72, 153, 0.08);
 }
 
-.pq-reel-exam-pill {
-  padding: 4px 10px;
-  border-radius: 8px;
-  background: rgba(56, 189, 248, 0.14);
-  border: 1px solid rgba(56, 189, 248, 0.35);
-  color: #38bdf8;
-  font-size: 11.5px;
-  font-weight: 800;
+.pq-reel-exam {
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--cyan);
 }
 
-.pq-reel-root[data-present-theme="light"] .pq-reel-exam-pill {
-  background: #e0f2fe;
-  border-color: #7dd3fc;
-  color: #0369a1;
+/* Instagram-Story Segmented Progress Bar */
+.pq-reel-progress {
+  position: absolute;
+  left: 72px;
+  right: 150px;
+  top: 410px;
+  display: flex;
+  gap: 8px;
 }
 
-/* 3-Slide Segmented Progress Tabs (1. Question | 2. Analysis | 3. Keywords) */
-.pq-reel-tabs {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-  gap: 6px;
-}
-
-.pq-reel-tab-btn {
-  padding: 7px 10px;
-  border-radius: 9px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(30, 41, 59, 0.55);
-  color: #94a3b8;
-  font-size: 11.5px;
-  font-weight: 800;
-  cursor: pointer;
-  text-align: center;
-  transition: all 0.15s ease;
-}
-
-.pq-reel-tab-btn.is-active {
-  background: linear-gradient(135deg, #a855f7, #ec4899);
-  border-color: rgba(255, 255, 255, 0.35);
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.35);
-}
-
-.pq-reel-root[data-present-theme="light"] .pq-reel-tab-btn {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
-  color: #475569;
-}
-
-.pq-reel-root[data-present-theme="light"] .pq-reel-tab-btn.is-active {
-  background: linear-gradient(135deg, #7e22ce, #db2777);
-  color: #ffffff;
-}
-
-/* Main Vertical Slide Content Body */
-.pq-reel-body {
+.pq-reel-progress span {
   flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  padding: 16px 22px;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--rline);
+  transition: background 0.25s ease;
+}
+
+.pq-reel-progress span.on {
+  background: linear-gradient(90deg, var(--violet), var(--pink));
+}
+
+/* Main Content Window (Safe-Zone Enforced) */
+.pq-reel-content {
+  position: absolute;
+  left: 72px;
+  right: 150px;
+  top: 452px;
+  bottom: 390px;
+}
+
+.pq-reel-screen {
+  position: absolute;
+  inset: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  z-index: 5;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease;
+  --k: 1;
 }
 
-.pq-reel-body::-webkit-scrollbar {
-  width: 4px;
+.pq-reel-screen.active {
+  opacity: 1;
+  visibility: visible;
 }
 
-.pq-reel-body::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.25);
-  border-radius: 999px;
+/* 1. Hook Screen */
+.pq-reel-hook {
+  justify-content: center;
+  gap: 40px;
 }
 
-.pq-reel-topic-banner {
+.pq-reel-hook .tag {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--rmuted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.pq-reel-hook h1 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-weight: 800;
+  font-size: 110px;
+  line-height: 1.04;
+  margin: 0;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+}
+
+.pq-reel-hook p {
+  font-size: 40px;
+  line-height: 1.4;
+  color: var(--rmuted);
+  margin: 0;
+  max-width: 820px;
+}
+
+/* 2. Statements Screen */
+.pq-reel-topic {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: calc(52px * var(--k));
+  font-weight: 800;
+  margin: 0 0 calc(22px * var(--k));
+  color: var(--cyan);
+}
+
+.pq-reel-lead {
+  font-size: calc(44px * var(--k));
+  font-weight: 700;
+  line-height: 1.4;
+  margin: 0 0 calc(30px * var(--k));
+  color: #f1f5f9;
+}
+
+.pq-reel-stmts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(24px * var(--k));
+}
+
+.pq-reel-stmts li {
+  display: flex;
+  gap: 26px;
+  background: var(--surface);
+  border: 2px solid var(--rline);
+  border-radius: 28px;
+  padding: calc(30px * var(--k)) 32px;
+}
+
+.pq-reel-num {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  font-size: 34px;
+  font-weight: 800;
+  color: #d8b4fe;
+  background: rgba(168, 85, 247, 0.16);
+  border: 2px solid rgba(168, 85, 247, 0.5);
+}
+
+.pq-reel-stmts p {
+  margin: 0;
+  font-size: calc(46px * var(--k));
+  line-height: 1.38;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+/* 3. Options Screen */
+.pq-reel-opts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.pq-reel-opts li {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.pq-reel-topic-title {
-  font-size: 17px;
-  font-weight: 900;
-  color: #f8fafc;
-  margin: 0;
-  line-height: 1.3;
-}
-
-.pq-reel-root[data-present-theme="light"] .pq-reel-topic-title {
-  color: #0f172a;
-}
-
-/* Question Stem & Statements in Vertical Format */
-.pq-reel-stem-lead {
-  font-size: 16.5px;
+  gap: 26px;
+  background: var(--surface);
+  border: 2px solid var(--rline);
+  border-radius: 26px;
+  padding: calc(24px * var(--k)) 30px;
+  font-size: calc(46px * var(--k));
   font-weight: 700;
-  line-height: 1.5;
-  color: #f1f5f9;
-  margin: 0;
+  line-height: 1.3;
+  transition: border-color 0.3s, background 0.3s;
 }
 
-.pq-reel-root[data-present-theme="light"] .pq-reel-stem-lead {
-  color: #0f172a;
+.pq-reel-opts .lt {
+  flex: none;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 34px;
+  font-weight: 800;
+  color: var(--cyan);
+  background: rgba(56, 189, 248, 0.12);
+  border: 2px solid rgba(56, 189, 248, 0.45);
 }
 
-.pq-reel-stmt-list {
+/* 4. Pause & Attempt Ring */
+.pq-reel-timer {
+  margin-top: auto;
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  padding: 20px 30px;
+  border-radius: 28px;
+  background: var(--surface2);
+  border: 2px dashed rgba(236, 72, 153, 0.5);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.pq-reel-screen.pausing .pq-reel-timer {
+  opacity: 1;
+}
+
+.pq-reel-ring {
+  position: relative;
+  width: 104px;
+  height: 104px;
+  flex: none;
+}
+
+.pq-reel-ring svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.pq-reel-ring circle {
+  fill: none;
+  stroke-width: 12;
+}
+
+.pq-reel-ring .track {
+  stroke: var(--rline);
+}
+
+.pq-reel-ring .bar {
+  stroke: url(#reel-grad);
+  stroke-linecap: round;
+  stroke-dasharray: 345;
+  stroke-dashoffset: 0;
+}
+
+.pq-reel-ring .count {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 46px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.pq-reel-timer .tt {
+  font-size: 40px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.pq-reel-timer .ts {
+  font-size: 30px;
+  color: var(--rmuted);
+  margin-top: 6px;
+}
+
+/* 5. Analysis & Progressive Verdicts */
+.pq-reel-an-title {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 56px;
+  font-weight: 800;
+  margin: 0 0 20px;
+  color: #ffffff;
+}
+
+.pq-reel-verdicts {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 18px;
 }
 
-.pq-reel-stmt-card {
+.pq-reel-verdicts li {
+  position: relative;
+  background: var(--surface);
+  border: 2px solid var(--rline);
+  border-radius: 28px;
+  padding: 30px 32px;
+  transition: border-color 0.3s;
+  overflow: hidden;
+}
+
+.pq-reel-verdicts .claim {
   display: flex;
+  gap: 22px;
   align-items: flex-start;
-  gap: 10px;
-  padding: 11px 14px;
-  border-radius: 12px;
-  background: rgba(30, 41, 59, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 15px;
+  padding-right: 290px;
+}
+
+.pq-reel-verdicts .claim p {
+  margin: 0;
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #f1f5f9;
+}
+
+.pq-reel-verdicts .num {
+  width: 56px;
+  height: 56px;
+  font-size: 30px;
+}
+
+.pq-reel-source {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 2px solid var(--rline);
+  font-size: 34px;
   line-height: 1.45;
-  color: #e2e8f0;
+  color: var(--rmuted);
+  display: none;
+}
+
+.pq-reel-source b {
+  font-family: 'Fraunces', Georgia, serif;
+  color: var(--rink);
+  font-size: 40px;
+  margin-right: 10px;
+}
+
+.pq-reel-stamp {
+  position: absolute;
+  right: 28px;
+  top: 26px;
+  font-weight: 800;
+  font-size: 34px;
+  padding: 10px 20px;
+  border-radius: 14px;
+  border: 4px solid var(--wrong);
+  color: var(--wrong);
+  transform: rotate(-8deg);
+  opacity: 0;
+}
+
+.pq-reel-stamp.is-correct {
+  border-color: var(--right);
+  color: var(--right);
+}
+
+.pq-reel-verdicts li.shown {
+  border-color: rgba(251, 90, 122, 0.55);
+}
+
+.pq-reel-verdicts li.shown.is-correct-card {
+  border-color: rgba(62, 224, 161, 0.55);
+}
+
+.pq-reel-verdicts li.shown.current .pq-reel-source {
+  display: block;
+}
+
+.pq-reel-mini {
+  display: none;
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 34px;
+  font-weight: 800;
+  color: var(--rink);
+  margin-top: 10px;
+}
+
+.pq-reel-verdicts li.shown:not(.current) .pq-reel-mini {
+  display: block;
+}
+
+.pq-reel-verdicts li.shown:not(.current) {
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+.pq-reel-verdicts li.shown .pq-reel-stamp {
+  opacity: 1;
+  animation: slam 0.42s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+@keyframes slam {
+  from {
+    opacity: 0;
+    transform: scale(1.9) rotate(-18deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(-8deg);
+  }
+}
+
+/* Final Answer Reveal Banner */
+.pq-reel-answer {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 26px;
+  padding: 30px 34px;
+  border-radius: 28px;
+  background: rgba(62, 224, 161, 0.1);
+  border: 3px solid var(--right);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.pq-reel-answer.shown {
+  opacity: 1;
+}
+
+.pq-reel-answer .lt {
+  flex: none;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 40px;
+  font-weight: 800;
+  color: #06281b;
+  background: var(--right);
+}
+
+.pq-reel-answer p {
+  margin: 0;
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 1.3;
+  color: #ffffff;
+}
+
+/* 6. Takeaway Card */
+.pq-reel-take {
+  justify-content: center;
+}
+
+.pq-reel-take h2 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 78px;
+  line-height: 1.05;
+  font-weight: 800;
+  margin: 0 0 30px;
+  color: #ffffff;
+}
+
+.pq-reel-trio {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pq-reel-trio li {
+  display: flex;
+  align-items: baseline;
+  gap: 40px;
+  padding: 30px 0;
+  border-top: 2px solid var(--rline);
+}
+
+.pq-reel-trio li:last-child {
+  border-bottom: 2px solid var(--rline);
+}
+
+.pq-reel-trio .art {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 132px;
+  font-weight: 800;
+  line-height: 1;
+  background: linear-gradient(120deg, #c084fc, #f472b6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  width: 280px;
+  flex: none;
+}
+
+.pq-reel-trio .what {
+  font-size: 50px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.pq-reel-trio .how {
+  font-size: 32px;
+  color: var(--rmuted);
+  margin-top: 6px;
   font-weight: 600;
 }
 
-.pq-reel-root[data-present-theme="light"] .pq-reel-stmt-card {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  color: #1e293b;
+.pq-reel-take .note {
+  margin: 34px 0 0;
+  font-size: 32px;
+  line-height: 1.5;
+  color: var(--rmuted);
 }
 
-.pq-reel-stmt-num {
-  width: 24px;
-  height: 24px;
-  border-radius: 7px;
-  background: rgba(168, 85, 247, 0.22);
-  border: 1px solid rgba(168, 85, 247, 0.45);
-  color: #e879f9;
-  font-size: 12.5px;
-  font-weight: 900;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  margin-top: 1px;
+/* Top-Right Circular Camera Bubble */
+.pq-reel-cam {
+  position: absolute;
+  right: 48px;
+  top: 224px;
+  width: 176px;
+  height: 176px;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+  border: 5px solid transparent;
+  background: linear-gradient(var(--surface2), var(--surface2)) padding-box,
+              linear-gradient(135deg, var(--violet), var(--pink)) border-box;
+  display: grid;
+  place-items: center;
+  z-index: 100;
 }
 
-.pq-reel-options-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 4px;
+.pq-reel-cam.hidden {
+  display: none;
 }
 
-.pq-reel-opt-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  border-radius: 12px;
-  background: rgba(15, 23, 42, 0.85);
-  border: 1.5px solid rgba(255, 255, 255, 0.12);
-  font-size: 15px;
+.pq-reel-cam video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+  display: none;
+}
+
+.pq-reel-cam.live video {
+  display: block;
+}
+
+.pq-reel-cam.live .ph {
+  display: none;
+}
+
+.pq-reel-cam .ph {
+  font-size: 26px;
   font-weight: 700;
-  color: #f8fafc;
+  color: var(--rmuted);
+  text-align: center;
+  line-height: 1.3;
 }
 
-.pq-reel-root[data-present-theme="light"] .pq-reel-opt-row {
-  background: #ffffff;
-  border-color: #cbd5e1;
-  color: #0f172a;
+/* Safe-Zone Overlays (Toggled via G) */
+.pq-reel-guides {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: none;
+  z-index: 200;
 }
 
-.pq-reel-opt-badge {
-  width: 26px;
-  height: 26px;
-  border-radius: 8px;
-  background: rgba(56, 189, 248, 0.16);
-  border: 1px solid rgba(56, 189, 248, 0.4);
-  color: #38bdf8;
-  font-size: 13px;
-  font-weight: 900;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+.pq-reel-guides.on {
+  display: block;
 }
 
-/* Analysis Cards (Slide 2) */
-.pq-reel-analysis-card {
-  padding: 12px 14px;
-  border-radius: 12px;
+.pq-reel-guides div {
+  position: absolute;
+  background: rgba(255, 40, 80, 0.18);
+  border: 2px dashed rgba(255, 90, 120, 0.8);
+  color: #ffd0da;
+  font-size: 26px;
+  font-weight: 700;
+  padding: 12px 16px;
+}
+
+.pq-reel-guides .g-top {
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 220px;
+}
+
+.pq-reel-guides .g-bot {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 380px;
+}
+
+.pq-reel-guides .g-right {
+  right: 0;
+  top: 900px;
+  bottom: 380px;
+  width: 140px;
+  writing-mode: vertical-rl;
+}
+
+/* ==========================================================================
+   RIGHT SIDEBAR: TELEPROMPTER, STEPS, AI POLISH & RECORDING CONTROLS
+   ========================================================================== */
+
+.pq-reel-side {
+  width: 380px;
+  flex: none;
+  background: #13131e;
+  border-left: 1px solid #2a2a3e;
+  padding: 24px 22px;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
+  gap: 20px;
+  font-size: 14px;
+}
+
+.pq-reel-side h2 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-size: 22px;
+  margin: 0 0 6px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.pq-reel-side p {
+  margin: 0;
+  color: #9a97b4;
+  line-height: 1.5;
+  font-size: 13.5px;
+}
+
+.pq-reel-btn-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pq-reel-btn {
+  font: inherit;
+  font-weight: 700;
+  color: #ecebf6;
+  background: #1d1d2c;
+  border: 1px solid #2a2a3e;
+  border-radius: 10px;
+  padding: 9px 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   gap: 6px;
 }
 
-.pq-reel-analysis-card.is-correct {
-  background: rgba(16, 185, 129, 0.12);
-  border: 1.5px solid rgba(16, 185, 129, 0.45);
+.pq-reel-btn:hover {
+  border-color: #c084fc;
 }
 
-.pq-reel-analysis-card.is-incorrect {
-  background: rgba(244, 63, 94, 0.12);
-  border: 1.5px solid rgba(244, 63, 94, 0.42);
+.pq-reel-btn.primary {
+  background: linear-gradient(135deg, #a855f7, #ec4899);
+  color: #ffffff;
+  border-color: transparent;
+  flex: 1;
 }
 
-.pq-reel-root[data-present-theme="light"] .pq-reel-analysis-card.is-correct {
-  background: #ecfdf5;
-  border-color: #10b981;
+.pq-reel-btn.is-active,
+.pq-reel-btn[aria-pressed="true"] {
+  border-color: #c084fc;
+  color: #c084fc;
+  background: rgba(192, 132, 252, 0.15);
 }
 
-.pq-reel-root[data-present-theme="light"] .pq-reel-analysis-card.is-incorrect {
-  background: #fff1f2;
-  border-color: #f43f5e;
+.pq-reel-steps-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.pq-reel-answer-banner {
-  padding: 13px 16px;
+.pq-reel-steps-list li button {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-weight: 700;
+  color: #9a97b4;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pq-reel-steps-list li button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+.pq-reel-steps-list li button.is-current {
+  background: #1d1d2c;
+  color: #ffffff;
+  border-color: #2a2a3e;
+  border-left: 3px solid #c084fc;
+}
+
+.pq-reel-keys-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 12px;
+  align-items: center;
+  color: #9a97b4;
+  font-size: 13px;
+}
+
+.pq-reel-keys-grid kbd {
+  font-size: 11.5px;
+  font-weight: 700;
+  border: 1px solid #2a2a3e;
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  padding: 2px 7px;
+  background: #1d1d2c;
+  color: #ecebf6;
+}
+
+/* Inline Script Editor Accordion */
+.pq-reel-editor-card {
+  padding: 16px;
   border-radius: 14px;
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(5, 150, 105, 0.15));
-  border: 1.5px solid #10b981;
+  background: #161a2f;
+  border: 1px solid #2c3152;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 12px;
 }
 
-.pq-reel-root[data-present-theme="light"] .pq-reel-answer-banner {
-  background: #d1fae5;
-  color: #064e3b;
-}
-
-/* Keywords Cards (Slide 3) */
-.pq-reel-kw-card {
-  padding: 13px 15px;
-  border-radius: 13px;
-  background: rgba(30, 41, 59, 0.75);
-  border-left: 5px solid #a855f7;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.pq-reel-root[data-present-theme="light"] .pq-reel-kw-card {
-  background: #faf5ff;
-  border-color: #d8b4fe;
-  border-left: 5px solid #9333ea;
-}
-
-/* Webcam Docked Strip or Floating Bubble inside the 9:16 Stage */
-.pq-reel-webcam-strip {
-  margin: 0 18px 16px;
-  height: 225px;
-  border-radius: 16px;
-  overflow: hidden;
-  background: rgba(15, 23, 42, 0.9);
-  border: 2px dashed rgba(236, 72, 153, 0.45);
+.pq-reel-editor-title {
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #c084fc;
+  letter-spacing: 0.05em;
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 12;
-  transition: height 0.2s ease;
+  justify-content: space-between;
 }
 
-.pq-reel-webcam-strip.is-strip-compact {
-  height: 175px;
+.pq-reel-input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #0d0f1e;
+  border: 1px solid #2a2a3e;
+  color: #ffffff;
+  font-size: 13px;
+  outline: none;
+  box-sizing: border-box;
 }
 
-.pq-reel-webcam-strip.is-strip-standard {
-  height: 225px;
+.pq-reel-input:focus {
+  border-color: #c084fc;
 }
 
-.pq-reel-webcam-strip.is-strip-tall {
-  height: 280px;
+.pq-reel-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #0d0f1e;
+  border: 1px solid #2a2a3e;
+  color: #ffffff;
+  font-size: 13px;
+  outline: none;
+  min-height: 60px;
+  resize: vertical;
+  box-sizing: border-box;
 }
 
-.pq-reel-webcam-strip.is-live {
-  border-style: solid;
-  border-color: rgba(236, 72, 153, 0.65);
-  background: #000000;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
-}
-
-.pq-reel-webcam-bubble {
-  position: absolute;
-  bottom: 18px;
-  right: 18px;
-  width: 172px;
-  height: 172px;
-  border-radius: 50%;
-  overflow: hidden;
-  background: rgba(15, 23, 42, 0.92);
-  border: 2.5px dashed rgba(236, 72, 153, 0.55);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 25;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
-}
-
-.pq-reel-webcam-bubble.is-live {
-  border-style: solid;
-  border-color: #ec4899;
-  background: #000000;
+.pq-reel-textarea:focus {
+  border-color: #c084fc;
 }
