@@ -5,8 +5,8 @@ import { isNewPatternQuestion } from '@/lib/pyqPattern';
 import { generateQuestionSlug } from '@/lib/pyqSlug';
 import { SUBJECT_ORDER, SUBJECT_SHORT, getTopicSyllabusOrder } from './topicGroups';
 
-// Incremental Static Regeneration (ISR): Edge cached for 24 hours so bots consume 0 DB compute
-export const revalidate = 86400;
+// Incremental Static Regeneration (ISR): Revalidate every 5 minutes
+export const revalidate = 300;
 
 export const metadata = {
   title: 'UPSC Prelims PYQ (2011–2025) Topic-Wise Solved Questions & Explanations',

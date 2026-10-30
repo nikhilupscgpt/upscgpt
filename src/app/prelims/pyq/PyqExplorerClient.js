@@ -180,10 +180,26 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
+  const [metadata, setMetadata] = useState(initialMetadata);
+
+  // Auto-hydrate metadata if SSR provided empty or 0 counts (e.g. cold starts or build cache)
+  useEffect(() => {
+    if (!metadata?.subjectStats || !metadata.subjectStats.some(s => s.count > 0)) {
+      fetch('/api/pyq?metadata=true')
+        .then(res => res.json())
+        .then(data => {
+          if (data?.success && Array.isArray(data?.subjectStats) && data.subjectStats.length > 0) {
+            setMetadata(data);
+          }
+        })
+        .catch(err => console.error('Failed to hydrate PYQ metadata:', err));
+    }
+  }, [metadata]);
+
   /* ---- Derived metadata from SSR initialMetadata ---- */
   const subjectStats = useMemo(() => {
-    if (initialMetadata?.subjectStats && initialMetadata.subjectStats.length > 0) {
-      return initialMetadata.subjectStats;
+    if (metadata?.subjectStats && metadata.subjectStats.length > 0) {
+      return metadata.subjectStats;
     }
     return SUBJECT_ORDER.map(s => ({
       name: s,
@@ -194,11 +210,11 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
       newPatternCount: 0,
       meta: SUBJECT_META[s] || { icon: '📚', color: '#64748b' },
     }));
-  }, [initialMetadata]);
+  }, [metadata]);
 
   const searching = debouncedQuery.length > 0;
   const mistakeCount = Object.keys(mistakes).length;
-  const totalNewPatternCount = initialMetadata?.totalNewPattern ?? 0;
+  const totalNewPatternCount = metadata?.totalNewPattern ?? 0;
 
   const showOptions = useMemo(() => [
     ['ALL', 'All'],
@@ -782,7 +798,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                 <span className="pq-seo-badge">SYLLABUS INDEX</span>
                 <div>
                   <span className="pq-seo-title">
-                    Complete Topic-Wise UPSC Prelims Question Bank ({(initialMetadata?.totalQuestions || 2528).toLocaleString()} Solved PYQs)
+                    Complete Topic-Wise UPSC Prelims Question Bank ({(metadata?.totalQuestions || 2528).toLocaleString()} Solved PYQs)
                   </span>
                   <span className="pq-seo-sub">
                     Browse all micro-topics and featured solved questions across 10 GS subjects
@@ -848,7 +864,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
         <QuizSetupModal
           isOpen={quizModalOpen}
           onClose={() => setQuizModalOpen(false)}
-          initialMetadata={initialMetadata}
+          initialMetadata={metadata}
         />
 
         <AuthGateModal
@@ -932,7 +948,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                   {s.meta?.icon || '📚'} {s.name} ({s.count})
                 </option>
               ))}
-              <option value="ALL">📚 All Subjects ({initialMetadata?.totalQuestions || 2528})</option>
+              <option value="ALL">📚 All Subjects ({metadata?.totalQuestions || 2528})</option>
               <option value="HUB">✨ View Subject Overview Hub</option>
             </select>
           </div>
@@ -1690,7 +1706,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
       <QuizSetupModal
         isOpen={quizModalOpen}
         onClose={() => setQuizModalOpen(false)}
-        initialMetadata={initialMetadata}
+        initialMetadata={metadata}
       />
 
       <AuthGateModal

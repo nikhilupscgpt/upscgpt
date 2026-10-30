@@ -6,10 +6,6 @@
   },
   "crons": [
     {
-      "path": "/api/cron/scrape",
-      "schedule": "30 0 * * *"
-    },
-    {
       "path": "/api/cron/expire-subscriptions",
       "schedule": "45 18 * * *"
     }
