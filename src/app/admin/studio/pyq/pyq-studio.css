@@ -581,3 +581,112 @@
     font-size: 13px;
   }
 }
+
+/* ==========================================================================
+   LIGHT MODE: AUTHENTIC UPSC EXAM PAPER THEME FOR STUDIO SELECTION WORKSTATION
+   ========================================================================== */
+[data-theme='light'] .pq-pyq-studio-root {
+  background: #EDEAE5 !important;
+  color: #0f172a !important;
+}
+
+[data-theme='light'] .pq-pyq-studio-title {
+  color: #0f172a !important;
+}
+
+[data-theme='light'] .pq-pyq-studio-sub {
+  color: #475569 !important;
+}
+
+[data-theme='light'] .pq-pyq-sidebar {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 16px -2px rgba(40, 30, 20, 0.05) !important;
+  border-radius: 8px !important;
+}
+
+[data-theme='light'] .pq-pyq-select-input,
+[data-theme='light'] .pq-pyq-search-input,
+[data-theme='light'] .pq-pyq-select {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+[data-theme='light'] .pq-pyq-select-input:focus,
+[data-theme='light'] .pq-pyq-search-input:focus,
+[data-theme='light'] .pq-pyq-select:focus {
+  border-color: #3b82f6 !important;
+}
+
+[data-theme='light'] .pq-pyq-field-label {
+  color: #475569 !important;
+}
+
+[data-theme='light'] .pq-pyq-filter-container {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 16px -2px rgba(40, 30, 20, 0.05) !important;
+  border-radius: 8px !important;
+}
+
+[data-theme='light'] .pq-pyq-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 16px -2px rgba(40, 30, 20, 0.05) !important;
+  border-radius: 8px !important;
+  padding: 18px 24px 14px !important;
+}
+
+[data-theme='light'] .pq-pyq-card:hover {
+  border-color: #94a3b8 !important;
+  box-shadow: 0 6px 20px -2px rgba(40, 30, 20, 0.08) !important;
+}
+
+[data-theme='light'] .pq-pyq-card.is-selected {
+  border-color: #10b981 !important;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.06), #ffffff) !important;
+  box-shadow: 0 4px 18px rgba(16, 185, 129, 0.15) !important;
+}
+
+[data-theme='light'] .pq-pyq-stem-text {
+  font-family: var(--font-serif, "Newsreader", "Merriweather", "Charter", Georgia, "Times New Roman", serif) !important;
+  font-size: 15px !important;
+  line-height: 1.55 !important;
+  color: #111827 !important;
+}
+
+[data-theme='light'] .pq-pyq-opts-row {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px !important;
+  margin-top: 8px !important;
+}
+
+[data-theme='light'] .pq-pyq-opt-pill {
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  font-family: var(--font-serif, "Newsreader", "Merriweather", "Charter", Georgia, "Times New Roman", serif) !important;
+  font-size: 14px !important;
+  color: #1e293b !important;
+  padding: 3px 6px !important;
+}
+
+[data-theme='light'] .pq-pyq-opt-pill.is-correct {
+  background: #f0fdf4 !important;
+  border-color: #86efac !important;
+  color: #14532d !important;
+}
+
+[data-theme='light'] .pq-badge-exam,
+[data-theme='light'] .pq-badge-qno {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+[data-theme='light'] .pq-badge-topic {
+  background: #ecfdf5 !important;
+  color: #065f46 !important;
+  border: 1px solid #a7f3d0 !important;
+}

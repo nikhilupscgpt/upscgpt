@@ -938,23 +938,23 @@
 }
 
 /* ==========================================================================
-   LIGHT MODE WHITEBOARD THEME
-   Crisp, Academic Whiteboard for Daytime Lectures, MacBooks, and iPads
+   LIGHT MODE: AUTHENTIC UPSC EXAM PAPER THEME
+   Warm Desk Canvas + Crisp Examination Booklet Layout for Broadcast Videos
    ========================================================================== */
 
 [data-present-theme="light"].pq-present-root {
-  background: #cbd5e1;
+  background: #E4E0D9;
   color: #0f172a;
 }
 
 [data-present-theme="light"] .pq-present-stage-viewport {
-  background: #94a3b8;
+  background: #EDEAE5;
 }
 
 [data-present-theme="light"] .pq-present-stage {
-  background: radial-gradient(circle at 50% 0%, #ffffff 0%, #f8fafc 70%, #f1f5f9 100%);
+  background: #EDEAE5;
   border-color: rgba(0, 0, 0, 0.12);
-  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 25px 80px rgba(40, 30, 20, 0.18);
 }
 
 [data-present-theme="light"] .pq-present-brand-watermark {
@@ -967,72 +967,132 @@
 }
 
 [data-present-theme="light"] .pq-present-left-panel {
-  background: rgba(248, 250, 252, 0.7);
-  border-right-color: rgba(0, 0, 0, 0.1);
+  background: #ffffff !important;
+  border-right: 1px solid #dcd7ce !important;
+  box-shadow: 4px 0 20px rgba(40, 30, 20, 0.05);
 }
 
 [data-present-theme="light"] .pq-present-tag-exam {
-  background: #e2e8f0;
-  color: #0284c7;
-  border-color: rgba(2, 132, 199, 0.35);
+  background: #f1f5f9;
+  color: #1e293b;
+  border-color: #cbd5e1;
 }
 
 [data-present-theme="light"] .pq-present-tag-qno {
-  background: #ede9fe;
-  color: #4f46e5;
-  border-color: rgba(79, 70, 229, 0.35);
+  background: #f1f5f9;
+  color: #1e293b;
+  border-color: #cbd5e1;
 }
 
 [data-present-theme="light"] .pq-present-tag-topic {
-  background: #dcfce7;
-  color: #15803d;
-  border-color: rgba(21, 128, 61, 0.35);
+  background: #ecfdf5;
+  color: #065f46;
+  border-color: #a7f3d0;
 }
 
-[data-present-theme="light"] .pq-present-stem-lead {
-  color: #0f172a;
+[data-present-theme="light"] .pq-present-stem-lead,
+[data-present-theme="light"] .pq-present-stem-ask {
+  font-family: var(--font-serif, "Newsreader", "Merriweather", "Charter", Georgia, "Times New Roman", serif) !important;
+  font-size: 16px !important;
+  line-height: 1.6 !important;
+  color: #111827 !important;
+}
+
+[data-present-theme="light"] .pq-present-statements {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  margin: 10px 0 12px 16px !important;
 }
 
 [data-present-theme="light"] .pq-present-statement-item {
-  background: #ffffff;
-  border-color: rgba(0, 0, 0, 0.08);
-  color: #1e293b;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 10px !important;
+  font-family: var(--font-serif, "Newsreader", "Merriweather", "Charter", Georgia, "Times New Roman", serif) !important;
+  font-size: 15.5px !important;
+  line-height: 1.55 !important;
+  color: #1a1a1a !important;
 }
 
 [data-present-theme="light"] .pq-present-statement-key {
-  background: #e2e8f0;
-  color: #1e293b;
+  background: transparent !important;
+  color: #0f172a !important;
+  font-family: var(--font-serif, "Newsreader", "Merriweather", "Charter", Georgia, "Times New Roman", serif) !important;
+  font-size: 15.5px !important;
+  font-weight: 700 !important;
+  min-width: 18px !important;
+  height: auto !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
 }
 
-[data-present-theme="light"] .pq-present-stem-ask {
-  color: #475569;
+[data-present-theme="light"] .pq-present-statement-key::after {
+  content: '.';
+}
+
+[data-present-theme="light"] .pq-present-options-grid {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  margin-top: 12px !important;
 }
 
 [data-present-theme="light"] .pq-present-option-row {
-  background: #ffffff;
-  border-color: rgba(0, 0, 0, 0.08);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  box-shadow: none !important;
+  padding: 5px 8px !important;
+  border-radius: 6px !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 10px !important;
+  transition: all 0.15s ease !important;
 }
 
 [data-present-theme="light"] .pq-present-opt-label {
-  background: #f1f5f9;
-  border-color: rgba(0, 0, 0, 0.15);
-  color: #334155;
+  background: transparent !important;
+  border: none !important;
+  font-family: var(--font-serif, "Newsreader", "Merriweather", "Charter", Georgia, "Times New Roman", serif) !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #1e293b !important;
+  min-width: 22px !important;
+  padding: 0 !important;
+}
+
+[data-present-theme="light"] .pq-present-opt-label::before {
+  content: '(';
+}
+
+[data-present-theme="light"] .pq-present-opt-label::after {
+  content: ')';
 }
 
 [data-present-theme="light"] .pq-present-opt-text {
-  color: #1e293b;
+  font-family: var(--font-serif, "Newsreader", "Merriweather", "Charter", Georgia, "Times New Roman", serif) !important;
+  font-size: 15px !important;
+  line-height: 1.5 !important;
+  color: #1a1a1a !important;
 }
 
 [data-present-theme="light"] .pq-present-option-row.is-highlighted {
-  background: #dcfce7;
-  border-color: #22c55e;
-  box-shadow: 0 0 25px rgba(34, 197, 94, 0.2);
+  background: #f0fdf4 !important;
+  border: 1.5px solid #86efac !important;
+  box-shadow: 0 4px 14px rgba(34, 197, 94, 0.15) !important;
 }
 
 [data-present-theme="light"] .pq-present-option-row.is-highlighted .pq-present-opt-text {
-  color: #15803d;
+  color: #14532d !important;
+  font-weight: 600 !important;
+}
+
+[data-present-theme="light"] .pq-present-right-panel {
+  background: #fdfcfb !important;
 }
 
 [data-present-theme="light"] .pq-present-left-footer {
