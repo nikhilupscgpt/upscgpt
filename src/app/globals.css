@@ -60,18 +60,18 @@
 
 [data-theme='light'],
 [data-theme='sepia'] {
-  /* Crisp Editorial Light Theme */
-  --bg-primary: #f8fafc;
-  --bg-secondary: #f1f5f9;
+  /* Crisp Editorial Warm Desk Theme */
+  --bg-primary: #EDEAE5;
+  --bg-secondary: #E4E0D9;
   --bg-card: #ffffff;
   --bg-hover: #f1f5f9;
-  --bg-input: #f8fafc;
-  --border-color: #e2e8f0;
+  --bg-input: #ffffff;
+  --border-color: #dcd7ce;
   --border-hover: #cbd5e1;
   --text-primary: #0f172a;
   --text-secondary: #334155;
   --text-muted: #64748b;
-  --hero-bg-gradient: radial-gradient(circle at 50% -20%, #e2e8f0 0%, #f8fafc 80%);
+  --hero-bg-gradient: radial-gradient(circle at 50% -20%, #e2e8f0 0%, #EDEAE5 80%);
   
   --neural-glow: rgba(59, 130, 246, 0.08);
 

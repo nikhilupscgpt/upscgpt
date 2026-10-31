@@ -1522,7 +1522,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                 <div className="pq-focus-mode-topbar">
                   <div className="pq-focus-mode-prog-info">
                     <span className="pq-focus-mode-cur-q">
-                      Question {currentFocusNumber} of {totalFiltered}
+                      {totalFiltered} questions &middot; {subject === 'ALL' ? 'All Subjects' : subject}
                     </span>
                     <div className="pq-focus-mode-prog-track">
                       <div
@@ -1535,7 +1535,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                   </div>
 
                   <div className="pq-focus-mode-jumper">
-                    <span>Jump to:</span>
+                    <span>Jump to Q.</span>
                     <input
                       type="number"
                       min="1"
@@ -1551,8 +1551,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                     <button
                       type="button"
                       onClick={handleJumpToQuestion}
-                      className="pq-btn"
-                      style={{ padding: '3px 8px', fontSize: '11px', fontWeight: 800 }}
+                      className="pq-btn pq-focus-jump-btn"
                     >
                       Go
                     </button>
@@ -1563,6 +1562,9 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                   <QuestionCard
                     key={currentFocusQuestion.id}
                     q={currentFocusQuestion}
+                    qNumber={currentFocusNumber}
+                    totalCount={totalFiltered}
+                    isFocusMode={true}
                     isAdmin={isAdmin}
                     attempt={attempts[currentFocusQuestion.id]}
                     revealedOnly={!!revealed[currentFocusQuestion.id]}
@@ -1583,36 +1585,36 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                 <div className="pq-focus-bottom-nav">
                   <button
                     type="button"
-                    className="pq-btn"
+                    className="pq-focus-nav-btn pq-focus-prev-btn"
                     disabled={currentFocusNumber <= 1}
                     onClick={handlePrevQuestion}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 700 }}
                   >
-                    ← Previous
+                    &larr; Previous page
                   </button>
 
                   <div className="pq-focus-bottom-indicator">
-                    <span><strong>{currentFocusNumber}</strong> of {totalFiltered}</span>
-                    <span className="pq-focus-keyboard-hint">Tip: use ← / → keys</span>
+                    <span className="pq-focus-keyboard-hint">use &larr; / &rarr; keys</span>
                   </div>
 
                   <button
                     type="button"
-                    className="pq-btn pq-btn-primary"
+                    className="pq-focus-nav-btn pq-focus-next-btn"
                     disabled={currentFocusNumber >= totalFiltered}
                     onClick={handleNextQuestion}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontWeight: 800 }}
                   >
-                    Next →
+                    Next page &rarr;
                   </button>
                 </div>
               </div>
             ) : (
               /* Option A: Vertical List View */
-              pageItems.map(q => (
+              pageItems.map((q, idx) => (
                 <QuestionCard
                   key={q.id}
                   q={q}
+                  qNumber={(page - 1) * 20 + idx + 1}
+                  totalCount={totalFiltered}
+                  isFocusMode={false}
                   isAdmin={isAdmin}
                   attempt={attempts[q.id]}
                   revealedOnly={!!revealed[q.id]}
@@ -2031,19 +2033,28 @@ function AuthGateModal({ reason, onClose }) {
 
 /* ====================================================================== */
 
-function QuestionCard({ q, isAdmin = false, attempt, revealedOnly, bookmarked, onPick, onReveal, onTryAgain, onBookmark }) {
+function QuestionCard({ q, qNumber, totalCount, isFocusMode = false, isAdmin = false, attempt, revealedOnly, bookmarked, onPick, onReveal, onTryAgain, onBookmark }) {
   const diff = difficultyOf(q);
   const options = q.options || [];
-  const twoCol = options.length === 4 && options.every(o => (o.text || '').length <= 70);
   const done = !!attempt || revealedOnly;
   const dropped = !q.correctLabel;
   const correctOpt = options.find(o => o.label === q.correctLabel);
   const isPair = isPairQuestion(q);
   const isStmt = isStatementQuestion(q);
   const { explanationText, analysis } = useMemo(() => getStructuredExplanation(q), [q]);
+  const activeQNo = q.questionNo || qNumber;
 
   return (
     <article className={`pq-card pq-qcard ${attempt ? (attempt.ok ? 'is-ok' : 'is-bad') : ''}`}>
+      {/* UPSC Official Exam Booklet Header (Light Paper Theme) */}
+      <div className="pq-paper-header">
+        <div className="pq-paper-header-rule" />
+        <div className="pq-paper-header-title">
+          GENERAL STUDIES PAPER – I &middot; PRELIMINARY EXAMINATION {q.examYear || '2026'}
+        </div>
+        <div className="pq-paper-header-rule" />
+      </div>
+
       <div className="pq-qhead">
         <div className="pq-tags">
           <span className="pq-tag pq-tag-exam">{q.examName} {q.examYear}</span>
@@ -2073,9 +2084,9 @@ function QuestionCard({ q, isAdmin = false, attempt, revealedOnly, bookmarked, o
         </div>
       </div>
 
-      <StemView stem={q.stem} />
+      <StemView stem={q.stem} qNo={activeQNo} />
 
-      <div className={`pq-opts ${twoCol ? 'is-2col' : ''}`} role="group" aria-label="Answer options">
+      <div className="pq-opts" role="group" aria-label="Answer options">
         {options.map(o => {
           let cls = 'pq-opt';
           if (done && !dropped) {
@@ -2085,7 +2096,14 @@ function QuestionCard({ q, isAdmin = false, attempt, revealedOnly, bookmarked, o
           }
           return (
             <button key={o.label} className={cls} disabled={done} onClick={() => onPick(q, o.label)}>
-              <span className="pq-opt-l">{String(o.label).toUpperCase()}</span>
+              <span className="pq-opt-radio">
+                {done && o.label === q.correctLabel ? (
+                  <span className="pq-opt-radio-dot is-correct" />
+                ) : attempt && o.label === attempt.sel && !attempt.ok ? (
+                  <span className="pq-opt-radio-dot is-wrong" />
+                ) : null}
+              </span>
+              <span className="pq-opt-l">({String(o.label).toLowerCase()})</span>
               <span className="pq-opt-t">{o.text}</span>
             </button>
           );
@@ -2123,10 +2141,22 @@ function QuestionCard({ q, isAdmin = false, attempt, revealedOnly, bookmarked, o
           <button className="pq-reveal" onClick={onTryAgain}>↺ Try again</button>
         ) : (
           <>
-            <span>Tap an option to check your answer instantly.</span>
+            <span className="pq-qfoot-tip">Tap an option to check your answer.</span>
             <button className="pq-reveal" onClick={onReveal}>Show answer</button>
           </>
         )}
+      </div>
+
+      {/* Official Booklet Page Footer (Light Paper Theme) */}
+      <div className="pq-paper-footer">
+        <span className="pq-paper-footer-meta">
+          {q.examName ? `${q.examName.toUpperCase()} ${q.examYear || ''}` : 'UPSC CSE (P)'} &middot; GS PAPER I &middot; Q. {activeQNo}
+        </span>
+        {totalCount ? (
+          <span className="pq-paper-footer-counter">
+            {activeQNo} / {totalCount}
+          </span>
+        ) : null}
       </div>
     </article>
   );

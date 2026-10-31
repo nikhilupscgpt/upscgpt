@@ -32,6 +32,22 @@
   --pq-mark: #a78bfa;
 }
 
+/* UPSC Exam Paper Theme (Light Mode) & UI Support */
+.pq-paper-header {
+  display: none;
+}
+.pq-paper-footer {
+  display: none;
+}
+.pq-opt-radio {
+  display: none;
+}
+.pq-stem-qno {
+  font-weight: 800;
+  margin-right: 6px;
+  color: var(--pq-accent);
+}
+
 [data-theme='light'] .pq-root, [data-theme='sepia'] .pq-root {
   --pq-ok: #15803d;
   --pq-ok-bg: #f0fdf4;
@@ -44,94 +60,429 @@
   --pq-inset: #f8fafc;
   --pq-line: #e2e8f0;
   --pq-line-strong: #cbd5e1;
+  background-color: #EDEAE5 !important;
+  color: #1e293b;
+  min-height: 100vh;
 }
 
 [data-theme='light'] .pq-card, [data-theme='sepia'] .pq-card {
   background: #ffffff;
-  border-color: #e2e8f0;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px -2px rgba(40, 30, 20, 0.06), 0 2px 6px -1px rgba(40, 30, 20, 0.04);
+  border-radius: 8px;
 }
 
-[data-theme='light'] .pq-stmt, [data-theme='sepia'] .pq-stmt {
-  background: #f8fafc;
-  border-color: #e2e8f0;
+[data-theme='light'] .pq-sidebar {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 16px -2px rgba(40, 30, 20, 0.05) !important;
 }
 
-[data-theme='light'] .pq-stmt-key, [data-theme='sepia'] .pq-stmt-key {
-  background: #334155;
-  color: #ffffff;
+[data-theme='light'] .pq-sb-select {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  color: #1e293b !important;
+  font-weight: 600 !important;
 }
 
-[data-theme='light'] .pq-opt, [data-theme='sepia'] .pq-opt {
-  background: #ffffff;
-  border-color: #e2e8f0;
-  color: #1e293b;
+[data-theme='light'] .pq-sb-select:focus {
+  border-color: #3b82f6 !important;
+  outline: none !important;
 }
 
-[data-theme='light'] .pq-opt:hover:not(:disabled), [data-theme='sepia'] .pq-opt:hover:not(:disabled) {
-  border-color: #94a3b8;
-  background: #f8fafc;
+[data-theme='light'] .pq-sb-label {
+  color: #475569 !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.05em !important;
 }
 
-[data-theme='light'] .pq-opt-l, [data-theme='sepia'] .pq-opt-l {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  color: #475569;
-  border-radius: 9999px;
+[data-theme='light'] .pq-qcard {
+  padding: 30px 36px 26px !important;
+  margin-bottom: 20px !important;
+  position: relative !important;
 }
 
-[data-theme='light'] .pq-opt.is-correct, [data-theme='sepia'] .pq-opt.is-correct {
-  border-color: #10b981;
-  background: #f0fdf4;
-  color: #064e3b;
+/* Paper Header */
+[data-theme='light'] .pq-paper-header {
+  display: block !important;
+  text-align: center !important;
+  margin-bottom: 16px !important;
 }
 
-[data-theme='light'] .pq-opt.is-correct .pq-opt-l, [data-theme='sepia'] .pq-opt.is-correct .pq-opt-l {
-  background: #10b981;
-  color: #ffffff;
-  border-color: #10b981;
+[data-theme='light'] .pq-paper-header-rule {
+  height: 1px !important;
+  background: #1e293b !important;
+  margin: 6px 0 !important;
+  opacity: 0.8 !important;
 }
 
-[data-theme='light'] .pq-opt.is-wrong, [data-theme='sepia'] .pq-opt.is-wrong {
-  border-color: #ef4444;
-  background: #fef2f2;
-  color: #991b1b;
+[data-theme='light'] .pq-paper-header-title {
+  font-family: var(--font-serif, "Newsreader", "Merriweather", "Charter", Georgia, "Times New Roman", serif) !important;
+  font-size: 13px !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: #1e293b !important;
+  font-weight: 700 !important;
+  padding: 2px 0 !important;
 }
 
-[data-theme='light'] .pq-opt.is-wrong .pq-opt-l, [data-theme='sepia'] .pq-opt.is-wrong .pq-opt-l {
-  background: #ef4444;
-  color: #ffffff;
-  border-color: #ef4444;
+/* Question Tags in Light Mode */
+[data-theme='light'] .pq-tag-exam,
+[data-theme='light'] .pq-tag-q {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+  border: 1px solid #cbd5e1 !important;
+  font-weight: 700 !important;
+  font-size: 11.5px !important;
 }
 
-[data-theme='light'] .pq-tag-exam, [data-theme='sepia'] .pq-tag-exam {
-  background: #f1f5f9;
-  color: #334155;
-  border: 1px solid #e2e8f0;
+[data-theme='light'] .pq-tag-topic {
+  background: #ecfdf5 !important;
+  color: #065f46 !important;
+  border: 1px solid #a7f3d0 !important;
+  font-weight: 700 !important;
+  font-size: 11.5px !important;
 }
 
-[data-theme='light'] .pq-tag-q, [data-theme='sepia'] .pq-tag-q {
-  background: #f1f5f9;
-  color: #334155;
-  border: 1px solid #e2e8f0;
+[data-theme='light'] .pq-tag-hard {
+  background: #fef2f2 !important;
+  color: #991b1b !important;
+  border: 1px solid #fecaca !important;
+  font-weight: 700 !important;
 }
 
-[data-theme='light'] .pq-tag-easy, [data-theme='sepia'] .pq-tag-easy {
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  color: #15803d;
+[data-theme='light'] .pq-tag-mod {
+  background: #fffbeb !important;
+  color: #92400e !important;
+  border: 1px solid #fde68a !important;
+  font-weight: 700 !important;
 }
 
-[data-theme='light'] .pq-tag-mod, [data-theme='sepia'] .pq-tag-mod {
-  background: #fffbeb;
-  border: 1px solid #fde68a;
-  color: #b45309;
+[data-theme='light'] .pq-tag-easy {
+  background: #f0fdf4 !important;
+  color: #166534 !important;
+  border: 1px solid #bbf7d0 !important;
+  font-weight: 700 !important;
 }
 
-[data-theme='light'] .pq-tag-hard, [data-theme='sepia'] .pq-tag-hard {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #b91c1c;
+/* Stem Typography */
+[data-theme='light'] .pq-stem-lead,
+[data-theme='light'] .pq-stem-ask {
+  font-family: var(--font-serif, "Newsreader", "Merriweather", "Charter", Georgia, "Times New Roman", serif) !important;
+  font-size: 17px !important;
+  line-height: 1.68 !important;
+  color: #111827 !important;
+  letter-spacing: 0.01em !important;
+}
+
+[data-theme='light'] .pq-stem-lead {
+  margin-bottom: 14px !important;
+}
+
+[data-theme='light'] .pq-stem-ask {
+  margin-top: 16px !important;
+  margin-bottom: 18px !important;
+}
+
+[data-theme='light'] .pq-stem-qno {
+  font-family: var(--font-serif, "Newsreader", "Merriweather", "Charter", Georgia, "Times New Roman", serif) !important;
+  font-size: 19px !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  margin-right: 8px !important;
+}
+
+/* Statements List (Clean UPSC printed style) */
+[data-theme='light'] .pq-stmts {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  margin: 12px 0 16px 20px !important;
+}
+
+[data-theme='light'] .pq-stmt {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 12px !important;
+  box-shadow: none !important;
+}
+
+[data-theme='light'] .pq-stmt-key {
+  background: transparent !important;
+  color: #0f172a !important;
+  font-family: var(--font-serif, "Newsreader", "Merriweather", "Charter", Georgia, "Times New Roman", serif) !important;
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  min-width: 20px !important;
+  height: auto !important;
+  padding: 0 !important;
+  margin-top: 0 !important;
+  border-radius: 0 !important;
+  display: inline-block !important;
+  text-align: left !important;
+}
+
+[data-theme='light'] .pq-stmt-key::after {
+  content: '.';
+}
+
+[data-theme='light'] .pq-stmt-text {
+  font-family: var(--font-serif, "Newsreader", "Merriweather", "Charter", Georgia, "Times New Roman", serif) !important;
+  font-size: 17px !important;
+  line-height: 1.68 !important;
+  color: #1a1a1a !important;
+  letter-spacing: 0.01em !important;
+}
+
+/* Options Container: Always Single Column */
+[data-theme='light'] .pq-opts {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  margin: 18px 0 20px !important;
+}
+
+[data-theme='light'] .pq-opt {
+  display: flex !important;
+  align-items: flex-start !important;
+  gap: 12px !important;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  border-radius: 6px !important;
+  padding: 7px 10px !important;
+  color: #1a1a1a !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  width: 100% !important;
+  box-shadow: none !important;
+  text-align: left !important;
+}
+
+[data-theme='light'] .pq-opt:hover:not(:disabled) {
+  background: #f7f5f0 !important;
+  border-color: #e5ded3 !important;
+}
+
+[data-theme='light'] .pq-opt-radio {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 18px !important;
+  height: 18px !important;
+  border-radius: 50% !important;
+  border: 1.5px solid #64748b !important;
+  flex-shrink: 0 !important;
+  margin-top: 3px !important;
+  background: #ffffff !important;
+  transition: border-color 0.15s ease !important;
+}
+
+[data-theme='light'] .pq-opt:hover:not(:disabled) .pq-opt-radio {
+  border-color: #1e293b !important;
+}
+
+[data-theme='light'] .pq-opt-radio-dot.is-correct {
+  display: block !important;
+  width: 9px !important;
+  height: 9px !important;
+  border-radius: 50% !important;
+  background: #15803d !important;
+}
+
+[data-theme='light'] .pq-opt-radio-dot.is-wrong {
+  display: block !important;
+  width: 9px !important;
+  height: 9px !important;
+  border-radius: 50% !important;
+  background: #dc2626 !important;
+}
+
+[data-theme='light'] .pq-opt-l {
+  font-family: var(--font-serif, "Newsreader", "Merriweather", "Charter", Georgia, "Times New Roman", serif) !important;
+  font-size: 16.5px !important;
+  font-weight: 700 !important;
+  color: #1e293b !important;
+  flex-shrink: 0 !important;
+  margin-top: 1px !important;
+  min-width: 24px !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+[data-theme='light'] .pq-opt-t {
+  font-family: var(--font-serif, "Newsreader", "Merriweather", "Charter", Georgia, "Times New Roman", serif) !important;
+  font-size: 16.5px !important;
+  line-height: 1.65 !important;
+  color: #1a1a1a !important;
+  flex: 1 !important;
+  letter-spacing: 0.01em !important;
+}
+
+[data-theme='light'] .pq-opt.is-correct {
+  background: #f0fdf4 !important;
+  border: 1px solid #86efac !important;
+  color: #14532d !important;
+}
+
+[data-theme='light'] .pq-opt.is-correct .pq-opt-radio {
+  border-color: #15803d !important;
+}
+
+[data-theme='light'] .pq-opt.is-wrong {
+  background: #fef2f2 !important;
+  border: 1px solid #fca5a5 !important;
+  color: #991b1b !important;
+}
+
+[data-theme='light'] .pq-opt.is-wrong .pq-opt-radio {
+  border-color: #dc2626 !important;
+}
+
+[data-theme='light'] .pq-opt.is-faded {
+  opacity: 0.55 !important;
+}
+
+/* Question Action Footer */
+[data-theme='light'] .pq-qfoot {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-top: 18px !important;
+  padding-top: 12px !important;
+  border-top: 1px dashed #e2e8f0 !important;
+}
+
+[data-theme='light'] .pq-qfoot-tip {
+  color: #64748b !important;
+  font-size: 13px !important;
+  font-style: italic !important;
+}
+
+[data-theme='light'] .pq-reveal {
+  background: #ffffff !important;
+  border: 1.5px solid #1e293b !important;
+  color: #0f172a !important;
+  padding: 6px 18px !important;
+  border-radius: 4px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+[data-theme='light'] .pq-reveal:hover {
+  background: #0f172a !important;
+  color: #ffffff !important;
+}
+
+/* Official Paper Footer */
+[data-theme='light'] .pq-paper-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-top: 20px !important;
+  padding-top: 12px !important;
+  border-top: 1px solid #1e293b !important;
+  font-family: var(--font-serif, "Newsreader", "Merriweather", "Charter", Georgia, "Times New Roman", serif) !important;
+  font-size: 12px !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  color: #334155 !important;
+  font-weight: 600 !important;
+}
+
+/* Focus Mode Topbar in Light Mode */
+[data-theme='light'] .pq-focus-mode-topbar {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 4px 0 10px !important;
+}
+
+[data-theme='light'] .pq-focus-mode-cur-q {
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+}
+
+[data-theme='light'] .pq-focus-mode-prog-track {
+  background: #cbd5e1 !important;
+  border: none !important;
+  height: 3px !important;
+}
+
+[data-theme='light'] .pq-focus-mode-prog-fill {
+  background: #1e293b !important;
+}
+
+[data-theme='light'] .pq-focus-jump-input {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 4px !important;
+  color: #0f172a !important;
+  font-weight: 700 !important;
+  width: 52px !important;
+  padding: 4px 6px !important;
+}
+
+[data-theme='light'] .pq-focus-jump-btn {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 4px !important;
+  color: #0f172a !important;
+  font-weight: 800 !important;
+  font-size: 11.5px !important;
+  padding: 4px 10px !important;
+  cursor: pointer !important;
+}
+
+[data-theme='light'] .pq-focus-jump-btn:hover {
+  background: #f1f5f9 !important;
+  border-color: #94a3b8 !important;
+}
+
+/* Bottom Pagination in Light Mode */
+[data-theme='light'] .pq-focus-bottom-nav {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 16px 4px 8px !important;
+  margin-top: 4px !important;
+}
+
+[data-theme='light'] .pq-focus-nav-btn {
+  background: transparent !important;
+  border: none !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  color: #1e293b !important;
+  cursor: pointer !important;
+  padding: 6px 12px !important;
+  border-radius: 6px !important;
+  transition: all 0.15s ease !important;
+}
+
+[data-theme='light'] .pq-focus-nav-btn:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: #0f172a !important;
+}
+
+[data-theme='light'] .pq-focus-next-btn {
+  font-weight: 800 !important;
+  color: #0f172a !important;
+}
+
+[data-theme='light'] .pq-focus-keyboard-hint {
+  font-size: 12px !important;
+  color: #64748b !important;
 }
 
 [data-theme='light'] .pq-topic.is-active, [data-theme='sepia'] .pq-topic.is-active {

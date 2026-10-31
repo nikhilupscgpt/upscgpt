@@ -56,7 +56,7 @@ export function parseStem(stem) {
 }
 
 /** Renders a question stem: intro line, statements in tinted boxes, tables, closing question. */
-export default function StemView({ stem, size = 'md' }) {
+export default function StemView({ stem, size = 'md', qNo }) {
   const blocks = React.useMemo(() => parseStem(stem), [stem]);
   const firstP = blocks.findIndex(b => b.type === 'p');
 
@@ -106,6 +106,9 @@ export default function StemView({ stem, size = 'md' }) {
         }
         return (
           <p key={idx} className={idx === firstP ? 'pq-stem-lead' : 'pq-stem-ask'}>
+            {idx === firstP && qNo ? (
+              <strong className="pq-stem-qno">{qNo}. </strong>
+            ) : null}
             {b.text}
           </p>
         );
