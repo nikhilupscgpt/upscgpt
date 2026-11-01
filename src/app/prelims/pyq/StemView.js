@@ -108,7 +108,7 @@ export default function StemView({ stem, size = 'md', qNo, interactiveEliminatio
                     }}
                     title={interactiveElimination ? (isElim ? 'Tap to restore statement' : 'Tap to cross out / eliminate this statement') : undefined}
                   >
-                    <span className="pq-stmt-key">{s.key}.</span>
+                    <span className="pq-stmt-key">{s.key}</span>
                     {s.text.includes(' : ') ? (
                       (() => {
                         const [left, ...rest] = s.text.split(' : ');

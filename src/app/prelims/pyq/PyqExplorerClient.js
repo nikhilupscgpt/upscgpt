@@ -455,7 +455,13 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
   const currentFocusNumber = (page - 1) * PAGE_SIZE + focusIndex + 1;
   const currentFocusQuestion = pageItems[focusIndex] || pageItems[0];
 
-  /* Sync body scroll lock and scroll-to-top when in Immersive Mode */
+  /* Sync body scroll lock and auto-enable Immersive on mobile when in Focus Mode */
+  useEffect(() => {
+    if (typeof window !== 'undefined' && viewMode === 'focus' && window.innerWidth < 768) {
+      setIsImmersive(true);
+    }
+  }, [viewMode]);
+
   useEffect(() => {
     if (typeof document === 'undefined') return;
     if (viewMode === 'focus' && isImmersive) {
@@ -1629,73 +1635,15 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                     onTouchStart={handleTouchStart}
                     onTouchEnd={handleTouchEnd}
                   >
-                    {/* 1. Ultra-Slim Top Booklet Strip */}
-                    <header className="pq-immersive-topbar">
-                      <button
-                        type="button"
-                        className="pq-imm-exit-btn"
-                        onClick={() => setIsImmersive(false)}
-                        aria-label="Exit immersive mode"
-                      >
-                        <span>✕</span>
-                        <span className="pq-imm-exit-text">Exit</span>
-                      </button>
-
-                      <div className="pq-imm-center-meta">
-                        <div className="pq-imm-qcounter">
-                          GS I &middot; Q. {currentFocusNumber} <span className="pq-imm-qtotal">/ {totalFiltered}</span>
-                        </div>
-                        <div className="pq-imm-subtopic">
-                          {currentFocusQuestion?.srcTopic || (subject === 'ALL' ? 'General Studies' : subject)}
-                        </div>
-                      </div>
-
-                      <div className="pq-imm-actions">
-                        <button
-                          type="button"
-                          className={`pq-imm-icon-btn ${immersiveJumpOpen ? 'is-active' : ''}`}
-                          onClick={() => setImmersiveJumpOpen(o => !o)}
-                          title="Jump to Question Number"
-                          aria-label="Jump to Question Number"
-                        >
-                          #
-                        </button>
-                        {currentFocusQuestion && (
-                          <button
-                            type="button"
-                            className={`pq-imm-icon-btn ${bookmarks[currentFocusQuestion.id] ? 'is-bookmarked' : ''}`}
-                            onClick={() =>
-                              requireAuthOrRun(
-                                'Sign in free to bookmark important PYQs to your personal revision list.',
-                                () => toggleBookmark(currentFocusQuestion.id)
-                              )
-                            }
-                            aria-label="Bookmark question"
-                          >
-                            <Bookmark size={16} fill={bookmarks[currentFocusQuestion.id] ? 'currentColor' : 'none'} />
-                          </button>
-                        )}
-                        <button
-                          type="button"
-                          className="pq-imm-icon-btn"
-                          onClick={toggleDocTheme}
-                          aria-label="Toggle Light Paper / Dark Theme"
-                          title="Toggle Paper / Dark Theme"
-                        >
-                          {docTheme === 'dark' ? '☀️' : '🌙'}
-                        </button>
-                      </div>
-
-                      {/* Thin 2px Progress Line along bottom of topbar */}
-                      <div className="pq-imm-progress-line">
-                        <div
-                          className="pq-imm-progress-fill"
-                          style={{
-                            width: `${Math.min(100, Math.max(2, (currentFocusNumber / (totalFiltered || 1)) * 100))}%`,
-                          }}
-                        />
-                      </div>
-                    </header>
+                    {/* 1. Razor-Thin 3px Top Edge Progress Line (Zero Header Chrome) */}
+                    <div className="pq-imm-progress-line">
+                      <div
+                        className="pq-imm-progress-fill"
+                        style={{
+                          width: `${Math.min(100, Math.max(2, (currentFocusNumber / (totalFiltered || 1)) * 100))}%`,
+                        }}
+                      />
+                    </div>
 
                     {/* Optional Slide-Down Jump Bar */}
                     {immersiveJumpOpen && (
@@ -1750,6 +1698,16 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                               () => toggleBookmark(currentFocusQuestion.id)
                             )
                           }
+                          onToggleJump={() => setImmersiveJumpOpen(o => !o)}
+                          isJumpOpen={immersiveJumpOpen}
+                          docTheme={docTheme}
+                          onToggleTheme={toggleDocTheme}
+                          onExitImmersive={() => {
+                            if (typeof window !== 'undefined' && window.innerWidth < 768) {
+                              setViewMode('list');
+                            }
+                            setIsImmersive(false);
+                          }}
                         />
                       )}
                     </div>
@@ -1773,7 +1731,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                             className="pq-imm-dock-center is-retry"
                             onClick={() => tryAgain(currentFocusQuestion)}
                           >
-                            ↺ Try Again
+                            ↺ Retry &middot; {currentFocusNumber}/{totalFiltered}
                           </button>
                         ) : (
                           <button
@@ -1781,7 +1739,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                             className="pq-imm-dock-center is-reveal"
                             onClick={() => setRevealed(r => ({ ...r, [currentFocusQuestion.id]: true }))}
                           >
-                            Show Answer
+                            Show Answer &middot; {currentFocusNumber}/{totalFiltered}
                           </button>
                         );
                       })()}
@@ -2327,7 +2285,26 @@ function AuthGateModal({ reason, onClose }) {
 
 /* ====================================================================== */
 
-function QuestionCard({ q, qNumber, totalCount, isFocusMode = false, isImmersive = false, isAdmin = false, attempt, revealedOnly, bookmarked, onPick, onReveal, onTryAgain, onBookmark }) {
+function QuestionCard({
+  q,
+  qNumber,
+  totalCount,
+  isFocusMode = false,
+  isImmersive = false,
+  isAdmin = false,
+  attempt,
+  revealedOnly,
+  bookmarked,
+  onPick,
+  onReveal,
+  onTryAgain,
+  onBookmark,
+  onToggleJump,
+  isJumpOpen = false,
+  docTheme = 'light',
+  onToggleTheme,
+  onExitImmersive,
+}) {
   const diff = difficultyOf(q);
   const options = q.options || [];
   const done = !!attempt || revealedOnly;
@@ -2351,7 +2328,7 @@ function QuestionCard({ q, qNumber, totalCount, isFocusMode = false, isImmersive
 
   return (
     <article className={`pq-card pq-qcard ${isImmersive ? 'is-immersive-card' : ''} ${attempt ? (attempt.ok ? 'is-ok' : 'is-bad') : ''}`}>
-      {/* UPSC Official Exam Booklet Header (Hidden in Immersive Mode since Slim Topbar displays it) */}
+      {/* UPSC Official Exam Booklet Header (Hidden in Immersive Mode) */}
       {!isImmersive && (
         <div className="pq-paper-header">
           <div className="pq-paper-header-rule" />
@@ -2371,7 +2348,50 @@ function QuestionCard({ q, qNumber, totalCount, isFocusMode = false, isImmersive
           {isStmt && <span className="pq-tag pq-tag-new-pattern">🔥 Statement I &amp; II</span>}
           <span className={`pq-tag ${diff.cls}`}>{diff.label}</span>
         </div>
-        {!isImmersive && (
+        {isImmersive ? (
+          <div className="pq-imm-inline-tools">
+            {onToggleJump && (
+              <button
+                type="button"
+                className={`pq-imm-mini-btn ${isJumpOpen ? 'is-on' : ''}`}
+                onClick={onToggleJump}
+                title="Jump to Question"
+                aria-label="Jump to Question"
+              >
+                #
+              </button>
+            )}
+            <button
+              type="button"
+              className={`pq-imm-mini-btn ${bookmarked ? 'is-on' : ''}`}
+              onClick={onBookmark}
+              aria-label={bookmarked ? 'Remove bookmark' : 'Bookmark'}
+            >
+              <Bookmark size={14} fill={bookmarked ? 'currentColor' : 'none'} />
+            </button>
+            {onToggleTheme && (
+              <button
+                type="button"
+                className="pq-imm-mini-btn"
+                onClick={onToggleTheme}
+                aria-label="Toggle Light/Dark Theme"
+              >
+                {docTheme === 'dark' ? '☀️' : '🌙'}
+              </button>
+            )}
+            {onExitImmersive && (
+              <button
+                type="button"
+                className="pq-imm-mini-btn is-exit"
+                onClick={onExitImmersive}
+                title="Exit full-screen view"
+                aria-label="Exit full-screen view"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        ) : (
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <Link
               href={`/prelims/pyq/${generateQuestionSlug(q)}`}

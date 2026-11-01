@@ -3850,6 +3850,17 @@ body.pq-immersive-body-lock {
   overscroll-behavior: none;
 }
 
+body.pq-immersive-body-lock .app-nav,
+body.pq-immersive-body-lock header.app-nav,
+body.pq-immersive-body-lock nav.app-nav {
+  display: none !important;
+}
+
+body.pq-immersive-body-lock .app-main {
+  padding-top: 0 !important;
+  z-index: 100000 !important;
+}
+
 .pq-immersive-launch-btn,
 .pq-immersive-inline-btn {
   display: inline-flex;
@@ -4006,13 +4017,13 @@ html[data-theme="dark"] .pq-imm-icon-btn {
 }
 
 .pq-imm-progress-line {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 2.5px;
+  position: relative;
+  width: 100%;
+  height: 3px;
+  flex-shrink: 0;
   background: rgba(15, 23, 42, 0.08);
   overflow: hidden;
+  z-index: 15;
 }
 
 html[data-theme="dark"] .pq-imm-progress-line {
@@ -4023,6 +4034,58 @@ html[data-theme="dark"] .pq-imm-progress-line {
   height: 100%;
   background: linear-gradient(90deg, #059669, #2563EB);
   transition: width 0.22s ease;
+}
+
+/* Inline Mini Controls inside .pq-qhead when in Immersive Mode */
+.pq-imm-inline-tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.pq-imm-mini-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  background: rgba(255, 255, 255, 0.85);
+  color: #334155;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  transition: all 0.14s ease;
+}
+
+html[data-theme="dark"] .pq-imm-mini-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #CBD5E1;
+}
+
+.pq-imm-mini-btn.is-active {
+  border-color: #2563EB;
+  color: #2563EB;
+  background: rgba(37, 99, 235, 0.1);
+}
+
+.pq-imm-mini-exit {
+  font-size: 13px;
+  color: #64748B;
+}
+
+.pq-qcard.is-immersive-card .pq-qhead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 2px;
 }
 
 .pq-imm-jump-drawer {
