@@ -702,8 +702,8 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
     /* ========================================================================= */
     .slide-body-split {
       --font-scale: 1;
-      --col-gap: 8px;
-      --card-pad-v: 8px;
+      --col-gap: 7.5px;
+      --card-pad-v: 7.5px;
       --card-pad-h: 11px;
       display: grid;
       grid-template-columns: 47.5% 1fr;
@@ -715,10 +715,6 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
     }
 
     .slide-col {
-      --font-scale: 1;
-      --col-gap: 8px;
-      --card-pad-v: 8px;
-      --card-pad-h: 11px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -740,6 +736,7 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
     */
     body[data-orientation="portrait"] .slide-body-split {
       grid-template-columns: 1fr 1fr;
+      grid-auto-rows: max-content;
       gap: var(--col-gap) 12px;
       align-content: space-between;
     }
@@ -761,11 +758,17 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
       grid-column: 2 / 3;
     }
 
+    /* In Portrait mode, Section 1 spans the full 191mm page width, so 2x2 options fit comfortably unless an option is >105 chars */
+    body[data-orientation="portrait"] .q-opts-grid.single-col:not(.single-col-portrait) {
+      grid-template-columns: 1fr 1fr;
+      gap: calc(4.5px * var(--font-scale));
+    }
+
     .sec-block {
       display: flex;
       flex-direction: column;
-      gap: 4px;
-      min-height: 0;
+      gap: calc(3.5px * var(--font-scale));
+      flex-shrink: 0;
     }
 
     /* Numbered Section Header (1..8) */
@@ -776,19 +779,19 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
       flex-shrink: 0;
     }
     .sec-num {
-      width: 16px;
-      height: 16px;
+      width: calc(15.5px * var(--font-scale));
+      height: calc(15.5px * var(--font-scale));
       border-radius: 50%;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 7.2pt;
+      font-size: calc(7pt * var(--font-scale));
       font-weight: 800;
       color: #ffffff;
       flex-shrink: 0;
     }
     .sec-title {
-      font-size: 7.4pt;
+      font-size: calc(7.3pt * var(--font-scale));
       font-weight: 800;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -845,12 +848,12 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
       padding: var(--card-pad-v) var(--card-pad-h);
       display: flex;
       flex-direction: column;
-      gap: 7px;
+      gap: calc(5.5px * var(--font-scale));
     }
     .q-stem-serif {
       font-family: "Georgia", "Times New Roman", serif;
-      font-size: calc(9.5pt * var(--font-scale));
-      line-height: 1.4;
+      font-size: calc(9.4pt * var(--font-scale));
+      line-height: 1.36;
       color: #0f172a;
       font-weight: 500;
       white-space: pre-line;
@@ -858,56 +861,56 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
     .q-opts-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 5px;
+      gap: calc(4.5px * var(--font-scale));
     }
     .q-opts-grid.single-col {
       grid-template-columns: 1fr;
-      gap: 4px;
+      gap: calc(3.8px * var(--font-scale));
     }
     .q-opt-pill {
       background: #ffffff;
       border: 1px solid #e2e8f0;
       border-radius: 6px;
-      padding: 4.5px 8px;
+      padding: calc(4px * var(--font-scale)) calc(7.5px * var(--font-scale));
       display: flex;
       align-items: center;
-      gap: 7px;
+      gap: calc(6.5px * var(--font-scale));
     }
     .q-opt-badge {
-      width: 17px;
-      height: 17px;
+      width: calc(16.5px * var(--font-scale));
+      height: calc(16.5px * var(--font-scale));
       border-radius: 4px;
       background: #eff6ff;
       border: 1px solid #bfdbfe;
       color: #1d4ed8;
       font-weight: 800;
-      font-size: calc(7.4pt * var(--font-scale));
+      font-size: calc(7.3pt * var(--font-scale));
       display: inline-flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
     }
     .q-opt-text {
-      font-size: calc(8.3pt * var(--font-scale));
+      font-size: calc(8.2pt * var(--font-scale));
       color: #0f172a;
       font-weight: 500;
       line-height: 1.22;
     }
     .your-ans-row {
-      display: flex;
-      justify-content: flex-end;
+      display: inline-flex;
       align-items: center;
-      gap: 6px;
-      margin-top: 1px;
+      gap: 5px;
+      margin-left: 6px;
+      flex-shrink: 0;
     }
     .your-ans-label {
-      font-size: 7.2pt;
+      font-size: calc(7pt * var(--font-scale));
       font-weight: 700;
       color: #2563eb;
     }
     .your-ans-box {
-      width: 26px;
-      height: 16px;
+      width: calc(24px * var(--font-scale));
+      height: calc(14.5px * var(--font-scale));
       border: 1.2px solid #60a5fa;
       border-radius: 4px;
       background: #ffffff;
@@ -923,7 +926,7 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
       padding: var(--card-pad-v) var(--card-pad-h);
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: calc(3.5px * var(--font-scale));
     }
     .ans-header-line {
       display: flex;
@@ -934,19 +937,19 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
       background: #15803d;
       color: #ffffff;
       font-weight: 800;
-      font-size: calc(8.2pt * var(--font-scale));
-      padding: 1px 6.5px;
+      font-size: calc(8.1pt * var(--font-scale));
+      padding: 1px 6px;
       border-radius: 4px;
       flex-shrink: 0;
     }
     .ans-opt-title {
-      font-size: calc(9.2pt * var(--font-scale));
+      font-size: calc(9pt * var(--font-scale));
       font-weight: 800;
       color: #14532d;
     }
     .ans-expl-body {
-      font-size: calc(8.2pt * var(--font-scale));
-      line-height: 1.36;
+      font-size: calc(8.1pt * var(--font-scale));
+      line-height: 1.34;
       color: #1e293b;
     }
     .ans-expl-body strong {
@@ -964,9 +967,9 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
       padding: var(--card-pad-v) var(--card-pad-h);
       display: flex;
       flex-direction: column;
-      gap: 4.5px;
-      font-size: calc(8pt * var(--font-scale));
-      line-height: 1.34;
+      gap: calc(4px * var(--font-scale));
+      font-size: calc(7.9pt * var(--font-scale));
+      line-height: 1.32;
       color: #1e293b;
       flex: 1;
     }
@@ -988,9 +991,9 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
     .why-list {
       display: flex;
       flex-direction: column;
-      gap: 3.5px;
-      font-size: calc(8pt * var(--font-scale));
-      line-height: 1.34;
+      gap: calc(3.2px * var(--font-scale));
+      font-size: calc(7.9pt * var(--font-scale));
+      line-height: 1.32;
       color: #1e293b;
     }
     .why-opt-label {
@@ -1014,19 +1017,19 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
       border: 1px solid #fde68a;
       border-radius: 9px;
       padding: var(--card-pad-v) var(--card-pad-h);
-      font-size: calc(8.1pt * var(--font-scale));
-      line-height: 1.35;
+      font-size: calc(8pt * var(--font-scale));
+      line-height: 1.33;
       color: #1c1917;
     }
     .va-stack {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: calc(5px * var(--font-scale));
     }
     .va-group {
       display: flex;
       flex-direction: column;
-      gap: 2.5px;
+      gap: calc(2px * var(--font-scale));
     }
     .va-group-head {
       display: flex;
@@ -1037,10 +1040,10 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
     .va-group-title {
       font-weight: 800;
       color: #92400e;
-      font-size: calc(8.3pt * var(--font-scale));
+      font-size: calc(8.2pt * var(--font-scale));
     }
     .va-group-tag {
-      font-size: calc(7.3pt * var(--font-scale));
+      font-size: calc(7.2pt * var(--font-scale));
       color: #b45309;
       font-weight: 600;
     }
@@ -1049,10 +1052,10 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
       padding-left: 14px;
       display: flex;
       flex-direction: column;
-      gap: 2.5px;
+      gap: calc(2px * var(--font-scale));
     }
     .va-list li {
-      line-height: 1.34;
+      line-height: 1.32;
       color: #1e293b;
     }
     .va-list li strong {
@@ -1060,7 +1063,7 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
     }
     .va-para {
       margin: 0;
-      line-height: 1.34;
+      line-height: 1.32;
       color: #1e293b;
     }
 
@@ -1074,10 +1077,10 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
       padding: var(--card-pad-v) var(--card-pad-h);
       display: flex;
       flex-direction: column;
-      gap: 2.5px;
+      gap: calc(2px * var(--font-scale));
     }
     .news-dateline {
-      font-size: calc(7pt * var(--font-scale));
+      font-size: calc(6.9pt * var(--font-scale));
       font-weight: 800;
       color: #7c3aed;
       letter-spacing: 0.05em;
@@ -1085,14 +1088,14 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
     }
     .news-headline {
       font-family: "Georgia", "Times New Roman", serif;
-      font-size: calc(9.1pt * var(--font-scale));
+      font-size: calc(9pt * var(--font-scale));
       font-weight: 700;
       color: #0f172a;
-      line-height: 1.26;
+      line-height: 1.24;
     }
     .news-relevance {
-      font-size: calc(8pt * var(--font-scale));
-      line-height: 1.32;
+      font-size: calc(7.9pt * var(--font-scale));
+      line-height: 1.3;
       color: #334155;
     }
 
@@ -1108,7 +1111,7 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
     .comp-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: calc(7.8pt * var(--font-scale));
+      font-size: calc(7.7pt * var(--font-scale));
       text-align: left;
     }
     .comp-table thead tr {
@@ -1116,8 +1119,8 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
       color: #ffffff;
     }
     .comp-table th {
-      padding: 4.5px 8px;
-      font-size: calc(6.9pt * var(--font-scale));
+      padding: calc(4px * var(--font-scale)) calc(7.5px * var(--font-scale));
+      font-size: calc(6.8pt * var(--font-scale));
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.04em;
@@ -1127,11 +1130,11 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
       border-right: none;
     }
     .comp-table td {
-      padding: 4px 8px;
+      padding: calc(3.5px * var(--font-scale)) calc(7.5px * var(--font-scale));
       border-top: 1px solid #e2e8f0;
       border-right: 1px solid #e2e8f0;
       color: #1e293b;
-      line-height: 1.25;
+      line-height: 1.24;
     }
     .comp-table td:first-child {
       font-weight: 700;
@@ -1154,8 +1157,8 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
       border: 1px solid #fecdd3;
       border-radius: 9px;
       padding: var(--card-pad-v) var(--card-pad-h);
-      font-size: calc(8.1pt * var(--font-scale));
-      line-height: 1.35;
+      font-size: calc(8pt * var(--font-scale));
+      line-height: 1.33;
       color: #1e293b;
     }
     .card-similar strong {
@@ -1282,6 +1285,7 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
     // Smart option grid layout: 2x2 if options are concise, 1-col if any option is long
     const maxOptLen = opts.reduce((max, o) => Math.max(max, String(o.text || '').length), 0);
     const useSingleColOpts = maxOptLen > 52 || opts.length !== 4;
+    const useSingleColPortrait = maxOptLen > 105 || opts.length !== 4;
 
     // Build concise Answer explanation
     const answerExplanationHtml = buildAnswerExplanationText(
@@ -1343,11 +1347,15 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
                 <span class="sec-num">1</span>
                 <span class="sec-title">QUESTION</span>
                 <span class="sec-line"></span>
+                <div class="your-ans-row">
+                  <span class="your-ans-label">Your answer</span>
+                  <span class="your-ans-box"></span>
+                </div>
               </div>
               <div class="card-question">
                 <div class="q-stem-serif">${escapeHtml((q.stem || '').trim())}</div>
                 ${opts.length > 0 ? `
-                  <div class="q-opts-grid ${useSingleColOpts ? 'single-col' : ''}">
+                  <div class="q-opts-grid ${useSingleColOpts ? 'single-col' : ''} ${useSingleColPortrait ? 'single-col-portrait' : ''}">
                     ${opts.map(o => `
                       <div class="q-opt-pill">
                         <span class="q-opt-badge">${escapeHtml((o.label || '').toLowerCase())}</span>
@@ -1356,10 +1364,6 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
                     `).join('')}
                   </div>
                 ` : ''}
-                <div class="your-ans-row">
-                  <span class="your-ans-label">Your answer</span>
-                  <span class="your-ans-box"></span>
-                </div>
               </div>
             </div>
 
@@ -1544,77 +1548,86 @@ function buildSlideDocument({ questions, orientation = 'landscape' }) {
         const bodySplit = page.querySelector('.slide-body-split');
         if (!bodySplit) return;
 
-        // Reset bodySplit inline overrides
-        bodySplit.style.zoom = '1';
+        // Clear all previous inline overrides on bodySplit and cols so CSS cascade works cleanly
+        bodySplit.style.zoom = '';
+        bodySplit.style.transform = '';
+        bodySplit.style.width = '';
+        bodySplit.style.alignContent = '';
         bodySplit.style.setProperty('--font-scale', '1');
-        bodySplit.style.setProperty('--col-gap', '8px');
-        bodySplit.style.setProperty('--card-pad-v', '8px');
+        bodySplit.style.setProperty('--col-gap', '7.5px');
+        bodySplit.style.setProperty('--card-pad-v', '7.5px');
+        bodySplit.style.setProperty('--card-pad-h', '11px');
 
         const cols = bodySplit.querySelectorAll('.slide-col');
         cols.forEach((col) => {
-          col.style.zoom = '1';
-          col.style.setProperty('--font-scale', '1');
-          col.style.setProperty('--col-gap', '8px');
-          col.style.setProperty('--card-pad-v', '8px');
+          col.style.zoom = '';
+          col.style.transform = '';
+          col.style.width = '';
+          col.style.removeProperty('--font-scale');
+          col.style.removeProperty('--col-gap');
+          col.style.removeProperty('--card-pad-v');
+          col.style.removeProperty('--card-pad-h');
         });
 
         const availH = bodySplit.clientHeight;
         if (availH <= 0) return;
 
         if (isPortrait) {
-          // In Portrait mode, .slide-body-split is the unified grid container
-          if (bodySplit.scrollHeight < availH * 0.82) {
-            bodySplit.style.setProperty('--col-gap', '11px');
-            bodySplit.style.setProperty('--card-pad-v', '10px');
-            if (bodySplit.scrollHeight < availH * 0.74) {
-              bodySplit.style.setProperty('--font-scale', '1.05');
-            }
-            return;
-          }
+          // Temporarily align-content: start so scrollHeight measures exact packed height of the 7 grid rows
+          bodySplit.style.alignContent = 'start';
 
-          if (bodySplit.scrollHeight > availH) {
-            bodySplit.style.setProperty('--col-gap', '5px');
-            bodySplit.style.setProperty('--card-pad-v', '5.5px');
+          if (bodySplit.scrollHeight < availH * 0.82) {
+            bodySplit.style.setProperty('--col-gap', '10.5px');
+            bodySplit.style.setProperty('--card-pad-v', '9.5px');
+            if (bodySplit.scrollHeight < availH * 0.74) {
+              bodySplit.style.setProperty('--font-scale', '1.04');
+            }
+            bodySplit.style.alignContent = 'space-between';
+            return;
           }
 
           let scale = 1.0;
           let guard = 0;
-          while (bodySplit.scrollHeight > availH + 1 && scale > 0.72 && guard++ < 30) {
-            scale -= 0.02;
-            bodySplit.style.setProperty('--font-scale', scale.toFixed(2));
+          while (bodySplit.scrollHeight > availH && scale > 0.45 && guard++ < 60) {
+            scale -= 0.015;
+            const gapPx = Math.max(2.5, 7.5 * scale).toFixed(2) + 'px';
+            const padVPx = Math.max(2.8, 7.5 * scale).toFixed(2) + 'px';
+            const padHPx = Math.max(6.5, 11.0 * scale).toFixed(2) + 'px';
+            bodySplit.style.setProperty('--font-scale', scale.toFixed(3));
+            bodySplit.style.setProperty('--col-gap', gapPx);
+            bodySplit.style.setProperty('--card-pad-v', padVPx);
+            bodySplit.style.setProperty('--card-pad-h', padHPx);
           }
 
-          if (bodySplit.scrollHeight > availH + 2) {
-            const ratio = Math.max(0.68, (availH - 2) / bodySplit.scrollHeight);
-            bodySplit.style.zoom = ratio.toFixed(3);
-          }
+          bodySplit.style.alignContent = 'space-between';
         } else {
           // In Landscape mode, fit left and right columns independently
           cols.forEach((col) => {
+            col.style.setProperty('--font-scale', '1');
+            col.style.setProperty('--col-gap', '7.5px');
+            col.style.setProperty('--card-pad-v', '7.5px');
+            col.style.setProperty('--card-pad-h', '11px');
+
             if (col.scrollHeight < availH * 0.80) {
-              col.style.setProperty('--col-gap', '11px');
-              col.style.setProperty('--card-pad-v', '11px');
+              col.style.setProperty('--col-gap', '10.5px');
+              col.style.setProperty('--card-pad-v', '10px');
               if (col.scrollHeight < availH * 0.72) {
                 col.style.setProperty('--font-scale', '1.04');
               }
               return;
             }
 
-            if (col.scrollHeight > availH) {
-              col.style.setProperty('--col-gap', '5px');
-              col.style.setProperty('--card-pad-v', '5.5px');
-            }
-
             let scale = 1.0;
             let guard = 0;
-            while (col.scrollHeight > availH + 1 && scale > 0.72 && guard++ < 30) {
-              scale -= 0.02;
-              col.style.setProperty('--font-scale', scale.toFixed(2));
-            }
-
-            if (col.scrollHeight > availH + 2) {
-              const ratio = Math.max(0.68, (availH - 2) / col.scrollHeight);
-              col.style.zoom = ratio.toFixed(3);
+            while (col.scrollHeight > availH && scale > 0.45 && guard++ < 60) {
+              scale -= 0.015;
+              const gapPx = Math.max(2.5, 7.5 * scale).toFixed(2) + 'px';
+              const padVPx = Math.max(2.8, 7.5 * scale).toFixed(2) + 'px';
+              const padHPx = Math.max(6.5, 11.0 * scale).toFixed(2) + 'px';
+              col.style.setProperty('--font-scale', scale.toFixed(3));
+              col.style.setProperty('--col-gap', gapPx);
+              col.style.setProperty('--card-pad-v', padVPx);
+              col.style.setProperty('--card-pad-h', padHPx);
             }
           });
         }
