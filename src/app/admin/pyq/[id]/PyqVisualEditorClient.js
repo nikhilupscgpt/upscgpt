@@ -69,28 +69,28 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
       keywords: cleanKeywords(structured.analysis.keywords)
     } : {
       keywords: cleanKeywords([
-        { term: q.srcSubject || 'General Studies', shortNote: 'Core UPSC Prelims syllabus subject.' },
-        { term: q.srcTopic || 'Polity & Governance', shortNote: 'Key conceptual theme tested in this question.' }
+        { term: q.srcSubject || 'General Studies', shortNote: 'Core UPSC Prelims syllabus area.' },
+        { term: q.srcTopic || 'Polity & Governance', shortNote: 'Central concept tested in this question.' }
       ]),
       optionBreakdown: normalizedOptions.map(o => ({
         label: o.label,
         verdict: o.label === (q.correctLabel || '').toLowerCase() ? 'Correct' : 'Incorrect',
         explanation: o.label === (q.correctLabel || '').toLowerCase() 
-          ? 'Key provision tested by UPSC based on standard statutory reference.' 
-          : 'Contradicts statutory or institutional guidelines.'
+          ? 'Matches all the conditions given in the question stem.' 
+          : 'Does not fit the specific rule or condition asked in the question.'
       })),
-      valueAddition: typeof q.explanation === 'string' && q.explanation ? q.explanation : 'Foundational conceptual linkages and operational guidelines.',
+      valueAddition: typeof q.explanation === 'string' && q.explanation ? q.explanation : 'Key concepts, rules, and practical distinctions to remember for Prelims.',
       inNews: {
-        headline: 'High-Yield Prelims Subject Analysis',
-        source: 'The Hindu / PIB',
-        date: 'Recent Cycle',
-        relevance: 'Tested frequently under UPSC Preliminary examination syllabus trends.'
+        headline: 'Why this topic stays in the news',
+        source: 'PIB / The Hindu',
+        date: 'Recent Update',
+        relevance: 'Often appears in the news when policy rules, ministry guidelines, or Supreme Court rulings are updated.'
       },
       similarPyq: {
         examYear: q.examYear ? q.examYear - 3 : 2020,
-        examName: 'UPSC CSE Pre',
-        stem: 'Adjacent conceptual theme tested in earlier preliminary cycles.',
-        keyTakeaway: 'UPSC frequently rotates core statutory parameters into modified distractor statements.'
+        examName: 'UPSC CSE Prelims',
+        stem: 'Related concept asked in an earlier Prelims paper.',
+        keyTakeaway: 'Expect the same core options to return with one changed clue in the stem.'
       }
     };
 

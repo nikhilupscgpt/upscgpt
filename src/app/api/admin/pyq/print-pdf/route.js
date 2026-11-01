@@ -175,25 +175,130 @@ export async function GET(req) {
   }
 }
 
-function renderValueAdditionHtml(va, q) {
+function humaniseText(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/\bEconomic Concept Matrix\b/gi, 'Economic concept')
+    .replace(/\bPolicy & Regulatory Architecture\b/gi, 'Policy')
+    .replace(/\bRegulatory Framework for\b/gi, 'Regulation of')
+    .replace(/\bHigh-order prelims elimination\b/gi, 'quick elimination')
+    .replace(/\bsubsequent exam cycles\b/gi, 'future papers')
+    .replace(/\bMinistry of Commerce and Industry\b/gi, 'MoCI')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function formatBulletText(str) {
+  const cleaned = humaniseText(str);
+  const escaped = escapeHtml(cleaned);
+  const colonMatch = escaped.match(/^([^:]{2,75}:)(.*)$/s);
+  if (colonMatch) {
+    return `<strong>${colonMatch[1]}</strong>${colonMatch[2]}`;
+  }
+  const dashMatch = escaped.match(/^([^—–]{2,60}[—–])(.*)$/s);
+  if (dashMatch) {
+    return `<strong>${dashMatch[1]}</strong>${dashMatch[2]}`;
+  }
+  return escaped;
+}
+
+function extractClueWordsFromStem(stem, analysis) {
+  if (analysis && Array.isArray(analysis.clueWords) && analysis.clueWords.length > 0) {
+    return analysis.clueWords.slice(0, 5).map(c => String(c).trim()).filter(Boolean);
+  }
+  if (!stem) return ['core definition', 'key condition', 'governing authority'];
+
+  const cleanStem = stem
+    .replace(/consider the following statements:?/gi, '')
+    .replace(/which of the statements given above is\/are correct\??/gi, '')
+    .replace(/how many of the above.*?\?/gi, '')
+    .replace(/,\s*is called\s*:?\s*$/i, '')
+    .replace(/\b(?:an|a|the)\s+[a-z0-9-\s]+?\s+where\s+(?:the\s+)?/i, '')
+    .trim();
+
+  // Look for natural clause splits ("but", "and instead", "who then", "while", "without", semicolons, or numbered statements)
+  const rawParts = cleanStem
+    .split(/(?:\bbut\b|\band instead\b|\bwho then\b|\bwhile\b|\bwhereas\b|\bwithout\b|;|\n+|\b[1-4]\.\s+)/i)
+    .map(s => s.trim())
+    .filter(s => s.length >= 8);
+
+  const condenseClause = (clause) => {
+    let c = clause
+      .replace(/^(?:the\s+)?(?:seller|buyer|entity|government|state|centre|bank|platform|company|person|body)\s+/i, '')
+      .replace(/^(?:has|have|is|are|was|were|can|cannot|does|do)\s+/i, '')
+      .replace(/\btransfers\s+customer\s+orders\s+and\s+shipment\s+details\s+to\s+(?:a\s+)?/i, '')
+      .replace(/\bproducts\s+in\s+stock\b/i, 'stock')
+      .replace(/\bthe\s+goods\s+directly\s+to\s+the\s+customer\b/i, 'directly')
+      .replace(/[.,:;!?]+$/, '')
+      .trim();
+
+    const words = c.split(/\s+/);
+    if (words.length > 5) {
+      c = words.slice(0, 4).join(' ');
+    }
+    return c;
+  };
+
+  const clues = [];
+  for (const part of rawParts) {
+    const short = condenseClause(part);
+    if (short && short.length >= 5 && !clues.includes(short)) {
+      clues.push(short);
+    }
+    if (clues.length >= 4) break;
+  }
+
+  if (clues.length < 2) {
+    // Fallback: split by commas or 'and'
+    const fallbackParts = cleanStem.split(/,|\band\b/i).map(s => condenseClause(s.trim())).filter(s => s.length >= 5);
+    for (const fp of fallbackParts) {
+      if (!clues.includes(fp)) clues.push(fp);
+      if (clues.length >= 4) break;
+    }
+  }
+
+  return clues.length > 0 ? clues.slice(0, 4) : ['key condition in stem', 'who holds control', 'operational flow'];
+}
+
+function renderValueAdditionHtml(va, q, existingKeywords = []) {
+  const kwTerms = new Set(
+    existingKeywords
+      .map(k => (k.term || '').toLowerCase().replace(/\s*model\b/gi, '').trim())
+      .filter(Boolean)
+  );
+
+  const isRedundantWithKeywords = (bulletStr, totalBulletsInGroup) => {
+    if (totalBulletsInGroup <= 2 || kwTerms.size === 0) return false;
+    const colonHead = (bulletStr.split(':')[0] || '').toLowerCase().replace(/\s*(?:model|marketing)\b/gi, '').trim();
+    if (!colonHead || colonHead.length > 35) return false;
+    for (const kt of kwTerms) {
+      if (kt && (colonHead === kt || colonHead.includes(kt) || kt.includes(colonHead))) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   if (!va) {
+    const topicLabel = escapeHtml(q.srcTopic || q.srcSubject || 'General Studies');
     return `
-      <div class="va-twocol-grid">
-        <div class="va-col">
-          <div class="va-lead-bold">Topic Core: ${escapeHtml(q.srcTopic || q.srcSubject || 'General Studies')}</div>
-          <p class="va-para">Systematic review of foundational NCERT frameworks, nodal ministries, and core conceptual distinctions required for high-order prelims elimination.</p>
-        </div>
-        <div class="va-col">
-          <div class="va-lead-bold">Examiner Trend &amp; Linkages:</div>
-          <p class="va-para">UPSC repeatedly tests adjacent operational guidelines, institutional governance, and statutory parameters from this syllabus branch in subsequent exam cycles.</p>
+      <div class="va-stack">
+        <div class="va-group">
+          <div class="va-group-head">
+            <span class="va-group-title">${topicLabel}</span>
+            <span class="va-group-tag">· Core concept</span>
+          </div>
+          <ul class="va-list">
+            <li><strong>What to remember:</strong> Focus on who holds decision-making power, how the mechanism works on the ground, and the exact NCERT or statutory definition.</li>
+            <li><strong>How UPSC tests it:</strong> Questions often swap the nodal ministry, reverse a key condition, or mix up two closely related terms from this chapter.</li>
+          </ul>
         </div>
       </div>
     `;
   }
 
-  // Helper to parse unstructured text into structured columns with bold headers and bullets
   const parseBulletItems = (raw) => {
-    const text = raw.trim();
+    const text = String(raw || '').trim();
     const rawLines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
     const items = [];
     for (const line of rawLines) {
@@ -211,172 +316,57 @@ function renderValueAdditionHtml(va, q) {
     return items;
   };
 
-  const formatTextIntoColumns = (raw) => {
-    const text = raw.trim();
-
-    // Check if the text contains multiple bullet points or distinct bulleted lines
-    const bulletItems = parseBulletItems(text);
-    if (bulletItems.length >= 2) {
-      const half = Math.ceil(bulletItems.length / 2);
-      const col1 = bulletItems.slice(0, half);
-      const col2 = bulletItems.slice(half);
-      return `
-        <div class="va-twocol-grid">
-          <div class="va-col">
-            ${col1.map(item => `
-              <div class="va-bullet-item">
-                <span class="va-dot">•</span>
-                <span>${formatBulletText(item)}</span>
-              </div>
-            `).join('')}
-          </div>
-          <div class="va-col">
-            ${col2.map(item => `
-              <div class="va-bullet-item">
-                <span class="va-dot">•</span>
-                <span>${formatBulletText(item)}</span>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      `;
-    }
-
-    // Check if it has two logical paragraphs or double-newlines
-    const parts = text.split(/\n\s*\n+/);
-    if (parts.length >= 2) {
-      return `
-        <div class="va-twocol-grid">
-          <div class="va-col">${formatVaBlock(parts[0])}</div>
-          <div class="va-col">${formatVaBlock(parts.slice(1).join('\n\n'))}</div>
-        </div>
-      `;
-    }
-
-    // Check if the text describes a core framework with numbered points: (1)... (2)... (3)... (4)...
-    const matchIntroAndPillars = text.match(/^(.*?)(?:\s*(?:\(1\)|1\.)\s*)(.*)$/s);
-    if (matchIntroAndPillars && matchIntroAndPillars[2]) {
-      const intro = matchIntroAndPillars[1].trim();
-      const afterPillars = matchIntroAndPillars[2].trim();
-
-      // Separate pillars from any trailing general factual context
-      // e.g., "and (4) Climate Change... (CCSAMMN). Rainfed agriculture covers..."
-      const splitByPoints = afterPillars.split(/\s*(?:\([2-9]\)|[2-9]\.)\s*/);
-      const points = [splitByPoints[0]];
-      let trailingContext = '';
-
-      for (let i = 1; i < splitByPoints.length; i++) {
-        const seg = splitByPoints[i];
-        if (i === splitByPoints.length - 1) {
-          // Check if there are trailing sentences after the last point
-          // Usually ends with a period before a new sentence starts e.g., "(CCSAMMN). Rainfed agriculture..."
-          const matchTrailing = seg.match(/^(.*?\))\.\s+([A-Z].*)$/s) || seg.match(/^(.*?\b[A-Za-z0-9_-]+)\.\s+([A-Z].*)$/s);
-          if (matchTrailing) {
-            points.push(matchTrailing[1].trim());
-            trailingContext = matchTrailing[2].trim();
-          } else {
-            points.push(seg.trim());
-          }
-        } else {
-          points.push(seg.trim());
-        }
-      }
-
-      // Left Column: Intro + All functional pillars neatly bulleted
-      // Right Column: Key Operational Parameters & Macro Statistics
-      return `
-        <div class="va-twocol-grid">
-          <div class="va-col">
-            ${intro ? `<div class="va-lead-bold">${escapeHtml(intro)}</div>` : ''}
-            <ul class="va-bullet-list">
-              ${points.map(pt => `<li>${formatBulletText(pt.replace(/,\s*and\s*$/, '').replace(/,\s*$/, ''))}</li>`).join('')}
-            </ul>
-          </div>
-          <div class="va-col">
-            ${trailingContext ? `
-              <div class="va-lead-bold">Key Operational Dynamics &amp; Macro Coverage:</div>
-              <p class="va-para">${formatBulletText(trailingContext)}</p>
-            ` : `
-              <div class="va-lead-bold">Implementation Framework:</div>
-              <p class="va-para">Cluster-based convergence with micro-watershed development, financial risk insurance, and soil-health management protocols.</p>
-            `}
-          </div>
-        </div>
-      `;
-    }
-
-    // Split sentences into two columns
-    const sentences = text.match(/[^.!?]+[.!?]+(\s|$)/g) || [text];
-    if (sentences.length >= 2) {
-      const half = Math.ceil(sentences.length / 2);
-      const col1 = sentences.slice(0, half).join(' ').trim();
-      const col2 = sentences.slice(half).join(' ').trim();
-      return `
-        <div class="va-twocol-grid">
-          <div class="va-col">${formatVaBlock(col1)}</div>
-          <div class="va-col">${formatVaBlock(col2)}</div>
-        </div>
-      `;
-    }
-
-    return `<div class="va-col">${formatVaBlock(text)}</div>`;
-  };
-
-  const formatBulletText = (str) => {
-    const escaped = escapeHtml(str);
-    // Bold leading words before colon (up to 80 chars)
-    const colonMatch = escaped.match(/^([^:]{3,80}:)(.*)$/s);
-    if (colonMatch) {
-      return `<strong>${colonMatch[1]}</strong>${colonMatch[2]}`;
-    }
-    // Or before an em-dash/en-dash
-    const dashMatch = escaped.match(/^([^—–]{3,60}[—–])(.*)$/s);
-    if (dashMatch) {
-      return `<strong>${dashMatch[1]}</strong>${dashMatch[2]}`;
-    }
-    return escaped;
-  };
-
-  const formatVaBlock = (str) => {
-    const lines = str.split(/\n+/).map(l => l.trim()).filter(Boolean);
-    return lines.map(line => {
-      if (/^[-•*]\s*/.test(line)) {
-        return `<div class="va-bullet-item"><span class="va-dot">•</span> <span>${formatBulletText(line.replace(/^[-•*]\s*/, ''))}</span></div>`;
-      }
-      return `<p class="va-para">${formatBulletText(line)}</p>`;
-    }).join('');
-  };
-
   if (typeof va === 'string') {
-    return formatTextIntoColumns(va);
+    const items = parseBulletItems(va);
+    return `
+      <div class="va-stack">
+        <div class="va-group">
+          <div class="va-group-head">
+            <span class="va-group-title">${escapeHtml(q.srcTopic || q.srcSubject || 'Key Concepts')}</span>
+            <span class="va-group-tag">· Value addition</span>
+          </div>
+          <ul class="va-list">
+            ${items.map(item => `<li>${formatBulletText(item)}</li>`).join('')}
+          </ul>
+        </div>
+      </div>
+    `;
   }
 
   if (Array.isArray(va)) {
     return `
-      <div class="va-twocol-grid">
+      <div class="va-stack">
         ${va.map(item => {
           if (typeof item === 'string') {
-            return `
-              <div class="va-bullet-item">
-                <span class="va-dot">•</span> <span>${formatBulletText(item)}</span>
-              </div>
-            `;
+            return `<ul class="va-list"><li>${formatBulletText(item)}</li></ul>`;
           }
-          const bullets = item.bullets || item.points || item.items;
+          const rawBullets = item.bullets || item.points || item.items || [];
+          const filteredBullets = Array.isArray(rawBullets)
+            ? rawBullets.filter(b => typeof b === 'string' && !isRedundantWithKeywords(b, rawBullets.length))
+            : [];
+          const finalBullets = filteredBullets.length > 0 ? filteredBullets : rawBullets;
+          const cleanTitle = humaniseText(item.title || '');
+          const cleanTag = humaniseText(item.tag || '');
+
           return `
-            <div class="va-col">
-              ${item.title ? `<div class="va-lead-bold">${escapeHtml(item.title)} ${item.tag ? `<span class="va-tag">${escapeHtml(item.tag)}</span>` : ''}</div>` : ''}
-              ${item.description ? `<p class="va-para">${escapeHtml(item.description)}</p>` : ''}
-              ${Array.isArray(bullets) && bullets.length > 0 ? `
-                <ul class="va-bullet-list">
-                  ${bullets.map(pt => `<li>${formatBulletText(typeof pt === 'string' ? pt : JSON.stringify(pt))}</li>`).join('')}
+            <div class="va-group">
+              ${cleanTitle ? `
+                <div class="va-group-head">
+                  <span class="va-group-title">${escapeHtml(cleanTitle)}</span>
+                  ${cleanTag ? `<span class="va-group-tag">· ${escapeHtml(cleanTag)}</span>` : ''}
+                </div>
+              ` : ''}
+              ${item.description ? `<p class="va-para">${formatBulletText(item.description)}</p>` : ''}
+              ${Array.isArray(finalBullets) && finalBullets.length > 0 ? `
+                <ul class="va-list">
+                  ${finalBullets.map(pt => `<li>${formatBulletText(typeof pt === 'string' ? pt : JSON.stringify(pt))}</li>`).join('')}
                 </ul>
               ` : ''}
               ${item.sections && Array.isArray(item.sections) ? item.sections.map(sec => `
-                <div class="va-sec">
-                  ${sec.heading ? `<div class="va-subhead">${escapeHtml(sec.heading)}</div>` : ''}
+                <div class="va-subgroup">
+                  ${sec.heading ? `<div class="va-group-head"><span class="va-group-title">${escapeHtml(humaniseText(sec.heading))}</span></div>` : ''}
                   ${sec.points && Array.isArray(sec.points) ? `
-                    <ul class="va-bullet-list">
+                    <ul class="va-list">
                       ${sec.points.map(pt => `<li>${formatBulletText(pt)}</li>`).join('')}
                     </ul>
                   ` : ''}
@@ -389,28 +379,213 @@ function renderValueAdditionHtml(va, q) {
     `;
   }
 
-  // Object with explicit left/right or columns or key-values
-  if (typeof va === 'object' && va !== null) {
-    if (va.columns && Array.isArray(va.columns)) {
-      return `
-        <div class="va-twocol-grid">
-          ${va.columns.map(col => `
-            <div class="va-col">
-              ${col.heading ? `<div class="va-lead-bold">${escapeHtml(col.heading)}</div>` : ''}
-              ${col.lead ? `<p class="va-para"><strong>${escapeHtml(col.lead)}</strong></p>` : ''}
-              ${Array.isArray(col.points) ? `
-                <ul class="va-bullet-list">
-                  ${col.points.map(pt => `<li>${formatBulletText(pt)}</li>`).join('')}
+  if (typeof va === 'object' && va !== null && Array.isArray(va.columns)) {
+    return `
+      <div class="va-stack">
+        ${va.columns.map(col => {
+          const rawPts = Array.isArray(col.points) ? col.points : [];
+          const filteredPts = rawPts.filter(b => typeof b === 'string' && !isRedundantWithKeywords(b, rawPts.length));
+          const pts = filteredPts.length > 0 ? filteredPts : rawPts;
+          return `
+            <div class="va-group">
+              ${col.heading ? `
+                <div class="va-group-head">
+                  <span class="va-group-title">${escapeHtml(humaniseText(col.heading))}</span>
+                  ${col.tag ? `<span class="va-group-tag">· ${escapeHtml(humaniseText(col.tag))}</span>` : ''}
+                </div>
+              ` : ''}
+              ${col.lead ? `<p class="va-para">${formatBulletText(col.lead)}</p>` : ''}
+              ${pts.length > 0 ? `
+                <ul class="va-list">
+                  ${pts.map(pt => `<li>${formatBulletText(pt)}</li>`).join('')}
                 </ul>
-              ` : col.text ? `<p class="va-para">${escapeHtml(col.text)}</p>` : ''}
+              ` : col.text ? `<p class="va-para">${formatBulletText(col.text)}</p>` : ''}
             </div>
-          `).join('')}
-        </div>
-      `;
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
+
+  return `<div class="va-stack"><p class="va-para">${escapeHtml(JSON.stringify(va))}</p></div>`;
+}
+
+function highlightKeyPhrasesInAnswer(text, clues = []) {
+  let html = escapeHtml(humaniseText(text));
+  // Bold key phrases like "zero physical inventory", "fixes retail prices", etc.
+  const highlightTargets = [
+    ...clues,
+    'zero physical inventory',
+    'fixes final retail prices',
+    'fixes the retail price',
+    'sets retail prices',
+    'without stocking inventory',
+    'wholly owned',
+    'constitutional body',
+    'statutory body'
+  ].filter(Boolean);
+
+  for (const phrase of highlightTargets) {
+    if (phrase.length < 5) continue;
+    const escapedPhrase = escapeHtml(phrase).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escapedPhrase})`, 'i');
+    if (regex.test(html)) {
+      html = html.replace(regex, '<strong>$1</strong>');
+    }
+  }
+  return html;
+}
+
+function buildAnswerExplanationText(q, ansLabel, correctText, optionBreakdown, statementBreakdown, explanationText, analysis, clues) {
+  // 1. Check optionBreakdown for the correct option
+  if (Array.isArray(optionBreakdown) && optionBreakdown.length > 0) {
+    const corrOpt = optionBreakdown.find(o => (o.label || '').toLowerCase().trim() === ansLabel);
+    if (corrOpt && corrOpt.explanation) {
+      const cleaned = corrOpt.explanation.replace(/^(?:correct|true|right)[\s.:—–-]*/i, '').trim();
+      if (cleaned) return highlightKeyPhrasesInAnswer(cleaned, clues);
     }
   }
 
-  return `<div class="va-col"><p class="va-para">${escapeHtml(JSON.stringify(va))}</p></div>`;
+  // 2. If statementBreakdown has 1 item (single-choice question stored in statementBreakdown[0])
+  if (Array.isArray(statementBreakdown) && statementBreakdown.length === 1 && statementBreakdown[0]?.explanation) {
+    const cleaned = statementBreakdown[0].explanation.replace(/^(?:correct|true|right)[\s.:—–-]*/i, '').trim();
+    if (cleaned) return highlightKeyPhrasesInAnswer(cleaned, clues);
+  }
+
+  // 3. Check coreTakeaway
+  if (analysis?.coreTakeaway && typeof analysis.coreTakeaway === 'string') {
+    return highlightKeyPhrasesInAnswer(analysis.coreTakeaway.trim(), clues);
+  }
+
+  // 4. If multi-statement breakdown, summarize which statements are right
+  if (Array.isArray(statementBreakdown) && statementBreakdown.length > 1) {
+    const rightNums = statementBreakdown
+      .filter(s => {
+        const v = (s.verdict || '').toLowerCase();
+        return v.includes('correct') && !v.includes('incorrect') && !v.includes('false');
+      })
+      .map(s => `Statement ${s.statementNo}`);
+    const firstExpl = statementBreakdown[0]?.explanation || '';
+    const shortFirst = firstExpl.split(/(?<=[.!?])\s+/)[0] || '';
+    const prefix = rightNums.length > 0 ? `${rightNums.join(' and ')} ${rightNums.length === 1 ? 'is' : 'are'} correct. ` : '';
+    return highlightKeyPhrasesInAnswer(`${prefix}${shortFirst}`.trim(), clues);
+  }
+
+  // 5. Fallback to first 2 sentences of explanationText
+  if (explanationText) {
+    const sentences = String(explanationText).trim().split(/(?<=[.!?])\s+/);
+    return highlightKeyPhrasesInAnswer(sentences.slice(0, 2).join(' '), clues);
+  }
+
+  return `<strong>${escapeHtml(correctText)}</strong> directly matches all conditions given in the question stem.`;
+}
+
+function buildSection4Html({ q, opts, ansLabel, optionBreakdown, statementBreakdown, keywords, valueAddition, visualSuggestion }) {
+  // Determine if this is genuinely a multi-statement question
+  const hasMultipleStatements = Array.isArray(statementBreakdown) && statementBreakdown.length > 1;
+
+  if (hasMultipleStatements) {
+    return {
+      title: 'STATEMENT BREAKDOWN',
+      html: `
+        <div class="why-list">
+          ${statementBreakdown.map(stmt => {
+            const v = (stmt.verdict || '').toLowerCase();
+            const isCorr = v.includes('correct') && !v.includes('incorrect') && !v.includes('false');
+            const num = stmt.statementNo != null ? stmt.statementNo : '';
+            const cleanExpl = humaniseText(stmt.explanation || '').replace(/^(?:correct|incorrect|true|false)[\s.:—–-]*/i, '');
+            return `
+              <div class="why-row">
+                <strong class="${isCorr ? 'why-stmt-right' : 'why-stmt-wrong'}">Statement ${escapeHtml(String(num))} (${isCorr ? 'Correct' : 'Incorrect'})</strong> — ${escapeHtml(cleanExpl)}
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `
+    };
+  }
+
+  // Direct MCQ: Build "WHY NOT OTHER OPTIONS" for each wrong option
+  const wrongOpts = (opts || []).filter(o => (o.label || '').toLowerCase().trim() !== ansLabel);
+  const kwList = normalizeKeywordsList(keywords || []);
+  const tableRows = visualSuggestion?.tableData?.rows || [];
+
+  // Strip repetitive suffix like "Revenue Model" or "Model" from option title for punchier reading
+  const shortenOptName = (text) => {
+    return String(text || '')
+      .replace(/\s+Revenue\s+Model$/i, '')
+      .replace(/\s+Business\s+Model$/i, '')
+      .replace(/\s+Model$/i, '')
+      .trim() || text;
+  };
+
+  const findReasonForWrongOpt = (opt) => {
+    const lbl = (opt.label || '').toLowerCase().trim();
+    const rawName = (opt.text || '').trim();
+    const shortName = shortenOptName(rawName).toLowerCase();
+
+    // 1. Check optionBreakdown
+    if (Array.isArray(optionBreakdown)) {
+      const found = optionBreakdown.find(ob => (ob.label || '').toLowerCase().trim() === lbl);
+      if (found && found.explanation) {
+        const cl = found.explanation
+          .replace(/^(?:incorrect|false|wrong|eliminated)[\s.:—–-]*/i, '')
+          .trim();
+        if (cl && cl !== 'Contradicts statutory or institutional guidelines.') {
+          return humaniseText(cl);
+        }
+      }
+    }
+
+    // 2. Check comparison table rows
+    if (Array.isArray(tableRows) && tableRows.length > 0) {
+      const matchingRow = tableRows.find(r => Array.isArray(r) && r[0] && String(r[0]).toLowerCase().includes(shortName));
+      if (matchingRow && matchingRow.length >= 2) {
+        const details = matchingRow.slice(1).map(c => String(c || '').trim()).filter(Boolean);
+        if (details.length >= 3) {
+          return `price set by ${details[0].toLowerCase().replace(/^set by\s+/i, '')}; inventory held by ${details[1].toLowerCase()}; earns via ${details[2].toLowerCase()}.`;
+        }
+        if (details.length > 0) {
+          return details.join('; ') + '.';
+        }
+      }
+    }
+
+    // 3. Check keywords list
+    const matchingKw = kwList.find(k => (k.term || '').toLowerCase().includes(shortName));
+    if (matchingKw && matchingKw.shortNote) {
+      const firstSentence = matchingKw.shortNote.split(/(?<=[.!?])\s+/)[0];
+      return humaniseText(firstSentence);
+    }
+
+    // 4. Fallback natural mentor line
+    return `does not match the specific conditions described in the question stem.`;
+  };
+
+  if (wrongOpts.length === 0) {
+    return {
+      title: 'WHY NOT OTHER OPTIONS',
+      html: `<div class="why-list"><div class="why-row">Check how the remaining options differ in who holds control, funding, or jurisdiction.</div></div>`
+    };
+  }
+
+  return {
+    title: 'WHY NOT OTHER OPTIONS',
+    html: `
+      <div class="why-list">
+        ${wrongOpts.map(opt => {
+          const lbl = escapeHtml((opt.label || '').toLowerCase().trim());
+          const shortTitle = escapeHtml(shortenOptName(opt.text || ''));
+          const reason = escapeHtml(findReasonForWrongOpt(opt));
+          return `
+            <div class="why-row">
+              <strong class="why-opt-label">(${lbl}) ${shortTitle}</strong> — ${reason}
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `
+  };
 }
 
 function buildSlideDocument({ questions }) {
@@ -423,7 +598,7 @@ function buildSlideDocument({ questions }) {
   <style>
     @page {
       size: A4 landscape;
-      margin: 4mm 6mm;
+      margin: 0;
     }
     * {
       box-sizing: border-box;
@@ -434,10 +609,10 @@ function buildSlideDocument({ questions }) {
     body {
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-      color: #1e293b;
+      font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #0f172a;
       line-height: 1.35;
-      background: #090d16;
+      background: #0f172a;
     }
 
     /* Screen mode viewer canvas */
@@ -451,16 +626,17 @@ function buildSlideDocument({ questions }) {
       }
       .slide-page {
         width: 297mm;
-        height: 204mm;
-        max-height: 204mm;
+        height: 210mm;
+        max-height: 210mm;
         background: #ffffff;
         border-radius: 8px;
-        padding: 8mm 11mm;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+        padding: 7.5mm 10mm 6.5mm;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
         display: flex;
         flex-direction: column;
         justify-content: space-between;
         overflow: hidden;
+        position: relative;
       }
       .no-print {
         display: flex;
@@ -476,7 +652,7 @@ function buildSlideDocument({ questions }) {
       }
     }
 
-    /* Print mode: Exactly 1 sheet per question */
+    /* Print mode: Exact A4 Landscape 297mm x 210mm */
     @media print {
       .no-print {
         display: none !important;
@@ -487,368 +663,555 @@ function buildSlideDocument({ questions }) {
         margin: 0 !important;
       }
       .slide-page {
-        width: 100% !important;
-        height: 198mm !important;
-        max-height: 198mm !important;
+        width: 297mm !important;
+        height: 210mm !important;
+        max-height: 210mm !important;
         page-break-after: always;
         break-after: page;
-        overflow: hidden;
+        overflow: hidden !important;
         margin: 0 !important;
-        padding: 3mm 4mm !important;
+        padding: 7.5mm 10mm 6.5mm !important;
         box-shadow: none !important;
         border: none !important;
         border-radius: 0 !important;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        position: relative;
       }
     }
 
-    /* Header Bar */
+    /* ========================================================================= */
+    /* TOP HEADER BAR                                                            */
+    /* ========================================================================= */
     .slide-head {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 6px;
-      padding-bottom: 3px;
-      border-bottom: 1.5px solid #e2e8f0;
+      padding-bottom: 6px;
+      margin-bottom: 8px;
+      border-bottom: 2px solid #0f172a;
+      flex-shrink: 0;
+    }
+    .slide-head-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
     }
     .badge-exam-red {
       background: #dc2626;
       color: #ffffff;
       font-weight: 800;
-      font-size: 9.5pt;
-      padding: 3px 14px;
-      border-radius: 9999px;
-      letter-spacing: 0.3px;
-      display: inline-block;
+      font-size: 8.8pt;
+      padding: 2.5px 12px;
+      border-radius: 999px;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
-    .slide-head-meta {
-      font-size: 8pt;
-      font-weight: 700;
+    .slide-breadcrumb {
+      font-size: 8.6pt;
       color: #64748b;
+      font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-
-    /* Badges */
-    .badge-pill {
-      display: inline-block;
-      font-size: 7.8pt;
+    .slide-breadcrumb strong {
+      color: #0f172a;
       font-weight: 800;
-      padding: 2px 9px;
-      border-radius: 4px;
-      letter-spacing: 0.2px;
-      margin-bottom: 3px;
     }
-    .badge-black { background: #0f172a; color: #ffffff; }
-    .badge-teal { background: #0d9488; color: #ffffff; }
-    .badge-slate { background: #334155; color: #ffffff; }
-    .badge-cyan { background: #0284c7; color: #ffffff; }
+    .badge-qnum-dark {
+      background: #0f172a;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: 8.6pt;
+      padding: 2.5px 12px;
+      border-radius: 999px;
+      letter-spacing: 0.3px;
+      flex-shrink: 0;
+    }
 
     /* ========================================================================= */
-    /* ASYMMETRIC 2-COLUMN SLIDE ARCHITECTURE (34% Left / 66% Right)             */
+    /* BALANCED 2-COLUMN 8-BLOCK ARCHITECTURE                                    */
     /* ========================================================================= */
     .slide-body-split {
       display: grid;
-      grid-template-columns: 34% 66%;
-      gap: 16px;
+      grid-template-columns: 47.5% 1fr;
+      gap: 18px;
       flex: 1;
       min-height: 0;
+      overflow: hidden;
       align-items: stretch;
     }
 
-    /* LEFT COLUMN (34%): Question -> Answer & Keywords -> In News */
-    .slide-left-col {
+    .slide-col {
+      --font-scale: 1;
+      --col-gap: 8px;
+      --card-pad-v: 8px;
+      --card-pad-h: 11px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: var(--col-gap);
+      min-height: 0;
+      overflow: hidden;
+      transform-origin: top left;
+    }
+
+    .sec-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-height: 0;
+    }
+
+    /* Numbered Section Header (1..8) */
+    .sec-head {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .sec-num {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 7.2pt;
+      font-weight: 800;
+      color: #ffffff;
+      flex-shrink: 0;
+    }
+    .sec-title {
+      font-size: 7.4pt;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .sec-line {
+      flex: 1;
+      height: 1px;
+      background: #e2e8f0;
+      margin-left: 4px;
+    }
+
+    /* Section Color Themes */
+    .sec-1 .sec-num { background: #2563eb; }
+    .sec-1 .sec-title { color: #1d4ed8; }
+    .sec-1 .sec-line { background: #dbeafe; }
+
+    .sec-2 .sec-num { background: #16a34a; }
+    .sec-2 .sec-title { color: #15803d; }
+    .sec-2 .sec-line { background: #bbf7d0; }
+
+    .sec-3 .sec-num { background: #0284c7; }
+    .sec-3 .sec-title { color: #0369a1; }
+    .sec-3 .sec-line { background: #bae6fd; }
+
+    .sec-4 .sec-num { background: #ea580c; }
+    .sec-4 .sec-title { color: #c2410c; }
+    .sec-4 .sec-line { background: #fed7aa; }
+
+    .sec-5 .sec-num { background: #b45309; }
+    .sec-5 .sec-title { color: #92400e; }
+    .sec-5 .sec-line { background: #fde68a; }
+
+    .sec-6 .sec-num { background: #7c3aed; }
+    .sec-6 .sec-title { color: #6d28d9; }
+    .sec-6 .sec-line { background: #e9d5ff; }
+
+    .sec-7 .sec-num { background: #0f766e; }
+    .sec-7 .sec-title { color: #0f766e; }
+    .sec-7 .sec-line { background: #99f6e4; }
+
+    .sec-8 .sec-num { background: #be123c; }
+    .sec-8 .sec-title { color: #be123c; }
+    .sec-8 .sec-line { background: #fecdd3; }
+
+    /* ========================================================================= */
+    /* SECTION 1: QUESTION CARD                                                  */
+    /* ========================================================================= */
+    .card-question {
+      background: #f8fafc;
+      border: 1px solid #dbeafe;
+      border-radius: 9px;
+      padding: var(--card-pad-v) var(--card-pad-h);
       display: flex;
       flex-direction: column;
       gap: 7px;
-      padding-right: 8px;
-      border-right: 1.5px solid #f1f5f9;
-      min-height: 0;
-      justify-content: flex-start;
     }
-    .q-box-container {
+    .q-stem-serif {
+      font-family: "Georgia", "Times New Roman", serif;
+      font-size: calc(9.5pt * var(--font-scale));
+      line-height: 1.4;
+      color: #0f172a;
+      font-weight: 500;
+      white-space: pre-line;
+    }
+    .q-opts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+    }
+    .q-opts-grid.single-col {
+      grid-template-columns: 1fr;
+      gap: 4px;
+    }
+    .q-opt-pill {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 4.5px 8px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .q-opt-badge {
+      width: 17px;
+      height: 17px;
+      border-radius: 4px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #1d4ed8;
+      font-weight: 800;
+      font-size: calc(7.4pt * var(--font-scale));
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .q-opt-text {
+      font-size: calc(8.3pt * var(--font-scale));
+      color: #0f172a;
+      font-weight: 500;
+      line-height: 1.22;
+    }
+    .your-ans-row {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 6px;
+      margin-top: 1px;
+    }
+    .your-ans-label {
+      font-size: 7.2pt;
+      font-weight: 700;
+      color: #2563eb;
+    }
+    .your-ans-box {
+      width: 26px;
+      height: 16px;
+      border: 1.2px solid #60a5fa;
+      border-radius: 4px;
+      background: #ffffff;
+    }
+
+    /* ========================================================================= */
+    /* SECTION 2: ANSWER CARD                                                    */
+    /* ========================================================================= */
+    .card-answer {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 9px;
+      padding: var(--card-pad-v) var(--card-pad-h);
       display: flex;
       flex-direction: column;
       gap: 4px;
     }
-    .q-col-serif {
-      font-family: "Times New Roman", Times, Georgia, "Liberation Serif", serif;
-      color: #000000;
-      line-height: 1.38;
+    .ans-header-line {
+      display: flex;
+      align-items: center;
+      gap: 7px;
     }
-    .q-stem-serif {
-      font-size: 9.4pt;
-      font-weight: 600;
-      white-space: pre-wrap;
-      margin-bottom: 5px;
+    .ans-pill-green {
+      background: #15803d;
+      color: #ffffff;
+      font-weight: 800;
+      font-size: calc(8.2pt * var(--font-scale));
+      padding: 1px 6.5px;
+      border-radius: 4px;
+      flex-shrink: 0;
     }
-    .q-opts-serif {
-      font-size: 9pt;
-      font-weight: 500;
-      color: #111827;
-      line-height: 1.32;
+    .ans-opt-title {
+      font-size: calc(9.2pt * var(--font-scale));
+      font-weight: 800;
+      color: #14532d;
     }
-    .q-opt-serif-line {
-      margin-top: 2.5px;
+    .ans-expl-body {
+      font-size: calc(8.2pt * var(--font-scale));
+      line-height: 1.36;
+      color: #1e293b;
+    }
+    .ans-expl-body strong {
+      color: #0f172a;
+      font-weight: 700;
     }
 
-    /* Answer Badge (Right below Question Options) */
-    .left-ans-box {
-      margin-top: 2px;
+    /* ========================================================================= */
+    /* SECTION 3: KEYWORDS + CLUE WORDS SPLIT                                    */
+    /* ========================================================================= */
+    .kw-split-grid {
+      display: grid;
+      grid-template-columns: 1.45fr 0.95fr;
+      gap: 7px;
     }
-    .card-ans-green {
-      background: #86efac;
-      border: none;
-      border-radius: 4px;
-      padding: 6px 10px;
-      color: #064e3b;
-      font-size: 8.8pt;
-      font-weight: 700;
-      line-height: 1.28;
+    .card-kw-defs {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 9px;
+      padding: var(--card-pad-v) var(--card-pad-h);
+      display: flex;
+      flex-direction: column;
+      gap: 4.5px;
+      font-size: calc(8pt * var(--font-scale));
+      line-height: 1.34;
+      color: #1e293b;
     }
-    .ans-tag-label {
-      font-size: 7pt;
+    .kw-def-item strong {
+      color: #0369a1;
+      font-weight: 800;
+    }
+    .card-kw-clues {
+      background: #f8fafc;
+      border: 1px solid #bae6fd;
+      border-radius: 9px;
+      padding: var(--card-pad-v) 9px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .clue-box-title {
+      font-size: calc(6.8pt * var(--font-scale));
+      font-weight: 800;
+      color: #0369a1;
+      letter-spacing: 0.05em;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      opacity: 0.8;
       margin-bottom: 1px;
     }
-
-    /* Keywords and Concepts Box (Right below Answer) */
-    .left-kw-box {
-      margin-top: 2px;
-    }
-    .card-kw-blue {
-      background: #93c5fd;
-      border: none;
-      border-radius: 4px;
-      padding: 6px 10px;
-      color: #1e3a8a;
-      font-size: 8.2pt;
-      line-height: 1.28;
-    }
-    .kw-title {
-      font-weight: 800;
-      text-decoration: underline;
-      margin-bottom: 3px;
-      font-size: 8.4pt;
+    .clue-list {
+      margin: 0;
+      padding-left: 12px;
+      font-size: calc(7.8pt * var(--font-scale));
+      line-height: 1.34;
       color: #0f172a;
+      font-weight: 500;
     }
-    .kw-list {
-      display: flex;
-      flex-direction: column;
-      gap: 1.5px;
-    }
-    .kw-row {
-      line-height: 1.22;
-    }
-    .distractor-strike {
-      text-decoration: line-through;
-      color: #334155;
-    }
-    .distractor-tag {
-      color: #dc2626;
-      font-size: 7.2pt;
-      font-weight: 800;
-      margin-left: 3px;
+    .clue-list li {
+      margin-bottom: 1.5px;
     }
 
-    /* In News Editorial Card (Bottom of Left Column) */
-    .left-news-block {
+    /* ========================================================================= */
+    /* SECTION 4: WHY NOT OTHER OPTIONS                                          */
+    /* ========================================================================= */
+    .card-why {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: 9px;
+      padding: var(--card-pad-v) var(--card-pad-h);
+    }
+    .why-list {
       display: flex;
       flex-direction: column;
-      margin-top: auto;
-      padding-top: 4px;
+      gap: 3.5px;
+      font-size: calc(8pt * var(--font-scale));
+      line-height: 1.34;
+      color: #1e293b;
     }
-    .card-news-editorial {
-      background: #ffffff;
-      border: 1px solid #cbd5e1;
-      border-radius: 4px;
-      padding: 7px 10px;
-      font-size: 8pt;
-      color: #334155;
-      line-height: 1.3;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-    }
-    .news-headline {
-      font-family: Georgia, 'Times New Roman', serif;
-      font-size: 9.4pt;
-      font-weight: 800;
-      color: #000000;
-      line-height: 1.25;
-      margin-bottom: 2px;
-    }
-    .news-dateline {
-      font-size: 7.2pt;
-      font-weight: 800;
-      color: #0284c7;
-      text-transform: uppercase;
-      margin-bottom: 3px;
-    }
-    .news-relevance {
-      line-height: 1.28;
-      color: #334155;
-    }
-
-    /* RIGHT COLUMN (66%): Dedicated High-Capacity Knowledge Hub */
-    .slide-right-col {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      justify-content: flex-start;
-      min-height: 0;
-    }
-
-    /* Row 1: Option Breakdown (Pink Box) */
-    .right-expl-block {
-      display: flex;
-      flex-direction: column;
-    }
-    .card-expl-pink {
-      background: #fda4af;
-      border: none;
-      border-radius: 4px;
-      padding: 8px 12px;
-      color: #881337;
-      font-size: 8.3pt;
-      line-height: 1.36;
-    }
-    .opt-row {
-      margin-bottom: 4px;
-    }
-    .opt-row:last-child {
-      margin-bottom: 0;
-    }
-    .verdict-correct {
-      color: #065f46;
+    .why-opt-label {
+      color: #9a3412;
       font-weight: 800;
     }
-    .verdict-incorrect {
-      color: #991b1b;
+    .why-stmt-right {
+      color: #15803d;
+      font-weight: 800;
+    }
+    .why-stmt-wrong {
+      color: #b91c1c;
       font-weight: 800;
     }
 
-    /* Row 2: Value Addition (High Capacity Yellow Box across 66% width) */
-    .right-va-block {
+    /* ========================================================================= */
+    /* SECTION 5: VALUE ADDITION                                                 */
+    /* ========================================================================= */
+    .card-va {
+      background: #fefce8;
+      border: 1px solid #fde68a;
+      border-radius: 9px;
+      padding: var(--card-pad-v) var(--card-pad-h);
+      font-size: calc(8.1pt * var(--font-scale));
+      line-height: 1.35;
+      color: #1c1917;
+    }
+    .va-stack {
       display: flex;
       flex-direction: column;
+      gap: 6px;
     }
-    .card-va-yellow {
-      background: #fef08a;
-      border: none;
-      border-radius: 4px;
-      padding: 8px 12px;
-      color: #451a03;
-      font-size: 8.2pt;
-      line-height: 1.36;
-    }
-    .va-twocol-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    .va-col {
+    .va-group {
       display: flex;
       flex-direction: column;
       gap: 2.5px;
     }
-    .va-lead-bold {
-      font-weight: 800;
-      color: #000000;
-      font-size: 8.4pt;
-      line-height: 1.28;
-      margin-bottom: 2px;
-    }
-    .va-para {
-      margin: 0 0 3px 0;
-      line-height: 1.32;
-      color: #292524;
-    }
-    .va-subhead {
-      font-weight: 700;
-      font-size: 8.2pt;
-      color: #1c1917;
-      margin-top: 2px;
-      margin-bottom: 1px;
-    }
-    .va-bullet-list {
-      margin: 1px 0 2px 0;
-      padding-left: 14px;
-      list-style-type: disc;
-    }
-    .va-bullet-list li {
-      margin-bottom: 2px;
-      line-height: 1.3;
-      color: #1c1917;
-    }
-    .va-bullet-item {
+    .va-group-head {
       display: flex;
       align-items: baseline;
       gap: 5px;
-      margin-bottom: 2px;
-      line-height: 1.3;
-      color: #1c1917;
+      flex-wrap: wrap;
     }
-    .va-dot {
-      color: #451a03;
+    .va-group-title {
       font-weight: 800;
-      font-size: 9pt;
-      line-height: 1;
+      color: #92400e;
+      font-size: calc(8.3pt * var(--font-scale));
     }
-    .va-tag {
-      background: rgba(0,0,0,0.08);
-      font-size: 7.2pt;
-      padding: 1px 5px;
-      border-radius: 3px;
-      margin-left: 4px;
+    .va-group-tag {
+      font-size: calc(7.3pt * var(--font-scale));
+      color: #b45309;
       font-weight: 600;
     }
-
-    /* Row 3: Similar PYQ (Sage Green Box) */
-    .right-pyq-block {
+    .va-list {
+      margin: 0;
+      padding-left: 14px;
       display: flex;
       flex-direction: column;
-      margin-top: auto;
+      gap: 2.5px;
     }
-    .card-pyq-green {
-      background: #86efac;
-      border: none;
-      border-radius: 4px;
-      padding: 7px 11px;
-      color: #14532d;
-      font-size: 8.1pt;
-      line-height: 1.3;
+    .va-list li {
+      line-height: 1.34;
+      color: #1e293b;
     }
-    .pyq-stem {
-      margin-bottom: 2px;
+    .va-list li strong {
+      color: #0f172a;
     }
-    .pyq-takeaway {
-      background: rgba(255, 255, 255, 0.75);
-      padding: 3px 7px;
-      border-radius: 3px;
-      font-size: 7.6pt;
-      color: #065f46;
-      font-weight: 700;
-      margin-top: 3px;
+    .va-para {
+      margin: 0;
+      line-height: 1.34;
+      color: #1e293b;
     }
 
-    /* Footer */
+    /* ========================================================================= */
+    /* SECTION 6: IN NEWS                                                        */
+    /* ========================================================================= */
+    .card-news {
+      background: #faf5ff;
+      border: 1px solid #e9d5ff;
+      border-radius: 9px;
+      padding: var(--card-pad-v) var(--card-pad-h);
+      display: flex;
+      flex-direction: column;
+      gap: 2.5px;
+    }
+    .news-dateline {
+      font-size: calc(7pt * var(--font-scale));
+      font-weight: 800;
+      color: #7c3aed;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .news-headline {
+      font-family: "Georgia", "Times New Roman", serif;
+      font-size: calc(9.1pt * var(--font-scale));
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.26;
+    }
+    .news-relevance {
+      font-size: calc(8pt * var(--font-scale));
+      line-height: 1.32;
+      color: #334155;
+    }
+
+    /* ========================================================================= */
+    /* SECTION 7: COMPARISON TABLE                                               */
+    /* ========================================================================= */
+    .comp-table-wrap {
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #ffffff;
+    }
+    .comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: calc(7.8pt * var(--font-scale));
+      text-align: left;
+    }
+    .comp-table thead tr {
+      background: #065f46;
+      color: #ffffff;
+    }
+    .comp-table th {
+      padding: 4.5px 8px;
+      font-size: calc(6.9pt * var(--font-scale));
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-right: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .comp-table th:last-child {
+      border-right: none;
+    }
+    .comp-table td {
+      padding: 4px 8px;
+      border-top: 1px solid #e2e8f0;
+      border-right: 1px solid #e2e8f0;
+      color: #1e293b;
+      line-height: 1.25;
+    }
+    .comp-table td:first-child {
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .comp-table td:last-child {
+      border-right: none;
+    }
+    .comp-table tr.is-correct-row td {
+      background: #d1fae5;
+      color: #064e3b;
+      font-weight: 700;
+    }
+
+    /* ========================================================================= */
+    /* SECTION 8: SIMILAR PYQ                                                    */
+    /* ========================================================================= */
+    .card-similar {
+      background: #fff1f2;
+      border: 1px solid #fecdd3;
+      border-radius: 9px;
+      padding: var(--card-pad-v) var(--card-pad-h);
+      font-size: calc(8.1pt * var(--font-scale));
+      line-height: 1.35;
+      color: #1e293b;
+    }
+    .card-similar strong {
+      color: #881337;
+    }
+
+    /* ========================================================================= */
+    /* FOOTER                                                                    */
+    /* ========================================================================= */
     .slide-footer {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-top: 6px;
       padding-top: 4px;
-      border-top: 1px solid #e2e8f0;
-      font-size: 7.6pt;
+      border-top: 1px solid #cbd5e1;
+      font-size: 7.5pt;
       color: #64748b;
-      font-weight: 700;
+      font-weight: 600;
+      flex-shrink: 0;
     }
-    .footer-brand {
-      color: #0f172a;
+    .footer-brand strong {
+      color: #1d4ed8;
       font-weight: 800;
     }
 
@@ -881,7 +1244,7 @@ function buildSlideDocument({ questions }) {
   <div class="no-print">
     <div>
       <strong style="font-size: 1.1rem; color: #60a5fa;">UPSCGPT Lecture Slide Deck</strong>
-      <span style="margin-left: 10px; color: #94a3b8; font-size: 0.85rem;">${totalSlides} Slide${totalSlides > 1 ? 's' : ''} • Landscape A4 Format</span>
+      <span style="margin-left: 10px; color: #94a3b8; font-size: 0.85rem;">${totalSlides} Slide${totalSlides > 1 ? 's' : ''} • Auto-Fitted Landscape A4</span>
     </div>
     <div>
       <button class="btn-print" onclick="window.print()">🖨️ Print Slides / Save PDF</button>
@@ -893,13 +1256,14 @@ function buildSlideDocument({ questions }) {
     const opts = normalizeOptions(q.options);
     const { explanationText, analysis } = getStructuredExplanation(q);
 
-    const ansLabel = (q.correctLabel || '').toLowerCase().trim();
+    const ansLabel = (q.correctLabel || 'a').toLowerCase().trim();
     const correctOpt = opts.find(o => (o.label || '').toLowerCase().trim() === ansLabel);
     const correctText = correctOpt ? correctOpt.text : (ansLabel ? `Option (${ansLabel})` : 'Verified Answer');
 
-    const keywords = (analysis && Array.isArray(analysis.keywords) && analysis.keywords.length > 0)
+    const rawKeywords = (analysis && Array.isArray(analysis.keywords) && analysis.keywords.length > 0)
       ? analysis.keywords
       : [q.srcSubject, q.srcTopic, q.srcTheme].filter(Boolean).map(c => ({ concept: c, isDistractor: false }));
+    const normalizedKeywords = normalizeKeywordsList(rawKeywords);
 
     const optionBreakdown = (analysis && Array.isArray(analysis.optionBreakdown) && analysis.optionBreakdown.length > 0)
       ? analysis.optionBreakdown
@@ -917,184 +1281,341 @@ function buildSlideDocument({ questions }) {
     const qSub = q.srcSubject || 'General Studies';
     const qModule = getTopicModule(qSub, q.srcTopic);
 
+    // Smart option grid layout: 2x2 if options are concise, 1-col if any option is long
+    const maxOptLen = opts.reduce((max, o) => Math.max(max, String(o.text || '').length), 0);
+    const useSingleColOpts = maxOptLen > 52 || opts.length !== 4;
+
+    // Extract clue words from stem
+    const clueWords = extractClueWordsFromStem(q.stem, analysis);
+
+    // Build concise Answer explanation
+    const answerExplanationHtml = buildAnswerExplanationText(
+      q, ansLabel, correctText, optionBreakdown, statementBreakdown, explanationText, analysis, clueWords
+    );
+
+    // Build Section 4 ("WHY NOT OTHER OPTIONS" or "STATEMENT BREAKDOWN")
+    const section4 = buildSection4Html({
+      q, opts, ansLabel, optionBreakdown, statementBreakdown,
+      keywords: rawKeywords, valueAddition, visualSuggestion
+    });
+
+    // Check if Comparison Table exists
+    const hasTable = Boolean(
+      visualSuggestion &&
+      visualSuggestion.tableData &&
+      Array.isArray(visualSuggestion.tableData.headers) &&
+      visualSuggestion.tableData.headers.length > 0 &&
+      Array.isArray(visualSuggestion.tableData.rows) &&
+      visualSuggestion.tableData.rows.length > 0
+    );
+
+    const similarSecNum = hasTable ? 8 : 7;
+
+    // Clean exam badge text
+    const examBadgeText = `${(q.examName || 'UPSC CSE Prelims').replace(/\bPre\b/i, 'Prelims')} ${q.examYear || ''}`.trim();
+    const qNumBadgeText = `Q #${q.questionNo || (idx + 1)}`;
+
+    // Short keyword for matching the correct row in the comparison table
+    const correctShortKey = String(correctText || '')
+      .replace(/\s+(?:Revenue|Business)?\s*Model$/i, '')
+      .trim()
+      .toLowerCase();
+
     return `
       <div class="slide-page">
-        <!-- Slide Top Header -->
+        <!-- TOP HEADER BAR -->
         <div class="slide-head">
-          <span class="badge-exam-red">${escapeHtml(q.examName || 'UPSC Prelims')} ${q.examYear || ''}</span>
-          <div class="slide-head-meta">
-            <span>${escapeHtml(qSub)}</span>
-            ${qModule && qModule !== 'General' ? `<span style="color:#f59e0b;font-weight:700;">› ${escapeHtml(qModule)}</span>` : ''}
-            ${q.srcTopic ? `<span>›</span><span>${escapeHtml(q.srcTopic)}</span>` : ''}
-            ${q.questionNo ? `<span>• Q#${q.questionNo}</span>` : ''}
+          <div class="slide-head-left">
+            <span class="badge-exam-red">${escapeHtml(examBadgeText)}</span>
+            <div class="slide-breadcrumb">
+              <span>${escapeHtml(qSub)}</span>
+              ${qModule && qModule !== 'General' ? `<span>›</span><span>${escapeHtml(qModule)}</span>` : ''}
+              ${q.srcTopic ? `<span>›</span><strong>${escapeHtml(q.srcTopic)}</strong>` : ''}
+            </div>
           </div>
+          <span class="badge-qnum-dark">${escapeHtml(qNumBadgeText)}</span>
         </div>
 
-        <!-- ASYMMETRIC 2-COLUMN SLIDE BODY (34% Left / 66% Right) -->
+        <!-- BALANCED 2-COLUMN 8-BLOCK BODY -->
         <div class="slide-body-split">
-          
-          <!-- LEFT COLUMN (34%): Question -> Correct Answer -> Keywords -> In News -->
-          <div class="slide-left-col">
-            <div class="q-box-container">
-              <div class="q-col-serif">
-                <div class="q-stem-serif">${escapeHtml(q.stem || '')}</div>
-                ${opts && opts.length > 0 ? `
-                  <div class="q-opts-serif">
+
+          <!-- LEFT COLUMN: 1 QUESTION, 2 ANSWER, 3 KEYWORDS, 4 WHY NOT OTHER OPTIONS -->
+          <div class="slide-col slide-left-col">
+
+            <!-- 1. QUESTION -->
+            <div class="sec-block sec-1">
+              <div class="sec-head">
+                <span class="sec-num">1</span>
+                <span class="sec-title">QUESTION</span>
+                <span class="sec-line"></span>
+              </div>
+              <div class="card-question">
+                <div class="q-stem-serif">${escapeHtml((q.stem || '').trim())}</div>
+                ${opts.length > 0 ? `
+                  <div class="q-opts-grid ${useSingleColOpts ? 'single-col' : ''}">
                     ${opts.map(o => `
-                      <div class="q-opt-serif-line">
-                        <strong>(${escapeHtml((o.label || '').toLowerCase())})</strong> ${escapeHtml(o.text || '')}
+                      <div class="q-opt-pill">
+                        <span class="q-opt-badge">${escapeHtml((o.label || '').toLowerCase())}</span>
+                        <span class="q-opt-text">${escapeHtml(o.text || '')}</span>
                       </div>
                     `).join('')}
                   </div>
                 ` : ''}
-              </div>
-
-              <!-- Answer Badge (Right below Question Options) -->
-              <div class="left-ans-box">
-                <div class="card-ans-green">
-                  <div class="ans-tag-label">Correct Answer</div>
-                  <div><strong>(${escapeHtml(ansLabel || '–')})</strong> ${escapeHtml(correctText)}</div>
-                </div>
-              </div>
-
-              <!-- Keywords and Concepts Box (Right below Answer) -->
-              <div class="left-kw-box">
-                <div class="card-kw-blue">
-                  <div class="kw-title">Keywords and Concepts:</div>
-                  <div class="kw-list">
-                    ${normalizeKeywordsList(keywords)
-                      .map(kw => `
-                        <div class="kw-row">
-                          - <strong>${escapeHtml(kw.term)}</strong>${kw.shortNote ? `: ${escapeHtml(kw.shortNote)}` : ''}
-                        </div>
-                      `)
-                      .join('')}
-                  </div>
+                <div class="your-ans-row">
+                  <span class="your-ans-label">Your answer</span>
+                  <span class="your-ans-box"></span>
                 </div>
               </div>
             </div>
 
-            <!-- In News Editorial Card (Strictly at bottom of Left Column) -->
-            <div class="left-news-block">
-              <div><span class="badge-pill badge-cyan">In News</span></div>
-              <div class="card-news-editorial">
-                ${inNews && typeof inNews === 'object' ? `
-                  <div class="news-headline">${escapeHtml(inNews.headline || 'Current Affairs Development')}</div>
-                  ${(inNews.source || inNews.date) ? `<div class="news-dateline">${escapeHtml(inNews.source || '')} ${inNews.date ? '• ' + escapeHtml(inNews.date) : ''}</div>` : ''}
-                  ${inNews.relevance ? `<div class="news-relevance">${escapeHtml(inNews.relevance)}</div>` : ''}
-                ` : `
-                  <div class="news-headline">Current Affairs Linkage</div>
-                  <div class="news-relevance">Regularly reported in The Hindu / Indian Express / DownToEarth under ${escapeHtml(q.srcTopic || q.srcSubject || 'General Studies')}.</div>
-                `}
+            <!-- 2. ANSWER -->
+            <div class="sec-block sec-2">
+              <div class="sec-head">
+                <span class="sec-num">2</span>
+                <span class="sec-title">ANSWER</span>
+                <span class="sec-line"></span>
+              </div>
+              <div class="card-answer">
+                <div class="ans-header-line">
+                  <span class="ans-pill-green">(${escapeHtml(ansLabel)})</span>
+                  <span class="ans-opt-title">${escapeHtml(correctText)}</span>
+                </div>
+                <div class="ans-expl-body">${answerExplanationHtml}</div>
               </div>
             </div>
-          </div>
 
-          <!-- RIGHT COLUMN (66%): High-Capacity Knowledge Hub (Explanation, Value Addition, Similar PYQ) -->
-          <div class="slide-right-col">
-            ${statementBreakdown ? `
-              <!-- Row 0: Stem Statements Evaluation (Exclusive for statement-based questions) -->
-              <div class="right-stmt-block">
-                <div><span class="badge-pill badge-blue">Stem Statements Evaluation</span></div>
-                <div class="card-expl-blue" style="margin-top: 4px;">
-                  ${statementBreakdown.map(stmt => {
-                    const isCorr = (stmt.verdict || '').toLowerCase().includes('correct') && !(stmt.verdict || '').toLowerCase().includes('incorrect') && !(stmt.verdict || '').toLowerCase().includes('false');
-                    const stmtNum = stmt.statementNo != null ? stmt.statementNo : '';
+            <!-- 3. KEYWORDS & CLUE WORDS IN STEM -->
+            <div class="sec-block sec-3">
+              <div class="sec-head">
+                <span class="sec-num">3</span>
+                <span class="sec-title">KEYWORDS</span>
+                <span class="sec-line"></span>
+              </div>
+              <div class="kw-split-grid">
+                <div class="card-kw-defs">
+                  ${normalizedKeywords.slice(0, 3).map(kw => {
+                    const cleanTerm = escapeHtml(humaniseText(kw.term).replace(/\s+Revenue\s+Model$/i, ' model'));
+                    const cleanNote = escapeHtml(humaniseText(kw.shortNote || 'Key concept tested in this question.'));
                     return `
-                      <div class="opt-row">
-                        <strong>Statement ${escapeHtml(String(stmtNum))}: <span class="${isCorr ? 'verdict-correct' : 'verdict-incorrect'}">${escapeHtml(stmt.verdict || (isCorr ? 'Correct' : 'Incorrect'))}.</span> ${stmt.reference ? `<span class="va-tag">${escapeHtml(stmt.reference)}</span>` : ''}</strong>
-                        <span>${escapeHtml(stmt.explanation || '')}</span>
+                      <div class="kw-def-item">
+                        <strong>${cleanTerm}:</strong> ${cleanNote}
                       </div>
                     `;
                   }).join('')}
                 </div>
-              </div>
-            ` : `
-              <!-- Row 1: Option Breakdown Box (For direct single-choice questions without stem statements) -->
-              <div class="right-expl-block">
-                <div><span class="badge-pill badge-black">Explanation</span></div>
-                <div class="card-expl-pink">
-                  ${optionBreakdown ? optionBreakdown.map(opt => {
-                    const isCorr = (opt.verdict || '').toLowerCase().includes('correct') && !(opt.verdict || '').toLowerCase().includes('incorrect');
-                    return `
-                      <div class="opt-row">
-                        <strong>(${escapeHtml((opt.label || '').toLowerCase())}) ${opt.text ? escapeHtml(opt.text) + '. ' : ''}<span class="${isCorr ? 'verdict-correct' : 'verdict-incorrect'}">${escapeHtml(opt.verdict || (isCorr ? 'Correct' : 'Incorrect'))}.</span></strong>
-                        <span>${escapeHtml(opt.explanation || '')}</span>
-                      </div>
-                    `;
-                  }).join('') : `
-                    <div class="opt-row" style="white-space: pre-wrap;">${escapeHtml(explanationText || 'Detailed explanation provided in study module.')}</div>
-                  `}
+                <div class="card-kw-clues">
+                  <div class="clue-box-title">CLUE WORDS IN STEM</div>
+                  <ul class="clue-list">
+                    ${clueWords.map(cw => `<li>${escapeHtml(cw)}</li>`).join('')}
+                  </ul>
                 </div>
-              </div>
-            `}
-
-            <!-- Row 2: Value Addition (Spanning full 66% width with internal 2-column grid) -->
-            <div class="right-va-block">
-              <div><span class="badge-pill badge-teal">Value Addition</span></div>
-              <div class="card-va-yellow">
-                ${renderValueAdditionHtml(valueAddition, q)}
               </div>
             </div>
 
-            <!-- Row 3: Similar PYQ Sage Green Box -->
-            <div class="right-pyq-block">
-              <div><span class="badge-pill badge-slate">Similar PYQ</span></div>
-              <div class="card-pyq-green">
-                ${similarPyq && typeof similarPyq === 'object' ? `
-                  <div class="pyq-stem">
-                    <strong>${escapeHtml(similarPyq.examName || 'UPSC CSE')} ${escapeHtml(similarPyq.examYear ? String(similarPyq.examYear) : '')}:</strong>
-                    ${escapeHtml(similarPyq.stem || '')}
-                  </div>
-                  ${similarPyq.keyTakeaway ? `
-                    <div class="pyq-takeaway"><strong>Core Takeaway:</strong> ${escapeHtml(similarPyq.keyTakeaway)}</div>
+            <!-- 4. WHY NOT OTHER OPTIONS / STATEMENT BREAKDOWN -->
+            <div class="sec-block sec-4">
+              <div class="sec-head">
+                <span class="sec-num">4</span>
+                <span class="sec-title">${escapeHtml(section4.title)}</span>
+                <span class="sec-line"></span>
+              </div>
+              <div class="card-why">
+                ${section4.html}
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RIGHT COLUMN: 5 VALUE ADDITION, 6 IN NEWS, 7 COMPARISON, 8 SIMILAR PYQ -->
+          <div class="slide-col slide-right-col">
+
+            <!-- 5. VALUE ADDITION -->
+            <div class="sec-block sec-5">
+              <div class="sec-head">
+                <span class="sec-num">5</span>
+                <span class="sec-title">VALUE ADDITION</span>
+                <span class="sec-line"></span>
+              </div>
+              <div class="card-va">
+                ${renderValueAdditionHtml(valueAddition, q, normalizedKeywords)}
+              </div>
+            </div>
+
+            <!-- 6. IN NEWS -->
+            <div class="sec-block sec-6">
+              <div class="sec-head">
+                <span class="sec-num">6</span>
+                <span class="sec-title">IN NEWS</span>
+                <span class="sec-line"></span>
+              </div>
+              <div class="card-news">
+                ${inNews && typeof inNews === 'object' ? `
+                  ${(inNews.source || inNews.date) ? `
+                    <div class="news-dateline">
+                      ${escapeHtml(humaniseText(inNews.source || ''))}${inNews.date ? ' · ' + escapeHtml(inNews.date) : ''}
+                    </div>
                   ` : ''}
+                  <div class="news-headline">${escapeHtml(humaniseText(inNews.headline || 'Recent Policy & Current Affairs Context'))}</div>
+                  ${inNews.relevance ? `<div class="news-relevance">${escapeHtml(humaniseText(inNews.relevance))}</div>` : ''}
                 ` : `
-                  <div class="pyq-stem">
-                    <strong>UPSC Question Family:</strong> Questions on ${escapeHtml(q.srcTopic || q.srcSubject || 'this theme')} frequently recur with modified distractors in subsequent exam cycles.
+                  <div class="news-dateline">CURRENT AFFAIRS LINKAGE</div>
+                  <div class="news-headline">Why ${escapeHtml(q.srcTopic || q.srcSubject || 'this topic')} stays in the news</div>
+                  <div class="news-relevance">Frequently tracked in PIB, The Hindu, and official ministry updates whenever rules or institutional mandates are revised.</div>
+                `}
+              </div>
+            </div>
+
+            <!-- 7. COMPARISON (Rendered when tableData exists) -->
+            ${hasTable ? `
+              <div class="sec-block sec-7">
+                <div class="sec-head">
+                  <span class="sec-num">7</span>
+                  <span class="sec-title">COMPARISON</span>
+                  <span class="sec-line"></span>
+                </div>
+                <div class="comp-table-wrap">
+                  <table class="comp-table">
+                    <thead>
+                      <tr>
+                        ${visualSuggestion.tableData.headers.map(h => {
+                          const shortHeader = humaniseText(h)
+                            .replace(/^BUSINESS MODEL$/i, 'MODEL')
+                            .replace(/^PRICING CONTROL$/i, 'SETS PRICE')
+                            .replace(/^INVENTORY OWNERSHIP$/i, 'HOLDS STOCK')
+                            .replace(/^PRIMARY REVENUE STREAM$/i, 'EARNS FROM');
+                          return `<th>${escapeHtml(shortHeader)}</th>`;
+                        }).join('')}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${visualSuggestion.tableData.rows.map((row) => {
+                        const cells = Array.isArray(row) ? row : [];
+                        const firstCell = String(cells[0] || '').toLowerCase();
+                        const isCorrectRow = correctShortKey.length >= 3 && firstCell.includes(correctShortKey);
+                        return `
+                          <tr class="${isCorrectRow ? 'is-correct-row' : ''}">
+                            ${cells.map((cell, cIdx) => {
+                              let cellStr = typeof cell === 'string' ? cell : JSON.stringify(cell);
+                              if (cIdx === 0) {
+                                cellStr = cellStr.replace(/\s+(?:Revenue|Business)?\s*Model$/i, '');
+                              }
+                              return `<td>${escapeHtml(humaniseText(cellStr))}</td>`;
+                            }).join('')}
+                          </tr>
+                        `;
+                      }).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ` : ''}
+
+            <!-- 8. SIMILAR PYQ -->
+            <div class="sec-block sec-8">
+              <div class="sec-head">
+                <span class="sec-num">${similarSecNum}</span>
+                <span class="sec-title">SIMILAR PYQ</span>
+                <span class="sec-line"></span>
+              </div>
+              <div class="card-similar">
+                ${similarPyq && typeof similarPyq === 'object' && (similarPyq.stem || similarPyq.keyTakeaway) ? `
+                  <div>
+                    ${similarPyq.examYear ? `<strong>${escapeHtml(similarPyq.examName || 'UPSC CSE')} ${escapeHtml(String(similarPyq.examYear))}:</strong> ` : ''}
+                    ${escapeHtml(humaniseText(similarPyq.stem || ''))}
+                    ${similarPyq.keyTakeaway ? `<div style="margin-top:2px;"><strong>What to watch for:</strong> ${escapeHtml(humaniseText(similarPyq.keyTakeaway))}</div>` : ''}
+                  </div>
+                ` : `
+                  <div>
+                    Questions on <strong>${escapeHtml(q.srcTopic || q.srcSubject || 'basic concepts')}</strong> often come back with modified distractors. Expect the same core options with one changed clue in the stem (for example, swapping who holds inventory or who sets the price).
                   </div>
                 `}
               </div>
             </div>
 
-            <!-- Row 4: Comparison Matrix Table (if present) -->
-            ${visualSuggestion && visualSuggestion.tableData && Array.isArray(visualSuggestion.tableData.headers) ? `
-              <div class="right-table-block" style="margin-top: 8px;">
-                <div><span class="badge-pill badge-blue">${escapeHtml(visualSuggestion.title || 'High-Yield Comparison Matrix')}</span></div>
-                <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 10px; margin-top: 4px; overflow-x: auto;">
-                  <table style="width: 100%; border-collapse: collapse; font-size: 0.68rem; text-align: left;">
-                    <thead>
-                      <tr style="background: #f1f5f9; border-bottom: 2px solid #3b82f6;">
-                        ${visualSuggestion.tableData.headers.map(h => `<th style="padding: 5px 6px; font-weight: 800; color: #1e40af; text-transform: uppercase; font-size: 0.65rem;">${escapeHtml(h)}</th>`).join('')}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      ${(visualSuggestion.tableData.rows || []).map((row, rIdx) => `
-                        <tr style="border-bottom: 1px solid #e2e8f0; background: ${rIdx % 2 === 0 ? '#ffffff' : '#f8fafc'};">
-                          ${(Array.isArray(row) ? row : []).map(cell => `<td style="padding: 4px 6px; color: #334155; line-height: 1.35;">${escapeHtml(typeof cell === 'string' ? cell : JSON.stringify(cell))}</td>`).join('')}
-                        </tr>
-                      `).join('')}
-                    </tbody>
-                  </table>
-                  ${visualSuggestion.caption ? `<div style="font-size: 0.65rem; color: #64748b; font-style: italic; margin-top: 4px;">💡 ${escapeHtml(visualSuggestion.caption)}</div>` : ''}
-                </div>
-              </div>
-            ` : ''}
           </div>
 
         </div>
 
-        <!-- Slide Bottom Footer -->
+        <!-- BOTTOM FOOTER -->
         <div class="slide-footer">
           <div class="footer-brand">
-            <span>UPSCGPT</span>
-            <span style="font-weight: 500; color: #94a3b8; margin-left: 6px;">• High-Yield Preliminary Examination Architecture</span>
+            <strong>UPSCGPT</strong> · High-Yield Prelims Architecture
           </div>
-          <div>Slide ${idx + 1} of ${totalSlides}</div>
+          <div>Page ${idx + 1} of ${totalSlides}</div>
         </div>
       </div>
     `;
   }).join('')}
+
+  <!-- 3-LAYER SELF-ADJUSTING AUTO-FIT ENGINE (Guarantees Zero Overflow & Balanced Spacing) -->
+  <script>
+    function fitAllSlides() {
+      const pages = document.querySelectorAll('.slide-page');
+      pages.forEach((page) => {
+        const bodySplit = page.querySelector('.slide-body-split');
+        if (!bodySplit) return;
+
+        const availH = bodySplit.clientHeight;
+        if (availH <= 0) return;
+
+        const cols = bodySplit.querySelectorAll('.slide-col');
+        cols.forEach((col) => {
+          // Reset variables first
+          col.style.zoom = '1';
+          col.style.setProperty('--font-scale', '1');
+          col.style.setProperty('--col-gap', '8px');
+          col.style.setProperty('--card-pad-v', '8px');
+
+          // Case 1: Content is shorter than 80% of available height -> gently expand breathing room
+          if (col.scrollHeight < availH * 0.80) {
+            col.style.setProperty('--col-gap', '11px');
+            col.style.setProperty('--card-pad-v', '11px');
+            if (col.scrollHeight < availH * 0.72) {
+              col.style.setProperty('--font-scale', '1.04');
+            }
+            return;
+          }
+
+          // Case 2: Content overflows available height -> compress spacing first, then scale font
+          if (col.scrollHeight > availH) {
+            col.style.setProperty('--col-gap', '5px');
+            col.style.setProperty('--card-pad-v', '5.5px');
+          }
+
+          let scale = 1.0;
+          let guard = 0;
+          while (col.scrollHeight > availH + 1 && scale > 0.72 && guard++ < 30) {
+            scale -= 0.02;
+            col.style.setProperty('--font-scale', scale.toFixed(2));
+          }
+
+          // Case 3: Hard safety clamp if still taller than availH
+          if (col.scrollHeight > availH + 2) {
+            const ratio = Math.max(0.68, (availH - 2) / col.scrollHeight);
+            col.style.zoom = ratio.toFixed(3);
+          }
+        });
+      });
+    }
+
+    window.addEventListener('load', () => {
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => {
+          fitAllSlides();
+          if (window.opener) {
+            setTimeout(() => window.print(), 350);
+          }
+        });
+      } else {
+        fitAllSlides();
+        if (window.opener) {
+          setTimeout(() => window.print(), 350);
+        }
+      }
+    });
+    window.addEventListener('resize', fitAllSlides);
+    window.addEventListener('beforeprint', fitAllSlides);
+  </script>
 </body>
 </html>`;
 }
