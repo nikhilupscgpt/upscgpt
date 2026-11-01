@@ -90,7 +90,7 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
         examYear: q.examYear ? q.examYear - 3 : 2020,
         examName: 'UPSC CSE Prelims',
         stem: 'Related concept asked in an earlier Prelims paper.',
-        keyTakeaway: 'Expect the same core options to return with one changed clue in the stem.'
+        keyTakeaway: 'Expect the same core options to return with one changed condition in the stem.'
       }
     };
 
@@ -446,7 +446,11 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
   };
 
   const handlePrintSlide = () => {
-    window.open(`/api/admin/pyq/print-pdf?mode=slide&ids=${initialQuestion.id}`, '_blank');
+    window.open(`/api/admin/pyq/print-pdf?mode=slide&orientation=landscape&ids=${initialQuestion.id}`, '_blank');
+  };
+
+  const handlePrintPortrait = () => {
+    window.open(`/api/admin/pyq/print-pdf?mode=slide&orientation=portrait&ids=${initialQuestion.id}`, '_blank');
   };
 
   // Specific visual field updaters
@@ -1204,10 +1208,31 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
               fontWeight: 700,
               cursor: 'pointer'
             }}
-            title="Open printable lecture slide in landscape format"
+            title="Open printable 8-block sheet in A4 Landscape format"
           >
             <Printer size={15} />
-            <span>Print Slide / PDF</span>
+            <span>Print Landscape</span>
+          </button>
+
+          <button
+            onClick={handlePrintPortrait}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '8px 14px',
+              borderRadius: '8px',
+              background: 'rgba(139, 92, 246, 0.12)',
+              color: '#a78bfa',
+              border: '1px solid rgba(139, 92, 246, 0.3)',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              cursor: 'pointer'
+            }}
+            title="Open printable 8-block sheet in A4 Portrait format"
+          >
+            <Printer size={15} />
+            <span>Print Portrait</span>
           </button>
 
           {/* Unsaved status badge */}

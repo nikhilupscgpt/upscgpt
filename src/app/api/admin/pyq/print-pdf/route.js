@@ -39,7 +39,9 @@ export async function GET(req) {
     }
 
     const { searchParams } = new URL(req.url);
-    const mode = searchParams.get('mode') || 'booklet'; // 'slide' | 'booklet'
+    const mode = searchParams.get('mode') || 'booklet'; // 'slide' | 'portrait' | 'booklet'
+    const rawOrient = (searchParams.get('orientation') || '').toLowerCase();
+    const orientation = (mode === 'portrait' || rawOrient === 'portrait') ? 'portrait' : 'landscape';
     const ids = searchParams.get('ids');
     const exam = searchParams.get('exam') || 'ALL';       // 'UPSC CSE', 'CDS', or 'ALL'
     const stage = searchParams.get('stage') || 'PRELIMS'; // 'PRELIMS' | 'MAINS'
@@ -144,8 +146,8 @@ export async function GET(req) {
       ? sortQuestionsBySyllabus(questions, subject !== 'ALL' ? subject : 'Indian Polity')
       : questions;
 
-    if (mode === 'slide') {
-      const html = buildSlideDocument({ questions: sortedQuestions });
+    if (mode === 'slide' || mode === 'portrait') {
+      const html = buildSlideDocument({ questions: sortedQuestions, orientation });
       return new NextResponse(html, {
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       });
@@ -200,64 +202,6 @@ function formatBulletText(str) {
     return `<strong>${dashMatch[1]}</strong>${dashMatch[2]}`;
   }
   return escaped;
-}
-
-function extractClueWordsFromStem(stem, analysis) {
-  if (analysis && Array.isArray(analysis.clueWords) && analysis.clueWords.length > 0) {
-    return analysis.clueWords.slice(0, 5).map(c => String(c).trim()).filter(Boolean);
-  }
-  if (!stem) return ['core definition', 'key condition', 'governing authority'];
-
-  const cleanStem = stem
-    .replace(/consider the following statements:?/gi, '')
-    .replace(/which of the statements given above is\/are correct\??/gi, '')
-    .replace(/how many of the above.*?\?/gi, '')
-    .replace(/,\s*is called\s*:?\s*$/i, '')
-    .replace(/\b(?:an|a|the)\s+[a-z0-9-\s]+?\s+where\s+(?:the\s+)?/i, '')
-    .trim();
-
-  // Look for natural clause splits ("but", "and instead", "who then", "while", "without", semicolons, or numbered statements)
-  const rawParts = cleanStem
-    .split(/(?:\bbut\b|\band instead\b|\bwho then\b|\bwhile\b|\bwhereas\b|\bwithout\b|;|\n+|\b[1-4]\.\s+)/i)
-    .map(s => s.trim())
-    .filter(s => s.length >= 8);
-
-  const condenseClause = (clause) => {
-    let c = clause
-      .replace(/^(?:the\s+)?(?:seller|buyer|entity|government|state|centre|bank|platform|company|person|body)\s+/i, '')
-      .replace(/^(?:has|have|is|are|was|were|can|cannot|does|do)\s+/i, '')
-      .replace(/\btransfers\s+customer\s+orders\s+and\s+shipment\s+details\s+to\s+(?:a\s+)?/i, '')
-      .replace(/\bproducts\s+in\s+stock\b/i, 'stock')
-      .replace(/\bthe\s+goods\s+directly\s+to\s+the\s+customer\b/i, 'directly')
-      .replace(/[.,:;!?]+$/, '')
-      .trim();
-
-    const words = c.split(/\s+/);
-    if (words.length > 5) {
-      c = words.slice(0, 4).join(' ');
-    }
-    return c;
-  };
-
-  const clues = [];
-  for (const part of rawParts) {
-    const short = condenseClause(part);
-    if (short && short.length >= 5 && !clues.includes(short)) {
-      clues.push(short);
-    }
-    if (clues.length >= 4) break;
-  }
-
-  if (clues.length < 2) {
-    // Fallback: split by commas or 'and'
-    const fallbackParts = cleanStem.split(/,|\band\b/i).map(s => condenseClause(s.trim())).filter(s => s.length >= 5);
-    for (const fp of fallbackParts) {
-      if (!clues.includes(fp)) clues.push(fp);
-      if (clues.length >= 4) break;
-    }
-  }
-
-  return clues.length > 0 ? clues.slice(0, 4) : ['key condition in stem', 'who holds control', 'operational flow'];
 }
 
 function renderValueAdditionHtml(va, q, existingKeywords = []) {
@@ -410,11 +354,9 @@ function renderValueAdditionHtml(va, q, existingKeywords = []) {
   return `<div class="va-stack"><p class="va-para">${escapeHtml(JSON.stringify(va))}</p></div>`;
 }
 
-function highlightKeyPhrasesInAnswer(text, clues = []) {
+function highlightKeyPhrasesInAnswer(text) {
   let html = escapeHtml(humaniseText(text));
-  // Bold key phrases like "zero physical inventory", "fixes retail prices", etc.
   const highlightTargets = [
-    ...clues,
     'zero physical inventory',
     'fixes final retail prices',
     'fixes the retail price',
@@ -423,10 +365,9 @@ function highlightKeyPhrasesInAnswer(text, clues = []) {
     'wholly owned',
     'constitutional body',
     'statutory body'
-  ].filter(Boolean);
+  ];
 
   for (const phrase of highlightTargets) {
-    if (phrase.length < 5) continue;
     const escapedPhrase = escapeHtml(phrase).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const regex = new RegExp(`(${escapedPhrase})`, 'i');
     if (regex.test(html)) {
@@ -436,25 +377,25 @@ function highlightKeyPhrasesInAnswer(text, clues = []) {
   return html;
 }
 
-function buildAnswerExplanationText(q, ansLabel, correctText, optionBreakdown, statementBreakdown, explanationText, analysis, clues) {
+function buildAnswerExplanationText(q, ansLabel, correctText, optionBreakdown, statementBreakdown, explanationText, analysis) {
   // 1. Check optionBreakdown for the correct option
   if (Array.isArray(optionBreakdown) && optionBreakdown.length > 0) {
     const corrOpt = optionBreakdown.find(o => (o.label || '').toLowerCase().trim() === ansLabel);
     if (corrOpt && corrOpt.explanation) {
       const cleaned = corrOpt.explanation.replace(/^(?:correct|true|right)[\s.:—–-]*/i, '').trim();
-      if (cleaned) return highlightKeyPhrasesInAnswer(cleaned, clues);
+      if (cleaned) return highlightKeyPhrasesInAnswer(cleaned);
     }
   }
 
   // 2. If statementBreakdown has 1 item (single-choice question stored in statementBreakdown[0])
   if (Array.isArray(statementBreakdown) && statementBreakdown.length === 1 && statementBreakdown[0]?.explanation) {
     const cleaned = statementBreakdown[0].explanation.replace(/^(?:correct|true|right)[\s.:—–-]*/i, '').trim();
-    if (cleaned) return highlightKeyPhrasesInAnswer(cleaned, clues);
+    if (cleaned) return highlightKeyPhrasesInAnswer(cleaned);
   }
 
   // 3. Check coreTakeaway
   if (analysis?.coreTakeaway && typeof analysis.coreTakeaway === 'string') {
-    return highlightKeyPhrasesInAnswer(analysis.coreTakeaway.trim(), clues);
+    return highlightKeyPhrasesInAnswer(analysis.coreTakeaway.trim());
   }
 
   // 4. If multi-statement breakdown, summarize which statements are right
@@ -468,13 +409,13 @@ function buildAnswerExplanationText(q, ansLabel, correctText, optionBreakdown, s
     const firstExpl = statementBreakdown[0]?.explanation || '';
     const shortFirst = firstExpl.split(/(?<=[.!?])\s+/)[0] || '';
     const prefix = rightNums.length > 0 ? `${rightNums.join(' and ')} ${rightNums.length === 1 ? 'is' : 'are'} correct. ` : '';
-    return highlightKeyPhrasesInAnswer(`${prefix}${shortFirst}`.trim(), clues);
+    return highlightKeyPhrasesInAnswer(`${prefix}${shortFirst}`.trim());
   }
 
   // 5. Fallback to first 2 sentences of explanationText
   if (explanationText) {
     const sentences = String(explanationText).trim().split(/(?<=[.!?])\s+/);
-    return highlightKeyPhrasesInAnswer(sentences.slice(0, 2).join(' '), clues);
+    return highlightKeyPhrasesInAnswer(sentences.slice(0, 2).join(' '));
   }
 
   return `<strong>${escapeHtml(correctText)}</strong> directly matches all conditions given in the question stem.`;
@@ -510,7 +451,6 @@ function buildSection4Html({ q, opts, ansLabel, optionBreakdown, statementBreakd
   const kwList = normalizeKeywordsList(keywords || []);
   const tableRows = visualSuggestion?.tableData?.rows || [];
 
-  // Strip repetitive suffix like "Revenue Model" or "Model" from option title for punchier reading
   const shortenOptName = (text) => {
     return String(text || '')
       .replace(/\s+Revenue\s+Model$/i, '')
@@ -531,7 +471,7 @@ function buildSection4Html({ q, opts, ansLabel, optionBreakdown, statementBreakd
         const cl = found.explanation
           .replace(/^(?:incorrect|false|wrong|eliminated)[\s.:—–-]*/i, '')
           .trim();
-        if (cl && cl !== 'Contradicts statutory or institutional guidelines.') {
+        if (cl && cl !== 'Contradicts statutory or institutional guidelines.' && cl !== 'Does not fit the specific rule or condition asked in the question.') {
           return humaniseText(cl);
         }
       }
@@ -588,18 +528,22 @@ function buildSection4Html({ q, opts, ansLabel, optionBreakdown, statementBreakd
   };
 }
 
-function buildSlideDocument({ questions }) {
+function buildSlideDocument({ questions, orientation = 'landscape' }) {
   const totalSlides = questions.length;
+  const initOrient = orientation === 'portrait' ? 'portrait' : 'landscape';
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>UPSCGPT Prelims Slides (${totalSlides} Question${totalSlides > 1 ? 's' : ''})</title>
-  <style>
+  <title>UPSCGPT Prelims Sheets (${totalSlides} Question${totalSlides > 1 ? 's' : ''})</title>
+  <style id="page-orientation-style">
     @page {
-      size: A4 landscape;
+      size: A4 ${initOrient};
       margin: 0;
     }
+  </style>
+  <style>
     * {
       box-sizing: border-box;
       -webkit-print-color-adjust: exact !important;
@@ -637,12 +581,20 @@ function buildSlideDocument({ questions }) {
         justify-content: space-between;
         overflow: hidden;
         position: relative;
+        transition: width 0.2s ease, height 0.2s ease;
+      }
+      body[data-orientation="portrait"] .slide-page {
+        width: 210mm;
+        height: 297mm;
+        max-height: 297mm;
+        padding: 8mm 9.5mm 7mm;
       }
       .no-print {
         display: flex;
         justify-content: space-between;
         align-items: center;
         width: 297mm;
+        max-width: 96vw;
         background: #1e293b;
         border: 1px solid rgba(255, 255, 255, 0.15);
         border-radius: 10px;
@@ -650,9 +602,12 @@ function buildSlideDocument({ questions }) {
         color: #ffffff;
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
       }
+      body[data-orientation="portrait"] .no-print {
+        width: 210mm;
+      }
     }
 
-    /* Print mode: Exact A4 Landscape 297mm x 210mm */
+    /* Print mode: Exact A4 Landscape (297x210) or Portrait (210x297) */
     @media print {
       .no-print {
         display: none !important;
@@ -678,6 +633,12 @@ function buildSlideDocument({ questions }) {
         flex-direction: column;
         justify-content: space-between;
         position: relative;
+      }
+      body[data-orientation="portrait"] .slide-page {
+        width: 210mm !important;
+        height: 297mm !important;
+        max-height: 297mm !important;
+        padding: 8mm 9.5mm 7mm !important;
       }
     }
 
@@ -737,9 +698,13 @@ function buildSlideDocument({ questions }) {
     }
 
     /* ========================================================================= */
-    /* BALANCED 2-COLUMN 8-BLOCK ARCHITECTURE                                    */
+    /* LANDSCAPE (2-COLUMN) & PORTRAIT (UNIFIED EDITORIAL GRID) ARCHITECTURE     */
     /* ========================================================================= */
     .slide-body-split {
+      --font-scale: 1;
+      --col-gap: 8px;
+      --card-pad-v: 8px;
+      --card-pad-h: 11px;
       display: grid;
       grid-template-columns: 47.5% 1fr;
       gap: 18px;
@@ -761,6 +726,39 @@ function buildSlideDocument({ questions }) {
       min-height: 0;
       overflow: hidden;
       transform-origin: top left;
+    }
+
+    /* PORTRAIT ORIENTATION OVERRIDES:
+       Unifies the 8 sections into a clean A4 Portrait flow:
+       - 1 Question (Full Width)
+       - 2 Answer (Full Width)
+       - 3 Keywords (Left 50%) | 4 Why Not Other Options (Right 50%)
+       - 5 Value Addition (Full Width)
+       - 6 In News (Full Width)
+       - 7 Comparison Table (Full Width)
+       - 8 Similar PYQ (Full Width)
+    */
+    body[data-orientation="portrait"] .slide-body-split {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--col-gap) 12px;
+      align-content: space-between;
+    }
+    body[data-orientation="portrait"] .slide-col {
+      display: contents;
+    }
+    body[data-orientation="portrait"] .sec-1,
+    body[data-orientation="portrait"] .sec-2,
+    body[data-orientation="portrait"] .sec-5,
+    body[data-orientation="portrait"] .sec-6,
+    body[data-orientation="portrait"] .sec-7,
+    body[data-orientation="portrait"] .sec-8 {
+      grid-column: 1 / -1;
+    }
+    body[data-orientation="portrait"] .sec-3 {
+      grid-column: 1 / 2;
+    }
+    body[data-orientation="portrait"] .sec-4 {
+      grid-column: 2 / 3;
     }
 
     .sec-block {
@@ -957,13 +955,8 @@ function buildSlideDocument({ questions }) {
     }
 
     /* ========================================================================= */
-    /* SECTION 3: KEYWORDS + CLUE WORDS SPLIT                                    */
+    /* SECTION 3: KEYWORDS CARD (Full Width)                                     */
     /* ========================================================================= */
-    .kw-split-grid {
-      display: grid;
-      grid-template-columns: 1.45fr 0.95fr;
-      gap: 7px;
-    }
     .card-kw-defs {
       background: #f0f9ff;
       border: 1px solid #bae6fd;
@@ -975,38 +968,11 @@ function buildSlideDocument({ questions }) {
       font-size: calc(8pt * var(--font-scale));
       line-height: 1.34;
       color: #1e293b;
+      flex: 1;
     }
     .kw-def-item strong {
       color: #0369a1;
       font-weight: 800;
-    }
-    .card-kw-clues {
-      background: #f8fafc;
-      border: 1px solid #bae6fd;
-      border-radius: 9px;
-      padding: var(--card-pad-v) 9px;
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-    .clue-box-title {
-      font-size: calc(6.8pt * var(--font-scale));
-      font-weight: 800;
-      color: #0369a1;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      margin-bottom: 1px;
-    }
-    .clue-list {
-      margin: 0;
-      padding-left: 12px;
-      font-size: calc(7.8pt * var(--font-scale));
-      line-height: 1.34;
-      color: #0f172a;
-      font-weight: 500;
-    }
-    .clue-list li {
-      margin-bottom: 1.5px;
     }
 
     /* ========================================================================= */
@@ -1017,6 +983,7 @@ function buildSlideDocument({ questions }) {
       border: 1px solid #fed7aa;
       border-radius: 9px;
       padding: var(--card-pad-v) var(--card-pad-h);
+      flex: 1;
     }
     .why-list {
       display: flex;
@@ -1216,8 +1183,36 @@ function buildSlideDocument({ questions }) {
     }
 
     /* Screen Toolbar Buttons */
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .orient-toggle-group {
+      display: inline-flex;
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 4px;
+    }
+    .btn-orient {
+      background: transparent;
+      color: #94a3b8;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-orient.active {
+      background: #2563eb;
+      color: #ffffff;
+    }
     .btn-print {
-      background: #3b82f6;
+      background: #10b981;
       color: #ffffff;
       border: none;
       padding: 8px 18px;
@@ -1226,7 +1221,7 @@ function buildSlideDocument({ questions }) {
       font-weight: 800;
       cursor: pointer;
     }
-    .btn-print:hover { background: #2563eb; }
+    .btn-print:hover { background: #059669; }
     .btn-close {
       background: rgba(255, 255, 255, 0.1);
       color: #ffffff;
@@ -1236,18 +1231,21 @@ function buildSlideDocument({ questions }) {
       font-size: 0.9rem;
       font-weight: 700;
       cursor: pointer;
-      margin-left: 8px;
     }
   </style>
 </head>
-<body>
+<body data-orientation="${initOrient}">
   <div class="no-print">
     <div>
-      <strong style="font-size: 1.1rem; color: #60a5fa;">UPSCGPT Lecture Slide Deck</strong>
-      <span style="margin-left: 10px; color: #94a3b8; font-size: 0.85rem;">${totalSlides} Slide${totalSlides > 1 ? 's' : ''} • Auto-Fitted Landscape A4</span>
+      <strong style="font-size: 1.05rem; color: #60a5fa;">UPSCGPT 8-Block Deep-Dive Sheets</strong>
+      <span id="orient-status-label" style="margin-left: 10px; color: #94a3b8; font-size: 0.85rem;">${totalSlides} Sheet${totalSlides > 1 ? 's' : ''} • Auto-Fitted ${initOrient === 'portrait' ? 'Portrait A4' : 'Landscape A4'}</span>
     </div>
-    <div>
-      <button class="btn-print" onclick="window.print()">🖨️ Print Slides / Save PDF</button>
+    <div class="toolbar-right">
+      <div class="orient-toggle-group">
+        <button id="btn-orient-landscape" class="btn-orient ${initOrient === 'landscape' ? 'active' : ''}" onclick="setPageOrientation('landscape')">📐 Landscape A4</button>
+        <button id="btn-orient-portrait" class="btn-orient ${initOrient === 'portrait' ? 'active' : ''}" onclick="setPageOrientation('portrait')">📄 Portrait A4</button>
+      </div>
+      <button class="btn-print" onclick="window.print()">🖨️ Print / Save PDF</button>
       <button class="btn-close" onclick="window.close()">✕ Close</button>
     </div>
   </div>
@@ -1285,12 +1283,9 @@ function buildSlideDocument({ questions }) {
     const maxOptLen = opts.reduce((max, o) => Math.max(max, String(o.text || '').length), 0);
     const useSingleColOpts = maxOptLen > 52 || opts.length !== 4;
 
-    // Extract clue words from stem
-    const clueWords = extractClueWordsFromStem(q.stem, analysis);
-
     // Build concise Answer explanation
     const answerExplanationHtml = buildAnswerExplanationText(
-      q, ansLabel, correctText, optionBreakdown, statementBreakdown, explanationText, analysis, clueWords
+      q, ansLabel, correctText, optionBreakdown, statementBreakdown, explanationText, analysis
     );
 
     // Build Section 4 ("WHY NOT OTHER OPTIONS" or "STATEMENT BREAKDOWN")
@@ -1336,10 +1331,10 @@ function buildSlideDocument({ questions }) {
           <span class="badge-qnum-dark">${escapeHtml(qNumBadgeText)}</span>
         </div>
 
-        <!-- BALANCED 2-COLUMN 8-BLOCK BODY -->
+        <!-- 8-BLOCK BODY -->
         <div class="slide-body-split">
 
-          <!-- LEFT COLUMN: 1 QUESTION, 2 ANSWER, 3 KEYWORDS, 4 WHY NOT OTHER OPTIONS -->
+          <!-- LEFT GROUP: 1 QUESTION, 2 ANSWER, 3 KEYWORDS, 4 WHY NOT OTHER OPTIONS -->
           <div class="slide-col slide-left-col">
 
             <!-- 1. QUESTION -->
@@ -1384,31 +1379,23 @@ function buildSlideDocument({ questions }) {
               </div>
             </div>
 
-            <!-- 3. KEYWORDS & CLUE WORDS IN STEM -->
+            <!-- 3. KEYWORDS -->
             <div class="sec-block sec-3">
               <div class="sec-head">
                 <span class="sec-num">3</span>
                 <span class="sec-title">KEYWORDS</span>
                 <span class="sec-line"></span>
               </div>
-              <div class="kw-split-grid">
-                <div class="card-kw-defs">
-                  ${normalizedKeywords.slice(0, 3).map(kw => {
-                    const cleanTerm = escapeHtml(humaniseText(kw.term).replace(/\s+Revenue\s+Model$/i, ' model'));
-                    const cleanNote = escapeHtml(humaniseText(kw.shortNote || 'Key concept tested in this question.'));
-                    return `
-                      <div class="kw-def-item">
-                        <strong>${cleanTerm}:</strong> ${cleanNote}
-                      </div>
-                    `;
-                  }).join('')}
-                </div>
-                <div class="card-kw-clues">
-                  <div class="clue-box-title">CLUE WORDS IN STEM</div>
-                  <ul class="clue-list">
-                    ${clueWords.map(cw => `<li>${escapeHtml(cw)}</li>`).join('')}
-                  </ul>
-                </div>
+              <div class="card-kw-defs">
+                ${normalizedKeywords.slice(0, 4).map(kw => {
+                  const cleanTerm = escapeHtml(humaniseText(kw.term).replace(/\s+Revenue\s+Model$/i, ' model'));
+                  const cleanNote = escapeHtml(humaniseText(kw.shortNote || 'Key concept tested in this question.'));
+                  return `
+                    <div class="kw-def-item">
+                      <strong>${cleanTerm}:</strong> ${cleanNote}
+                    </div>
+                  `;
+                }).join('')}
               </div>
             </div>
 
@@ -1426,7 +1413,7 @@ function buildSlideDocument({ questions }) {
 
           </div>
 
-          <!-- RIGHT COLUMN: 5 VALUE ADDITION, 6 IN NEWS, 7 COMPARISON, 8 SIMILAR PYQ -->
+          <!-- RIGHT GROUP: 5 VALUE ADDITION, 6 IN NEWS, 7 COMPARISON, 8 SIMILAR PYQ -->
           <div class="slide-col slide-right-col">
 
             <!-- 5. VALUE ADDITION -->
@@ -1526,7 +1513,7 @@ function buildSlideDocument({ questions }) {
                   </div>
                 ` : `
                   <div>
-                    Questions on <strong>${escapeHtml(q.srcTopic || q.srcSubject || 'basic concepts')}</strong> often come back with modified distractors. Expect the same core options with one changed clue in the stem (for example, swapping who holds inventory or who sets the price).
+                    Questions on <strong>${escapeHtml(q.srcTopic || q.srcSubject || 'basic concepts')}</strong> often come back with modified distractors. Expect the same core options with one changed condition in the question stem.
                   </div>
                 `}
               </div>
@@ -1547,55 +1534,108 @@ function buildSlideDocument({ questions }) {
     `;
   }).join('')}
 
-  <!-- 3-LAYER SELF-ADJUSTING AUTO-FIT ENGINE (Guarantees Zero Overflow & Balanced Spacing) -->
+  <!-- 3-LAYER SELF-ADJUSTING AUTO-FIT ENGINE (Supports Both Landscape & Portrait A4) -->
   <script>
     function fitAllSlides() {
+      const isPortrait = document.body.getAttribute('data-orientation') === 'portrait';
       const pages = document.querySelectorAll('.slide-page');
+
       pages.forEach((page) => {
         const bodySplit = page.querySelector('.slide-body-split');
         if (!bodySplit) return;
 
-        const availH = bodySplit.clientHeight;
-        if (availH <= 0) return;
+        // Reset bodySplit inline overrides
+        bodySplit.style.zoom = '1';
+        bodySplit.style.setProperty('--font-scale', '1');
+        bodySplit.style.setProperty('--col-gap', '8px');
+        bodySplit.style.setProperty('--card-pad-v', '8px');
 
         const cols = bodySplit.querySelectorAll('.slide-col');
         cols.forEach((col) => {
-          // Reset variables first
           col.style.zoom = '1';
           col.style.setProperty('--font-scale', '1');
           col.style.setProperty('--col-gap', '8px');
           col.style.setProperty('--card-pad-v', '8px');
+        });
 
-          // Case 1: Content is shorter than 80% of available height -> gently expand breathing room
-          if (col.scrollHeight < availH * 0.80) {
-            col.style.setProperty('--col-gap', '11px');
-            col.style.setProperty('--card-pad-v', '11px');
-            if (col.scrollHeight < availH * 0.72) {
-              col.style.setProperty('--font-scale', '1.04');
+        const availH = bodySplit.clientHeight;
+        if (availH <= 0) return;
+
+        if (isPortrait) {
+          // In Portrait mode, .slide-body-split is the unified grid container
+          if (bodySplit.scrollHeight < availH * 0.82) {
+            bodySplit.style.setProperty('--col-gap', '11px');
+            bodySplit.style.setProperty('--card-pad-v', '10px');
+            if (bodySplit.scrollHeight < availH * 0.74) {
+              bodySplit.style.setProperty('--font-scale', '1.05');
             }
             return;
           }
 
-          // Case 2: Content overflows available height -> compress spacing first, then scale font
-          if (col.scrollHeight > availH) {
-            col.style.setProperty('--col-gap', '5px');
-            col.style.setProperty('--card-pad-v', '5.5px');
+          if (bodySplit.scrollHeight > availH) {
+            bodySplit.style.setProperty('--col-gap', '5px');
+            bodySplit.style.setProperty('--card-pad-v', '5.5px');
           }
 
           let scale = 1.0;
           let guard = 0;
-          while (col.scrollHeight > availH + 1 && scale > 0.72 && guard++ < 30) {
+          while (bodySplit.scrollHeight > availH + 1 && scale > 0.72 && guard++ < 30) {
             scale -= 0.02;
-            col.style.setProperty('--font-scale', scale.toFixed(2));
+            bodySplit.style.setProperty('--font-scale', scale.toFixed(2));
           }
 
-          // Case 3: Hard safety clamp if still taller than availH
-          if (col.scrollHeight > availH + 2) {
-            const ratio = Math.max(0.68, (availH - 2) / col.scrollHeight);
-            col.style.zoom = ratio.toFixed(3);
+          if (bodySplit.scrollHeight > availH + 2) {
+            const ratio = Math.max(0.68, (availH - 2) / bodySplit.scrollHeight);
+            bodySplit.style.zoom = ratio.toFixed(3);
           }
-        });
+        } else {
+          // In Landscape mode, fit left and right columns independently
+          cols.forEach((col) => {
+            if (col.scrollHeight < availH * 0.80) {
+              col.style.setProperty('--col-gap', '11px');
+              col.style.setProperty('--card-pad-v', '11px');
+              if (col.scrollHeight < availH * 0.72) {
+                col.style.setProperty('--font-scale', '1.04');
+              }
+              return;
+            }
+
+            if (col.scrollHeight > availH) {
+              col.style.setProperty('--col-gap', '5px');
+              col.style.setProperty('--card-pad-v', '5.5px');
+            }
+
+            let scale = 1.0;
+            let guard = 0;
+            while (col.scrollHeight > availH + 1 && scale > 0.72 && guard++ < 30) {
+              scale -= 0.02;
+              col.style.setProperty('--font-scale', scale.toFixed(2));
+            }
+
+            if (col.scrollHeight > availH + 2) {
+              const ratio = Math.max(0.68, (availH - 2) / col.scrollHeight);
+              col.style.zoom = ratio.toFixed(3);
+            }
+          });
+        }
       });
+    }
+
+    function setPageOrientation(orient) {
+      document.body.setAttribute('data-orientation', orient);
+      const styleEl = document.getElementById('page-orientation-style');
+      if (styleEl) {
+        styleEl.textContent = '@page { size: A4 ' + orient + '; margin: 0; }';
+      }
+      const btnLand = document.getElementById('btn-orient-landscape');
+      const btnPort = document.getElementById('btn-orient-portrait');
+      if (btnLand) btnLand.classList.toggle('active', orient === 'landscape');
+      if (btnPort) btnPort.classList.toggle('active', orient === 'portrait');
+      const statusLabel = document.getElementById('orient-status-label');
+      if (statusLabel) {
+        statusLabel.textContent = '${totalSlides} Sheet${totalSlides > 1 ? 's' : ''} • Auto-Fitted ' + (orient === 'portrait' ? 'Portrait A4' : 'Landscape A4');
+      }
+      setTimeout(fitAllSlides, 30);
     }
 
     window.addEventListener('load', () => {

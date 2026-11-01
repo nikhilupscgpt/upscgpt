@@ -333,7 +333,13 @@ export default function PyqAdminClient({ session }) {
   const handlePrintSelectedSlides = () => {
     if (selectedQIds.size === 0) return;
     const ids = Array.from(selectedQIds).join(',');
-    window.open(`/api/admin/pyq/print-pdf?mode=slide&ids=${ids}`, '_blank');
+    window.open(`/api/admin/pyq/print-pdf?mode=slide&orientation=landscape&ids=${ids}`, '_blank');
+  };
+
+  const handlePrintSelectedPortrait = () => {
+    if (selectedQIds.size === 0) return;
+    const ids = Array.from(selectedQIds).join(',');
+    window.open(`/api/admin/pyq/print-pdf?mode=slide&orientation=portrait&ids=${ids}`, '_blank');
   };
 
   const handlePrintSelectedBooklet = () => {
@@ -1487,7 +1493,7 @@ export default function PyqAdminClient({ session }) {
                             display: 'inline-flex',
                             alignItems: 'center',
                             gap: '6px',
-                            padding: '7px 16px',
+                            padding: '7px 14px',
                             borderRadius: '8px',
                             background: '#059669',
                             color: '#ffffff',
@@ -1496,10 +1502,31 @@ export default function PyqAdminClient({ session }) {
                             fontWeight: 800,
                             cursor: 'pointer'
                           }}
-                          title="Open landscape A4 lecture slides for selected questions"
+                          title="Open landscape A4 8-block sheets for selected questions"
                         >
                           <Printer size={14} />
-                          <span>Print Selected Slides (Landscape)</span>
+                          <span>Print Landscape ({selectedQIds.size})</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handlePrintSelectedPortrait}
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '6px',
+                            padding: '7px 14px',
+                            borderRadius: '8px',
+                            background: '#7c3aed',
+                            color: '#ffffff',
+                            border: 'none',
+                            fontSize: '0.82rem',
+                            fontWeight: 800,
+                            cursor: 'pointer'
+                          }}
+                          title="Open portrait A4 8-block sheets for selected questions"
+                        >
+                          <Printer size={14} />
+                          <span>Print Portrait ({selectedQIds.size})</span>
                         </button>
                         <button
                           type="button"
@@ -1519,7 +1546,7 @@ export default function PyqAdminClient({ session }) {
                           }}
                         >
                           <FileText size={14} />
-                          <span>Print Booklet (Portrait)</span>
+                          <span>Multi-Q Booklet</span>
                         </button>
                         <button
                           type="button"
@@ -1732,24 +1759,46 @@ export default function PyqAdminClient({ session }) {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <button
                             type="button"
-                            onClick={() => window.open(`/api/admin/pyq/print-pdf?mode=slide&ids=${q.id}`, '_blank')}
+                            onClick={() => window.open(`/api/admin/pyq/print-pdf?mode=slide&orientation=landscape&ids=${q.id}`, '_blank')}
                             style={{
                               display: 'inline-flex',
                               alignItems: 'center',
-                              gap: '6px',
-                              padding: '6px 12px',
+                              gap: '5px',
+                              padding: '6px 10px',
                               borderRadius: '8px',
                               background: 'rgba(16, 185, 129, 0.15)',
                               color: '#34d399',
                               border: '1px solid rgba(16, 185, 129, 0.3)',
-                              fontSize: '0.8rem',
+                              fontSize: '0.78rem',
                               fontWeight: 700,
                               cursor: 'pointer'
                             }}
-                            title="Print 8-block lecture slide (Landscape A4)"
+                            title="Print 8-block sheet (Landscape A4)"
                           >
                             <Printer size={13} />
-                            <span>Print Slide</span>
+                            <span>Landscape</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => window.open(`/api/admin/pyq/print-pdf?mode=slide&orientation=portrait&ids=${q.id}`, '_blank')}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '5px',
+                              padding: '6px 10px',
+                              borderRadius: '8px',
+                              background: 'rgba(139, 92, 246, 0.15)',
+                              color: '#c4b5fd',
+                              border: '1px solid rgba(139, 92, 246, 0.3)',
+                              fontSize: '0.78rem',
+                              fontWeight: 700,
+                              cursor: 'pointer'
+                            }}
+                            title="Print 8-block sheet (Portrait A4)"
+                          >
+                            <Printer size={13} />
+                            <span>Portrait</span>
                           </button>
 
                           <a
