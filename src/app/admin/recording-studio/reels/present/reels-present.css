@@ -3,7 +3,7 @@
    True 1080 × 1920 Hardware-Resolution Canvas with Safe-Zone Compliance
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap');
 
 .pq-reel-root {
   position: fixed;
@@ -1115,4 +1115,367 @@ body.clean .pq-reel-stage {
 
 .pq-reel-textarea:focus {
   border-color: #c084fc;
+}
+
+/* ==========================================================================
+   AUTHENTIC UPSC EXAM PAPER THEME FOR REELS PRESENTATION
+   Warm desk workspace, crisp white question paper, serif typography,
+   indented numbered statements, single-column options, and full highlights.
+   ========================================================================== */
+
+[data-reel-theme="paper"].pq-reel-root {
+  background: #EDEAE5;
+  color: #1a1a1a;
+}
+
+[data-reel-theme="paper"].pq-reel-stagewrap,
+[data-reel-theme="paper"] .pq-reel-stagewrap {
+  background: #EDEAE5;
+}
+
+[data-reel-theme="paper"].pq-reel-stage,
+[data-reel-theme="paper"] .pq-reel-stage {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.18), 0 4px 16px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-reel-theme="paper"].pq-reel-canvas,
+[data-reel-theme="paper"] .pq-reel-canvas {
+  background: #ffffff !important;
+  color: #1a1a1a !important;
+}
+
+/* Booklet Header */
+[data-reel-theme="paper"] .pq-reel-brand {
+  background: rgba(15, 23, 42, 0.04) !important;
+  border: 1.5px solid rgba(15, 23, 42, 0.16) !important;
+  color: #0f172a !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.06em !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-exam {
+  color: #334155 !important;
+  font-family: 'Newsreader', 'Fraunces', Georgia, serif !important;
+  font-weight: 700 !important;
+}
+
+/* Segmented Story Progress Bar */
+[data-reel-theme="paper"] .pq-reel-progress span {
+  background: #e2e8f0 !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-progress span.on {
+  background: #0f172a !important;
+}
+
+/* Step Indicator */
+[data-reel-theme="paper"] .pq-reel-step-indicator {
+  color: #64748b !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-step-indicator b {
+  color: #0f172a !important;
+}
+
+/* Screen 1: Hook */
+[data-reel-theme="paper"] .pq-reel-hook .tag {
+  color: #64748b !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-hook h1 {
+  color: #0f172a !important;
+  font-family: 'Newsreader', 'Fraunces', Georgia, serif !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-hook p {
+  color: #334155 !important;
+  font-family: 'Newsreader', 'Charter', Georgia, serif !important;
+}
+
+/* Screen 2: Statements */
+[data-reel-theme="paper"] .pq-reel-topic {
+  color: #0f172a !important;
+  font-family: 'Newsreader', 'Fraunces', Georgia, serif !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-lead {
+  color: #111827 !important;
+  font-family: 'Newsreader', 'Charter', Georgia, serif !important;
+  font-weight: 600 !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-stmts {
+  gap: calc(16px * var(--k)) !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-stmts li {
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: calc(16px * var(--k)) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+  padding: calc(20px * var(--k)) calc(24px * var(--k)) !important;
+  gap: calc(16px * var(--k)) !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-num {
+  background: transparent !important;
+  border: none !important;
+  color: #0f172a !important;
+  font-family: 'Newsreader', 'Charter', Georgia, serif !important;
+  font-size: calc(40px * var(--k)) !important;
+  font-weight: 800 !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: calc(34px * var(--k)) !important;
+  display: inline-block !important;
+  line-height: 1.36 !important;
+  border-radius: 0 !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-num::after {
+  content: '.';
+}
+
+[data-reel-theme="paper"] .pq-reel-stmts p {
+  color: #1a1a1a !important;
+  font-family: 'Newsreader', 'Charter', Georgia, serif !important;
+  font-size: calc(38px * var(--k)) !important;
+  font-weight: 500 !important;
+  line-height: 1.48 !important;
+}
+
+/* Screen 3: Options (Single Column, parens format) */
+[data-reel-theme="paper"] .pq-reel-opts {
+  gap: calc(14px * var(--k)) !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-opts li {
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: calc(16px * var(--k)) !important;
+  padding: calc(18px * var(--k)) calc(24px * var(--k)) !important;
+  font-family: 'Newsreader', 'Charter', Georgia, serif !important;
+  font-size: calc(36px * var(--k)) !important;
+  color: #1a1a1a !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-opts .lt {
+  background: #f1f5f9 !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  font-family: 'Newsreader', 'Charter', Georgia, serif !important;
+  font-weight: 800 !important;
+  width: 60px !important;
+  height: 60px !important;
+  font-size: 32px !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-timer {
+  background: #f8fafc !important;
+  border: 2px dashed #94a3b8 !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-ring .track {
+  stroke: #e2e8f0 !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-ring .bar {
+  stroke: #0f172a !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-ring .count {
+  color: #0f172a !important;
+  font-family: 'Newsreader', 'Fraunces', Georgia, serif !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-timer .tt {
+  color: #0f172a !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-timer .ts {
+  color: #64748b !important;
+}
+
+/* Screen 4: Keywords & Highlights (Full highlight preservation) */
+[data-reel-theme="paper"] .pq-reel-serif-title {
+  color: #0f172a !important;
+  font-family: 'Newsreader', 'Fraunces', Georgia, serif !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-kw-mark.active {
+  background: #fde047 !important;
+  color: #000000 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 10px rgba(234, 179, 8, 0.4) !important;
+  border-radius: 4px !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-kw-mark.dimmed {
+  background: #fef9c3 !important;
+  color: #854d0e !important;
+  font-weight: 600 !important;
+  border-radius: 4px !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-kw-mark.context {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #1e293b !important;
+  border-radius: 4px !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-kw-focus-card {
+  background: #ffffff !important;
+  border: 2.5px solid #eab308 !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08), 0 0 24px rgba(234, 179, 8, 0.12) !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-kw-focus-term {
+  color: #854d0e !important;
+  font-family: 'Newsreader', 'Fraunces', Georgia, serif !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-kw-focus-note {
+  color: #1e293b !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-keywords-list li {
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-keywords-list p {
+  color: #1e293b !important;
+}
+
+/* Screen 5: Analysis & Verdicts */
+[data-reel-theme="paper"] .pq-reel-an-title {
+  color: #0f172a !important;
+  font-family: 'Newsreader', 'Fraunces', Georgia, serif !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-verdicts li {
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-verdicts .claim p {
+  color: #0f172a !important;
+  font-family: 'Newsreader', 'Charter', Georgia, serif !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-verdicts .num {
+  background: #f1f5f9 !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  font-family: 'Newsreader', 'Charter', Georgia, serif !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-stamp {
+  border-color: #ef4444 !important;
+  color: #dc2626 !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-stamp.is-correct {
+  border-color: #16a34a !important;
+  color: #16a34a !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-verdicts li.shown {
+  border-color: #fca5a5 !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-verdicts li.shown.is-correct-card {
+  border-color: #86efac !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-source {
+  border-top-color: #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-source b {
+  color: #0f172a !important;
+  font-family: 'Newsreader', 'Fraunces', Georgia, serif !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-mini {
+  color: #0f172a !important;
+  font-family: 'Newsreader', 'Fraunces', Georgia, serif !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-answer {
+  background: #ecfdf5 !important;
+  border: 2.5px solid #16a34a !important;
+  box-shadow: 0 10px 30px rgba(22, 163, 74, 0.12) !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-answer .lt {
+  background: #16a34a !important;
+  color: #ffffff !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-answer p {
+  color: #064e3b !important;
+  font-family: 'Newsreader', 'Charter', Georgia, serif !important;
+}
+
+/* Screen 7: Value Addition */
+[data-reel-theme="paper"] .pq-reel-va-header h2 {
+  color: #0f172a !important;
+  font-family: 'Newsreader', 'Fraunces', Georgia, serif !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-va-subtitle {
+  color: #64748b !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-va-divider {
+  background: #e2e8f0 !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-va-row {
+  border-bottom-color: #f1f5f9 !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-va-row.active .pq-reel-va-art {
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+  -webkit-background-clip: text !important;
+  color: transparent !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-va-row.dimmed .pq-reel-va-art {
+  color: #cbd5e1 !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-va-row.active .pq-reel-va-title {
+  color: #0f172a !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-va-row.dimmed .pq-reel-va-title {
+  color: #94a3b8 !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-va-row.active .pq-reel-va-desc {
+  color: #334155 !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-va-row.dimmed .pq-reel-va-desc {
+  color: #cbd5e1 !important;
+}
+
+/* Camera Bubble in Paper Mode */
+[data-reel-theme="paper"] .pq-reel-cam {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+  background: linear-gradient(#ffffff, #ffffff) padding-box,
+              linear-gradient(135deg, #94a3b8, #cbd5e1) border-box !important;
+}
+
+[data-reel-theme="paper"] .pq-reel-cam .ph {
+  color: #64748b !important;
 }

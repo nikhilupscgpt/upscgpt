@@ -66,6 +66,32 @@ export default function ReelsPresenterClient({ questions: initialQuestions = [] 
   const [camVisible, setCamVisible] = useState(true);
   const [camLive, setCamLive] = useState(false);
 
+  // Presentation Theme: 'paper' (authentic UPSC exam paper) | 'dark' (studio dark)
+  const [theme, setTheme] = useState('paper');
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('pq_reel_present_theme');
+      if (saved === 'dark' || saved === 'paper') {
+        setTheme(saved);
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => {
+      const next = prev === 'paper' ? 'dark' : 'paper';
+      try {
+        localStorage.setItem('pq_reel_present_theme', next);
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  }, []);
+
   // Live Overrides for Storyboard (Hook, Verdicts, Takeaway)
   const [storyboardOverrides, setStoryboardOverrides] = useState({});
   const [isAiPolishing, setIsAiPolishing] = useState(false);
@@ -337,12 +363,15 @@ export default function ReelsPresenterClient({ questions: initialQuestions = [] 
       } else if (k === 'r') {
         e.preventDefault();
         goToStep(0);
+      } else if (k === 't') {
+        e.preventDefault();
+        toggleTheme();
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [nextStep, prevStep, goToStep, toggleCamera]);
+  }, [nextStep, prevStep, goToStep, toggleCamera, toggleTheme]);
 
   // -------------------------------------------------------------
   // AI Polish Integration
@@ -477,7 +506,7 @@ export default function ReelsPresenterClient({ questions: initialQuestions = [] 
     : (currentStepConfig.stepNum > 5 ? 99 : -1);
 
   return (
-    <div className="pq-reel-root">
+    <div className="pq-reel-root" data-reel-theme={theme}>
       {/* SVG Gradient Defs */}
       <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
         <defs>
@@ -517,9 +546,9 @@ export default function ReelsPresenterClient({ questions: initialQuestions = [] 
         {/* ========================================================= */}
         {/* CENTER VIEWPORT: SCALED 1080 × 1920 PHONE STAGE          */}
         {/* ========================================================= */}
-        <div className="pq-reel-stagewrap" ref={wrapRef}>
-          <div className="pq-reel-stage" ref={stageRef}>
-            <div className="pq-reel-canvas" ref={reelRef}>
+        <div className="pq-reel-stagewrap" ref={wrapRef} data-reel-theme={theme}>
+          <div className="pq-reel-stage" ref={stageRef} data-reel-theme={theme}>
+            <div className="pq-reel-canvas" ref={reelRef} data-reel-theme={theme}>
               {/* Top Header */}
               <div className="pq-reel-header">
                 <div className="pq-reel-brand">UPSCGPT Reels</div>
@@ -952,6 +981,14 @@ export default function ReelsPresenterClient({ questions: initialQuestions = [] 
             <div className="pq-reel-btn-row">
               <button
                 type="button"
+                className={`pq-reel-btn ${theme === 'paper' ? 'is-active' : ''}`}
+                onClick={toggleTheme}
+                title="Switch between authentic UPSC Exam Paper and Studio Dark theme (T)"
+              >
+                {theme === 'paper' ? '📜 Exam Paper' : '🌙 Studio Dark'}
+              </button>
+              <button
+                type="button"
                 className={`pq-reel-btn ${safeGuides ? 'is-active' : ''}`}
                 onClick={() => setSafeGuides((prev) => !prev)}
               >
@@ -975,6 +1012,8 @@ export default function ReelsPresenterClient({ questions: initialQuestions = [] 
               <span>Next step (or Space)</span>
               <kbd>←</kbd>
               <span>Previous step</span>
+              <kbd>T</kbd>
+              <span>Toggle Paper / Dark theme</span>
               <kbd>G</kbd>
               <span>Safe-zone guides</span>
               <kbd>W</kbd>
