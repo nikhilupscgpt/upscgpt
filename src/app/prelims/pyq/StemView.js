@@ -56,9 +56,19 @@ export function parseStem(stem) {
 }
 
 /** Renders a question stem: intro line, statements in tinted boxes, tables, closing question. */
-export default function StemView({ stem, size = 'md', qNo }) {
+export default function StemView({ stem, size = 'md', qNo, interactiveElimination = true }) {
   const blocks = React.useMemo(() => parseStem(stem), [stem]);
   const firstP = blocks.findIndex(b => b.type === 'p');
+  const [eliminated, setEliminated] = React.useState({});
+
+  React.useEffect(() => {
+    setEliminated({});
+  }, [stem, qNo]);
+
+  const toggleEliminate = (stmtId) => {
+    if (!interactiveElimination) return;
+    setEliminated(prev => ({ ...prev, [stmtId]: !prev[stmtId] }));
+  };
 
   return (
     <div className={`pq-stem pq-stem-${size}`}>
@@ -66,31 +76,67 @@ export default function StemView({ stem, size = 'md', qNo }) {
         if (b.type === 'stmts') {
           return (
             <div className="pq-stmts" key={idx}>
-              {b.items.map((s, k) => (
-                <div className="pq-stmt" key={k}>
-                  <span className="pq-stmt-key">{s.key}</span>
-                  {s.text.includes(' : ') ? (
-                    (() => {
-                      const [left, ...rest] = s.text.split(' : ');
-                      return (
-                        <span className="pq-stmt-text pq-stmt-pair">
-                          <strong className="pq-pair-term">{left}</strong>
-                          <span className="pq-pair-sep"> : </span>
-                          <span className="pq-pair-val">{rest.join(' : ')}</span>
-                        </span>
-                      );
-                    })()
-                  ) : (
-                    <span className="pq-stmt-text">{s.text}</span>
+              {interactiveElimination && b.items.length > 1 && (
+                <div className="pq-stmt-elim-hint">
+                  <span>✎ Tap a statement number (1, 2, 3) to cross out while solving</span>
+                  {Object.values(eliminated).some(Boolean) && (
+                    <button
+                      type="button"
+                      className="pq-stmt-elim-reset"
+                      onClick={() => setEliminated({})}
+                    >
+                      Clear marks
+                    </button>
                   )}
                 </div>
-              ))}
+              )}
+              {b.items.map((s, k) => {
+                const stmtId = `${idx}-${k}`;
+                const isElim = Boolean(eliminated[stmtId]);
+                return (
+                  <div
+                    className={`pq-stmt ${isElim ? 'is-eliminated' : ''} ${interactiveElimination ? 'is-interactive' : ''}`}
+                    key={k}
+                    onClick={() => toggleEliminate(stmtId)}
+                    role={interactiveElimination ? 'button' : undefined}
+                    tabIndex={interactiveElimination ? 0 : undefined}
+                    onKeyDown={(e) => {
+                      if (interactiveElimination && (e.key === 'Enter' || e.key === ' ')) {
+                        e.preventDefault();
+                        toggleEliminate(stmtId);
+                      }
+                    }}
+                    title={interactiveElimination ? (isElim ? 'Tap to restore statement' : 'Tap to cross out / eliminate this statement') : undefined}
+                  >
+                    <span className="pq-stmt-key">{s.key}.</span>
+                    {s.text.includes(' : ') ? (
+                      (() => {
+                        const [left, ...rest] = s.text.split(' : ');
+                        return (
+                          <span className="pq-stmt-text pq-stmt-pair">
+                            <strong className="pq-pair-term">{left}</strong>
+                            <span className="pq-pair-sep"> : </span>
+                            <span className="pq-pair-val">{rest.join(' : ')}</span>
+                          </span>
+                        );
+                      })()
+                    ) : (
+                      <span className="pq-stmt-text">{s.text}</span>
+                    )}
+                    {interactiveElimination && (
+                      <span className="pq-stmt-strike-pill" aria-hidden="true">
+                        {isElim ? '↺' : '✕'}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           );
         }
         if (b.type === 'table') {
           return (
-            <div className="pq-table-wrap" key={idx}>
+            <div className="pq-table-wrap" key={idx} tabIndex={0} role="region" aria-label="Question data table">
               <table className="pq-table">
                 <thead>
                   <tr>{b.head.map((h, k) => <th key={k}>{h}</th>)}</tr>

@@ -42,9 +42,21 @@ function parseValueAdditionPoints(text) {
   return items;
 }
 
-export default function PyqDeepDive({ analysis, questionId, subject, topic, isAdmin = false }) {
+export default function PyqDeepDive({ analysis, questionId, subject, topic, isAdmin = false, compactTabs = false }) {
   const [activeKeywordIdx, setActiveKeywordIdx] = useState(null);
   const [modalConcept, setModalConcept] = useState(null);
+  const [activeTab, setActiveTab] = useState(compactTabs ? 'breakdown' : 'all');
+
+  useEffect(() => {
+    if (compactTabs) {
+      setActiveTab('breakdown');
+    } else if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setActiveTab('breakdown');
+    } else {
+      setActiveTab('all');
+    }
+  }, [questionId, compactTabs]);
+
   const [usageState, setUsageState] = useState({
     loading: true,
     allowed: true,
@@ -96,6 +108,34 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
   const { keywords, optionBreakdown, statementBreakdown, valueAddition, inNews, similarPyq, visualSuggestion } = analysis;
   const isLocked = !usageState.loading && !usageState.allowed;
 
+  const hasKeywords = Boolean(keywords && keywords.length > 0 && normalizeKeywordsList(keywords).length > 0);
+  const hasBreakdown = Boolean(
+    (statementBreakdown && Array.isArray(statementBreakdown) && statementBreakdown.length > 0) ||
+    (optionBreakdown && Array.isArray(optionBreakdown) && optionBreakdown.length > 0)
+  );
+  const hasValueAdd = Boolean(valueAddition);
+  const hasCompare = Boolean(visualSuggestion && visualSuggestion.tableData);
+  const hasNewsOrPyq = Boolean(inNews || similarPyq);
+
+  const availableTabs = [
+    hasBreakdown && { id: 'breakdown', num: '4', label: statementBreakdown?.length ? 'Statements' : 'Why Not Others' },
+    hasKeywords && { id: 'keywords', num: '3', label: 'Keywords' },
+    hasValueAdd && { id: 'value', num: '5', label: 'Value Add' },
+    hasCompare && { id: 'compare', num: '7', label: 'Compare' },
+    hasNewsOrPyq && { id: 'news', num: '6', label: 'News & PYQ' },
+    { id: 'all', num: '✦', label: 'All' },
+  ].filter(Boolean);
+
+  const effectiveTab = availableTabs.some(t => t.id === activeTab)
+    ? activeTab
+    : (availableTabs[0]?.id || 'all');
+
+  const showKeywords = effectiveTab === 'all' || effectiveTab === 'keywords';
+  const showBreakdown = effectiveTab === 'all' || effectiveTab === 'breakdown';
+  const showValueAdd = effectiveTab === 'all' || effectiveTab === 'value';
+  const showCompare = effectiveTab === 'all' || effectiveTab === 'compare';
+  const showNewsOrPyq = effectiveTab === 'all' || effectiveTab === 'news';
+
   return (
     <div className="pq-deepdive" style={{ position: 'relative' }}>
       {/* 1. Header Banner */}
@@ -128,8 +168,30 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
         </div>
       </div>
 
+      {/* 8-Block Segmented Pill Switcher */}
+      {!isLocked && availableTabs.length > 2 && (
+        <div className="pq-dd-tabs" role="tablist" aria-label="Deep-dive blocks">
+          {availableTabs.map(tab => {
+            const isSelected = effectiveTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={isSelected}
+                className={`pq-dd-tab-btn pq-dd-tab-${tab.id} ${isSelected ? 'is-active' : ''}`}
+                onClick={() => setActiveTab(tab.id)}
+              >
+                <span className="pq-dd-tab-num">{tab.num}</span>
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* 2. Keywords and Concepts (Interactive Concept Pills + Expandable Concept Card) */}
-      {keywords && keywords.length > 0 && (() => {
+      {showKeywords && keywords && keywords.length > 0 && (() => {
         const coreKeywords = normalizeKeywordsList(keywords);
         if (coreKeywords.length === 0) return null;
 
@@ -398,7 +460,7 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
       ) : (
         <>
           {/* 3. Stem Statements Evaluation (if numbered statements exist) OR Option-by-Option Breakdown */}
-          {statementBreakdown && Array.isArray(statementBreakdown) && statementBreakdown.length > 0 ? (
+          {showBreakdown && (statementBreakdown && Array.isArray(statementBreakdown) && statementBreakdown.length > 0 ? (
             <div className="pq-dd-section">
               <div className="pq-dd-label">
                 <CheckSquare size={14} /> Stem Statements Evaluation
@@ -498,10 +560,10 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
                 </div>
               </div>
             )
-          )}
+          ))}
 
           {/* 4. Value Addition Notes */}
-          {valueAddition && (
+          {showValueAdd && valueAddition && (
             <div className="pq-dd-section">
               <div className="pq-dd-label">
                 <BookOpen size={14} /> Value Addition
@@ -613,7 +675,7 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
           )}
 
           {/* 5. In News / Current Affairs Connection */}
-          {inNews && (
+          {showNewsOrPyq && inNews && (
             <div className="pq-dd-section">
               <div className="pq-dd-label">
                 <Newspaper size={14} /> In News & Current Affairs Linkage
@@ -644,7 +706,7 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
           )}
 
           {/* 6. Interlinked Similar PYQ */}
-          {similarPyq && (
+          {showNewsOrPyq && similarPyq && (
             <div className="pq-dd-section">
               <div className="pq-dd-label">
                 <Layers size={14} /> Similar PYQ & Question Family
@@ -676,14 +738,25 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
           )}
 
           {/* 7. Comparison Matrix Table / Visual Suggestion */}
-          {visualSuggestion && (
+          {showCompare && visualSuggestion && (
             <div className="pq-dd-section">
               <div className="pq-dd-label">
                 <Table2 size={14} /> {visualSuggestion.title || 'High-Yield Comparison Matrix'}
               </div>
-              <div className="pq-visual-table-card">
+              <div
+                className="pq-visual-table-card"
+                tabIndex={0}
+                role="region"
+                aria-label={visualSuggestion.title || 'High-Yield Comparison Matrix'}
+              >
                 {visualSuggestion.tableData && Array.isArray(visualSuggestion.tableData.headers) && (
-                  <table className="pq-visual-table">
+                  <table
+                    className="pq-visual-table"
+                    style={visualSuggestion.tableData.headers.reduce((acc, h, idx) => {
+                      acc[`--label-${idx + 1}`] = `"${String(h || '').replace(/"/g, '\\"')}"`;
+                      return acc;
+                    }, {})}
+                  >
                     <thead>
                       <tr>
                         {visualSuggestion.tableData.headers.map((h, hIdx) => (
@@ -698,14 +771,21 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
                         visualSuggestion.tableData.rows.map((row, rIdx) => (
                           <tr key={rIdx}>
                             {Array.isArray(row) &&
-                              row.map((cell, cIdx) => (
-                                <td
-                                  key={cIdx}
-                                  className={cIdx === 0 ? 'pq-table-col-entity' : ''}
-                                >
-                                  {typeof cell === 'string' ? cell : JSON.stringify(cell)}
-                                </td>
-                              ))}
+                              row.map((cell, cIdx) => {
+                                const textVal = typeof cell === 'string' ? cell : JSON.stringify(cell);
+                                if (cIdx === 0) {
+                                  return (
+                                    <th key={cIdx} scope="row" className="pq-table-col-entity">
+                                      {textVal}
+                                    </th>
+                                  );
+                                }
+                                return (
+                                  <td key={cIdx}>
+                                    {textVal}
+                                  </td>
+                                );
+                              })}
                           </tr>
                         ))}
                     </tbody>
