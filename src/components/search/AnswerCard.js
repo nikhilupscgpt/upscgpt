@@ -55,7 +55,12 @@ export default function AnswerCard({ node, query, highlightText }) {
             <ul className="linked-pyq-list">
               {linkedPyqs.map((pyq, i) => (
                 <li key={i} className="linked-pyq-item">
-                  <span className="pyq-year">{pyq.year} {pyq.paper}</span> — {pyq.questionText.substring(0, 100)}...
+                  <Link
+                    href={pyq.link || (pyq.slug ? `/prelims/pyq/${pyq.slug}` : '/prelims/pyq')}
+                    style={{ color: 'inherit', textDecoration: 'none' }}
+                  >
+                    <span className="pyq-year">{pyq.year} {pyq.paper}</span> — {(pyq.questionText || '').substring(0, 110)}... <span style={{ color: '#38bdf8', fontWeight: 700 }}>Open Card →</span>
+                  </Link>
                 </li>
               ))}
             </ul>

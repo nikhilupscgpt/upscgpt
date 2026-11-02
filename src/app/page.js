@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { 
@@ -15,9 +15,11 @@ import {
   GraduationCap,
   Calendar,
   Layers,
-  Sparkles
+  Sparkles,
+  X
 } from 'lucide-react';
 import { usePyqStore } from '@/app/prelims/pyq/pyqStore';
+import PyqQuestionCard from '@/components/search/PyqQuestionCard';
 
 const SUGGESTED_SEARCHES = [
   "Preamble",
@@ -134,19 +136,60 @@ const YEAR_PAPERS = [
 export default function PrelimsGPTCommandCenter() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
+  const [matchedPyqs, setMatchedPyqs] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
   const { streak, isStreakCompletedToday, ready } = usePyqStore();
+
+  const handleQueryChange = (val) => {
+    setSearchQuery(val);
+    if (val.trim().length < 2) {
+      setMatchedPyqs([]);
+      setIsSearching(false);
+      setHasSearched(false);
+    }
+  };
+
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (q.length < 2) return;
+
+    const timer = setTimeout(() => {
+      setIsSearching(true);
+      fetch(`/api/search?q=${encodeURIComponent(q)}`)
+        .then(res => res.json())
+        .then(data => {
+          setMatchedPyqs(data.pyqs || []);
+          setIsSearching(false);
+          setHasSearched(true);
+        })
+        .catch(err => {
+          console.error("Home search error:", err);
+          setIsSearching(false);
+        });
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/prelims/pyq?q=${encodeURIComponent(searchQuery.trim())}`);
+      const resultsEl = document.getElementById('home-pyq-results');
+      if (resultsEl) {
+        resultsEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        router.push(`/prelims/pyq?q=${encodeURIComponent(searchQuery.trim())}`);
+      }
     } else {
       router.push('/prelims/pyq');
     }
   };
 
   const handleQuickChip = (term) => {
-    router.push(`/prelims/pyq?q=${encodeURIComponent(term)}`);
+    setSearchQuery(term);
+    const inputEl = document.getElementById('home-search-input');
+    if (inputEl) inputEl.focus();
   };
 
   return (
@@ -250,9 +293,10 @@ export default function PrelimsGPTCommandCenter() {
             }}>
               <Search size={22} style={{ color: 'var(--text-muted, #64748b)', marginRight: '12px', flexShrink: 0 }} />
               <input 
+                id="home-search-input"
                 type="text"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => handleQueryChange(e.target.value)}
                 placeholder="Search concepts, questions or topics (e.g. Fundamental Rights, Money Bill, Inflation)..."
                 style={{
                   flex: 1,
@@ -329,6 +373,173 @@ export default function PrelimsGPTCommandCenter() {
             ))}
           </div>
         </div>
+
+        {/* ========================================================================= */}
+        {/* LIVE MATCHED QUESTION CARDS SECTION (OPEN ONE BELOW OTHER)                 */}
+        {/* ========================================================================= */}
+        {searchQuery.trim().length >= 2 && (
+          <section id="home-pyq-results" style={{ marginBottom: '56px', scrollMarginTop: '100px' }}>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '12px',
+              marginBottom: '20px',
+              padding: '16px 22px',
+              background: 'var(--bg-card, rgba(15, 23, 42, 0.7))',
+              border: '1.5px solid var(--border-color, rgba(255, 255, 255, 0.12))',
+              borderRadius: '18px',
+              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '1.4rem' }}>🎯</span>
+                <div>
+                  <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary, #ffffff)' }}>
+                    {isSearching ? 'Searching Prelims PYQ Bank...' : `${matchedPyqs.length} Solved Questions Found for "${searchQuery}"`}
+                  </h2>
+                  <p style={{ margin: '3px 0 0 0', fontSize: '0.8rem', color: 'var(--text-secondary, #94a3b8)' }}>
+                    Interactive Question Cards &middot; Attempt and reveal official keys directly below
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setMatchedPyqs([]);
+                  }}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    background: 'var(--bg-input, rgba(255, 255, 255, 0.05))',
+                    border: '1px solid var(--border-color, rgba(255, 255, 255, 0.12))',
+                    color: 'var(--text-secondary, #94a3b8)',
+                    borderRadius: '10px',
+                    padding: '7px 14px',
+                    fontSize: '0.82rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <X size={14} />
+                  <span>Clear Search</span>
+                </button>
+                <Link
+                  href={`/prelims/pyq?q=${encodeURIComponent(searchQuery.trim())}`}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    background: 'var(--color-blue, #3b82f6)',
+                    color: '#ffffff',
+                    borderRadius: '10px',
+                    padding: '8px 16px',
+                    fontSize: '0.84rem',
+                    fontWeight: 800,
+                    textDecoration: 'none',
+                    boxShadow: '0 4px 14px rgba(59, 130, 246, 0.3)'
+                  }}
+                >
+                  <span>Open in Explorer</span>
+                  <ArrowRight size={14} />
+                </Link>
+              </div>
+            </div>
+
+            {/* Questions Stack (One Below Other) */}
+            {isSearching ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {[1, 2].map(i => (
+                  <div key={i} style={{
+                    padding: '32px 24px',
+                    background: 'var(--bg-card, rgba(15, 23, 42, 0.7))',
+                    border: '1px solid var(--border-color, rgba(255, 255, 255, 0.1))',
+                    borderRadius: '20px',
+                    textAlign: 'center',
+                    color: 'var(--text-muted, #64748b)',
+                    fontSize: '0.92rem',
+                    fontWeight: 600
+                  }}>
+                    Loading matching Question Card {i}...
+                  </div>
+                ))}
+              </div>
+            ) : matchedPyqs.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {matchedPyqs.slice(0, 5).map((pyq, idx) => (
+                  <PyqQuestionCard
+                    key={pyq.id || idx}
+                    pyq={pyq}
+                    query={searchQuery}
+                    isHeroMatch={idx === 0}
+                  />
+                ))}
+
+                {matchedPyqs.length > 5 && (
+                  <div style={{ textAlign: 'center', marginTop: '16px', marginBottom: '32px' }}>
+                    <Link
+                      href={`/prelims/pyq?q=${encodeURIComponent(searchQuery.trim())}`}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '13px 28px',
+                        borderRadius: '14px',
+                        background: 'var(--bg-card, rgba(15, 23, 42, 0.8))',
+                        border: '1.5px solid var(--color-blue, #3b82f6)',
+                        color: 'var(--color-blue, #3b82f6)',
+                        fontWeight: 800,
+                        fontSize: '0.94rem',
+                        textDecoration: 'none',
+                        boxShadow: '0 6px 20px rgba(0, 0, 0, 0.1)'
+                      }}
+                    >
+                      <span>View all {matchedPyqs.length} Solved Questions in PYQ Explorer</span>
+                      <ArrowRight size={16} />
+                    </Link>
+                  </div>
+                )}
+              </div>
+            ) : hasSearched ? (
+              <div style={{
+                textAlign: 'center',
+                padding: '42px 20px',
+                background: 'var(--bg-card, rgba(15, 23, 42, 0.6))',
+                border: '1.5px dashed var(--border-color, rgba(255, 255, 255, 0.12))',
+                borderRadius: '20px',
+                color: 'var(--text-muted, #64748b)'
+              }}>
+                <div style={{ fontSize: '2rem', marginBottom: '8px' }}>📡</div>
+                <h3 style={{ margin: '0 0 8px 0', fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-primary, #ffffff)' }}>
+                  No direct question match found for &quot;{searchQuery}&quot;
+                </h3>
+                <p style={{ margin: '0 0 16px 0', fontSize: '0.86rem', color: 'var(--text-secondary, #94a3b8)' }}>
+                  Try searching for a subject like &quot;Indian Polity&quot;, &quot;Preamble&quot;, &quot;Monetary Policy&quot;, or part of a question statement.
+                </p>
+                <Link
+                  href="/prelims/pyq"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    color: 'var(--color-blue, #3b82f6)',
+                    fontWeight: 700,
+                    fontSize: '0.88rem',
+                    textDecoration: 'none'
+                  }}
+                >
+                  <span>Browse full 2,528+ question archive</span>
+                  <ArrowRight size={14} />
+                </Link>
+              </div>
+            ) : null}
+          </section>
+        )}
 
         {/* ========================================================================= */}
         {/* DAILY PYQ STREAK HERO CARD (DAILY 10-QUESTION DISCIPLINE)                 */}

@@ -34,7 +34,7 @@ export async function GET(req) {
     ]);
 
     let suggestions = [
-      ...issues.map(i => ({ id: i.id, text: i.title, sub: i.category, type: 'ISSUE', link: `/issues/${i.slug}` })),
+      ...issues.map(i => ({ id: i.id, text: i.title, sub: i.category, type: 'ISSUE', link: `/node/${i.slug}` })),
       ...entries.map(e => ({ id: e.id, text: e.name, sub: e.category, type: 'ATLAS', link: `/atlas` })),
       ...contents.map(c => ({ id: c.id, text: c.title, sub: c.subject, type: 'STUDY', link: `/subject-portal/${c.subject.toLowerCase()}` }))
     ];
@@ -60,7 +60,7 @@ export async function GET(req) {
               text: m.title,
               sub: m.category,
               type: 'ISSUE',
-              link: `/issues/${m.slug}`,
+              link: `/node/${m.slug}`,
               isSemantic: true
             });
           }

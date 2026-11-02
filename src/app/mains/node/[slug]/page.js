@@ -13,12 +13,20 @@ export async function generateMetadata({ params }) {
   });
   if (!issue) return { title: 'Node Not Found' };
   const cleanDesc = stripHtml(issue.cumulativeSummary).substring(0, 160) || `Strategic Mains study guide for ${issue.title}.`;
+  const canonicalUrl = `https://www.upscgpt.in/node/${slug}`;
   return {
     title: `${issue.title} — Mains Command Center`,
     description: cleanDesc,
     alternates: {
-      canonical: `/mains/node/${slug}`,
-    }
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: `${issue.title} — Mains Command Center`,
+      description: cleanDesc,
+      url: canonicalUrl,
+      siteName: 'UPSCGPT',
+      type: 'article',
+    },
   };
 }
 

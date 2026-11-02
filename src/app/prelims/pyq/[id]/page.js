@@ -2,6 +2,14 @@ import { notFound, redirect } from 'next/navigation';
 import prisma from '@/lib/prisma';
 import StandaloneQuestionClient from './StandaloneQuestionClient';
 import { generateQuestionSlug, extractQuestionIdFromSlug } from '@/lib/pyqSlug';
+import {
+  buildPyqSeoTitle,
+  buildPyqMetaDescription,
+  buildPyqSchemaTeaser,
+  extractCoreSubjectEntity,
+  stripBoilerplateFromStem,
+} from '@/lib/seo';
+import { resolveSyllabusNodesForQuestion } from '@/lib/nodeBridge';
 
 // 24-hour ISR Cache: Ensures search crawlers consume 0 DB/server compute after initial cache
 export const revalidate = 86400;
@@ -61,20 +69,23 @@ export async function generateMetadata({ params }) {
 
   const canonicalSlug = generateQuestionSlug(q);
   const canonicalUrl = `https://www.upscgpt.in/prelims/pyq/${canonicalSlug}`;
-  const cleanStem = (q.stem || '').replace(/\s+/g, ' ').trim().slice(0, 125);
+  const ogImageUrl = `https://www.upscgpt.in/api/og/pyq/${canonicalSlug}`;
   const examLabel = `${q.examName || 'UPSC Prelims'} ${q.examYear || ''}`.trim();
-  const topicLabel = [q.srcSubject, q.srcTopic].filter(Boolean).join(' – ');
+  const coreEntity = extractCoreSubjectEntity(q);
+  const syllabusNodes = resolveSyllabusNodesForQuestion(q, 3);
 
-  const title = `${cleanStem} | ${examLabel} Solved PYQ`;
-  const description = `Official UPSC Answer Key (${(q.correctLabel || '').toUpperCase()}) & detailed explanation for ${examLabel} (${topicLabel}): "${cleanStem}". ${(q.explanation || '').replace(/\s+/g, ' ').trim().slice(0, 110)}`;
+  const title = buildPyqSeoTitle(q);
+  const description = buildPyqMetaDescription(q);
 
   return {
     title,
     description,
     keywords: [
+      coreEntity,
       examLabel,
       q.srcSubject || 'UPSC Prelims',
       q.srcTopic || 'PYQ',
+      ...syllabusNodes.map(n => n.title),
       `${examLabel} Solved Question`,
       'UPSC Prelims PYQ with Explanation',
     ].filter(Boolean),
@@ -87,11 +98,20 @@ export async function generateMetadata({ params }) {
       type: 'article',
       url: canonicalUrl,
       siteName: 'UPSCGPT',
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${title} - UPSCGPT Question Card`,
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
+      images: [ogImageUrl],
     }
   };
 }
@@ -143,7 +163,7 @@ export default async function StandaloneQuestionPage({ params }) {
     examYear: rq.examYear || '',
     srcSubject: rq.srcSubject || q.srcSubject || 'General',
     srcTopic: rq.srcTopic || q.srcTopic || 'General',
-    shortStem: (rq.stem || '').replace(/\s+/g, ' ').trim().slice(0, 140),
+    shortStem: (stripBoilerplateFromStem(rq.stem || '') || (rq.stem || '').replace(/\s+/g, ' ').trim()).slice(0, 140),
   }));
 
   // Parse options
@@ -154,10 +174,14 @@ export default async function StandaloneQuestionPage({ params }) {
     opts = q.options;
   }
 
-  const correctOpt = opts.find(o => (o.label || '').toLowerCase() === (q.correctLabel || '').toLowerCase());
-  const correctLabelUpper = (q.correctLabel || 'A').toUpperCase();
-  const correctText = correctOpt ? `(${correctLabelUpper}) ${correctOpt.text}` : `(${correctLabelUpper})`;
-  const fullExplanation = q.explanation ? `Official Correct Answer: ${correctText}. Explanation: ${q.explanation}` : `Official Correct Answer: ${correctText}.`;
+  // Resolve corresponding static /node/[slug] syllabus pages for high-impact internal linking
+  const syllabusNodes = resolveSyllabusNodesForQuestion(q, 3);
+  const primaryNode = syllabusNodes[0] || null;
+  const coreEntity = extractCoreSubjectEntity(q);
+  const cleanQuestionHeading = `${coreEntity}: ${stripBoilerplateFromStem(q.stem || '') || (q.stem || '').replace(/\s+/g, ' ').trim()}`.slice(0, 160);
+
+  // Truncated teaser for QAPage schema to prevent zero-click SERP answer leakage
+  const schemaAnswerTeaser = buildPyqSchemaTeaser(q, canonicalUrl);
 
   // Schema.org QAPage + BreadcrumbList Structured Data for Google Rich Snippets & GEO AI Search engines
   const jsonLd = [
@@ -177,18 +201,35 @@ export default async function StandaloneQuestionPage({ params }) {
           name: 'UPSC Prelims PYQ Explorer',
           item: 'https://www.upscgpt.in/prelims/pyq',
         },
-        {
-          '@type': 'ListItem',
-          position: 3,
-          name: q.srcSubject || 'Subject',
-          item: `https://www.upscgpt.in/prelims/pyq?subject=${encodeURIComponent(q.srcSubject || 'ALL')}`,
-        },
-        {
-          '@type': 'ListItem',
-          position: 4,
-          name: `${q.examName || 'UPSC'} ${q.examYear || ''} Q#${q.questionNo || ''}`.trim(),
-          item: canonicalUrl,
-        },
+        ...(primaryNode
+          ? [
+              {
+                '@type': 'ListItem',
+                position: 3,
+                name: primaryNode.title,
+                item: `https://www.upscgpt.in/node/${primaryNode.slug}`,
+              },
+              {
+                '@type': 'ListItem',
+                position: 4,
+                name: `${q.examName || 'UPSC'} ${q.examYear || ''} Q#${q.questionNo || ''}`.trim(),
+                item: canonicalUrl,
+              },
+            ]
+          : [
+              {
+                '@type': 'ListItem',
+                position: 3,
+                name: q.srcSubject || 'Subject',
+                item: `https://www.upscgpt.in/prelims/pyq?subject=${encodeURIComponent(q.srcSubject || 'ALL')}`,
+              },
+              {
+                '@type': 'ListItem',
+                position: 4,
+                name: `${q.examName || 'UPSC'} ${q.examYear || ''} Q#${q.questionNo || ''}`.trim(),
+                item: canonicalUrl,
+              },
+            ]),
       ],
     },
     {
@@ -196,12 +237,13 @@ export default async function StandaloneQuestionPage({ params }) {
       '@type': 'QAPage',
       mainEntity: {
         '@type': 'Question',
-        name: (q.stem || '').replace(/\s+/g, ' ').trim().slice(0, 160),
+        name: cleanQuestionHeading,
         text: q.stem,
+        image: `https://www.upscgpt.in/api/og/pyq/${canonicalSlug}`,
         answerCount: 1,
         acceptedAnswer: {
           '@type': 'Answer',
-          text: fullExplanation,
+          text: schemaAnswerTeaser,
           url: `${canonicalUrl}#answer`,
           upvoteCount: 42
         },
@@ -211,8 +253,14 @@ export default async function StandaloneQuestionPage({ params }) {
         })),
         inLanguage: 'en-IN',
         about: [
+          { '@type': 'Thing', name: coreEntity },
           { '@type': 'Thing', name: q.srcSubject || 'UPSC Civil Services Examination' },
           { '@type': 'Thing', name: q.srcTopic || 'General Studies' },
+          ...syllabusNodes.map(n => ({
+            '@type': 'Course',
+            name: n.title,
+            url: `https://www.upscgpt.in/node/${n.slug}`,
+          })),
         ],
         isPartOf: {
           '@type': 'WebSite',
@@ -232,12 +280,14 @@ export default async function StandaloneQuestionPage({ params }) {
     examYear: q.examYear || 2025,
     srcSubject: q.srcSubject || 'Indian Polity',
     srcTopic: q.srcTopic || 'General',
+    coreEntity,
     stem: q.stem,
     options: opts,
     correctLabel: q.correctLabel,
     explanation: q.explanation || null,
     analysis: q.analysis || null,
     relatedQuestions,
+    syllabusNodes,
   };
 
   return (

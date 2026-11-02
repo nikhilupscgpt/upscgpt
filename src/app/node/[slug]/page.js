@@ -2,6 +2,7 @@ import prisma from '@/lib/prisma';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { CURATED_MAPPING_NODES } from '@/lib/static-mapping-data';
+import { getNodeBridgeContextBySlug } from '@/lib/nodeBridge';
 import './node-detail.css';
 
 export async function generateMetadata({ params }) {
@@ -11,12 +12,21 @@ export async function generateMetadata({ params }) {
     select: { title: true, domain: true, topic: true }
   });
   if (!issue) return { title: 'Node Not Found' };
+  const canonicalUrl = `https://www.upscgpt.in/node/${slug}`;
+  const description = `Strategic study guide, key themes, subtopics, and previous year questions (PYQs) for UPSC syllabus node: ${issue.title} (${issue.domain} - ${issue.topic}).`;
   return { 
     title: `${issue.title} | UPSC Atlas Intelligence`,
-    description: `Strategic study guide, key themes, subtopics, and previous year questions (PYQs) for UPSC syllabus node: ${issue.title} (${issue.domain} - ${issue.topic}).`,
+    description,
     alternates: {
-      canonical: `/node/${slug}`,
-    }
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: `${issue.title} | UPSC Atlas Intelligence`,
+      description,
+      url: canonicalUrl,
+      siteName: 'UPSCGPT',
+      type: 'article',
+    },
   };
 }
 
@@ -37,6 +47,7 @@ export default async function NodeDetailPage({ params }) {
   const themes = metadata.keyThemes || [];
   const subtopics = metadata.subtopics || [];
   const gsPapers = node.gsPapers || [];
+  const { catalogNode, relatedNodes, mappedTopics } = getNodeBridgeContextBySlug(slug);
 
   const mappedPlaces = CURATED_MAPPING_NODES.filter(
     (m) => m.linkedIssueSlug === slug || m.linkedIssueSlug === node.slug
@@ -52,6 +63,7 @@ export default async function NodeDetailPage({ params }) {
             '@type': 'Course',
             'name': `${node.title} — UPSC Atlas Intelligence`,
             'description': `Strategic study guide, key themes, and subtopics for UPSC syllabus node: ${node.title}.`,
+            'url': `https://www.upscgpt.in/node/${node.slug}`,
             'provider': {
               '@type': 'Organization',
               'name': 'UPSCGPT',
@@ -120,7 +132,36 @@ export default async function NodeDetailPage({ params }) {
                 <h2 className="section-title">Study Material</h2>
                 <div className="coming-soon-box">
                   <p>Full AI-synthesized study material for <strong>{node.title}</strong> is being calibrated.</p>
-                  <Link href={`/issues/${node.slug}`} className="legacy-link">View Legacy Notes →</Link>
+                  <Link href={`/prelims/pyq?subject=${encodeURIComponent(catalogNode?.subject || 'ALL')}`} className="legacy-link">Practice Prelims PYQs →</Link>
+                </div>
+              </section>
+            )}
+
+            {mappedTopics.length > 0 && (
+              <section className="node-section" style={{ marginTop: 24 }}>
+                <h2 className="section-title">Practice Linked UPSC Prelims PYQs</h2>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                  {mappedTopics.map((t) => (
+                    <Link
+                      key={t}
+                      href={`/prelims/pyq?subject=${encodeURIComponent(catalogNode?.subject || 'ALL')}&topic=${encodeURIComponent(t)}`}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        padding: '8px 14px',
+                        borderRadius: 8,
+                        background: '#eff6ff',
+                        border: '1px solid #bfdbfe',
+                        color: '#1d4ed8',
+                        fontSize: 13,
+                        fontWeight: 700,
+                        textDecoration: 'none',
+                      }}
+                    >
+                      <span>Solved PYQs: {t} →</span>
+                    </Link>
+                  ))}
                 </div>
               </section>
             )}
@@ -134,6 +175,35 @@ export default async function NodeDetailPage({ params }) {
                 <button className="action-btn bookmark">Bookmark for Revision</button>
               </div>
             </div>
+
+            {relatedNodes.length > 0 && (
+              <div className="sidebar-card">
+                <h3>🔗 Related Syllabus Nodes</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {relatedNodes.map((rn) => (
+                    <Link
+                      key={rn.slug}
+                      href={rn.url}
+                      style={{
+                        display: 'block',
+                        padding: '10px 12px',
+                        background: '#f8fafc',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: 8,
+                        fontSize: 12.5,
+                        textDecoration: 'none',
+                        color: '#1e293b',
+                      }}
+                    >
+                      <div style={{ fontWeight: 700, color: '#0f172a' }}>{rn.title}</div>
+                      <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>
+                        {rn.subject} · {rn.module}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {mappedPlaces.length > 0 && (
               <div className="sidebar-card">

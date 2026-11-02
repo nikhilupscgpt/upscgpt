@@ -16,11 +16,19 @@ export async function generateMetadata({ params }) {
   })
   if (!issue) return { title: 'Issue Not Found' }
   const cleanDesc = stripHtml(issue.cumulativeSummary).substring(0, 160) || `Strategic analysis of ${issue.title}.`;
+  const canonicalUrl = `https://www.upscgpt.in/node/${slug}`;
   return {
     title: `${issue.title} — UPSCGPT Intelligence Hub`,
     description: cleanDesc,
     alternates: {
-      canonical: `/issues/${slug}`,
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: `${issue.title} — UPSCGPT Intelligence Hub`,
+      description: cleanDesc,
+      url: canonicalUrl,
+      siteName: 'UPSCGPT',
+      type: 'article',
     },
   }
 }
@@ -91,7 +99,8 @@ export default async function IssuePage({ params, searchParams }) {
             '@type': 'WebPage',
             'name': `${issue.title} — UPSCGPT Intelligence Hub`,
             'description': stripHtml(issue.cumulativeSummary).substring(0, 160) || `Strategic analysis of ${issue.title}.`,
-            'url': `https://www.upscgpt.in/issues/${issue.slug}`,
+            'url': `https://www.upscgpt.in/node/${issue.slug}`,
+            'mainEntityOfPage': `https://www.upscgpt.in/node/${issue.slug}`,
             'about': {
               '@type': 'Thing',
               'name': issue.topic,
@@ -122,7 +131,8 @@ export default async function IssuePage({ params, searchParams }) {
               Unlock the interactive AI tutor to ask questions on this syllabus node, request model answers, and draft comparative notes in real-time.
             </p>
             <Link 
-              href={`/login?callbackUrl=/issues/${issue.slug}`}
+              href={`/login?callbackUrl=/node/${issue.slug}`}
+              rel="nofollow"
               style={{ width: '100%', textDecoration: 'none', padding: '12px', background: 'linear-gradient(135deg, #3b82f6, #6366f1)', color: 'white', borderRadius: '14px', fontSize: '0.85rem', fontWeight: 800, boxShadow: '0 4px 12px rgba(59, 130, 246, 0.2)', display: 'block' }}
             >
               Sign In to Unlock

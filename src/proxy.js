@@ -1,14 +1,38 @@
 import { NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
+function isNoIndexUtilityPath(pathname) {
+  return (
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/admin-login") ||
+    pathname.startsWith("/content-portal") ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/profile") ||
+    pathname.startsWith("/notes")
+  );
+}
+
+function withNoIndexHeader(response) {
+  response.headers.set("X-Robots-Tag", "noindex, nofollow");
+  return response;
+}
+
 export async function proxy(request) {
   const { pathname } = request.nextUrl;
 
-  // Allow all API routes, static files, and auth routes through
+  // Allow internal auth/utility routes through with explicit X-Robots-Tag: noindex, nofollow
   if (
-    pathname === "/" ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/admin-login") ||
+    pathname.startsWith("/content-portal")
+  ) {
+    return withNoIndexHeader(NextResponse.next());
+  }
+
+  // Allow all API routes, static files, and public study routes through
+  if (
+    pathname === "/" ||
     pathname.startsWith("/api/") ||
     pathname.startsWith("/_next/") ||
     pathname.startsWith("/favicon") ||
@@ -35,10 +59,14 @@ export async function proxy(request) {
   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
   if (!token) {
     const loginUrl = pathname.startsWith("/admin") ? "/admin-login" : "/login";
-    return NextResponse.redirect(new URL(`${loginUrl}?callbackUrl=${encodeURIComponent(pathname)}`, request.url));
+    const redirectRes = NextResponse.redirect(
+      new URL(`${loginUrl}?callbackUrl=${encodeURIComponent(pathname)}`, request.url)
+    );
+    return withNoIndexHeader(redirectRes);
   }
 
-  return NextResponse.next();
+  const res = NextResponse.next();
+  return isNoIndexUtilityPath(pathname) ? withNoIndexHeader(res) : res;
 }
 
 export const config = {

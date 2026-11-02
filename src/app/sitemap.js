@@ -46,25 +46,13 @@ export default async function sitemap() {
     console.error('[sitemap] Database fetch warning:', err?.message || err)
   }
 
-  const issueUrls = issues.map((issue) => ({
-    url: `${baseUrl}/issues/${issue.slug}`,
-    lastModified: issue.lastUpdatedAt,
-    changeFrequency: 'daily',
-    priority: 0.8,
-  }))
-
+  // Consolidate all syllabus/topic nodes under the master /node/[slug] canonical route
+  // to prevent self-cannibalization across /issues/[slug] and /mains/node/[slug]
   const nodeUrls = issues.map((issue) => ({
     url: `${baseUrl}/node/${issue.slug}`,
     lastModified: issue.lastUpdatedAt,
     changeFrequency: 'weekly',
-    priority: 0.8,
-  }))
-
-  const mainsNodeUrls = issues.map((issue) => ({
-    url: `${baseUrl}/mains/node/${issue.slug}`,
-    lastModified: issue.lastUpdatedAt,
-    changeFrequency: 'weekly',
-    priority: 0.7,
+    priority: 0.85,
   }))
 
   const articleUrls = articles.map((article) => ({
@@ -132,9 +120,7 @@ export default async function sitemap() {
       changeFrequency: 'daily',
       priority: 0.9,
     },
-    ...issueUrls,
     ...nodeUrls,
-    ...mainsNodeUrls,
     ...articleUrls,
     ...streakUrls,
     ...atlasUrls,

@@ -2333,7 +2333,7 @@ function QuestionCard({
         <div className="pq-paper-header">
           <div className="pq-paper-header-rule" />
           <div className="pq-paper-header-title">
-            GENERAL STUDIES PAPER – I &middot; PRELIMINARY EXAMINATION {q.examYear || '2026'}
+            {q.examName || 'UPSC CSE'} &middot; {q.examYear ? `PRELIMS ${q.examYear}` : 'PRELIMS'} &middot; PAPER I
           </div>
           <div className="pq-paper-header-rule" />
         </div>

@@ -218,8 +218,31 @@
 }
 
 [data-theme='light'] .pq-stem-ask {
-  margin-top: 8px !important;
-  margin-bottom: 10px !important;
+  margin-top: 12px !important;
+  margin-bottom: 12px !important;
+  font-weight: 750 !important;
+  color: #0f172a !important;
+  padding: 8px 14px !important;
+  background: rgba(37, 99, 235, 0.05) !important;
+  border-left: 3px solid #2563eb !important;
+  border-radius: 0 8px 8px 0 !important;
+}
+
+.pq-stmt-elim-active-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px dashed rgba(239, 68, 68, 0.35);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  font-size: 11px;
+}
+
+.pq-stmt-elim-active-text {
+  color: #dc2626;
+  font-weight: 700;
 }
 
 [data-theme='light'] .pq-stem-qno {

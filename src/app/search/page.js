@@ -5,6 +5,7 @@ import { useEffect, useState, Suspense } from 'react';
 import Link from 'next/link';
 import UniversalSearchBar from '../../components/UniversalSearchBar';
 import AnswerCard from '../../components/search/AnswerCard';
+import PyqQuestionCard from '../../components/search/PyqQuestionCard';
 import { useIsClient } from '../../lib/useIsClient';
 import './search.css';
 
@@ -20,6 +21,7 @@ const TABS = [
 function SearchResults() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q');
+  const initialTab = searchParams.get('tab') || 'ALL';
   const isClient = useIsClient();
 
   const highlightText = (text, q) => {
@@ -41,8 +43,9 @@ function SearchResults() {
 
   return (
     <SearchResultsInner 
-      key={query || ''} 
+      key={`${query || ''}-${initialTab}`} 
       query={query} 
+      initialTab={initialTab}
       highlightText={highlightText} 
     />
   );
@@ -62,19 +65,21 @@ function LoadingSkeleton() {
   );
 }
 
-function SearchResultsInner({ query, highlightText }) {
+function SearchResultsInner({ query, initialTab = 'ALL', highlightText }) {
   const [nodes, setNodes] = useState([]);
   const [pyqs, setPyqs] = useState([]);
   const [news, setNews] = useState([]);
   const [streaks, setStreaks] = useState([]);
   const [editorials, setEditorials] = useState([]);
+  const [isQuestionQuery, setIsQuestionQuery] = useState(false);
   const [loading, setLoading] = useState(Boolean(query));
-  const [activeTab, setActiveTab] = useState('ALL');
+  const [activeTab, setActiveTab] = useState(
+    TABS.some(t => t.id === initialTab) ? initialTab : 'ALL'
+  );
 
   useEffect(() => {
     if (!query) return;
 
-    setLoading(true);
     fetch(`/api/search?q=${encodeURIComponent(query)}`)
       .then(res => res.json())
       .then(data => {
@@ -83,6 +88,7 @@ function SearchResultsInner({ query, highlightText }) {
         setNews(data.news || []);
         setStreaks(data.streaks || []);
         setEditorials(data.editorials || []);
+        setIsQuestionQuery(Boolean(data.isQuestionQuery));
         setLoading(false);
       })
       .catch(err => {
@@ -93,6 +99,9 @@ function SearchResultsInner({ query, highlightText }) {
 
   const topNode = nodes.length > 0 ? nodes[0] : null;
   const remainingNodes = nodes.length > 1 ? nodes.slice(1) : [];
+  const showHeroQuestionCard = pyqs.length > 0 && (isQuestionQuery || nodes.length === 0);
+  const heroPyq = showHeroQuestionCard ? pyqs[0] : null;
+  const remainingPyqsInAll = showHeroQuestionCard ? pyqs.slice(1) : pyqs;
   
   // Filter for Linked Topics: Same gsPaper as topNode, excluding topNode
   const linkedTopics = topNode ? nodes.filter(n => 
@@ -139,6 +148,15 @@ function SearchResultsInner({ query, highlightText }) {
               <div className="serp-layout">
                 {/* Left Column: Search Results List */}
                 <div className="serp-left-column">
+                  {/* Hero Interactive Question Card when student searches a question or partial statement */}
+                  {heroPyq && (
+                    <PyqQuestionCard
+                      pyq={heroPyq}
+                      query={query}
+                      highlightText={highlightText}
+                      isHeroMatch={true}
+                    />
+                  )}
                   
                   {/* Results: News Streaks */}
                   {streaks.map(streak => (
@@ -221,19 +239,13 @@ function SearchResultsInner({ query, highlightText }) {
                   ))}
 
                   {/* Results: PYQs */}
-                  {pyqs.map(pyq => (
-                    <div key={pyq.id} className="serp-result-item">
-                      <div className="serp-item-meta">
-                        <span className="serp-item-tag pyq">Previous Year Q</span>
-                        <span className="serp-item-breadcrumb">upscgpt.com &gt; Prelims &gt; {pyq.year} &gt; Paper {pyq.paper}</span>
-                      </div>
-                      <Link href={`/prelims`} className="serp-item-title">
-                        UPSC Prelims {pyq.year} Question - Paper {pyq.paper}
-                      </Link>
-                      <p className="serp-item-snippet" style={{ fontStyle: 'italic' }}>
-                        &quot;{highlightText(pyq.question, query)}&quot;
-                      </p>
-                    </div>
+                  {remainingPyqsInAll.map(pyq => (
+                    <PyqQuestionCard
+                      key={pyq.id}
+                      pyq={pyq}
+                      query={query}
+                      highlightText={highlightText}
+                    />
                   ))}
 
                   {streaks.length === 0 && news.length === 0 && editorials.length === 0 && nodes.length === 0 && pyqs.length === 0 && (
@@ -284,7 +296,12 @@ function SearchResultsInner({ query, highlightText }) {
                           <ul className="kp-list" style={{ listStyleType: 'circle' }}>
                             {topNode.linkedPyqs.slice(0, 2).map((pyq, i) => (
                               <li key={i} style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-                                <strong>{pyq.year} (Paper {pyq.paper}):</strong> &quot;{pyq.questionText?.substring(0, 60)}...&quot;
+                                <Link
+                                  href={pyq.link || (pyq.slug ? `/prelims/pyq/${pyq.slug}` : '/prelims/pyq')}
+                                  style={{ color: 'inherit', textDecoration: 'none' }}
+                                >
+                                  <strong style={{ color: 'var(--color-link)' }}>{pyq.year} (Paper {pyq.paper}):</strong> &quot;{pyq.questionText?.substring(0, 60)}...&quot; ↗
+                                </Link>
                               </li>
                             ))}
                           </ul>
@@ -308,7 +325,7 @@ function SearchResultsInner({ query, highlightText }) {
                       <span style={{ fontSize: '2rem', display: 'block', marginBottom: '12px' }}>💡</span>
                       <h4 className="kp-title" style={{ fontSize: '1rem', color: 'var(--text-muted)' }}>No Specific Knowledge Panel</h4>
                       <p className="kp-overview-text" style={{ fontSize: '0.78rem' }}>
-                        Search for a core UPSC syllabus topic like "Preamble", "Monsoon", or "Finance Commission" to display a dedicated study panel.
+                        Search for a core UPSC syllabus topic like &quot;Preamble&quot;, &quot;Monsoon&quot;, or &quot;Finance Commission&quot; to display a dedicated study panel.
                       </p>
                     </div>
                   )}
@@ -368,17 +385,14 @@ function SearchResultsInner({ query, highlightText }) {
               <div className="pyq-tab-results">
                 {pyqs.length > 0 ? (
                   <div className="pyq-stack">
-                    {pyqs.map(pyq => (
-                      <div key={pyq.id} className="pyq-result-card">
-                        <div className="pyq-card-header">
-                          <span className="pyq-year-tag">{pyq.year}</span>
-                          <span className="pyq-paper-tag">Paper {pyq.paper}</span>
-                        </div>
-                        <p className="pyq-text">{highlightText(pyq.question, query)}</p>
-                        <div className="pyq-footer">
-                          <Link href="/prelims" className="pyq-analyze-btn">View Analysis</Link>
-                        </div>
-                      </div>
+                    {pyqs.map((pyq, idx) => (
+                      <PyqQuestionCard
+                        key={pyq.id || idx}
+                        pyq={pyq}
+                        query={query}
+                        highlightText={highlightText}
+                        isHeroMatch={idx === 0}
+                      />
                     ))}
                   </div>
                 ) : (
@@ -445,7 +459,7 @@ function SearchResultsInner({ query, highlightText }) {
             {/* Global Discovery Footer (Persistent across tabs) */}
             {topNode && (
               <div className="discovery-global-footer">
-                <Link href={`/issues/${topNode.slug}`} className="discovery-cta primary">
+                <Link href={`/node/${topNode.slug}`} className="discovery-cta primary">
                   Open Full Node →
                 </Link>
                 <Link href={`/atlas/graph?focus=${topNode.slug}`} className="discovery-cta secondary">
@@ -462,7 +476,7 @@ function SearchResultsInner({ query, highlightText }) {
           <div className="search-empty-state-large">
             <div className="empty-visual">📡</div>
             <h2>Enter a topic to begin research</h2>
-            <p>Try "Article 356", "Indus Valley", or "Green Hydrogen"</p>
+            <p>Try &quot;Article 356&quot;, &quot;Indus Valley&quot;, or &quot;Green Hydrogen&quot;</p>
           </div>
         )}
       </div>

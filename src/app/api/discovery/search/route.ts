@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
       icon: getIconForDomain(i.domain),
       title: i.title,
       subtitle: (i.metadata?.keyThemes || []).slice(0, 3).join(' • '),
-      link: `/issues/${i.slug}`,
+      link: `/node/${i.slug}`,
       rank: i.rank || i.similarity || 0,
       domain: i.domain
     }));

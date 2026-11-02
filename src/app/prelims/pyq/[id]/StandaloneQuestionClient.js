@@ -13,6 +13,7 @@ import {
 import StemView from '../StemView';
 import PyqDeepDive from '../PyqDeepDive';
 import PyqPrecisionView from '../PyqPrecisionView';
+import SyllabusNodeBridge from '@/components/SyllabusNodeBridge';
 import { getStructuredExplanation } from '@/lib/pyqExplanationHelper';
 import '../pyq-ui.css';
 
@@ -99,7 +100,7 @@ export default function StandaloneQuestionClient({ question: q }) {
           color: '#38bdf8',
           margin: '0 0 12px 0'
         }}>
-          {q.examName} {q.examYear} Solved Prelims PYQ · {q.srcSubject} ({q.srcTopic})
+          {q.coreEntity && q.coreEntity !== q.srcTopic ? `${q.coreEntity} · ` : ''}{q.examName} {q.examYear} Solved Prelims PYQ · {q.srcSubject} ({q.srcTopic})
         </h1>
 
         {/* Badges Row */}
@@ -141,6 +142,13 @@ export default function StandaloneQuestionClient({ question: q }) {
             >
               {q.srcTopic}
             </Link>
+
+            <SyllabusNodeBridge
+              nodes={q.syllabusNodes}
+              subject={q.srcSubject}
+              topic={q.srcTopic}
+              variant="pill"
+            />
           </div>
 
           <div style={{ display: 'flex', gap: '8px' }}>
@@ -391,6 +399,13 @@ export default function StandaloneQuestionClient({ question: q }) {
           />
         )}
       </article>
+
+      {/* High-Impact Internal Linking: PYQ -> Corresponding Static /node/[slug] Syllabus Pages */}
+      <SyllabusNodeBridge
+        nodes={q.syllabusNodes}
+        subject={q.srcSubject}
+        topic={q.srcTopic}
+      />
 
       {/* Related Questions Internal Link Mesh (Critical for Search Engine Spidering across all 2,528 PYQs) */}
       {Array.isArray(q.relatedQuestions) && q.relatedQuestions.length > 0 && (

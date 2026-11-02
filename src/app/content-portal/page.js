@@ -1,4 +1,15 @@
-import { redirect } from 'next/navigation';
+import { permanentRedirect } from 'next/navigation';
+
+export const metadata = {
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+    },
+  },
+};
 
 export default async function ContentPortalPage({ searchParams }) {
   const { q, subject } = await searchParams;
@@ -12,5 +23,5 @@ export default async function ContentPortalPage({ searchParams }) {
   const queryString = params.toString();
   if (queryString) targetUrl += `?${queryString}`;
 
-  redirect(targetUrl);
+  permanentRedirect(targetUrl);
 }

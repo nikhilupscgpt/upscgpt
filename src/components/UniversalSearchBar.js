@@ -47,7 +47,13 @@ export default function UniversalSearchBar({ placeholder = 'Search or Ask...', i
   }, [query])
 
   // Create flattened list for keyboard navigation
+  // If query is a question/statement match, prioritize PYQ Question Cards at the top of suggestions
   const flattenedSuggestions = [];
+  if (results.isQuestionQuery && results.pyqs?.length > 0) {
+    results.pyqs.slice(0, 3).forEach(p => {
+      flattenedSuggestions.push({ ...p, category: 'PYQ', icon: '🎯' });
+    });
+  }
   results.streaks?.slice(0, 3).forEach(s => {
     flattenedSuggestions.push({ ...s, category: 'NEWS STREAK', icon: '⚡' });
   });
@@ -63,9 +69,11 @@ export default function UniversalSearchBar({ placeholder = 'Search or Ask...', i
       flattenedSuggestions.push({ ...n, category: 'NODE', icon: '🏛️' });
     });
   }
-  results.pyqs?.slice(0, 3).forEach(p => {
-    flattenedSuggestions.push({ ...p, category: 'PYQ', icon: '🎯' });
-  });
+  if (!results.isQuestionQuery) {
+    results.pyqs?.slice(0, 3).forEach(p => {
+      flattenedSuggestions.push({ ...p, category: 'PYQ', icon: '🎯' });
+    });
+  }
 
   // Keyboard navigation
   const handleKeyDown = (e) => {
@@ -98,7 +106,13 @@ export default function UniversalSearchBar({ placeholder = 'Search or Ask...', i
     if (item.category === 'ANSWER' || item.category === 'NODE') {
       router.push(`/node/${item.slug}`)
     } else if (item.category === 'PYQ') {
-      router.push(`/search?q=${encodeURIComponent(query)}&tab=PYQ`)
+      if (item.slug) {
+        router.push(`/prelims/pyq/${item.slug}`)
+      } else if (item.link) {
+        router.push(item.link)
+      } else {
+        router.push(`/search?q=${encodeURIComponent(query)}&tab=PYQ`)
+      }
     } else if (item.category === 'NEWS STREAK') {
       router.push(`/news?streakId=${item.id}`)
     } else if (item.category === 'NEWS' || item.category === 'EDITORIAL') {
@@ -154,13 +168,22 @@ export default function UniversalSearchBar({ placeholder = 'Search or Ask...', i
               ) : (
                 <div className="dropdown-content">
                   {/* Categorized Render */}
-                  {['NEWS STREAK', 'EDITORIAL', 'NEWS', 'ANSWER', 'NODE', 'PYQ'].map(cat => {
+                  {(results.isQuestionQuery
+                    ? ['PYQ', 'ANSWER', 'NODE', 'NEWS STREAK', 'EDITORIAL', 'NEWS']
+                    : ['NEWS STREAK', 'EDITORIAL', 'NEWS', 'ANSWER', 'NODE', 'PYQ']
+                  ).map(cat => {
                     const catItems = flattenedSuggestions.filter(i => i.category === cat);
                     if (catItems.length === 0) return null;
 
                     return (
                       <div key={cat} className="dropdown-section">
-                        <div className="section-label">{cat === 'ANSWER' ? 'Best Match' : cat}</div>
+                        <div className="section-label">
+                          {cat === 'ANSWER'
+                            ? 'Best Match'
+                            : cat === 'PYQ' && results.isQuestionQuery
+                            ? '🎯 Matched UPSC Question Cards'
+                            : cat}
+                        </div>
                         {catItems.map((item) => {
                           const flatIndex = flattenedSuggestions.indexOf(item);
                           return (
@@ -173,10 +196,10 @@ export default function UniversalSearchBar({ placeholder = 'Search or Ask...', i
                               <div className="suggestion-main">
                                 <span className="suggestion-icon">{item.icon}</span>
                                 <div className="suggestion-text">
-                                  <div className="suggestion-title">{item.title || item.question?.substring(0, 60) + '...'}</div>
+                                  <div className="suggestion-title">{item.title || (item.question || item.stem || '').substring(0, 82) + '...'}</div>
                                   <div className="suggestion-subtitle">
                                     {item.category === 'NODE' && `${item.domain} • ${item.gsPapers?.[0] || 'GS'}`}
-                                    {item.category === 'PYQ' && `${item.year} · ${item.paper}`}
+                                    {item.category === 'PYQ' && `${item.examName || 'UPSC Prelims'} ${item.year || item.examYear || ''} · ${item.srcSubject || item.paper || 'GS1'}${item.srcTopic ? ` • ${item.srcTopic}` : ''} — Click to open Question Card`}
                                     {item.category === 'NEWS STREAK' && `Updated ${new Date(item.updatedAt).toLocaleDateString()}`}
                                     {(item.category === 'NEWS' || item.category === 'EDITORIAL') && `${item.source || 'News'} · ${new Date(item.publishedAt).toLocaleDateString()}`}
                                   </div>

@@ -1,59 +1,9 @@
 'use client';
 
 import React from 'react';
+import { parseStem, isPromptText } from '@/lib/pyqStemParser';
 
-const STATEMENT_RE = /^(Statement[\s-]*(?:I{1,3}|IV|[1-4])|I{1,3}|IV|V|VI|[1-6]|[A-D])\s*[.:)]\s*(.*)$/i;
-const PROMPT_RE = /\s+((?:Which\s+(?:one\s+of\s+the|of\s+the|pairs?|statements?|of\s+these)|How\s+many\s+of\s+the|Select\s+the\s+correct).*)$/i;
-
-export function parseStem(stem) {
-  let raw = String(stem || '').trim();
-
-  // Pre-normalization:
-  // 1. Split inline Statement-I: / Statement-II:
-  raw = raw.replace(/([.:])\s*(Statement[\s-]*(?:I{1,3}|IV|[1-4])\s*[.:])/gi, '$1\n$2');
-  // 2. Detach closing question prompts if stuck on the same line
-  raw = raw.replace(PROMPT_RE, '\n$1');
-
-  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
-  const blocks = [];
-  let i = 0;
-  while (i < lines.length) {
-    const line = lines[i];
-
-    // Table: 2+ consecutive lines with " | " separators
-    if (line.includes(' | ')) {
-      const rows = [];
-      while (i < lines.length && lines[i].includes(' | ')) {
-        rows.push(lines[i].split(' | ').map(c => c.trim()));
-        i++;
-      }
-      if (rows.length >= 2) {
-        blocks.push({ type: 'table', head: rows[0], rows: rows.slice(1) });
-        continue;
-      }
-      blocks.push({ type: 'p', text: rows[0].join(' | ') });
-      continue;
-    }
-
-    const m = line.match(STATEMENT_RE);
-    if (m && m[2]) {
-      const items = [];
-      while (i < lines.length) {
-        const mm = lines[i].match(STATEMENT_RE);
-        if (!mm || !mm[2] || lines[i].includes(' | ')) break;
-        let key = mm[1].replace(/^Statement[\s-]*/i, '');
-        items.push({ key: key.toUpperCase(), text: mm[2] });
-        i++;
-      }
-      blocks.push({ type: 'stmts', items });
-      continue;
-    }
-
-    blocks.push({ type: 'p', text: line });
-    i++;
-  }
-  return blocks;
-}
+export { parseStem, isPromptText };
 
 /** Renders a question stem: intro line, statements in tinted boxes, tables, closing question. */
 export default function StemView({ stem, size = 'md', qNo, interactiveElimination = true }) {
@@ -70,24 +20,24 @@ export default function StemView({ stem, size = 'md', qNo, interactiveEliminatio
     setEliminated(prev => ({ ...prev, [stmtId]: !prev[stmtId] }));
   };
 
+  const hasEliminated = Object.values(eliminated).some(Boolean);
+
   return (
     <div className={`pq-stem pq-stem-${size}`}>
       {blocks.map((b, idx) => {
         if (b.type === 'stmts') {
           return (
             <div className="pq-stmts" key={idx}>
-              {interactiveElimination && b.items.length > 1 && (
-                <div className="pq-stmt-elim-hint">
-                  <span>✎ Tap a statement number (1, 2, 3) to cross out while solving</span>
-                  {Object.values(eliminated).some(Boolean) && (
-                    <button
-                      type="button"
-                      className="pq-stmt-elim-reset"
-                      onClick={() => setEliminated({})}
-                    >
-                      Clear marks
-                    </button>
-                  )}
+              {interactiveElimination && hasEliminated && (
+                <div className="pq-stmt-elim-active-bar">
+                  <span className="pq-stmt-elim-active-text">Statement crossed out</span>
+                  <button
+                    type="button"
+                    className="pq-stmt-elim-reset"
+                    onClick={() => setEliminated({})}
+                  >
+                    ↺ Reset all statements
+                  </button>
                 </div>
               )}
               {b.items.map((s, k) => {
@@ -106,7 +56,7 @@ export default function StemView({ stem, size = 'md', qNo, interactiveEliminatio
                         toggleEliminate(stmtId);
                       }
                     }}
-                    title={interactiveElimination ? (isElim ? 'Tap to restore statement' : 'Tap to cross out / eliminate this statement') : undefined}
+                    title={interactiveElimination ? (isElim ? 'Tap to restore statement' : 'Tap to cross out statement') : undefined}
                   >
                     <span className="pq-stmt-key">{s.key}</span>
                     {s.text.includes(' : ') ? (
@@ -124,7 +74,7 @@ export default function StemView({ stem, size = 'md', qNo, interactiveEliminatio
                       <span className="pq-stmt-text">{s.text}</span>
                     )}
                     {interactiveElimination && (
-                      <span className="pq-stmt-strike-pill" aria-hidden="true">
+                      <span className="pq-stmt-strike-pill" aria-hidden="true" title="Cross out / Restore">
                         {isElim ? '↺' : '✕'}
                       </span>
                     )}
@@ -150,8 +100,10 @@ export default function StemView({ stem, size = 'md', qNo, interactiveEliminatio
             </div>
           );
         }
+        
+        const isAsk = b.isPrompt || (idx !== firstP && idx > 0);
         return (
-          <p key={idx} className={idx === firstP ? 'pq-stem-lead' : 'pq-stem-ask'}>
+          <p key={idx} className={isAsk ? 'pq-stem-ask' : 'pq-stem-lead'}>
             {idx === firstP && qNo ? (
               <strong className="pq-stem-qno">{qNo}. </strong>
             ) : null}

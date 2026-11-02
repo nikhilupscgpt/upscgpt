@@ -9,6 +9,7 @@ import {
   ArrowRight, 
   ArrowLeft 
 } from 'lucide-react';
+import SyllabusNodeBridge from '@/components/SyllabusNodeBridge';
 import './pyq-ui.css';
 
 export default function PyqPrecisionView({ question: q }) {
@@ -275,6 +276,13 @@ export default function PyqPrecisionView({ question: q }) {
               </div>
             )}
           </div>
+
+          {/* High-Impact Internal Linking: PYQ -> Corresponding Static /node/[slug] Syllabus Pages */}
+          <SyllabusNodeBridge
+            nodes={q.syllabusNodes}
+            subject={q.srcSubject || theme.subject}
+            topic={q.srcTopic || theme.topic}
+          />
 
           {/* Section 5: Related Questions */}
           <div id="related-questions" className="pqp-section" style={{ scrollMarginTop: '100px' }}>
