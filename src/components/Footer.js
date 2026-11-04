@@ -17,8 +17,9 @@ export default function Footer() {
               India&apos;s strategic, clutter-free learning platform for UPSC Civil Services Examination (CSE) aspirants. Topic-wise solved Prelims PYQs, syllabus knowledge graph, and spatial geography atlas.
             </p>
             <div className="footer-contact-mini">
-              <span>Support: </span>
-              <a href="mailto:support@upscgpt.in" className="footer-mail-link">support@upscgpt.in</a>
+              <div>Email: <a href="mailto:nikhil@upscgpt.in" className="footer-mail-link">nikhil@upscgpt.in</a></div>
+              <div>Helpline: <a href="tel:+917709495797" className="footer-mail-link">+91 7709495797</a></div>
+              <div>Location: Nagpur, Maharashtra, India</div>
             </div>
           </div>
 
@@ -70,7 +71,7 @@ export default function Footer() {
         {/* Bottom Bar: Copyright & Grievance */}
         <div className="footer-bottom-bar">
           <p className="footer-copy">
-            &copy; {new Date().getFullYear()} UPSCGPT (upscgpt.in). All rights reserved. Crafted for serious Civil Services aspirants.
+            &copy; {new Date().getFullYear()} UPSCGPT (upscgpt.in) &middot; Nagpur, Maharashtra &middot; Crafted for serious Civil Services aspirants.
           </p>
           <div className="footer-legal-pills">
             <span>IT Act 2000 &amp; DPDP 2023 Compliant</span>

@@ -120,7 +120,7 @@ export default function TermsPage() {
           <section className="legal-section">
             <h2>10. Contact Us and Grievances</h2>
             <p>
-              If you have any questions, concerns, or legal notices regarding these Terms, please reach out through our official <Link href="/contact">Contact Page</Link> or email our support desk at <a href="mailto:support@upscgpt.in">support@upscgpt.in</a>.
+              If you have any questions, concerns, or legal notices regarding these Terms, please reach out through our official <Link href="/contact">Contact Page</Link>, call our helpline at <a href="tel:+917709495797">+91 7709495797</a>, or email our support desk at <a href="mailto:nikhil@upscgpt.in">nikhil@upscgpt.in</a> (Operating Office: Nagpur, Maharashtra, India).
             </p>
           </section>
         </div>

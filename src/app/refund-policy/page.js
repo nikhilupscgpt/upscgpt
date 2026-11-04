@@ -38,7 +38,7 @@ export default function RefundPolicyPage() {
             </p>
             <ul>
               <li>
-                <strong>Self-Service Cancellation:</strong> You can cancel your subscription at any time by navigating to your account settings or emailing our support desk at <a href="mailto:support@upscgpt.in">support@upscgpt.in</a>.
+                <strong>Self-Service Cancellation:</strong> You can cancel your subscription at any time by navigating to your account settings or emailing our support desk at <a href="mailto:nikhil@upscgpt.in">nikhil@upscgpt.in</a> (Helpline: <a href="tel:+917709495797">+91 7709495797</a>).
               </li>
               <li>
                 <strong>Effective Date of Cancellation:</strong> When you cancel an active subscription, your cancellation prevents future recurring billing charges. Your premium access will remain completely active and uninterrupted until the conclusion of your current paid billing period (e.g., the end of your monthly or annual cycle).
@@ -105,7 +105,7 @@ export default function RefundPolicyPage() {
             </p>
             <ol className="refund-steps-list">
               <li>
-                Send an email from your registered account address to <a href="mailto:support@upscgpt.in" style={{ fontWeight: 700 }}>support@upscgpt.in</a> with the subject line: <code>[Refund Request] - Your Registered Email / Mobile</code>.
+                Send an email from your registered account address to <a href="mailto:nikhil@upscgpt.in" style={{ fontWeight: 700 }}>nikhil@upscgpt.in</a> with the subject line: <code>[Refund Request] - Your Registered Email / Mobile</code>.
               </li>
               <li>
                 Include the <strong>Razorpay Payment ID</strong> (e.g., <code>pay_XXXXXXXXXX</code>) or transaction receipt received on email.
@@ -115,7 +115,7 @@ export default function RefundPolicyPage() {
               </li>
             </ol>
             <p>
-              Our billing support team will review your request and respond with an official acknowledgment within <strong>twenty-four to forty-eight (24–48) hours</strong>.
+              Our billing support team will review your request and respond with an official acknowledgment within <strong>twenty-four to forty-eight (24–48) hours</strong>. You can also reach our helpline via WhatsApp or call at <strong>+91 7709495797</strong> (Nagpur, Maharashtra, India).
             </p>
           </section>
 
@@ -131,14 +131,14 @@ export default function RefundPolicyPage() {
           <section className="legal-section">
             <h2>6. Chargebacks and Fraud Prevention</h2>
             <p>
-              We encourage students to contact us directly at <a href="mailto:support@upscgpt.in">support@upscgpt.in</a> to resolve any billing misunderstandings swiftly. Initiating fraudulent payment chargebacks without contacting customer support may lead to automatic suspension of your learning profile and examination history.
+              We encourage students to contact us directly at <a href="mailto:nikhil@upscgpt.in">nikhil@upscgpt.in</a> to resolve any billing misunderstandings swiftly. Initiating fraudulent payment chargebacks without contacting customer support may lead to automatic suspension of your learning profile and examination history.
             </p>
           </section>
 
           <section className="legal-section">
             <h2>7. Contact Billing Support</h2>
             <p>
-              For any questions regarding your invoice, pricing plans, or payment status, please visit our <Link href="/contact">Contact Page</Link> or email our dedicated billing helpdesk at <a href="mailto:support@upscgpt.in">support@upscgpt.in</a>.
+              For any questions regarding your invoice, pricing plans, or payment status, please visit our <Link href="/contact">Contact Page</Link> or email our dedicated billing helpdesk at <a href="mailto:nikhil@upscgpt.in">nikhil@upscgpt.in</a>.
             </p>
           </section>
         </div>

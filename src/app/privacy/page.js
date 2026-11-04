@@ -121,7 +121,9 @@ export default function PrivacyPolicyPage() {
               <ul style={{ margin: '10px 0 0 20px' }}>
                 <li><strong>Designation:</strong> Grievance Redressal Officer, UPSCGPT</li>
                 <li><strong>Entity:</strong> UPSCGPT Educational Services</li>
-                <li><strong>Email:</strong> <a href="mailto:grievance@upscgpt.in" style={{ color: '#f59e0b', fontWeight: 'bold' }}>grievance@upscgpt.in</a> / <a href="mailto:support@upscgpt.in" style={{ color: '#f59e0b', fontWeight: 'bold' }}>support@upscgpt.in</a></li>
+                <li><strong>Email:</strong> <a href="mailto:nikhil@upscgpt.in" style={{ color: '#f59e0b', fontWeight: 'bold' }}>nikhil@upscgpt.in</a></li>
+                <li><strong>Helpline:</strong> <a href="tel:+917709495797" style={{ color: '#f59e0b', fontWeight: 'bold' }}>+91 7709495797</a></li>
+                <li><strong>Jurisdiction &amp; Address:</strong> Nagpur, Maharashtra, India</li>
                 <li><strong>Statutory Response SLA:</strong> Acknowledgment within forty-eight (48) hours; resolution within thirty (30) days of receipt.</li>
               </ul>
             </div>

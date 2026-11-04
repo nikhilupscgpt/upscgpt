@@ -27,10 +27,10 @@ export default function ContactPage() {
           <p>
             For general platform inquiries, feedback on Prelims PYQ explanations, syllabus mapping suggestions, or bug reports:
           </p>
-          <a href="mailto:support@upscgpt.in" className="contact-action-link">
-            support@upscgpt.in &rarr;
+          <a href="mailto:nikhil@upscgpt.in" className="contact-action-link">
+            nikhil@upscgpt.in &rarr;
           </a>
-          <span className="box-sla">Average response time: 12&ndash;24 business hours</span>
+          <span className="box-sla">Direct helpline: <a href="tel:+917709495797" style={{ color: 'inherit', fontWeight: 700 }}>+91 7709495797</a></span>
         </div>
 
         {/* Support Card 2: Billing & Subscriptions */}
@@ -40,10 +40,10 @@ export default function ContactPage() {
           <p>
             Need an invoice copy, have questions regarding your Pro subscription, or need assistance with a payment:
           </p>
-          <a href="mailto:support@upscgpt.in?subject=Billing%20Support%20Request" className="contact-action-link">
-            support@upscgpt.in &rarr;
+          <a href="mailto:nikhil@upscgpt.in?subject=Billing%20Support%20Request" className="contact-action-link">
+            nikhil@upscgpt.in &rarr;
           </a>
-          <span className="box-sla">Priority payment support with Razorpay reference IDs</span>
+          <span className="box-sla">Priority payment support &middot; WhatsApp: +91 7709495797</span>
         </div>
 
         {/* Support Card 3: Statutory Grievance Redressal */}
@@ -56,8 +56,9 @@ export default function ContactPage() {
           <div className="grievance-details">
             <p><strong>Designation:</strong> Grievance Redressal Officer</p>
             <p><strong>Platform:</strong> UPSCGPT Educational Services</p>
-            <p><strong>Official Email:</strong> <a href="mailto:grievance@upscgpt.in">grievance@upscgpt.in</a></p>
-            <p><strong>Operating Region:</strong> Maharashtra, India</p>
+            <p><strong>Official Email:</strong> <a href="mailto:nikhil@upscgpt.in">nikhil@upscgpt.in</a></p>
+            <p><strong>Direct Helpline:</strong> <a href="tel:+917709495797">+91 7709495797</a></p>
+            <p><strong>Operating Address:</strong> Nagpur, Maharashtra, India</p>
           </div>
           <span className="box-sla statutory">
             &bull; Acknowledgment within 48 hours &middot; Resolution within 30 days
@@ -81,12 +82,20 @@ export default function ContactPage() {
             <span className="meta-value">Educational Technology &amp; Competitive Exam Preparation</span>
           </div>
           <div className="entity-meta-item">
-            <span className="meta-label">Payment Aggregator</span>
-            <span className="meta-value">Razorpay (RBI Regulated Payment Gateway)</span>
+            <span className="meta-label">Official Email</span>
+            <span className="meta-value">nikhil@upscgpt.in</span>
           </div>
           <div className="entity-meta-item">
-            <span className="meta-label">Country of Origin</span>
-            <span className="meta-value">India (IN)</span>
+            <span className="meta-label">Helpline Number</span>
+            <span className="meta-value">+91 7709495797</span>
+          </div>
+          <div className="entity-meta-item">
+            <span className="meta-label">Registered Location</span>
+            <span className="meta-value">Nagpur, Maharashtra, India</span>
+          </div>
+          <div className="entity-meta-item">
+            <span className="meta-label">Payment Aggregator</span>
+            <span className="meta-value">Razorpay (RBI Regulated Payment Gateway)</span>
           </div>
         </div>
       </div>
@@ -98,14 +107,14 @@ export default function ContactPage() {
           <div className="faq-item">
             <h4>I paid on Razorpay, but my subscription is not showing active. What should I do?</h4>
             <p>
-              Subscription activations are usually instantaneous. In rare instances of bank network latency, webhook confirmation may take up to 5 minutes. If your account still shows as free, please email <a href="mailto:support@upscgpt.in">support@upscgpt.in</a> with your <strong>Razorpay Payment ID</strong> (e.g. <code>pay_XXXXXXXXXX</code>) and we will activate your plan immediately.
+              Subscription activations are usually instantaneous. In rare instances of bank network latency, webhook confirmation may take up to 5 minutes. If your account still shows as free, please email <a href="mailto:nikhil@upscgpt.in">nikhil@upscgpt.in</a> or message WhatsApp at <strong>+91 7709495797</strong> with your <strong>Razorpay Payment ID</strong> (e.g. <code>pay_XXXXXXXXXX</code>) and we will activate your plan immediately.
             </p>
           </div>
 
           <div className="faq-item">
             <h4>How can I request a refund?</h4>
             <p>
-              Please review our <Link href="/refund-policy">Cancellation &amp; Refund Policy</Link>. You can email our billing desk within 7 days of initial purchase with your transaction details.
+              Please review our <Link href="/refund-policy">Cancellation &amp; Refund Policy</Link>. You can email our billing desk at <a href="mailto:nikhil@upscgpt.in">nikhil@upscgpt.in</a> within 7 days of initial purchase with your transaction details.
             </p>
           </div>
 
