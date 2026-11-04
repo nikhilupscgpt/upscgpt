@@ -15,7 +15,7 @@ export default function PrivacyPolicyPage() {
     <div className="legal-page-container">
       <div className="legal-content-card">
         <div className="legal-header">
-          <span className="legal-badge">DATA PRIVACY &amp; PROTECTION</span>
+          <span className="legal-badge privacy">DATA PRIVACY &amp; PROTECTION</span>
           <h1 className="legal-title">Privacy Policy</h1>
           <p className="legal-meta">Last Updated: {lastUpdated} &middot; Compliant with DPDP Act, 2023 &amp; IT Rules, 2011</p>
         </div>
@@ -137,117 +137,6 @@ export default function PrivacyPolicyPage() {
           </section>
         </div>
       </div>
-
-      <style jsx>{`
-        .legal-page-container {
-          max-width: 960px;
-          margin: 0 auto;
-          padding: 40px 20px 80px;
-          color: var(--text-primary, #ffffff);
-          font-family: var(--font-outfit), system-ui, sans-serif;
-        }
-
-        .legal-content-card {
-          background: var(--bg-card, rgba(15, 23, 42, 0.75));
-          border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
-          border-radius: 24px;
-          padding: 48px;
-          box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
-          backdrop-filter: blur(20px);
-        }
-
-        .legal-header {
-          margin-bottom: 36px;
-          padding-bottom: 24px;
-          border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
-        }
-
-        .legal-badge {
-          display: inline-block;
-          font-size: 0.72rem;
-          font-weight: 800;
-          letter-spacing: 0.08em;
-          padding: 4px 12px;
-          border-radius: 999px;
-          background: rgba(16, 185, 129, 0.14);
-          color: #10b981;
-          border: 1px solid rgba(16, 185, 129, 0.3);
-          margin-bottom: 12px;
-        }
-
-        .legal-title {
-          font-size: clamp(2rem, 4vw, 2.8rem);
-          font-weight: 900;
-          letter-spacing: -0.02em;
-          margin: 0 0 10px 0;
-          color: var(--text-primary, #ffffff);
-        }
-
-        .legal-meta {
-          font-size: 0.88rem;
-          color: var(--text-muted, #64748b);
-          margin: 0;
-        }
-
-        .legal-section {
-          margin-bottom: 32px;
-        }
-
-        .legal-section h2 {
-          font-size: 1.3rem;
-          font-weight: 800;
-          color: var(--text-primary, #ffffff);
-          margin: 0 0 14px 0;
-        }
-
-        .legal-section p {
-          font-size: 0.96rem;
-          line-height: 1.65;
-          color: var(--text-secondary, #cbd5e1);
-          margin: 0 0 14px 0;
-        }
-
-        .legal-section ul {
-          margin: 0 0 16px 20px;
-          padding: 0;
-          color: var(--text-secondary, #cbd5e1);
-          line-height: 1.65;
-          font-size: 0.94rem;
-        }
-
-        .legal-section li {
-          margin-bottom: 8px;
-        }
-
-        .legal-callout {
-          background: rgba(16, 185, 129, 0.08);
-          border-left: 4px solid #10b981;
-          border-radius: 0 12px 12px 0;
-          padding: 18px 22px;
-          margin: 16px 0;
-        }
-
-        .legal-callout p {
-          color: #d1fae5;
-          margin: 0;
-          font-size: 0.92rem;
-        }
-
-        a {
-          color: var(--color-blue, #38bdf8);
-          text-decoration: none;
-        }
-
-        a:hover {
-          text-decoration: underline;
-        }
-
-        @media (max-width: 640px) {
-          .legal-content-card {
-            padding: 28px 20px;
-          }
-        }
-      `}</style>
     </div>
   );
 }

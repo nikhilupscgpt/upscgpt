@@ -1,4 +1,5 @@
 import './globals.css'
+import './legal.css'
 import Script from 'next/script'
 import { Outfit } from 'next/font/google'
 
