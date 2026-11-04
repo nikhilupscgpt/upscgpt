@@ -44,6 +44,10 @@ export async function proxy(request) {
     pathname.startsWith("/.well-known") ||
     pathname.startsWith("/search") ||
     pathname.startsWith("/pricing") ||
+    pathname.startsWith("/terms") ||
+    pathname.startsWith("/privacy") ||
+    pathname.startsWith("/refund-policy") ||
+    pathname.startsWith("/contact") ||
     pathname.startsWith("/mapping") ||
     pathname.startsWith("/atlas") ||
     pathname.startsWith("/news") ||

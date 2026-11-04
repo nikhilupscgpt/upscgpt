@@ -989,35 +989,6 @@ export default function PrelimsGPTCommandCenter() {
 
 
       </main>
-
-      {/* FOOTER */}
-      <footer style={{
-        maxWidth: '1200px',
-        margin: '60px auto 0',
-        padding: '32px 24px 0',
-        borderTop: '1px solid var(--border-color, rgba(255, 255, 255, 0.08))',
-        display: 'flex',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        gap: '16px'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span style={{ fontFamily: 'monospace', fontWeight: 800, fontSize: '1.05rem', color: 'var(--text-primary)' }}>
-            upsc<span style={{ color: 'var(--color-blue, #3b82f6)' }}>gpt</span>
-          </span>
-          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-            · UPSC Prelims Preparation Platform
-          </span>
-        </div>
-
-        <div style={{ display: 'flex', gap: '20px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-          <Link href="/prelims/pyq" style={{ color: 'inherit', textDecoration: 'none' }}>PYQ Explorer</Link>
-          <Link href="/prelims/mocks" style={{ color: 'inherit', textDecoration: 'none' }}>Mock Tests</Link>
-          <Link href="/atlas" style={{ color: 'inherit', textDecoration: 'none' }}>Atlas</Link>
-          <Link href="/sitemap.xml" style={{ color: 'inherit', textDecoration: 'none' }}>Sitemap</Link>
-        </div>
-      </footer>
     </div>
   );
 }
