@@ -7,7 +7,7 @@
    -------------------------------------------------------------------------- */
 .upsc-global-footer {
   position: relative;
-  z-index: 20;
+  z-index: 1;
   background: var(--bg-card, rgba(15, 23, 42, 0.95));
   border-top: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
   color: var(--text-secondary, #94a3b8);
@@ -16,6 +16,24 @@
   margin-top: 80px;
   padding: 60px 24px 32px;
   backdrop-filter: blur(20px);
+}
+
+/* Hide global footer and top nav offset in all Studio, Presenter, Reel & Print views */
+body:has(.pq-present-root) .upsc-global-footer,
+body:has(.pq-reel-root) .upsc-global-footer,
+body:has(.pq-studio-root) .upsc-global-footer {
+  display: none !important;
+}
+
+body:has(.pq-present-root) .app-main,
+body:has(.pq-reel-root) .app-main {
+  padding-top: 0 !important;
+}
+
+@media print {
+  .upsc-global-footer {
+    display: none !important;
+  }
 }
 
 .footer-container {

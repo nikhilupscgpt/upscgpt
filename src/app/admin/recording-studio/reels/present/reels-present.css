@@ -8,6 +8,7 @@
 .pq-reel-root {
   position: fixed;
   inset: 0;
+  z-index: 999999;
   background: #06060c;
   color: #ecebf6;
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;

@@ -132,7 +132,7 @@ export default function RootLayout({ children }) {
             <AuthProvider>
               <NavProvider>
                 <Navigation />
-                <main className="app-main" style={{ position: 'relative', zIndex: 10, paddingTop: '72px' }}>
+                <main className="app-main" style={{ position: 'relative', paddingTop: '72px' }}>
                   {children}
                 </main>
                 <Footer />
