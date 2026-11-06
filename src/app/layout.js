@@ -1,27 +1,6 @@
 import './globals.css'
 import './legal.css'
 import Script from 'next/script'
-import { Poppins, Inter, Outfit } from 'next/font/google'
-
-const poppins = Poppins({ 
-  subsets: ['latin'],
-  weight: ['600', '700', '800', '900'],
-  display: 'swap',
-  variable: '--font-poppins',
-})
-
-const inter = Inter({ 
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  display: 'swap',
-  variable: '--font-inter',
-})
-
-const outfit = Outfit({ 
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-outfit',
-})
 
 export const metadata = {
   title: {
@@ -99,8 +78,11 @@ export default function RootLayout({ children }) {
       <head>
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossOrigin="" />
         <link rel="apple-touch-icon" href="/logo.png" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800;900&display=swap" />
       </head>
-      <body className={`${poppins.variable} ${inter.variable} ${outfit.variable} antialiased`} style={{ minHeight: '100vh', position: 'relative', overflowX: 'hidden' }}>
+      <body className="antialiased" style={{ minHeight: '100vh', position: 'relative', overflowX: 'hidden' }}>
         <div className="universal-page-glow" />
         {/* Simplified Background for Performance */}
         <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'var(--bg-primary)' }}>
