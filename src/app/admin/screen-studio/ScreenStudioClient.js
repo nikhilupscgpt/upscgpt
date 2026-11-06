@@ -104,6 +104,24 @@ function getPreferredMimeType(format = 'mp4') {
   return 'video/webm';
 }
 
+const DEFAULT_SUBJECTS = [
+  'Indian Polity & Governance',
+  'Ancient, Medieval History & Art & Culture',
+  'Modern Indian History',
+  'Geography',
+  'Indian Economy & Social Development',
+  'Environment, Ecology & Biodiversity',
+  'Science & Technology',
+  'International Relations & Organizations',
+  'Current Affairs & Contemporary Issues',
+];
+
+const DEFAULT_YEARS = [
+  2024, 2023, 2022, 2021, 2020, 2019, 2018, 2017, 2016, 2015,
+  2014, 2013, 2012, 2011, 2010, 2009, 2008, 2007, 2006, 2005,
+  2004, 2003, 2002, 2001, 2000, 1999, 1998, 1997, 1996, 1995,
+];
+
 export default function ScreenStudioClient({
   initialQuestions = [],
   initialThematicTopics = [],
@@ -112,29 +130,6 @@ export default function ScreenStudioClient({
   // ---------------- 1. Theme State (Default: As per user system/persisted) ----------------
   const [theme, setTheme] = useState('dark');
   const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    try {
-      const saved = localStorage.getItem('theme') || localStorage.getItem('pq_present_theme');
-      if (saved === 'light' || saved === 'dark') {
-        setTheme(saved);
-      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-        setTheme('light');
-      }
-    } catch {
-      // fallback
-    }
-  }, []);
-
-  const toggleTheme = () => {
-    const next = theme === 'dark' ? 'light' : 'dark';
-    setTheme(next);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('theme', next);
-      localStorage.setItem('pq_present_theme', next);
-    }
-  };
 
   // ---------------- 2. Viewport & Canvas Style State ----------------
   const [stageMode, setStageMode] = useState('edge-to-edge'); // 'edge-to-edge' | 'framed-canvas'
@@ -162,25 +157,118 @@ export default function ScreenStudioClient({
   const [filterYear, setFilterYear] = useState('ALL');
   const [filterPattern, setFilterPattern] = useState('ALL');
   const [filterSearch, setFilterSearch] = useState('');
-  const [availableSubjects, setAvailableSubjects] = useState(filterOptions?.subjects || []);
-  const [availableYears, setAvailableYears] = useState(filterOptions?.years || []);
+  const [thematicSearch, setThematicSearch] = useState('');
+  const [availableSubjects, setAvailableSubjects] = useState(
+    filterOptions?.subjects?.length ? filterOptions.subjects : DEFAULT_SUBJECTS
+  );
+  const [availableYears, setAvailableYears] = useState(
+    filterOptions?.years?.length ? filterOptions.years : DEFAULT_YEARS
+  );
+  const [availableTopics, setAvailableTopics] = useState([]);
   const [isFetchingFiltered, setIsFetchingFiltered] = useState(false);
 
-  // Initial client deck fetch
+  // ---------------- 6. Annotation, Stylus & Blackboard Mode ----------------
+  // Default to 'pen' so educator can draw immediately without prior mode toggling
+  const [activeTool, setActiveTool] = useState('pen'); // 'pen' | 'highlighter' | 'laser' | 'eraser' | 'none'
+  const [penColor, setPenColor] = useState('#ffffff');
+  const [penSize, setPenSize] = useState(4);
+  const [highlighterSize, setHighlighterSize] = useState(24);
+  const [showPenPalette, setShowPenPalette] = useState(false);
+  const [isBlackboard, setIsBlackboard] = useState(false);
+  const [itemStrokes, setItemStrokes] = useState([]);
+  const [stepStrokes, setStepStrokes] = useState([]);
+  const [blackboardStrokes, setBlackboardStrokes] = useState([]);
+
+  // Theme detection on mount
+  useEffect(() => {
+    setMounted(true);
+    try {
+      const saved = localStorage.getItem('theme') || localStorage.getItem('pq_present_theme');
+      let initialTheme = 'dark';
+      if (saved === 'light' || saved === 'dark') {
+        initialTheme = saved;
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+        initialTheme = 'light';
+      }
+      setTheme(initialTheme);
+      setPenColor(initialTheme === 'dark' ? '#ffffff' : '#0f172a');
+    } catch {
+      // fallback
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    if (!isBlackboard) {
+      setPenColor(next === 'dark' ? '#ffffff' : '#0f172a');
+    }
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('theme', next);
+      localStorage.setItem('pq_present_theme', next);
+    }
+  };
+
+  // Synchronize pen color whenever theme flips (unless blackboard scratchpad is active)
+  useEffect(() => {
+    if (!isBlackboard) {
+      setPenColor((prev) => {
+        if (theme === 'dark' && prev === '#0f172a') return '#ffffff';
+        if (theme === 'light' && prev === '#ffffff') return '#0f172a';
+        return prev;
+      });
+    }
+  }, [theme, isBlackboard]);
+
+  // Blackboard mode toggle helper: ensures high-contrast chalk and active pen
+  const handleToggleBlackboard = () => {
+    setIsBlackboard((prev) => {
+      const next = !prev;
+      if (next) {
+        if (activeTool === 'none' || activeTool === 'eraser') {
+          setActiveTool('pen');
+        }
+        if (penColor === '#0f172a' || penColor === '#000000') {
+          setPenColor('#ffffff');
+        }
+      } else {
+        if (theme === 'light' && penColor === '#ffffff') {
+          setPenColor('#0f172a');
+        }
+      }
+      return next;
+    });
+  };
+
+  // Initial client deck fetch (pulls live questions, taxonomy filter options and issues)
   useEffect(() => {
     async function loadDecks() {
       try {
         setIsLoading(true);
         const [pyqRes, issuesRes] = await Promise.all([
-          fetch('/api/admin/pyq?limit=60').then((r) => (r.ok ? r.json() : { items: [] })),
-          fetch('/api/issues?showAll=true').then((r) => (r.ok ? r.json() : [])),
+          fetch('/api/admin/pyq?limit=60').then((r) => (r.ok ? r.json() : null)),
+          fetch('/api/issues?showAll=true').then((r) => (r.ok ? r.json() : null)),
         ]);
 
-        if (pyqRes && Array.isArray(pyqRes.items) && pyqRes.items.length > 0) {
-          setPyqItems(pyqRes.items);
+        if (pyqRes) {
+          const qList = pyqRes.questions || pyqRes.items || [];
+          if (Array.isArray(qList) && qList.length > 0) {
+            setPyqItems(qList);
+          }
+          if (pyqRes.filterOptions) {
+            if (Array.isArray(pyqRes.filterOptions.subjects) && pyqRes.filterOptions.subjects.length > 0) {
+              setAvailableSubjects(pyqRes.filterOptions.subjects);
+            }
+            if (Array.isArray(pyqRes.filterOptions.years) && pyqRes.filterOptions.years.length > 0) {
+              setAvailableYears(pyqRes.filterOptions.years);
+            }
+          }
         }
-        if (Array.isArray(issuesRes) && issuesRes.length > 0) {
-          setThematicItems(issuesRes);
+        if (issuesRes) {
+          const tList = issuesRes.issues || (Array.isArray(issuesRes) ? issuesRes : []);
+          if (Array.isArray(tList) && tList.length > 0) {
+            setThematicItems(tList);
+          }
         }
       } catch (err) {
         console.error('[ScreenStudio] Deck load error:', err);
@@ -193,6 +281,29 @@ export default function ScreenStudioClient({
       loadDecks();
     }
   }, []);
+
+  // Fetch topics whenever subject filter changes
+  useEffect(() => {
+    async function loadTopicsForSubject() {
+      if (filterSubject === 'ALL') {
+        setAvailableTopics([]);
+        setFilterTopic('ALL');
+        return;
+      }
+      try {
+        const res = await fetch(`/api/admin/pyq?limit=1&subject=${encodeURIComponent(filterSubject)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.filterOptions?.topics && Array.isArray(data.filterOptions.topics)) {
+            setAvailableTopics(data.filterOptions.topics);
+          }
+        }
+      } catch (err) {
+        // ignore
+      }
+    }
+    loadTopicsForSubject();
+  }, [filterSubject]);
 
   // Filter apply handler
   const handleApplyPyqFilters = async () => {
@@ -209,10 +320,20 @@ export default function ScreenStudioClient({
       const res = await fetch(`/api/admin/pyq?${params.toString()}`);
       if (res.ok) {
         const data = await res.json();
-        if (Array.isArray(data.items)) {
-          setPyqItems(data.items);
+        const questions = data.questions || data.items || [];
+        if (Array.isArray(questions)) {
+          setPyqItems(questions);
           setCurrentIndex(0);
+          setDeckType('pyq');
           setIsFilterModalOpen(false);
+        }
+        if (data.filterOptions) {
+          if (Array.isArray(data.filterOptions.subjects) && data.filterOptions.subjects.length > 0) {
+            setAvailableSubjects(data.filterOptions.subjects);
+          }
+          if (Array.isArray(data.filterOptions.years) && data.filterOptions.years.length > 0) {
+            setAvailableYears(data.filterOptions.years);
+          }
         }
       }
     } catch (e) {
@@ -245,25 +366,11 @@ export default function ScreenStudioClient({
   const [isQueueOpen, setIsQueueOpen] = useState(false);
   const [queueSearch, setQueueSearch] = useState('');
 
-  // ---------------- 6. Annotation, Stylus & Blackboard Mode ----------------
-  const [activeTool, setActiveTool] = useState('none'); // 'pen' | 'highlighter' | 'laser' | 'eraser' | 'none'
-  const [penColor, setPenColor] = useState(theme === 'dark' ? '#ffffff' : '#0f172a');
-  const [penSize, setPenSize] = useState(4);
-  const [highlighterSize, setHighlighterSize] = useState(24);
-  const [showPenPalette, setShowPenPalette] = useState(false);
-  const [isBlackboard, setIsBlackboard] = useState(false);
-  const [itemStrokes, setItemStrokes] = useState([]);
-  const [stepStrokes, setStepStrokes] = useState([]);
-
-  useEffect(() => {
-    if (activeTool !== 'none') {
-      setPenColor(theme === 'dark' ? '#ffffff' : '#0f172a');
-    }
-  }, [theme]);
-
   // Undo last stroke
   const undoLastStroke = () => {
-    if (stepStrokes.length > 0) {
+    if (isBlackboard) {
+      setBlackboardStrokes((prev) => prev.slice(0, -1));
+    } else if (stepStrokes.length > 0) {
       setStepStrokes((prev) => prev.slice(0, -1));
     } else if (itemStrokes.length > 0) {
       setItemStrokes((prev) => prev.slice(0, -1));
@@ -272,17 +379,36 @@ export default function ScreenStudioClient({
 
   // Clear all annotations
   const clearAllStrokes = () => {
-    setItemStrokes([]);
-    setStepStrokes([]);
+    if (isBlackboard) {
+      setBlackboardStrokes([]);
+    } else {
+      setItemStrokes([]);
+      setStepStrokes([]);
+    }
   };
 
-  // ---------------- 7. Spring Zoom Physics Engine ----------------
+  // ---------------- 7. Dynamic Canvas Dimensions ----------------
+  const windowRef = useRef(null);
+  const [canvasDimensions, setCanvasDimensions] = useState({ width: 1920, height: 1080 });
+
+  useEffect(() => {
+    const updateSize = () => {
+      if (windowRef.current) {
+        const w = windowRef.current.clientWidth || window.innerWidth;
+        const h = windowRef.current.clientHeight || (window.innerHeight - 52);
+        setCanvasDimensions({ width: w, height: h });
+      }
+    };
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    return () => window.removeEventListener('resize', updateSize);
+  }, [stageMode, aspectRatio, canvasPadding, mounted]);
+
+  // ---------------- 8. Spring Zoom Physics Engine ----------------
   const [zoomLevel, setZoomLevel] = useState(1);
   const [zoomTarget, setZoomTarget] = useState('full');
   const [zoomTransform, setZoomTransform] = useState({ scale: 1, x: 0, y: 0 });
   const [clickToZoomEnabled, setClickToZoomEnabled] = useState(false);
-
-  const windowRef = useRef(null);
   const stemRef = useRef(null);
   const optionsRef = useRef(null);
   const solutionRef = useRef(null);
@@ -640,7 +766,7 @@ export default function ScreenStudioClient({
       } else if (e.key.toLowerCase() === 'e') {
         setActiveTool((prev) => (prev === 'eraser' ? 'none' : 'eraser'));
       } else if (e.key.toLowerCase() === 'b') {
-        setIsBlackboard((prev) => !prev);
+        handleToggleBlackboard();
       } else if (e.key.toLowerCase() === 'c') {
         clearAllStrokes();
       } else if (e.key.toLowerCase() === 'f') {
@@ -1133,16 +1259,31 @@ export default function ScreenStudioClient({
               {isBlackboard && (
                 <div className="ss-blackboard-overlay">
                   <div className="ss-blackboard-header">
-                    <span style={{ fontSize: 13, fontWeight: 800, color: '#f8fafc' }}>
-                      Blackboard Scratchpad (Apple Pencil &amp; Stylus Active)
-                    </span>
-                    <button
-                      type="button"
-                      className="ss-dock-btn"
-                      onClick={() => setIsBlackboard(false)}
-                    >
-                      Return to Question View ✕
-                    </button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div className="ss-rec-pulsing-dot" style={{ width: 8, height: 8, background: '#10b981' }} />
+                      <span style={{ fontSize: 13, fontWeight: 800, color: '#f8fafc' }}>
+                        Chalkboard Scratchpad &middot; Apple Pencil / Stylus Active
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <button
+                        type="button"
+                        className="ss-dock-btn"
+                        onClick={() => setBlackboardStrokes([])}
+                        title="Clear Blackboard"
+                      >
+                        <Trash2 size={13} />
+                        <span>Clear Board</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="ss-dock-btn"
+                        style={{ background: 'rgba(255, 255, 255, 0.12)', color: '#fff' }}
+                        onClick={handleToggleBlackboard}
+                      >
+                        Return to Question View ✕
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -1150,14 +1291,19 @@ export default function ScreenStudioClient({
               {/* Inking Annotation Canvas Overlay */}
               <div className={`ss-annotation-layer ${activeTool !== 'none' ? 'is-drawing' : ''}`}>
                 <PyqAnnotationCanvas
+                  canvasWidth={canvasDimensions.width}
+                  canvasHeight={canvasDimensions.height}
+                  scale={1}
+                  leftBoundaryX={Math.round(canvasDimensions.width * 0.48)}
+                  isFullStage={isBlackboard}
                   activeTool={activeTool}
                   activeColor={penColor}
                   penSize={penSize}
                   highlighterSize={highlighterSize}
-                  questionStrokes={itemStrokes}
-                  stepStrokes={stepStrokes}
-                  onUpdateQuestionStrokes={setItemStrokes}
-                  onUpdateStepStrokes={setStepStrokes}
+                  questionStrokes={isBlackboard ? [] : itemStrokes}
+                  stepStrokes={isBlackboard ? blackboardStrokes : stepStrokes}
+                  onUpdateQuestionStrokes={isBlackboard ? () => {} : setItemStrokes}
+                  onUpdateStepStrokes={isBlackboard ? setBlackboardStrokes : setStepStrokes}
                 />
               </div>
             </div>
@@ -1491,7 +1637,7 @@ export default function ScreenStudioClient({
           <button
             type="button"
             className={`ss-dock-btn ${isBlackboard ? 'is-active' : ''}`}
-            onClick={() => setIsBlackboard(!isBlackboard)}
+            onClick={handleToggleBlackboard}
             title="Toggle Blackboard Scratchpad Mode (B)"
           >
             <span>Blackboard</span>
@@ -1896,6 +2042,23 @@ export default function ScreenStudioClient({
                     </select>
                   </div>
 
+                  {/* Topic (Dynamic per Subject) */}
+                  <div className="ss-form-group">
+                    <label className="ss-form-label">Topic / Theme</label>
+                    <select
+                      className="ss-form-select"
+                      value={filterTopic}
+                      onChange={(e) => setFilterTopic(e.target.value)}
+                    >
+                      <option value="ALL">All Topics {filterSubject === 'ALL' ? '(Select Subject to refine)' : ''}</option>
+                      {availableTopics.map((t) => (
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
                   {/* Year */}
                   <div className="ss-form-group">
                     <label className="ss-form-label">Exam Year</label>
@@ -1904,7 +2067,7 @@ export default function ScreenStudioClient({
                       value={filterYear}
                       onChange={(e) => setFilterYear(e.target.value)}
                     >
-                      <option value="ALL">All Years (2011–2024)</option>
+                      <option value="ALL">All Years (1995–2025)</option>
                       {availableYears.map((y) => (
                         <option key={y} value={y}>
                           {y}
@@ -1928,12 +2091,12 @@ export default function ScreenStudioClient({
                   </div>
 
                   {/* Keyword Search */}
-                  <div className="ss-form-group">
+                  <div className="ss-form-group" style={{ gridColumn: 'span 2' }}>
                     <label className="ss-form-label">Keyword Search</label>
                     <input
                       type="text"
                       className="ss-form-input"
-                      placeholder="e.g. Fundamental Rights, Monsoon, GDP..."
+                      placeholder="e.g. Fundamental Rights, Monsoon, GDP, Western Ghats..."
                       value={filterSearch}
                       onChange={(e) => setFilterSearch(e.target.value)}
                     />
@@ -1946,6 +2109,7 @@ export default function ScreenStudioClient({
                     className="ss-dock-btn"
                     onClick={() => {
                       setFilterSubject('ALL');
+                      setFilterTopic('ALL');
                       setFilterYear('ALL');
                       setFilterPattern('ALL');
                       setFilterSearch('');
@@ -1965,24 +2129,51 @@ export default function ScreenStudioClient({
                 </div>
               </>
             ) : (
-              <div style={{ maxHeight: '45vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {thematicItems.map((topic, idx) => (
-                  <div
-                    key={topic.id || idx}
-                    className="ss-queue-item"
-                    onClick={() => {
-                      setCurrentIndex(idx);
-                      setIsFilterModalOpen(false);
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 800, color: 'var(--ss-accent)' }}>
-                      <span>{topic.domain || 'General Studies'}</span>
-                      <span>&middot;</span>
-                      <span>{topic.topic}</span>
+              <div>
+                <div style={{ marginBottom: 14 }}>
+                  <input
+                    type="text"
+                    className="ss-form-input"
+                    placeholder="Search thematic topics by title, domain or keyword..."
+                    value={thematicSearch}
+                    onChange={(e) => setThematicSearch(e.target.value)}
+                  />
+                </div>
+                <div style={{ maxHeight: '45vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {thematicItems
+                    .filter((topic) => {
+                      if (!thematicSearch.trim()) return true;
+                      const s = thematicSearch.toLowerCase();
+                      return (
+                        topic.title?.toLowerCase().includes(s) ||
+                        topic.domain?.toLowerCase().includes(s) ||
+                        topic.topic?.toLowerCase().includes(s)
+                      );
+                    })
+                    .map((topic, idx) => (
+                      <div
+                        key={topic.id || idx}
+                        className="ss-queue-item"
+                        onClick={() => {
+                          setDeckType('thematic');
+                          setCurrentIndex(idx);
+                          setIsFilterModalOpen(false);
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, fontWeight: 800, color: 'var(--ss-accent)' }}>
+                          <span>{topic.domain || 'General Studies'}</span>
+                          <span>&middot;</span>
+                          <span>{topic.topic}</span>
+                        </div>
+                        <div style={{ fontSize: 13, fontWeight: 700 }}>{topic.title}</div>
+                      </div>
+                    ))}
+                  {thematicItems.length === 0 && (
+                    <div style={{ padding: 20, textAlign: 'center', color: 'var(--ss-text-muted)', fontSize: 13 }}>
+                      No thematic topics loaded yet.
                     </div>
-                    <div style={{ fontSize: 13, fontWeight: 700 }}>{topic.title}</div>
-                  </div>
-                ))}
+                  )}
+                </div>
               </div>
             )}
           </div>

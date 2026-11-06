@@ -361,7 +361,7 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: 15;
+  z-index: 30;
   pointer-events: none;
 }
 
@@ -644,19 +644,22 @@
   width: 100%;
   height: 100%;
   background: #06090e;
-  z-index: 25;
+  z-index: 20;
   display: flex;
   flex-direction: column;
 }
 
 .ss-blackboard-header {
-  height: 44px;
+  height: 48px;
   padding: 0 20px;
-  background: rgba(15, 23, 42, 0.9);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(15, 23, 42, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: relative;
+  z-index: 35;
+  pointer-events: auto;
 }
 
 /* ---------------- Draggable Webcam PiP ---------------- */
@@ -1090,6 +1093,8 @@
 
 /* Palm Rejection & Canvas Touch Action */
 .pq-annotation-canvas {
+  width: 100% !important;
+  height: 100% !important;
   touch-action: none !important;
   user-select: none;
   -webkit-user-select: none;
