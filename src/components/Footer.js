@@ -67,7 +67,7 @@ export default function Footer() {
               <li><Link href="/privacy">Privacy Policy (DPDP 2023)</Link></li>
               <li><Link href="/refund-policy">Cancellation & Refund Policy</Link></li>
               <li><Link href="/contact">Contact Us & Grievances</Link></li>
-              <li><Link href="/sitemap.xml">XML Sitemap</Link></li>
+              <li><a href="/sitemap.xml" target="_blank" rel="noopener noreferrer">XML Sitemap</a></li>
             </ul>
           </div>
         </div>
