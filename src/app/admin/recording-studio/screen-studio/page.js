@@ -1,5 +1,1 @@
-import { redirect } from "next/navigation";
-
-export default function RecordingStudioScreenStudioRedirect() {
-  redirect("/admin/screen-studio");
-}
+export { default, metadata } from "../../screen-studio/page";

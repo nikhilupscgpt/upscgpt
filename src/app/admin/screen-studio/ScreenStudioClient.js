@@ -113,9 +113,40 @@ export default function ScreenStudioClient({
 
   // ---------------- 3. Deck Types (Prelims PYQ & Thematic Topics Only) ----------------
   const [deckType, setDeckType] = useState('pyq'); // 'pyq' | 'thematic'
-  const [pyqItems, setPyqItems] = useState(initialQuestions);
-  const [thematicItems, setThematicItems] = useState(initialThematicTopics);
+  const [pyqItems, setPyqItems] = useState(initialQuestions || []);
+  const [thematicItems, setThematicItems] = useState(initialThematicTopics || []);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(
+    (!initialQuestions || initialQuestions.length === 0) &&
+    (!initialThematicTopics || initialThematicTopics.length === 0)
+  );
+
+  useEffect(() => {
+    async function loadDecks() {
+      try {
+        setIsLoading(true);
+        const [pyqRes, issuesRes] = await Promise.all([
+          fetch('/api/admin/pyq?limit=50').then((r) => (r.ok ? r.json() : { items: [] })),
+          fetch('/api/issues?showAll=true').then((r) => (r.ok ? r.json() : [])),
+        ]);
+
+        if (pyqRes && Array.isArray(pyqRes.items) && pyqRes.items.length > 0) {
+          setPyqItems(pyqRes.items);
+        }
+        if (Array.isArray(issuesRes) && issuesRes.length > 0) {
+          setThematicItems(issuesRes);
+        }
+      } catch (err) {
+        console.error('[ScreenStudio] Failed to load deck items:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    if (pyqItems.length === 0 || thematicItems.length === 0) {
+      loadDecks();
+    }
+  }, []);
 
   const activeDeck = deckType === 'pyq' ? pyqItems : thematicItems;
   const currentItem = activeDeck[currentIndex] || null;
@@ -894,6 +925,26 @@ export default function ScreenStudioClient({
                         </div>
                         <div className="ss-thematic-body">{currentItem.possibleQuestions}</div>
                       </div>
+                    )}
+                  </div>
+                )}
+
+                {!currentItem && (
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '50vh', gap: 16 }}>
+                    {isLoading ? (
+                      <>
+                        <div className="ss-rec-pulsing-dot" style={{ width: 22, height: 22, background: 'var(--ss-accent)' }} />
+                        <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--ss-text-muted)' }}>
+                          Loading Screen Studio Deck...
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>No Deck Items Loaded</h3>
+                        <p style={{ margin: 0, fontSize: 13, color: 'var(--ss-text-muted)' }}>
+                          Please choose Prelims PYQ or Thematic Topics from the top navbar.
+                        </p>
+                      </>
                     )}
                   </div>
                 )}
