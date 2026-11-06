@@ -5,29 +5,38 @@
 }
 
 :root {
-  /* Default: Dark Theme */
-  --bg-primary: #020617;
-  --bg-secondary: #0b1329;
-  --bg-card: rgba(15, 23, 42, 0.7);
-  --bg-hover: rgba(15, 23, 42, 0.9);
-  --bg-input: rgba(15, 23, 42, 0.4);
+  /* Typography Tokens */
+  --font-display: var(--font-poppins), system-ui, -apple-system, sans-serif;
+  --font-body: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-outfit: var(--font-poppins), system-ui, -apple-system, sans-serif;
+
+  /* Default: Dark Theme (Midnight Library) */
+  --bg-primary: #050814;
+  --bg-secondary: #0b1124;
+  --bg-card: rgba(13, 21, 45, 0.7);
+  --bg-hover: rgba(18, 29, 60, 0.85);
+  --bg-input: rgba(13, 21, 45, 0.5);
   --border-color: rgba(255, 255, 255, 0.08);
-  --border-hover: rgba(255, 255, 255, 0.15);
+  --border-hover: rgba(255, 255, 255, 0.16);
   --text-primary: #ffffff;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
-  --hero-bg-gradient: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #020617 80%);
+  --hero-bg-gradient: radial-gradient(circle at 50% -20%, #1e1b4b 0%, #050814 80%);
 
-  /* Neural Branding */
+  /* Brand Signature */
+  --brand-navy: #0b132b;
+  --brand-blue: #2563eb;
+  --brand-violet: #7c3aed;
+  --brand-gradient: linear-gradient(135deg, #2563eb, #7c3aed);
   --neural-blue: #3b82f6;
-  --neural-glow: rgba(59, 130, 246, 0.3);
+  --neural-glow: rgba(37, 99, 235, 0.25);
 
   /* Accent System */
   --color-blue: #3b82f6;
   --color-emerald: #10b981;
   --color-amber: #f59e0b;
   --color-purple: #8b5cf6;
-  --color-rose: #f43f5e;
+  --color-rose: #ef4444;
 
   /* Glass Aliases for backward compatibility */
   --glass-bg: var(--bg-card);
@@ -36,64 +45,74 @@
   /* Semantic tokens for links, highlights, tags, and glow */
   --color-link: #38bdf8;
   --color-link-hover: #ffffff;
-  --bg-highlight: rgba(56, 189, 248, 0.2);
-  --text-highlight: #38bdf8;
-  --bg-glow-1: rgba(139, 92, 246, 0.15);
-  --bg-glow-2: rgba(59, 130, 246, 0.15);
+  --bg-highlight: rgba(37, 99, 235, 0.2);
+  --text-highlight: #60a5fa;
+  --bg-glow-1: rgba(124, 58, 237, 0.12);
+  --bg-glow-2: rgba(37, 99, 235, 0.12);
 
-  --btn-primary-bg: #38bdf8;
-  --btn-primary-text: #0f172a;
-  --btn-primary-hover-bg: #ffffff;
+  --btn-primary-bg: #2563eb;
+  --btn-primary-text: #ffffff;
+  --btn-primary-hover-bg: #1d4ed8;
 
   /* Badge colors */
-  --badge-streak-bg: rgba(34, 197, 94, 0.1);
-  --badge-streak-text: #4ade80;
-  --badge-editorial-bg: rgba(129, 140, 248, 0.1);
-  --badge-editorial-text: #818cf8;
-  --badge-news-bg: rgba(56, 189, 248, 0.1);
-  --badge-news-text: #38bdf8;
-  --badge-node-bg: rgba(245, 158, 11, 0.1);
+  --badge-streak-bg: rgba(245, 158, 11, 0.12);
+  --badge-streak-text: #fbbf24;
+  --badge-editorial-bg: rgba(124, 58, 237, 0.12);
+  --badge-editorial-text: #a78bfa;
+  --badge-news-bg: rgba(37, 99, 235, 0.12);
+  --badge-news-text: #60a5fa;
+  --badge-node-bg: rgba(245, 158, 11, 0.12);
   --badge-node-text: #fbbf24;
-  --badge-pyq-bg: rgba(239, 68, 68, 0.1);
+  --badge-pyq-bg: rgba(239, 68, 68, 0.12);
   --badge-pyq-text: #f87171;
 }
 
 [data-theme='light'],
 [data-theme='sepia'] {
-  /* Crisp Editorial Warm Desk Theme */
-  --bg-primary: #EDEAE5;
-  --bg-secondary: #E4E0D9;
+  /* Humanised Light Theme (Editorial Study Desk) */
+  --bg-primary: #FAF8F5;
+  --bg-secondary: #F1EFEA;
   --bg-card: #ffffff;
-  --bg-hover: #f1f5f9;
+  --bg-hover: #f3f0e9;
   --bg-input: #ffffff;
-  --border-color: #dcd7ce;
+  --border-color: #E2E8F0;
   --border-hover: #cbd5e1;
-  --text-primary: #0f172a;
+  --text-primary: #0B132B;
   --text-secondary: #334155;
   --text-muted: #64748b;
-  --hero-bg-gradient: radial-gradient(circle at 50% -20%, #e2e8f0 0%, #EDEAE5 80%);
+  --hero-bg-gradient: radial-gradient(circle at 50% -20%, #e2e8f0 0%, #FAF8F5 80%);
   
-  --neural-glow: rgba(59, 130, 246, 0.08);
+  --brand-navy: #0b132b;
+  --brand-blue: #1d4ed8;
+  --brand-violet: #6d28d9;
+  --brand-gradient: linear-gradient(135deg, #1d4ed8, #6d28d9);
+  --neural-glow: rgba(37, 99, 235, 0.08);
 
   /* Semantic tokens for links, highlights, tags, and glow */
-  --color-link: #0284c7;
-  --color-link-hover: #0369a1;
+  --color-blue: #1d4ed8;
+  --color-emerald: #059669;
+  --color-amber: #d97706;
+  --color-purple: #6d28d9;
+  --color-rose: #dc2626;
+
+  --color-link: #1d4ed8;
+  --color-link-hover: #1e40af;
   --bg-highlight: #fef08a;
   --text-highlight: #854d0e;
-  --bg-glow-1: rgba(139, 92, 246, 0.04);
-  --bg-glow-2: rgba(59, 130, 246, 0.04);
+  --bg-glow-1: rgba(109, 40, 217, 0.04);
+  --bg-glow-2: rgba(29, 78, 216, 0.04);
 
-  --btn-primary-bg: #0f172a;
+  --btn-primary-bg: #0B132B;
   --btn-primary-text: #ffffff;
-  --btn-primary-hover-bg: #1e293b;
+  --btn-primary-hover-bg: #1E293B;
 
   /* Badge colors */
-  --badge-streak-bg: rgba(22, 163, 74, 0.1);
-  --badge-streak-text: #166534;
-  --badge-editorial-bg: rgba(79, 70, 229, 0.1);
-  --badge-editorial-text: #3730a3;
-  --badge-news-bg: rgba(2, 132, 199, 0.1);
-  --badge-news-text: #075985;
+  --badge-streak-bg: rgba(217, 119, 6, 0.1);
+  --badge-streak-text: #9a3412;
+  --badge-editorial-bg: rgba(109, 40, 217, 0.1);
+  --badge-editorial-text: #5b21b6;
+  --badge-news-bg: rgba(29, 78, 216, 0.1);
+  --badge-news-text: #1e40af;
   --badge-node-bg: rgba(217, 119, 6, 0.1);
   --badge-node-text: #9a3412;
   --badge-pyq-bg: rgba(220, 38, 38, 0.1);
@@ -342,7 +361,8 @@ body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   margin: 0;
-  font-family: var(--font-outfit), sans-serif;
+  font-family: var(--font-body);
+  font-weight: 400;
   line-height: 1.6;
   letter-spacing: 0.01em;
   -webkit-font-smoothing: antialiased;
@@ -351,6 +371,25 @@ body {
   padding-bottom: env(safe-area-inset-bottom, 0px);
   padding-left: env(safe-area-inset-left, 0px);
   padding-right: env(safe-area-inset-right, 0px);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+}
+
+h1 {
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+h2 {
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+h3, h4 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .universal-page-glow {

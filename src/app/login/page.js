@@ -89,8 +89,8 @@ export default function StudentLogin() {
       }}>
         {/* Brand Header (Logotype Only) */}
         <div style={{ marginBottom: '36px' }}>
-          <h1 style={{ fontFamily: 'monospace', fontSize: '2.2rem', fontWeight: 900, color: 'var(--text-primary)', margin: '0 0 8px', letterSpacing: '-0.03em' }}>
-            upsc<span style={{ color: 'var(--color-blue, #3b82f6)' }}>gpt</span>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '2.4rem', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 8px', letterSpacing: '-0.03em', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+            upsc<span style={{ background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>gpt</span><span style={{ fontSize: '0.82em', color: '#8b5cf6', marginLeft: '2px', lineHeight: 1 }}>✦</span>
           </h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Prelims &amp; Atlas Intelligence</p>
         </div>

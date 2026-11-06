@@ -101,10 +101,10 @@ export default function Navigation({ children }) {
             </button>
 
             <Link href="/" className="app-nav__brand" onClick={() => { setMobileMenuOpen(false); setIsNavigating(false); }}>
-              <span className="app-nav__brand-text" suppressHydrationWarning={true} style={{ fontFamily: 'monospace', letterSpacing: '-0.02em', fontSize: '1.25rem', fontWeight: 800 }}>
-                upsc<span style={{ color: 'var(--color-blue, #3b82f6)' }}>gpt</span>
+              <span className="app-nav__brand-text" suppressHydrationWarning={true} style={{ fontFamily: 'var(--font-display)', letterSpacing: '-0.03em', fontSize: '1.35rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center' }}>
+                upsc<span style={{ background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>gpt</span><span style={{ fontSize: '0.82em', color: '#8b5cf6', marginLeft: '1px', lineHeight: 1 }}>✦</span>
               </span>
-              <span className="beta-badge" style={{ background: 'rgba(59, 130, 246, 0.15)', color: 'var(--color-blue, #3b82f6)', border: '1px solid rgba(59, 130, 246, 0.3)', textTransform: 'lowercase' }}>prelimsgpt</span>
+              <span className="beta-badge" style={{ background: 'rgba(37, 99, 235, 0.12)', color: 'var(--color-blue, #2563eb)', border: '1px solid rgba(37, 99, 235, 0.25)', textTransform: 'lowercase' }}>prelimsgpt</span>
             </Link>
 
             {/* Focused Core Links: PYQ Explorer & Mapping Only */}

@@ -1,7 +1,21 @@
 import './globals.css'
 import './legal.css'
 import Script from 'next/script'
-import { Outfit } from 'next/font/google'
+import { Poppins, Inter, Outfit } from 'next/font/google'
+
+const poppins = Poppins({ 
+  subsets: ['latin'],
+  weight: ['600', '700', '800', '900'],
+  display: 'swap',
+  variable: '--font-poppins',
+})
+
+const inter = Inter({ 
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  display: 'swap',
+  variable: '--font-inter',
+})
 
 const outfit = Outfit({ 
   subsets: ['latin'],
@@ -86,7 +100,7 @@ export default function RootLayout({ children }) {
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossOrigin="" />
         <link rel="apple-touch-icon" href="/logo.png" />
       </head>
-      <body className={`${outfit.variable} antialiased`} style={{ minHeight: '100vh', position: 'relative', overflowX: 'hidden', fontFamily: 'var(--font-outfit), sans-serif' }}>
+      <body className={`${poppins.variable} ${inter.variable} ${outfit.variable} antialiased`} style={{ minHeight: '100vh', position: 'relative', overflowX: 'hidden' }}>
         <div className="universal-page-glow" />
         {/* Simplified Background for Performance */}
         <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, background: 'var(--bg-primary)' }}>

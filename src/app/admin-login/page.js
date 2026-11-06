@@ -53,8 +53,8 @@ export default function Login() {
         border: '1px solid var(--border-color)'
       }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{ fontFamily: 'monospace', fontSize: '1.85rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.03em', marginBottom: '8px' }}>
-            upsc<span style={{ color: 'var(--color-blue, #3b82f6)' }}>gpt</span>
+          <div style={{ fontFamily: 'var(--font-display)', fontSize: '2rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.03em', marginBottom: '8px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+            upsc<span style={{ background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>gpt</span><span style={{ fontSize: '0.82em', color: '#8b5cf6', marginLeft: '2px', lineHeight: 1 }}>✦</span>
           </div>
           <h2 style={{ fontSize: '1.35rem', color: 'var(--text-primary)', fontWeight: 800, margin: 0 }}>Faculty &amp; Admin Login</h2>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>Secure access to Lecture Studio &amp; Admin</p>
