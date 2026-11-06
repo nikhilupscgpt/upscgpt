@@ -20,64 +20,74 @@ export default async function ScreenStudioPage() {
     redirect("/admin-login");
   }
 
-  // 1. Fetch Prelims PYQ Drafts
-  const [pyqDrafts, subjectsRaw, yearsRaw, thematicIssues] = await Promise.all([
-    prisma.questionDraft.findMany({
-      take: 100,
-      orderBy: [{ examYear: "desc" }, { questionNo: "asc" }],
-      select: {
-        id: true,
-        dedupHash: true,
-        examName: true,
-        examYear: true,
-        questionNo: true,
-        srcSubject: true,
-        srcTopic: true,
-        stem: true,
-        options: true,
-        correctLabel: true,
-        explanation: true,
-        difficulty: true,
-      },
-    }),
-    prisma.questionDraft.findMany({
-      select: { srcSubject: true },
-      distinct: ["srcSubject"],
-    }),
-    prisma.questionDraft.findMany({
-      select: { examYear: true },
-      distinct: ["examYear"],
-      orderBy: { examYear: "desc" },
-    }),
-    prisma.issue.findMany({
-      take: 60,
-      orderBy: { updatedAt: "desc" },
-      select: {
-        id: true,
-        title: true,
-        slug: true,
-        domain: true,
-        topic: true,
-        gsPapers: true,
-        cumulativeSummary: true,
-        backgroundNote: true,
-        valueAddition: true,
-        possibleQuestions: true,
-      },
-    }),
-  ]);
+  let pyqDrafts = [];
+  let subjects = [];
+  let years = [];
+  let thematicIssues = [];
 
-  const subjects = subjectsRaw.map((s) => s.srcSubject).filter(Boolean);
-  const years = yearsRaw.map((y) => y.examYear).filter(Boolean);
+  try {
+    const [draftsRes, subjectsRaw, yearsRaw, issuesRes] = await Promise.all([
+      prisma.questionDraft.findMany({
+        take: 100,
+        orderBy: [{ examYear: "desc" }, { questionNo: "asc" }],
+        select: {
+          id: true,
+          dedupHash: true,
+          examName: true,
+          examYear: true,
+          questionNo: true,
+          srcSubject: true,
+          srcTopic: true,
+          stem: true,
+          options: true,
+          correctLabel: true,
+          explanation: true,
+          difficulty: true,
+        },
+      }),
+      prisma.questionDraft.findMany({
+        select: { srcSubject: true },
+        distinct: ["srcSubject"],
+      }),
+      prisma.questionDraft.findMany({
+        select: { examYear: true },
+        distinct: ["examYear"],
+        orderBy: { examYear: "desc" },
+      }),
+      prisma.issue.findMany({
+        take: 60,
+        orderBy: { lastUpdatedAt: "desc" },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          domain: true,
+          topic: true,
+          gsPapers: true,
+          cumulativeSummary: true,
+          backgroundNote: true,
+          valueAddition: true,
+          possibleQuestions: true,
+        },
+      }),
+    ]);
 
-  subjects.sort((a, b) => {
-    const ia = SUBJECT_ORDER.indexOf(a);
-    const ib = SUBJECT_ORDER.indexOf(b);
-    if (ia === -1 && ib === -1) return a.localeCompare(b);
-    if (ia === -1) return 1;
-    if (ib === -1) return -1;
-    return ia - ib;
-  });
+    pyqDrafts = draftsRes || [];
+    subjects = (subjectsRaw || []).map((s) => s.srcSubject).filter(Boolean);
+    years = (yearsRaw || []).map((y) => y.examYear).filter(Boolean);
+    thematicIssues = issuesRes || [];
+
+    subjects.sort((a, b) => {
+      const ia = SUBJECT_ORDER.indexOf(a);
+      const ib = SUBJECT_ORDER.indexOf(b);
+      if (ia === -1 && ib === -1) return a.localeCompare(b);
+      if (ia === -1) return 1;
+      if (ib === -1) return -1;
+      return ia - ib;
+    });
+  } catch (err) {
+    console.error("[ScreenStudioPage] Database fetch error:", err);
+  }
 
   return (
     <ScreenStudioClient

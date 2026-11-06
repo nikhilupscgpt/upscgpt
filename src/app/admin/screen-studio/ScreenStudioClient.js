@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -55,7 +56,10 @@ import {
   formatDurationTimestamp,
   formatYouTubeChapters,
 } from '@/lib/recordingVaultDb';
-import PyqAnnotationCanvas from '../pyq/present/PyqAnnotationCanvas';
+const PyqAnnotationCanvas = dynamic(
+  () => import('../pyq/present/PyqAnnotationCanvas'),
+  { ssr: false }
+);
 import './screen-studio.css';
 
 const WALLPAPERS = [
@@ -73,20 +77,22 @@ export default function ScreenStudioClient({
   filterOptions = {},
 }) {
   // ---------------- 1. Theme State (Default: As per user system/persisted) ----------------
-  const [theme, setTheme] = useState(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('theme') || localStorage.getItem('pq_present_theme');
-        if (saved === 'light' || saved === 'dark') return saved;
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-          return 'light';
-        }
-      } catch {
-        // fallback
+  const [theme, setTheme] = useState('dark');
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    try {
+      const saved = localStorage.getItem('theme') || localStorage.getItem('pq_present_theme');
+      if (saved === 'light' || saved === 'dark') {
+        setTheme(saved);
+      } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+        setTheme('light');
       }
+    } catch {
+      // fallback
     }
-    return 'dark';
-  });
+  }, []);
 
   const toggleTheme = () => {
     const next = theme === 'dark' ? 'light' : 'dark';
