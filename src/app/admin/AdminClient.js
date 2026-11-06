@@ -6,7 +6,7 @@ import PinAdminClient from "./pin/PinAdminClient"
 import CommsAdminClient from "./comms/CommsAdminClient"
 import { 
   Users, Map as MapIcon, ShieldCheck, HelpCircle, LogOut,
-  Globe, Zap, BrainCircuit, Newspaper, BookOpen, Trophy, Layers, Video, Radio, Mail
+  Globe, Zap, BrainCircuit, Newspaper, BookOpen, Trophy, Layers, Video, Radio, Mail, Sparkles
 } from "lucide-react"
 
 export default function AdminClient({ session }) {
@@ -307,12 +307,24 @@ export default function AdminClient({ session }) {
           <Link href="/admin/recording-studio" style={{ textDecoration: 'none' }}>
             <button style={{
               display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '14px 20px', borderRadius: '16px', border: '1.5px solid rgba(244, 63, 94, 0.45)', cursor: 'pointer', fontWeight: 800, fontSize: '0.95rem',
-              background: 'linear-gradient(135deg, rgba(244, 63, 94, 0.15) 0%, rgba(136, 19, 55, 0.28) 100%)', color: '#fb7185', transition: 'all 0.2s', marginBottom: '14px',
+              background: 'linear-gradient(135deg, rgba(244, 63, 94, 0.15) 0%, rgba(136, 19, 55, 0.28) 100%)', color: '#fb7185', transition: 'all 0.2s', marginBottom: '10px',
               boxShadow: '0 4px 16px rgba(244, 63, 94, 0.2)'
             }}
             onMouseOver={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(244, 63, 94, 0.28) 0%, rgba(136, 19, 55, 0.42) 100%)'; }}
             onMouseOut={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(244, 63, 94, 0.15) 0%, rgba(136, 19, 55, 0.28) 100%)'; }}>
               <Radio size={20}/> Recording Studio
+            </button>
+          </Link>
+
+          <Link href="/admin/screen-studio" style={{ textDecoration: 'none' }}>
+            <button style={{
+              display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '14px 20px', borderRadius: '16px', border: '1.5px solid rgba(168, 85, 247, 0.45)', cursor: 'pointer', fontWeight: 800, fontSize: '0.95rem',
+              background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.18) 0%, rgba(88, 28, 135, 0.3) 100%)', color: '#c084fc', transition: 'all 0.2s', marginBottom: '14px',
+              boxShadow: '0 4px 16px rgba(168, 85, 247, 0.22)'
+            }}
+            onMouseOver={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(168, 85, 247, 0.28) 0%, rgba(88, 28, 135, 0.45) 100%)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(168, 85, 247, 0.18) 0%, rgba(88, 28, 135, 0.3) 100%)'; }}>
+              <Sparkles size={20}/> Mac Screen Studio
             </button>
           </Link>
 

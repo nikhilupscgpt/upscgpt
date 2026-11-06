@@ -1,0 +1,876 @@
+/* ======================================================================
+   UPSC GPT SCREEN STUDIO — MAC INSPIRED UI/UX
+   ====================================================================== */
+
+.ss-root {
+  min-height: 100vh;
+  background-color: #07080c;
+  color: #f1f5f9;
+  font-family: var(--font-body, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-x: hidden;
+  user-select: none;
+}
+
+/* ---------------- Top Navbar ---------------- */
+.ss-navbar {
+  height: 54px;
+  padding: 0 20px;
+  background: rgba(11, 13, 20, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 50;
+  position: relative;
+}
+
+.ss-nav-left, .ss-nav-right, .ss-nav-center {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ss-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.ss-back-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  transform: translateX(-1px);
+}
+
+.ss-badge-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(59, 130, 246, 0.2));
+  border: 1px solid rgba(168, 85, 247, 0.35);
+  color: #c084fc;
+}
+
+.ss-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #a855f7;
+  box-shadow: 0 0 8px #a855f7;
+}
+
+.ss-rec-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.ss-rec-status-pill.is-idle {
+  background: rgba(148, 163, 184, 0.15);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  color: #94a3b8;
+}
+
+.ss-rec-status-pill.is-recording {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #f87171;
+  animation: ss-pulse 2s infinite ease-in-out;
+}
+
+.ss-rec-status-pill.is-paused {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  color: #fbbf24;
+}
+
+@keyframes ss-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ---------------- Main Stage Area ---------------- */
+.ss-stage-viewport {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px 100px;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 20%, rgba(30, 41, 59, 0.25), transparent 70%);
+}
+
+/* Canvas Container with customizable wallpaper */
+.ss-canvas {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  border-radius: 28px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.7);
+  overflow: hidden;
+}
+
+/* Wallpaper Presets */
+.ss-canvas.bg-obsidian {
+  background: radial-gradient(circle at 50% 30%, #151821 0%, #0a0b10 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.ss-canvas.bg-nebula {
+  background: radial-gradient(ellipse at 70% 20%, #31154b 0%, #121029 45%, #070814 100%);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.ss-canvas.bg-sunset {
+  background: radial-gradient(ellipse at 30% 20%, #4a154b 0%, #2e082d 40%, #0c0818 100%);
+  border: 1px solid rgba(244, 63, 94, 0.25);
+}
+
+.ss-canvas.bg-aurora {
+  background: radial-gradient(ellipse at 50% 10%, #06373a 0%, #081d2c 50%, #060913 100%);
+  border: 1px solid rgba(20, 184, 166, 0.25);
+}
+
+.ss-canvas.bg-slate {
+  background: #11131a;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.ss-canvas.bg-paper {
+  background: #ede8df;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Aspect Ratio Wrappers */
+.ss-aspect-16-9 {
+  aspect-ratio: 16 / 9;
+  max-height: 80vh;
+}
+
+.ss-aspect-9-16 {
+  aspect-ratio: 9 / 16;
+  max-width: 480px;
+  max-height: 84vh;
+}
+
+.ss-aspect-1-1 {
+  aspect-ratio: 1 / 1;
+  max-width: 720px;
+  max-height: 80vh;
+}
+
+.ss-aspect-4-5 {
+  aspect-ratio: 4 / 5;
+  max-width: 620px;
+  max-height: 82vh;
+}
+
+/* ---------------- The Framed Mac Window ---------------- */
+.ss-window {
+  width: 100%;
+  height: 100%;
+  background: #0f131d;
+  color: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  transition: box-shadow 0.3s ease, border-radius 0.3s ease;
+}
+
+.ss-window.theme-light {
+  background: #faf8f5;
+  color: #0f172a;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+/* Shadows */
+.ss-shadow-soft {
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+}
+
+.ss-shadow-pro {
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6), 0 10px 20px rgba(0, 0, 0, 0.4);
+}
+
+.ss-shadow-glow {
+  box-shadow: 0 30px 80px rgba(124, 58, 237, 0.25), 0 15px 35px rgba(0, 0, 0, 0.6);
+}
+
+.ss-shadow-flat {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Mac Titlebar */
+.ss-window-titlebar {
+  height: 40px;
+  padding: 0 16px;
+  background: rgba(22, 27, 39, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  z-index: 20;
+}
+
+.ss-window.theme-light .ss-window-titlebar {
+  background: rgba(240, 237, 230, 0.95);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Traffic Lights */
+.ss-traffic-lights {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ss-traffic-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+  position: relative;
+}
+
+.ss-traffic-dot.dot-red {
+  background: #ff5f57;
+  border: 1px solid #e0443e;
+}
+
+.ss-traffic-dot.dot-yellow {
+  background: #febc2e;
+  border: 1px solid #d89e24;
+}
+
+.ss-traffic-dot.dot-green {
+  background: #28c840;
+  border: 1px solid #1aab29;
+}
+
+.ss-window-title-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+
+.ss-window.theme-light .ss-window-title-pill {
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #475569;
+}
+
+/* ---------------- Spring Zoom Content Frame ---------------- */
+.ss-zoom-viewport {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+.ss-zoom-canvas {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 24px 32px 40px;
+  transform-origin: center center;
+  transition: transform 650ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+/* Question View Content inside Window */
+.ss-q-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.ss-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ss-tag {
+  padding: 3px 10px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.ss-tag-exam {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  color: #60a5fa;
+}
+
+.ss-tag-paper-q {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fbbf24;
+}
+
+.ss-tag-topic {
+  background: rgba(148, 163, 184, 0.12);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  color: #cbd5e1;
+}
+
+.ss-window.theme-light .ss-tag-topic {
+  background: rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #334155;
+}
+
+.ss-tag-diff {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+}
+
+/* Question Stem */
+.ss-q-stem {
+  font-size: 16.5px;
+  line-height: 1.65;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-bottom: 22px;
+}
+
+.ss-window.theme-light .ss-q-stem {
+  color: #0f172a;
+}
+
+.ss-stem-qno {
+  font-weight: 800;
+  color: #38bdf8;
+  margin-right: 4px;
+}
+
+.ss-window.theme-light .ss-stem-qno {
+  color: #2563eb;
+}
+
+/* Statement Box */
+.ss-stmts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.ss-stmt {
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 15px;
+  line-height: 1.55;
+  color: #e2e8f0;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.ss-window.theme-light .ss-stmt {
+  background: rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #1e293b;
+}
+
+.ss-stmt:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.ss-stmt.is-crossed {
+  opacity: 0.45;
+  text-decoration: line-through;
+  filter: grayscale(1);
+}
+
+.ss-stmt-key {
+  font-weight: 800;
+  font-size: 13.5px;
+  color: #38bdf8;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.ss-window.theme-light .ss-stmt-key {
+  color: #2563eb;
+}
+
+/* Options Grid */
+.ss-opts-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+@media (min-width: 640px) {
+  .ss-opts-grid.is-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.ss-opt-btn {
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: #f1f5f9;
+  font-size: 14.5px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ss-window.theme-light .ss-opt-btn {
+  background: rgba(0, 0, 0, 0.035);
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  color: #1e293b;
+}
+
+.ss-opt-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.ss-opt-label {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+
+.ss-window.theme-light .ss-opt-label {
+  background: rgba(0, 0, 0, 0.06);
+  color: #475569;
+}
+
+.ss-opt-btn.is-correct {
+  background: rgba(16, 185, 129, 0.16) !important;
+  border-color: #10b981 !important;
+  color: #34d399 !important;
+}
+
+.ss-opt-btn.is-correct .ss-opt-label {
+  background: #10b981;
+  color: #022c22;
+}
+
+.ss-opt-btn.is-wrong {
+  background: rgba(239, 68, 68, 0.16) !important;
+  border-color: #ef4444 !important;
+  color: #f87171 !important;
+}
+
+.ss-opt-btn.is-wrong .ss-opt-label {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.ss-opt-btn.is-faded {
+  opacity: 0.35;
+}
+
+/* Solution Box */
+.ss-solution-box {
+  padding: 18px 22px;
+  border-radius: 16px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  margin-top: 18px;
+  animation: ss-fadein 0.3s ease-out;
+}
+
+.ss-window.theme-light .ss-solution-box {
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+@keyframes ss-fadein {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ss-sol-verdict {
+  font-size: 15px;
+  font-weight: 800;
+  color: #34d399;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ss-window.theme-light .ss-sol-verdict {
+  color: #059669;
+}
+
+.ss-sol-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #cbd5e1;
+}
+
+.ss-window.theme-light .ss-sol-text {
+  color: #334155;
+}
+
+/* ---------------- Draggable Webcam PiP ---------------- */
+.ss-webcam-pip {
+  position: absolute;
+  z-index: 30;
+  cursor: grab;
+  transition: box-shadow 0.2s ease;
+  user-select: none;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.7);
+}
+
+.ss-webcam-pip:active {
+  cursor: grabbing;
+}
+
+.ss-webcam-pip.pip-circle {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.3), 0 12px 32px rgba(0, 0, 0, 0.8);
+}
+
+.ss-webcam-pip.pip-squircle {
+  width: 160px;
+  height: 160px;
+  border-radius: 28px;
+  border: 2.5px solid rgba(255, 255, 255, 0.85);
+}
+
+.ss-webcam-pip.pip-pill {
+  width: 190px;
+  height: 130px;
+  border-radius: 24px;
+  border: 2.5px solid rgba(255, 255, 255, 0.85);
+}
+
+.ss-webcam-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ss-webcam-video.is-mirrored {
+  transform: scaleX(-1);
+}
+
+/* Positions inside Canvas */
+.ss-pip-bottom-right { bottom: 24px; right: 24px; }
+.ss-pip-bottom-left { bottom: 24px; left: 24px; }
+.ss-pip-top-right { top: 24px; right: 24px; }
+.ss-pip-top-left { top: 24px; left: 24px; }
+
+/* ---------------- Floating Bottom Dock ---------------- */
+.ss-dock-anchor {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 95vw;
+}
+
+.ss-dock {
+  background: rgba(14, 18, 27, 0.82);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+.ss-dock-divider {
+  width: 1px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 0 2px;
+}
+
+/* Record Button */
+.ss-dock-rec-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: #ef4444;
+  border: none;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.45);
+}
+
+.ss-dock-rec-btn:hover {
+  background: #dc2626;
+  transform: scale(1.03);
+}
+
+.ss-dock-rec-btn.is-active {
+  background: #1e293b;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  box-shadow: 0 0 16px rgba(239, 68, 68, 0.3);
+}
+
+.ss-dock-rec-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+.ss-dock-rec-btn.is-active .ss-dock-rec-dot {
+  background: #ef4444;
+  animation: ss-pulse 1.2s infinite;
+}
+
+/* Dock Control Buttons */
+.ss-dock-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ss-dock-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+}
+
+.ss-dock-btn.is-active {
+  background: rgba(168, 85, 247, 0.2);
+  border-color: rgba(168, 85, 247, 0.45);
+  color: #c084fc;
+}
+
+/* Segmented Control */
+.ss-seg-group {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 3px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.ss-seg-item {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ss-seg-item:hover {
+  color: #ffffff;
+}
+
+.ss-seg-item.is-selected {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Audio VU Meter */
+.ss-vu-meter {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 14px;
+}
+
+.ss-vu-bar {
+  width: 3px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+  transition: height 0.08s ease, background-color 0.1s ease;
+}
+
+/* Settings Popover */
+.ss-popover {
+  position: absolute;
+  bottom: calc(100% + 14px);
+  background: rgba(17, 22, 33, 0.94);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  padding: 18px;
+  width: 310px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  z-index: 120;
+  animation: ss-fadein 0.2s ease-out;
+}
+
+.ss-popover-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #cbd5e1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ss-setting-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ss-setting-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #94a3b8;
+  display: flex;
+  justify-content: space-between;
+}
+
+.ss-swatches {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+}
+
+.ss-swatch-btn {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.ss-swatch-btn:hover {
+  transform: scale(1.1);
+}
+
+.ss-swatch-btn.is-active {
+  border-color: #ffffff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+/* Export Modal */
+.ss-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.ss-modal-card {
+  width: 100%;
+  max-width: 580px;
+  background: #111522;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.8);
+}

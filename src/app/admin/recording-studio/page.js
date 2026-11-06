@@ -13,6 +13,7 @@ import {
   Mic,
   HardDrive,
   Video,
+  Sparkles,
 } from "lucide-react";
 import "../studio/studio.css";
 import RecordingsVaultBanner from "./RecordingsVaultBanner";
@@ -490,6 +491,109 @@ export default async function RecordingStudioHubPage() {
                     height: 36,
                     borderRadius: 999,
                     background: "linear-gradient(135deg, #f43f5e, #a855f7)",
+                    color: "#ffffff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <ArrowRight size={18} />
+                </div>
+              </div>
+            </div>
+          </Link>
+
+          {/* Card 4: Screen Studio (Mac-Inspired UI/UX) */}
+          <Link
+            href="/admin/screen-studio"
+            style={{ textDecoration: "none", color: "inherit" }}
+          >
+            <div
+              className="pq-mode-card is-active"
+              style={{
+                height: "100%",
+                padding: 32,
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                gap: 22,
+                border: "2px solid #38bdf8",
+                boxShadow: "0 16px 48px rgba(56, 189, 248, 0.2)",
+              }}
+            >
+              <div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+                  <div
+                    style={{
+                      width: 54,
+                      height: 54,
+                      borderRadius: 16,
+                      background: "linear-gradient(135deg, #0284c7, #38bdf8)",
+                      color: "#ffffff",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <Sparkles size={28} />
+                  </div>
+                  <span
+                    className="pq-mode-badge"
+                    style={{
+                      background: "rgba(56, 189, 248, 0.2)",
+                      color: "#38bdf8",
+                      border: "1px solid rgba(56, 189, 248, 0.45)",
+                    }}
+                  >
+                    Mac Screen Studio UI
+                  </span>
+                </div>
+
+                <h3 style={{ fontSize: 22, fontWeight: 900, color: "#ffffff", margin: "0 0 10px" }}>
+                  Mac Screen Studio
+                </h3>
+                <p style={{ fontSize: 14, color: "#cbd5e1", lineHeight: 1.6, margin: "0 0 18px" }}>
+                  Screen Studio-inspired recording setup with framed macOS window, authentic traffic lights, smooth spring zoom, customizable stage wallpapers, aspect switcher (16:9, 9:16, 1:1), and draggable webcam PiP.
+                </p>
+
+                <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10, fontSize: 13, color: "#94a3b8" }}>
+                  <li style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <CheckCircle2 size={16} color="#38bdf8" />
+                    <span>Framed macOS window with authentic traffic lights &amp; shadow depths</span>
+                  </li>
+                  <li style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <CheckCircle2 size={16} color="#38bdf8" />
+                    <span>Spring Zoom physics: 1x, 1.4x, 1.8x, or Click-to-Zoom targeting</span>
+                  </li>
+                  <li style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <CheckCircle2 size={16} color="#38bdf8" />
+                    <span>Wallpapers: Obsidian Carbon, Cosmic Nebula, Sunset Ember &amp; Aurora</span>
+                  </li>
+                  <li style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <CheckCircle2 size={16} color="#38bdf8" />
+                    <span>Floating frosted glass dock with Record, mic VU meter &amp; chapters</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  paddingTop: 18,
+                  borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+                }}
+              >
+                <span style={{ fontSize: 13.5, fontWeight: 800, color: "#38bdf8" }}>
+                  Open Mac Screen Studio
+                </span>
+                <div
+                  style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 999,
+                    background: "#0284c7",
                     color: "#ffffff",
                     display: "flex",
                     alignItems: "center",
