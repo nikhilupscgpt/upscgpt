@@ -79,7 +79,7 @@ export default function StudentLogin() {
         position: 'relative', zIndex: 10,
         background: 'var(--bg-card)',
         backdropFilter: 'blur(30px)',
-        padding: '50px 40px',
+        padding: 'clamp(28px, 6vw, 50px) clamp(20px, 5vw, 40px)',
         borderRadius: '32px',
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
         width: '100%',
@@ -87,20 +87,12 @@ export default function StudentLogin() {
         border: '1px solid var(--border-color)',
         textAlign: 'center'
       }}>
-        {/* Brand Header */}
-        <div style={{ marginBottom: '40px' }}>
-          <div style={{
-            width: '64px', height: '64px',
-            background: 'linear-gradient(135deg, #38bdf8, #8b5cf6)',
-            borderRadius: '20px',
-            margin: '0 auto 20px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '2rem',
-            boxShadow: '0 10px 25px rgba(139,92,246,0.4)',
-            transform: 'rotate(-5deg)'
-          }}>🌍</div>
-          <h1 style={{ fontSize: '2.2rem', fontWeight: 900, color: 'var(--text-primary)', margin: '0 0 8px', letterSpacing: '-0.02em' }}>UPSCGPT</h1>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Intelligence Hub</p>
+        {/* Brand Header (Logotype Only) */}
+        <div style={{ marginBottom: '36px' }}>
+          <h1 style={{ fontFamily: 'monospace', fontSize: '2.2rem', fontWeight: 900, color: 'var(--text-primary)', margin: '0 0 8px', letterSpacing: '-0.03em' }}>
+            upsc<span style={{ color: 'var(--color-blue, #3b82f6)' }}>gpt</span>
+          </h1>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Prelims &amp; Atlas Intelligence</p>
         </div>
 
         {/* Auth Forms */}

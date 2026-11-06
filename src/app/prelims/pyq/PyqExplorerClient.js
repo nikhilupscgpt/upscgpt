@@ -1272,7 +1272,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
 
             {/* Universal Search Bar */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <div className="pq-search" style={{ flex: 1, minWidth: '260px', margin: 0 }}>
+              <div className="pq-search" style={{ flex: '1 1 200px', minWidth: 0, margin: 0 }}>
                 <Search size={18} />
                 <input
                   ref={searchRef}
@@ -1408,7 +1408,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 260px), 1fr))',
                   gap: '12px',
                 }}
               >
@@ -1551,7 +1551,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
             </div>
 
             {/* Desktop View Switcher: List View vs 1-by-1 Focus */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div className="pq-desktop-view-switcher" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div className="pq-view-mode-toggle">
                 <button
                   type="button"
@@ -1943,9 +1943,9 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
 
             {/* Pagination Controls in List View */}
             {viewMode === 'list' && totalPages > 1 && (
-              <div className="pq-pager" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 20 }}>
+              <div className="pq-pager" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginTop: 20 }}>
                 <button className="pq-btn" disabled={page <= 1} onClick={() => goPage(page - 1)}>← Previous</button>
-                <span style={{ fontSize: 13, fontWeight: 700 }}>
+                <span style={{ fontSize: 13, fontWeight: 700, textAlign: 'center' }}>
                   Page {page} of {totalPages} {!isAuthenticated && '· 🔒 Sign in for Page 2+'}
                 </span>
                 <button className="pq-btn" disabled={page >= totalPages} onClick={() => goPage(page + 1)}>

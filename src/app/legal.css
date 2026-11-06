@@ -18,10 +18,13 @@
   backdrop-filter: blur(20px);
 }
 
-/* Hide global footer and top nav offset in all Studio, Presenter, Reel & Print views */
+/* Hide global footer and top nav offset in all Studio, Presenter, Reel, Focus & Print views */
 body:has(.pq-present-root) .upsc-global-footer,
 body:has(.pq-reel-root) .upsc-global-footer,
-body:has(.pq-studio-root) .upsc-global-footer {
+body:has(.pq-studio-root) .upsc-global-footer,
+body:has(.pq-immersive-shell) .upsc-global-footer,
+body:has(.pq-focus-mode-stage) .upsc-global-footer,
+body.pq-immersive-body-lock .upsc-global-footer {
   display: none !important;
 }
 

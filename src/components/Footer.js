@@ -5,7 +5,12 @@ import { usePathname } from 'next/navigation';
 
 export default function Footer() {
   const pathname = usePathname();
-  const isHiddenRoute = pathname && (pathname === "/login" || pathname === "/admin-login" || pathname.startsWith("/admin"));
+  const isHiddenRoute =
+    pathname &&
+    (pathname === "/login" ||
+      pathname === "/admin-login" ||
+      pathname.startsWith("/admin") ||
+      pathname.startsWith("/prelims/pyq/practice"));
   if (isHiddenRoute) return null;
 
   return (

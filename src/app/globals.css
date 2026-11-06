@@ -542,9 +542,11 @@ body {
   display: none;
   background: transparent;
   border: none;
-  color: white;
+  color: var(--text-primary);
   font-size: 1.5rem;
   cursor: pointer;
+  line-height: 1;
+  padding: 4px;
 }
 
 .app-nav__mobile-panel {
@@ -569,9 +571,12 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
+    height: calc(100dvh - 72px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
     background: var(--bg-primary);
     z-index: 999;
-    padding: 40px 32px;
+    padding: 32px 24px 48px;
     transform: translateX(-100%);
     transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
@@ -583,16 +588,38 @@ body {
   .app-nav__mobile-links {
     display: flex;
     flex-direction: column;
-    gap: 32px;
+    gap: 20px;
   }
 
   .app-nav__mobile-link {
-    font-size: 2rem;
+    font-size: clamp(1.35rem, 5vw, 1.85rem);
     font-weight: 900;
-    color: white;
+    color: var(--text-primary);
     text-decoration: none;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--border-color);
     padding-bottom: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-nav__bar {
+    padding: 0 14px;
+  }
+  .app-nav__brand-group {
+    gap: 10px;
+  }
+  .app-nav__brand {
+    gap: 8px;
+  }
+  .app-nav__actions {
+    gap: 8px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-nav .beta-badge,
+  .app-nav__user-name {
+    display: none !important;
   }
 }
 

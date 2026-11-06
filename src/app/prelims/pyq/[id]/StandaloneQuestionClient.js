@@ -43,7 +43,7 @@ export default function StandaloneQuestionClient({ question: q }) {
   };
 
   return (
-    <div className="pq-root" style={{ maxWidth: '900px', margin: '0 auto', padding: '40px 24px 80px 24px' }}>
+    <div className="pq-root pyq-standalone-root" style={{ maxWidth: '900px', margin: '0 auto', padding: 'clamp(18px, 4vw, 40px) clamp(14px, 3vw, 24px) 80px' }}>
       
       {/* Top Breadcrumb Navigation */}
       <nav aria-label="Breadcrumb" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
@@ -87,7 +87,7 @@ export default function StandaloneQuestionClient({ question: q }) {
       {/* Main Question Container Card */}
       <article className="pyq-card" style={{
         borderRadius: '20px',
-        padding: '36px',
+        padding: 'clamp(18px, 4vw, 36px)',
         boxShadow: '0 10px 35px rgba(0, 0, 0, 0.15)',
         marginBottom: '28px'
       }}>
@@ -196,8 +196,9 @@ export default function StandaloneQuestionClient({ question: q }) {
                 style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '14px',
-                  padding: '14px 20px',
+                  flexWrap: 'wrap',
+                  gap: '12px',
+                  padding: '13px 16px',
                   borderRadius: '12px',
                   cursor: 'pointer',
                   transition: 'all 0.15s ease'
@@ -244,8 +245,10 @@ export default function StandaloneQuestionClient({ question: q }) {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '12px',
             borderRadius: '12px',
-            padding: '14px 20px',
+            padding: '14px 16px',
             marginBottom: '20px'
           }}>
             <span className="pyq-text-muted" style={{ fontSize: '14px' }}>
@@ -301,7 +304,7 @@ export default function StandaloneQuestionClient({ question: q }) {
 
           <div className="pyq-solution-box" style={{
             borderRadius: '14px',
-            padding: '22px 26px',
+            padding: 'clamp(16px, 3vw, 22px) clamp(16px, 3.5vw, 26px)',
             marginBottom: '12px'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px', flexWrap: 'wrap' }}>
@@ -414,7 +417,7 @@ export default function StandaloneQuestionClient({ question: q }) {
           className="pyq-card"
           style={{
             borderRadius: '18px',
-            padding: '26px 30px',
+            padding: 'clamp(18px, 3.5vw, 26px) clamp(16px, 4vw, 30px)',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>

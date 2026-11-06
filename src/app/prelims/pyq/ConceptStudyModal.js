@@ -181,7 +181,7 @@ export default function ConceptStudyModal({
         style={{
           width: '100%',
           maxWidth: '720px',
-          height: '100vh',
+          height: '100dvh',
           background: 'var(--pq-surface, #ffffff)',
           color: 'var(--pq-ink, #0f172a)',
           borderLeft: '1px solid var(--pq-border, #e2e8f0)',
@@ -196,7 +196,7 @@ export default function ConceptStudyModal({
         {/* Top Sticky Header */}
         <div
           style={{
-            padding: '20px 26px',
+            padding: 'clamp(14px, 3vw, 20px) clamp(16px, 3.5vw, 26px)',
             borderBottom: '1px solid var(--pq-border, #e2e8f0)',
             background: 'var(--pq-card, #f8fafc)',
             display: 'flex',
@@ -336,7 +336,8 @@ export default function ConceptStudyModal({
           style={{
             flex: 1,
             overflowY: 'auto',
-            padding: '24px 26px 40px',
+            overscrollBehavior: 'contain',
+            padding: 'clamp(16px, 3.5vw, 24px) clamp(16px, 3.5vw, 26px) 40px',
             display: 'flex',
             flexDirection: 'column',
             gap: '24px',

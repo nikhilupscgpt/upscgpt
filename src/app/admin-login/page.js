@@ -49,12 +49,14 @@ export default function Login() {
       <form onSubmit={handleLogin} style={{ 
         position: 'relative', zIndex: 10,
         background: 'var(--bg-card)', backdropFilter: 'blur(20px)',
-        padding: '40px', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)', width: '380px',
+        padding: 'clamp(28px, 5vw, 40px)', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.2)', width: '100%', maxWidth: '380px', margin: '0 16px',
         border: '1px solid var(--border-color)'
       }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{ width: '48px', height: '48px', background: 'var(--primary-gradient)', borderRadius: '12px', margin: '0 auto 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '24px', boxShadow: 'var(--primary-shadow)' }}>🌍</div>
-          <h2 style={{ fontSize: '1.6rem', color: 'var(--text-primary)', fontWeight: 800 }}>Faculty &amp; Admin Login</h2>
+          <div style={{ fontFamily: 'monospace', fontSize: '1.85rem', fontWeight: 900, color: 'var(--text-primary)', letterSpacing: '-0.03em', marginBottom: '8px' }}>
+            upsc<span style={{ color: 'var(--color-blue, #3b82f6)' }}>gpt</span>
+          </div>
+          <h2 style={{ fontSize: '1.35rem', color: 'var(--text-primary)', fontWeight: 800, margin: 0 }}>Faculty &amp; Admin Login</h2>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>Secure access to Lecture Studio &amp; Admin</p>
         </div>
 

@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
@@ -102,9 +101,6 @@ export default function Navigation({ children }) {
             </button>
 
             <Link href="/" className="app-nav__brand" onClick={() => { setMobileMenuOpen(false); setIsNavigating(false); }}>
-              <div className="app-nav__logo">
-                <Image src="/logo.png" alt="logo" width={34} height={34} priority />
-              </div>
               <span className="app-nav__brand-text" suppressHydrationWarning={true} style={{ fontFamily: 'monospace', letterSpacing: '-0.02em', fontSize: '1.25rem', fontWeight: 800 }}>
                 upsc<span style={{ color: 'var(--color-blue, #3b82f6)' }}>gpt</span>
               </span>
@@ -194,7 +190,7 @@ export default function Navigation({ children }) {
                     {userInitial}
                   </div>
 
-                  <span style={{ fontSize: '0.82rem', fontWeight: 700, maxWidth: '110px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <span className="app-nav__user-name" style={{ fontSize: '0.82rem', fontWeight: 700, maxWidth: '110px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {session.user.name ? session.user.name.split(' ')[0] : 'Aspirant'}
                   </span>
 
@@ -353,9 +349,15 @@ export default function Navigation({ children }) {
               PYQ Explorer
             </Link>
             <Link href="/atlas" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>
-              Mapping
+              Mapping &amp; Atlas
             </Link>
-            {session && (
+            <Link href="/prelims/mocks" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>
+              Mock Simulator
+            </Link>
+            <Link href="/pricing" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>
+              Prelims Pass
+            </Link>
+            {session ? (
               <>
                 <Link href="/dashboard" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>
                   Dashboard
@@ -364,6 +366,10 @@ export default function Navigation({ children }) {
                   Profile
                 </Link>
               </>
+            ) : (
+              <Link href="/login" className="app-nav__mobile-link" onClick={() => setMobileMenuOpen(false)}>
+                Sign In
+              </Link>
             )}
           </div>
 
