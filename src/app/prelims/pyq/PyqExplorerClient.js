@@ -1964,7 +1964,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                 <QuestionCard
                   key={q.id}
                   q={q}
-                  qNumber={(page - 1) * 20 + idx + 1}
+                  qNumber={(page - 1) * PAGE_SIZE + idx + 1}
                   totalCount={totalFiltered}
                   isFocusMode={false}
                   isAdmin={isAdmin}
@@ -2413,7 +2413,8 @@ function QuestionCard({
   const isPair = isPairQuestion(q);
   const isStmt = isStatementQuestion(q);
   const { explanationText, analysis } = useMemo(() => getStructuredExplanation(q), [q]);
-  const activeQNo = q.questionNo || qNumber;
+  const displayQNo = qNumber || 1;
+  const paperQNo = q.questionNo;
   const [eliminatedOpts, setEliminatedOpts] = useState({});
 
   useEffect(() => {
@@ -2442,7 +2443,7 @@ function QuestionCard({
       <div className="pq-qhead">
         <div className="pq-tags">
           <span className="pq-tag pq-tag-exam">{q.examName} {q.examYear}</span>
-          {q.questionNo ? <span className="pq-tag pq-tag-q">Q{q.questionNo}</span> : null}
+          {paperQNo ? <span className="pq-tag pq-tag-q" title={`Question #${paperQNo} in official ${q.examName} ${q.examYear} paper`}>Paper Q.{paperQNo}</span> : null}
           <span className="pq-tag pq-tag-topic" title={q.srcTopic}>{q.srcTopic}</span>
           {isPair && <span className="pq-tag pq-tag-new-pattern">🔥 Pair-Based</span>}
           {isStmt && <span className="pq-tag pq-tag-new-pattern">🔥 Statement I &amp; II</span>}
@@ -2513,7 +2514,7 @@ function QuestionCard({
         )}
       </div>
 
-      <StemView stem={q.stem} qNo={activeQNo} interactiveElimination={true} />
+      <StemView stem={q.stem} qNo={displayQNo} interactiveElimination={true} />
 
       <div className="pq-opts" role="group" aria-label="Answer options">
         {options.map(o => {
@@ -2598,11 +2599,11 @@ function QuestionCard({
           {/* Official Booklet Page Footer (Light Paper Theme) */}
           <div className="pq-paper-footer">
             <span className="pq-paper-footer-meta">
-              {q.examName ? `${q.examName.toUpperCase()} ${q.examYear || ''}` : 'UPSC CSE (P)'} &middot; GS PAPER I &middot; Q. {activeQNo}
+              {q.examName ? `${q.examName.toUpperCase()} ${q.examYear || ''}` : 'UPSC CSE (P)'} &middot; GS PAPER I {paperQNo ? `· Paper Q.${paperQNo}` : ''}
             </span>
             {totalCount ? (
               <span className="pq-paper-footer-counter">
-                {activeQNo} / {totalCount}
+                {displayQNo} / {totalCount}
               </span>
             ) : null}
           </div>
