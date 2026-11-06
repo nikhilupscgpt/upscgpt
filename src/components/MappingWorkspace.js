@@ -357,6 +357,19 @@ export default function MappingWorkspace({
   const [activeMode, setActiveMode] = useState(initialMode);
   const [staticExpanded, setStaticExpanded] = useState(false);
 
+  // Mobile responsiveness
+  const [isMobile, setIsMobile] = useState(false);
+  const [mobileTab, setMobileTab] = useState('map'); // 'map' | 'places' | 'study'
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 900);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Filters inside the map view
   const [pinScope, setPinScope] = useState('ALL'); // 'ALL' | 'India' | 'World'
   const [pinTimeMode, setPinTimeMode] = useState('DAY'); // 'DAY' | 'WEEK' | 'MONTH' | 'ALL'
@@ -742,11 +755,20 @@ export default function MappingWorkspace({
   const handleSelectNode = (node) => {
     setActiveOrg(null);
     setSelectedNode(node);
+    if (isMobile) {
+      setMobileTab('study');
+    }
   };
 
   const handleSelectOrg = (org) => {
     setSelectedNode(null);
-    setActiveOrg((prev) => (prev?.id === org.id ? null : org));
+    setActiveOrg((prev) => {
+      const next = prev?.id === org.id ? null : org;
+      if (next && isMobile) {
+        setMobileTab('study');
+      }
+      return next;
+    });
   };
 
   const handleOptionClick = (qId, label) => {
@@ -1106,20 +1128,23 @@ export default function MappingWorkspace({
       {/* =================================================================== */}
       <div
         style={{
-          minHeight: 54,
+          minHeight: isMobile ? 48 : 54,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          flexWrap: 'wrap',
+          flexWrap: isMobile ? 'nowrap' : 'wrap',
+          overflowX: isMobile ? 'auto' : 'visible',
+          WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'none',
           gap: 10,
-          padding: '6px 16px',
+          padding: isMobile ? '6px 12px' : '6px 16px',
           background: '#ffffff',
           borderBottom: '1px solid #e2e8f0',
           zIndex: 25,
         }}
       >
         {/* Left & Center Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: isMobile ? 'nowrap' : 'wrap', flexShrink: 0 }}>
           {/* Back to Tracks Pill */}
           <button
             type="button"
@@ -1495,16 +1520,53 @@ export default function MappingWorkspace({
         {/* ================================================================= */}
         <div
           style={{
-            width: 315,
-            minWidth: 300,
+            width: isMobile ? '100%' : 315,
+            minWidth: isMobile ? 0 : 300,
             background: '#ffffff',
-            borderRight: '1px solid #e2e8f0',
-            display: 'flex',
+            borderRight: isMobile ? 'none' : '1px solid #e2e8f0',
+            display: isMobile ? (mobileTab === 'places' ? 'flex' : 'none') : 'flex',
             flexDirection: 'column',
             height: '100%',
             zIndex: 15,
+            paddingBottom: isMobile ? 60 : 0,
           }}
         >
+          {/* Mobile Header for Places View */}
+          {isMobile && (
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '10px 14px',
+                background: '#f8fafc',
+                borderBottom: '1px solid #e2e8f0',
+              }}
+            >
+              <span style={{ fontSize: 13, fontWeight: 800, color: '#0f172a' }}>
+                Mapped Places ({numberedNodes.length})
+              </span>
+              <button
+                type="button"
+                onClick={() => setMobileTab('map')}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4,
+                  padding: '5px 10px',
+                  borderRadius: 6,
+                  background: '#0284c7',
+                  color: '#ffffff',
+                  border: 'none',
+                  fontWeight: 700,
+                  fontSize: 12,
+                  cursor: 'pointer',
+                }}
+              >
+                <span>View on Map 🗺️</span>
+              </button>
+            </div>
+          )}
           {/* Search Input */}
           <div style={{ padding: '12px 12px 8px' }}>
             <div
@@ -1869,13 +1931,21 @@ export default function MappingWorkspace({
         {/* ================================================================= */}
         {/* COLUMN 2: CENTER MAP CANVAS + FLOATING CONTROLS                   */}
         {/* ================================================================= */}
-        <div style={{ flex: 1, position: 'relative', height: '100%', minWidth: 0 }}>
+        <div
+          style={{
+            flex: 1,
+            position: 'relative',
+            height: '100%',
+            minWidth: 0,
+            display: isMobile ? (mobileTab === 'map' ? 'block' : 'none') : 'block',
+          }}
+        >
           {/* Top-Left Floating Context Pill: Zoomed to ... | All-India view (Constrained so it NEVER collides with basemap switcher) */}
           <div
             style={{
               position: 'absolute',
-              top: 14,
-              left: 14,
+              top: isMobile ? 10 : 14,
+              left: isMobile ? 10 : 14,
               zIndex: 500,
               display: 'inline-flex',
               alignItems: 'center',
@@ -1884,11 +1954,11 @@ export default function MappingWorkspace({
               backdropFilter: 'blur(8px)',
               border: '1px solid #e2e8f0',
               borderRadius: 9,
-              padding: '6px 12px',
+              padding: isMobile ? '5px 9px' : '6px 12px',
               boxShadow: '0 4px 14px rgba(15, 23, 42, 0.08)',
               fontSize: 12,
               color: '#475569',
-              maxWidth: 'calc(100% - 240px)',
+              maxWidth: isMobile ? 'calc(100% - 150px)' : 'calc(100% - 240px)',
               overflow: 'hidden',
             }}
           >
@@ -1965,8 +2035,8 @@ export default function MappingWorkspace({
           <div
             style={{
               position: 'absolute',
-              top: 14,
-              right: 14,
+              top: isMobile ? 10 : 14,
+              right: isMobile ? 10 : 14,
               zIndex: 500,
               display: 'inline-flex',
               alignItems: 'center',
@@ -1991,12 +2061,12 @@ export default function MappingWorkspace({
                   type="button"
                   onClick={() => setBasemap(bm.id)}
                   style={{
-                    padding: '5px 11px',
+                    padding: isMobile ? '4px 8px' : '5px 11px',
                     borderRadius: 6,
                     border: 'none',
                     background: isActive ? '#0f172a' : 'transparent',
                     color: isActive ? '#ffffff' : '#475569',
-                    fontSize: 12,
+                    fontSize: isMobile ? 11 : 12,
                     fontWeight: isActive ? 700 : 600,
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
@@ -2016,11 +2086,11 @@ export default function MappingWorkspace({
                 selectedNode &&
                 practiceQuestionsForSelected.length > 0 &&
                 mapPyqDockMode !== 'hidden'
-                  ? 58
-                  : 16,
-              left: 14,
+                  ? (isMobile ? 116 : 58)
+                  : (isMobile ? 68 : 16),
+              left: isMobile ? 10 : 14,
               zIndex: 490,
-              display: 'inline-flex',
+              display: isMobile ? 'none' : 'inline-flex',
               alignItems: 'center',
               flexWrap: 'wrap',
               gap: 10,
@@ -2096,8 +2166,8 @@ export default function MappingWorkspace({
                   title="Open On-Map UPSC Practice Dock"
                   style={{
                     position: 'absolute',
-                    bottom: 16,
-                    right: 68,
+                    bottom: isMobile ? 68 : 16,
+                    right: isMobile ? 12 : 68,
                     zIndex: 500,
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -2124,7 +2194,7 @@ export default function MappingWorkspace({
                 <div
                   style={{
                     position: 'absolute',
-                    bottom: 16,
+                    bottom: isMobile ? 68 : 16,
                     left: '50%',
                     transform: 'translateX(-50%)',
                     zIndex: 500,
@@ -2216,12 +2286,12 @@ export default function MappingWorkspace({
               <div
                 style={{
                   position: 'absolute',
-                  bottom: 16,
+                  bottom: isMobile ? 68 : 16,
                   left: '50%',
                   transform: 'translateX(-50%)',
                   zIndex: 500,
                   width: 'min(92%, 580px)',
-                  maxHeight: '48%',
+                  maxHeight: isMobile ? '58%' : '48%',
                   background: '#ffffff',
                   border: '2px solid #f59e0b',
                   borderRadius: 14,
@@ -2463,20 +2533,58 @@ export default function MappingWorkspace({
         {activeOrg && !selectedNode && (
           <div
             style={{
-              width: 400,
-              minWidth: 370,
+              width: isMobile ? '100%' : 400,
+              minWidth: isMobile ? 0 : 370,
               background: '#ffffff',
-              borderLeft: '1px solid #e2e8f0',
+              borderLeft: isMobile ? 'none' : '1px solid #e2e8f0',
               height: '100%',
               overflowY: 'auto',
-              padding: '18px 20px 28px',
+              padding: isMobile ? '14px 16px 72px' : '18px 20px 28px',
               boxSizing: 'border-box',
-              display: 'flex',
+              display: isMobile ? (mobileTab === 'study' ? 'flex' : 'none') : 'flex',
               flexDirection: 'column',
               gap: 16,
               zIndex: 20,
             }}
           >
+            {isMobile && (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+                <button
+                  type="button"
+                  onClick={() => setMobileTab('map')}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '6px 12px',
+                    borderRadius: 8,
+                    background: '#0284c7',
+                    color: '#ffffff',
+                    border: 'none',
+                    fontWeight: 700,
+                    fontSize: 12,
+                    cursor: 'pointer',
+                  }}
+                >
+                  ← Back to Map
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveOrg(null)}
+                  style={{
+                    padding: '6px 10px',
+                    borderRadius: 8,
+                    background: '#f1f5f9',
+                    border: '1px solid #cbd5e1',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Close ✕
+                </button>
+              </div>
+            )}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
                 <span
@@ -2580,16 +2688,65 @@ export default function MappingWorkspace({
         {selectedNode && (
           <div
             style={{
-              width: 405,
-              minWidth: 375,
+              width: isMobile ? '100%' : 405,
+              minWidth: isMobile ? 0 : 375,
               background: '#ffffff',
-              borderLeft: '1px solid #e2e8f0',
+              borderLeft: isMobile ? 'none' : '1px solid #e2e8f0',
               height: '100%',
-              display: 'flex',
+              display: isMobile ? (mobileTab === 'study' ? 'flex' : 'none') : 'flex',
               flexDirection: 'column',
               zIndex: 20,
+              paddingBottom: isMobile ? 60 : 0,
             }}
           >
+            {/* Mobile Header Bar */}
+            {isMobile && (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '10px 14px',
+                  background: '#f8fafc',
+                  borderBottom: '1px solid #e2e8f0',
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setMobileTab('map')}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '6px 12px',
+                    borderRadius: 8,
+                    background: '#0284c7',
+                    color: '#ffffff',
+                    border: 'none',
+                    fontWeight: 700,
+                    fontSize: 12.5,
+                    cursor: 'pointer',
+                  }}
+                >
+                  ← Back to Map
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedNode(null)}
+                  style={{
+                    padding: '6px 10px',
+                    borderRadius: 8,
+                    background: '#f1f5f9',
+                    border: '1px solid #cbd5e1',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Close ✕
+                </button>
+              </div>
+            )}
             {/* Scrollable Body */}
             <div
               style={{
@@ -3587,7 +3744,159 @@ export default function MappingWorkspace({
             </div>
           </div>
         )}
+
+        {/* Mobile Study Tab Empty State (when user taps Study tab without selecting a place) */}
+        {isMobile && mobileTab === 'study' && !selectedNode && !activeOrg && (
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              background: '#ffffff',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '24px 20px 80px',
+              textAlign: 'center',
+              zIndex: 20,
+            }}
+          >
+            <div style={{ fontSize: 42, marginBottom: 14 }}>🗺️</div>
+            <h3 style={{ fontSize: 18, fontWeight: 800, margin: '0 0 8px', color: '#0f172a' }}>
+              No Place Selected
+            </h3>
+            <p style={{ fontSize: 13.5, color: '#64748b', maxWidth: 300, lineHeight: 1.5, margin: '0 0 20px' }}>
+              Tap any pin on the interactive map or choose a place from the Places list to open its UPSC study notes and practice questions.
+            </p>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button
+                type="button"
+                onClick={() => setMobileTab('map')}
+                style={{
+                  padding: '9px 16px',
+                  borderRadius: 8,
+                  background: '#0284c7',
+                  color: '#ffffff',
+                  border: 'none',
+                  fontWeight: 700,
+                  fontSize: 13,
+                  cursor: 'pointer',
+                }}
+              >
+                Go to Map 🗺️
+              </button>
+              <button
+                type="button"
+                onClick={() => setMobileTab('places')}
+                style={{
+                  padding: '9px 16px',
+                  borderRadius: 8,
+                  background: '#f1f5f9',
+                  border: '1px solid #cbd5e1',
+                  color: '#0f172a',
+                  fontWeight: 700,
+                  fontSize: 13,
+                  cursor: 'pointer',
+                }}
+              >
+                Browse Places 📋
+              </button>
+            </div>
+          </div>
+        )}
       </div>
+
+      {/* Mobile Bottom Navigation Bar */}
+      {isMobile && activeMode && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 56,
+            background: 'rgba(255, 255, 255, 0.96)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
+            borderTop: '1px solid #e2e8f0',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-around',
+            zIndex: 1000,
+            paddingBottom: 'env(safe-area-inset-bottom)',
+            boxShadow: '0 -4px 16px rgba(0, 0, 0, 0.06)',
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setMobileTab('map')}
+            style={{
+              flex: 1,
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 2,
+              border: 'none',
+              background: 'transparent',
+              color: mobileTab === 'map' ? '#0284c7' : '#64748b',
+              fontWeight: mobileTab === 'map' ? 800 : 600,
+              fontSize: 11,
+              cursor: 'pointer',
+            }}
+          >
+            <span style={{ fontSize: 18 }}>🗺️</span>
+            <span>Map</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setMobileTab('places')}
+            style={{
+              flex: 1,
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 2,
+              border: 'none',
+              background: 'transparent',
+              color: mobileTab === 'places' ? '#0284c7' : '#64748b',
+              fontWeight: mobileTab === 'places' ? 800 : 600,
+              fontSize: 11,
+              cursor: 'pointer',
+            }}
+          >
+            <span style={{ fontSize: 18 }}>📋</span>
+            <span>Places ({numberedNodes.length})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setMobileTab('study')}
+            style={{
+              flex: 1,
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 2,
+              border: 'none',
+              background: 'transparent',
+              color: mobileTab === 'study' ? '#0284c7' : '#64748b',
+              fontWeight: mobileTab === 'study' ? 800 : 600,
+              fontSize: 11,
+              cursor: 'pointer',
+            }}
+          >
+            <span style={{ fontSize: 18 }}>📖</span>
+            <span>Study Sheet {selectedNode ? '•' : ''}</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

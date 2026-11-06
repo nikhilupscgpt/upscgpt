@@ -260,6 +260,7 @@ export default function StandaloneQuestionClient({ question: q }) {
             </span>
 
             <button
+              className="pyq-verify-btn"
               onClick={() => setIsRevealed(true)}
               style={{
                 padding: '9px 22px',
@@ -608,6 +609,16 @@ export default function StandaloneQuestionClient({ question: q }) {
         [data-theme='light'] .pyq-statement-box span,
         [data-theme='sepia'] .pyq-statement-box span {
           color: #334155 !important;
+        }
+
+        @media (max-width: 600px) {
+          .pyq-verify-btn {
+            width: 100% !important;
+            text-align: center;
+            justify-content: center;
+            padding: 12px 16px !important;
+            font-size: 14.5px !important;
+          }
         }
       `}</style>
     </div>

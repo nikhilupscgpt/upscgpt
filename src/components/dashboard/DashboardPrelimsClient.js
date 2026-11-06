@@ -357,10 +357,10 @@ export default function DashboardPrelimsClient() {
         </div>
 
         {/* 2. Top KPI Cards Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '18px', marginBottom: '28px' }}>
+        <div className="pq-dashboard-kpis" style={{ gap: '14px', marginBottom: '28px' }}>
           
           {/* Card 1: Questions Solved */}
-          <div className="pq-card" style={{ padding: '22px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div className="pq-card" style={{ padding: 'clamp(14px, 3vw, 22px)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-secondary, #94a3b8)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Questions Solved</span>
               <div style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', padding: '6px', borderRadius: '10px' }}>
