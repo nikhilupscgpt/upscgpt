@@ -67,6 +67,18 @@ export default function ThemeToggle() {
           color: var(--text-primary);
           box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
+        @media (max-width: 520px) {
+          .theme-toggle-container {
+            padding: 3px;
+            gap: 2px;
+          }
+          .theme-btn {
+            padding: 6px 8px;
+          }
+          .theme-btn span {
+            display: none;
+          }
+        }
       `}</style>
     </div>
   );

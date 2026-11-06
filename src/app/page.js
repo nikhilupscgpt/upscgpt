@@ -195,66 +195,56 @@ export default function PrelimsGPTCommandCenter() {
   return (
     <div style={{ 
       minHeight: '100vh', 
+      width: '100%',
+      overflowX: 'clip',
       backgroundColor: 'var(--bg-primary, #020617)', 
       color: 'var(--text-primary, #ffffff)',
       paddingBottom: '80px',
       fontFamily: 'var(--font-outfit), system-ui, -apple-system, sans-serif'
     }}>
-      {/* Background Glow Accents */}
-      <div style={{
-        position: 'absolute',
-        top: 0,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: '100%',
-        maxWidth: '1200px',
-        height: '450px',
-        background: 'radial-gradient(circle at 50% 10%, rgba(59, 130, 246, 0.12), transparent 70%)',
-        pointerEvents: 'none',
-        zIndex: 0
-      }} />
-
       <main style={{ 
         position: 'relative', 
         zIndex: 1, 
         maxWidth: '1200px', 
         margin: '0 auto', 
-        padding: '50px 24px 40px' 
+        padding: 'clamp(28px, 5vw, 50px) clamp(14px, 4vw, 24px) 40px' 
       }}>
         
         {/* HERO SECTION */}
-        <div style={{ textAlign: 'center', marginBottom: '56px', maxWidth: '860px', margin: '0 auto 56px' }}>
+        <div style={{ textAlign: 'center', marginBottom: 'clamp(36px, 6vw, 56px)', maxWidth: '860px', margin: '0 auto clamp(36px, 6vw, 56px)' }}>
           {/* Top Pill */}
           <div style={{ 
             display: 'inline-flex', 
             alignItems: 'center', 
             gap: '8px', 
-            padding: '6px 16px', 
+            padding: '6px 14px', 
+            maxWidth: '100%',
             background: 'var(--bg-card, rgba(15, 23, 42, 0.6))', 
             border: '1px solid var(--border-color, rgba(255, 255, 255, 0.1))',
             borderRadius: '999px', 
             color: 'var(--color-amber, #f59e0b)', 
-            fontSize: '0.8rem', 
+            fontSize: 'clamp(0.68rem, 2.2vw, 0.8rem)', 
             fontWeight: 800, 
-            marginBottom: '22px', 
+            marginBottom: '20px', 
             letterSpacing: '0.04em',
             boxShadow: '0 4px 14px rgba(0,0,0,0.06)'
           }}>
-            <Target size={15} style={{ color: 'var(--color-amber, #f59e0b)' }} />
+            <Target size={15} style={{ color: 'var(--color-amber, #f59e0b)', flexShrink: 0 }} />
             <span>UPSC CSE 2025–2026 · PRELIMS COMMAND CENTER</span>
           </div>
 
           {/* Headline */}
           <h1 style={{ 
-            fontSize: 'clamp(2.4rem, 5vw, 3.8rem)', 
+            fontSize: 'clamp(2rem, 6vw, 3.8rem)', 
             fontWeight: 900, 
             letterSpacing: '-0.03em', 
             lineHeight: 1.15, 
-            marginBottom: '18px',
+            marginBottom: '16px',
             color: 'var(--text-primary, #ffffff)'
           }}>
             Master Prelims with <span style={{ 
-              background: 'linear-gradient(135deg, var(--color-blue, #3b82f6), #60a5fa)', 
+              color: 'var(--color-blue, #3b82f6)',
+              background: 'linear-gradient(135deg, #60a5fa, #38bdf8)', 
               WebkitBackgroundClip: 'text', 
               WebkitTextFillColor: 'transparent' 
             }}>Zero Clutter</span>.
@@ -262,11 +252,11 @@ export default function PrelimsGPTCommandCenter() {
 
           {/* Subtitle */}
           <p style={{ 
-            fontSize: 'clamp(1rem, 2vw, 1.18rem)', 
+            fontSize: 'clamp(0.92rem, 2.5vw, 1.18rem)', 
             color: 'var(--text-secondary, #94a3b8)', 
             lineHeight: 1.6, 
             maxWidth: '720px', 
-            margin: '0 auto 36px' 
+            margin: '0 auto 28px' 
           }}>
             Strictly high-yield. Topic-wise Previous Year Questions mapped to granular micro-themes, 
             instant semantic concept retrieval, and an interactive spatial mapping atlas.
@@ -277,6 +267,7 @@ export default function PrelimsGPTCommandCenter() {
             onSubmit={handleSearchSubmit} 
             style={{ 
               maxWidth: '680px', 
+              width: '100%',
               margin: '0 auto',
               position: 'relative'
             }}
@@ -284,27 +275,32 @@ export default function PrelimsGPTCommandCenter() {
             <div style={{
               display: 'flex',
               alignItems: 'center',
+              gap: '8px',
+              width: '100%',
+              maxWidth: '100%',
               backgroundColor: 'var(--bg-card, rgba(15, 23, 42, 0.8))',
               border: '1.5px solid var(--border-color, rgba(255, 255, 255, 0.15))',
               borderRadius: '16px',
-              padding: '6px 8px 6px 18px',
+              padding: '6px 6px 6px 14px',
               boxShadow: '0 10px 30px rgba(0, 0, 0, 0.15)',
               transition: 'border-color 0.2s ease, box-shadow 0.2s ease'
             }}>
-              <Search size={22} style={{ color: 'var(--text-muted, #64748b)', marginRight: '12px', flexShrink: 0 }} />
+              <Search size={18} style={{ color: 'var(--text-muted, #64748b)', flexShrink: 0 }} />
               <input 
                 id="home-search-input"
                 type="text"
                 value={searchQuery}
                 onChange={(e) => handleQueryChange(e.target.value)}
-                placeholder="Search concepts, questions or topics (e.g. Fundamental Rights, Money Bill, Inflation)..."
+                placeholder="Search concepts, PYQs or topics (e.g. Money Bill, Inflation)..."
                 style={{
                   flex: 1,
+                  minWidth: 0,
+                  width: '100%',
                   background: 'transparent',
                   border: 'none',
                   outline: 'none',
                   color: 'var(--text-primary, #ffffff)',
-                  fontSize: '1rem',
+                  fontSize: 'clamp(0.88rem, 2.5vw, 1rem)',
                   fontWeight: 500
                 }}
               />
@@ -318,16 +314,17 @@ export default function PrelimsGPTCommandCenter() {
                   color: 'var(--btn-primary-text, #ffffff)',
                   border: 'none',
                   borderRadius: '12px',
-                  padding: '10px 20px',
-                  fontSize: '0.9rem',
+                  padding: '10px clamp(12px, 3vw, 20px)',
+                  fontSize: 'clamp(0.82rem, 2.5vw, 0.9rem)',
                   fontWeight: 700,
                   cursor: 'pointer',
                   transition: 'opacity 0.2s ease',
+                  whiteSpace: 'nowrap',
                   flexShrink: 0
                 }}
               >
                 <span>Search</span>
-                <ArrowRight size={16} />
+                <ArrowRight size={15} />
               </button>
             </div>
           </form>
@@ -545,61 +542,50 @@ export default function PrelimsGPTCommandCenter() {
         {/* DAILY PYQ STREAK HERO CARD (DAILY 10-QUESTION DISCIPLINE)                 */}
         {/* ========================================================================= */}
         <div style={{
-          marginBottom: '52px',
+          marginBottom: 'clamp(36px, 5vw, 52px)',
           background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.09) 0%, rgba(239, 68, 68, 0.05) 50%, rgba(59, 130, 246, 0.06) 100%)',
           border: '1.5px solid rgba(245, 158, 11, 0.35)',
           borderRadius: '22px',
-          padding: '24px 28px',
-          boxShadow: '0 12px 36px rgba(0, 0, 0, 0.22), 0 0 40px rgba(245, 158, 11, 0.05)',
+          padding: 'clamp(18px, 4vw, 24px) clamp(16px, 4vw, 28px)',
+          boxShadow: '0 12px 36px rgba(0, 0, 0, 0.22)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: '24px',
+          gap: '20px',
           flexWrap: 'wrap',
           position: 'relative',
           overflow: 'hidden'
         }}>
-          {/* Subtle warm glow circle */}
-          <div style={{
-            position: 'absolute',
-            top: '-50px',
-            right: '-50px',
-            width: '180px',
-            height: '180px',
-            background: 'radial-gradient(circle, rgba(245, 158, 11, 0.16) 0%, transparent 70%)',
-            pointerEvents: 'none'
-          }} />
-
           {/* Left Block: Flame Counter + Description */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: 1, minWidth: '280px', position: 'relative', zIndex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', flex: '1 1 260px', minWidth: 0, position: 'relative', zIndex: 1 }}>
             {/* Animated Flame Badge */}
             <div style={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              width: '76px',
-              height: '76px',
-              borderRadius: '20px',
+              width: '68px',
+              height: '68px',
+              borderRadius: '18px',
               background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.22) 0%, rgba(239, 68, 68, 0.15) 100%)',
               border: '1.5px solid rgba(245, 158, 11, 0.45)',
               boxShadow: '0 6px 20px rgba(245, 158, 11, 0.18)',
               flexShrink: 0
             }}>
-              <Flame size={32} style={{ color: '#f59e0b', filter: 'drop-shadow(0 2px 8px rgba(245, 158, 11, 0.6))' }} />
-              <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#f59e0b', marginTop: '2px', letterSpacing: '-0.01em' }}>
+              <Flame size={28} style={{ color: '#f59e0b', filter: 'drop-shadow(0 2px 8px rgba(245, 158, 11, 0.6))' }} />
+              <span style={{ fontSize: '0.82rem', fontWeight: 900, color: '#f59e0b', marginTop: '2px', letterSpacing: '-0.01em' }}>
                 {ready ? streak.current || 0 : 0}d
               </span>
             </div>
 
             {/* Info */}
-            <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', marginBottom: '6px' }}>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '6px' }}>
                 <span style={{
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '4px',
-                  fontSize: '0.72rem',
+                  fontSize: '0.7rem',
                   fontWeight: 800,
                   letterSpacing: '0.06em',
                   padding: '3px 10px',
@@ -610,16 +596,16 @@ export default function PrelimsGPTCommandCenter() {
                 }}>
                   {isStreakCompletedToday ? '✓ TODAY COMPLETED' : '🔥 DAILY PRELIMS HABIT'}
                 </span>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted, #64748b)', fontWeight: 600 }}>
+                <span style={{ fontSize: '0.74rem', color: 'var(--text-muted, #64748b)', fontWeight: 600 }}>
                   Best: {ready ? streak.best || 0 : 0}d streak
                 </span>
               </div>
 
-              <h2 style={{ fontSize: '1.35rem', fontWeight: 900, margin: '0 0 6px 0', color: 'var(--text-primary, #ffffff)', letterSpacing: '-0.02em' }}>
+              <h2 style={{ fontSize: 'clamp(1.12rem, 3.5vw, 1.35rem)', fontWeight: 900, margin: '0 0 6px 0', color: 'var(--text-primary, #ffffff)', letterSpacing: '-0.02em', lineHeight: 1.25 }}>
                 Daily 10-Question Prelims Streak
               </h2>
 
-              <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary, #94a3b8)', margin: 0, lineHeight: 1.55 }}>
+              <p style={{ fontSize: '0.86rem', color: 'var(--text-secondary, #94a3b8)', margin: 0, lineHeight: 1.55 }}>
                 {isStreakCompletedToday
                   ? `Great job! You've logged today's 10-question drill. Current streak: ${streak.current} day${streak.current === 1 ? '' : 's'} (Best: ${streak.best}d). Tomorrow's drill unlocks at midnight.`
                   : '10 curated authentic UPSC questions across core subjects · 12 minutes · Build unbeatable problem-solving discipline.'}
@@ -628,19 +614,22 @@ export default function PrelimsGPTCommandCenter() {
           </div>
 
           {/* Right Action: CTA Button */}
-          <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+          <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '12px', flex: '1 1 220px', justifyContent: 'flex-end' }}>
             <Link
               href="/prelims/pyq/practice?drill=daily&mode=practice"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
+                justifyContent: 'center',
+                width: '100%',
+                maxWidth: '280px',
                 gap: '8px',
-                padding: '13px 24px',
+                padding: '13px 20px',
                 borderRadius: '14px',
                 background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
                 color: '#ffffff',
                 fontWeight: 800,
-                fontSize: '0.92rem',
+                fontSize: '0.9rem',
                 textDecoration: 'none',
                 boxShadow: '0 8px 24px rgba(245, 158, 11, 0.35)',
                 transition: 'transform 0.15s ease, box-shadow 0.15s ease',
@@ -656,13 +645,13 @@ export default function PrelimsGPTCommandCenter() {
         {/* ========================================================================= */}
         {/* SECTION 1: QUESTIONS BY SUBJECT                                           */}
         {/* ========================================================================= */}
-        <div style={{ marginBottom: '56px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ marginBottom: 'clamp(40px, 6vw, 56px)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '18px', flexWrap: 'wrap', gap: '10px' }}>
             <div>
-              <h2 style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: 0 }}>
+              <h2 style={{ fontSize: 'clamp(1.35rem, 4vw, 1.6rem)', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: 0 }}>
                 Questions by Subject
               </h2>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginTop: '4px', margin: '4px 0 0 0' }}>
+              <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', margin: '4px 0 0 0' }}>
                 Select a subject to view and practice past UPSC Prelims questions.
               </p>
             </div>
@@ -684,9 +673,9 @@ export default function PrelimsGPTCommandCenter() {
             </Link>
           </div>
 
-          <div style={{ 
+          <div className="home-compact-grid" style={{ 
             display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', 
             gap: '14px' 
           }}>
             {SUBJECTS.map((sub, idx) => {
@@ -695,16 +684,17 @@ export default function PrelimsGPTCommandCenter() {
                 <Link
                   key={idx}
                   href={`/prelims/pyq?subject=${encodeURIComponent(sub.subjectParam)}`}
+                  className="home-compact-card"
                   style={{
                     textDecoration: 'none',
                     background: 'var(--bg-card, rgba(15, 23, 42, 0.6))',
                     border: '1px solid var(--border-color, rgba(255, 255, 255, 0.08))',
                     borderRadius: '14px',
-                    padding: '16px 18px',
+                    padding: '15px 16px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    gap: '14px',
+                    gap: '10px',
                     transition: 'all 0.15s ease',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                     cursor: 'pointer',
@@ -720,10 +710,10 @@ export default function PrelimsGPTCommandCenter() {
                     e.currentTarget.style.background = 'var(--bg-card, rgba(15, 23, 42, 0.6))';
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
-                    <div style={{ 
-                      width: '40px', 
-                      height: '40px', 
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+                    <div className="home-compact-card__icon" style={{ 
+                      width: '38px', 
+                      height: '38px', 
                       borderRadius: '10px', 
                       background: sub.bg, 
                       display: 'flex', 
@@ -732,20 +722,20 @@ export default function PrelimsGPTCommandCenter() {
                       color: sub.color,
                       flexShrink: 0
                     }}>
-                      <IconComponent size={20} />
+                      <IconComponent size={19} />
                     </div>
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ fontSize: '0.98rem', fontWeight: 800, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <div className="home-compact-card__title" style={{ fontSize: '0.94rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.25 }}>
                         {sub.title}
                       </div>
-                      <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary, #94a3b8)', fontWeight: 600, marginTop: '2px' }}>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary, #94a3b8)', fontWeight: 600, marginTop: '2px' }}>
                         {sub.count} Questions
                       </div>
                     </div>
                   </div>
 
-                  <div style={{ color: 'var(--text-muted, #64748b)', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                    <ArrowRight size={16} />
+                  <div className="home-compact-card__arrow" style={{ color: 'var(--text-muted, #64748b)', display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+                    <ArrowRight size={15} />
                   </div>
                 </Link>
               );
@@ -756,18 +746,18 @@ export default function PrelimsGPTCommandCenter() {
         {/* ========================================================================= */}
         {/* SECTION 2: YEAR-WISE OFFICIAL PAPERS                                      */}
         {/* ========================================================================= */}
-        <div style={{ marginBottom: '64px' }}>
-          <h2 style={{ fontSize: '1.6rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: '0 0 4px 0' }}>
+        <div style={{ marginBottom: 'clamp(44px, 6vw, 64px)' }}>
+          <h2 style={{ fontSize: 'clamp(1.35rem, 4vw, 1.6rem)', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: '0 0 4px 0' }}>
             Previous Years Official Papers
           </h2>
-          <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '0 0 24px 0' }}>
+          <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', margin: '0 0 20px 0' }}>
             Practice complete UPSC question papers from 2011 to 2025.
           </p>
 
-          <div style={{ 
+          <div className="home-compact-grid" style={{ 
             display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', 
-            gap: '16px' 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', 
+            gap: '14px' 
           }}>
             {YEAR_PAPERS.map((p, pidx) => (
               <Link 
@@ -775,14 +765,15 @@ export default function PrelimsGPTCommandCenter() {
                 href={`/prelims/pyq?exam=${encodeURIComponent(p.exam)}&year=${p.year}`}
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >
-                <div style={{
+                <div className="home-compact-card" style={{
                   background: 'var(--bg-card, rgba(15, 23, 42, 0.6))',
                   border: '1px solid var(--border-color, rgba(255, 255, 255, 0.08))',
                   borderRadius: '16px',
-                  padding: '20px',
+                  padding: '16px 18px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
+                  gap: '10px',
                   transition: 'all 0.2s ease'
                 }}
                 onMouseOver={(e) => {
@@ -794,25 +785,26 @@ export default function PrelimsGPTCommandCenter() {
                   e.currentTarget.style.transform = 'translateY(0)';
                 }}
                 >
-                  <div>
-                    <div style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '4px' }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div className="home-compact-card__title" style={{ fontSize: '0.98rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '3px', lineHeight: 1.25 }}>
                       {p.label}
                     </div>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 600 }}>
                       {p.sub}
                     </div>
                   </div>
-                  <div style={{ 
-                    width: '32px', 
-                    height: '32px', 
+                  <div className="home-compact-card__arrow" style={{ 
+                    width: '30px', 
+                    height: '30px', 
                     borderRadius: '8px', 
                     background: 'rgba(16, 185, 129, 0.1)', 
                     display: 'flex', 
                     alignItems: 'center', 
                     justifyContent: 'center',
-                    color: '#10b981'
+                    color: '#10b981',
+                    flexShrink: 0
                   }}>
-                    <ArrowRight size={16} />
+                    <ArrowRight size={15} />
                   </div>
                 </div>
               </Link>
@@ -823,22 +815,22 @@ export default function PrelimsGPTCommandCenter() {
         {/* ========================================================================= */}
         {/* SECTION 3: SPECIALIZED PRELIMS POWER ENGINES (NO DUPLICATES)              */}
         {/* ========================================================================= */}
-        <div style={{ marginBottom: '64px' }}>
+        <div style={{ marginBottom: 'clamp(44px, 6vw, 64px)' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--color-amber, #f59e0b)', fontSize: '0.78rem', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '6px' }}>
             <Sparkles size={14} />
             <span>SPECIALIZED ENGINES</span>
           </div>
-          <h2 style={{ fontSize: '1.85rem', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: '0 0 4px 0' }}>
+          <h2 style={{ fontSize: 'clamp(1.45rem, 4.5vw, 1.85rem)', fontWeight: 800, letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: '0 0 4px 0' }}>
             Advanced Prelims Simulators
           </h2>
-          <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', margin: '0 0 24px 0' }}>
+          <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', margin: '0 0 22px 0' }}>
             Purpose-built tools for exam-hall pressure and spatial geography.
           </p>
 
           <div style={{ 
             display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', 
-            gap: '24px' 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', 
+            gap: '20px' 
           }}>
             
             {/* Tool 1: Interactive Spatial Atlas */}
@@ -847,7 +839,7 @@ export default function PrelimsGPTCommandCenter() {
                 background: 'var(--bg-card, rgba(15, 23, 42, 0.7))',
                 border: '1.5px solid var(--border-color, rgba(255, 255, 255, 0.08))',
                 borderRadius: '24px',
-                padding: '32px',
+                padding: 'clamp(20px, 4vw, 32px)',
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
@@ -890,10 +882,10 @@ export default function PrelimsGPTCommandCenter() {
                     </span>
                   </div>
 
-                  <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '8px', color: 'var(--text-primary)' }}>
+                  <h3 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '8px', color: 'var(--text-primary)' }}>
                     Interactive Maps & Atlas
                   </h3>
-                  <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: 1.55, marginBottom: '20px' }}>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.55, marginBottom: '20px' }}>
                     Practice map-based questions for Prelims. Interactive maps covering important global locations, waterways, conflict areas, and Indian national parks.
                   </p>
                 </div>
@@ -918,7 +910,7 @@ export default function PrelimsGPTCommandCenter() {
                 background: 'var(--bg-card, rgba(15, 23, 42, 0.7))',
                 border: '1.5px solid var(--border-color, rgba(255, 255, 255, 0.08))',
                 borderRadius: '24px',
-                padding: '32px',
+                padding: 'clamp(20px, 4vw, 32px)',
                 height: '100%',
                 display: 'flex',
                 flexDirection: 'column',
@@ -961,10 +953,10 @@ export default function PrelimsGPTCommandCenter() {
                     </span>
                   </div>
 
-                  <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '8px', color: 'var(--text-primary)' }}>
+                  <h3 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '8px', color: 'var(--text-primary)' }}>
                     Prelims Mock Simulator
                   </h3>
-                  <p style={{ fontSize: '0.92rem', color: 'var(--text-secondary)', lineHeight: 1.55, marginBottom: '20px' }}>
+                  <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.55, marginBottom: '20px' }}>
                     Simulate the actual UPSC Prelims battleground. Strict -0.33 negative marking, countdown clock, question palette navigation, and real-time sectional cutoff scorecards.
                   </p>
                 </div>

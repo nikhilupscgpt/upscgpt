@@ -335,7 +335,7 @@ export default function Navigation({ children }) {
                 )}
               </div>
             ) : (
-              <Link href="/login" className="btn-primary" style={{ textDecoration: 'none', padding: '8px 18px', fontSize: '0.85rem' }}>
+              <Link href="/login" className="btn-primary app-nav__signin-btn" style={{ textDecoration: 'none', padding: '8px 16px', fontSize: '0.84rem', whiteSpace: 'nowrap', flexShrink: 0 }}>
                 Sign In
               </Link>
             )}
