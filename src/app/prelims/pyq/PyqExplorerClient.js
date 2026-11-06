@@ -1710,6 +1710,47 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                           }}
                         />
                       )}
+
+                      {/* Guest Preview Gate Banner on Question 10 */}
+                      {!isAuthenticated && focusIndex === pageItems.length - 1 && (
+                        <div style={{
+                          marginTop: 20,
+                          marginBottom: 32,
+                          padding: '20px 18px',
+                          borderRadius: 18,
+                          background: 'rgba(37, 99, 235, 0.08)',
+                          border: '1.5px solid rgba(37, 99, 235, 0.35)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 12,
+                          textAlign: 'center',
+                          boxShadow: '0 8px 24px rgba(0,0,0,0.06)'
+                        }}>
+                          <div style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-primary)' }}>
+                            🎉 You&apos;ve Completed the 10-Question Preview!
+                          </div>
+                          <p style={{ margin: 0, fontSize: '0.86rem', color: 'var(--text-secondary)', lineHeight: 1.55 }}>
+                            Sign in free with Google or Email OTP to unlock all {totalFiltered} questions in {topic !== 'ALL' ? topic : subject}, track your accuracy, and save mistakes.
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setAuthGateReason(`Sign in free with Google or Email OTP to unlock all ${totalFiltered} questions in ${topic !== 'ALL' ? topic : subject}.`)}
+                            style={{
+                              padding: '12px 20px',
+                              borderRadius: 14,
+                              background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
+                              color: '#ffffff',
+                              fontWeight: 800,
+                              fontSize: '0.9rem',
+                              border: 'none',
+                              cursor: 'pointer',
+                              boxShadow: '0 4px 14px rgba(37, 99, 235, 0.3)'
+                            }}
+                          >
+                            Sign In Free to Continue (Google / OTP) →
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     {/* 3. Fixed Thumb-Zone Bottom Dock */}
@@ -1747,14 +1788,23 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                       <button
                         type="button"
                         className={`pq-imm-dock-btn pq-imm-dock-next ${
-                          currentFocusQuestion && (attempts[currentFocusQuestion.id] || revealed[currentFocusQuestion.id])
+                          !isAuthenticated && focusIndex === pageItems.length - 1
+                            ? 'is-ready-next'
+                            : currentFocusQuestion && (attempts[currentFocusQuestion.id] || revealed[currentFocusQuestion.id])
                             ? 'is-ready-next'
                             : ''
                         }`}
                         disabled={currentFocusNumber >= totalFiltered}
                         onClick={handleNextQuestion}
+                        style={!isAuthenticated && focusIndex === pageItems.length - 1 ? {
+                          background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
+                          color: '#ffffff',
+                          fontWeight: 800,
+                          fontSize: '11px',
+                          padding: '0 10px',
+                        } : undefined}
                       >
-                        Next &rarr;
+                        {!isAuthenticated && focusIndex === pageItems.length - 1 ? '🔒 Sign In (Q11+) →' : 'Next →'}
                       </button>
                     </footer>
                   </div>
@@ -1831,6 +1881,51 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                       />
                     )}
 
+                    {/* Guest Preview Gate Banner on Question 10 (Desktop Focus) */}
+                    {!isAuthenticated && focusIndex === pageItems.length - 1 && (
+                      <div style={{
+                        marginTop: 20,
+                        padding: '22px 24px',
+                        borderRadius: 20,
+                        background: 'rgba(37, 99, 235, 0.08)',
+                        border: '1.5px solid rgba(37, 99, 235, 0.35)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 20,
+                        flexWrap: 'wrap',
+                        boxShadow: '0 8px 24px rgba(0,0,0,0.06)'
+                      }}>
+                        <div style={{ flex: 1, minWidth: 260 }}>
+                          <div style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--text-primary)', marginBottom: 4 }}>
+                            🎉 You&apos;ve Completed the 10-Question Preview!
+                          </div>
+                          <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--text-secondary)', lineHeight: 1.55 }}>
+                            Sign in free with Google or Email OTP to unlock all {totalFiltered} questions in {topic !== 'ALL' ? topic : subject}, track your progress, and save mistakes.
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          className="pq-btn pq-btn-primary"
+                          onClick={() => setAuthGateReason(`Sign in free with Google or Email OTP to unlock all ${totalFiltered} questions in ${topic !== 'ALL' ? topic : subject}.`)}
+                          style={{
+                            padding: '12px 22px',
+                            borderRadius: 14,
+                            background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
+                            color: '#ffffff',
+                            fontWeight: 800,
+                            fontSize: '0.92rem',
+                            border: 'none',
+                            cursor: 'pointer',
+                            whiteSpace: 'nowrap',
+                            boxShadow: '0 4px 14px rgba(37, 99, 235, 0.3)'
+                          }}
+                        >
+                          Sign In Free to Continue →
+                        </button>
+                      </div>
+                    )}
+
                     {/* Bottom Sticky Navigation */}
                     <div className="pq-focus-bottom-nav">
                       <button
@@ -1851,8 +1946,13 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                         className="pq-focus-nav-btn pq-focus-next-btn"
                         disabled={currentFocusNumber >= totalFiltered}
                         onClick={handleNextQuestion}
+                        style={!isAuthenticated && focusIndex === pageItems.length - 1 ? {
+                          background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
+                          color: '#ffffff',
+                          fontWeight: 800,
+                        } : undefined}
                       >
-                        Next page &rarr;
+                        {!isAuthenticated && focusIndex === pageItems.length - 1 ? '🔒 Sign In (Q11+) →' : 'Next page &rarr;'}
                       </button>
                     </div>
                   </>
@@ -2048,7 +2148,7 @@ function AuthGateModal({ reason, onClose }) {
         inset: 0,
         background: 'rgba(15, 23, 42, 0.72)',
         backdropFilter: 'blur(6px)',
-        zIndex: 9999,
+        zIndex: 1000002,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
