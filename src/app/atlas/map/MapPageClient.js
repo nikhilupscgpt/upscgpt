@@ -733,11 +733,21 @@ function MapPageInner() {
     handleSelectEntry(entry)
 
     if (entry.lat != null && entry.lon != null) {
-      window.setTimeout(() => {
-        if (mapRef.current) {
-          mapRef.current.flyTo([entry.lat, entry.lon], 6)
-        }
-      }, 80)
+      const lat = Number(entry.lat)
+      const lon = Number(entry.lon)
+      if (Number.isFinite(lat) && Number.isFinite(lon)) {
+        window.setTimeout(() => {
+          if (mapRef.current) {
+            try {
+              mapRef.current.flyTo([lat, lon], 6)
+            } catch (_) {
+              try {
+                mapRef.current.setView([lat, lon], 6)
+              } catch (__) {}
+            }
+          }
+        }, 80)
+      }
     }
   }
 

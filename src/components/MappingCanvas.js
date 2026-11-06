@@ -318,13 +318,15 @@ function CameraController({ cameraTarget, selectedNode }) {
   const lastNodeId = useRef(null);
   const lastCameraKey = useRef('');
 
-  // Auto-invalidate map size when stage split width changes (58% / 72% / 100%)
+  // Auto-invalidate map size when stage split width changes (58% / 72% / 100%) or when becoming visible
   useEffect(() => {
     if (!map) return;
     const container = map.getContainer();
     if (!container || typeof ResizeObserver === 'undefined') return;
     const ro = new ResizeObserver(() => {
-      map.invalidateSize({ animate: false });
+      if (container.clientWidth > 0 && container.clientHeight > 0) {
+        map.invalidateSize({ animate: false });
+      }
     });
     ro.observe(container);
     return () => ro.disconnect();
@@ -332,13 +334,29 @@ function CameraController({ cameraTarget, selectedNode }) {
 
   useEffect(() => {
     if (!map || !cameraTarget) return;
-    const key = `${cameraTarget.center?.[0]}-${cameraTarget.center?.[1]}-${cameraTarget.zoom}-${cameraTarget.ts || ''}`;
+    const center = cameraTarget.center;
+    if (!Array.isArray(center) || center.length < 2) return;
+    const lat = Number(center[0]);
+    const lng = Number(center[1]);
+    const zoom = Number(cameraTarget.zoom);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || !Number.isFinite(zoom)) return;
+
+    const container = map.getContainer();
+    if (!container || container.clientWidth <= 0 || container.clientHeight <= 0) return;
+
+    const key = `${lat}-${lng}-${zoom}-${cameraTarget.ts || ''}`;
     if (key === lastCameraKey.current) return;
     lastCameraKey.current = key;
-    map.flyTo(cameraTarget.center, cameraTarget.zoom, {
-      animate: true,
-      duration: 0.9,
-    });
+    try {
+      map.flyTo([lat, lng], zoom, {
+        animate: true,
+        duration: 0.9,
+      });
+    } catch (_) {
+      try {
+        map.setView([lat, lng], zoom);
+      } catch (__) {}
+    }
   }, [cameraTarget, map]);
 
   useEffect(() => {
@@ -346,14 +364,26 @@ function CameraController({ cameraTarget, selectedNode }) {
       lastNodeId.current = null;
       return;
     }
-    if (selectedNode.lat == null || selectedNode.lng == null) return;
+    const lat = Number(selectedNode.lat);
+    const lng = Number(selectedNode.lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+
+    const container = map.getContainer();
+    if (!container || container.clientWidth <= 0 || container.clientHeight <= 0) return;
+
     if (lastNodeId.current === selectedNode.id) return;
     lastNodeId.current = selectedNode.id;
     const targetZoom = selectedNode.regionScope === 'India' ? 6 : 4.5;
-    map.flyTo([Number(selectedNode.lat), Number(selectedNode.lng)], targetZoom, {
-      animate: true,
-      duration: 0.95,
-    });
+    try {
+      map.flyTo([lat, lng], targetZoom, {
+        animate: true,
+        duration: 0.95,
+      });
+    } catch (_) {
+      try {
+        map.setView([lat, lng], targetZoom);
+      } catch (__) {}
+    }
   }, [selectedNode, map]);
 
   return null;
@@ -683,8 +713,8 @@ export default function MappingCanvas({
         (n) =>
           n.lat != null &&
           n.lng != null &&
-          !Number.isNaN(Number(n.lat)) &&
-          !Number.isNaN(Number(n.lng))
+          Number.isFinite(Number(n.lat)) &&
+          Number.isFinite(Number(n.lng))
       ),
     [nodes]
   );
@@ -698,6 +728,23 @@ export default function MappingCanvas({
     () => validNodes.filter((n) => !n.hideMarker),
     [validNodes]
   );
+
+  const safeCenter = useMemo(() => {
+    const c = cameraTarget?.center;
+    if (Array.isArray(c) && c.length >= 2) {
+      const lat = Number(c[0]);
+      const lng = Number(c[1]);
+      if (Number.isFinite(lat) && Number.isFinite(lng)) {
+        return [lat, lng];
+      }
+    }
+    return [22.5, 80.5];
+  }, [cameraTarget?.center]);
+
+  const safeZoom = useMemo(() => {
+    const z = Number(cameraTarget?.zoom);
+    return Number.isFinite(z) && z > 0 ? z : 5;
+  }, [cameraTarget?.zoom]);
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%' }}>
@@ -764,8 +811,8 @@ export default function MappingCanvas({
       `}</style>
 
       <MapContainer
-        center={cameraTarget?.center || [22.5, 80.5]}
-        zoom={cameraTarget?.zoom || 5}
+        center={safeCenter}
+        zoom={safeZoom}
         minZoom={2}
         zoomControl={false}
         style={{ width: '100%', height: '100%', background: '#dde6ef' }}

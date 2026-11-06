@@ -431,11 +431,22 @@ function MapFlyTo({ selectedEntry }) {
   const lastFlyId = useRef(null)
   useEffect(() => {
     if (selectedEntry && selectedEntry.lat != null && selectedEntry.lon != null) {
+      const lat = Number(selectedEntry.lat)
+      const lon = Number(selectedEntry.lon)
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) return
       if (lastFlyId.current === selectedEntry.id) return
       lastFlyId.current = selectedEntry.id
       setTimeout(() => {
-        const targetZoom = Math.max(map.getZoom(), 6)
-        map.flyTo([selectedEntry.lat, selectedEntry.lon], targetZoom, { animate: true, duration: 1.5 })
+        try {
+          const container = map.getContainer()
+          if (!container || container.clientWidth <= 0 || container.clientHeight <= 0) return
+          const targetZoom = Math.max(map.getZoom(), 6)
+          map.flyTo([lat, lon], targetZoom, { animate: true, duration: 1.5 })
+        } catch (_) {
+          try {
+            map.setView([lat, lon], 6)
+          } catch (__) {}
+        }
       }, 100)
     } else {
       lastFlyId.current = null

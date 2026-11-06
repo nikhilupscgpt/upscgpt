@@ -1527,8 +1527,14 @@ export default function MappingWorkspace({
             display: isMobile ? (mobileTab === 'places' ? 'flex' : 'none') : 'flex',
             flexDirection: 'column',
             height: '100%',
-            zIndex: 15,
+            zIndex: isMobile ? 25 : 15,
             paddingBottom: isMobile ? 60 : 0,
+            ...(isMobile
+              ? {
+                  position: 'absolute',
+                  inset: 0,
+                }
+              : {}),
           }}
         >
           {/* Mobile Header for Places View */}
@@ -1937,7 +1943,15 @@ export default function MappingWorkspace({
             position: 'relative',
             height: '100%',
             minWidth: 0,
-            display: isMobile ? (mobileTab === 'map' ? 'block' : 'none') : 'block',
+            ...(isMobile
+              ? {
+                  position: 'absolute',
+                  inset: 0,
+                  zIndex: 10,
+                  visibility: mobileTab === 'map' ? 'visible' : 'hidden',
+                  pointerEvents: mobileTab === 'map' ? 'auto' : 'none',
+                }
+              : {}),
           }}
         >
           {/* Top-Left Floating Context Pill: Zoomed to ... | All-India view (Constrained so it NEVER collides with basemap switcher) */}
@@ -2544,7 +2558,13 @@ export default function MappingWorkspace({
               display: isMobile ? (mobileTab === 'study' ? 'flex' : 'none') : 'flex',
               flexDirection: 'column',
               gap: 16,
-              zIndex: 20,
+              zIndex: isMobile ? 25 : 20,
+              ...(isMobile
+                ? {
+                    position: 'absolute',
+                    inset: 0,
+                  }
+                : {}),
             }}
           >
             {isMobile && (
@@ -2695,8 +2715,14 @@ export default function MappingWorkspace({
               height: '100%',
               display: isMobile ? (mobileTab === 'study' ? 'flex' : 'none') : 'flex',
               flexDirection: 'column',
-              zIndex: 20,
+              zIndex: isMobile ? 25 : 20,
               paddingBottom: isMobile ? 60 : 0,
+              ...(isMobile
+                ? {
+                    position: 'absolute',
+                    inset: 0,
+                  }
+                : {}),
             }}
           >
             {/* Mobile Header Bar */}
@@ -3749,6 +3775,8 @@ export default function MappingWorkspace({
         {isMobile && mobileTab === 'study' && !selectedNode && !activeOrg && (
           <div
             style={{
+              position: 'absolute',
+              inset: 0,
               width: '100%',
               height: '100%',
               background: '#ffffff',
@@ -3758,7 +3786,7 @@ export default function MappingWorkspace({
               justifyContent: 'center',
               padding: '24px 20px 80px',
               textAlign: 'center',
-              zIndex: 20,
+              zIndex: 25,
             }}
           >
             <div style={{ fontSize: 42, marginBottom: 14 }}>🗺️</div>
