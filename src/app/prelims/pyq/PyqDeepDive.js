@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { normalizeKeywordsList } from '@/lib/pyqKeywords';
 import ConceptStudyModal from './ConceptStudyModal';
+import SimilarPyqModal from './SimilarPyqModal';
 
 function parseValueAdditionPoints(text) {
   if (!text || typeof text !== 'string') return [];
@@ -46,6 +47,12 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
   const [activeKeywordIdx, setActiveKeywordIdx] = useState(null);
   const [modalConcept, setModalConcept] = useState(null);
   const [activeTab, setActiveTab] = useState(compactTabs ? 'breakdown' : 'all');
+  const [similarModalOpen, setSimilarModalOpen] = useState(false);
+  const [currentSimilar, setCurrentSimilar] = useState(analysis?.similarPyq || null);
+
+  useEffect(() => {
+    setCurrentSimilar(analysis?.similarPyq || null);
+  }, [analysis]);
 
   useEffect(() => {
     if (compactTabs) {
@@ -115,7 +122,7 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
   );
   const hasValueAdd = Boolean(valueAddition);
   const hasCompare = Boolean(visualSuggestion && visualSuggestion.tableData);
-  const hasNewsOrPyq = Boolean(inNews || similarPyq);
+  const hasNewsOrPyq = Boolean(inNews || currentSimilar || isAdmin);
 
   const availableTabs = [
     hasBreakdown && { id: 'breakdown', num: '4', label: statementBreakdown?.length ? 'Statements' : 'Why Not Others' },
@@ -706,34 +713,86 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
           )}
 
           {/* 6. Interlinked Similar PYQ */}
-          {showNewsOrPyq && similarPyq && (
+          {showNewsOrPyq && (currentSimilar || isAdmin) && (
             <div className="pq-dd-section">
-              <div className="pq-dd-label">
-                <Layers size={14} /> Similar PYQ & Question Family
-              </div>
-              <div className="pq-similar-card">
-                <div className="pq-similar-top">
-                  <span className="pq-similar-badge">
-                    {similarPyq.examName || 'UPSC CSE Pre'} {similarPyq.examYear || ''}
-                  </span>
-                  <span className="pq-similar-topic">{similarPyq.srcTopic || 'Related Theme'}</span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                <div className="pq-dd-label" style={{ margin: 0 }}>
+                  <Layers size={14} /> Similar PYQ &amp; Question Family
                 </div>
-                <p className="pq-similar-stem">{similarPyq.stem || (typeof similarPyq === 'string' ? similarPyq : '')}</p>
-                {similarPyq.keyTakeaway && (
-                  <p style={{ marginTop: '8px', fontSize: '0.85rem', color: 'var(--pq-gold)', fontStyle: 'italic' }}>
-                    💡 Pattern Insight: {similarPyq.keyTakeaway}
-                  </p>
-                )}
-                {similarPyq.targetId && (
-                  <Link
-                    href={`/prelims/pyq/${encodeURIComponent(similarPyq.targetId)}`}
-                    className="pq-similar-btn"
+                {isAdmin && (
+                  <button
+                    type="button"
+                    onClick={() => setSimilarModalOpen(true)}
+                    style={{
+                      background: 'rgba(56, 189, 248, 0.1)',
+                      border: '1px solid rgba(56, 189, 248, 0.3)',
+                      color: '#38bdf8',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      padding: '3px 8px',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
                   >
-                    <span>Attempt this Question on Portal</span>
-                    <ArrowRight size={15} />
-                  </Link>
+                    ✏️ Curate Family
+                  </button>
                 )}
               </div>
+
+              {currentSimilar ? (
+                <div className="pq-similar-card">
+                  <div className="pq-similar-top">
+                    <span className="pq-similar-badge">
+                      {currentSimilar.examName || 'UPSC CSE Pre'} {currentSimilar.examYear || ''}
+                    </span>
+                    <span className="pq-similar-topic">{currentSimilar.srcTopic || 'Related Theme'}</span>
+                    {currentSimilar.isVerified ? (
+                      <span style={{ marginLeft: 'auto', fontSize: '0.72rem', fontWeight: 800, color: '#22c55e', background: 'rgba(34, 197, 94, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>
+                        ✔ Faculty Verified
+                      </span>
+                    ) : (
+                      <span style={{ marginLeft: 'auto', fontSize: '0.72rem', fontWeight: 700, color: '#f59e0b', background: 'rgba(245, 158, 11, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>
+                        ⚠️ AI Suggestion
+                      </span>
+                    )}
+                  </div>
+                  <p className="pq-similar-stem">{currentSimilar.stem || (typeof currentSimilar === 'string' ? currentSimilar : '')}</p>
+                  {currentSimilar.keyTakeaway && (
+                    <p style={{ marginTop: '8px', fontSize: '0.85rem', color: 'var(--pq-gold)', fontStyle: 'italic' }}>
+                      💡 Pattern Insight: {currentSimilar.keyTakeaway}
+                    </p>
+                  )}
+                  {currentSimilar.targetId && (
+                    <Link
+                      href={`/prelims/pyq/${encodeURIComponent(currentSimilar.targetId)}`}
+                      className="pq-similar-btn"
+                    >
+                      <span>Attempt this Question on Portal</span>
+                      <ArrowRight size={15} />
+                    </Link>
+                  )}
+                </div>
+              ) : (
+                isAdmin && (
+                  <div
+                    onClick={() => setSimilarModalOpen(true)}
+                    style={{
+                      padding: '16px',
+                      border: '1px dashed rgba(255, 255, 255, 0.15)',
+                      borderRadius: '10px',
+                      textAlign: 'center',
+                      fontSize: '0.82rem',
+                      color: '#94a3b8',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    No similar PYQ attached yet. Click to suggest &amp; attach a predecessor question.
+                  </div>
+                )
+              )}
             </div>
           )}
 
@@ -808,6 +867,14 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
         onClose={() => setModalConcept(null)}
         initialConcept={modalConcept}
         isAdmin={isAdmin}
+      />
+
+      <SimilarPyqModal
+        isOpen={similarModalOpen}
+        onClose={() => setSimilarModalOpen(false)}
+        questionId={questionId}
+        currentSimilarPyq={currentSimilar}
+        onSuccess={(updated) => setCurrentSimilar(updated)}
       />
     </div>
   );
