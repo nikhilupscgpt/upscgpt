@@ -57,12 +57,12 @@ export function extractConceptTokens(text) {
 }
 
 /**
- * Searches and scores candidate similar PYQs for a given question.
+ * Searches and scores candidate similar PYQs for a given question (published or draft).
  */
 export async function findSimilarPyqCandidates(questionIdOrDedup, options = {}) {
   const limit = options.limit || 5;
 
-  const target = await withRetry(() =>
+  let target = await withRetry(() =>
     prisma.question.findFirst({
       where: {
         OR: [{ id: questionIdOrDedup }, { dedupHash: questionIdOrDedup }],
@@ -74,6 +74,44 @@ export async function findSimilarPyqCandidates(questionIdOrDedup, options = {}) 
     })
   );
 
+  let isDraft = false;
+  if (!target) {
+    const draft = await withRetry(() =>
+      prisma.questionDraft.findFirst({
+        where: {
+          OR: [{ id: questionIdOrDedup }, { dedupHash: questionIdOrDedup }],
+        },
+      })
+    );
+
+    if (draft) {
+      isDraft = true;
+      let draftAnalysis = null;
+      if (typeof draft.explanation === 'string' && draft.explanation.trim().startsWith('{')) {
+        try {
+          const parsed = JSON.parse(draft.explanation);
+          draftAnalysis = parsed.analysis || null;
+        } catch {}
+      }
+      target = {
+        id: draft.id,
+        dedupHash: draft.dedupHash,
+        examName: draft.examName,
+        examYear: draft.examYear,
+        subjectId: draft.subjectId,
+        topicId: draft.topicId,
+        subjectName: draft.srcSubject,
+        topicName: draft.srcTopic,
+        subject: { name: draft.srcSubject },
+        topic: { name: draft.srcTopic },
+        stem: draft.stem,
+        options: draft.options,
+        correctLabel: draft.correctLabel,
+        analysis: draftAnalysis,
+      };
+    }
+  }
+
   if (!target) {
     throw new Error(`Question ${questionIdOrDedup} not found`);
   }
@@ -82,14 +120,23 @@ export async function findSimilarPyqCandidates(questionIdOrDedup, options = {}) 
   const targetYear = target.examYear || 0;
   const targetSubjectId = target.subjectId;
   const targetTopicId = target.topicId;
+  const targetSubjectName = target.subject?.name || target.subjectName || '';
 
-  // Search candidate pool: prefer same subject, different year
-  const candidates = await withRetry(() =>
+  // Search candidate pool: first try same subject ID or name, else general pool
+  let candidates = [];
+  const candidateWhere = {
+    id: { not: target.id },
+  };
+
+  if (targetSubjectId) {
+    candidateWhere.subjectId = targetSubjectId;
+  } else if (targetSubjectName) {
+    candidateWhere.subject = { name: { contains: targetSubjectName.split(' ')[0], mode: 'insensitive' } };
+  }
+
+  candidates = await withRetry(() =>
     prisma.question.findMany({
-      where: {
-        id: { not: target.id },
-        ...(targetSubjectId ? { subjectId: targetSubjectId } : {}),
-      },
+      where: candidateWhere,
       select: {
         id: true,
         dedupHash: true,
@@ -104,9 +151,33 @@ export async function findSimilarPyqCandidates(questionIdOrDedup, options = {}) 
         subject: { select: { name: true } },
         topic: { select: { name: true } },
       },
-      take: 400,
+      take: 600,
     })
   );
+
+  // If subject filtering returned very few questions, widen search to all published questions
+  if (candidates.length < 20) {
+    candidates = await withRetry(() =>
+      prisma.question.findMany({
+        where: { id: { not: target.id } },
+        select: {
+          id: true,
+          dedupHash: true,
+          examName: true,
+          examYear: true,
+          stem: true,
+          options: true,
+          correctLabel: true,
+          subjectId: true,
+          topicId: true,
+          analysis: true,
+          subject: { select: { name: true } },
+          topic: { select: { name: true } },
+        },
+        take: 600,
+      })
+    );
+  }
 
   const scored = [];
 
@@ -180,7 +251,7 @@ export async function attachSimilarPyq({
   keyTakeaway,
   isVerified = true,
 }) {
-  const [sourceQ, targetQ] = await Promise.all([
+  let [sourceQ, targetQ] = await Promise.all([
     withRetry(() =>
       prisma.question.findFirst({
         where: { OR: [{ id: questionId }, { dedupHash: questionId }] },
@@ -197,6 +268,16 @@ export async function attachSimilarPyq({
     ),
   ]);
 
+  let isDraft = false;
+  if (!sourceQ) {
+    sourceQ = await withRetry(() =>
+      prisma.questionDraft.findFirst({
+        where: { OR: [{ id: questionId }, { dedupHash: questionId }] },
+      })
+    );
+    if (sourceQ) isDraft = true;
+  }
+
   if (!sourceQ) throw new Error(`Source question ${questionId} not found`);
   if (!targetQ) throw new Error(`Target question ${targetId} not found`);
 
@@ -212,10 +293,22 @@ export async function attachSimilarPyq({
     verifiedAt: new Date().toISOString(),
   };
 
-  const currentAnalysis =
-    typeof sourceQ.analysis === 'object' && sourceQ.analysis !== null
-      ? { ...sourceQ.analysis }
-      : {};
+  let currentAnalysis = {};
+  let draftData = {};
+
+  if (isDraft) {
+    if (typeof sourceQ.explanation === 'string' && sourceQ.explanation.trim().startsWith('{')) {
+      try {
+        draftData = JSON.parse(sourceQ.explanation);
+        currentAnalysis = draftData.analysis || {};
+      } catch {}
+    }
+  } else {
+    currentAnalysis =
+      typeof sourceQ.analysis === 'object' && sourceQ.analysis !== null
+        ? { ...sourceQ.analysis }
+        : {};
+  }
 
   // Store both single similarPyq (for backward compatibility) and array similarPyqs
   currentAnalysis.similarPyq = similarPyqPayload;
@@ -229,12 +322,22 @@ export async function attachSimilarPyq({
   filteredArray.unshift(similarPyqPayload);
   currentAnalysis.similarPyqs = filteredArray.slice(0, 3); // Keep top 3 family links
 
-  await withRetry(() =>
-    prisma.question.update({
-      where: { id: sourceQ.id },
-      data: { analysis: currentAnalysis },
-    })
-  );
+  if (isDraft) {
+    draftData.analysis = currentAnalysis;
+    await withRetry(() =>
+      prisma.questionDraft.update({
+        where: { id: sourceQ.id },
+        data: { explanation: JSON.stringify(draftData) },
+      })
+    );
+  } else {
+    await withRetry(() =>
+      prisma.question.update({
+        where: { id: sourceQ.id },
+        data: { analysis: currentAnalysis },
+      })
+    );
+  }
 
   return { success: true, similarPyq: similarPyqPayload };
 }
@@ -243,18 +346,40 @@ export async function attachSimilarPyq({
  * Detaches / removes a similar PYQ from a question's analysis.
  */
 export async function detachSimilarPyq({ questionId, targetId }) {
-  const sourceQ = await withRetry(() =>
+  let sourceQ = await withRetry(() =>
     prisma.question.findFirst({
       where: { OR: [{ id: questionId }, { dedupHash: questionId }] },
     })
   );
 
+  let isDraft = false;
+  if (!sourceQ) {
+    sourceQ = await withRetry(() =>
+      prisma.questionDraft.findFirst({
+        where: { OR: [{ id: questionId }, { dedupHash: questionId }] },
+      })
+    );
+    if (sourceQ) isDraft = true;
+  }
+
   if (!sourceQ) throw new Error(`Source question ${questionId} not found`);
 
-  const currentAnalysis =
-    typeof sourceQ.analysis === 'object' && sourceQ.analysis !== null
-      ? { ...sourceQ.analysis }
-      : {};
+  let currentAnalysis = {};
+  let draftData = {};
+
+  if (isDraft) {
+    if (typeof sourceQ.explanation === 'string' && sourceQ.explanation.trim().startsWith('{')) {
+      try {
+        draftData = JSON.parse(sourceQ.explanation);
+        currentAnalysis = draftData.analysis || {};
+      } catch {}
+    }
+  } else {
+    currentAnalysis =
+      typeof sourceQ.analysis === 'object' && sourceQ.analysis !== null
+        ? { ...sourceQ.analysis }
+        : {};
+  }
 
   if (!targetId || currentAnalysis.similarPyq?.targetId === targetId || currentAnalysis.similarPyq?.questionId === targetId) {
     currentAnalysis.similarPyq = null;
@@ -269,12 +394,22 @@ export async function detachSimilarPyq({ questionId, targetId }) {
     }
   }
 
-  await withRetry(() =>
-    prisma.question.update({
-      where: { id: sourceQ.id },
-      data: { analysis: currentAnalysis },
-    })
-  );
+  if (isDraft) {
+    draftData.analysis = currentAnalysis;
+    await withRetry(() =>
+      prisma.questionDraft.update({
+        where: { id: sourceQ.id },
+        data: { explanation: JSON.stringify(draftData) },
+      })
+    );
+  } else {
+    await withRetry(() =>
+      prisma.question.update({
+        where: { id: sourceQ.id },
+        data: { analysis: currentAnalysis },
+      })
+    );
+  }
 
   return { success: true };
 }
@@ -295,11 +430,16 @@ export async function searchQuestionsForFamily({ query, subject, excludeId, limi
   }
 
   if (q) {
-    where.OR = [
-      { stem: { contains: q, mode: 'insensitive' } },
-      { dedupHash: { contains: q, mode: 'insensitive' } },
-      { topic: { name: { contains: q, mode: 'insensitive' } } },
-    ];
+    const isYear = /^\d{4}$/.test(q);
+    if (isYear) {
+      where.examYear = parseInt(q, 10);
+    } else {
+      where.OR = [
+        { stem: { contains: q, mode: 'insensitive' } },
+        { dedupHash: { contains: q, mode: 'insensitive' } },
+        { topic: { name: { contains: q, mode: 'insensitive' } } },
+      ];
+    }
   }
 
   const results = await withRetry(() =>

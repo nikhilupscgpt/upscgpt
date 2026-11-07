@@ -30,7 +30,8 @@ import {
   Smartphone,
   ExternalLink,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Search
 } from 'lucide-react';
 import { getStructuredExplanation, formatQuestionForCopy } from '@/lib/pyqExplanationHelper';
 import { normalizeCanonicalSubject } from '@/app/prelims/pyq/topicGroups';
@@ -176,6 +177,15 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
       localStorage.setItem('pyq_auto_save_on_merge', String(val));
     }
   };
+
+  // Similar PYQ Suggestion & Search state
+  const [similarCandidates, setSimilarCandidates] = useState([]);
+  const [loadingSimilarCandidates, setLoadingSimilarCandidates] = useState(false);
+  const [showSimilarShelf, setShowSimilarShelf] = useState(false);
+  const [similarSearchOpen, setSimilarSearchOpen] = useState(false);
+  const [similarSearchQuery, setSimilarSearchQuery] = useState('');
+  const [similarSearchResults, setSimilarSearchResults] = useState([]);
+  const [similarSearching, setSimilarSearching] = useState(false);
 
   // Block accidental tab closing when unsaved changes exist
   useEffect(() => {
@@ -503,6 +513,85 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
         similarPyq: {
           ...((prev.analysis && prev.analysis.similarPyq) || {}),
           [field]: val
+        }
+      }
+    }));
+  };
+
+  const fetchSimilarCandidates = async () => {
+    setLoadingSimilarCandidates(true);
+    setShowSimilarShelf(true);
+    try {
+      const qId = initialQuestion.id || initialQuestion.dedupHash || data.id;
+      const res = await fetch(`/api/admin/pyq/similar?questionId=${encodeURIComponent(qId)}`);
+      if (res.ok) {
+        const d = await res.json();
+        setSimilarCandidates(d.candidates || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch similar PYQ candidates:', err);
+    } finally {
+      setLoadingSimilarCandidates(false);
+    }
+  };
+
+  const handleSearchSimilar = async (e) => {
+    if (e) e.preventDefault();
+    if (!similarSearchQuery.trim()) return;
+    setSimilarSearching(true);
+    try {
+      const qId = initialQuestion.id || initialQuestion.dedupHash || data.id;
+      const res = await fetch(`/api/admin/pyq/similar?q=${encodeURIComponent(similarSearchQuery)}&questionId=${encodeURIComponent(qId)}`);
+      if (res.ok) {
+        const d = await res.json();
+        setSimilarSearchResults(d.results || []);
+      }
+    } catch (err) {
+      console.error('Failed to search similar PYQ:', err);
+    } finally {
+      setSimilarSearching(false);
+    }
+  };
+
+  const handleAttachSimilarPyq = (cand) => {
+    updateDataAndSyncJson(prev => ({
+      ...prev,
+      analysis: {
+        ...(prev.analysis || {}),
+        similarPyq: {
+          targetId: cand.dedupHash || cand.id,
+          questionId: cand.id,
+          examName: cand.examName || 'UPSC CSE Pre',
+          examYear: cand.examYear || null,
+          srcTopic: cand.topic || cand.subject || 'Related Theme',
+          stem: cand.stem,
+          keyTakeaway: `Pattern predecessor: ${cand.matchReason || cand.stem.slice(0, 60)}.`,
+          isVerified: true
+        }
+      }
+    }));
+    setShowSimilarShelf(false);
+    setSimilarSearchOpen(false);
+  };
+
+  const handleClearSimilarPyq = () => {
+    updateDataAndSyncJson(prev => ({
+      ...prev,
+      analysis: {
+        ...(prev.analysis || {}),
+        similarPyq: null
+      }
+    }));
+  };
+
+  const handleToggleSimilarVerified = () => {
+    updateDataAndSyncJson(prev => ({
+      ...prev,
+      analysis: {
+        ...(prev.analysis || {}),
+        similarPyq: {
+          ...((prev.analysis && prev.analysis.similarPyq) || {}),
+          isVerified: !prev.analysis?.similarPyq?.isVerified
         }
       }
     }));
@@ -3019,7 +3108,7 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
               />
             </div>
 
-            {/* Similar PYQ Box */}
+            {/* Similar PYQ Box with Engine & Human Curation */}
             <div style={{
               background: '#0d1424',
               border: '1px solid #1c263c',
@@ -3027,12 +3116,306 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
               padding: '18px 20px',
               display: 'flex',
               flexDirection: 'column',
-              gap: '8px'
+              gap: '10px'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Compass size={15} color="#a78bfa" />
-                <strong style={{ fontSize: '13.5px', color: '#a78bfa' }}>Similar PYQ Linkage</strong>
+              {/* Header */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Compass size={15} color="#a78bfa" />
+                  <strong style={{ fontSize: '13.5px', color: '#a78bfa' }}>Similar PYQ Linkage</strong>
+                  {similarPyqObj.stem ? (
+                    <button
+                      type="button"
+                      onClick={handleToggleSimilarVerified}
+                      title="Click to toggle faculty verification status"
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        padding: '2px 7px',
+                        borderRadius: '9999px',
+                        fontSize: '10.5px',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        border: 'none',
+                        background: similarPyqObj.isVerified ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)',
+                        color: similarPyqObj.isVerified ? '#34d399' : '#fbbf24',
+                      }}
+                    >
+                      {similarPyqObj.isVerified ? (
+                        <><ShieldCheck size={11} /> Verified</>
+                      ) : (
+                        <><AlertCircle size={11} /> AI Linkage</>
+                      )}
+                    </button>
+                  ) : (
+                    <span style={{ fontSize: '10.5px', color: '#64748b' }}>None</span>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <button
+                    type="button"
+                    onClick={fetchSimilarCandidates}
+                    disabled={loadingSimilarCandidates}
+                    style={{
+                      background: 'rgba(167, 139, 250, 0.15)',
+                      color: '#c4b5fd',
+                      border: '1px solid rgba(167, 139, 250, 0.35)',
+                      borderRadius: '6px',
+                      padding: '4px 8px',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                    title="Find conceptual predecessor/successor PYQs using rule-based engine"
+                  >
+                    {loadingSimilarCandidates ? <RefreshCw size={11} className="animate-spin" /> : <Sparkles size={11} />}
+                    Suggest
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSimilarSearchOpen(!similarSearchOpen);
+                      setShowSimilarShelf(false);
+                    }}
+                    style={{
+                      background: similarSearchOpen ? '#334155' : '#1e293b',
+                      color: '#cbd5e1',
+                      border: '1px solid #334155',
+                      borderRadius: '6px',
+                      padding: '4px 8px',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                    title="Search database for a specific PYQ"
+                  >
+                    <Search size={11} />
+                    Search
+                  </button>
+
+                  {similarPyqObj.stem && (
+                    <button
+                      type="button"
+                      onClick={handleClearSimilarPyq}
+                      style={{
+                        background: 'transparent',
+                        color: '#ef4444',
+                        border: '1px solid rgba(239, 68, 68, 0.25)',
+                        borderRadius: '6px',
+                        padding: '4px 6px',
+                        fontSize: '11px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '2px'
+                      }}
+                      title="Clear attached similar PYQ"
+                    >
+                      <Trash2 size={11} />
+                    </button>
+                  )}
+                </div>
               </div>
+
+              {/* Candidates Shelf */}
+              {showSimilarShelf && (
+                <div style={{
+                  background: '#070b14',
+                  border: '1px solid #3b2d54',
+                  borderRadius: '10px',
+                  padding: '10px 12px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                  maxHeight: '260px',
+                  overflowY: 'auto'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#c4b5fd', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      ⚡ Engine Suggested Candidates ({similarCandidates.length})
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowSimilarShelf(false)}
+                      style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '11px', cursor: 'pointer' }}
+                    >
+                      ✕ Close
+                    </button>
+                  </div>
+
+                  {loadingSimilarCandidates && (
+                    <div style={{ padding: '16px', textAlign: 'center', color: '#94a3b8', fontSize: '12px' }}>
+                      <RefreshCw size={14} className="animate-spin" style={{ display: 'inline', marginRight: '6px' }} />
+                      Scanning UPSC question corpus for concept matches...
+                    </div>
+                  )}
+
+                  {!loadingSimilarCandidates && similarCandidates.length === 0 && (
+                    <div style={{ padding: '12px', textAlign: 'center', color: '#94a3b8', fontSize: '12px' }}>
+                      No confident matches found. Try using <strong>Search</strong> above to look up by topic keyword or year.
+                    </div>
+                  )}
+
+                  {!loadingSimilarCandidates && similarCandidates.map((cand, idx) => (
+                    <div
+                      key={cand.id || cand.dedupHash || idx}
+                      style={{
+                        background: '#0f172a',
+                        border: '1px solid #1e293b',
+                        borderRadius: '6px',
+                        padding: '8px 10px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '4px'
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                          <span style={{ background: '#7c3aed', color: '#fff', fontSize: '10px', fontWeight: 800, padding: '1px 5px', borderRadius: '4px' }}>
+                            {cand.examYear || 'PYQ'}
+                          </span>
+                          <span style={{ fontSize: '11px', color: '#94a3b8' }}>{cand.subject || cand.topic || 'UPSC Prelims'}</span>
+                          <span style={{ fontSize: '10px', color: '#10b981', fontWeight: 700 }}>★ {cand.score}%</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleAttachSimilarPyq(cand)}
+                          style={{
+                            background: '#10b981',
+                            color: '#070b14',
+                            border: 'none',
+                            borderRadius: '4px',
+                            padding: '2px 8px',
+                            fontSize: '10.5px',
+                            fontWeight: 700,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          + Use This
+                        </button>
+                      </div>
+                      <div style={{ fontSize: '11.5px', color: '#e2e8f0', lineHeight: 1.35 }}>
+                        {cand.stem.length > 140 ? cand.stem.slice(0, 140) + '...' : cand.stem}
+                      </div>
+                      {cand.matchReason && (
+                        <div style={{ fontSize: '10px', color: '#a78bfa', fontStyle: 'italic' }}>
+                          {cand.matchReason}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Search Drawer */}
+              {similarSearchOpen && (
+                <div style={{
+                  background: '#070b14',
+                  border: '1px solid #1e293b',
+                  borderRadius: '10px',
+                  padding: '10px 12px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
+                }}>
+                  <div style={{ display: 'flex', gap: '6px' }}>
+                    <input
+                      type="text"
+                      value={similarSearchQuery}
+                      onChange={(e) => setSimilarSearchQuery(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSearchSimilar(e); } }}
+                      placeholder="Search question text, keyword, or year..."
+                      style={{
+                        flex: 1,
+                        background: '#0f172a',
+                        border: '1px solid #334155',
+                        borderRadius: '6px',
+                        padding: '5px 8px',
+                        fontSize: '11.5px',
+                        color: '#f8fafc',
+                        outline: 'none'
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleSearchSimilar}
+                      disabled={similarSearching}
+                      style={{
+                        background: '#3b82f6',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '6px',
+                        padding: '5px 10px',
+                        fontSize: '11px',
+                        fontWeight: 700,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {similarSearching ? '...' : 'Find'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSimilarSearchOpen(false)}
+                      style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '11px', cursor: 'pointer' }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  {similarSearchResults.length > 0 && (
+                    <div style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                      {similarSearchResults.map((cand, idx) => (
+                        <div
+                          key={cand.id || cand.dedupHash || idx}
+                          style={{
+                            background: '#0f172a',
+                            border: '1px solid #1e293b',
+                            borderRadius: '6px',
+                            padding: '6px 8px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '3px'
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span style={{ fontSize: '10.5px', fontWeight: 700, color: '#38bdf8' }}>
+                              {cand.examName} ({cand.examYear || 'PYQ'})
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleAttachSimilarPyq(cand)}
+                              style={{
+                                background: '#10b981',
+                                color: '#070b14',
+                                border: 'none',
+                                borderRadius: '4px',
+                                padding: '2px 8px',
+                                fontSize: '10px',
+                                fontWeight: 700,
+                                cursor: 'pointer'
+                              }}
+                            >
+                              + Attach
+                            </button>
+                          </div>
+                          <div style={{ fontSize: '11px', color: '#cbd5e1' }}>
+                            {cand.stem.length > 120 ? cand.stem.slice(0, 120) + '...' : cand.stem}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '8px' }}>
                 <input
