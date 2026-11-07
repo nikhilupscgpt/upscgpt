@@ -13,12 +13,6 @@ export default async function RemoteJoinPage({ searchParams }) {
   const sp = await searchParams;
   const code = sp?.code || '';
 
-  const session = await getServerSession(authOptions);
-
-  if (!session) {
-    redirect(`/login?callbackUrl=${encodeURIComponent(`/remote/join?code=${code}`)}`);
-  }
-
   // If code is valid, redirect directly to presenter studio with ?board=code
   if (/^\d{6}$/.test(code)) {
     redirect(`/admin/pyq/present?board=${code}`);

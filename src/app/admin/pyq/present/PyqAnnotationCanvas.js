@@ -250,18 +250,6 @@ export default function PyqAnnotationCanvas({
     return () => window.removeEventListener('resize', updateDpr);
   }, []);
 
-  // Remote Laser listener
-  useEffect(() => {
-    if (remoteLaserPoint && Array.isArray(remoteLaserPoint)) {
-      laserTrailRef.current.push({
-        x: remoteLaserPoint[0],
-        y: remoteLaserPoint[1],
-        time: getCurrentTimestamp(),
-      });
-      redraw();
-    }
-  }, [remoteLaserPoint, redraw]);
-
   // -------------------------------------------------------------
   // Render all strokes onto the HiDPI canvas
   // -------------------------------------------------------------
@@ -340,11 +328,23 @@ export default function PyqAnnotationCanvas({
     remoteLiveStroke,
   ]);
 
+  // Remote Laser listener (placed after redraw declaration to prevent TDZ ReferenceError)
+  useEffect(() => {
+    if (remoteLaserPoint && Array.isArray(remoteLaserPoint)) {
+      laserTrailRef.current.push({
+        x: remoteLaserPoint[0],
+        y: remoteLaserPoint[1],
+        time: getCurrentTimestamp(),
+      });
+      redraw();
+    }
+  }, [remoteLaserPoint, redraw]);
+
   // Laser animation loop
   useEffect(() => {
     let active = true;
     function loop() {
-      if (activeTool === 'laser' && laserTrailRef.current.length > 0) {
+      if (laserTrailRef.current.length > 0) {
         const now = getCurrentTimestamp();
         laserTrailRef.current = laserTrailRef.current.filter(p => now - p.time <= 450);
         redraw();

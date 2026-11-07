@@ -31,10 +31,8 @@ function err(message, status = 400) {
  * - POST { op: "answer", id, epoch, answer }
  */
 export async function GET(req) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return err('Unauthorized. Please sign in.', 401);
-  }
+  const session = await getServerSession(authOptions).catch(() => null);
+  const callerId = session?.user?.id || null;
 
   const { searchParams } = new URL(req.url);
   const op = searchParams.get('op');
@@ -56,8 +54,10 @@ export async function GET(req) {
     return err('Session expired', 410);
   }
 
-  const isDisplay = remoteSession.displayUserId === session.user.id;
-  const isController = remoteSession.controllerUserId === session.user.id;
+  const isPublicDisplay = remoteSession.displayUserId === 'board_display';
+  const isPublicController = remoteSession.controllerUserId === 'ipad_controller';
+  const isDisplay = isPublicDisplay || (callerId && remoteSession.displayUserId === callerId);
+  const isController = isPublicController || (callerId && remoteSession.controllerUserId === callerId);
 
   // 1. POLL
   if (op === 'poll') {
@@ -91,10 +91,8 @@ export async function GET(req) {
 }
 
 export async function POST(req) {
-  const session = await getServerSession(authOptions);
-  if (!session?.user?.id) {
-    return err('Unauthorized. Please sign in.', 401);
-  }
+  const session = await getServerSession(authOptions).catch(() => null);
+  const callerId = session?.user?.id || null;
 
   let body;
   try {
@@ -128,7 +126,7 @@ export async function POST(req) {
     const newSession = await prisma.remoteSession.create({
       data: {
         code,
-        displayUserId: session.user.id,
+        displayUserId: callerId || 'board_display',
         epoch: 0,
         expiresAt,
       },
@@ -152,7 +150,7 @@ export async function POST(req) {
     if (new Date() > new Date(current.expiresAt)) return err('Session expired', 410);
 
     // Ownership check: only display board can post offers
-    if (current.displayUserId !== session.user.id) {
+    if (current.displayUserId !== 'board_display' && current.displayUserId !== callerId) {
       return err('Forbidden: Only the board host can post offers', 403);
     }
 
@@ -190,7 +188,7 @@ export async function POST(req) {
     const updated = await prisma.remoteSession.update({
       where: { id: current.id },
       data: {
-        controllerUserId: session.user.id,
+        controllerUserId: callerId || 'ipad_controller',
         setId: body.setId != null ? String(body.setId) : current.setId,
       },
     });
@@ -214,7 +212,7 @@ export async function POST(req) {
     if (new Date() > new Date(current.expiresAt)) return err('Session expired', 410);
 
     // Caller must be the controller
-    if (current.controllerUserId !== session.user.id) {
+    if (current.controllerUserId !== 'ipad_controller' && current.controllerUserId !== callerId) {
       return err('Forbidden: Only joined controller can answer', 403);
     }
 

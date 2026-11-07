@@ -55,7 +55,8 @@ export async function proxy(request) {
     pathname.startsWith("/mains") ||
     pathname.startsWith("/issues") ||
     pathname.startsWith("/remote") ||
-    pathname.startsWith("/node")
+    pathname.startsWith("/node") ||
+    (pathname.startsWith("/admin/pyq/present") && /^\d{6}$/.test(request.nextUrl.searchParams.get("board") || ""))
   ) {
     return NextResponse.next();
   }
@@ -64,8 +65,9 @@ export async function proxy(request) {
   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
   if (!token) {
     const loginUrl = pathname.startsWith("/admin") ? "/admin-login" : "/login";
+    const fullTarget = pathname + (request.nextUrl.search || "");
     const redirectRes = NextResponse.redirect(
-      new URL(`${loginUrl}?callbackUrl=${encodeURIComponent(pathname)}`, request.url)
+      new URL(`${loginUrl}?callbackUrl=${encodeURIComponent(fullTarget)}`, request.url)
     );
     return withNoIndexHeader(redirectRes);
   }

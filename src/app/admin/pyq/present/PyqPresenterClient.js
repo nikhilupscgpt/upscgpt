@@ -517,6 +517,7 @@ export default function PyqPresenterClient({
               activeColor,
               penSize,
               presentationMode,
+              scratchpadsMap,
             });
             linkRef.current?.send({
               t: 'pages',
@@ -537,6 +538,7 @@ export default function PyqPresenterClient({
           if (msg.activeColor) setActiveColor(msg.activeColor);
           if (msg.penSize) setPenSize(msg.penSize);
           if (msg.presentationMode) setPresentationMode(msg.presentationMode);
+          if (msg.scratchpadsMap) setScratchpadsMap(msg.scratchpadsMap);
           break;
         }
 
@@ -633,6 +635,7 @@ export default function PyqPresenterClient({
     activeColor,
     penSize,
     presentationMode,
+    scratchpadsMap,
     getPagesSnapshot,
     mergePages,
   ]);
@@ -651,8 +654,8 @@ export default function PyqPresenterClient({
       setLinkStatus(status);
       if (info) setStatusInfo(info);
       if (status === 'connected') {
-        const setId = currentQ?.id || (questions[0]?.id || '');
-        link.send({ t: 'hello', setId, presenter: true });
+        const setId = questions.map(q => q.id).filter(Boolean).join(',') || currentQ?.id || '';
+        link.send({ t: 'hello', setId, questions, presenter: true });
       }
     });
 
@@ -660,7 +663,7 @@ export default function PyqPresenterClient({
       handleIncomingMessage(msg);
     });
 
-    const setId = currentQ?.id || (questions[0]?.id || '');
+    const setId = questions.map(q => q.id).filter(Boolean).join(',') || currentQ?.id || '';
     link.startControl(code, setId);
   }, [currentQ, questions, handleIncomingMessage]);
 
@@ -718,6 +721,7 @@ export default function PyqPresenterClient({
         activeColor,
         penSize,
         presentationMode,
+        scratchpadsMap,
       });
     }
   }, [
@@ -731,6 +735,7 @@ export default function PyqPresenterClient({
     activeColor,
     penSize,
     presentationMode,
+    scratchpadsMap,
   ]);
 
   // Remote ink action broadcasts

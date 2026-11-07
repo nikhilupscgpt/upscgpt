@@ -11,11 +11,7 @@ export const metadata = {
 };
 
 export default async function RemoteDisplayPage() {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(authOptions).catch(() => null);
 
-  if (!session) {
-    redirect('/admin-login?callbackUrl=/remote/display');
-  }
-
-  return <BoardDisplayClient user={session.user} />;
+  return <BoardDisplayClient user={session?.user || null} />;
 }

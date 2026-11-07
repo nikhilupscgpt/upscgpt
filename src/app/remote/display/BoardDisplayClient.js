@@ -75,6 +75,12 @@ export default function BoardDisplayClient({ user }) {
     link.on(async (msg) => {
       if (!active) return;
       if (msg.t === 'hello') {
+        if (Array.isArray(msg.questions) && msg.questions.length > 0) {
+          setDeck(msg.questions);
+          setIsDisplayActive(true);
+          link.send({ t: 'ready' });
+          return;
+        }
         try {
           const res = await fetch(`/api/remote?op=deck&id=${link.sessionId}`, {
             cache: 'no-store',

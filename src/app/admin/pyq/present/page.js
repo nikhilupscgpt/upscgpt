@@ -12,13 +12,14 @@ export const metadata = {
 };
 
 export default async function PyqPresentPage({ searchParams }) {
-  const session = await getServerSession(authOptions);
+  const sp = await searchParams;
+  const hasBoardCode = sp?.board && /^\d{6}$/.test(String(sp.board));
+  const session = await getServerSession(authOptions).catch(() => null);
 
-  if (!session || (session.user?.role !== 'ADMIN' && session.user?.role !== 'FACULTY')) {
+  if (!hasBoardCode && (!session || (session.user?.role !== 'ADMIN' && session.user?.role !== 'FACULTY'))) {
     redirect("/admin-login");
   }
 
-  const sp = await searchParams;
   const singleId = sp?.id;
   const multiIds = sp?.ids ? sp.ids.split(',').map(s => s.trim()).filter(Boolean) : [];
   const subject = sp?.subject;
