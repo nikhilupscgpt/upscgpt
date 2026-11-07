@@ -54,6 +54,7 @@ export async function proxy(request) {
     pathname.startsWith("/prelims") ||
     pathname.startsWith("/mains") ||
     pathname.startsWith("/issues") ||
+    pathname.startsWith("/remote") ||
     pathname.startsWith("/node")
   ) {
     return NextResponse.next();
@@ -67,6 +68,13 @@ export async function proxy(request) {
       new URL(`${loginUrl}?callbackUrl=${encodeURIComponent(pathname)}`, request.url)
     );
     return withNoIndexHeader(redirectRes);
+  }
+
+  // Display role restriction: keeps classroom display accounts strictly on board display
+  if (token?.role === 'DISPLAY') {
+    if (!pathname.startsWith('/remote/display') && !pathname.startsWith('/api/remote') && !pathname.startsWith('/api/auth')) {
+      return NextResponse.redirect(new URL('/remote/display', request.url));
+    }
   }
 
   const res = NextResponse.next();

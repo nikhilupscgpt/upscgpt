@@ -43,11 +43,15 @@ import {
   Columns,
   Grid,
   AlignJustify,
+  Cast,
 } from 'lucide-react';
 import { buildQuestionSteps, buildTopicSteps, buildMappingSteps } from '@/lib/pyqSlideDeck';
 import { parseStem } from '@/app/prelims/pyq/StemView';
 import PyqAnnotationCanvas from './PyqAnnotationCanvas';
 import StudioPresenterMap from './StudioPresenterMap';
+import { Link as RemoteLink } from '@/lib/remote/link';
+import BoardConnectDialog from '@/components/remote/BoardConnectDialog';
+import '@/app/remote/remote.css';
 import './present.css';
 
 const DARK_PALETTE = [
@@ -66,15 +70,33 @@ const LIGHT_PALETTE = [
   '#d97706', // Rich Ochre
 ];
 
-export default function PyqPresenterClient({ questions = [] }) {
+export default function PyqPresenterClient({
+  questions = [],
+  isDisplayMode = false,
+  externalLink = null,
+  onExitDisplay = null,
+}) {
   const [qIndex, setQIndex] = useState(0);
   const [stepIndex, setStepIndex] = useState(0);
   const [scale, setScale] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showWebcamBox, setShowWebcamBox] = useState(true);
+  const [showWebcamBox, setShowWebcamBox] = useState(!isDisplayMode);
   const [isBlackboard, setIsBlackboard] = useState(false);
   const [isZoomedImage, setIsZoomedImage] = useState(false);
   const [isQueueOpen, setIsQueueOpen] = useState(false);
+
+  // Remote Presenting State (Section 4 & 5)
+  const linkRef = useRef(externalLink || null);
+  const [linkStatus, setLinkStatus] = useState(externalLink ? externalLink.status : 'waiting');
+  const [statusInfo, setStatusInfo] = useState('');
+  const [pairedCode, setPairedCode] = useState(externalLink ? externalLink.code : null);
+  const [isConnectDialogOpen, setIsConnectDialogOpen] = useState(false);
+  const [remoteLiveStroke, setRemoteLiveStroke] = useState(null);
+  const [remoteLaserPoint, setRemoteLaserPoint] = useState(null);
+  const applyingRef = useRef(false);
+
+  // Zoom & Pan State (Section 6, Rules 7-8)
+  const [zoom, setZoom] = useState({ z: 1, x: 0, y: 0 });
 
   const [theme, setTheme] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -408,18 +430,352 @@ export default function PyqPresenterClient({ questions = [] }) {
   const handleUndo = useCallback(() => {
     const stepStrokes = stepInkMap[currentStepKey] || [];
     if (stepStrokes.length > 0) {
+      const last = stepStrokes[stepStrokes.length - 1];
       handleUpdateStepStrokes(stepStrokes.slice(0, -1));
+      if (!applyingRef.current && linkRef.current?.status === 'connected') {
+        linkRef.current.send({ t: 'del', k: `step_${currentStepKey}`, ids: [last.id] });
+      }
       return;
     }
     const qStrokes = questionInkMap[currentQId] || [];
     if (qStrokes.length > 0) {
+      const last = qStrokes[qStrokes.length - 1];
       handleUpdateQStrokes(qStrokes.slice(0, -1));
+      if (!applyingRef.current && linkRef.current?.status === 'connected') {
+        linkRef.current.send({ t: 'del', k: `q_${currentQId}`, ids: [last.id] });
+      }
     }
   }, [stepInkMap, currentStepKey, questionInkMap, currentQId, handleUpdateStepStrokes, handleUpdateQStrokes]);
 
   const handleClearStepInk = useCallback(() => {
     handleUpdateStepStrokes([]);
-  }, [handleUpdateStepStrokes]);
+    if (!applyingRef.current && linkRef.current?.status === 'connected') {
+      linkRef.current.send({ t: 'clear', k: `step_${currentStepKey}` });
+    }
+  }, [handleUpdateStepStrokes, currentStepKey]);
+
+  // -------------------------------------------------------------
+  // Remote Presenting Data Channel Sync (Section 5 & 6)
+  // -------------------------------------------------------------
+  const getPagesSnapshot = useCallback(() => {
+    return {
+      questions: questionInkMap,
+      steps: stepInkMap,
+    };
+  }, [questionInkMap, stepInkMap]);
+
+  const mergePages = useCallback((incoming) => {
+    if (!incoming) return;
+    if (incoming.questions) {
+      setQuestionInkMap((prev) => {
+        const next = { ...prev };
+        for (const [k, ss] of Object.entries(incoming.questions)) {
+          const existing = next[k] || [];
+          const existingIds = new Set(existing.map((s) => s.id));
+          const toAdd = (ss || []).filter((s) => !existingIds.has(s.id));
+          next[k] = [...existing, ...toAdd];
+        }
+        return next;
+      });
+    }
+    if (incoming.steps) {
+      setStepInkMap((prev) => {
+        const next = { ...prev };
+        for (const [k, ss] of Object.entries(incoming.steps)) {
+          const existing = next[k] || [];
+          const existingIds = new Set(existing.map((s) => s.id));
+          const toAdd = (ss || []).filter((s) => !existingIds.has(s.id));
+          next[k] = [...existing, ...toAdd];
+        }
+        return next;
+      });
+    }
+  }, []);
+
+  const handleIncomingMessage = useCallback((msg) => {
+    if (!msg || !msg.t) return;
+    applyingRef.current = true;
+
+    try {
+      switch (msg.t) {
+        case 'hello': {
+          linkRef.current?.send({ t: 'ready' });
+          break;
+        }
+
+        case 'ready': {
+          if (!isDisplayMode) {
+            linkRef.current?.send({
+              t: 'state',
+              qIndex,
+              stepIndex,
+              theme,
+              isBlackboard,
+              timerSeconds,
+              zoom,
+              activeTool,
+              activeColor,
+              penSize,
+              presentationMode,
+            });
+            linkRef.current?.send({
+              t: 'pages',
+              pages: getPagesSnapshot(),
+            });
+          }
+          break;
+        }
+
+        case 'state': {
+          if (typeof msg.qIndex === 'number') setQIndex(msg.qIndex);
+          if (typeof msg.stepIndex === 'number') setStepIndex(msg.stepIndex);
+          if (msg.theme && (msg.theme === 'light' || msg.theme === 'dark')) setTheme(msg.theme);
+          if (typeof msg.isBlackboard === 'boolean') setIsBlackboard(msg.isBlackboard);
+          if (msg.timerSeconds !== undefined) setTimerSeconds(msg.timerSeconds);
+          if (msg.zoom) setZoom(msg.zoom);
+          if (msg.activeTool) setActiveTool(msg.activeTool);
+          if (msg.activeColor) setActiveColor(msg.activeColor);
+          if (msg.penSize) setPenSize(msg.penSize);
+          if (msg.presentationMode) setPresentationMode(msg.presentationMode);
+          break;
+        }
+
+        case 'adds': {
+          const { k, ss } = msg;
+          if (Array.isArray(ss) && ss.length > 0) {
+            if (k.startsWith('q_')) {
+              const qId = k.slice(2);
+              setQuestionInkMap((prev) => {
+                const existing = prev[qId] || [];
+                const existingIds = new Set(existing.map((s) => s.id));
+                const newStrokes = ss.filter((s) => !existingIds.has(s.id));
+                return { ...prev, [qId]: [...existing, ...newStrokes] };
+              });
+            } else if (k.startsWith('step_')) {
+              const stepKey = k.slice(5);
+              setStepInkMap((prev) => {
+                const existing = prev[stepKey] || [];
+                const existingIds = new Set(existing.map((s) => s.id));
+                const newStrokes = ss.filter((s) => !existingIds.has(s.id));
+                return { ...prev, [stepKey]: [...existing, ...newStrokes] };
+              });
+            }
+          }
+          break;
+        }
+
+        case 'del': {
+          const { k, ids } = msg;
+          if (Array.isArray(ids) && ids.length > 0) {
+            const idSet = new Set(ids);
+            if (k.startsWith('q_')) {
+              const qId = k.slice(2);
+              setQuestionInkMap((prev) => ({
+                ...prev,
+                [qId]: (prev[qId] || []).filter((s) => !idSet.has(s.id)),
+              }));
+            } else if (k.startsWith('step_')) {
+              const stepKey = k.slice(5);
+              setStepInkMap((prev) => ({
+                ...prev,
+                [stepKey]: (prev[stepKey] || []).filter((s) => !idSet.has(s.id)),
+              }));
+            }
+          }
+          break;
+        }
+
+        case 'clear': {
+          const { k } = msg;
+          if (k.startsWith('q_')) {
+            const qId = k.slice(2);
+            setQuestionInkMap((prev) => ({ ...prev, [qId]: [] }));
+          } else if (k.startsWith('step_')) {
+            const stepKey = k.slice(5);
+            setStepInkMap((prev) => ({ ...prev, [stepKey]: [] }));
+          }
+          break;
+        }
+
+        case 'live': {
+          const { k, s } = msg;
+          setRemoteLiveStroke(s ? { k, stroke: s } : null);
+          break;
+        }
+
+        case 'laser': {
+          const { p } = msg;
+          if (Array.isArray(p)) {
+            setRemoteLaserPoint(p);
+          }
+          break;
+        }
+
+        case 'pages': {
+          mergePages(msg.pages);
+          break;
+        }
+      }
+    } finally {
+      setTimeout(() => {
+        applyingRef.current = false;
+      }, 0);
+    }
+  }, [
+    isDisplayMode,
+    qIndex,
+    stepIndex,
+    theme,
+    isBlackboard,
+    timerSeconds,
+    zoom,
+    activeTool,
+    activeColor,
+    penSize,
+    presentationMode,
+    getPagesSnapshot,
+    mergePages,
+  ]);
+
+  // Connect to Board (iPad side)
+  const handleConnectToBoard = useCallback((code) => {
+    let link = linkRef.current;
+    if (!link) {
+      link = new RemoteLink('control');
+      linkRef.current = link;
+    }
+    setPairedCode(code);
+    setLinkStatus('connecting');
+
+    link.watch((status, info) => {
+      setLinkStatus(status);
+      if (info) setStatusInfo(info);
+      if (status === 'connected') {
+        const setId = currentQ?.id || (questions[0]?.id || '');
+        link.send({ t: 'hello', setId, presenter: true });
+      }
+    });
+
+    link.on((msg) => {
+      handleIncomingMessage(msg);
+    });
+
+    const setId = currentQ?.id || (questions[0]?.id || '');
+    link.startControl(code, setId);
+  }, [currentQ, questions, handleIncomingMessage]);
+
+  const handleDisconnectBoard = useCallback(() => {
+    if (linkRef.current) {
+      linkRef.current.stop();
+      linkRef.current = null;
+    }
+    setLinkStatus('waiting');
+    setPairedCode(null);
+  }, []);
+
+  // Wire external link if on smart board display
+  useEffect(() => {
+    if (!externalLink) return;
+    linkRef.current = externalLink;
+    setLinkStatus(externalLink.status);
+    setPairedCode(externalLink.code);
+
+    const unsubWatch = externalLink.watch((st, info) => {
+      setLinkStatus(st);
+      if (info) setStatusInfo(info);
+    });
+    const unsubMsg = externalLink.on((msg) => handleIncomingMessage(msg));
+
+    return () => {
+      unsubWatch();
+      unsubMsg();
+    };
+  }, [externalLink, handleIncomingMessage]);
+
+  // Check URL ?board=123456 auto-connect
+  useEffect(() => {
+    if (typeof window === 'undefined' || isDisplayMode || externalLink) return;
+    const sp = new URLSearchParams(window.location.search);
+    const boardParam = sp.get('board');
+    if (boardParam && /^\d{6}$/.test(boardParam)) {
+      handleConnectToBoard(boardParam);
+    }
+  }, [isDisplayMode, externalLink, handleConnectToBoard]);
+
+  // Broadcast state changes when local properties update
+  useEffect(() => {
+    if (applyingRef.current) return;
+    if (linkRef.current?.status === 'connected') {
+      linkRef.current.send({
+        t: 'state',
+        qIndex,
+        stepIndex,
+        theme,
+        isBlackboard,
+        timerSeconds,
+        zoom,
+        activeTool,
+        activeColor,
+        penSize,
+        presentationMode,
+      });
+    }
+  }, [
+    qIndex,
+    stepIndex,
+    theme,
+    isBlackboard,
+    timerSeconds,
+    zoom,
+    activeTool,
+    activeColor,
+    penSize,
+    presentationMode,
+  ]);
+
+  // Remote ink action broadcasts
+  const handleRemoteAddStroke = useCallback(({ targetLayer, stroke }) => {
+    if (applyingRef.current) return;
+    const pageKey = targetLayer === 'question' ? `q_${currentQId}` : `step_${currentStepKey}`;
+    linkRef.current?.send({
+      t: 'adds',
+      k: pageKey,
+      ss: [stroke],
+    });
+  }, [currentQId, currentStepKey]);
+
+  const handleRemoteDeleteStroke = useCallback(({ targetLayer, ids }) => {
+    if (applyingRef.current) return;
+    const pageKey = targetLayer === 'question' ? `q_${currentQId}` : `step_${currentStepKey}`;
+    linkRef.current?.send({
+      t: 'del',
+      k: pageKey,
+      ids,
+    });
+  }, [currentQId, currentStepKey]);
+
+  const handleRemoteLiveStroke = useCallback((stroke) => {
+    if (applyingRef.current) return;
+    const pageKey = stroke?.targetLayer === 'question' ? `q_${currentQId}` : `step_${currentStepKey}`;
+    linkRef.current?.send({
+      t: 'live',
+      k: pageKey,
+      s: stroke,
+    });
+  }, [currentQId, currentStepKey]);
+
+  const handleRemoteLaserMove = useCallback((p) => {
+    if (applyingRef.current) return;
+    linkRef.current?.send({
+      t: 'laser',
+      p,
+    });
+  }, []);
+
+  // Reset zoom on question change (Section 6, Rule 7)
+  useEffect(() => {
+    setZoom({ z: 1, x: 0, y: 0 });
+  }, [qIndex]);
 
   // -------------------------------------------------------------
   // Dynamic Blank Slide / Scratchpad Callbacks
@@ -497,7 +853,13 @@ export default function PyqPresenterClient({ questions = [] }) {
   // -------------------------------------------------------------
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (['INPUT', 'TEXTAREA'].includes(e.target?.tagName)) return;
+      if (
+        ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target?.tagName) ||
+        e.target?.isContentEditable ||
+        e.target?.closest?.('dialog, [role="dialog"], .pq-connect-dialog, input, textarea, select')
+      ) {
+        return;
+      }
 
       // Undo: Cmd+Z or Ctrl+Z
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
@@ -660,6 +1022,23 @@ export default function PyqPresenterClient({ questions = [] }) {
             transformOrigin: 'center center',
           } : undefined}
         >
+          {/* Zoomable View Container (Section 6, Rule 7) */}
+          <div
+            id="pq-present-view"
+            style={
+              zoom.z !== 1 || zoom.x !== 0 || zoom.y !== 0
+                ? {
+                    width: '100%',
+                    height: '100%',
+                    display: 'grid',
+                    gridTemplateColumns: 'inherit',
+                    transform: `scale(${zoom.z}) translate(${-zoom.x}px, ${-zoom.y}px)`,
+                    transformOrigin: '0 0',
+                    transition: 'transform 0.05s ease-out',
+                  }
+                : { width: '100%', height: '100%', display: 'grid', gridTemplateColumns: 'inherit' }
+            }
+          >
           {/* Brand Watermark (Top Right) */}
           <div className="pq-present-brand-watermark">
             <span className="pq-present-brand-dot" />
@@ -1767,6 +2146,7 @@ export default function PyqPresenterClient({ questions = [] }) {
               </div>
             </div>
           )}
+          </div> {/* End #pq-present-view */}
 
           {/* ========================================================= */}
           {/* ANNOTATION CANVAS (TOPMOST INTERACTION LAYER)             */}
@@ -1784,6 +2164,14 @@ export default function PyqPresenterClient({ questions = [] }) {
             stepStrokes={currentStepStrokes}
             onUpdateQuestionStrokes={handleUpdateQStrokes}
             onUpdateStepStrokes={handleUpdateStepStrokes}
+            zoom={zoom}
+            onZoomChange={setZoom}
+            onLiveStroke={handleRemoteLiveStroke}
+            remoteLiveStroke={remoteLiveStroke?.stroke}
+            onLaserMove={handleRemoteLaserMove}
+            remoteLaserPoint={remoteLaserPoint}
+            onAddStroke={handleRemoteAddStroke}
+            onDeleteStroke={handleRemoteDeleteStroke}
           />
         </div>
       </div>
@@ -2050,6 +2438,58 @@ export default function PyqPresenterClient({ questions = [] }) {
             {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
           </button>
 
+          {/* Smart Board Connect (iPad / Controller) */}
+          {!isDisplayMode && (
+            <button
+              type="button"
+              onClick={() => setIsConnectDialogOpen(true)}
+              className={`pq-dock-btn ${linkStatus === 'connected' ? 'is-active' : ''}`}
+              title={
+                linkStatus === 'connected'
+                  ? `Connected to Smart Board (${pairedCode})`
+                  : linkStatus === 'connecting'
+                  ? 'Connecting to Smart Board...'
+                  : 'Connect to Smart Board'
+              }
+              style={{ position: 'relative' }}
+            >
+              <Cast size={16} />
+              <span
+                style={{
+                  position: 'absolute',
+                  top: 5,
+                  right: 5,
+                  width: 7,
+                  height: 7,
+                  borderRadius: '50%',
+                  backgroundColor:
+                    linkStatus === 'connected'
+                      ? '#22c55e'
+                      : linkStatus === 'connecting'
+                      ? '#f59e0b'
+                      : '#64748b',
+                  boxShadow:
+                    linkStatus === 'connected'
+                      ? '0 0 6px #22c55e'
+                      : linkStatus === 'connecting'
+                      ? '0 0 6px #f59e0b'
+                      : 'none',
+                }}
+              />
+            </button>
+          )}
+
+          {isDisplayMode && onExitDisplay && (
+            <button
+              type="button"
+              onClick={onExitDisplay}
+              className="pq-dock-btn"
+              title="Exit Display Mode / Re-pair"
+            >
+              <X size={16} />
+            </button>
+          )}
+
           {/* Presentation Mode Switcher: Fluid Screen Fit (Mac Native) vs 16:9 Broadcast */}
           <button
             type="button"
@@ -2085,6 +2525,17 @@ export default function PyqPresenterClient({ questions = [] }) {
           </button>
         </footer>
       )}
+
+      {/* Board Connect Dialog (Section 8) */}
+      <BoardConnectDialog
+        isOpen={isConnectDialogOpen}
+        onClose={() => setIsConnectDialogOpen(false)}
+        linkStatus={linkStatus}
+        statusInfo={statusInfo}
+        pairedCode={pairedCode}
+        onConnect={handleConnectToBoard}
+        onDisconnect={handleDisconnectBoard}
+      />
 
       {/* Keyboard Shortcuts Modal */}
       {showHelp && (

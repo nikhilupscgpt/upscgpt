@@ -39,7 +39,11 @@ function renderStroke(ctx, stroke, defaultPenSize, defaultHighlighterSize, isLiv
   if (!stroke || !stroke.points || stroke.points.length === 0) return;
 
   const isHighlighter = stroke.tool === 'highlighter';
-  const size = isHighlighter ? stroke.size || defaultHighlighterSize : stroke.size || defaultPenSize;
+  let size = isHighlighter ? stroke.size || defaultHighlighterSize : stroke.size || defaultPenSize;
+  // Section 6 Rule 7: Strokes drawn while zoomed store zs and divide their width by it
+  if (stroke.zs && stroke.zs > 0 && stroke.zs !== 1) {
+    size = size / stroke.zs;
+  }
 
   ctx.save();
   if (isHighlighter) {
@@ -212,6 +216,15 @@ export default function PyqAnnotationCanvas({
   stepStrokes = [],
   onUpdateQuestionStrokes,
   onUpdateStepStrokes,
+  // Remote sync & zoom additions (Section 6 & Rules 7-8)
+  zoom = { z: 1, x: 0, y: 0 },
+  onZoomChange,
+  onLiveStroke,
+  remoteLiveStroke = null,
+  onLaserMove,
+  remoteLaserPoint = null,
+  onAddStroke,
+  onDeleteStroke,
 }) {
   const canvasRef = useRef(null);
   const currentStrokeRef = useRef(null);
@@ -220,6 +233,9 @@ export default function PyqAnnotationCanvas({
   const hoverStateRef = useRef({ x: 0, y: 0, visible: false, isBarrelEraser: false, isPenDown: false });
   const cachedRectRef = useRef(null);
   const animFrameRef = useRef(null);
+  const lastLiveBroadcastRef = useRef(0);
+  const lastLaserBroadcastRef = useRef(0);
+  const pinchStartRef = useRef(null);
 
   const [dpr, setDpr] = useState(1);
 
@@ -234,6 +250,18 @@ export default function PyqAnnotationCanvas({
     return () => window.removeEventListener('resize', updateDpr);
   }, []);
 
+  // Remote Laser listener
+  useEffect(() => {
+    if (remoteLaserPoint && Array.isArray(remoteLaserPoint)) {
+      laserTrailRef.current.push({
+        x: remoteLaserPoint[0],
+        y: remoteLaserPoint[1],
+        time: getCurrentTimestamp(),
+      });
+      redraw();
+    }
+  }, [remoteLaserPoint, redraw]);
+
   // -------------------------------------------------------------
   // Render all strokes onto the HiDPI canvas
   // -------------------------------------------------------------
@@ -246,6 +274,16 @@ export default function PyqAnnotationCanvas({
     ctx.save();
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+    const z = zoom?.z || 1;
+    const zx = zoom?.x || 0;
+    const zy = zoom?.y || 0;
+
+    ctx.save();
+    if (z !== 1 || zx !== 0 || zy !== 0) {
+      ctx.scale(z, z);
+      ctx.translate(-zx, -zy);
+    }
 
     // 1. Draw persistent Question Panel strokes (hidden during full-stage scratchpad)
     if (!isFullStage) {
@@ -271,16 +309,36 @@ export default function PyqAnnotationCanvas({
       );
     }
 
-    // 4. Draw laser pointer trail if laser tool is active
-    if (activeTool === 'laser' && laserTrailRef.current.length > 0) {
+    // 4. Remote in-progress live stroke
+    if (remoteLiveStroke) {
+      renderStroke(ctx, remoteLiveStroke, penSize, highlighterSize, true);
+    }
+
+    // 5. Draw laser pointer trail if laser tool is active or remote laser is active
+    if (laserTrailRef.current.length > 0) {
       renderLaser(ctx, laserTrailRef.current, getCurrentTimestamp());
     }
 
-    // 5. Draw live hover nib or eraser hit-circle
+    ctx.restore();
+
+    // 6. Draw live hover nib or eraser hit-circle
     renderHoverPreview(ctx, hoverStateRef.current, activeTool, activeColor, penSize, highlighterSize);
 
     ctx.restore();
-  }, [questionStrokes, stepStrokes, activeTool, activeColor, penSize, highlighterSize, canvasWidth, canvasHeight, isFullStage, dpr]);
+  }, [
+    questionStrokes,
+    stepStrokes,
+    activeTool,
+    activeColor,
+    penSize,
+    highlighterSize,
+    canvasWidth,
+    canvasHeight,
+    isFullStage,
+    dpr,
+    zoom,
+    remoteLiveStroke,
+  ]);
 
   // Laser animation loop
   useEffect(() => {
@@ -307,7 +365,7 @@ export default function PyqAnnotationCanvas({
   }, [redraw]);
 
   // -------------------------------------------------------------
-  // Pointer Event Coordinates in Canvas Space (Zero Layout Reflow)
+  // Pointer Event Coordinates in Canvas Space (Zero Layout Reflow + Zoom Unproject)
   // -------------------------------------------------------------
   const getCanvasCoords = (ev, refreshRect = false) => {
     const canvas = canvasRef.current;
@@ -319,8 +377,17 @@ export default function PyqAnnotationCanvas({
     const rect = cachedRectRef.current;
     const scaleX = rect.width / canvasWidth;
     const scaleY = rect.height / canvasHeight;
-    const x = (ev.clientX - rect.left) / (scaleX || scale || 1);
-    const y = (ev.clientY - rect.top) / (scaleY || scale || 1);
+
+    const z = zoom?.z || 1;
+    const zx = zoom?.x || 0;
+    const zy = zoom?.y || 0;
+
+    const stageX = (ev.clientX - rect.left) / (scaleX || scale || 1);
+    const stageY = (ev.clientY - rect.top) / (scaleY || scale || 1);
+
+    // Unproject zoom so all strokes and laser are stored in logical stage space
+    const x = stageX / z + zx;
+    const y = stageY / z + zy;
 
     // Clamped Smart Pressure for XP-Pen (8192 levels) & Apple Pencil:
     // Prevents faint invisible lines while keeping natural calligraphic weight
@@ -348,19 +415,25 @@ export default function PyqAnnotationCanvas({
     };
 
     if (isFullStage) {
-      const filtered = stepStrokes.filter(s => !hitStroke(s));
-      if (filtered.length !== stepStrokes.length) {
+      const removed = stepStrokes.filter(hitStroke);
+      if (removed.length > 0) {
+        const filtered = stepStrokes.filter(s => !hitStroke(s));
         onUpdateStepStrokes?.(filtered);
+        onDeleteStroke?.({ targetLayer: 'step', ids: removed.map(s => s.id) });
       }
     } else if (isQuestionPanel) {
-      const filtered = questionStrokes.filter(s => !hitStroke(s));
-      if (filtered.length !== questionStrokes.length) {
+      const removed = questionStrokes.filter(hitStroke);
+      if (removed.length > 0) {
+        const filtered = questionStrokes.filter(s => !hitStroke(s));
         onUpdateQuestionStrokes?.(filtered);
+        onDeleteStroke?.({ targetLayer: 'question', ids: removed.map(s => s.id) });
       }
     } else {
-      const filtered = stepStrokes.filter(s => !hitStroke(s));
-      if (filtered.length !== stepStrokes.length) {
+      const removed = stepStrokes.filter(hitStroke);
+      if (removed.length > 0) {
+        const filtered = stepStrokes.filter(s => !hitStroke(s));
         onUpdateStepStrokes?.(filtered);
+        onDeleteStroke?.({ targetLayer: 'step', ids: removed.map(s => s.id) });
       }
     }
   };
@@ -461,6 +534,10 @@ export default function PyqAnnotationCanvas({
       for (const ev of eventsToProcess) {
         const pt = getCanvasCoords(ev, false);
         laserTrailRef.current.push({ x: pt.x, y: pt.y, time: now });
+        if (onLaserMove && now - lastLaserBroadcastRef.current >= 30) {
+          lastLaserBroadcastRef.current = now;
+          onLaserMove([pt.x, pt.y]);
+        }
       }
       redraw();
       return;
@@ -487,9 +564,7 @@ export default function PyqAnnotationCanvas({
       // Ignore sub-pixel digitizer/Sidecar noise when pen is nearly stationary
       if (dist < 0.75) continue;
 
-      // Velocity-adaptive EMA stabilization:
-      // Smooths out wireless Sidecar stair-stepping at slow writing speeds (dist < 4px)
-      // while snapping to 0.92 responsiveness during fast strokes/loops
+      // Velocity-adaptive EMA stabilization
       const alpha = dist < 4.0 ? 0.62 + (dist / 4.0) * 0.28 : 0.92;
       const smoothX = lastPt[0] + dx * alpha;
       const smoothY = lastPt[1] + dy * alpha;
@@ -497,6 +572,16 @@ export default function PyqAnnotationCanvas({
 
       stroke.maxTravel = (stroke.maxTravel || 0) + dist;
       pts.push([smoothX, smoothY, smoothP]);
+    }
+
+    // Broadcast in-progress live stroke throttled every 40ms (Section 6: live)
+    const nowTime = getCurrentTimestamp();
+    if (onLiveStroke && nowTime - lastLiveBroadcastRef.current >= 40) {
+      lastLiveBroadcastRef.current = nowTime;
+      onLiveStroke({
+        ...stroke,
+        points: [...stroke.points],
+      });
     }
 
     // Extract 1-frame hardware prediction for zero-latency live nib tracking
@@ -545,15 +630,28 @@ export default function PyqAnnotationCanvas({
       const stroke = currentStrokeRef.current;
       currentStrokeRef.current = null;
 
+      // Section 6 Rule 2: Every stroke gets a unique random id
+      stroke.id =
+        stroke.id ||
+        (typeof crypto !== 'undefined' && crypto.randomUUID
+          ? crypto.randomUUID()
+          : 's_' + Math.random().toString(36).slice(2) + Date.now());
+      // Section 6 Rule 7: Stroke stores zoom scale at time of drawing
+      stroke.zs = zoom?.z || 1;
+
       // Preserve quick taps (dotting 'i', periods, colons, decimal points)
       if (stroke.points.length === 1 || (stroke.maxTravel || 0) < 1.8) {
         stroke.isDot = true;
       }
 
+      if (onLiveStroke) onLiveStroke(null);
+
       if (stroke.targetLayer === 'question' && !isFullStage) {
         onUpdateQuestionStrokes?.([...questionStrokes, stroke]);
+        onAddStroke?.({ targetLayer: 'question', stroke });
       } else {
         onUpdateStepStrokes?.([...stepStrokes, stroke]);
+        onAddStroke?.({ targetLayer: 'step', stroke });
       }
     }
 
@@ -569,6 +667,60 @@ export default function PyqAnnotationCanvas({
     }
   };
 
+  // -------------------------------------------------------------
+  // Two-Finger Gesture (Section 6, Rule 8: Pinch to Zoom & Pan)
+  // -------------------------------------------------------------
+  const handleTouchStart = (e) => {
+    if (e.touches.length === 2) {
+      if (currentStrokeRef.current) {
+        currentStrokeRef.current = null;
+        if (onLiveStroke) onLiveStroke(null);
+        redraw();
+      }
+      const t1 = e.touches[0];
+      const t2 = e.touches[1];
+      const dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+      pinchStartRef.current = {
+        dist,
+        midX: (t1.clientX + t2.clientX) / 2,
+        midY: (t1.clientY + t2.clientY) / 2,
+        z: zoom?.z || 1,
+        x: zoom?.x || 0,
+        y: zoom?.y || 0,
+      };
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (e.touches.length === 2 && pinchStartRef.current) {
+      e.preventDefault();
+      const t1 = e.touches[0];
+      const t2 = e.touches[1];
+      const dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+      const start = pinchStartRef.current;
+      const scaleFactor = dist / (start.dist || 1);
+      const newZ = Math.min(4, Math.max(1, start.z * scaleFactor));
+
+      const dx = (t1.clientX + t2.clientX) / 2 - start.midX;
+      const dy = (t1.clientY + t2.clientY) / 2 - start.midY;
+
+      const newX = Math.max(0, Math.min(canvasWidth * (newZ - 1), start.x - dx / newZ));
+      const newY = Math.max(0, Math.min(canvasHeight * (newZ - 1), start.y - dy / newZ));
+
+      onZoomChange?.({
+        z: Number(newZ.toFixed(2)),
+        x: Math.round(newX),
+        y: Math.round(newY),
+      });
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    if (e.touches.length < 2) {
+      pinchStartRef.current = null;
+    }
+  };
+
   return (
     <canvas
       ref={canvasRef}
@@ -577,6 +729,7 @@ export default function PyqAnnotationCanvas({
       style={{
         width: `${canvasWidth}px`,
         height: `${canvasHeight}px`,
+        touchAction: 'none',
       }}
       className={`pq-annotation-canvas ${activeTool === 'none' ? 'is-tool-none' : ''} ${activeTool === 'eraser' ? 'is-eraser' : ''} ${activeTool === 'laser' ? 'is-laser' : ''}`}
       onContextMenu={(e) => e.preventDefault()}
@@ -585,6 +738,10 @@ export default function PyqAnnotationCanvas({
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
       onPointerLeave={handlePointerLeave}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
     />
   );
 }

@@ -1082,3 +1082,21 @@ model PlaceInNews {
   @@map("places_in_news")
 }
 
+model RemoteSession {
+  id               String   @id @default(cuid())
+  code             String   // 6 digits shown on the board
+  displayUserId    String   // the board's account
+  controllerUserId String?  // the iPad's account (after join)
+  setId            String?  // which lecture / deck the iPad chose
+  epoch            Int      @default(0) // +1 on every (re)connect attempt
+  offer            String?  @db.Text // board's WebRTC offer (JSON SDP) for this epoch
+  answer           String?  @db.Text // iPad's WebRTC answer
+  answerEpoch      Int?     // the epoch the answer belongs to
+  createdAt        DateTime @default(now())
+  expiresAt        DateTime // now() + 12 hours
+
+  @@index([code])
+  @@index([expiresAt])
+  @@map("remote_sessions")
+}
+
