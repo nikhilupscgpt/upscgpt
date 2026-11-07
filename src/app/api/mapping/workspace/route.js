@@ -11,6 +11,10 @@ export async function GET() {
     const [dbPins, dbQuestions, dbOrgs] = await Promise.all([
       withRetry(() =>
         prisma.placeInNews.findMany({
+          where: {
+            tier: { not: 'archived' },
+            parentId: null,
+          },
           orderBy: [{ date: 'desc' }, { updatedAt: 'desc' }],
         })
       ),
@@ -151,6 +155,8 @@ export async function GET() {
         upscAngle: p.upscAngle || null,
         similarPYQ: p.similarPYQ || [],
         resolvedSimilarPYQs: resolvedPyqs,
+        tier: p.tier || 'daily',
+        isMaster: p.tier === 'master',
         linkedIssueSlug: p.linkedIssueSlug || staticMatch?.linkedIssueSlug || null,
         linkedIssueTitle: p.linkedIssueTitle || staticMatch?.linkedIssueTitle || null,
         linkedIssueDomain: p.linkedIssueDomain || staticMatch?.linkedIssueDomain || null,

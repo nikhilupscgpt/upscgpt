@@ -683,8 +683,17 @@ export default function MappingWorkspace({
   // All PIN nodes (before scope or period filtering)
   const allPinNodes = useMemo(() => allNodes.filter((n) => n.isPin), [allNodes]);
 
-  // PIN nodes matching the active Day / Week / Month / All period (across ALL scopes so we can compute All / India / World counts!)
+  // Master Prelims Core pins count
+  const masterPinsCount = useMemo(
+    () => allPinNodes.filter((n) => n.isMaster || n.tier === 'master').length,
+    [allPinNodes]
+  );
+
+  // PIN nodes matching the active Day / Week / Month / All / Master period
   const periodMatchedPinNodes = useMemo(() => {
+    if (pinTimeMode === 'MASTER') {
+      return allPinNodes.filter((n) => n.isMaster || n.tier === 'master');
+    }
     if (pinTimeMode === 'ALL' || selectedPinPeriod === 'ALL') {
       return allPinNodes;
     }
@@ -715,7 +724,7 @@ export default function MappingWorkspace({
 
   // Available Day / Week / Month periods computed from allPinNodes (or scope-filtered if needed)
   const availablePinPeriods = useMemo(() => {
-    if (pinTimeMode === 'ALL') return [];
+    if (pinTimeMode === 'ALL' || pinTimeMode === 'MASTER') return [];
     const map = new Map();
 
     for (const n of allPinNodes) {
@@ -1519,8 +1528,10 @@ export default function MappingWorkspace({
                 { id: 'WEEK', label: 'Week' },
                 { id: 'MONTH', label: 'Month' },
                 { id: 'ALL', label: 'All' },
+                { id: 'MASTER', label: `⭐ Prelims Core (${masterPinsCount})` },
               ].map((tm) => {
                 const isActive = pinTimeMode === tm.id;
+                const isMasterTab = tm.id === 'MASTER';
                 return (
                   <button
                     key={tm.id}
@@ -1532,12 +1543,28 @@ export default function MappingWorkspace({
                     style={{
                       padding: '5px 12px',
                       borderRadius: 6,
-                      border: 'none',
-                      background: isActive ? '#ffffff' : 'transparent',
-                      color: isActive ? '#0f172a' : '#64748b',
+                      border: isMasterTab && isActive
+                        ? '1px solid #fde68a'
+                        : isMasterTab
+                        ? '1px dashed #f59e0b'
+                        : 'none',
+                      background: isActive
+                        ? isMasterTab
+                          ? '#fef3c7'
+                          : '#ffffff'
+                        : isMasterTab
+                        ? 'rgba(245, 158, 11, 0.08)'
+                        : 'transparent',
+                      color: isActive
+                        ? isMasterTab
+                          ? '#b45309'
+                          : '#0f172a'
+                        : isMasterTab
+                        ? '#d97706'
+                        : '#64748b',
                       boxShadow: isActive ? '0 1px 2px rgba(15,23,42,0.08)' : 'none',
                       fontSize: 12.5,
-                      fontWeight: isActive ? 700 : 600,
+                      fontWeight: isActive || isMasterTab ? 700 : 600,
                       cursor: 'pointer',
                       transition: 'all 0.15s ease',
                     }}
@@ -1550,7 +1577,7 @@ export default function MappingWorkspace({
           )}
 
           {/* 3. Date / Period Stepper: < Thu, 15 Oct 2026 (6 places) > */}
-          {activeMode === 'PIN' && pinTimeMode !== 'ALL' && availablePinPeriods.length > 0 && (
+          {activeMode === 'PIN' && pinTimeMode !== 'ALL' && pinTimeMode !== 'MASTER' && availablePinPeriods.length > 0 && (
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
               <button
                 type="button"
@@ -2110,9 +2137,29 @@ export default function MappingWorkspace({
                                           fontWeight: isSelected ? 700 : 600,
                                           color: '#0f172a',
                                           lineHeight: 1.32,
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          gap: 6,
+                                          flexWrap: 'wrap',
                                         }}
                                       >
-                                        {formatCleanPlaceHeading(node)}
+                                        <span>{formatCleanPlaceHeading(node)}</span>
+                                        {(node.isMaster || node.tier === 'master') && (
+                                          <span
+                                            style={{
+                                              fontSize: 9.5,
+                                              fontWeight: 800,
+                                              background: '#fef3c7',
+                                              color: '#b45309',
+                                              border: '1px solid #fde68a',
+                                              padding: '1px 5px',
+                                              borderRadius: 4,
+                                              letterSpacing: '0.02em',
+                                            }}
+                                          >
+                                            ⭐ Core
+                                          </span>
+                                        )}
                                       </div>
                                       <div
                                         style={{
@@ -3106,18 +3153,36 @@ export default function MappingWorkspace({
 
               {/* Clean Place Heading */}
               <div>
-                <h2
-                  style={{
-                    fontSize: 21,
-                    fontWeight: 800,
-                    margin: 0,
-                    color: '#0f172a',
-                    letterSpacing: '-0.01em',
-                    lineHeight: 1.25,
-                  }}
-                >
-                  {formatCleanPlaceHeading(selectedNode)}
-                </h2>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                  <h2
+                    style={{
+                      fontSize: 21,
+                      fontWeight: 800,
+                      margin: 0,
+                      color: '#0f172a',
+                      letterSpacing: '-0.01em',
+                      lineHeight: 1.25,
+                    }}
+                  >
+                    {formatCleanPlaceHeading(selectedNode)}
+                  </h2>
+                  {(selectedNode.isMaster || selectedNode.tier === 'master') && (
+                    <span
+                      style={{
+                        fontSize: 10.5,
+                        fontWeight: 800,
+                        background: '#fef3c7',
+                        color: '#b45309',
+                        border: '1px solid #fde68a',
+                        padding: '2px 7px',
+                        borderRadius: 5,
+                        letterSpacing: '0.02em',
+                      }}
+                    >
+                      ⭐ Prelims Core Anchor
+                    </span>
+                  )}
+                </div>
               </div>
 
               {panelMode === 'STUDY' ? (
