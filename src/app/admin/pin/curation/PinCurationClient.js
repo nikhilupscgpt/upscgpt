@@ -447,7 +447,7 @@ export default function PinCurationClient() {
                   Candidate Spatial &amp; Corridor Clusters
                 </h2>
                 <p style={{ fontSize: 12.5, color: '#94a3b8', margin: '4px 0 0' }}>
-                  The engine detected these entries occurring within $\le 75\text{ km}$ or along the same geographic corridor. Review and merge into single Master Anchors.
+                  The engine detected these entries occurring within 75 km or along the same geographic corridor. Review and merge into single Master Anchors.
                 </p>
               </div>
             </div>
