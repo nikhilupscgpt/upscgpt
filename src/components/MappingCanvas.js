@@ -213,9 +213,10 @@ function createNodeIcon(node, isSelected, showLabels = false) {
   const matchParen = rawPlace.match(/^([^(]+)\(([^)]+)\)$/);
   const mainTitle = matchParen ? matchParen[1].trim() : rawPlace;
   const shortTitle = (node.shortLabel || mainTitle.replace(/\s+(River|Sangam|Barrage|National Park)$/i, '')).trim();
-  const subDetail = matchParen
-    ? matchParen[2].trim()
-    : [node.locatedIn?.stateOrProvince, node.locatedIn?.country].filter(Boolean).join(', ') || node.regionScope || '';
+  const stateOrCountry = [node.locatedIn?.stateOrProvince, node.locatedIn?.country]
+    .filter(Boolean)
+    .join(', ') || node.regionScope || '';
+  const subDetail = stateOrCountry || (matchParen ? matchParen[2].trim() : '');
 
   const cleanMain = mainTitle.length > 22 ? `${mainTitle.slice(0, 20)}…` : mainTitle;
   const cleanShort = shortTitle.length > 16 ? `${shortTitle.slice(0, 15)}…` : shortTitle;

@@ -289,48 +289,263 @@ function getWeekInfo(dateStr) {
   };
 }
 
-function deriveExaminerTrap(node) {
-  if (!node) return null;
-  if (typeof node.upscAngle === 'string' && node.upscAngle.trim()) {
-    return node.upscAngle.trim();
+/**
+ * Strips internal database PYQ IDs like (ENV-UPSC-2023-03) or GEO-UPSC-2015-08
+ * and robotic AI preambles from any mapping text string.
+ */
+function stripInternalCodes(text) {
+  if (!text || typeof text !== 'string') return '';
+  return text
+    .replace(/\(\s*(?:[A-Z]{2,5}-UPSC-\d{4}-\d{1,3}(?:\s*(?:,|and|&)\s*[A-Z]{2,5}-UPSC-\d{4}-\d{1,3})*)\s*\)/gi, '')
+    .replace(/\b[A-Z]{2,5}-UPSC-\d{4}-\d{1,3}\b/g, '')
+    .replace(/^Directly?\s+(?:tested|reinforcement|aligned|relevant)\s+(?:in|of|with|to)\s+UPSC[^:—–-]*[:—–-]\s*/i, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
+/**
+ * 1A. Returns a clean, human place heading, e.g. "Sehore (Madhya Pradesh)"
+ * instead of "Sehore (Bherunda Teak Belt and Saru Maru Buddhist Site)".
+ */
+function formatCleanPlaceHeading(node) {
+  if (!node) return '';
+  const raw = (node.place || '').trim();
+  const parenMatch = raw.match(/^([^(]+?)\s*\(([^)]+)\)$/);
+  if (!parenMatch) {
+    const stateOrCountry =
+      node.regionScope === 'World'
+        ? node.locatedIn?.country
+        : node.locatedIn?.stateOrProvince;
+    if (
+      stateOrCountry &&
+      !raw.toLowerCase().includes(stateOrCountry.toLowerCase()) &&
+      stateOrCountry.length <= 24
+    ) {
+      return `${raw} (${stateOrCountry})`;
+    }
+    return raw;
   }
-  if (node.upscAngle && typeof node.upscAngle === 'object') {
-    const candidate =
-      node.upscAngle.trap ||
-      node.upscAngle.examinerTrap ||
-      node.upscAngle.prelimsAngle ||
-      node.upscAngle.whyImportant ||
-      node.upscAngle.note;
-    if (candidate && typeof candidate === 'string') return candidate;
+
+  const baseName = parenMatch[1].trim();
+  const insideParen = parenMatch[2].trim();
+  const isNoisyParen =
+    insideParen.length > 26 ||
+    /\b(belt|basin|corridor|project|site|zone|landfall|headwaters|confluence|monastery|sanctuary|subgroup|oilfield)\b/i.test(
+      insideParen
+    );
+
+  if (!isNoisyParen) {
+    return raw;
   }
-  const facts = Array.isArray(node.staticFacts) ? node.staticFacts : [];
-  const trapFact = facts.find((f) =>
-    /only|first|largest|smallest|endemic|border|tributary|doab|confluenc|ramsar|not|unlike|distinct|between/i.test(
-      f
+
+  const state = (node.locatedIn?.stateOrProvince || '').replace(/\s*\([^)]*\)/g, '').trim();
+  const country = (node.locatedIn?.country || '').replace(/\s*\([^)]*\)/g, '').trim();
+  const qualifier =
+    node.regionScope === 'World'
+      ? country || state
+      : state || country;
+
+  if (qualifier && !baseName.toLowerCase().includes(qualifier.toLowerCase())) {
+    return `${baseName} (${qualifier})`;
+  }
+  return baseName;
+}
+
+/**
+ * 1B. Returns the concise 1-line "Place" geographic anchor:
+ * e.g. "Sehore District (Vindhyan Range / Narmada Basin, MP)"
+ */
+function formatPlaceDescriptor(node) {
+  if (!node) return '';
+  if (node.locatedIn?.placeLine && typeof node.locatedIn.placeLine === 'string') {
+    return node.locatedIn.placeLine.trim();
+  }
+
+  const district = (node.locatedIn?.district || '').trim();
+  const state = (node.locatedIn?.stateOrProvince || '').trim();
+  const country = (node.locatedIn?.country || '').trim();
+  const basin = (
+    node.locatedIn?.riverBasin ||
+    node.locatedIn?.basin ||
+    node.locatedIn?.physiography ||
+    ''
+  ).trim();
+
+  const parts = [];
+  if (district) {
+    parts.push(
+      /district|province|governorate|prefecture|county|atoll|island/i.test(district)
+        ? district
+        : `${district} District`
+    );
+  }
+  if (state && (!district || !district.toLowerCase().includes(state.toLowerCase()))) {
+    parts.push(state);
+  }
+  if (
+    country &&
+    country !== 'India' &&
+    !parts.some((p) => p.toLowerCase().includes(country.toLowerCase()))
+  ) {
+    parts.push(country);
+  }
+
+  const baseLoc = parts.join(', ') || node.place || node.regionScope || 'India';
+  if (basin && basin.length <= 48) {
+    return `${baseLoc} (${basin})`;
+  }
+  return baseLoc;
+}
+
+/**
+ * 2. Returns a concise, human "Why in News" explanation strictly <= 30 words.
+ */
+function formatWhyInNews30Words(node) {
+  const rawHook = (node?.newsTriggers?.[0]?.newsHook || '').trim();
+  if (!rawHook) return '';
+
+  let cleaned = stripInternalCodes(rawHook)
+    .replace(
+      /^The\s+Indian\s+Express\s+(?:Explained\s+(?:Climate\s+)?section\s+)?(?:published\s+an?\s+[^,]+?\s+on\s+[A-Za-z]+\s+\d+\s+(?:into|on)\s+how\s+|(?:on\s+[A-Za-z]+\s+\d+\s+)?(?:examined|analysed|featured)\s+(?:how\s+)?)/i,
+      ''
     )
-  );
-  if (trapFact) return trapFact;
-  if (facts.length > 0) return facts[0];
-  if (Array.isArray(node.neighbours) && node.neighbours.length > 0) {
-    return `UPSC often tests spatial adjacency here — verify surrounding entities: ${node.neighbours.slice(0, 4).join(', ')}.`;
+    .replace(
+      /^(?:The\s+)?(?:Union\s+)?(?:Ministry\s+of\s+[A-Za-z\s,&]+|Prime\s+Minister's\s+Office|Vice-President's\s+Secretariat)\s+announced\s+(?:on\s+[A-Za-z]+\s+\d+\s+)?that\s+/i,
+      ''
+    )
+    .trim();
+
+  if (cleaned) {
+    cleaned = cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
   }
-  return null;
+
+  const words = cleaned.split(/\s+/).filter(Boolean);
+  if (words.length <= 30) {
+    return /[.!?]$/.test(cleaned) ? cleaned : `${cleaned}.`;
+  }
+
+  const sliced = words.slice(0, 30).join(' ').replace(/[,;:\-–—]+$/, '');
+  return `${sliced}.`;
+}
+
+/**
+ * 3. Returns a deduplicated array of concise "Other Importance" items:
+ * [{ label: 'Ecology & Geography', text: '...' }, ...]
+ */
+function formatOtherImportanceList(node) {
+  if (!node) return [];
+  const rawFacts = Array.isArray(node.staticFacts) ? node.staticFacts : [];
+  const seen = new Set();
+  const items = [];
+
+  for (const raw of rawFacts) {
+    const cleaned = stripInternalCodes(raw);
+    if (!cleaned) continue;
+
+    // Parse "*Category:* text" or "Category: text"
+    let label = null;
+    let body = cleaned;
+
+    const starMatch = cleaned.match(/^\*([^*:]{2,38}):?\*\s*:?\s*(.+)$/);
+    const colonMatch = !starMatch
+      ? cleaned.match(/^([A-Za-z][A-Za-z0-9 &/–—'-]{2,36}):\s+(.+)$/)
+      : null;
+
+    if (starMatch) {
+      label = starMatch[1].trim();
+      body = starMatch[2].trim();
+    } else if (colonMatch) {
+      label = colonMatch[1].trim();
+      body = colonMatch[2].trim();
+    }
+
+    const normKey = body.toLowerCase().slice(0, 65);
+    if (seen.has(normKey)) continue;
+    seen.add(normKey);
+
+    items.push({
+      label,
+      text: /[.!?]$/.test(body) ? body : `${body}.`,
+    });
+  }
+
+  return items;
+}
+
+/**
+ * 4. Returns concise "Related PYQ" summary bullets:
+ * [{ yearLabel: 'UPSC 2015 & 2023', summary: '...' }]
+ */
+function formatRelatedPyqList(node) {
+  if (!node) return [];
+
+  if (Array.isArray(node.upscAngle?.pyqBullets) && node.upscAngle.pyqBullets.length > 0) {
+    return node.upscAngle.pyqBullets
+      .map((item) => {
+        if (typeof item === 'string') {
+          const m = item.match(/^\*\*?([^*:]+?)\*\*?:\s*(.+)$/) || item.match(/^([^:]+):\s*(.+)$/);
+          if (m) {
+            return { yearLabel: m[1].trim(), summary: m[2].trim() };
+          }
+          return { yearLabel: 'UPSC PYQ', summary: item.trim() };
+        }
+        if (item && typeof item === 'object') {
+          return {
+            yearLabel: item.yearLabel || item.year || 'UPSC PYQ',
+            summary: item.summary || item.text || '',
+          };
+        }
+        return null;
+      })
+      .filter((x) => x && x.summary);
+  }
+
+  const pyqs = Array.isArray(node.resolvedSimilarPYQs) ? node.resolvedSimilarPYQs : [];
+  if (pyqs.length === 0) return [];
+
+  const seenSummaries = new Set();
+  const list = [];
+
+  for (const q of pyqs.slice(0, 3)) {
+    const yr = q.examYear ? `UPSC ${q.examYear}` : q.exam || 'UPSC Prelims';
+    let summary = '';
+    if (q.selection && typeof q.selection === 'string') {
+      summary = q.selection.trim();
+    } else if (q.answerText && typeof q.answerText === 'string' && q.answerText.length > 10 && !/^(1|2|both|neither|all|only)/i.test(q.answerText.trim())) {
+      summary = `${q.subject || 'Mapping'} — ${q.answerText.trim()}`;
+    } else if (q.stem) {
+      const firstLine = q.stem.split('\n')[0].replace(/consider the following statements\s*(with reference to|regarding|about)?\s*/i, '').replace(/[:?]$/, '').trim();
+      summary = firstLine.length > 95 ? `${firstLine.slice(0, 92)}…` : firstLine;
+    }
+    if (!summary) continue;
+    const key = summary.toLowerCase().slice(0, 45);
+    if (seenSummaries.has(key)) continue;
+    seenSummaries.add(key);
+    list.push({
+      yearLabel: yr,
+      summary: /[.!?]$/.test(summary) ? summary : `${summary}.`,
+    });
+  }
+
+  return list;
 }
 
 function buildSynthesizedMcq(node) {
   if (!node) return null;
+  const cleanTitle = formatCleanPlaceHeading(node);
   const loc =
     node.locatedIn?.stateOrProvince ||
     node.locatedIn?.country ||
     node.regionScope ||
     'India';
+  const cleanFacts = formatOtherImportanceList(node);
   const fact1 =
-    node.staticFacts?.[0] ||
-    `${node.place} is classified as a ${node.placeType || 'key geographical feature'} located in ${loc}.`;
+    cleanFacts[0]?.text ||
+    `${cleanTitle} is classified as a ${node.placeType || 'key geographical feature'} located in ${loc}.`;
   const fact2 =
-    node.staticFacts?.[1] ||
+    cleanFacts[1]?.text ||
     (node.neighbours?.length
-      ? `Its immediate geographical neighbourhood includes ${node.neighbours.slice(0, 3).join(', ')}.`
+      ? `Its surrounding geographical neighbourhood includes ${node.neighbours.slice(0, 3).join(', ')}.`
       : `It was recently in news in connection with ${node.subject || 'Geography & Environment'}.`);
 
   return {
@@ -338,7 +553,7 @@ function buildSynthesizedMcq(node) {
     exam: 'UPSC Prelims Practice Drill',
     examYear: node.targetExamYear || 2026,
     isSynthesized: true,
-    stem: `With reference to '${node.place}', recently seen in the news, consider the following statements:\n1. ${fact1}\n2. ${fact2}\nWhich of the statements given above is/are correct?`,
+    stem: `With reference to '${cleanTitle}', recently seen in the news, consider the following statements:\n1. ${fact1}\n2. ${fact2}\nWhich of the statements given above is/are correct?`,
     options: [
       { label: 'a', text: '1 only' },
       { label: 'b', text: '2 only' },
@@ -347,7 +562,7 @@ function buildSynthesizedMcq(node) {
     ],
     correctLabel: 'c',
     answerText: 'Both 1 and 2',
-    explanation: `Both statements accurately describe ${node.place} (${node.placeType}, ${loc}).`,
+    explanation: `Both statements accurately describe ${cleanTitle} (${node.placeType}, ${loc}).`,
   };
 }
 
@@ -1091,7 +1306,6 @@ export default function MappingWorkspace({
     : -1;
 
   const studiedInCurrentFeed = numberedNodes.filter((n) => studiedIds.has(n.id)).length;
-  const examinerTrapText = deriveExaminerTrap(selectedNode);
 
   const visibleFolders =
     selectedThemeFilter === 'ALL'
@@ -1099,15 +1313,7 @@ export default function MappingWorkspace({
       : folders.filter((f) => f.id === selectedThemeFilter);
 
   const selectedLocationSubtitle = selectedNode
-    ? [
-        selectedNode.locatedIn?.district
-          ? `${selectedNode.locatedIn.district} district`
-          : null,
-        selectedNode.locatedIn?.stateOrProvince,
-        selectedNode.locatedIn?.country,
-      ]
-        .filter(Boolean)
-        .join(', ') || selectedNode.regionScope
+    ? formatPlaceDescriptor(selectedNode)
     : 'All mapped regions';
 
   return (
@@ -1906,7 +2112,7 @@ export default function MappingWorkspace({
                                           lineHeight: 1.32,
                                         }}
                                       >
-                                        {node.place}
+                                        {formatCleanPlaceHeading(node)}
                                       </div>
                                       <div
                                         style={{
@@ -2898,11 +3104,11 @@ export default function MappingWorkspace({
                 </div>
               </div>
 
-              {/* Place Heading + Location Subtitle */}
+              {/* Clean Place Heading */}
               <div>
                 <h2
                   style={{
-                    fontSize: 22,
+                    fontSize: 21,
                     fontWeight: 800,
                     margin: 0,
                     color: '#0f172a',
@@ -2910,664 +3116,593 @@ export default function MappingWorkspace({
                     lineHeight: 1.25,
                   }}
                 >
-                  {selectedNode.place}
+                  {formatCleanPlaceHeading(selectedNode)}
                 </h2>
-                <div
-                  style={{
-                    fontSize: 13,
-                    color: '#64748b',
-                    marginTop: 5,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 5,
-                  }}
-                >
-                  <span style={{ color: '#ef4444', fontSize: 12 }}>📍</span>
-                  <span>{selectedLocationSubtitle}</span>
-                </div>
               </div>
 
               {panelMode === 'STUDY' ? (
-                <>
-                  {/* 1. WHY IN NEWS Card (Blue Callout Card) */}
-                  {Array.isArray(selectedNode.newsTriggers) &&
-                    selectedNode.newsTriggers.length > 0 && (
+                (() => {
+                  const placeDescriptor = formatPlaceDescriptor(selectedNode);
+                  const whyInNewsText = formatWhyInNews30Words(selectedNode);
+                  const otherImportanceList = formatOtherImportanceList(selectedNode);
+                  const relatedPyqList = formatRelatedPyqList(selectedNode);
+                  const firstTrigger = selectedNode.newsTriggers?.[0] || null;
+
+                  return (
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: 14,
+                      }}
+                    >
+                      {/* 1. PLACE */}
                       <div
                         style={{
-                          background: '#eff6ff',
-                          border: '1px solid #bfdbfe',
+                          background: '#f8fafc',
+                          border: '1px solid #e2e8f0',
                           borderRadius: 12,
-                          padding: '13px 15px',
+                          padding: '11px 14px',
                         }}
                       >
                         <div
                           style={{
+                            fontSize: 10.5,
+                            fontWeight: 800,
+                            letterSpacing: '0.06em',
+                            textTransform: 'uppercase',
+                            color: '#475569',
+                            marginBottom: 4,
                             display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'space-between',
-                            gap: 8,
-                            marginBottom: 6,
+                            gap: 5,
                           }}
                         >
-                          <span
+                          <span style={{ color: '#ef4444' }}>📍</span>
+                          <span>1. Place</span>
+                        </div>
+                        <div
+                          style={{
+                            fontSize: 13.5,
+                            fontWeight: 700,
+                            color: '#0f172a',
+                            lineHeight: 1.45,
+                          }}
+                        >
+                          {placeDescriptor}
+                        </div>
+                      </div>
+
+                      {/* 2. WHY IN NEWS (<= 30 Words) */}
+                      {whyInNewsText && (
+                        <div
+                          style={{
+                            background: '#eff6ff',
+                            border: '1px solid #bfdbfe',
+                            borderRadius: 12,
+                            padding: '12px 14px',
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              gap: 8,
+                              marginBottom: 5,
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontSize: 10.5,
+                                fontWeight: 800,
+                                letterSpacing: '0.06em',
+                                textTransform: 'uppercase',
+                                color: '#1d4ed8',
+                              }}
+                            >
+                              2. Why in News
+                            </span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              {firstTrigger?.source && (
+                                <span
+                                  style={{
+                                    fontSize: 10,
+                                    fontWeight: 700,
+                                    padding: '2px 6px',
+                                    borderRadius: 5,
+                                    background: '#dbeafe',
+                                    color: '#1e40af',
+                                  }}
+                                >
+                                  {firstTrigger.source}
+                                </span>
+                              )}
+                              {getNodeDateStr(selectedNode) && (
+                                <span style={{ fontSize: 11, color: '#3b82f6', fontWeight: 600 }}>
+                                  {formatDayShort(getNodeDateStr(selectedNode))}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div
+                            style={{
+                              fontSize: 13.5,
+                              color: '#1e3a8a',
+                              lineHeight: 1.5,
+                              fontWeight: 500,
+                            }}
+                          >
+                            {whyInNewsText}
+                          </div>
+
+                          {firstTrigger?.url && (
+                            <div style={{ marginTop: 6 }}>
+                              <a
+                                href={firstTrigger.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                  fontSize: 11.5,
+                                  fontWeight: 700,
+                                  color: '#2563eb',
+                                  textDecoration: 'none',
+                                }}
+                              >
+                                Source ↗
+                              </a>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* 3. OTHER IMPORTANCE (Concise, Non-Redundant Static Anchors) */}
+                      {otherImportanceList.length > 0 && (
+                        <div
+                          style={{
+                            background: '#ffffff',
+                            border: '1px solid #e2e8f0',
+                            borderRadius: 12,
+                            padding: '13px 15px',
+                          }}
+                        >
+                          <div
                             style={{
                               fontSize: 10.5,
                               fontWeight: 800,
                               letterSpacing: '0.06em',
                               textTransform: 'uppercase',
-                              color: '#1d4ed8',
+                              color: '#0f766e',
+                              marginBottom: 8,
                             }}
                           >
-                            WHY IN NEWS
-                          </span>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                            {selectedNode.newsTriggers[0].source && (
-                              <span
+                            {whyInNewsText ? '3. Other Importance' : '2. Key Importance'}
+                          </div>
+
+                          <div
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: 9,
+                            }}
+                          >
+                            {otherImportanceList.map((item, idx) => (
+                              <div
+                                key={idx}
                                 style={{
-                                  fontSize: 10.5,
-                                  fontWeight: 700,
-                                  padding: '2px 7px',
-                                  borderRadius: 5,
-                                  background: '#dbeafe',
-                                  color: '#1e40af',
+                                  display: 'flex',
+                                  alignItems: 'flex-start',
+                                  gap: 8,
+                                  fontSize: 13.5,
+                                  color: '#1e293b',
+                                  lineHeight: 1.52,
                                 }}
                               >
-                                {selectedNode.newsTriggers[0].source}
-                              </span>
-                            )}
-                            {getNodeDateStr(selectedNode) && (
-                              <span style={{ fontSize: 11, color: '#3b82f6', fontWeight: 600 }}>
-                                {formatDayShort(getNodeDateStr(selectedNode))}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        <div
-                          style={{
-                            fontSize: 13.5,
-                            color: '#1e3a8a',
-                            lineHeight: 1.55,
-                            fontWeight: 500,
-                          }}
-                        >
-                          {selectedNode.newsTriggers[0].newsHook}
-                        </div>
-
-                        {selectedNode.newsTriggers[0].url && (
-                          <div style={{ marginTop: 8 }}>
-                            <a
-                              href={selectedNode.newsTriggers[0].url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              style={{
-                                fontSize: 12,
-                                fontWeight: 700,
-                                color: '#2563eb',
-                                textDecoration: 'none',
-                              }}
-                            >
-                              Open source ↗
-                            </a>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                  {/* 2. 2×2 Structured Geography Metadata Grid */}
-                  <div
-                    style={{
-                      display: 'grid',
-                      gridTemplateColumns: '1fr 1fr',
-                      gap: 8,
-                    }}
-                  >
-                    <div
-                      style={{
-                        background: '#f8fafc',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: 10,
-                        padding: '9px 12px',
-                      }}
-                    >
-                      <div style={{ fontSize: 11, color: '#64748b', fontWeight: 500 }}>
-                        {selectedNode.regionScope === 'World' ? 'Region / Continent' : 'State / UT'}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 13,
-                          fontWeight: 700,
-                          color: '#0f172a',
-                          marginTop: 2,
-                        }}
-                      >
-                        {selectedNode.locatedIn?.stateOrProvince ||
-                          selectedNode.locatedIn?.region ||
-                          selectedNode.locatedIn?.country ||
-                          selectedNode.regionScope}
-                      </div>
-                    </div>
-
-                    <div
-                      style={{
-                        background: '#f8fafc',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: 10,
-                        padding: '9px 12px',
-                      }}
-                    >
-                      <div style={{ fontSize: 11, color: '#64748b', fontWeight: 500 }}>
-                        {selectedNode.locatedIn?.district ? 'District' : 'Country / Scope'}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 13,
-                          fontWeight: 700,
-                          color: '#0f172a',
-                          marginTop: 2,
-                        }}
-                      >
-                        {selectedNode.locatedIn?.district ||
-                          selectedNode.locatedIn?.country ||
-                          selectedNode.regionScope}
-                      </div>
-                    </div>
-
-                    <div
-                      style={{
-                        background: '#f8fafc',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: 10,
-                        padding: '9px 12px',
-                      }}
-                    >
-                      <div style={{ fontSize: 11, color: '#64748b', fontWeight: 500 }}>
-                        Basin / Belt
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 13,
-                          fontWeight: 700,
-                          color: '#0f172a',
-                          marginTop: 2,
-                        }}
-                      >
-                        {selectedNode.locatedIn?.riverBasin ||
-                          selectedNode.locatedIn?.basin ||
-                          selectedNode.locatedIn?.physiography ||
-                          selectedNode.neighbours?.[0] ||
-                          selectedNode.subject ||
-                          'Key Geography Zone'}
-                      </div>
-                    </div>
-
-                    <div
-                      style={{
-                        background: '#f8fafc',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: 10,
-                        padding: '9px 12px',
-                      }}
-                    >
-                      <div style={{ fontSize: 11, color: '#64748b', fontWeight: 500 }}>
-                        Type
-                      </div>
-                      <div
-                        style={{
-                          fontSize: 13,
-                          fontWeight: 700,
-                          color: '#0f172a',
-                          marginTop: 2,
-                        }}
-                      >
-                        {selectedNode.placeType || 'Geographical Feature'}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 2B. DEDICATED 9-POINT HUMANIZED RIVER DOSSIER */}
-                  {selectedNode.riverDetails && (() => {
-                    const rd = selectedNode.riverDetails;
-                    return (
-                      <div
-                        style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: 12,
-                          background: '#f0f9ff',
-                          border: '1px solid #bae6fd',
-                          borderRadius: 14,
-                          padding: '14px 16px',
-                        }}
-                      >
-                        {/* Section Header */}
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e0f2fe', paddingBottom: 8 }}>
-                          <span style={{ fontSize: 12, fontWeight: 800, color: '#0369a1', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                            <span>🌊</span> River Study Dossier ({rd.length || 'Full Course'})
-                          </span>
-                        </div>
-
-                        {/* Point 2: Origin and Mouth */}
-                        <div style={{ background: '#ffffff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e2e8f0', fontSize: 12.5, lineHeight: 1.5 }}>
-                          <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 5 }}>
-                            <span>📍</span> Where it starts &amp; where it ends
-                          </div>
-                          <div style={{ color: '#334155' }}>
-                            <strong>Origin:</strong> {rd.origin}
-                          </div>
-                          <div style={{ color: '#334155', marginTop: 3 }}>
-                            <strong>Mouth:</strong> {rd.mouth}
-                          </div>
-                        </div>
-
-                        {/* Point 3: States it flows through vs basin */}
-                        {rd.states && (
-                          <div style={{ background: '#ffffff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e2e8f0', fontSize: 12.5, lineHeight: 1.5 }}>
-                            <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 5 }}>
-                              <span>🗺️</span> States it passes through
-                            </div>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 4 }}>
-                              <span style={{ fontSize: 11, color: '#64748b', fontWeight: 600, alignSelf: 'center', marginRight: 2 }}>Direct Flow:</span>
-                              {rd.states.flowsThrough?.map((st, sIdx) => (
-                                <span key={sIdx} style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 999, background: '#dbeafe', color: '#1e40af' }}>
-                                  {st}
+                                <span
+                                  style={{
+                                    width: 6,
+                                    height: 6,
+                                    borderRadius: '50%',
+                                    background: '#0d9488',
+                                    marginTop: 7,
+                                    flexShrink: 0,
+                                  }}
+                                />
+                                <span>
+                                  {item.label && (
+                                    <em
+                                      style={{
+                                        fontWeight: 700,
+                                        color: '#0f172a',
+                                        marginRight: 5,
+                                      }}
+                                    >
+                                      {item.label}:
+                                    </em>
+                                  )}
+                                  <span>{item.text}</span>
                                 </span>
-                              ))}
-                            </div>
-                            {rd.states.basinStates && (
-                              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 6 }}>
-                                <span style={{ fontSize: 11, color: '#64748b', fontWeight: 600, alignSelf: 'center', marginRight: 2 }}>Basin Catchment:</span>
-                                {rd.states.basinStates.map((st, bIdx) => (
-                                  <span key={bIdx} style={{ fontSize: 11, fontWeight: 600, padding: '1px 7px', borderRadius: 999, background: '#f1f5f9', color: '#475569' }}>
-                                    {st}
-                                  </span>
-                                ))}
                               </div>
-                            )}
+                            ))}
                           </div>
-                        )}
+                        </div>
+                      )}
 
-                        {/* Point 4: Left-Bank & Right-Bank Tributaries */}
-                        {rd.tributaries && (
-                          <div style={{ background: '#ffffff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e2e8f0', fontSize: 12.5 }}>
-                            <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
-                              <span>⚖️</span> Left-bank vs Right-bank Tributaries
-                            </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                              {/* Left Bank */}
-                              <div style={{ background: '#f8fafc', padding: '8px 10px', borderRadius: 8, borderLeft: '3px solid #3b82f6' }}>
-                                <div style={{ fontSize: 11, fontWeight: 800, color: '#1d4ed8', textTransform: 'uppercase', marginBottom: 4 }}>
-                                  ⬅️ Left-Bank
-                                </div>
-                                <ul style={{ margin: 0, paddingLeft: 14, fontSize: 11.5, color: '#334155', lineHeight: 1.45 }}>
-                                  {rd.tributaries.leftBank?.map((trib, tIdx) => (
-                                    <li key={tIdx} style={{ marginBottom: 4 }}>
-                                      <strong>{trib.name}</strong>
-                                      {trib.note && <span style={{ color: '#64748b' }}> — {trib.note}</span>}
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-
-                              {/* Right Bank */}
-                              <div style={{ background: '#f8fafc', padding: '8px 10px', borderRadius: 8, borderLeft: '3px solid #10b981' }}>
-                                <div style={{ fontSize: 11, fontWeight: 800, color: '#047857', textTransform: 'uppercase', marginBottom: 4 }}>
-                                  ➡️ Right-Bank
-                                </div>
-                                <ul style={{ margin: 0, paddingLeft: 14, fontSize: 11.5, color: '#334155', lineHeight: 1.45 }}>
-                                  {rd.tributaries.rightBank?.map((trib, tIdx) => (
-                                    <li key={tIdx} style={{ marginBottom: 4 }}>
-                                      <strong>{trib.name}</strong>
-                                      {trib.note && <span style={{ color: '#64748b' }}> — {trib.note}</span>}
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Point 5: Important Sangams (Confluences) */}
-                        {Array.isArray(rd.confluences) && rd.confluences.length > 0 && (
-                          <div style={{ background: '#ffffff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e2e8f0', fontSize: 12.5 }}>
-                            <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
-                              <span>🤝</span> Important Sangams (Confluences)
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                              {rd.confluences.map((c, cIdx) => (
-                                <div key={cIdx} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, fontSize: 12, borderBottom: cIdx === rd.confluences.length - 1 ? 'none' : '1px dashed #f1f5f9', paddingBottom: 4 }}>
-                                  <div>
-                                    <span style={{ fontWeight: 700, color: '#0f172a' }}>{c.sangam}</span>
-                                    {c.note && <div style={{ fontSize: 11, color: '#64748b' }}>{c.note}</div>}
-                                  </div>
-                                  <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-                                    <span style={{ fontSize: 10.5, fontWeight: 700, padding: '1px 6px', borderRadius: 4, background: '#e0f2fe', color: '#0369a1' }}>{c.tributary}</span>
-                                    <span style={{ fontSize: 10.5, fontWeight: 600, padding: '1px 6px', borderRadius: 4, background: '#f1f5f9', color: '#475569' }}>{c.state}</span>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Point 6: Important Towns & Cities on the banks */}
-                        {Array.isArray(rd.towns) && rd.towns.length > 0 && (
-                          <div style={{ background: '#ffffff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e2e8f0', fontSize: 12.5 }}>
-                            <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
-                              <span>🏛️</span> Important cities &amp; historical towns on the river
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                              {rd.towns.map((tw, twIdx) => (
-                                <div key={twIdx} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, fontSize: 12, borderBottom: twIdx === rd.towns.length - 1 ? 'none' : '1px dashed #f1f5f9', paddingBottom: 4 }}>
-                                  <div>
-                                    <strong style={{ color: '#0f172a' }}>{tw.name}</strong>
-                                    <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 5px', borderRadius: 4, background: tw.type === 'Cultural' ? '#fef3c7' : tw.type === 'Historical' ? '#f3e8ff' : '#e0f2fe', color: tw.type === 'Cultural' ? '#b45309' : tw.type === 'Historical' ? '#7e22ce' : '#0369a1', marginLeft: 6 }}>
-                                      {tw.type}
-                                    </span>
-                                    <div style={{ fontSize: 11, color: '#64748b' }}>{tw.significance}</div>
-                                  </div>
-                                  <span style={{ fontSize: 10.5, fontWeight: 600, padding: '1px 6px', borderRadius: 4, background: '#f1f5f9', color: '#475569', flexShrink: 0 }}>
-                                    {tw.state}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Point 7: Major Dams & Projects (with State) */}
-                        {Array.isArray(rd.dams) && rd.dams.length > 0 && (
-                          <div style={{ background: '#ffffff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e2e8f0', fontSize: 12.5 }}>
-                            <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
-                              <span>🏗️</span> Major dams and barrages (and which state)
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                              {rd.dams.map((dam, dIdx) => (
-                                <div key={dIdx} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, fontSize: 12, borderBottom: dIdx === rd.dams.length - 1 ? 'none' : '1px dashed #f1f5f9', paddingBottom: 4 }}>
-                                  <div>
-                                    <strong style={{ color: '#0f172a' }}>{dam.name}</strong>
-                                    {dam.type && <div style={{ fontSize: 11, color: '#64748b' }}>{dam.type}</div>}
-                                  </div>
-                                  <span style={{ fontSize: 10.5, fontWeight: 700, padding: '2px 7px', borderRadius: 6, background: '#fee2e2', color: '#b91c1c', flexShrink: 0 }}>
-                                    {dam.state}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Point 8: National Parks & Sanctuaries */}
-                        {Array.isArray(rd.protectedAreas) && rd.protectedAreas.length > 0 && (
-                          <div style={{ background: '#ffffff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e2e8f0', fontSize: 12.5 }}>
-                            <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
-                              <span>🌲</span> National parks &amp; sanctuaries on river or in basin
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                              {rd.protectedAreas.map((pa, paIdx) => (
-                                <div key={paIdx} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, fontSize: 12, borderBottom: paIdx === rd.protectedAreas.length - 1 ? 'none' : '1px dashed #f1f5f9', paddingBottom: 4 }}>
-                                  <div>
-                                    <strong style={{ color: '#047857' }}>{pa.name}</strong>
-                                    <div style={{ fontSize: 11, color: '#64748b' }}>{pa.relation}</div>
-                                  </div>
-                                  <span style={{ fontSize: 10.5, fontWeight: 600, padding: '1px 6px', borderRadius: 4, background: '#f1f5f9', color: '#475569', flexShrink: 0 }}>
-                                    {pa.state}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Point 9: Important Animals & Birds in the river */}
-                        {Array.isArray(rd.species) && rd.species.length > 0 && (
-                          <div style={{ background: '#ffffff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e2e8f0', fontSize: 12.5 }}>
-                            <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
-                              <span>🐬</span> Important animals &amp; birds in the river
-                            </div>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                              {rd.species.map((sp, spIdx) => {
-                                const isCrit = sp.iucn === 'Critically Endangered' || sp.iucn === 'CR';
-                                const isEn = sp.iucn === 'Endangered' || sp.iucn === 'EN';
-                                const badgeBg = isCrit ? '#fee2e2' : isEn ? '#ffedd5' : '#fef9c3';
-                                const badgeColor = isCrit ? '#991b1b' : isEn ? '#9a3412' : '#854d0e';
-                                return (
-                                  <div key={spIdx} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: '6px 9px', flex: '1 1 calc(50% - 6px)', minWidth: 140 }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 }}>
-                                      <strong style={{ fontSize: 12, color: '#0f172a' }}>{sp.name}</strong>
-                                      {sp.iucn && (
-                                        <span style={{ fontSize: 9.5, fontWeight: 800, padding: '1px 5px', borderRadius: 4, background: badgeBg, color: badgeColor }}>
-                                          {sp.iucn}
-                                        </span>
-                                      )}
-                                    </div>
-                                    {sp.role && <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>{sp.role}</div>}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Humanised Common Mistake / UPSC Trap */}
-                        {rd.commonMistake && (
-                          <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 10, padding: '10px 12px', fontSize: 12, lineHeight: 1.5, color: '#92400e' }}>
-                            <strong style={{ color: '#b45309', fontWeight: 800 }}>⚠️ Common student mistake / UPSC Trap: </strong>
-                            <span>{rd.commonMistake}</span>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })()}
-
-                  {/* 3. Warm Amber Examiner's Trap Callout Box */}
-                  {examinerTrapText && (
-                    <div
-                      style={{
-                        background: '#fffbeb',
-                        border: '1px solid #fde68a',
-                        borderRadius: 12,
-                        padding: '12px 14px',
-                        fontSize: 13,
-                        color: '#92400e',
-                        lineHeight: 1.55,
-                      }}
-                    >
-                      <strong style={{ color: '#b45309', fontWeight: 800 }}>
-                        ⚠️ Examiner&apos;s trap:{' '}
-                      </strong>
-                      <span>{examinerTrapText}</span>
-                    </div>
-                  )}
-
-                  {/* CONNECTED NEURAL GRAPH NODE */}
-                  {selectedNode.linkedIssueSlug && (
-                    <div
-                      style={{
-                        background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)',
-                        border: '1px solid #a7f3d0',
-                        borderRadius: 10,
-                        padding: '11px 14px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        gap: 12,
-                      }}
-                    >
-                      <div style={{ flex: 1, minWidth: 0 }}>
+                      {/* 4. RELATED PYQ (If Any) */}
+                      {relatedPyqList.length > 0 && (
                         <div
                           style={{
-                            fontSize: 10,
-                            fontWeight: 800,
-                            letterSpacing: '0.06em',
-                            textTransform: 'uppercase',
-                            color: '#047857',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: 5,
-                            marginBottom: 2,
+                            background: '#fffbeb',
+                            border: '1px solid #fde68a',
+                            borderRadius: 12,
+                            padding: '12px 14px',
                           }}
                         >
-                          <span>🧠</span>
-                          <span>CONNECTED NEURAL NODE</span>
-                          <span
+                          <div
                             style={{
-                              background: '#d1fae5',
-                              color: '#065f46',
-                              fontSize: 9.5,
-                              padding: '1px 5px',
-                              borderRadius: 4,
-                              fontWeight: 700,
+                              fontSize: 10.5,
+                              fontWeight: 800,
+                              letterSpacing: '0.06em',
+                              textTransform: 'uppercase',
+                              color: '#b45309',
+                              marginBottom: 7,
                             }}
                           >
-                            {selectedNode.linkedIssueDomain || selectedNode.subject}
-                          </span>
-                        </div>
-                        <div
-                          style={{
-                            fontSize: 13,
-                            fontWeight: 700,
-                            color: '#064e3b',
-                            lineHeight: 1.35,
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                          }}
-                          title={selectedNode.linkedIssueTitle}
-                        >
-                          {selectedNode.linkedIssueTitle || selectedNode.linkedIssueSlug}
-                        </div>
-                        <div style={{ fontSize: 11, color: '#059669', marginTop: 1 }}>
-                          Syllabus Theory & Previous Year Questions
-                        </div>
-                      </div>
-                      <a
-                        href={`/node/${selectedNode.linkedIssueSlug}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: 4,
-                          padding: '6px 12px',
-                          background: '#059669',
-                          color: '#ffffff',
-                          borderRadius: 7,
-                          fontSize: 12,
-                          fontWeight: 700,
-                          textDecoration: 'none',
-                          flexShrink: 0,
-                          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                        }}
-                      >
-                        Explore Node →
-                      </a>
-                    </div>
-                  )}
+                            {whyInNewsText ? '4. Related PYQ' : '3. Related PYQ'}
+                          </div>
 
-                  {/* 4. HIGH-YIELD FACTS (GS-I · GS-III) */}
-                  <div>
-                    <div
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        marginBottom: 10,
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontSize: 11,
-                          fontWeight: 800,
-                          letterSpacing: '0.06em',
-                          textTransform: 'uppercase',
-                          color: '#64748b',
-                        }}
-                      >
-                        HIGH-YIELD FACTS
-                      </span>
-                      <span
-                        style={{
-                          fontSize: 11,
-                          fontWeight: 600,
-                          color: '#94a3b8',
-                        }}
-                      >
-                        GS-I · GS-III
-                      </span>
-                    </div>
-
-                    <div
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: 10,
-                      }}
-                    >
-                      {(selectedNode.staticFacts || []).map((fact, idx) => (
-                        <div
-                          key={idx}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'flex-start',
-                            gap: 10,
-                            paddingBottom: 10,
-                            borderBottom:
-                              idx < (selectedNode.staticFacts?.length || 0) - 1 ||
-                              selectedNode.neighbours?.length > 0
-                                ? '1px solid #f1f5f9'
-                                : 'none',
-                            fontSize: 13.5,
-                            color: '#1e293b',
-                            lineHeight: 1.55,
-                          }}
-                        >
-                          <span
+                          <div
                             style={{
-                              width: 6,
-                              height: 6,
-                              borderRadius: '50%',
-                              background: '#94a3b8',
-                              marginTop: 7,
-                              flexShrink: 0,
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: 7,
                             }}
-                          />
-                          <span>{fact}</span>
+                          >
+                            {relatedPyqList.map((pyq, idx) => (
+                              <div
+                                key={idx}
+                                style={{
+                                  display: 'flex',
+                                  alignItems: 'flex-start',
+                                  gap: 8,
+                                  fontSize: 13,
+                                  color: '#78350f',
+                                  lineHeight: 1.48,
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    width: 5,
+                                    height: 5,
+                                    borderRadius: '50%',
+                                    background: '#d97706',
+                                    marginTop: 7,
+                                    flexShrink: 0,
+                                  }}
+                                />
+                                <span>
+                                  <strong style={{ color: '#92400e', fontWeight: 800 }}>
+                                    {pyq.yearLabel}:
+                                  </strong>{' '}
+                                  <span>{pyq.summary}</span>
+                                </span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      ))}
+                      )}
 
-                      {selectedNode.neighbours?.length > 0 && (
+                      {/* DEDICATED RIVER STUDY DOSSIER (For Static River Nodes) */}
+                      {selectedNode.riverDetails && (() => {
+                        const rd = selectedNode.riverDetails;
+                        return (
+                          <div
+                            style={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: 12,
+                              background: '#f0f9ff',
+                              border: '1px solid #bae6fd',
+                              borderRadius: 14,
+                              padding: '14px 16px',
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e0f2fe', paddingBottom: 8 }}>
+                              <span style={{ fontSize: 12, fontWeight: 800, color: '#0369a1', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 6 }}>
+                                <span>🌊</span> River Study Dossier ({rd.length || 'Full Course'})
+                              </span>
+                            </div>
+
+                            <div style={{ background: '#ffffff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e2e8f0', fontSize: 12.5, lineHeight: 1.5 }}>
+                              <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 5 }}>
+                                <span>📍</span> Where it starts &amp; where it ends
+                              </div>
+                              <div style={{ color: '#334155' }}>
+                                <strong>Origin:</strong> {rd.origin}
+                              </div>
+                              <div style={{ color: '#334155', marginTop: 3 }}>
+                                <strong>Mouth:</strong> {rd.mouth}
+                              </div>
+                            </div>
+
+                            {rd.states && (
+                              <div style={{ background: '#ffffff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e2e8f0', fontSize: 12.5, lineHeight: 1.5 }}>
+                                <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 5 }}>
+                                  <span>🗺️</span> States it passes through
+                                </div>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 4 }}>
+                                  <span style={{ fontSize: 11, color: '#64748b', fontWeight: 600, alignSelf: 'center', marginRight: 2 }}>Direct Flow:</span>
+                                  {rd.states.flowsThrough?.map((st, sIdx) => (
+                                    <span key={sIdx} style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 999, background: '#dbeafe', color: '#1e40af' }}>
+                                      {st}
+                                    </span>
+                                  ))}
+                                </div>
+                                {rd.states.basinStates && (
+                                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginTop: 6 }}>
+                                    <span style={{ fontSize: 11, color: '#64748b', fontWeight: 600, alignSelf: 'center', marginRight: 2 }}>Basin Catchment:</span>
+                                    {rd.states.basinStates.map((st, bIdx) => (
+                                      <span key={bIdx} style={{ fontSize: 11, fontWeight: 600, padding: '1px 7px', borderRadius: 999, background: '#f1f5f9', color: '#475569' }}>
+                                        {st}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {rd.tributaries && (
+                              <div style={{ background: '#ffffff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e2e8f0', fontSize: 12.5 }}>
+                                <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
+                                  <span>⚖️</span> Left-bank vs Right-bank Tributaries
+                                </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+                                  <div style={{ background: '#f8fafc', padding: '8px 10px', borderRadius: 8, borderLeft: '3px solid #3b82f6' }}>
+                                    <div style={{ fontSize: 11, fontWeight: 800, color: '#1d4ed8', textTransform: 'uppercase', marginBottom: 4 }}>
+                                      ⬅️ Left-Bank
+                                    </div>
+                                    <ul style={{ margin: 0, paddingLeft: 14, fontSize: 11.5, color: '#334155', lineHeight: 1.45 }}>
+                                      {rd.tributaries.leftBank?.map((trib, tIdx) => (
+                                        <li key={tIdx} style={{ marginBottom: 4 }}>
+                                          <strong>{trib.name}</strong>
+                                          {trib.note && <span style={{ color: '#64748b' }}> — {trib.note}</span>}
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+
+                                  <div style={{ background: '#f8fafc', padding: '8px 10px', borderRadius: 8, borderLeft: '3px solid #10b981' }}>
+                                    <div style={{ fontSize: 11, fontWeight: 800, color: '#047857', textTransform: 'uppercase', marginBottom: 4 }}>
+                                      ➡️ Right-Bank
+                                    </div>
+                                    <ul style={{ margin: 0, paddingLeft: 14, fontSize: 11.5, color: '#334155', lineHeight: 1.45 }}>
+                                      {rd.tributaries.rightBank?.map((trib, tIdx) => (
+                                        <li key={tIdx} style={{ marginBottom: 4 }}>
+                                          <strong>{trib.name}</strong>
+                                          {trib.note && <span style={{ color: '#64748b' }}> — {trib.note}</span>}
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {Array.isArray(rd.confluences) && rd.confluences.length > 0 && (
+                              <div style={{ background: '#ffffff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e2e8f0', fontSize: 12.5 }}>
+                                <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
+                                  <span>🤝</span> Important Sangams (Confluences)
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                                  {rd.confluences.map((c, cIdx) => (
+                                    <div key={cIdx} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, fontSize: 12, borderBottom: cIdx === rd.confluences.length - 1 ? 'none' : '1px dashed #f1f5f9', paddingBottom: 4 }}>
+                                      <div>
+                                        <span style={{ fontWeight: 700, color: '#0f172a' }}>{c.sangam}</span>
+                                        {c.note && <div style={{ fontSize: 11, color: '#64748b' }}>{c.note}</div>}
+                                      </div>
+                                      <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
+                                        <span style={{ fontSize: 10.5, fontWeight: 700, padding: '1px 6px', borderRadius: 4, background: '#e0f2fe', color: '#0369a1' }}>{c.tributary}</span>
+                                        <span style={{ fontSize: 10.5, fontWeight: 600, padding: '1px 6px', borderRadius: 4, background: '#f1f5f9', color: '#475569' }}>{c.state}</span>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {Array.isArray(rd.towns) && rd.towns.length > 0 && (
+                              <div style={{ background: '#ffffff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e2e8f0', fontSize: 12.5 }}>
+                                <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
+                                  <span>🏛️</span> Important cities &amp; historical towns on the river
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                                  {rd.towns.map((tw, twIdx) => (
+                                    <div key={twIdx} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, fontSize: 12, borderBottom: twIdx === rd.towns.length - 1 ? 'none' : '1px dashed #f1f5f9', paddingBottom: 4 }}>
+                                      <div>
+                                        <strong style={{ color: '#0f172a' }}>{tw.name}</strong>
+                                        <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 5px', borderRadius: 4, background: tw.type === 'Cultural' ? '#fef3c7' : tw.type === 'Historical' ? '#f3e8ff' : '#e0f2fe', color: tw.type === 'Cultural' ? '#b45309' : tw.type === 'Historical' ? '#7e22ce' : '#0369a1', marginLeft: 6 }}>
+                                          {tw.type}
+                                        </span>
+                                        <div style={{ fontSize: 11, color: '#64748b' }}>{tw.significance}</div>
+                                      </div>
+                                      <span style={{ fontSize: 10.5, fontWeight: 600, padding: '1px 6px', borderRadius: 4, background: '#f1f5f9', color: '#475569', flexShrink: 0 }}>
+                                        {tw.state}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {Array.isArray(rd.dams) && rd.dams.length > 0 && (
+                              <div style={{ background: '#ffffff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e2e8f0', fontSize: 12.5 }}>
+                                <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
+                                  <span>🏗️</span> Major dams and barrages (and which state)
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                                  {rd.dams.map((dam, dIdx) => (
+                                    <div key={dIdx} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, fontSize: 12, borderBottom: dIdx === rd.dams.length - 1 ? 'none' : '1px dashed #f1f5f9', paddingBottom: 4 }}>
+                                      <div>
+                                        <strong style={{ color: '#0f172a' }}>{dam.name}</strong>
+                                        {dam.type && <div style={{ fontSize: 11, color: '#64748b' }}>{dam.type}</div>}
+                                      </div>
+                                      <span style={{ fontSize: 10.5, fontWeight: 700, padding: '2px 7px', borderRadius: 6, background: '#fee2e2', color: '#b91c1c', flexShrink: 0 }}>
+                                        {dam.state}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {Array.isArray(rd.protectedAreas) && rd.protectedAreas.length > 0 && (
+                              <div style={{ background: '#ffffff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e2e8f0', fontSize: 12.5 }}>
+                                <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
+                                  <span>🌲</span> National parks &amp; sanctuaries on river or in basin
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                                  {rd.protectedAreas.map((pa, paIdx) => (
+                                    <div key={paIdx} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, fontSize: 12, borderBottom: paIdx === rd.protectedAreas.length - 1 ? 'none' : '1px dashed #f1f5f9', paddingBottom: 4 }}>
+                                      <div>
+                                        <strong style={{ color: '#047857' }}>{pa.name}</strong>
+                                        <div style={{ fontSize: 11, color: '#64748b' }}>{pa.relation}</div>
+                                      </div>
+                                      <span style={{ fontSize: 10.5, fontWeight: 600, padding: '1px 6px', borderRadius: 4, background: '#f1f5f9', color: '#475569', flexShrink: 0 }}>
+                                        {pa.state}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {Array.isArray(rd.species) && rd.species.length > 0 && (
+                              <div style={{ background: '#ffffff', borderRadius: 10, padding: '10px 12px', border: '1px solid #e2e8f0', fontSize: 12.5 }}>
+                                <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 5 }}>
+                                  <span>🐬</span> Important animals &amp; birds in the river
+                                </div>
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                                  {rd.species.map((sp, spIdx) => {
+                                    const isCrit = sp.iucn === 'Critically Endangered' || sp.iucn === 'CR';
+                                    const isEn = sp.iucn === 'Endangered' || sp.iucn === 'EN';
+                                    const badgeBg = isCrit ? '#fee2e2' : isEn ? '#ffedd5' : '#fef9c3';
+                                    const badgeColor = isCrit ? '#991b1b' : isEn ? '#9a3412' : '#854d0e';
+                                    return (
+                                      <div key={spIdx} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: '6px 9px', flex: '1 1 calc(50% - 6px)', minWidth: 140 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 }}>
+                                          <strong style={{ fontSize: 12, color: '#0f172a' }}>{sp.name}</strong>
+                                          {sp.iucn && (
+                                            <span style={{ fontSize: 9.5, fontWeight: 800, padding: '1px 5px', borderRadius: 4, background: badgeBg, color: badgeColor }}>
+                                              {sp.iucn}
+                                            </span>
+                                          )}
+                                        </div>
+                                        {sp.role && <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>{sp.role}</div>}
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            )}
+
+                            {rd.commonMistake && (
+                              <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 10, padding: '10px 12px', fontSize: 12, lineHeight: 1.5, color: '#92400e' }}>
+                                <strong style={{ color: '#b45309', fontWeight: 800 }}>⚠️ Common student mistake / UPSC Trap: </strong>
+                                <span>{rd.commonMistake}</span>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+
+                      {/* CONNECTED NEURAL GRAPH NODE */}
+                      {selectedNode.linkedIssueSlug && (
                         <div
                           style={{
+                            background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)',
+                            border: '1px solid #a7f3d0',
+                            borderRadius: 10,
+                            padding: '11px 14px',
                             display: 'flex',
-                            alignItems: 'flex-start',
-                            gap: 10,
-                            fontSize: 13,
-                            color: '#334155',
-                            lineHeight: 1.55,
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: 12,
                           }}
                         >
-                          <span
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div
+                              style={{
+                                fontSize: 10,
+                                fontWeight: 800,
+                                letterSpacing: '0.06em',
+                                textTransform: 'uppercase',
+                                color: '#047857',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 5,
+                                marginBottom: 2,
+                              }}
+                            >
+                              <span>🧠</span>
+                              <span>CONNECTED NEURAL NODE</span>
+                              <span
+                                style={{
+                                  background: '#d1fae5',
+                                  color: '#065f46',
+                                  fontSize: 9.5,
+                                  padding: '1px 5px',
+                                  borderRadius: 4,
+                                  fontWeight: 700,
+                                }}
+                              >
+                                {selectedNode.linkedIssueDomain || selectedNode.subject}
+                              </span>
+                            </div>
+                            <div
+                              style={{
+                                fontSize: 13,
+                                fontWeight: 700,
+                                color: '#064e3b',
+                                lineHeight: 1.35,
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap',
+                              }}
+                              title={selectedNode.linkedIssueTitle}
+                            >
+                              {selectedNode.linkedIssueTitle || selectedNode.linkedIssueSlug}
+                            </div>
+                            <div style={{ fontSize: 11, color: '#059669', marginTop: 1 }}>
+                              Syllabus Theory & Previous Year Questions
+                            </div>
+                          </div>
+                          <a
+                            href={`/node/${selectedNode.linkedIssueSlug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             style={{
-                              width: 6,
-                              height: 6,
-                              borderRadius: '50%',
-                              background: '#0d9488',
-                              marginTop: 7,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 4,
+                              padding: '6px 12px',
+                              background: '#059669',
+                              color: '#ffffff',
+                              borderRadius: 7,
+                              fontSize: 12,
+                              fontWeight: 700,
+                              textDecoration: 'none',
                               flexShrink: 0,
+                              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
                             }}
-                          />
-                          <span>
-                            <strong style={{ color: '#0f172a' }}>
-                              Surrounding / Borders:
-                            </strong>{' '}
-                            {selectedNode.neighbours.join(' · ')}
-                          </span>
+                          >
+                            Explore Node →
+                          </a>
                         </div>
                       )}
                     </div>
-                  </div>
-                </>
+                  );
+                })()
               ) : (
                 /* PRACTICE MODE VIEW */
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>

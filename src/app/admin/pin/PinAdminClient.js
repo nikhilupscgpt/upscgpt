@@ -21,56 +21,49 @@ import {
 } from 'lucide-react';
 
 const SAMPLE_PIN_JSONL = JSON.stringify({
-  id: 'PIN-2026-10-001',
-  slug: 'sauj-jheel-uttar-pradesh',
-  date: '2026-10-15',
+  id: 'PIN-2026-11-001',
+  slug: 'sehore-bherunda-teak-saru-maru-madhya-pradesh',
+  date: '2026-11-06',
   targetExamYear: 2027,
   subject: 'Environment',
-  mapCategory: ['Wetlands & Ramsar sites', 'India – rivers, lakes, reservoirs & glaciers'],
+  mapCategory: ['Protected areas (NPs, WLS, tiger reserves)', 'Historical & archaeological sites'],
   hookCategory: '3. New or changed protected area',
   priority: 'High',
-  place: 'Sauj Jheel',
-  aliases: ['Sauj Lake'],
-  placeType: 'Ramsar site',
+  place: 'Sehore (Madhya Pradesh)',
+  aliases: ['Bherunda', 'Saru Maru'],
+  placeType: 'District & Heritage Zone',
   regionScope: 'India',
   locatedIn: {
     country: 'India',
-    stateOrProvince: 'Uttar Pradesh',
-    district: 'Mainpuri',
+    stateOrProvince: 'Madhya Pradesh',
+    district: 'Sehore',
+    placeLine: 'Sehore District (Vindhyan Range / Narmada Basin, MP)',
   },
   coordinates: {
-    lat: 27.0167,
-    lng: 79.1333,
+    lat: 23.2,
+    lng: 77.08,
   },
-  neighbours: [
-    'Saman Bird Sanctuary (Mainpuri district, UP)',
-    'Ganga River floodplain (Upper Ganga Basin)',
-  ],
+  neighbours: ['Ratapani Tiger Reserve', 'Kheoni Wildlife Sanctuary'],
   staticFacts: [
-    'Shallow freshwater depressional wetland located in the Ganga River floodplain',
-    'Makes Mainpuri the only district in Uttar Pradesh to house two Ramsar sites',
+    'Ecology & Geography: Located between the Malwa Plateau and Narmada Valley; prime habitat for tropical deciduous teak (Tectona grandis); borders Ratapani Tiger Reserve and Kheoni Wildlife Sanctuary.',
+    'History & Culture: Houses the Saru Maru rock-cut stupas and Ashokan Minor Rock Edict mentioning Ashoka as Piyadasi Kumara.',
   ],
   newsTriggers: [
     {
-      date: '2026-10-15',
-      source: 'PIB',
-      url: 'https://www.pib.gov.in/PressReleasePage.aspx?PRID=2324120',
+      date: '2026-11-06',
+      source: 'The Hindu',
+      url: 'https://www.thehindu.com/',
       newsHook:
-        "Designated as a Ramsar site of international importance, taking India's tally to 103.",
+        'In focus for forest conservation along the Bherunda teak belt and protection of the ancient Saru Maru Buddhist heritage zone.',
     },
   ],
   upscAngle: {
-    preferredFormat: 'Pair-matching | How-many',
-    framing:
-      'Consider the following pairs (Wetland/Lake : Location in State) on the exact pattern of UPSC 2022.',
-    distractorPool: [
-      'Bihar',
-      'Madhya Pradesh',
-      'Bakhira Wildlife Sanctuary',
-      'Haiderpur Wetland',
+    pyqBullets: [
+      'UPSC 2015 & 2023: Tropical deciduous vegetation types and timber species (Teak vs. Mahua/Jackfruit).',
+      'UPSC 2022: Major Ashokan Minor Rock Edicts and their geographic locations.',
     ],
   },
-  similarPYQ: ['ENV-UPSC-2022-01', 'ENV-UPSC-2014-09', 'ENV-UPSC-2019-18'],
+  similarPYQ: ['ENV-UPSC-2023-03', 'GEO-UPSC-2015-08', 'ANC-UPSC-2022-04'],
 });
 
 const EMPTY_FORM = {

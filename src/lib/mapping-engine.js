@@ -103,6 +103,28 @@ export function unionStringArrays(existing = [], incoming = []) {
 }
 
 /**
+ * Strips internal database PYQ IDs like (ENV-UPSC-2023-03) and caps newsHook at <= 30 words.
+ */
+export function sanitizeFactString(str) {
+  if (!str || typeof str !== 'string') return '';
+  return str
+    .replace(/\(\s*(?:[A-Z]{2,5}-UPSC-\d{4}-\d{1,3}(?:\s*(?:,|and|&)\s*[A-Z]{2,5}-UPSC-\d{4}-\d{1,3})*)\s*\)/gi, '')
+    .replace(/\b[A-Z]{2,5}-UPSC-\d{4}-\d{1,3}\b/g, '')
+    .replace(/^Directly?\s+(?:tested|reinforcement|aligned|relevant)\s+(?:in|of|with|to)\s+UPSC[^:—–-]*[:—–-]\s*/i, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
+export function sanitizeNewsHook30Words(rawHook) {
+  if (!rawHook || typeof rawHook !== 'string') return '';
+  const cleaned = sanitizeFactString(rawHook);
+  const words = cleaned.split(/\s+/).filter(Boolean);
+  if (words.length <= 30) return cleaned;
+  const sliced = words.slice(0, 30).join(' ').replace(/[,;:\-–—]+$/, '');
+  return `${sliced}.`;
+}
+
+/**
  * Merges newsTriggers arrays avoiding duplicate URLs or identical (date + newsHook)
  */
 export function mergeNewsTriggers(existingTriggers = [], incomingTriggers = []) {
@@ -113,7 +135,7 @@ export function mergeNewsTriggers(existingTriggers = [], incomingTriggers = []) 
     date: t?.date || '',
     source: t?.source || '',
     url: sanitizeUrl(t?.url || ''),
-    newsHook: (t?.newsHook || '').trim(),
+    newsHook: sanitizeNewsHook30Words(t?.newsHook || ''),
   }));
 
   const seenUrls = new Set(
@@ -133,7 +155,7 @@ export function mergeNewsTriggers(existingTriggers = [], incomingTriggers = []) 
       date: raw.date || '',
       source: raw.source || '',
       url: sanitizeUrl(raw.url || ''),
-      newsHook: (raw.newsHook || '').trim(),
+      newsHook: sanitizeNewsHook30Words(raw.newsHook || ''),
     };
     const urlKey = item.url.toLowerCase();
     const dhKey = `${item.date}|${item.newsHook.toLowerCase()}`;
@@ -235,7 +257,7 @@ export async function ingestPinJsonl(rawText) {
       const incomingCategories = normalizeStringArray(data.mapCategory);
       const incomingAliases = normalizeStringArray(data.aliases);
       const incomingNeighbours = normalizeStringArray(data.neighbours);
-      const incomingStaticFacts = normalizeStringArray(data.staticFacts);
+      const incomingStaticFacts = normalizeStringArray(data.staticFacts).map(sanitizeFactString).filter(Boolean);
       const incomingSimilarPyq = normalizeStringArray(data.similarPYQ);
       const incomingTriggers = mergeNewsTriggers([], data.newsTriggers || []);
 
@@ -290,8 +312,10 @@ export async function ingestPinJsonl(rawText) {
         insertedCount++;
         results.push({ slug, action: 'INSERTED', pinId: created.pinId, place: created.place });
       } else {
-        const mergedTriggers = mergeNewsTriggers(existing.newsTriggers, incomingTriggers);
-        const mergedFacts = unionStringArrays(existing.staticFacts, incomingStaticFacts);
+        const mergedTriggers =
+          incomingTriggers.length > 0 ? incomingTriggers : existing.newsTriggers;
+        const mergedFacts =
+          incomingStaticFacts.length > 0 ? incomingStaticFacts : existing.staticFacts;
         const mergedSimilarPyq = unionStringArrays(existing.similarPYQ, incomingSimilarPyq);
         const mergedAliases = unionStringArrays(existing.aliases, incomingAliases);
         const mergedNeighbours = unionStringArrays(existing.neighbours, incomingNeighbours);
@@ -312,9 +336,14 @@ export async function ingestPinJsonl(rawText) {
 
         const updatedUpscAngle = data.upscAngle
           ? {
+              ...(existing.upscAngle || {}),
+              ...data.upscAngle,
               preferredFormat:
                 data.upscAngle.preferredFormat || existing.upscAngle?.preferredFormat || '',
               framing: data.upscAngle.framing || existing.upscAngle?.framing || '',
+              pyqBullets: Array.isArray(data.upscAngle.pyqBullets)
+                ? data.upscAngle.pyqBullets
+                : existing.upscAngle?.pyqBullets || [],
               distractorPool: unionStringArrays(
                 existing.upscAngle?.distractorPool || [],
                 data.upscAngle.distractorPool || []
