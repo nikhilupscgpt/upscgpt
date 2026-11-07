@@ -547,6 +547,25 @@ export default function PinAdminClient({ embedded = false }) {
           </div>
 
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            <Link
+              href="/admin/pin/curation"
+              style={{
+                padding: '9px 16px',
+                borderRadius: 9,
+                background: 'rgba(245, 158, 11, 0.15)',
+                border: '1px solid rgba(245, 158, 11, 0.4)',
+                color: '#fbbf24',
+                textDecoration: 'none',
+                fontSize: 12.5,
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
+            >
+              <Sparkles size={14} />
+              Smart Curation Hub
+            </Link>
             {!embedded && (
               <Link
                 href="/admin"

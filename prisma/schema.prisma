@@ -1069,6 +1069,11 @@ model PlaceInNews {
   newsTriggers   Json     @default("[]") // [{ date, source, url, newsHook }]
   upscAngle      Json? // { preferredFormat, framing, distractorPool }
   similarPYQ     String[] @default([]) // Array of MappingPyq.id / Question.dedupHash
+  tier           String   @default("daily") // master | daily | archived
+  parentId       String?
+  isCurated      Boolean  @default(false)
+  curatedAt      DateTime?
+  mergeNotes     String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 
@@ -1079,6 +1084,9 @@ model PlaceInNews {
   @@index([targetExamYear])
   @@index([date])
   @@index([lat, lng])
+  @@index([tier])
+  @@index([isCurated])
+  @@index([parentId])
   @@map("places_in_news")
 }
 

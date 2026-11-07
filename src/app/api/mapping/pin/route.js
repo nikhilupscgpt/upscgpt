@@ -16,11 +16,25 @@ export async function GET(req) {
     const placeType = searchParams.get('placeType') || 'ALL';
     const targetExamYear = searchParams.get('targetExamYear') || 'ALL';
     const hookCategory = searchParams.get('hookCategory') || 'ALL';
+    const tier = searchParams.get('tier') || 'ACTIVE'; // ACTIVE (default: excludes archived) | MASTER | DAILY | ALL
     const search = (searchParams.get('search') || '').trim();
     const sort = searchParams.get('sort') || 'LATEST'; // LATEST | PRIORITY | N_TO_S | S_TO_N | E_TO_W | W_TO_E
     const resolvePyqs = searchParams.get('resolvePyqs') !== 'false';
 
     const where = {};
+
+    if (tier === 'MASTER') {
+      where.tier = 'master';
+    } else if (tier === 'DAILY') {
+      where.tier = 'daily';
+      where.parentId = null;
+    } else if (tier === 'ARCHIVED') {
+      where.tier = 'archived';
+    } else if (tier !== 'ALL') {
+      // By default ('ACTIVE'), exclude archived / merged child pins
+      where.tier = { not: 'archived' };
+      where.parentId = null;
+    }
 
     if (subject !== 'ALL') {
       where.subject = subject;
