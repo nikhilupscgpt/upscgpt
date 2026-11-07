@@ -21,9 +21,23 @@ export async function GET(req) {
       return NextResponse.json({ count: clusters.length, clusters });
     }
 
-    if (mode === 'weekly') {
-      const days = Number(searchParams.get('days')) || 7;
-      const batch = await getWeeklyBatch(days);
+    if (mode === 'weekly' || mode === 'batch') {
+      const filter = searchParams.get('filter') || searchParams.get('days') || '7';
+      const month = searchParams.get('month') || null;
+
+      let options = {};
+      if (filter === 'uncurated') {
+        options = { uncuratedOnly: true };
+      } else if (filter === 'all' || filter === 'allTime') {
+        options = { allTime: true };
+      } else if (month) {
+        options = { month };
+      } else {
+        const numDays = Number(filter);
+        options = { daysBack: !isNaN(numDays) && numDays > 0 ? numDays : 7 };
+      }
+
+      const batch = await getWeeklyBatch(options);
       return NextResponse.json(batch);
     }
 

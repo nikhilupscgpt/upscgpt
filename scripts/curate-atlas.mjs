@@ -161,22 +161,36 @@ async function runMergeQueue() {
   console.log(`\nMerge queue finished! Merged ${mergedTotal} cluster(s).\n`);
 }
 
-async function runWeeklyClearing(daysBack = 7) {
+async function runWeeklyClearing(filterArg = 7) {
   const prompter = createPrompter();
 
+  let options = {};
+  let title = `WEEKLY CLEARING ROUTINE (PAST ${filterArg} DAYS)`;
+  if (filterArg === 'uncurated' || filterArg === 'backlog') {
+    options = { uncuratedOnly: true };
+    title = 'HISTORICAL BACKLOG CLEARING (ALL UNCURATED ENTRIES)';
+  } else if (filterArg === 'all' || filterArg === 'allTime') {
+    options = { allTime: true };
+    title = 'ALL-TIME DATABASE CLEARING';
+  } else {
+    const num = Number(filterArg) || 7;
+    options = { daysBack: num };
+    title = `CLEARING ROUTINE (PAST ${num} DAYS)`;
+  }
+
   console.log('\n======================================================');
-  console.log(`   WEEKLY CLEARING ROUTINE (PAST ${daysBack} DAYS)    `);
+  console.log(`   ${title}   `);
   console.log('======================================================\n');
 
-  const batch = await getWeeklyBatch(Number(daysBack) || 7);
+  const batch = await getWeeklyBatch(options);
 
   if (batch.count === 0) {
-    console.log(`No active entries logged since ${batch.sinceIso}.\n`);
+    console.log(`No active entries found for this filter.\n`);
     prompter.close();
     return;
   }
 
-  console.log(`Found ${batch.count} active entries since ${batch.sinceIso}:\n`);
+  console.log(`Found ${batch.count} entries to review:\n`);
 
   batch.pins.forEach((p, idx) => {
     const hook = p.newsTriggers?.[0]?.newsHook || 'N/A';
@@ -264,13 +278,19 @@ async function main() {
     } else if (mode === '--weekly' || mode === '-w') {
       const days = args[1] || 7;
       await runWeeklyClearing(days);
+    } else if (mode === '--backlog' || mode === '--uncurated' || mode === '-b') {
+      await runWeeklyClearing('uncurated');
+    } else if (mode === '--all' || mode === '-a') {
+      await runWeeklyClearing('all');
     } else {
       console.log(`
 UPSC Atlas Curation Engine CLI:
-  node scripts/curate-atlas.mjs --status     # Show curation stats & candidate clusters
-  node scripts/curate-atlas.mjs --merge      # Step through candidate clusters to merge/prune
-  node scripts/curate-atlas.mjs --weekly     # Weekly clearing routine for past 7 days
-  node scripts/curate-atlas.mjs --weekly 14  # Weekly clearing for past 14 days
+  node scripts/curate-atlas.mjs --status      # Show curation stats & candidate clusters
+  node scripts/curate-atlas.mjs --merge       # Step through candidate clusters to merge/prune
+  node scripts/curate-atlas.mjs --backlog     # Clear all historical uncurated backlog entries
+  node scripts/curate-atlas.mjs --weekly 7    # Weekly clearing routine for past 7 days
+  node scripts/curate-atlas.mjs --weekly 90   # Clearing routine for past 90 days
+  node scripts/curate-atlas.mjs --all         # Curate all-time database
       `);
     }
   } catch (err) {

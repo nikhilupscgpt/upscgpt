@@ -43,8 +43,8 @@ export default function PinCurationClient() {
   const [clusterTitles, setClusterTitles] = useState({});
   const [actionLoading, setActionLoading] = useState({});
 
-  // Weekly clearing state
-  const [daysBack, setDaysBack] = useState(7);
+  // Clearing & backlog state
+  const [filterMode, setFilterMode] = useState('uncurated'); // 'uncurated' | '7' | '30' | '90' | '365' | 'all'
   const [weeklyPins, setWeeklyPins] = useState([]);
   const [selectedPinIds, setSelectedPinIds] = useState(new Set());
   const [weeklySearch, setWeeklySearch] = useState('');
@@ -64,7 +64,7 @@ export default function PinCurationClient() {
       const [statusRes, clustersRes, weeklyRes, masterRes] = await Promise.all([
         fetch('/api/admin/pin/curate?mode=status'),
         fetch('/api/admin/pin/curate?mode=clusters'),
-        fetch(`/api/admin/pin/curate?mode=weekly&days=${daysBack}`),
+        fetch(`/api/admin/pin/curate?mode=weekly&filter=${filterMode}`),
         fetch('/api/mapping/pin?tier=MASTER&resolvePyqs=false'),
       ]);
 
@@ -107,7 +107,7 @@ export default function PinCurationClient() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [daysBack]);
+  }, [filterMode]);
 
   useEffect(() => {
     loadAllData();
@@ -639,48 +639,70 @@ export default function PinCurationClient() {
           </div>
         )}
 
-        {/* TAB 2: WEEKLY CLEARING & ELEVATION */}
+        {/* TAB 2: CLEARING, ELEVATION & HISTORICAL BACKLOG */}
         {activeTab === 'weekly' && (
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16, flexWrap: 'wrap', gap: 12 }}>
               <div>
                 <h2 style={{ fontSize: 16, fontWeight: 700, margin: 0, color: '#f8fafc' }}>
-                  Weekly Clearing &amp; Elevation Routine
+                  Clearing, Elevation &amp; Historical Backlog
                 </h2>
                 <p style={{ fontSize: 12.5, color: '#94a3b8', margin: '4px 0 0' }}>
-                  Review recent entries and choose which ones to elevate to the permanent <strong>Master Prelims Deck</strong> (⭐), leave in daily logs, or archive.
+                  Review current and historical entries. Curate the uncurated backlog, elevate to <strong>Master Prelims Deck</strong> (⭐), or archive.
                 </p>
               </div>
 
-              {/* Timeframe Filter */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#0f172a', padding: 4, borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)' }}>
+              {/* Timeframe & Backlog Filter */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#0f172a', padding: 4, borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)', flexWrap: 'wrap' }}>
                 {[
-                  { days: 7, label: 'Past 7 Days' },
-                  { days: 14, label: 'Past 14 Days' },
-                  { days: 30, label: 'Past 30 Days' },
-                ].map((tf) => (
-                  <button
-                    key={tf.days}
-                    onClick={() => setDaysBack(tf.days)}
-                    style={{
-                      padding: '5px 10px',
-                      borderRadius: 6,
-                      border: 'none',
-                      background: daysBack === tf.days ? '#0284c7' : 'transparent',
-                      color: daysBack === tf.days ? '#fff' : '#94a3b8',
-                      fontSize: 12,
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {tf.label}
-                  </button>
-                ))}
+                  { id: 'uncurated', label: `⏳ Uncurated Backlog (${metrics.uncuratedCount})`, highlight: true },
+                  { id: '7', label: 'Past 7 Days' },
+                  { id: '30', label: 'Past 30 Days' },
+                  { id: '90', label: 'Past 90 Days' },
+                  { id: '365', label: 'Past 1 Year' },
+                  { id: 'all', label: `All Database (${metrics.total})` },
+                ].map((tf) => {
+                  const isActive = filterMode === tf.id;
+                  const isHighlight = tf.highlight && metrics.uncuratedCount > 0;
+                  return (
+                    <button
+                      key={tf.id}
+                      onClick={() => setFilterMode(tf.id)}
+                      style={{
+                        padding: '6px 12px',
+                        borderRadius: 6,
+                        border: isHighlight && !isActive
+                          ? '1px dashed #f59e0b'
+                          : 'none',
+                        background: isActive
+                          ? isHighlight
+                            ? '#f59e0b'
+                            : '#0284c7'
+                          : isHighlight
+                          ? 'rgba(245, 158, 11, 0.1)'
+                          : 'transparent',
+                        color: isActive
+                          ? isHighlight
+                            ? '#000'
+                            : '#fff'
+                          : isHighlight
+                          ? '#fbbf24'
+                          : '#94a3b8',
+                        fontSize: 12,
+                        fontWeight: isActive || isHighlight ? 700 : 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      {tf.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Batch Action Bar */}
-            <div style={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '10px 16px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            {/* Batch Action Bar + Search */}
+            <div style={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '10px 16px', marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <input
                   type="checkbox"
@@ -691,6 +713,26 @@ export default function PinCurationClient() {
                 <span style={{ fontSize: 13, color: '#cbd5e1', fontWeight: 600 }}>
                   {selectedPinIds.size} of {weeklyPins.length} selected
                 </span>
+              </div>
+
+              {/* In-batch Search */}
+              <div style={{ position: 'relative', width: 280 }}>
+                <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
+                <input
+                  type="text"
+                  value={weeklySearch}
+                  onChange={(e) => setWeeklySearch(e.target.value)}
+                  placeholder="Filter places, states, hooks..."
+                  style={{
+                    width: '100%',
+                    padding: '6px 10px 6px 30px',
+                    borderRadius: 6,
+                    background: '#090d16',
+                    border: '1px solid rgba(255,255,255,0.12)',
+                    color: '#fff',
+                    fontSize: 12,
+                  }}
+                />
               </div>
 
               {selectedPinIds.size > 0 && (
@@ -723,10 +765,21 @@ export default function PinCurationClient() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {weeklyPins.length === 0 ? (
                 <div style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>
-                  No entries found in this timeframe.
+                  No entries found for this filter.
                 </div>
               ) : (
-                weeklyPins.map((pin) => {
+                weeklyPins
+                  .filter((p) => {
+                    if (!weeklySearch.trim()) return true;
+                    const q = weeklySearch.toLowerCase();
+                    return (
+                      (p.place || '').toLowerCase().includes(q) ||
+                      (p.locatedIn?.placeLine || '').toLowerCase().includes(q) ||
+                      (p.locatedIn?.stateOrProvince || '').toLowerCase().includes(q) ||
+                      (p.newsTriggers?.[0]?.newsHook || '').toLowerCase().includes(q)
+                    );
+                  })
+                  .map((pin) => {
                   const isSelected = selectedPinIds.has(pin.id);
                   const isMaster = pin.tier === 'master';
                   const isArchived = pin.tier === 'archived';

@@ -337,25 +337,47 @@ export async function getCurationStatus() {
 }
 
 /**
- * Gets pins for a specific weekly period to run weekly clearing.
+ * Gets pins for weekly clearing, historical backlog, or uncurated batches.
+ * Supports:
+ * - Number (daysBack, e.g. 7, 30, 90, 365)
+ * - Object: { daysBack, uncuratedOnly, allTime, month }
  */
-export async function getWeeklyBatch(daysBack = 7) {
-  const sinceDate = new Date();
-  sinceDate.setDate(sinceDate.getDate() - daysBack);
-  const sinceIso = sinceDate.toISOString().split('T')[0];
+export async function getWeeklyBatch(options = 7) {
+  const where = { parentId: null };
+
+  let uncuratedOnly = false;
+  let allTime = false;
+  let daysBack = null;
+  let month = null;
+
+  if (typeof options === 'number') {
+    daysBack = options;
+  } else if (typeof options === 'object' && options !== null) {
+    uncuratedOnly = !!options.uncuratedOnly;
+    allTime = !!options.allTime;
+    daysBack = options.daysBack != null ? Number(options.daysBack) : null;
+    month = options.month || null;
+  }
+
+  if (uncuratedOnly) {
+    where.isCurated = false;
+  } else if (month) {
+    where.date = { startsWith: month };
+  } else if (!allTime && daysBack && daysBack > 0) {
+    const sinceDate = new Date();
+    sinceDate.setDate(sinceDate.getDate() - daysBack);
+    where.date = { gte: sinceDate.toISOString().split('T')[0] };
+  }
 
   const pins = await withRetry(() =>
     prisma.placeInNews.findMany({
-      where: {
-        date: { gte: sinceIso },
-        parentId: null, // Top-level
-      },
+      where,
       orderBy: [{ date: 'desc' }, { place: 'asc' }],
     })
   );
 
   return {
-    sinceIso,
+    filterApplied: { uncuratedOnly, allTime, daysBack, month },
     count: pins.length,
     pins,
   };
