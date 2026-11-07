@@ -217,6 +217,7 @@ export default function PyqPresenterClient({
 
   // Presentation Canvas Mode: 'screen' (Fluid Responsive Native - fits Mac & all screens) vs '16:9' (1920x1080 Broadcast Standard)
   const [presentationMode, setPresentationMode] = useState(() => {
+    if (isDisplayMode) return '16:9';
     if (typeof window !== 'undefined') {
       try {
         const saved = localStorage.getItem('pq_present_mode');
@@ -649,6 +650,7 @@ export default function PyqPresenterClient({
     }
     setPairedCode(code);
     setLinkStatus('connecting');
+    setPresentationMode('16:9');
 
     link.watch((status, info) => {
       setLinkStatus(status);

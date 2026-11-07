@@ -66,7 +66,13 @@ function renderStroke(ctx, stroke, defaultPenSize, defaultHighlighterSize, isLiv
   }
 
   // Use cached Path2D for completed strokes so redraws run in < 0.02ms with zero CPU lag
-  if (!isLiveStroke && stroke._cachedPath && stroke._cachedSize === size) {
+  // Note: check instanceof Path2D because strokes received over WebRTC JSON would otherwise have _cachedPath serialized as {}
+  if (
+    !isLiveStroke &&
+    typeof Path2D !== 'undefined' &&
+    stroke._cachedPath instanceof Path2D &&
+    stroke._cachedSize === size
+  ) {
     ctx.fill(stroke._cachedPath);
     ctx.restore();
     return;
@@ -106,8 +112,18 @@ function renderStroke(ctx, stroke, defaultPenSize, defaultHighlighterSize, isLiv
   if (typeof Path2D !== 'undefined' && pathData) {
     const path2d = new Path2D(pathData);
     if (!isLiveStroke) {
-      stroke._cachedPath = path2d;
-      stroke._cachedSize = size;
+      Object.defineProperty(stroke, '_cachedPath', {
+        value: path2d,
+        writable: true,
+        configurable: true,
+        enumerable: false,
+      });
+      Object.defineProperty(stroke, '_cachedSize', {
+        value: size,
+        writable: true,
+        configurable: true,
+        enumerable: false,
+      });
     }
     ctx.fill(path2d);
   } else {
