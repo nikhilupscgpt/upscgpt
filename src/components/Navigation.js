@@ -65,7 +65,11 @@ export default function Navigation({ children }) {
 
   const activeContent = children || navContent;
 
-  const isHiddenRoute = pathname === "/login" || pathname === "/admin-login" || pathname.startsWith("/admin");
+  const isHiddenRoute =
+    pathname === "/login" ||
+    pathname === "/admin-login" ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/remote");
   if (!pathname || isHiddenRoute) return null;
 
   const isPrelimsActive = pathname.startsWith("/prelims");

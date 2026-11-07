@@ -125,14 +125,12 @@ export default function BoardDisplayClient({ user }) {
   // If iPad has connected and loaded slides, render presentation in full display mode
   if (isDisplayActive && deck && deck.length > 0) {
     return (
-      <div style={{ position: 'fixed', inset: 0, width: '100vw', height: '100vh', overflow: 'hidden' }}>
-        <PyqPresenterClient
-          questions={deck}
-          isDisplayMode={true}
-          externalLink={linkRef.current}
-          onExitDisplay={() => setIsDisplayActive(false)}
-        />
-      </div>
+      <PyqPresenterClient
+        questions={deck}
+        isDisplayMode={true}
+        externalLink={linkRef.current}
+        onExitDisplay={() => setIsDisplayActive(false)}
+      />
     );
   }
 

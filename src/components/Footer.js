@@ -10,6 +10,7 @@ export default function Footer() {
     (pathname === "/login" ||
       pathname === "/admin-login" ||
       pathname.startsWith("/admin") ||
+      pathname.startsWith("/remote") ||
       pathname.startsWith("/prelims/pyq/practice"));
   if (isHiddenRoute) return null;
 

@@ -20,6 +20,7 @@
 
 /* Hide global footer and top nav offset in all Studio, Presenter, Reel, Focus & Print views */
 body:has(.pq-present-root) .upsc-global-footer,
+body:has(.pq-board-display-root) .upsc-global-footer,
 body:has(.pq-reel-root) .upsc-global-footer,
 body:has(.pq-studio-root) .upsc-global-footer,
 body:has(.pq-immersive-shell) .upsc-global-footer,
@@ -28,7 +29,13 @@ body.pq-immersive-body-lock .upsc-global-footer {
   display: none !important;
 }
 
+body:has(.pq-present-root) .app-nav,
+body:has(.pq-board-display-root) .app-nav {
+  display: none !important;
+}
+
 body:has(.pq-present-root) .app-main,
+body:has(.pq-board-display-root) .app-main,
 body:has(.pq-reel-root) .app-main {
   padding-top: 0 !important;
 }
