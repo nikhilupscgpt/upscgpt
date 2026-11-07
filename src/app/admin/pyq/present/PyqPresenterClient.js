@@ -493,6 +493,32 @@ export default function PyqPresenterClient({
     }
   }, []);
 
+  // One serialisable snapshot of the view state (section 6). Fixed key order so two
+  // snapshots can be compared as strings. The think-timer is sent as on/off only:
+  // each device counts down locally, otherwise the 1 s ticks would echo back and forth.
+  const makeStateSnap = (s) => ({
+    qIndex: s.qIndex,
+    stepIndex: s.stepIndex,
+    theme: s.theme,
+    isBlackboard: s.isBlackboard,
+    timer: s.timerSeconds === null || s.timerSeconds === undefined ? null : 'on',
+    zoom: s.zoom,
+    activeTool: s.activeTool,
+    activeColor: s.activeColor,
+    penSize: s.penSize,
+    presentationMode: s.presentationMode,
+    scratchpadsMap: s.scratchpadsMap,
+  });
+
+  const currentSnap = makeStateSnap({
+    qIndex, stepIndex, theme, isBlackboard, timerSeconds, zoom,
+    activeTool, activeColor, penSize, presentationMode, scratchpadsMap,
+  });
+  const currentSnapRef = useRef(currentSnap);
+  currentSnapRef.current = currentSnap;
+  // Signature of the last state we applied from the other device; we never re-send it.
+  const lastRemoteSigRef = useRef(null);
+
   const handleIncomingMessage = useCallback((msg) => {
     if (!msg || !msg.t) return;
     applyingRef.current = true;
@@ -505,21 +531,9 @@ export default function PyqPresenterClient({
         }
 
         case 'ready': {
+          // Controller wins on connect: send our full state and all drawings.
           if (!isDisplayMode) {
-            linkRef.current?.send({
-              t: 'state',
-              qIndex,
-              stepIndex,
-              theme,
-              isBlackboard,
-              timerSeconds,
-              zoom,
-              activeTool,
-              activeColor,
-              penSize,
-              presentationMode,
-              scratchpadsMap,
-            });
+            linkRef.current?.send({ t: 'state', ...currentSnapRef.current });
             linkRef.current?.send({
               t: 'pages',
               pages: getPagesSnapshot(),
@@ -529,17 +543,33 @@ export default function PyqPresenterClient({
         }
 
         case 'state': {
-          if (typeof msg.qIndex === 'number') setQIndex(msg.qIndex);
-          if (typeof msg.stepIndex === 'number') setStepIndex(msg.stepIndex);
-          if (msg.theme && (msg.theme === 'light' || msg.theme === 'dark')) setTheme(msg.theme);
-          if (typeof msg.isBlackboard === 'boolean') setIsBlackboard(msg.isBlackboard);
-          if (msg.timerSeconds !== undefined) setTimerSeconds(msg.timerSeconds);
-          if (msg.zoom) setZoom(msg.zoom);
-          if (msg.activeTool) setActiveTool(msg.activeTool);
-          if (msg.activeColor) setActiveColor(msg.activeColor);
-          if (msg.penSize) setPenSize(msg.penSize);
-          if (msg.presentationMode) setPresentationMode(msg.presentationMode);
-          if (msg.scratchpadsMap) setScratchpadsMap(msg.scratchpadsMap);
+          const cur = currentSnapRef.current;
+          const next = makeStateSnap({
+            qIndex: typeof msg.qIndex === 'number' ? msg.qIndex : cur.qIndex,
+            stepIndex: typeof msg.stepIndex === 'number' ? msg.stepIndex : cur.stepIndex,
+            theme: msg.theme === 'light' || msg.theme === 'dark' ? msg.theme : cur.theme,
+            isBlackboard: typeof msg.isBlackboard === 'boolean' ? msg.isBlackboard : cur.isBlackboard,
+            timerSeconds: 'timer' in msg ? (msg.timer ? 1 : null) : (cur.timer ? 1 : null),
+            zoom: msg.zoom || cur.zoom,
+            activeTool: msg.activeTool || cur.activeTool,
+            activeColor: msg.activeColor || cur.activeColor,
+            penSize: msg.penSize || cur.penSize,
+            presentationMode: msg.presentationMode || cur.presentationMode,
+            scratchpadsMap: msg.scratchpadsMap || cur.scratchpadsMap,
+          });
+          lastRemoteSigRef.current = JSON.stringify(next);
+
+          setQIndex(next.qIndex);
+          setStepIndex(next.stepIndex);
+          setTheme(next.theme);
+          setIsBlackboard(next.isBlackboard);
+          setTimerSeconds(prev => (next.timer ? (prev === null ? 30 : prev) : null));
+          setZoom(next.zoom);
+          setActiveTool(next.activeTool);
+          setActiveColor(next.activeColor);
+          setPenSize(next.penSize);
+          setPresentationMode(next.presentationMode);
+          setScratchpadsMap(next.scratchpadsMap);
           break;
         }
 
@@ -564,6 +594,8 @@ export default function PyqPresenterClient({
               });
             }
           }
+          // The finished stroke replaces the in-progress preview.
+          setRemoteLiveStroke(null);
           break;
         }
 
@@ -624,50 +656,52 @@ export default function PyqPresenterClient({
         applyingRef.current = false;
       }, 0);
     }
-  }, [
-    isDisplayMode,
-    qIndex,
-    stepIndex,
-    theme,
-    isBlackboard,
-    timerSeconds,
-    zoom,
-    activeTool,
-    activeColor,
-    penSize,
-    presentationMode,
-    scratchpadsMap,
-    getPagesSnapshot,
-    mergePages,
-  ]);
+  }, [isDisplayMode, getPagesSnapshot, mergePages]);
+
+  // Always call the latest handler, but subscribe to the link only once.
+  const incomingRef = useRef(handleIncomingMessage);
+  incomingRef.current = handleIncomingMessage;
+  const questionsRef = useRef(questions);
+  questionsRef.current = questions;
 
   // Connect to Board (iPad side)
   const handleConnectToBoard = useCallback((code) => {
-    let link = linkRef.current;
-    if (!link) {
-      link = new RemoteLink('control');
-      linkRef.current = link;
+    // Already paired/pairing with this code: nothing to do.
+    if (
+      linkRef.current &&
+      linkRef.current.code === code &&
+      !linkRef.current.stopped &&
+      linkRef.current.status !== 'failed'
+    ) {
+      return;
     }
+    if (linkRef.current) {
+      linkRef.current.stop();
+    }
+    const link = new RemoteLink('control');
+    linkRef.current = link;
     setPairedCode(code);
     setLinkStatus('connecting');
+    setStatusInfo('');
     setPresentationMode('16:9');
 
     link.watch((status, info) => {
+      if (linkRef.current !== link) return;
       setLinkStatus(status);
-      if (info) setStatusInfo(info);
+      setStatusInfo(status === 'connected' ? '' : (info || ''));
       if (status === 'connected') {
-        const setId = questions.map(q => q.id).filter(Boolean).join(',') || currentQ?.id || '';
-        link.send({ t: 'hello', setId, questions, presenter: true });
+        const qs = questionsRef.current;
+        const setId = qs.map(q => q.id).filter(Boolean).join(',');
+        link.send({ t: 'hello', setId, questions: qs, presenter: true });
       }
     });
 
-    link.on((msg) => {
-      handleIncomingMessage(msg);
-    });
+    link.on((msg) => incomingRef.current(msg));
 
-    const setId = questions.map(q => q.id).filter(Boolean).join(',') || currentQ?.id || '';
-    link.startControl(code, setId);
-  }, [currentQ, questions, handleIncomingMessage]);
+    const setId = questionsRef.current.map(q => q.id).filter(Boolean).join(',');
+    link.code = code;
+    link.startControl(code, setId).catch(() => {});
+  }, []);
 
   const handleDisconnectBoard = useCallback(() => {
     if (linkRef.current) {
@@ -687,58 +721,41 @@ export default function PyqPresenterClient({
 
     const unsubWatch = externalLink.watch((st, info) => {
       setLinkStatus(st);
-      if (info) setStatusInfo(info);
+      setStatusInfo(st === 'connected' ? '' : (info || ''));
     });
-    const unsubMsg = externalLink.on((msg) => handleIncomingMessage(msg));
+    const unsubMsg = externalLink.on((msg) => incomingRef.current(msg));
+    // Now that we are listening, ask the iPad for its state and drawings.
+    // (Sending "ready" earlier could lose the reply before this view had mounted.)
+    externalLink.send({ t: 'ready' });
 
     return () => {
       unsubWatch();
       unsubMsg();
     };
-  }, [externalLink, handleIncomingMessage]);
+  }, [externalLink]);
 
-  // Check URL ?board=123456 auto-connect
+  // Check URL ?board=123456 auto-connect (once)
+  const autoConnectedRef = useRef(false);
   useEffect(() => {
+    if (autoConnectedRef.current) return;
     if (typeof window === 'undefined' || isDisplayMode || externalLink) return;
     const sp = new URLSearchParams(window.location.search);
     const boardParam = sp.get('board');
     if (boardParam && /^\d{6}$/.test(boardParam)) {
+      autoConnectedRef.current = true;
       handleConnectToBoard(boardParam);
     }
   }, [isDisplayMode, externalLink, handleConnectToBoard]);
 
   // Broadcast state changes when local properties update
+  const currentSig = JSON.stringify(currentSnap);
   useEffect(() => {
-    if (applyingRef.current) return;
-    if (linkRef.current?.status === 'connected') {
-      linkRef.current.send({
-        t: 'state',
-        qIndex,
-        stepIndex,
-        theme,
-        isBlackboard,
-        timerSeconds,
-        zoom,
-        activeTool,
-        activeColor,
-        penSize,
-        presentationMode,
-        scratchpadsMap,
-      });
-    }
-  }, [
-    qIndex,
-    stepIndex,
-    theme,
-    isBlackboard,
-    timerSeconds,
-    zoom,
-    activeTool,
-    activeColor,
-    penSize,
-    presentationMode,
-    scratchpadsMap,
-  ]);
+    if (linkRef.current?.status !== 'connected') return;
+    // Skip the state we just received from the other device (no echo).
+    if (currentSig === lastRemoteSigRef.current) return;
+    lastRemoteSigRef.current = null;
+    linkRef.current.send({ t: 'state', ...JSON.parse(currentSig) });
+  }, [currentSig]);
 
   // Remote ink action broadcasts
   const handleRemoteAddStroke = useCallback(({ targetLayer, stroke }) => {

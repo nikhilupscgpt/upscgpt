@@ -1,11 +1,21 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import QRCode from 'qrcode';
 import { Maximize2, Minimize2, Tv, Sparkles, AlertCircle, RefreshCw, CheckCircle2 } from 'lucide-react';
 import { Link } from '@/lib/remote/link';
-import PyqPresenterClient from '@/app/admin/pyq/present/PyqPresenterClient';
 import '@/app/remote/remote.css';
+
+// Load the slide view (and its CSS) only once an iPad has connected. Importing it
+// statically made the waiting screen preload CSS it never used, which is what the
+// "preloaded using link preload but not used" console warning was about.
+const PyqPresenterClient = dynamic(
+  () => import('@/app/admin/pyq/present/PyqPresenterClient'),
+  { ssr: false }
+);
+
+const deckKey = (qs) => (Array.isArray(qs) ? qs.map((q) => q?.id).join(',') : '');
 
 export default function BoardDisplayClient({ user }) {
   const [pairingCode, setPairingCode] = useState(null);
@@ -44,7 +54,7 @@ export default function BoardDisplayClient({ user }) {
     link.watch((status, info) => {
       if (!active) return;
       setLinkStatus(status);
-      if (info) setStatusInfo(info);
+      setStatusInfo(status === 'connected' ? '' : (info || ''));
     });
 
     link
@@ -72,13 +82,19 @@ export default function BoardDisplayClient({ user }) {
         if (active) setStatusInfo(err.message || 'Failed to start pairing');
       });
 
+    // Keep the same deck array when the iPad reconnects with the same lecture,
+    // so the slide view is not reset. The slide view itself sends "ready" once it
+    // is listening (sending it here could lose the iPad's reply).
+    const applyDeck = (qs) => {
+      setDeck((prev) => (deckKey(prev) === deckKey(qs) ? prev : qs));
+      setIsDisplayActive(true);
+    };
+
     link.on(async (msg) => {
       if (!active) return;
       if (msg.t === 'hello') {
         if (Array.isArray(msg.questions) && msg.questions.length > 0) {
-          setDeck(msg.questions);
-          setIsDisplayActive(true);
-          link.send({ t: 'ready' });
+          applyDeck(msg.questions);
           return;
         }
         try {
@@ -87,9 +103,7 @@ export default function BoardDisplayClient({ user }) {
           });
           const data = await res.json();
           if (active && Array.isArray(data.deck) && data.deck.length > 0) {
-            setDeck(data.deck);
-            setIsDisplayActive(true);
-            link.send({ t: 'ready' });
+            applyDeck(data.deck);
           }
         } catch (e) {
           console.error('[Board] Failed to fetch deck on hello:', e);

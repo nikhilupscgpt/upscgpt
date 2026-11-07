@@ -146,12 +146,19 @@ export class Link {
 
   wire(dc) {
     this.dc = dc;
+    // Ignore events from channels that have already been replaced by a newer epoch,
+    // otherwise closing an old channel reports "lost" while the new one is opening.
     dc.onopen = () => {
+      if (dc !== this.dc) return;
       this.heartbeat();
       this.set('connected');
     };
-    dc.onmessage = (e) => this.receive(String(e.data));
+    dc.onmessage = (e) => {
+      if (dc !== this.dc) return;
+      this.receive(String(e.data));
+    };
     dc.onclose = () => {
+      if (dc !== this.dc) return;
       if (!this.stopped) this.set('lost');
     };
     // On the receiving side the channel can already be open when it is handed over.
@@ -164,11 +171,9 @@ export class Link {
   watchPc(pc, onDrop) {
     pc.onconnectionstatechange = () => {
       if (this.stopped || pc !== this.pc) return;
-      if (
-        pc.connectionState === 'failed' ||
-        pc.connectionState === 'disconnected' ||
-        pc.connectionState === 'closed'
-      ) {
+      // 'disconnected' is often a brief Wi-Fi hiccup that recovers on its own;
+      // the 6 s heartbeat catches real drops, so only react to hard failures here.
+      if (pc.connectionState === 'failed' || pc.connectionState === 'closed') {
         onDrop();
       }
     };
@@ -264,10 +269,21 @@ export class Link {
   // ---------------- iPad ----------------
   /** iPad: pair with board showing `code`, then answer each offer it makes (first one and reconnects). */
   async startControl(code, setId) {
-    const j = await api({
-      method: 'POST',
-      body: { op: 'join', code, setId: setId != null ? String(setId) : '' },
-    });
+    // Guard: only one control loop per Link. Calling this twice used to start two
+    // loops that closed each other's peer connections ("could not reach the board").
+    if (this.controlStarted) return { id: this.sessionId };
+    this.controlStarted = true;
+    let j;
+    try {
+      j = await api({
+        method: 'POST',
+        body: { op: 'join', code, setId: setId != null ? String(setId) : '' },
+      });
+    } catch (e) {
+      this.controlStarted = false;
+      this.set('failed', e.message || 'Could not join the board');
+      throw e;
+    }
     this.sessionId = j.id;
     this.code = code;
     this.setId = setId != null ? String(setId) : '';
@@ -315,7 +331,8 @@ export class Link {
 
         this.watchPc(pc, () => this.set('lost'));
         const ok = await this.until(pc, 15000);
-        if (!ok && !this.stopped) {
+        // Only report failure if this attempt is still the current one and nothing opened.
+        if (!ok && !this.stopped && pc === this.pc && this.dc?.readyState !== 'open') {
           this.set(
             'failed',
             'Could not reach the board directly. The Wi-Fi may block devices from talking to each other (client isolation). Ask for it to be switched off for this network, or use a phone hotspot to test.'
