@@ -13,7 +13,7 @@ export async function POST(req) {
     const authHeader = req.headers.get('authorization');
     const token = process.env.NEWS_ENGINE_TOKEN;
 
-    if (!authHeader || authHeader !== `Bearer ${token}`) {
+    if (!token || !authHeader || authHeader !== `Bearer ${token}`) {
       return NextResponse.json({ error: 'Unauthorized: Missing or invalid engine token.' }, { status: 401 });
     }
 

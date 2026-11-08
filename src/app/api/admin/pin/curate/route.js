@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
 import {
   getCurationStatus,
   findCandidateClusters,
@@ -11,6 +13,11 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(req) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user?.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 403 });
+    }
+
     const { searchParams } = new URL(req.url);
     const mode = searchParams.get('mode') || 'status';
 
@@ -55,6 +62,11 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user?.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 403 });
+    }
+
     const body = await req.json();
     const { action } = body;
 

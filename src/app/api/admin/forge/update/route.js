@@ -1,10 +1,15 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const freshPrisma = new PrismaClient();
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
+import prisma from '@/lib/prisma';
 
 export async function POST(req) {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user?.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 403 });
+    }
+
     const body = await req.json();
     const { id } = body;
 
@@ -37,12 +42,12 @@ export async function POST(req) {
     }
 
     if (body.orderIndex !== undefined) {
-      data.orderIndex = parseInt(body.orderIndex) || 0;
+      data.orderIndex = parseInt(body.orderIndex, 10) || 0;
     }
 
     console.log(`[FORGE_FINAL] Committing ${id} with fields:`, Object.keys(data));
 
-    await freshPrisma.issue.update({
+    await prisma.issue.update({
       where: { id: String(id) },
       data
     });
@@ -59,16 +64,27 @@ export async function POST(req) {
 }
 
 export async function GET(req) {
-  const { searchParams } = new URL(req.url);
-  const id = searchParams.get('id');
   try {
-    const issue = await freshPrisma.issue.findUnique({
+    const session = await getServerSession(authOptions);
+    if (!session || (session.user?.role !== 'ADMIN' && session.user?.role !== 'FACULTY')) {
+      return NextResponse.json({ error: 'Unauthorized: Admin or Faculty access required' }, { status: 403 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: 'ID_REQUIRED' }, { status: 400 });
+    }
+
+    const issue = await prisma.issue.findUnique({
       where: { id: String(id) },
       include: {
         articles: { orderBy: { publishedAt: 'desc' }, take: 5 },
         _count: { select: { articles: true, editorials: true } }
       }
     });
+
     return NextResponse.json({ success: true, issue });
   } catch (err) {
     return NextResponse.json({ error: 'LOAD_FAILED', details: err.message }, { status: 500 });
