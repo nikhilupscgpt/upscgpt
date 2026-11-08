@@ -242,12 +242,12 @@ export default function PrelimsGPTCommandCenter() {
             marginBottom: '16px',
             color: 'var(--text-primary, #ffffff)'
           }}>
-            Master Prelims with <span style={{ 
+            Everything You Need for <span style={{ 
               color: 'var(--color-blue, #3b82f6)',
               background: 'linear-gradient(135deg, #60a5fa, #38bdf8)', 
               WebkitBackgroundClip: 'text', 
               WebkitTextFillColor: 'transparent' 
-            }}>Zero Clutter</span>.
+            }}>Prelims.</span>
           </h1>
 
           {/* Subtitle */}
@@ -258,8 +258,7 @@ export default function PrelimsGPTCommandCenter() {
             maxWidth: '720px', 
             margin: '0 auto 28px' 
           }}>
-            Strictly high-yield. Topic-wise Previous Year Questions mapped to granular micro-themes, 
-            instant semantic concept retrieval, and an interactive spatial mapping atlas.
+            15 years of topic-wise PYQs, instant concept search, and interactive map — built to keep your prep sharp and precise.
           </p>
 
           {/* SEARCH BAR (Prelims Concept & Question Retrieval) */}
