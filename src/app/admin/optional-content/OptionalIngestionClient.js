@@ -572,9 +572,47 @@ export default function OptionalIngestionClient({ session }) {
   // RENDER
   // ════════════════════════════════════════════════════════════════════════
   return (
-    <div className="cms-container" style={{ height: "calc(100vh - 60px)", display: "flex", overflow: "hidden" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100vh", background: "var(--bg-primary)", color: "#f8fafc", overflow: "hidden" }}>
       <Toaster position="top-right" reverseOrder={false} />
 
+      {/* Top Navbar */}
+      <header style={{
+        height: "52px",
+        background: "var(--bg-secondary)",
+        borderBottom: "1px solid var(--border-color)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "0 20px",
+        flexShrink: 0
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <BookOpen size={18} color="#10b981" />
+          <strong style={{ fontSize: "14px", color: "#f8fafc" }}>Optional Syllabus Ingestion Desk</strong>
+        </div>
+
+        <Link
+          href="/admin"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "6px",
+            color: "#94a3b8",
+            textDecoration: "none",
+            fontSize: "12.5px",
+            fontWeight: 600,
+            padding: "5px 12px",
+            borderRadius: "8px",
+            background: "rgba(255, 255, 255, 0.05)",
+            border: "1px solid rgba(255, 255, 255, 0.1)"
+          }}
+        >
+          <ArrowLeft size={14} /> Return to Admin
+        </Link>
+      </header>
+
+      {/* Main 3-Column Workspace */}
+      <div className="cms-container" style={{ flex: 1, height: "calc(100vh - 52px)", display: "flex", overflow: "hidden" }}>
       {/* ═══ COLUMN 1: SYLLABUS TREE ═══ */}
       <div style={{ flex: 1, borderRight: "1px solid var(--border-color)", display: "flex", flexDirection: "column", background: "var(--bg-secondary)", overflow: "hidden" }}>
         <div style={{ padding: "24px 20px 16px", borderBottom: "1px solid var(--border-color)" }}>
@@ -1056,6 +1094,7 @@ export default function OptionalIngestionClient({ session }) {
           )}
         </div>
       </div>
+    </div>
     </div>
   );
 }

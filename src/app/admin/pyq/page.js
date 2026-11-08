@@ -12,7 +12,7 @@ export default async function AdminPyqPage() {
   const session = await getServerSession(authOptions);
 
   if (!session || session.user?.role !== 'ADMIN') {
-    redirect("/login");
+    redirect('/admin-login?callbackUrl=/admin/pyq');
   }
 
   return <PyqAdminClient session={session} />;

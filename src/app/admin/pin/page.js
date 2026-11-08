@@ -13,7 +13,7 @@ export default async function AdminPinPage() {
   const session = await getServerSession(authOptions);
 
   if (!session || session.user?.role !== 'ADMIN') {
-    redirect('/login');
+    redirect('/admin-login?callbackUrl=/admin/pin');
   }
 
   return <PinAdminClient session={session} />;

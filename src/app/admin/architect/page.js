@@ -12,8 +12,8 @@ export const metadata = {
 export default async function ArchitectPage() {
   const session = await getServerSession(authOptions);
 
-  if (!session || session.user.role !== 'ADMIN') {
-    redirect('/login?callbackUrl=/admin/architect');
+  if (!session || session.user?.role !== 'ADMIN') {
+    redirect('/admin-login?callbackUrl=/admin/architect');
   }
 
   return (

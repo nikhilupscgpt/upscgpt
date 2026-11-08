@@ -13,7 +13,7 @@ export default async function AdminPyqDetailPage({ params }) {
   const session = await getServerSession(authOptions);
 
   if (!session || session.user?.role !== 'ADMIN') {
-    redirect("/login");
+    redirect("/admin-login");
   }
 
   const { id } = await params;

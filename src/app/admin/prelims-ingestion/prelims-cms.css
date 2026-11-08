@@ -9,12 +9,6 @@
   --neon-rose: #f43f5e;
 }
 
-[data-theme='light'] .cms-container,
-[data-theme='sepia'] .cms-container {
-  --bg-secondary: #f1f5f9;
-  --card-border: #e2e8f0;
-}
-
 .cms-container {
   display: flex;
   height: 100vh;
