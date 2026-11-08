@@ -3154,6 +3154,28 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <Link
+                    href="/admin/pyq/curation"
+                    target="_blank"
+                    style={{
+                      background: 'rgba(56, 189, 248, 0.15)',
+                      color: '#7dd3fc',
+                      border: '1px solid rgba(56, 189, 248, 0.35)',
+                      borderRadius: '6px',
+                      padding: '4px 8px',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      textDecoration: 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                    title="Open Dedicated Similar PYQ Clustering & Curation Desk in New Tab"
+                  >
+                    <ExternalLink size={11} />
+                    <span>Cluster Desk</span>
+                  </Link>
+
                   <button
                     type="button"
                     onClick={fetchSimilarCandidates}

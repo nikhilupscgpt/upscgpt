@@ -871,6 +871,29 @@ export default function PyqAdminClient({ session }) {
             <span>Add Single Question</span>
           </button>
 
+          <Link
+            href="/admin/pyq/curation"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '10px 18px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.18) 0%, rgba(99, 102, 241, 0.22) 100%)',
+              color: '#38bdf8',
+              border: '1.5px solid rgba(56, 189, 248, 0.45)',
+              fontWeight: 800,
+              fontSize: '0.9rem',
+              textDecoration: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 0 15px rgba(56, 189, 248, 0.2)'
+            }}
+            title="Open Dedicated Similar PYQ Clustering & Curation Desk"
+          >
+            <Sparkles size={16} />
+            <span>Similar PYQ Desk</span>
+          </Link>
+
           <button
             onClick={() => setPrintModalOpen(true)}
             style={{
