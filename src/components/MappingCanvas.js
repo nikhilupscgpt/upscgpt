@@ -203,103 +203,155 @@ function getLabelDirStyle(dir = 'right') {
  * Numbered circular map badge with crisp double-ring border; when selected, transforms into a
  * crimson-red glowing & pulsating beacon with dual radar rings + floating title pill.
  */
-function createNodeIcon(node, isSelected, showLabels = false) {
+function createNodeIcon(node, isSelected, showLabels = false, currentZoom = 5, hasSelection = false) {
   const vis = getCategoryVisual(node);
   const color = node.badgeColor || node.customColor || vis.color;
   const emoji = node.customEmoji || vis.emoji;
-  const idxNum = node?.displayIndex;
+
+  const isRiver = Boolean(
+    vis.isRiver ||
+    node.category === 'river' ||
+    (node.mapCategory && node.mapCategory.some((c) => c.includes('rivers'))) ||
+    node.riverDetails
+  );
 
   const rawPlace = node.place || '';
   const matchParen = rawPlace.match(/^([^(]+)\(([^)]+)\)$/);
   const mainTitle = matchParen ? matchParen[1].trim() : rawPlace;
-  const shortTitle = (node.shortLabel || mainTitle.replace(/\s+(River|Sangam|Barrage|National Park)$/i, '')).trim();
+  const shortTitle = (node.shortLabel || mainTitle.replace(/\s+(River|Sangam|Barrage|National Park|Tiger Reserve)$/i, '')).trim();
   const stateOrCountry = [node.locatedIn?.stateOrProvince, node.locatedIn?.country]
     .filter(Boolean)
     .join(', ') || node.regionScope || '';
   const subDetail = stateOrCountry || (matchParen ? matchParen[2].trim() : '');
 
-  const cleanMain = mainTitle.length > 22 ? `${mainTitle.slice(0, 20)}…` : mainTitle;
-  const cleanShort = shortTitle.length > 16 ? `${shortTitle.slice(0, 15)}…` : shortTitle;
-  const cleanSub = subDetail.length > 26 ? `${subDetail.slice(0, 24)}…` : subDetail;
-  const dirPosStyle = getLabelDirStyle(node.labelDir || 'right');
+  const cleanMain = mainTitle.length > 24 ? `${mainTitle.slice(0, 22)}…` : mainTitle;
+  const cleanShort = shortTitle.length > 18 ? `${shortTitle.slice(0, 16)}…` : shortTitle;
 
-  if (!isSelected) {
-    const badgeContent = idxNum
-      ? `<span style="font-family:Inter,system-ui,sans-serif;font-size:12px;font-weight:900;color:#ffffff;line-height:1;">${idxNum}</span>`
-      : `<span style="font-size:12px;line-height:1;">${emoji}</span>`;
-
-    const labelPillHtml = showLabels
-      ? `<div style="
-          position:absolute;${dirPosStyle}
-          background:rgba(15, 23, 42, 0.92);backdrop-filter:blur(4px);color:#ffffff;
-          border:1.5px solid ${color};
-          border-radius:6px;padding:2px 7px;
-          font-family:Inter,system-ui,sans-serif;
-          font-size:11.5px;font-weight:800;letter-spacing:0.01em;
-          white-space:nowrap;
-          box-shadow:0 3px 10px rgba(15,23,42,0.5);
-          pointer-events:none;z-index:9;
-        ">${cleanShort}</div>`
-      : '';
-
+  // 1. ACTIVE / SELECTED STATE: Glorious beacon with pulsing rings and title pill
+  if (isSelected) {
+    const activeIcon = isRiver ? '🌊' : (emoji || '📍');
     return L.divIcon({
       html: `
-        <div style="position:relative;width:26px;height:26px;">
-          <div style="
+        <div style="position:relative;width:34px;height:34px;pointer-events:auto;z-index:1000;">
+          <span class="pin-red-ring-1"></span>
+          <span class="pin-red-ring-2"></span>
+          <div class="pin-red-core" style="
             position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);
-            width:24px;height:24px;border-radius:50%;
-            background:${idxNum ? color : '#0f172a'};
-            border:2px solid #ffffff;
-            outline:1.5px solid ${color};
+            width:32px;height:32px;border-radius:50%;
+            background:linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            border:2.5px solid #ffffff;
             display:flex;align-items:center;justify-content:center;
-            box-shadow:0 3px 8px rgba(15,23,42,0.45);cursor:pointer;
-            transition:transform 0.15s ease;
+            cursor:pointer;box-shadow:0 0 16px rgba(239,68,68,0.8);
           ">
-            ${badgeContent}
+            <span style="font-size:14px;line-height:1;">${activeIcon}</span>
           </div>
-          ${labelPillHtml}
+          <div style="
+            position:absolute;top:50%;left:38px;transform:translateY(-50%);
+            background:rgba(15, 23, 42, 0.96);backdrop-filter:blur(6px);color:#ffffff;
+            border:1.5px solid rgba(239,68,68,0.9);
+            border-radius:8px;padding:5px 12px;
+            font-family:Inter,system-ui,sans-serif;
+            white-space:nowrap;max-width:240px;overflow:hidden;
+            box-shadow:0 6px 20px rgba(15,23,42,0.6), 0 0 14px rgba(239,68,68,0.45);
+            pointer-events:none;z-index:1001;
+          ">
+            <div style="font-size:13px;font-weight:800;color:#ffffff;line-height:1.2;overflow:hidden;text-overflow:ellipsis;">${cleanMain}</div>
+            ${subDetail ? `<div style="font-size:10.5px;font-weight:600;color:#94a3b8;margin-top:2px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;">${subDetail}</div>` : ''}
+          </div>
         </div>`,
-      iconSize: [26, 26],
-      iconAnchor: [13, 13],
+      iconSize: [34, 34],
+      iconAnchor: [17, 17],
       className: '',
     });
   }
 
-  const activeBadgeContent = idxNum
-    ? `<span style="font-family:Inter,system-ui,sans-serif;font-size:13px;font-weight:800;color:#ffffff;line-height:1;">${idxNum}</span>`
-    : `<span style="font-size:14px;line-height:1;">📍</span>`;
+  // 2. RIVERS (Non-selected): Render clean river name text label with halo (NO circular badge!)
+  if (isRiver) {
+    const isMajor = [
+      'ganga-river', 'indus-river', 'brahmaputra-river', 'yamuna-river',
+      'narmada-river', 'tapi-river', 'godavari-river', 'krishna-river',
+      'cauvery-river', 'mahanadi-river', 'sutlej-river', 'chambal-river',
+      'son-river', 'barak-river', 'jhelum-river', 'chenab-river'
+    ].includes(node.slug);
+
+    // Zoom-adaptive font sizing:
+    // zoom <= 5: 10px
+    // zoom == 6: 12px
+    // zoom >= 7: 14.5px
+    const fontSize = Math.max(9.5, Math.min(15, 9.5 + (currentZoom - 4.5) * 1.8));
+
+    // Dimming: if user selected a place, other rivers fade to 0.22 opacity
+    const labelOpacity = hasSelection
+      ? 0.22
+      : (currentZoom <= 5 ? (isMajor ? 0.95 : 0.45) : 0.92);
+
+    return L.divIcon({
+      html: `
+        <div style="
+          display:inline-flex;align-items:center;justify-content:center;
+          font-family:Inter,system-ui,sans-serif;
+          font-size:${fontSize.toFixed(1)}px;
+          font-style:italic;
+          font-weight:700;
+          color:#0369a1;
+          white-space:nowrap;
+          pointer-events:auto;
+          cursor:pointer;
+          text-shadow:
+            -2px -2px 0 #ffffff,
+             2px -2px 0 #ffffff,
+            -2px  2px 0 #ffffff,
+             2px  2px 0 #ffffff,
+             0 0 5px #ffffff,
+             0 0 8px #ffffff;
+          opacity:${labelOpacity};
+          transform:translate(-50%, -50%);
+          letter-spacing:0.02em;
+          transition:opacity 0.2s ease, font-size 0.2s ease;
+          user-select:none;
+        ">
+          ${cleanShort}
+        </div>`,
+      iconSize: [120, 20],
+      iconAnchor: [60, 10],
+      className: '',
+    });
+  }
+
+  // 3. POINT FEATURES (Passes, National Parks, Wetlands, Ports, Heritage)
+  const pointOpacity = hasSelection ? 0.25 : 1;
+  const showNamePill = currentZoom >= 6 || showLabels;
 
   return L.divIcon({
     html: `
-      <div style="position:relative;width:34px;height:34px;pointer-events:auto;">
-        <span class="pin-red-ring-1"></span>
-        <span class="pin-red-ring-2"></span>
-        <div class="pin-red-core" style="
-          position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);
-          width:32px;height:32px;border-radius:50%;
-          background:linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-          border:2.5px solid #ffffff;
-          display:flex;align-items:center;justify-content:center;
-          cursor:pointer;z-index:10;
-        ">
-          ${activeBadgeContent}
-        </div>
+      <div style="position:relative;width:26px;height:26px;opacity:${pointOpacity};transition:opacity 0.2s ease;">
         <div style="
-          position:absolute;top:50%;left:38px;transform:translateY(-50%);
-          background:rgba(15, 23, 42, 0.95);backdrop-filter:blur(6px);color:#ffffff;
-          border:1.5px solid rgba(239,68,68,0.85);
-          border-radius:8px;padding:5px 11px;
-          font-family:Inter,system-ui,sans-serif;
-          white-space:nowrap;max-width:210px;overflow:hidden;
-          box-shadow:0 6px 20px rgba(15,23,42,0.5), 0 0 12px rgba(239,68,68,0.35);
-          pointer-events:none;z-index:11;
+          position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);
+          width:24px;height:24px;border-radius:50%;
+          background:${color};
+          border:2px solid #ffffff;
+          outline:1.5px solid ${color};
+          display:flex;align-items:center;justify-content:center;
+          box-shadow:0 3px 8px rgba(15,23,42,0.4);cursor:pointer;
         ">
-          <div style="font-size:12.5px;font-weight:800;color:#ffffff;line-height:1.2;overflow:hidden;text-overflow:ellipsis;">${cleanMain}</div>
-          ${cleanSub ? `<div style="font-size:10.5px;font-weight:600;color:#94a3b8;margin-top:2px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;">${cleanSub}</div>` : ''}
+          <span style="font-size:12px;line-height:1;">${emoji}</span>
         </div>
+        ${showNamePill ? `
+          <div style="
+            position:absolute;top:50%;left:28px;transform:translateY(-50%);
+            background:rgba(15, 23, 42, 0.92);backdrop-filter:blur(4px);color:#ffffff;
+            border:1.5px solid ${color};
+            border-radius:6px;padding:2px 7px;
+            font-family:Inter,system-ui,sans-serif;
+            font-size:11.5px;font-weight:700;letter-spacing:0.01em;
+            white-space:nowrap;
+            box-shadow:0 3px 10px rgba(15,23,42,0.4);
+            pointer-events:none;z-index:9;
+          ">${cleanShort}</div>
+        ` : ''}
       </div>`,
-    iconSize: [34, 34],
-    iconAnchor: [17, 17],
+    iconSize: [26, 26],
+    iconAnchor: [13, 13],
     className: '',
   });
 }
@@ -314,7 +366,18 @@ function createClusterIcon(cluster) {
   });
 }
 
-function CameraController({ cameraTarget, selectedNode }) {
+function CameraController({ cameraTarget, selectedNode, onZoomChange }) {
+  const map = useMap();
+  const lastNodeId = useRef(null);
+  const lastCameraKey = useRef('');
+
+  useEffect(() => {
+    if (!map || !onZoomChange) return;
+    const handleZoom = () => onZoomChange(map.getZoom());
+    handleZoom();
+    map.on('zoomend', handleZoom);
+    return () => map.off('zoomend', handleZoom);
+  }, [map, onZoomChange]);
   const map = useMap();
   const lastNodeId = useRef(null);
   const lastCameraKey = useRef('');
@@ -725,6 +788,28 @@ export default function MappingCanvas({
     [validNodes]
   );
 
+  const { riverNodes, pointNodes } = useMemo(() => {
+    const rivers = [];
+    const points = [];
+    for (const n of validNodes) {
+      if (n.hideMarker) continue;
+      const vis = getCategoryVisual(n);
+      const isRiver = Boolean(
+        vis.isRiver ||
+        n.category === 'river' ||
+        (n.mapCategory && n.mapCategory.some((c) => c.includes('rivers'))) ||
+        n.riverDetails ||
+        n.basinGroup
+      );
+      if (isRiver) {
+        rivers.push(n);
+      } else {
+        points.push(n);
+      }
+    }
+    return { riverNodes: rivers, pointNodes: points };
+  }, [validNodes]);
+
   const markerNodes = useMemo(
     () => validNodes.filter((n) => !n.hideMarker),
     [validNodes]
@@ -741,6 +826,8 @@ export default function MappingCanvas({
     }
     return [22.5, 80.5];
   }, [cameraTarget?.center]);
+
+  const [currentZoom, setCurrentZoom] = useState(5);
 
   const safeZoom = useMemo(() => {
     const z = Number(cameraTarget?.zoom);
@@ -820,7 +907,7 @@ export default function MappingCanvas({
         preferCanvas={true}
       >
         <ZoomControl position="bottomright" />
-        <CameraController cameraTarget={cameraTarget} selectedNode={selectedNode} />
+        <CameraController cameraTarget={cameraTarget} selectedNode={selectedNode} onZoomChange={setCurrentZoom} />
 
         <TileLayer key={basemap} url={tile.url} attribution={tile.attr} crossOrigin={true} />
 
@@ -854,10 +941,17 @@ export default function MappingCanvas({
 
         {/* River & Mountain GIS Polylines */}
         {polylineNodes.map((node) => {
+          const hasSelection = Boolean(selectedNode);
           const isSelected = selectedNode?.id === node.id;
           const vis = getCategoryVisual(node);
           const strokeColor = node.strokeColor || node.customColor || (vis.isRiver ? '#0284c7' : '#7c3aed');
           const glowColor = isSelected ? '#ef4444' : (node.glowColor || (vis.isRiver ? '#38bdf8' : '#a78bfa'));
+
+          // Visual focus & dimming: non-selected polylines drop to 0.18 opacity
+          const polyOpacity = hasSelection
+            ? (isSelected ? 1 : 0.18)
+            : (node.opacity != null ? node.opacity : 0.78);
+          const polyWeight = isSelected ? 5 : (hasSelection ? 1.8 : (node.weight || 2.5));
 
           return (
             <React.Fragment key={`poly-${node.id}`}>
@@ -866,8 +960,8 @@ export default function MappingCanvas({
                   positions={node.shape}
                   pathOptions={{
                     color: glowColor,
-                    weight: node.glowWeight || 12,
-                    opacity: node.glowOpacity || 0.45,
+                    weight: isSelected ? 14 : (node.glowWeight || 12),
+                    opacity: isSelected ? 0.45 : (node.glowOpacity || 0.35),
                     lineCap: 'round',
                     lineJoin: 'round',
                   }}
@@ -876,9 +970,9 @@ export default function MappingCanvas({
               <Polyline
                 positions={node.shape}
                 pathOptions={{
-                  color: isSelected ? '#dc2626' : strokeColor,
-                  weight: node.weight || (isSelected ? 4 : 2.5),
-                  opacity: node.opacity != null ? node.opacity : (isSelected ? 1 : 0.78),
+                  color: isSelected ? '#dc2626' : (hasSelection ? '#64748b' : strokeColor),
+                  weight: polyWeight,
+                  opacity: polyOpacity,
                   dashArray: node.dashArray || (vis.isMountain ? '7,4' : undefined),
                   lineCap: 'round',
                   lineJoin: 'round',
@@ -895,16 +989,44 @@ export default function MappingCanvas({
           );
         })}
 
-        {/* Interactive Markers (Direct when disableClustering is active in Presenter Mode, Clustered otherwise) */}
+        {/* River Labels (Rendered directly and unclustered, so river names are always visible like a real atlas) */}
+        {riverNodes.map((node) => {
+          const isSelected = selectedNode?.id === node.id;
+          return (
+            <Marker
+              key={`river-marker-${node.id}`}
+              position={[Number(node.lat), Number(node.lng)]}
+              icon={createNodeIcon(node, isSelected, showLabels, currentZoom, Boolean(selectedNode))}
+              zIndexOffset={isSelected ? 1000 : 200}
+              eventHandlers={{
+                click: () => onSelectNode && onSelectNode(node),
+              }}
+            >
+              <Tooltip direction="top" offset={[0, -10]}>
+                <div style={{ fontSize: 12 }}>
+                  <strong>{node.place}</strong>
+                  <div style={{ fontSize: 11, color: '#475569' }}>
+                    {node.placeType || 'River System'} •{' '}
+                    {node.locatedIn?.stateOrProvince ||
+                      node.locatedIn?.country ||
+                      node.regionScope || 'India'}
+                  </div>
+                </div>
+              </Tooltip>
+            </Marker>
+          );
+        })}
+
+        {/* Point Feature Markers (Passes, National Parks, Wetlands, Ports, Heritage) */}
         {disableClustering ? (
-          markerNodes.map((node) => {
+          pointNodes.map((node) => {
             const isSelected = selectedNode?.id === node.id;
 
             return (
               <Marker
                 key={node.id}
                 position={[Number(node.lat), Number(node.lng)]}
-                icon={createNodeIcon(node, isSelected, showLabels)}
+                icon={createNodeIcon(node, isSelected, showLabels, currentZoom, Boolean(selectedNode))}
                 zIndexOffset={isSelected ? 1000 : (node.displayIndex ? 500 : 0)}
                 eventHandlers={{
                   click: () => onSelectNode && onSelectNode(node),
@@ -931,19 +1053,19 @@ export default function MappingCanvas({
           <MarkerClusterGroup
             chunkedLoading
             iconCreateFunction={createClusterIcon}
-            maxClusterRadius={28}
+            maxClusterRadius={32}
             showCoverageOnHover={false}
             spiderfyOnMaxZoom={true}
-            disableClusteringAtZoom={4}
+            disableClusteringAtZoom={6}
           >
-            {markerNodes.map((node) => {
+            {pointNodes.map((node) => {
               const isSelected = selectedNode?.id === node.id;
 
               return (
                 <Marker
                   key={node.id}
                   position={[Number(node.lat), Number(node.lng)]}
-                  icon={createNodeIcon(node, isSelected, showLabels)}
+                  icon={createNodeIcon(node, isSelected, showLabels, currentZoom, Boolean(selectedNode))}
                   zIndexOffset={isSelected ? 1000 : 0}
                   eventHandlers={{
                     click: () => onSelectNode && onSelectNode(node),

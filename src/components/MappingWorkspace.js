@@ -590,6 +590,7 @@ export default function MappingWorkspace({
   const [pinTimeMode, setPinTimeMode] = useState('DAY'); // 'DAY' | 'WEEK' | 'MONTH' | 'ALL'
   const [selectedPinPeriod, setSelectedPinPeriod] = useState('ALL');
   const [selectedThemeFilter, setSelectedThemeFilter] = useState('ALL'); // 'ALL' or folder.id
+  const [selectedRiverBasin, setSelectedRiverBasin] = useState('ALL'); // 'ALL' | 'HIMALAYAN' | 'PENINSULAR' | 'COASTAL'
   const [collapsedFolders, setCollapsedFolders] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
   const [basemap, setBasemap] = useState('light'); // 'light' (Clean) | 'topo' (Terrain) | 'satellite' (Satellite)
@@ -833,7 +834,21 @@ export default function MappingWorkspace({
       );
     };
 
-    const filteredBase = modeBaseNodes.filter(matchesSearch);
+    const filteredBase = modeBaseNodes.filter((n) => {
+      if (!matchesSearch(n)) return false;
+      if (selectedRiverBasin !== 'ALL') {
+        const isRiver = Boolean(
+          n.basinGroup ||
+          n.category === 'river' ||
+          (n.mapCategory && n.mapCategory.some((c) => c.includes('rivers'))) ||
+          n.riverDetails
+        );
+        if (isRiver && n.basinGroup !== selectedRiverBasin) {
+          return false;
+        }
+      }
+      return true;
+    });
 
     let folderDefs = PIN_THEMATIC_FOLDERS;
     if (activeMode === 'STATIC_INDIA') folderDefs = STATIC_INDIA_FOLDERS;
@@ -901,7 +916,7 @@ export default function MappingWorkspace({
       .filter((f) => f.items.length > 0);
 
     return { folders: builtFolders, numberedNodes: flatList };
-  }, [activeMode, modeBaseNodes, organizations, searchQuery, selectedThemeFilter]);
+  }, [activeMode, modeBaseNodes, organizations, searchQuery, selectedThemeFilter, selectedRiverBasin]);
 
   // Reset theme filter if the selected theme has no items in the newly chosen period
   useEffect(() => {
@@ -946,6 +961,7 @@ export default function MappingWorkspace({
     setActiveOrg(null);
     setSearchQuery('');
     setSelectedThemeFilter('ALL');
+    setSelectedRiverBasin('ALL');
     setPanelMode('STUDY');
     if (mode === 'PIN') {
       setPinTimeMode(initialPinTime);
@@ -1313,6 +1329,12 @@ export default function MappingWorkspace({
   const selectedIndexInFeed = selectedNode
     ? numberedNodes.findIndex((n) => n.id === selectedNode.id)
     : -1;
+
+  const nextNodeInFeed =
+    selectedIndexInFeed !== -1 && selectedIndexInFeed < numberedNodes.length - 1
+      ? numberedNodes[selectedIndexInFeed + 1]
+      : null;
+  const nextPlaceName = nextNodeInFeed ? formatCleanPlaceHeading(nextNodeInFeed) : '';
 
   const studiedInCurrentFeed = numberedNodes.filter((n) => studiedIds.has(n.id)).length;
 
@@ -1915,6 +1937,116 @@ export default function MappingWorkspace({
             </div>
           )}
 
+          {/* 3-Master River Basin Selection (Himalayan, Peninsular, Coastal) */}
+          {activeMode === 'STATIC_INDIA' &&
+            (selectedThemeFilter === 'ALL' || selectedThemeFilter === 'india-rivers') && (
+              <div
+                style={{
+                  padding: '8px 12px 10px',
+                  background: '#f0f9ff',
+                  borderBottom: '1px solid #bae6fd',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 6,
+                }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: 10.5,
+                      fontWeight: 800,
+                      color: '#0369a1',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.06em',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 4,
+                    }}
+                  >
+                    <span>🌊</span> River Basin Selection
+                  </span>
+                  {selectedRiverBasin !== 'ALL' && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedRiverBasin('ALL');
+                        setCameraTarget({ center: [22.8, 79.5], zoom: 4.8, ts: Date.now() });
+                      }}
+                      style={{
+                        fontSize: 11,
+                        color: '#0284c7',
+                        background: 'none',
+                        border: 'none',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        padding: 0,
+                      }}
+                    >
+                      Reset (Show All 59)
+                    </button>
+                  )}
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 5 }}>
+                  {[
+                    { id: 'ALL', label: 'All Basins', count: 59, emoji: '🌊', center: [22.8, 79.5], zoom: 4.8 },
+                    { id: 'HIMALAYAN', label: 'Himalayan', count: 33, emoji: '🏔️', center: [28.8, 83.0], zoom: 5.6 },
+                    { id: 'PENINSULAR', label: 'Peninsular', count: 8, emoji: '⛰️', center: [17.5, 78.5], zoom: 5.8 },
+                    { id: 'COASTAL', label: 'Coastal & Minor', count: 18, emoji: '⛵', center: [16.0, 76.5], zoom: 5.8 },
+                  ].map((b) => {
+                    const isActive = selectedRiverBasin === b.id;
+                    return (
+                      <button
+                        key={b.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedRiverBasin(b.id);
+                          setCameraTarget({ center: b.center, zoom: b.zoom, ts: Date.now() });
+                        }}
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          padding: '5px 8px',
+                          borderRadius: 7,
+                          border: isActive ? '1.5px solid #0284c7' : '1px solid #cbd5e1',
+                          background: isActive ? '#0284c7' : '#ffffff',
+                          color: isActive ? '#ffffff' : '#334155',
+                          fontSize: 11.5,
+                          fontWeight: isActive ? 800 : 600,
+                          cursor: 'pointer',
+                          boxShadow: isActive ? '0 2px 6px rgba(2, 132, 199, 0.25)' : 'none',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                          <span style={{ fontSize: 12 }}>{b.emoji}</span>
+                          <span>{b.label}</span>
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 10,
+                            padding: '1px 5px',
+                            borderRadius: 999,
+                            background: isActive ? 'rgba(255, 255, 255, 0.28)' : '#f1f5f9',
+                            color: isActive ? '#ffffff' : '#64748b',
+                            fontWeight: 700,
+                          }}
+                        >
+                          {b.count}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
           {/* Grouped Thematic Sections & Numbered Place Items */}
           <div style={{ flex: 1, overflowY: 'auto', padding: '10px 10px 18px', background: '#f8fafc' }}>
             {loading ? (
@@ -2253,18 +2385,19 @@ export default function MappingWorkspace({
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
               <button
                 type="button"
-                onClick={() =>
+                onClick={() => {
+                  setSelectedRiverBasin('ALL');
                   setCameraTarget({
                     center: [22.8, 79.5],
                     zoom: 4.8,
                     ts: Date.now(),
-                  })
-                }
+                  });
+                }}
                 style={{
                   border: 'none',
                   background: 'none',
-                  color: '#2563eb',
-                  fontWeight: 700,
+                  color: selectedRiverBasin === 'ALL' ? '#2563eb' : '#64748b',
+                  fontWeight: selectedRiverBasin === 'ALL' ? 700 : 500,
                   fontSize: 12,
                   cursor: 'pointer',
                   padding: 0,
@@ -2273,6 +2406,39 @@ export default function MappingWorkspace({
               >
                 All-India view
               </button>
+              {activeMode === 'STATIC_INDIA' && (selectedThemeFilter === 'ALL' || selectedThemeFilter === 'india-rivers') && (
+                <>
+                  <span style={{ width: 1, height: 12, background: '#cbd5e1' }} />
+                  {[
+                    { id: 'HIMALAYAN', label: '🏔️ Himalayan', center: [28.8, 83.0], zoom: 5.6 },
+                    { id: 'PENINSULAR', label: '⛰️ Peninsular', center: [17.5, 78.5], zoom: 5.8 },
+                    { id: 'COASTAL', label: '🌊 Coastal', center: [16.0, 76.5], zoom: 5.8 },
+                  ].map((b) => (
+                    <button
+                      key={b.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedRiverBasin((prev) => (prev === b.id ? 'ALL' : b.id));
+                        setCameraTarget({ center: b.center, zoom: b.zoom, ts: Date.now() });
+                      }}
+                      style={{
+                        border: 'none',
+                        background: selectedRiverBasin === b.id ? '#0284c7' : 'none',
+                        color: selectedRiverBasin === b.id ? '#ffffff' : '#64748b',
+                        fontWeight: selectedRiverBasin === b.id ? 800 : 600,
+                        fontSize: 11.5,
+                        borderRadius: 6,
+                        padding: '1px 6px',
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      {b.label}
+                    </button>
+                  ))}
+                </>
+              )}
               <button
                 type="button"
                 onClick={() =>
@@ -3060,8 +3226,9 @@ export default function MappingWorkspace({
                   }}
                 >
                   <span>
-                    #{selectedNode.displayIndex || 1} ·{' '}
-                    {selectedNode.folderShortLabel || selectedNode.placeType}
+                    {selectedNode.basinLabel
+                      ? `${selectedNode.basinLabel} · ${selectedIndexInFeed >= 0 ? selectedIndexInFeed + 1 : 1} of ${numberedNodes.length}`
+                      : `${selectedNode.folderShortLabel || selectedNode.placeType} · ${selectedIndexInFeed >= 0 ? selectedIndexInFeed + 1 : 1} of ${numberedNodes.length}`}
                   </span>
                 </span>
 
@@ -3125,7 +3292,7 @@ export default function MappingWorkspace({
                         handleSelectNode(numberedNodes[selectedIndexInFeed + 1]);
                       }
                     }}
-                    title="Next place"
+                    title={nextPlaceName ? `Next: ${nextPlaceName}` : 'Next place'}
                     style={{
                       width: 30,
                       height: 30,
@@ -3911,14 +4078,72 @@ export default function MappingWorkspace({
               )}
             </div>
 
-            {/* Sticky Bottom CTA Button */}
+            {/* Sticky Bottom Actions (Inspired by Main.dc.html Study View) */}
             <div
               style={{
-                padding: '12px 20px',
+                padding: '12px 16px',
                 borderTop: '1px solid #e2e8f0',
                 background: '#ffffff',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 8,
               }}
             >
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  type="button"
+                  onClick={() => toggleStudied(selectedNode.id)}
+                  style={{
+                    flex: 1,
+                    padding: '10px 12px',
+                    borderRadius: 9,
+                    border: studiedIds.has(selectedNode.id)
+                      ? '1.5px solid #10b981'
+                      : '1px solid #cbd5e1',
+                    background: studiedIds.has(selectedNode.id) ? '#ecfdf5' : '#ffffff',
+                    color: studiedIds.has(selectedNode.id) ? '#065f46' : '#334155',
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 6,
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  <span>{studiedIds.has(selectedNode.id) ? '✓ Learned' : '○ Mark Learned'}</span>
+                </button>
+
+                {nextNodeInFeed && (
+                  <button
+                    type="button"
+                    onClick={() => handleSelectNode(nextNodeInFeed)}
+                    style={{
+                      flex: 1.2,
+                      padding: '10px 12px',
+                      borderRadius: 9,
+                      border: '1px solid #0f172a',
+                      background: '#0f172a',
+                      color: '#ffffff',
+                      fontSize: 12.5,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6,
+                      boxShadow: '0 2px 8px rgba(15, 23, 42, 0.18)',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    <span>Next: {nextPlaceName} →</span>
+                  </button>
+                )}
+              </div>
+
               <button
                 type="button"
                 onClick={() =>
@@ -3926,22 +4151,22 @@ export default function MappingWorkspace({
                 }
                 style={{
                   width: '100%',
-                  padding: '12px 16px',
-                  borderRadius: 10,
-                  border: '1.5px solid #f59e0b',
-                  background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                  padding: '10px 14px',
+                  borderRadius: 9,
+                  border: '1px solid #f59e0b',
+                  background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
                   color: '#ffffff',
-                  fontSize: 13,
+                  fontSize: 12.5,
                   fontWeight: 800,
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  boxShadow: '0 4px 14px rgba(245, 158, 11, 0.22)',
+                  boxShadow: '0 3px 10px rgba(245, 158, 11, 0.2)',
                   transition: 'all 0.15s ease',
                 }}
               >
-                <span style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span style={{ color: '#f59e0b' }}>🔥</span>
                   <span>
                     {panelMode === 'STUDY'
@@ -3949,20 +4174,18 @@ export default function MappingWorkspace({
                       : 'Return to Study Notes'}
                   </span>
                 </span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span
                     style={{
-                      fontSize: 11.5,
-                      padding: '2px 9px',
+                      fontSize: 11,
+                      padding: '1px 8px',
                       borderRadius: 999,
                       background: 'linear-gradient(135deg, #f59e0b 0%, #ea580c 100%)',
                       color: '#ffffff',
                       fontWeight: 900,
-                      boxShadow: '0 2px 6px rgba(234, 88, 12, 0.35)',
                     }}
                   >
-                    {practiceQuestionsForSelected.length}{' '}
-                    {practiceQuestionsForSelected.length === 1 ? 'question' : 'questions'}
+                    {practiceQuestionsForSelected.length} Qs
                   </span>
                   <span style={{ color: '#f59e0b', fontWeight: 800 }}>→</span>
                 </div>

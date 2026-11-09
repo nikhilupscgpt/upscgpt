@@ -1342,7 +1342,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-PRY-01",
@@ -1386,7 +1388,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-PRY-02",
@@ -1430,7 +1434,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-PRY-03",
@@ -1474,7 +1480,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-PRY-04",
@@ -1518,7 +1526,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-PRY-05",
@@ -1564,7 +1574,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-01B",
@@ -1735,7 +1747,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-01C",
@@ -1893,7 +1907,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-01D",
@@ -2874,7 +2890,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-01E",
@@ -3749,7 +3767,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-01F",
@@ -4632,7 +4652,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-01G",
@@ -4796,7 +4818,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-01H",
@@ -6053,7 +6077,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-01I",
@@ -7070,7 +7096,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-01J",
@@ -7947,7 +7975,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-01K",
@@ -8118,7 +8148,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-01L",
@@ -9114,7 +9146,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-01M",
@@ -9317,7 +9351,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-02",
@@ -10759,7 +10795,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-02B",
@@ -11799,7 +11837,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-02C",
@@ -13019,7 +13059,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-02D",
@@ -13991,7 +14033,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-02E",
@@ -14794,7 +14838,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-02F",
@@ -16017,7 +16063,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-03",
@@ -17038,7 +17086,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-03B",
@@ -17170,7 +17220,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-03C",
@@ -17330,7 +17382,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-03D",
@@ -17473,7 +17527,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-03E",
@@ -17636,7 +17692,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-03F",
@@ -17805,7 +17863,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-03G",
@@ -18012,7 +18072,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-03H",
@@ -18154,7 +18216,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-03I",
@@ -18325,7 +18389,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "HIMALAYAN",
+    "basinLabel": "Himalayan River System"
   },
   {
     "id": "IND-RIV-04",
@@ -19358,7 +19424,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "PENINSULAR",
+    "basinLabel": "Peninsular River System"
   },
   {
     "id": "IND-RIV-10",
@@ -20169,7 +20237,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "PENINSULAR",
+    "basinLabel": "Peninsular River System"
   },
   {
     "id": "IND-RIV-04B",
@@ -20320,7 +20390,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "COASTAL",
+    "basinLabel": "Coastal & Minor River System"
   },
   {
     "id": "IND-RIV-04C",
@@ -21051,7 +21123,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "COASTAL",
+    "basinLabel": "Coastal & Minor River System"
   },
   {
     "id": "IND-RIV-04D",
@@ -21210,7 +21284,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "COASTAL",
+    "basinLabel": "Coastal & Minor River System"
   },
   {
     "id": "IND-RIV-04E",
@@ -21358,7 +21434,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "COASTAL",
+    "basinLabel": "Coastal & Minor River System"
   },
   {
     "id": "IND-RIV-04F",
@@ -21470,7 +21548,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "COASTAL",
+    "basinLabel": "Coastal & Minor River System"
   },
   {
     "id": "IND-RIV-04G",
@@ -21603,7 +21683,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "COASTAL",
+    "basinLabel": "Coastal & Minor River System"
   },
   {
     "id": "IND-RIV-04H",
@@ -21773,7 +21855,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "COASTAL",
+    "basinLabel": "Coastal & Minor River System"
   },
   {
     "id": "IND-RIV-04I",
@@ -21932,7 +22016,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "COASTAL",
+    "basinLabel": "Coastal & Minor River System"
   },
   {
     "id": "IND-RIV-07",
@@ -22952,7 +23038,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "PENINSULAR",
+    "basinLabel": "Peninsular River System"
   },
   {
     "id": "IND-RIV-05",
@@ -24218,7 +24306,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "PENINSULAR",
+    "basinLabel": "Peninsular River System"
   },
   {
     "id": "IND-RIV-08",
@@ -25487,7 +25577,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "PENINSULAR",
+    "basinLabel": "Peninsular River System"
   },
   {
     "id": "IND-RIV-08B",
@@ -26468,7 +26560,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "PENINSULAR",
+    "basinLabel": "Peninsular River System"
   },
   {
     "id": "IND-RIV-08C",
@@ -27448,7 +27542,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "PENINSULAR",
+    "basinLabel": "Peninsular River System"
   },
   {
     "id": "IND-RIV-06",
@@ -28500,7 +28596,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "PENINSULAR",
+    "basinLabel": "Peninsular River System"
   },
   {
     "id": "IND-RIV-13",
@@ -29369,7 +29467,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "COASTAL",
+    "basinLabel": "Coastal & Minor River System"
   },
   {
     "id": "IND-RIV-14",
@@ -29500,7 +29600,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "COASTAL",
+    "basinLabel": "Coastal & Minor River System"
   },
   {
     "id": "IND-RIV-11",
@@ -30160,7 +30262,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "COASTAL",
+    "basinLabel": "Coastal & Minor River System"
   },
   {
     "id": "IND-RIV-12",
@@ -30278,7 +30382,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "COASTAL",
+    "basinLabel": "Coastal & Minor River System"
   },
   {
     "id": "IND-RIV-15A",
@@ -30389,7 +30495,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "COASTAL",
+    "basinLabel": "Coastal & Minor River System"
   },
   {
     "id": "IND-RIV-15B",
@@ -30503,7 +30611,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "COASTAL",
+    "basinLabel": "Coastal & Minor River System"
   },
   {
     "id": "IND-RIV-17A",
@@ -30899,7 +31009,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "COASTAL",
+    "basinLabel": "Coastal & Minor River System"
   },
   {
     "id": "IND-RIV-17B",
@@ -31019,7 +31131,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "COASTAL",
+    "basinLabel": "Coastal & Minor River System"
   },
   {
     "id": "IND-RIV-16",
@@ -31138,7 +31252,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "COASTAL",
+    "basinLabel": "Coastal & Minor River System"
   },
   {
     "id": "IND-RIV-17C",
@@ -31247,7 +31363,9 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
+    "linkedIssueDomain": "GEOGRAPHY",
+    "basinGroup": "COASTAL",
+    "basinLabel": "Coastal & Minor River System"
   },
   {
     "id": "IND-REL-01",
