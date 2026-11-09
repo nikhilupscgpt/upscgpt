@@ -1473,6 +1473,1347 @@ export const CURATED_MAPPING_NODES = [
     "linkedIssueDomain": "GEOGRAPHY"
   },
   {
+    "id": "IND-RIV-01H",
+    "slug": "yamuna-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Yamuna River",
+    "aliases": [
+      "Kalindi",
+      "Yamunotri",
+      "Jamuna (India)",
+      "Asita",
+      "Yami"
+    ],
+    "placeType": "Longest Tributary of Ganga (Right Bank)",
+    "priority": "High",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Uttarakhand, Himachal Pradesh, Haryana, Delhi, Uttar Pradesh"
+    },
+    "lat": 27.18,
+    "lng": 78.02,
+    "shape": [
+      [
+        31.02,
+        78.45
+      ],
+      [
+        30.5,
+        77.85
+      ],
+      [
+        30.43,
+        77.62
+      ],
+      [
+        30.22,
+        77.35
+      ],
+      [
+        28.61,
+        77.21
+      ],
+      [
+        28.53,
+        77.39
+      ],
+      [
+        27.5,
+        77.68
+      ],
+      [
+        27.18,
+        78.02
+      ],
+      [
+        26.48,
+        79.18
+      ],
+      [
+        25.95,
+        80.17
+      ],
+      [
+        25.78,
+        80.53
+      ],
+      [
+        25.42,
+        81.88
+      ]
+    ],
+    "neighbours": [
+      "Source: Yamunotri Glacier on the western slopes of the Bandarpunch range (6,316 m), Garh",
+      "Mouth: Joins the Ganga at the Triveni Sangam, Prayagraj (Uttar Pradesh)"
+    ],
+    "riverDetails": {
+      "length": "1,376 km",
+      "origin": "Yamunotri Glacier on the western slopes of the Bandarpunch range (6,316 m), Garhwal Himalaya, Uttarkashi district (Uttarakhand)",
+      "mouth": "Joins the Ganga at the Triveni Sangam, Prayagraj (Uttar Pradesh)",
+      "sourceCoords": [
+        31.02,
+        78.45
+      ],
+      "mouthCoords": [
+        25.42,
+        81.88
+      ],
+      "states": {
+        "flowsThrough": [
+          "Uttarakhand",
+          "Himachal Pradesh",
+          "Haryana",
+          "Delhi",
+          "Uttar Pradesh"
+        ],
+        "basinStates": [
+          "Uttarakhand",
+          "Himachal Pradesh",
+          "Haryana",
+          "Delhi",
+          "Uttar Pradesh",
+          "Rajasthan",
+          "Madhya Pradesh"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Hindon River",
+            "note": "Rises in the Shivaliks (Saharanpur); flows past Ghaziabad; joins near Greater Noida"
+          },
+          {
+            "name": "Rind River",
+            "note": "Doab river joining in the lower course"
+          },
+          {
+            "name": "Sengar River",
+            "note": "Doab river joining in the lower course"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Tons River",
+            "note": "Largest Himalayan tributary; carries more water than the Yamuna at their confluence near Kalsi"
+          },
+          {
+            "name": "Giri River",
+            "note": "Rises in Himachal Pradesh; divides Sirmaur into Cis-Giri and Trans-Giri; joins near Paonta Sahib"
+          },
+          {
+            "name": "Chambal River",
+            "note": "Largest tributary overall (length and basin); rises at Janapav, near Mhow (MP); joins near Etawah"
+          },
+          {
+            "name": "Sind River",
+            "note": "Rises in Vidisha district (MP); joins at Pachnada (Jalaun)"
+          },
+          {
+            "name": "Betwa River",
+            "note": "Rises in Raisen district (MP); passes Orchha; joins at Hamirpur"
+          },
+          {
+            "name": "Ken River",
+            "note": "Rises in Katni district (MP); flows through Panna; joins at Chilla (Banda)"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Tons",
+          "sangam": "Near Kalsi, Dehradun",
+          "state": "Uttarakhand"
+        },
+        {
+          "tributary": "Giri",
+          "sangam": "Near Paonta Sahib",
+          "state": "Himachal Pradesh"
+        },
+        {
+          "tributary": "Hindon",
+          "sangam": "Near Greater Noida",
+          "state": "Uttar Pradesh"
+        },
+        {
+          "tributary": "Chambal",
+          "sangam": "Near Bhareh, Etawah",
+          "state": "Uttar Pradesh"
+        },
+        {
+          "tributary": "Sind",
+          "sangam": "Pachnada, Jalaun",
+          "state": "Uttar Pradesh"
+        },
+        {
+          "tributary": "Betwa",
+          "sangam": "Hamirpur",
+          "state": "Uttar Pradesh"
+        },
+        {
+          "tributary": "Ken",
+          "sangam": "Chilla, Banda",
+          "state": "Uttar Pradesh"
+        },
+        {
+          "tributary": "Ganga",
+          "sangam": "Triveni Sangam, Prayagraj",
+          "state": "Uttar Pradesh"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Yamunotri",
+          "type": "Cultural",
+          "significance": "Char Dham shrine near the source",
+          "state": "Uttarakhand"
+        },
+        {
+          "name": "Paonta Sahib",
+          "type": "Cultural",
+          "significance": "Historic Sikh pilgrimage town associated with Guru Gobind Singh",
+          "state": "Himachal Pradesh"
+        },
+        {
+          "name": "Delhi",
+          "type": "Administrative / Economic",
+          "significance": "National capital; major drinking-water source and most polluted stretch",
+          "state": "Delhi"
+        },
+        {
+          "name": "Mathura & Vrindavan",
+          "type": "Cultural",
+          "significance": "Associated with Lord Krishna",
+          "state": "Uttar Pradesh"
+        },
+        {
+          "name": "Agra",
+          "type": "Historical",
+          "significance": "Taj Mahal on the right bank; UNESCO World Heritage Site",
+          "state": "Uttar Pradesh"
+        },
+        {
+          "name": "Prayagraj",
+          "type": "Cultural",
+          "significance": "Triveni Sangam; host of the Kumbh Mela",
+          "state": "Uttar Pradesh"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Dakpathar Barrage",
+          "state": "Uttarakhand",
+          "type": "Hydro diversion barrage near Vikasnagar"
+        },
+        {
+          "name": "Hathnikund Barrage",
+          "state": "Haryana",
+          "type": "Replaced the Tajewala headworks; feeds the Western and Eastern Yamuna Canals"
+        },
+        {
+          "name": "Wazirabad and Okhla Barrages",
+          "state": "Delhi / Uttar Pradesh",
+          "type": "Urban water supply; Okhla heads the Agra Canal"
+        },
+        {
+          "name": "Lakhwar and Vyasi Projects",
+          "state": "Uttarakhand",
+          "type": "Lakhwar (300 MW, storage dam, under construction) and Vyasi (120 MW, commissioned 2022) on the upper Yamuna"
+        },
+        {
+          "name": "Renuka Dam",
+          "state": "Himachal Pradesh",
+          "type": "Storage dam on the Giri, mainly for Delhi's water supply; under construction"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Govind Pashu Vihar National Park",
+          "relation": "Upper catchment of the Tons tributary",
+          "state": "Uttarakhand"
+        },
+        {
+          "name": "Asan Barrage Conservation Reserve",
+          "relation": "Wetland at the Yamuna-Asan confluence; Ramsar site (2020), Uttarakhand's first",
+          "state": "Uttarakhand"
+        },
+        {
+          "name": "Okhla Bird Sanctuary",
+          "relation": "At the Okhla Barrage on the Delhi-UP border",
+          "state": "Uttar Pradesh"
+        }
+      ],
+      "species": [
+        {
+          "name": "Gharial",
+          "iucn": "Critically Endangered",
+          "role": "Breeds in the Chambal and Ken tributaries"
+        },
+        {
+          "name": "Indian Skimmer",
+          "iucn": "Endangered",
+          "role": "Nests on clean sandbanks of the Chambal and Yamuna"
+        }
+      ],
+      "commonMistake": "Chambal, Betwa and Ken do NOT flow directly into the Ganga; they are RIGHT-bank tributaries of the Yamuna. The CHAMBAL is the Yamuna's largest tributary by length and basin; the TONS is its largest HIMALAYAN tributary and carries more water than the Yamuna at Kalsi. Tons and Giri are RIGHT-bank, Hindon is LEFT-bank."
+    },
+    "staticFacts": [
+      "The longest tributary of the Ganga and the largest by basin; the Ghaghara is the largest by discharge.",
+      "Right-bank: Tons, Giri (Himalayan) and Chambal, Sind, Betwa, Ken (peninsular feeders). Left-bank: Hindon, Rind, Sengar.",
+      "The Ganga-Yamuna Doab between the two rivers is one of India's most fertile agricultural belts.",
+      "The Ken-Betwa link connects two of its right-bank tributaries across Bundelkhand."
+    ],
+    "similarPYQ": [
+      "GEO-UPSC-2019-04",
+      "GEO-CDS1-2020-05",
+      "ENV-UPSC-2017-05",
+      "GEO-CDS2-2021-08"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-01I",
+    "slug": "chambal-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Chambal River",
+    "aliases": [
+      "Charmanvati",
+      "Charmanyavati",
+      "Chambal Badlands",
+      "Kota River"
+    ],
+    "placeType": "Peninsular Right-Bank Tributary of Yamuna (Largest Yamuna Tributary)",
+    "priority": "High",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Madhya Pradesh, Rajasthan, Uttar Pradesh"
+    },
+    "lat": 25.18,
+    "lng": 75.83,
+    "shape": [
+      [
+        22.45,
+        75.75
+      ],
+      [
+        24.53,
+        75.58
+      ],
+      [
+        24.93,
+        75.58
+      ],
+      [
+        25.05,
+        75.68
+      ],
+      [
+        25.18,
+        75.83
+      ],
+      [
+        26.02,
+        76.6
+      ],
+      [
+        26.7,
+        77.9
+      ],
+      [
+        26.48,
+        79.18
+      ]
+    ],
+    "neighbours": [
+      "Source: Janapav hills of the Vindhya range near Mhow, Indore district (Madhya Pradesh), ",
+      "Mouth: Joins the Yamuna near Bhareh, Etawah district (Uttar Pradesh)"
+    ],
+    "riverDetails": {
+      "length": "~960 km",
+      "origin": "Janapav hills of the Vindhya range near Mhow, Indore district (Madhya Pradesh), at ~850 m",
+      "mouth": "Joins the Yamuna near Bhareh, Etawah district (Uttar Pradesh)",
+      "sourceCoords": [
+        22.45,
+        75.75
+      ],
+      "mouthCoords": [
+        26.48,
+        79.18
+      ],
+      "states": {
+        "flowsThrough": [
+          "Madhya Pradesh",
+          "Rajasthan",
+          "Uttar Pradesh"
+        ],
+        "basinStates": [
+          "Madhya Pradesh",
+          "Rajasthan",
+          "Uttar Pradesh"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Banas River",
+            "note": "Rises in the Aravallis (Rajsamand); flows entirely in Rajasthan; joins at Rameshwar, Sawai Madhopur"
+          },
+          {
+            "name": "Mej River",
+            "note": "Rajasthan tributary joining near Bundi-Kota"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Shipra River",
+            "note": "Flows past Ujjain; joins in the upper course"
+          },
+          {
+            "name": "Kali Sindh River",
+            "note": "From the Malwa plateau; joins in Kota district"
+          },
+          {
+            "name": "Parbati River",
+            "note": "From the Malwa plateau; joins near the MP-Rajasthan border"
+          },
+          {
+            "name": "Kuno River",
+            "note": "Flows through Kuno National Park; joins in Morena-Sheopur"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Banas",
+          "sangam": "Rameshwar, Sawai Madhopur",
+          "state": "Rajasthan"
+        },
+        {
+          "tributary": "Yamuna",
+          "sangam": "Near Bhareh, Etawah",
+          "state": "Uttar Pradesh"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Mhow (Dr. Ambedkar Nagar)",
+          "type": "Historical",
+          "significance": "Near the source at Janapav; birthplace of Dr. B.R. Ambedkar",
+          "state": "Madhya Pradesh"
+        },
+        {
+          "name": "Ujjain",
+          "type": "Cultural",
+          "significance": "On the Shipra tributary; Mahakaleshwar Jyotirlinga; Simhastha Kumbh",
+          "state": "Madhya Pradesh"
+        },
+        {
+          "name": "Rawatbhata",
+          "type": "Infrastructure",
+          "significance": "Rana Pratap Sagar dam and Rajasthan Atomic Power Station",
+          "state": "Rajasthan"
+        },
+        {
+          "name": "Kota",
+          "type": "Economic",
+          "significance": "Industrial and coaching hub; Kota Barrage",
+          "state": "Rajasthan"
+        },
+        {
+          "name": "Dholpur",
+          "type": "Economic",
+          "significance": "Chambal ravines; red sandstone quarries",
+          "state": "Rajasthan"
+        },
+        {
+          "name": "Etawah",
+          "type": "Ecological",
+          "significance": "Chambal-Yamuna confluence region",
+          "state": "Uttar Pradesh"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Gandhi Sagar Dam",
+          "state": "Madhya Pradesh",
+          "type": "Storage dam; ~115 MW; first tier of the Chambal Valley Project"
+        },
+        {
+          "name": "Rana Pratap Sagar Dam",
+          "state": "Rajasthan",
+          "type": "~172 MW at Rawatbhata"
+        },
+        {
+          "name": "Jawahar Sagar Dam",
+          "state": "Rajasthan",
+          "type": "~99 MW, between Rawatbhata and Kota"
+        },
+        {
+          "name": "Kota Barrage",
+          "state": "Rajasthan",
+          "type": "Irrigation barrage feeding canals in Rajasthan and MP"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "National Chambal Sanctuary",
+          "relation": "Tri-state riverine sanctuary (1979) along the lower Chambal",
+          "state": "Madhya Pradesh / Rajasthan / Uttar Pradesh"
+        },
+        {
+          "name": "Mukundra Hills Tiger Reserve",
+          "relation": "Gorge section of the Chambal near Kota",
+          "state": "Rajasthan"
+        },
+        {
+          "name": "Kuno National Park",
+          "relation": "On the Kuno tributary; site of the cheetah reintroduction (2022)",
+          "state": "Madhya Pradesh"
+        },
+        {
+          "name": "Ranthambhore Tiger Reserve",
+          "relation": "Lies between the Chambal and the Banas",
+          "state": "Rajasthan"
+        }
+      ],
+      "species": [
+        {
+          "name": "Gharial",
+          "iucn": "Critically Endangered",
+          "role": "The Chambal holds the largest wild population in the world"
+        },
+        {
+          "name": "Red-crowned Roofed Turtle",
+          "iucn": "Critically Endangered",
+          "role": "Freshwater turtle found mainly in the National Chambal Sanctuary"
+        },
+        {
+          "name": "Indian Skimmer",
+          "iucn": "Endangered",
+          "role": "Nests on Chambal sandbars"
+        },
+        {
+          "name": "Ganges River Dolphin",
+          "iucn": "Endangered",
+          "role": "Present in the lower Chambal"
+        }
+      ],
+      "commonMistake": "BANAS is a LEFT-bank tributary, while Kali Sindh, Parbati, Shipra and Kuno are RIGHT-bank. The SIND joins the Yamuna directly, not the Chambal. The Chambal flows NORTH and then north-east, against the general southward slope of peninsular rivers."
+    },
+    "staticFacts": [
+      "A north-flowing river of the Malwa plateau that forms part of the Madhya Pradesh-Rajasthan boundary.",
+      "Badland (ravine) topography along its lower course is a classic example of gully erosion.",
+      "The four-tier Chambal Valley Project comprises Gandhi Sagar, Rana Pratap Sagar, Jawahar Sagar and the Kota Barrage."
+    ],
+    "similarPYQ": [
+      "ENV-UPSC-2017-05",
+      "ENV-UPSC-2017-14",
+      "ENV-UPSC-2019-09",
+      "GEO-CDS1-2020-05"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-01J",
+    "slug": "betwa-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Betwa River",
+    "aliases": [
+      "Vetravati",
+      "Shuktimati",
+      "Orchha River",
+      "Bundelkhand River"
+    ],
+    "placeType": "Peninsular Right-Bank Tributary of Yamuna",
+    "priority": "Medium",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Madhya Pradesh, Uttar Pradesh"
+    },
+    "lat": 25.35,
+    "lng": 78.64,
+    "shape": [
+      [
+        23.05,
+        77.35
+      ],
+      [
+        23.53,
+        77.82
+      ],
+      [
+        24.18,
+        78.23
+      ],
+      [
+        24.63,
+        78.27
+      ],
+      [
+        25.18,
+        78.5
+      ],
+      [
+        25.35,
+        78.64
+      ],
+      [
+        25.45,
+        78.58
+      ],
+      [
+        25.95,
+        80.17
+      ]
+    ],
+    "neighbours": [
+      "Source: Vindhya range near Jhiri village, Raisen district, south-west of Bhopal (Madhya ",
+      "Mouth: Joins the Yamuna at Hamirpur (Uttar Pradesh)"
+    ],
+    "riverDetails": {
+      "length": "~590 km",
+      "origin": "Vindhya range near Jhiri village, Raisen district, south-west of Bhopal (Madhya Pradesh)",
+      "mouth": "Joins the Yamuna at Hamirpur (Uttar Pradesh)",
+      "sourceCoords": [
+        23.05,
+        77.35
+      ],
+      "mouthCoords": [
+        25.95,
+        80.17
+      ],
+      "states": {
+        "flowsThrough": [
+          "Madhya Pradesh",
+          "Uttar Pradesh"
+        ],
+        "basinStates": [
+          "Madhya Pradesh",
+          "Uttar Pradesh"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Halali River",
+            "note": "Joins in Raisen-Vidisha"
+          },
+          {
+            "name": "Bina River",
+            "note": "Joins in the upper Bundelkhand stretch"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Jamni River",
+            "note": "Joins near Orchha"
+          },
+          {
+            "name": "Dhasan River",
+            "note": "Largest tributary; drains central Bundelkhand"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Yamuna",
+          "sangam": "Hamirpur",
+          "state": "Uttar Pradesh"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Vidisha",
+          "type": "Historical",
+          "significance": "Ancient Besnagar (Heliodorus pillar); near Sanchi and the Udayagiri caves",
+          "state": "Madhya Pradesh"
+        },
+        {
+          "name": "Orchha",
+          "type": "Historical",
+          "significance": "Bundela capital; Ram Raja temple and riverside chhatris",
+          "state": "Madhya Pradesh"
+        },
+        {
+          "name": "Jhansi",
+          "type": "Historical",
+          "significance": "Near the river; Rani Lakshmibai and the 1857 revolt",
+          "state": "Uttar Pradesh"
+        },
+        {
+          "name": "Hamirpur",
+          "type": "Administrative",
+          "significance": "Betwa-Yamuna confluence",
+          "state": "Uttar Pradesh"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Rajghat Dam",
+          "state": "Madhya Pradesh / Uttar Pradesh border",
+          "type": "Joint MP-UP irrigation and power project near Lalitpur"
+        },
+        {
+          "name": "Matatila Dam",
+          "state": "Uttar Pradesh / Madhya Pradesh border",
+          "type": "Irrigation and hydropower near Lalitpur"
+        },
+        {
+          "name": "Parichha Dam",
+          "state": "Uttar Pradesh",
+          "type": "Irrigation reservoir; Parichha thermal power station"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Ratapani Tiger Reserve",
+          "relation": "Vindhyan forests near the Betwa's source; notified as a tiger reserve in December 2024",
+          "state": "Madhya Pradesh"
+        },
+        {
+          "name": "Orchha Wildlife Sanctuary",
+          "relation": "Riverine island sanctuary between the Betwa and Jamni",
+          "state": "Madhya Pradesh"
+        }
+      ],
+      "species": [
+        {
+          "name": "Indian Vulture",
+          "iucn": "Critically Endangered",
+          "role": "Nests on the old monuments and cliffs around Orchha"
+        }
+      ],
+      "commonMistake": "The Betwa joins the YAMUNA at Hamirpur, not the Ganga. In the Ken-Betwa link, water flows FROM the Ken TO the Betwa."
+    },
+    "staticFacts": [
+      "Known as the Vetravati in ancient texts.",
+      "Flows north-east across the Bundelkhand upland of granite and gneiss."
+    ],
+    "similarPYQ": [
+      "GEO-UPSC-2016-03",
+      "GEO-CDS1-2020-05"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-01K",
+    "slug": "ken-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Ken River",
+    "aliases": [
+      "Karnavati",
+      "Kayan",
+      "Raneh Falls River",
+      "Panna River"
+    ],
+    "placeType": "Peninsular Right-Bank Tributary of Yamuna",
+    "priority": "High",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Madhya Pradesh, Uttar Pradesh"
+    },
+    "lat": 24.62,
+    "lng": 80,
+    "shape": [
+      [
+        23.7,
+        80.2
+      ],
+      [
+        24.28,
+        80.18
+      ],
+      [
+        24.62,
+        80
+      ],
+      [
+        24.78,
+        79.92
+      ],
+      [
+        25.12,
+        80.3
+      ],
+      [
+        25.48,
+        80.33
+      ],
+      [
+        25.78,
+        80.53
+      ]
+    ],
+    "neighbours": [
+      "Source: Kaimur hills near Ahirgawan village, Katni district (Madhya Pradesh)",
+      "Mouth: Joins the Yamuna near Chilla village, Banda district (Uttar Pradesh)"
+    ],
+    "riverDetails": {
+      "length": "~427 km",
+      "origin": "Kaimur hills near Ahirgawan village, Katni district (Madhya Pradesh)",
+      "mouth": "Joins the Yamuna near Chilla village, Banda district (Uttar Pradesh)",
+      "sourceCoords": [
+        23.7,
+        80.2
+      ],
+      "mouthCoords": [
+        25.78,
+        80.53
+      ],
+      "states": {
+        "flowsThrough": [
+          "Madhya Pradesh",
+          "Uttar Pradesh"
+        ],
+        "basinStates": [
+          "Madhya Pradesh",
+          "Uttar Pradesh"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Sonar River",
+            "note": "Largest tributary (with the Bearma); drains Sagar-Damoh"
+          },
+          {
+            "name": "Urmil River",
+            "note": "Joins in the lower Bundelkhand stretch"
+          }
+        ],
+        "rightBank": []
+      },
+      "confluences": [
+        {
+          "tributary": "Yamuna",
+          "sangam": "Chilla, Banda",
+          "state": "Uttar Pradesh"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Panna",
+          "type": "Economic",
+          "significance": "Diamond mining (Majhgawan mine, NMDC) and Panna Tiger Reserve",
+          "state": "Madhya Pradesh"
+        },
+        {
+          "name": "Khajuraho",
+          "type": "Cultural",
+          "significance": "Chandela temples near the Ken; UNESCO World Heritage Site",
+          "state": "Madhya Pradesh"
+        },
+        {
+          "name": "Banda",
+          "type": "Cultural",
+          "significance": "Known for Shajar stones from the Ken bed (GI-tagged)",
+          "state": "Uttar Pradesh"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Daudhan Dam (Ken-Betwa Link)",
+          "state": "Madhya Pradesh",
+          "type": "Under construction in Panna; transfers Ken water to the Betwa basin"
+        },
+        {
+          "name": "Bariyarpur Pickup Weir",
+          "state": "Madhya Pradesh",
+          "type": "Irrigation diversion weir downstream of Panna"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Panna Tiger Reserve",
+          "relation": "The Ken flows through it; core of the Panna Biosphere Reserve (UNESCO MAB, 2020)",
+          "state": "Madhya Pradesh"
+        },
+        {
+          "name": "Ken Gharial Sanctuary",
+          "relation": "Gorge stretch near Raneh Falls",
+          "state": "Madhya Pradesh"
+        }
+      ],
+      "species": [
+        {
+          "name": "Bengal Tiger",
+          "iucn": "Endangered",
+          "role": "Panna's population was successfully re-established after local extinction around 2009"
+        },
+        {
+          "name": "Gharial",
+          "iucn": "Critically Endangered",
+          "role": "Protected in the Ken Gharial Sanctuary"
+        }
+      ],
+      "commonMistake": "The Ken-Betwa link transfers water FROM the Ken TO the Betwa. The project is no longer 'proposed': its foundation stone was laid in December 2024."
+    },
+    "staticFacts": [
+      "The Raneh Falls canyon shows crystalline granite in shades of pink, red and grey.",
+      "Its basin is part of Bundelkhand, built of granite, gneiss and Vindhyan sandstone.",
+      "The Ken-Betwa project is India's first river-interlinking project under the National Perspective Plan."
+    ],
+    "similarPYQ": [
+      "GEO-UPSC-2016-03",
+      "GEO-CDS1-2020-05"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-01L",
+    "slug": "son-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Son River",
+    "aliases": [
+      "Sone",
+      "Sonabhadra",
+      "Suvarnarekha of MP",
+      "Hiranyavaha"
+    ],
+    "placeType": "Peninsular Right-Bank Tributary of Ganga",
+    "priority": "High",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Madhya Pradesh, Uttar Pradesh, Bihar"
+    },
+    "lat": 24.52,
+    "lng": 83.02,
+    "shape": [
+      [
+        22.67,
+        81.75
+      ],
+      [
+        23.45,
+        81.35
+      ],
+      [
+        24.19,
+        81.28
+      ],
+      [
+        24.52,
+        83.02
+      ],
+      [
+        24.8,
+        83.8
+      ],
+      [
+        25.35,
+        84.45
+      ],
+      [
+        25.65,
+        84.9
+      ]
+    ],
+    "neighbours": [
+      "Source: Amarkantak plateau (Sonmuda), Anuppur district (Madhya Pradesh); the Narmada and",
+      "Mouth: Joins the Ganga near Arrah-Maner, west of Patna (Bihar)"
+    ],
+    "riverDetails": {
+      "length": "~784 km",
+      "origin": "Amarkantak plateau (Sonmuda), Anuppur district (Madhya Pradesh); the Narmada and Johilla also rise here",
+      "mouth": "Joins the Ganga near Arrah-Maner, west of Patna (Bihar)",
+      "sourceCoords": [
+        22.67,
+        81.75
+      ],
+      "mouthCoords": [
+        25.65,
+        84.9
+      ],
+      "states": {
+        "flowsThrough": [
+          "Madhya Pradesh",
+          "Uttar Pradesh",
+          "Bihar"
+        ],
+        "basinStates": [
+          "Madhya Pradesh",
+          "Chhattisgarh",
+          "Uttar Pradesh",
+          "Jharkhand",
+          "Bihar"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Johilla River",
+            "note": "Also rises at Amarkantak; joins in the upper course"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Gopad River",
+            "note": "Drains Sidhi district (MP)"
+          },
+          {
+            "name": "Rihand River",
+            "note": "From Chhattisgarh; dammed at Pipri (Rihand Dam / G.B. Pant Sagar)"
+          },
+          {
+            "name": "Kanhar River",
+            "note": "From Chhattisgarh-Jharkhand; joins in Sonbhadra"
+          },
+          {
+            "name": "North Koel River",
+            "note": "From the Ranchi plateau; flows through Palamau Tiger Reserve"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Rihand",
+          "sangam": "Sonbhadra district",
+          "state": "Uttar Pradesh"
+        },
+        {
+          "tributary": "North Koel",
+          "sangam": "Near the Jharkhand-Bihar border",
+          "state": "Bihar / Jharkhand"
+        },
+        {
+          "tributary": "Ganga",
+          "sangam": "Near Arrah-Maner, west of Patna",
+          "state": "Bihar"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Amarkantak",
+          "type": "Cultural",
+          "significance": "Source of the Son and Narmada; pilgrimage centre",
+          "state": "Madhya Pradesh"
+        },
+        {
+          "name": "Singrauli",
+          "type": "Economic",
+          "significance": "'Energy capital of India'; coal mines and super thermal power stations",
+          "state": "Madhya Pradesh"
+        },
+        {
+          "name": "Sonbhadra",
+          "type": "Economic",
+          "significance": "Rihand reservoir, cement and power plants",
+          "state": "Uttar Pradesh"
+        },
+        {
+          "name": "Dehri-on-Sone",
+          "type": "Infrastructure",
+          "significance": "Indrapuri Barrage and the historic Sone canal system",
+          "state": "Bihar"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Bansagar Dam",
+          "state": "Madhya Pradesh",
+          "type": "Multipurpose MP-UP-Bihar project on the Son"
+        },
+        {
+          "name": "Rihand Dam",
+          "state": "Uttar Pradesh",
+          "type": "On the Rihand tributary; G.B. Pant Sagar is among India's largest artificial lakes"
+        },
+        {
+          "name": "Indrapuri Barrage",
+          "state": "Bihar",
+          "type": "Feeds the Sone canals at Dehri"
+        },
+        {
+          "name": "North Koel (Mandal) Dam",
+          "state": "Jharkhand",
+          "type": "On the North Koel; long-stalled irrigation project"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Son Gharial Wildlife Sanctuary",
+          "relation": "Son-Banas-Gopad stretch in Sidhi-Shahdol",
+          "state": "Madhya Pradesh"
+        },
+        {
+          "name": "Sanjay-Dubri Tiger Reserve",
+          "relation": "Upper Son catchment",
+          "state": "Madhya Pradesh"
+        },
+        {
+          "name": "Palamau Tiger Reserve",
+          "relation": "On the North Koel; among India's first nine tiger reserves (1973)",
+          "state": "Jharkhand"
+        },
+        {
+          "name": "Kaimur Wildlife Sanctuary",
+          "relation": "Kaimur escarpment along the lower Son",
+          "state": "Bihar"
+        }
+      ],
+      "species": [
+        {
+          "name": "Gharial",
+          "iucn": "Critically Endangered",
+          "role": "Protected in the Son Gharial Sanctuary"
+        },
+        {
+          "name": "Sloth Bear",
+          "iucn": "Vulnerable",
+          "role": "Common in the Kaimur and Sanjay-Dubri forests"
+        }
+      ],
+      "commonMistake": "The Son flows NORTH from Amarkantak and then turns EAST-NORTH-EAST along the Kaimur escarpment, not north-west to south-east. It is a RIGHT-bank Ganga tributary that joins the Ganga directly, not the Yamuna."
+    },
+    "staticFacts": [
+      "NCERT: it forms a series of waterfalls at the edge of the plateau before reaching Arrah, west of Patna, to join the Ganga.",
+      "Its middle course follows the Son-Narmada lineament, a major structural line of peninsular India.",
+      "Its basin holds the Singrauli coalfield and India's highest concentration of pithead thermal power."
+    ],
+    "similarPYQ": [
+      "GEO-CDS1-2020-05",
+      "GEO-UPSC-2016-03"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-01M",
+    "slug": "damodar-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Damodar River",
+    "aliases": [
+      "Damuda",
+      "Sorrow of Bengal",
+      "Barakar River",
+      "DVC River"
+    ],
+    "placeType": "Peninsular River in a Rift Valley; Tributary of the Hooghly ('Sorrow of Bengal')",
+    "priority": "High",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Jharkhand, West Bengal"
+    },
+    "lat": 23.65,
+    "lng": 86.75,
+    "shape": [
+      [
+        23.67,
+        84.75
+      ],
+      [
+        23.72,
+        85.8
+      ],
+      [
+        23.75,
+        86.2
+      ],
+      [
+        23.78,
+        86.43
+      ],
+      [
+        23.68,
+        86.75
+      ],
+      [
+        23.65,
+        86.85
+      ],
+      [
+        23.5,
+        87.32
+      ],
+      [
+        23.23,
+        87.86
+      ],
+      [
+        22.3,
+        88.1
+      ]
+    ],
+    "neighbours": [
+      "Source: Khamarpat hill near Chandwa, Latehar district (formerly Palamu), Chotanagpur pla",
+      "Mouth: Joins the Hooghly near Falta (West Bengal); a branch (Mundeswari) reaches the Ru"
+    ],
+    "riverDetails": {
+      "length": "~592 km",
+      "origin": "Khamarpat hill near Chandwa, Latehar district (formerly Palamu), Chotanagpur plateau (Jharkhand)",
+      "mouth": "Joins the Hooghly near Falta (West Bengal); a branch (Mundeswari) reaches the Rupnarayan",
+      "sourceCoords": [
+        23.67,
+        84.75
+      ],
+      "mouthCoords": [
+        22.3,
+        88.1
+      ],
+      "states": {
+        "flowsThrough": [
+          "Jharkhand",
+          "West Bengal"
+        ],
+        "basinStates": [
+          "Jharkhand",
+          "West Bengal"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Barakar River",
+            "note": "Main tributary (NCERT); dammed at Tilaiya and Maithon"
+          },
+          {
+            "name": "Konar River",
+            "note": "From the Hazaribagh plateau; Konar Dam"
+          },
+          {
+            "name": "Bokaro River",
+            "note": "From the Hazaribagh plateau; supplies Bokaro Steel City area"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Sali River",
+            "note": "Joins in Bankura district"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Barakar",
+          "sangam": "Near Dishergarh, below Maithon and Panchet",
+          "state": "Jharkhand / West Bengal border"
+        },
+        {
+          "tributary": "Hooghly",
+          "sangam": "Near Falta",
+          "state": "West Bengal"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Bokaro Steel City",
+          "type": "Economic",
+          "significance": "Integrated steel plant (SAIL)",
+          "state": "Jharkhand"
+        },
+        {
+          "name": "Dhanbad",
+          "type": "Economic",
+          "significance": "'Coal Capital of India'; Jharia coking-coal field",
+          "state": "Jharkhand"
+        },
+        {
+          "name": "Asansol",
+          "type": "Economic",
+          "significance": "Raniganj coalfield, where Indian coal mining began in 1774",
+          "state": "West Bengal"
+        },
+        {
+          "name": "Durgapur",
+          "type": "Economic",
+          "significance": "Steel plant; Durgapur Barrage",
+          "state": "West Bengal"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Tilaiya Dam",
+          "state": "Jharkhand",
+          "type": "First DVC dam, on the Barakar"
+        },
+        {
+          "name": "Konar Dam",
+          "state": "Jharkhand",
+          "type": "DVC dam on the Konar"
+        },
+        {
+          "name": "Maithon Dam",
+          "state": "Jharkhand / West Bengal border",
+          "type": "DVC dam on the Barakar with an underground power station"
+        },
+        {
+          "name": "Panchet Dam",
+          "state": "Jharkhand / West Bengal border",
+          "type": "DVC dam on the Damodar main stem"
+        },
+        {
+          "name": "Tenughat Dam",
+          "state": "Jharkhand",
+          "type": "Damodar main stem; supplies Bokaro"
+        },
+        {
+          "name": "Durgapur Barrage",
+          "state": "West Bengal",
+          "type": "Diverts water into the DVC irrigation canals"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Hazaribagh Wildlife Sanctuary",
+          "relation": "Upper Konar-Barakar catchment",
+          "state": "Jharkhand"
+        }
+      ],
+      "species": [],
+      "commonMistake": "The Damodar joins the HOOGHLY, not the main Ganga. The BARAKAR is its main tributary and joins from the LEFT (north). The Damodar is the 'Sorrow of BENGAL'; the Kosi is the 'Sorrow of BIHAR'."
+    },
+    "staticFacts": [
+      "NCERT: it occupies the eastern margins of the Chotanagpur plateau, where it flows through a rift valley.",
+      "Its Gondwana rift basin holds India's richest coal reserves: Jharia, Raniganj, Bokaro and Karanpura.",
+      "The Damodar Valley Corporation (1948), modelled on the Tennessee Valley Authority of the USA, was independent India's first multipurpose river valley project."
+    ],
+    "similarPYQ": [
+      "GEO-CDS1-2019-04",
+      "GEO-CDS1-2020-05"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
     "id": "IND-RIV-02",
     "slug": "indus-river",
     "pillar": "STATIC",
@@ -6930,254 +8271,6 @@ export const CURATED_MAPPING_NODES = [
       "GEO-CDS2-2018-06",
       "GEO-CDS2-2017-07",
       "GEO-CDS2-2017-10"
-    ],
-    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
-    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
-  },
-  {
-    "id": "IND-RIV-09",
-    "slug": "chambal-river-ken-betwa",
-    "pillar": "STATIC",
-    "regionScope": "India",
-    "subject": "Geography",
-    "mapCategory": [
-      "India – rivers, lakes, reservoirs & glaciers"
-    ],
-    "place": "Chambal River, Ken-Betwa Interlinking & Malwa Drainage",
-    "aliases": [
-      "Charmanvati",
-      "Banas",
-      "Kali Sindh",
-      "Parbati",
-      "Shipra",
-      "Ken River",
-      "Betwa River",
-      "Gandhi Sagar Dam",
-      "Daudhan Dam"
-    ],
-    "placeType": "Major Yamuna Tributary & Ravine System",
-    "priority": "High",
-    "locatedIn": {
-      "country": "India",
-      "stateOrProvince": "Madhya Pradesh, Rajasthan, Uttar Pradesh"
-    },
-    "lat": 25.5,
-    "lng": 76.5,
-    "shape": [
-      [
-        22.45,
-        75.7
-      ],
-      [
-        24.7,
-        75.8
-      ],
-      [
-        25.8,
-        76.55
-      ],
-      [
-        26.7,
-        77.9
-      ],
-      [
-        26.48,
-        79.25
-      ]
-    ],
-    "neighbours": [
-      "Flows north through Malwa Plateau into Yamuna near Etawah",
-      "Ken and Betwa drain Bundelkhand region directly into Yamuna"
-    ],
-    "riverDetails": {
-      "length": "960 km (Chambal); 427 km (Ken); 590 km (Betwa)",
-      "origin": "Chambal rises at Janapao hills near Mhow in Vindhyas (MP); Betwa rises in Raisen (MP); Ken rises in Barner range (Katni, MP)",
-      "mouth": "Yamuna River: Chambal joins Yamuna at Pachnada (Etawah, UP); Betwa joins near Hamirpur; Ken joins near Chilla (Banda)",
-      "states": {
-        "flowsThrough": [
-          "Madhya Pradesh",
-          "Rajasthan",
-          "Uttar Pradesh"
-        ],
-        "basinStates": [
-          "Madhya Pradesh",
-          "Rajasthan",
-          "Uttar Pradesh"
-        ]
-      },
-      "tributaries": {
-        "leftBank": [
-          {
-            "name": "Banas",
-            "note": "Largest tributary of Chambal; rises in Aravallis near Kumbhalgarh; drains Mewar; joins near Rameshwar"
-          },
-          {
-            "name": "Mej",
-            "note": "Rises in Bhilwara; joins Chambal in Kota district"
-          }
-        ],
-        "rightBank": [
-          {
-            "name": "Shipra (Kshipra)",
-            "note": "Rises in Kakri Bardi hills; sacred river of Ujjain (Simhastha Kumbh Mela); joins Chambal"
-          },
-          {
-            "name": "Kali Sindh",
-            "note": "Rises in Dewas district; joins Chambal near Gagron Fort"
-          },
-          {
-            "name": "Parbati",
-            "note": "Rises in Sehore (Vindhyas); joins Chambal at Pali Sangam"
-          }
-        ]
-      },
-      "confluences": [
-        {
-          "tributary": "Banas + Seep",
-          "sangam": "Rameshwaram Sangam",
-          "state": "Rajasthan / MP border (Sawai Madhopur)",
-          "note": "Holy Triveni Sangam of Chambal, Banas and Seep"
-        },
-        {
-          "tributary": "Kali Sindh",
-          "sangam": "Gagron Sangam",
-          "state": "Rajasthan (Jhalawar)",
-          "note": "Surrounds the famous Gagron UNESCO Water Fort"
-        },
-        {
-          "tributary": "Chambal into Yamuna",
-          "sangam": "Pachnada (Etawah)",
-          "state": "Uttar Pradesh",
-          "note": "Confluence of five streams: Chambal, Yamuna, Kwari, Sindh, Pahuj"
-        },
-        {
-          "tributary": "Ken into Yamuna",
-          "sangam": "Chilla Sangam (Banda)",
-          "state": "Uttar Pradesh"
-        },
-        {
-          "tributary": "Betwa into Yamuna",
-          "sangam": "Hamirpur Sangam",
-          "state": "Uttar Pradesh"
-        }
-      ],
-      "towns": [
-        {
-          "name": "Ujjain",
-          "type": "Pilgrimage",
-          "significance": "Mahakaleshwar Jyotirlinga and Kumbh Mela on the Shipra tributary",
-          "state": "Madhya Pradesh"
-        },
-        {
-          "name": "Kota",
-          "type": "Educational / Industrial",
-          "significance": "Industrial and coaching hub located on the deep gorge of Chambal",
-          "state": "Rajasthan"
-        },
-        {
-          "name": "Gwalior & Morena",
-          "type": "Historical",
-          "significance": "Heartland of the rugged Chambal ravines and badlands",
-          "state": "Madhya Pradesh"
-        },
-        {
-          "name": "Orchha",
-          "type": "Historical / Architectural",
-          "significance": "Ancient Bundela capital on the banks of Betwa River (Chaturbhuj Temple)",
-          "state": "Madhya Pradesh"
-        },
-        {
-          "name": "Vidisha & Sanchi",
-          "type": "Historical / Buddhist",
-          "significance": "Ancient Heliodorus pillar and UNESCO Sanchi Stupa near Betwa river",
-          "state": "Madhya Pradesh"
-        }
-      ],
-      "dams": [
-        {
-          "name": "Gandhi Sagar Dam",
-          "state": "Madhya Pradesh",
-          "type": "First of the 4 cascade dams on Chambal; massive reservoir in Mandsaur"
-        },
-        {
-          "name": "Rana Pratap Sagar Dam",
-          "state": "Rajasthan (Rawatbhata)",
-          "type": "Second cascade dam on Chambal; powers Rajasthan Atomic Power Station"
-        },
-        {
-          "name": "Jawahar Sagar Dam",
-          "state": "Rajasthan (Kota)",
-          "type": "Third cascade dam; peak-load hydroelectric station"
-        },
-        {
-          "name": "Kota Barrage",
-          "state": "Rajasthan (Kota)",
-          "type": "Terminal barrage on Chambal feeding canals to Rajasthan and MP"
-        },
-        {
-          "name": "Matatila & Rajghat Dams",
-          "state": "UP / MP border",
-          "type": "Interstate multipurpose storage dams on the Betwa River"
-        },
-        {
-          "name": "Daudhan Dam (Ken-Betwa Link)",
-          "state": "Madhya Pradesh (Panna)",
-          "type": "Key component of India's first national river-interlinking project"
-        }
-      ],
-      "protectedAreas": [
-        {
-          "name": "National Chambal Sanctuary",
-          "relation": "Tri-state sanctuary (MP, Rajasthan, UP) protecting 425 km of Chambal river for Gharials",
-          "state": "MP / Rajasthan / UP"
-        },
-        {
-          "name": "Panna National Park & Tiger Reserve",
-          "relation": "Ken river flows through its heart; core tiger habitat impacted by Ken-Betwa link",
-          "state": "Madhya Pradesh"
-        },
-        {
-          "name": "Mukundra Hills Tiger Reserve",
-          "relation": "Located in the river valley between Chambal and Kali Sindh",
-          "state": "Rajasthan"
-        },
-        {
-          "name": "Ranthambore National Park",
-          "relation": "Bounded by the Chambal River on the south and Banas on the north",
-          "state": "Rajasthan"
-        }
-      ],
-      "species": [
-        {
-          "name": "Gharial (Gavialis gangeticus)",
-          "iucn": "Critically Endangered",
-          "role": "Chambal holds the largest viable breeding wild population on Earth"
-        },
-        {
-          "name": "Red-crowned Roofed Turtle (Batagur kachuga)",
-          "iucn": "Critically Endangered",
-          "role": "Endemic freshwater turtle surviving mainly in the Chambal"
-        },
-        {
-          "name": "Gangetic River Dolphin",
-          "iucn": "Endangered",
-          "role": "Resident population in deep pools of the Chambal river"
-        }
-      ],
-      "commonMistake": "Ken-Betwa Project transfers surplus water from Ken basin (MP) to deficit Betwa basin (Bundelkhand), involving the construction of Daudhan Dam which will submerge a significant portion of Panna Tiger Reserve core. Remember Chambal badlands are formed by severe gully erosion in semi-arid alluvium."
-    },
-    "staticFacts": [
-      "Rises near Singar Chouri peak on the northern slopes of the Vindhyan range near Mhow (MP); famous for gully erosion badlands (Chambal Badlands / Ravines).",
-      "Chain of multi-purpose cascade dams: Gandhi Sagar (MP), Rana Pratap Sagar (Chittorgarh), Jawahar Sagar (Kota), and Kota Barrage.",
-      "UPSC 2017 Fact: National Chambal Sanctuary (tri-junction of MP, Rajasthan, and UP) is the most significant wild habitat for critically endangered Gharials (Gavialis gangeticus), Red-crowned roofed turtles, and Ganges river dolphins.",
-      "Ken-Betwa River Interlinking Project: India's first river-linking project; involves constructing Daudhan Dam to transfer surplus water from Ken to water-deficit Betwa basin, partially submerging Panna Tiger Reserve core."
-    ],
-    "similarPYQ": [
-      "GEO-UPSC-2022-10",
-      "ENV-UPSC-2017-05",
-      "GEO-CDS1-2018-08",
-      "GEO-UPSC-2019-03"
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
