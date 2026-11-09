@@ -4341,787 +4341,102 @@ export const CURATED_MAPPING_NODES = [
     "place": "Brahmaputra River",
     "aliases": [
       "Yarlung Tsangpo",
-      "Tsangpo",
       "Siang",
       "Dihang",
-      "Dibang",
-      "Kameng",
-      "Lohit",
-      "Subansiri",
-      "Teesta",
-      "Jamuna"
+      "Jamuna",
+      "Luit",
+      "Red River"
     ],
-    "placeType": "Trans-Himalayan Antecedent River",
+    "placeType": "Trans-Himalayan Antecedent River (Main Stem of Brahmaputra System)",
     "priority": "High",
     "locatedIn": {
-      "country": "India",
-      "stateOrProvince": "Arunachal Pradesh, Assam"
+      "country": "China (Tibet), India, Bangladesh",
+      "stateOrProvince": "Tibet Autonomous Region, Arunachal Pradesh, Assam (India); Rangpur, Mymensingh, Dhaka divisions (Bangladesh)"
     },
-    "lat": 26.5775,
-    "lng": 93.1711,
+    "lat": 29.45,
+    "lng": 94.6,
     "shape": [
       [
-        30.4115,
-        82.4005
+        30.35,
+        82.1
       ],
       [
-        30.365,
-        82.7227
+        29.3,
+        89.15
       ],
       [
-        30.371,
-        82.8252
+        29.25,
+        91.1
       ],
       [
-        30.3357,
-        82.8858
+        29.56,
+        94.95
       ],
       [
-        30.261,
-        82.9388
+        28.85,
+        95.3
       ],
       [
-        30.1261,
-        83.1643
+        28.05,
+        95.33
       ],
       [
-        29.8333,
-        83.761
+        27.85,
+        95.65
       ],
       [
-        29.7607,
-        83.9253
+        27.48,
+        94.9
       ],
       [
-        29.7106,
-        83.9825
+        26.95,
+        94.2
       ],
       [
-        29.659,
-        83.9872
+        26.6,
+        92.8
       ],
       [
-        29.6174,
-        84.0139
+        26.18,
+        91.75
       ],
       [
-        29.5859,
-        84.0627
+        26,
+        90.5
       ],
       [
-        29.5553,
-        84.1887
+        26.02,
+        89.98
       ],
       [
-        29.5255,
-        84.3918
+        23.8,
+        89.8
       ],
       [
-        29.4519,
-        84.5011
-      ],
-      [
-        29.3347,
-        84.5166
-      ],
-      [
-        29.2537,
-        84.6342
-      ],
-      [
-        29.2086,
-        84.8539
-      ],
-      [
-        29.221,
-        85.0141
-      ],
-      [
-        29.2907,
-        85.1146
-      ],
-      [
-        29.3128,
-        85.2258
-      ],
-      [
-        29.2744,
-        85.4087
-      ],
-      [
-        29.2041,
-        85.5919
-      ],
-      [
-        29.1952,
-        85.8671
-      ],
-      [
-        29.2245,
-        86.2953
-      ],
-      [
-        29.2089,
-        86.7345
-      ],
-      [
-        29.1482,
-        87.1844
-      ],
-      [
-        29.1263,
-        87.4721
-      ],
-      [
-        29.1515,
-        87.6602
-      ],
-      [
-        29.2882,
-        87.7472
-      ],
-      [
-        29.3491,
-        87.8233
-      ],
-      [
-        29.3797,
-        87.9172
-      ],
-      [
-        29.3805,
-        88.0154
-      ],
-      [
-        29.3516,
-        88.1176
-      ],
-      [
-        29.3473,
-        88.1819
-      ],
-      [
-        29.3677,
-        88.2082
-      ],
-      [
-        29.3663,
-        88.2567
-      ],
-      [
-        29.343,
-        88.3273
-      ],
-      [
-        29.3361,
-        88.4297
-      ],
-      [
-        29.3507,
-        88.6308
-      ],
-      [
-        29.366,
-        89.4036
-      ],
-      [
-        29.359,
-        89.6988
-      ],
-      [
-        29.3349,
-        89.7739
-      ],
-      [
-        29.3339,
-        89.8621
-      ],
-      [
-        29.3563,
-        89.9633
-      ],
-      [
-        29.3597,
-        90.082
-      ],
-      [
-        29.3441,
-        90.218
-      ],
-      [
-        29.3155,
-        90.3213
-      ],
-      [
-        29.2739,
-        90.392
-      ],
-      [
-        29.2785,
-        90.5056
-      ],
-      [
-        29.3292,
-        90.6621
-      ],
-      [
-        29.3399,
-        90.7464
-      ],
-      [
-        29.3104,
-        90.7586
-      ],
-      [
-        29.3079,
-        90.7859
-      ],
-      [
-        29.3323,
-        90.8284
-      ],
-      [
-        29.3374,
-        90.8967
-      ],
-      [
-        29.3165,
-        91.038
-      ],
-      [
-        29.2812,
-        92.0762
-      ],
-      [
-        29.2313,
-        92.4652
-      ],
-      [
-        29.1553,
-        92.5513
-      ],
-      [
-        29.1013,
-        92.6945
-      ],
-      [
-        29.0695,
-        92.8949
-      ],
-      [
-        29.0725,
-        93.0229
-      ],
-      [
-        29.1105,
-        93.0784
-      ],
-      [
-        29.1065,
-        93.1169
-      ],
-      [
-        29.0606,
-        93.1383
-      ],
-      [
-        29.0293,
-        93.1827
-      ],
-      [
-        29.0125,
-        93.2497
-      ],
-      [
-        29.0496,
-        93.3311
-      ],
-      [
-        29.1404,
-        93.4267
-      ],
-      [
-        29.1783,
-        93.5681
-      ],
-      [
-        29.1632,
-        93.7553
-      ],
-      [
-        29.1711,
-        93.9316
-      ],
-      [
-        29.2018,
-        94.0969
-      ],
-      [
-        29.2402,
-        94.2237
-      ],
-      [
-        29.3095,
-        94.356
-      ],
-      [
-        29.4387,
-        94.5257
-      ],
-      [
-        29.4843,
-        94.641
-      ],
-      [
-        29.4893,
-        94.7585
-      ],
-      [
-        29.5212,
-        94.844
-      ],
-      [
-        29.5801,
-        94.8974
-      ],
-      [
-        29.6362,
-        94.9189
-      ],
-      [
-        29.6894,
-        94.9087
-      ],
-      [
-        29.7281,
-        94.9588
-      ],
-      [
-        29.7522,
-        95.0693
-      ],
-      [
-        29.7932,
-        95.1255
-      ],
-      [
-        29.8512,
-        95.1277
-      ],
-      [
-        29.876,
-        95.1708
-      ],
-      [
-        29.8674,
-        95.2546
-      ],
-      [
-        29.8502,
-        95.2945
-      ],
-      [
-        29.8242,
-        95.2903
-      ],
-      [
-        29.8012,
-        95.3122
-      ],
-      [
-        29.7811,
-        95.3601
-      ],
-      [
-        29.6911,
-        95.3951
-      ],
-      [
-        29.531,
-        95.4176
-      ],
-      [
-        29.4104,
-        95.3852
-      ],
-      [
-        29.3291,
-        95.2981
-      ],
-      [
-        29.2584,
-        95.1911
-      ],
-      [
-        29.1983,
-        95.0643
-      ],
-      [
-        29.0898,
-        94.944
-      ],
-      [
-        28.9329,
-        94.8303
-      ],
-      [
-        28.8461,
-        94.8089
-      ],
-      [
-        28.8294,
-        94.8799
-      ],
-      [
-        28.7506,
-        94.961
-      ],
-      [
-        28.6098,
-        95.0523
-      ],
-      [
-        28.506,
-        95.0966
-      ],
-      [
-        28.4391,
-        95.0939
-      ],
-      [
-        28.3759,
-        95.0676
-      ],
-      [
-        28.3163,
-        95.0179
-      ],
-      [
-        28.2582,
-        95.0027
-      ],
-      [
-        28.2018,
-        95.0222
-      ],
-      [
-        28.1722,
-        95.0878
-      ],
-      [
-        28.1694,
-        95.1994
-      ],
-      [
-        28.1268,
-        95.2905
-      ],
-      [
-        28.0029,
-        95.3965
-      ],
-      [
-        27.8836,
-        95.4438
-      ],
-      [
-        27.8057,
-        95.3692
-      ],
-      [
-        27.7295,
-        95.1885
-      ],
-      [
-        27.6983,
-        95.1165
-      ],
-      [
-        27.6834,
-        95.1036
-      ],
-      [
-        27.6785,
-        95.1085
-      ],
-      [
-        27.6758,
-        95.1221
-      ],
-      [
-        27.6656,
-        95.1373
-      ],
-      [
-        27.644,
-        95.1385
-      ],
-      [
-        27.6151,
-        95.0837
-      ],
-      [
-        27.586,
-        94.9723
-      ],
-      [
-        27.5432,
-        94.878
-      ],
-      [
-        27.4866,
-        94.8006
-      ],
-      [
-        27.4129,
-        94.7252
-      ],
-      [
-        27.3221,
-        94.6517
-      ],
-      [
-        27.278,
-        94.6304
-      ],
-      [
-        27.234,
-        94.5975
-      ],
-      [
-        27.1889,
-        94.567
-      ],
-      [
-        27.1305,
-        94.5589
-      ],
-      [
-        27.0723,
-        94.5177
-      ],
-      [
-        27.0142,
-        94.4434
-      ],
-      [
-        26.9519,
-        94.335
-      ],
-      [
-        26.8854,
-        94.1927
-      ],
-      [
-        26.8672,
-        94.1195
-      ],
-      [
-        26.8674,
-        94.023
-      ],
-      [
-        26.732,
-        93.7516
-      ],
-      [
-        26.7387,
-        93.4033
-      ],
-      [
-        26.7175,
-        93.2452
-      ],
-      [
-        26.6708,
-        93.1612
-      ],
-      [
-        26.6356,
-        93.0085
-      ],
-      [
-        26.612,
-        92.787
-      ],
-      [
-        26.5796,
-        92.6559
-      ],
-      [
-        26.5382,
-        92.6151
-      ],
-      [
-        26.5214,
-        92.5438
-      ],
-      [
-        26.5293,
-        92.4421
-      ],
-      [
-        26.4949,
-        92.3124
-      ],
-      [
-        26.4184,
-        92.1547
-      ],
-      [
-        26.3609,
-        92.0711
-      ],
-      [
-        26.3225,
-        92.0617
-      ],
-      [
-        26.2705,
-        91.9658
-      ],
-      [
-        26.1639,
-        91.6438
-      ],
-      [
-        26.1478,
-        91.5468
-      ],
-      [
-        26.1507,
-        91.4363
-      ],
-      [
-        26.1832,
-        91.2504
-      ],
-      [
-        26.2047,
-        91.1524
-      ],
-      [
-        26.1915,
-        91.0523
-      ],
-      [
-        26.1508,
-        90.9172
-      ],
-      [
-        26.155,
-        90.7598
-      ],
-      [
-        26.2043,
-        90.5799
-      ],
-      [
-        26.1743,
-        90.3561
-      ],
-      [
-        26.0652,
-        90.0882
-      ],
-      [
-        25.9013,
-        89.8901
-      ],
-      [
-        25.6824,
-        89.7618
-      ],
-      [
-        25.4901,
-        89.6989
-      ],
-      [
-        25.3246,
-        89.7014
-      ],
-      [
-        25.1684,
-        89.6801
-      ],
-      [
-        25.0263,
-        89.6212
-      ],
-      [
-        24.9484,
-        89.6126
-      ],
-      [
-        24.8949,
-        89.6196
-      ],
-      [
-        24.6493,
-        89.7291
-      ],
-      [
-        24.4114,
-        89.7499
-      ],
-      [
-        24.3302,
-        89.7393
-      ],
-      [
-        24.1718,
-        89.8087
-      ],
-      [
-        24.0821,
-        89.9229
-      ],
-      [
-        23.9711,
-        90.1157
-      ],
-      [
-        23.8691,
-        90.2141
-      ],
-      [
-        23.7759,
-        90.2181
-      ],
-      [
-        23.7346,
-        90.2439
-      ],
-      [
-        23.7453,
-        90.2914
-      ],
-      [
-        23.7087,
-        90.3554
-      ],
-      [
-        23.583,
-        90.4763
-      ],
-      [
-        23.5371,
-        90.5616
+        22.5,
+        90.75
       ]
     ],
     "neighbours": [
-      "Right-bank (W→E): Teesta, Sankosh, Manas, Kameng, Subansiri",
-      "Left-bank: Dibang, Lohit, Burhi Dihing, Dhansiri, Kopili"
+      "Source: Chemayungdung Glacier of the Kailash range near Lake Mansarovar, Tibet (NCERT); ",
+      "Mouth: Bay of Bengal: as the Jamuna in Bangladesh it merges with the Padma (Ganga) at G"
     ],
     "riverDetails": {
-      "length": "2,900 km (approx. 916 km in India)",
-      "origin": "Chemayungdung Glacier near Mount Kailash & Lake Manasarovar (Tibet; flows east as Yarlung Tsangpo)",
-      "mouth": "Bay of Bengal (merges with Padma in Bangladesh to form Meghna; world's largest delta)",
+      "length": "~2,900 km; ~916 km in India",
+      "origin": "Chemayungdung Glacier of the Kailash range near Lake Mansarovar, Tibet (NCERT); a 2011 Chinese survey placed the source at the Angsi Glacier nearby. Called the Yarlung Tsangpo in Tibet",
+      "mouth": "Bay of Bengal: as the Jamuna in Bangladesh it merges with the Padma (Ganga) at Goalundo, and the combined flow reaches the sea through the Meghna",
+      "sourceCoords": [
+        30.35,
+        82.1
+      ],
+      "mouthCoords": [
+        22.5,
+        90.75
+      ],
       "states": {
         "flowsThrough": [
           "Arunachal Pradesh",
-          "Assam",
-          "Bangladesh"
+          "Assam"
         ],
         "basinStates": [
           "Arunachal Pradesh",
@@ -5135,195 +4450,1500 @@ export const CURATED_MAPPING_NODES = [
       "tributaries": {
         "leftBank": [
           {
-            "name": "Dibang (Sikang)",
-            "note": "Flows through Mishmi Hills; joins Siang near Sadiya"
+            "name": "Dibang (Sikang) River",
+            "note": "Main left-bank tributary (NCERT); joins near Sadiya"
           },
           {
-            "name": "Lohit",
-            "note": "Rises in eastern Tibet; flows through Brahmakund; joins Siang at Sadiya"
+            "name": "Lohit River",
+            "note": "Main left-bank tributary (NCERT); joins near Sadiya; Dhola-Sadiya bridge"
           },
           {
-            "name": "Dhansiri (South)",
-            "note": "Rises in Laisang peak (Nagaland); flows past Intanki NP into Brahmaputra"
+            "name": "Burhi Dihing River",
+            "note": "From the Patkai hills; flows past Digboi-Margherita oil and coal belt"
           },
           {
-            "name": "Kopili",
-            "note": "Rises in Meghalaya plateau; major hydroelectric river of Assam"
+            "name": "Dikhow River",
+            "note": "From Nagaland; flows past Sivasagar"
+          },
+          {
+            "name": "Dhansiri (South) River",
+            "note": "From Nagaland; flows past Dimapur and Golaghat"
+          },
+          {
+            "name": "Kopili River",
+            "note": "From the Meghalaya-Karbi plateau; largest south-bank tributary in Assam"
           }
         ],
         "rightBank": [
           {
-            "name": "Subansiri (Gold River)",
-            "note": "Antecedent trans-Himalayan tributary; largest right-bank feeder"
+            "name": "Subansiri River",
+            "note": "Antecedent river from Tibet; largest tributary by discharge; Subansiri Lower project"
           },
           {
-            "name": "Kameng (Jia Bhoreli)",
-            "note": "Rises in Tawang/Tibet border; passes Pakke TR and Nameri NP"
+            "name": "Kameng (Jia Bharali) River",
+            "note": "From Tawang; joins near Tezpur"
           },
           {
-            "name": "Manas",
-            "note": "Transboundary river from Bhutan; cuts through Manas National Park"
+            "name": "Manas River",
+            "note": "From Bhutan; joins near Jogighopa"
           },
           {
-            "name": "Sankosh",
-            "note": "Originates in Bhutan; forms border between Assam and West Bengal"
+            "name": "Sankosh River",
+            "note": "From Bhutan; forms part of the Assam-West Bengal boundary"
           },
           {
-            "name": "Teesta",
-            "note": "Rises in Tso Lhamo lake (Sikkim); lifeline of Sikkim; joins Jamuna in Bangladesh"
+            "name": "Teesta River",
+            "note": "From Sikkim; joins in Bangladesh, after which the river is called the Jamuna"
           }
         ]
       },
       "confluences": [
         {
           "tributary": "Siang + Dibang + Lohit",
-          "sangam": "Kobo Chapori (near Sadiya)",
-          "state": "Assam / Arunachal border",
-          "note": "Where the river officially takes the name Brahmaputra"
+          "sangam": "Near Sadiya; the river is called the Brahmaputra below this point",
+          "state": "Assam / Arunachal Pradesh"
         },
         {
           "tributary": "Subansiri",
-          "sangam": "Lakhimpur / Majuli Confluence",
+          "sangam": "Near Majuli, Lakhimpur district",
           "state": "Assam"
         },
         {
-          "tributary": "Kameng",
-          "sangam": "Tezpur Sangam",
+          "tributary": "Kameng (Jia Bharali)",
+          "sangam": "Near Tezpur",
+          "state": "Assam"
+        },
+        {
+          "tributary": "Kopili",
+          "sangam": "Near Kajalichowki, Morigaon",
           "state": "Assam"
         },
         {
           "tributary": "Manas",
-          "sangam": "Jogighopa Sangam",
+          "sangam": "Near Jogighopa",
           "state": "Assam"
         },
         {
           "tributary": "Teesta",
-          "sangam": "Chilmari / Teesta-mukh",
-          "state": "Bangladesh",
-          "note": "Joins Jamuna in Rangpur division"
+          "sangam": "Near Chilmari, Kurigram",
+          "state": "Bangladesh"
+        },
+        {
+          "tributary": "Padma (Ganga)",
+          "sangam": "Goalundo",
+          "state": "Bangladesh"
         }
       ],
       "towns": [
         {
-          "name": "Sadiya & Pasighat",
-          "type": "Gateway",
-          "significance": "Where Siang emerges from the Great Bend into Assam Valley",
-          "state": "Arunachal Pradesh / Assam"
+          "name": "Pasighat",
+          "type": "Historical",
+          "significance": "Oldest town of Arunachal (1911), where the Siang leaves the hills",
+          "state": "Arunachal Pradesh"
         },
         {
           "name": "Dibrugarh",
           "type": "Economic",
-          "significance": "Tea city of India on the south bank; site of Bogibeel Bridge",
+          "significance": "'Tea City of India'; Bogibeel rail-road bridge nearby",
+          "state": "Assam"
+        },
+        {
+          "name": "Majuli",
+          "type": "Cultural",
+          "significance": "Largest river island in the world; seat of Neo-Vaishnavite satras; first island district of India (2016)",
           "state": "Assam"
         },
         {
           "name": "Tezpur",
-          "type": "Cultural",
-          "significance": "Historic Sonitpur on the north bank; Kolia Bhomora Setu",
+          "type": "Historical",
+          "significance": "Agnigarh legend; Kolia Bhomora Setu over the Brahmaputra",
           "state": "Assam"
         },
         {
           "name": "Guwahati",
-          "type": "Administrative",
-          "significance": "Gateway to Northeast; Kamakhya Temple; Umananda river island",
+          "type": "Cultural / Economic",
+          "significance": "Kamakhya temple; Saraighat bridge (1962), first rail-road bridge over the river",
           "state": "Assam"
         },
         {
-          "name": "Majuli Island",
-          "type": "Cultural / Geographical",
-          "significance": "World's largest river island; Vaishnavite Satras",
+          "name": "Dhubri",
+          "type": "Strategic",
+          "significance": "Point where the Brahmaputra leaves India for Bangladesh",
           "state": "Assam"
         }
       ],
       "dams": [
         {
-          "name": "Subansiri Lower Hydroelectric Project",
-          "state": "Arunachal Pradesh / Assam border",
-          "type": "Run-of-the-river project (2,000 MW, India's largest ongoing hydro project)"
+          "name": "Zangmu Dam",
+          "state": "Tibet (China)",
+          "type": "First operational Chinese hydro project on the Yarlung Tsangpo (2015)"
         },
         {
-          "name": "Ranganadi Hydroelectric Project",
+          "name": "Medog (Motuo) Hydropower Project",
+          "state": "Tibet (China)",
+          "type": "Planned ~60 GW cascade at the Great Bend; construction began 19 July 2025"
+        },
+        {
+          "name": "Siang Upper Multipurpose Project",
           "state": "Arunachal Pradesh",
-          "type": "Run-of-the-river scheme in Lower Subansiri basin"
+          "type": "Proposed large storage project on the Siang, partly as a buffer against upstream releases; locally contested"
         },
         {
-          "name": "Kameng Hydroelectric Project",
-          "state": "Arunachal Pradesh",
-          "type": "Major 600 MW hydro project on Bichom and Tenga tributaries"
-        },
-        {
-          "name": "Kurichhu Hydro Project",
-          "state": "Bhutan (Manas basin)",
-          "type": "Supplies power to NE India under bilateral partnership"
+          "name": "Bogibeel Bridge",
+          "state": "Assam",
+          "type": "India's longest rail-cum-road bridge (~4.9 km), near Dibrugarh (2018)"
         }
       ],
       "protectedAreas": [
         {
           "name": "Kaziranga National Park",
-          "relation": "Bounded by Brahmaputra on north; home to 70% of world's One-horned Rhinos",
+          "relation": "South-bank floodplain; UNESCO World Heritage Site (1985); largest population of the one-horned rhino",
           "state": "Assam"
         },
         {
-          "name": "Manas National Park & Biosphere Reserve",
-          "relation": "Contiguous with Royal Manas NP Bhutan; drained by River Manas",
+          "name": "Orang National Park",
+          "relation": "North-bank floodplain; called 'mini Kaziranga'",
           "state": "Assam"
         },
         {
-          "name": "Nameri National Park & Pakke TR",
-          "relation": "Divided and drained by the Kameng (Jia Bhoreli) river",
-          "state": "Assam / Arunachal"
+          "name": "Pobitora Wildlife Sanctuary",
+          "relation": "Floodplain near Guwahati; highest rhino density in the world",
+          "state": "Assam"
         },
         {
           "name": "Dibru-Saikhowa National Park",
-          "relation": "Bounded by Brahmaputra and Lohit rivers; famous for Feral Horses",
+          "relation": "Floodplain island at the Lohit-Dibru-Brahmaputra junction; feral horses",
           "state": "Assam"
         },
         {
-          "name": "Orang National Park (Mini Kaziranga)",
-          "relation": "Located on the north bank of Brahmaputra; rhino habitat",
+          "name": "Deepor Beel",
+          "relation": "Former channel of the Brahmaputra at Guwahati; Ramsar site (2002)",
           "state": "Assam"
+        },
+        {
+          "name": "Mouling National Park",
+          "relation": "Siang catchment in the Abor hills",
+          "state": "Arunachal Pradesh"
         }
       ],
       "species": [
         {
           "name": "Greater One-horned Rhinoceros",
           "iucn": "Vulnerable",
-          "role": "Flagship herbivore of Brahmaputra floodplain grasslands"
+          "role": "Flagship of the Brahmaputra floodplain grasslands"
         },
         {
-          "name": "Pygmy Hog (Porcula salvania)",
+          "name": "Ganges River Dolphin",
           "iucn": "Endangered",
-          "role": "World's smallest wild pig; endemic to Manas river grasslands"
+          "role": "State aquatic animal of Assam; found along the Brahmaputra and tributary mouths"
         },
         {
-          "name": "Gangetic River Dolphin",
+          "name": "Wild Water Buffalo",
           "iucn": "Endangered",
-          "role": "Resides throughout the Brahmaputra deep river channels"
-        },
-        {
-          "name": "White-winged Duck (Asarcornis scutulata)",
-          "iucn": "Endangered",
-          "role": "State bird of Assam; inhabits swampy forest pools in Dibru-Saikhowa"
+          "role": "Main stronghold in Kaziranga and Manas"
         }
       ],
-      "commonMistake": "Great Bend (Namcha Barwa): River Tsangpo takes a sharp U-turn (syntaxial bend) around Namcha Barwa (7,782 m) to enter India as Siang/Dihang. UPSC 2016 question: Teesta joins Brahmaputra (Jamuna) in Bangladesh, NOT Ganga directly!"
+      "commonMistake": "Dibang and Lohit are LEFT-bank tributaries; Subansiri, Kameng, Manas, Sankosh and Teesta are RIGHT-bank (north side). Burhi Dihing, Dhansiri and Kopili are LEFT-bank (south side). The Teesta joins in BANGLADESH, not India. In India the main stream flows only through Arunachal and Assam."
     },
     "staticFacts": [
-      "Originates in Chemayungdung/Angsi Glacier (Tibet) as Yarlung Tsangpo; makes a sharp syntaxial U-turn around Namcha Barwa (UPSC 2011 & 2022) to enter Arunachal Pradesh as Siang/Dihang.",
-      "UPSC 2016 & 2014: Dibang, Kameng, Lohit, and Subansiri are major tributaries flowing through Arunachal Pradesh (Barak flows through Manipur/Mizoram/Assam, NOT Arunachal Pradesh).",
-      "CDS 2016 West-to-East Tributary Order: Teesta (Tista) → Sankosh → Subansiri → Lohit.",
-      "UPSC 2017: Teesta originates in Sikkim (Pahunri/Zemu glacier, NOT Tibet) and joins the Brahmaputra (Jamuna) directly in Bangladesh."
+      "An antecedent river: it flows about 1,200 km east through southern Tibet, then cuts a deep gorge around Namcha Barwa (7,755 m) at the Great Bend and enters India west of Sadiya as the Siang (Dihang).",
+      "Known by four main names: Tsangpo (Tibet), Siang or Dihang (Arunachal), Brahmaputra (Assam) and Jamuna (Bangladesh).",
+      "A heavily braided river with a very high silt load, prone to annual floods and bank erosion; Majuli has lost much of its area to erosion.",
+      "The Sadiya-Dhubri stretch is National Waterway-2 (~891 km)."
     ],
     "similarPYQ": [
-      "GEO-UPSC-2026-25",
-      "GEO-UPSC-2022-04",
-      "GEO-CDS2-2022-07",
-      "GEO-UPSC-2017-04",
       "GEO-UPSC-2016-04",
-      "GEO-CDS1-2016-07",
       "GEO-UPSC-2014-06",
-      "ENV-UPSC-2013-15",
-      "GEO-UPSC-2011-09"
+      "GEO-CDS1-2016-07",
+      "ENV-UPSC-2020-05",
+      "ENV-UPSC-2012-11"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-03B",
+    "slug": "dibang-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Dibang River",
+    "aliases": [
+      "Sikang",
+      "Talon",
+      "Dibang Valley River",
+      "Idu Mishmi River"
+    ],
+    "placeType": "Himalayan Left-Bank Tributary of Brahmaputra",
+    "priority": "Medium",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Arunachal Pradesh, Assam"
+    },
+    "lat": 28.3,
+    "lng": 95.8,
+    "shape": [
+      [
+        28.95,
+        95.75
+      ],
+      [
+        28.55,
+        95.8
+      ],
+      [
+        28.25,
+        95.82
+      ],
+      [
+        28,
+        95.68
+      ],
+      [
+        27.8,
+        95.65
+      ]
+    ],
+    "neighbours": [
+      "Source: Mishmi Hills near the India-China border, Dibang Valley district (Arunachal Prad",
+      "Mouth: Joins the Siang-Brahmaputra near Sadiya (Assam-Arunachal border)"
+    ],
+    "riverDetails": {
+      "length": "~195 km",
+      "origin": "Mishmi Hills near the India-China border, Dibang Valley district (Arunachal Pradesh); also called the Sikang (NCERT)",
+      "mouth": "Joins the Siang-Brahmaputra near Sadiya (Assam-Arunachal border)",
+      "sourceCoords": [
+        28.95,
+        95.75
+      ],
+      "mouthCoords": [
+        27.8,
+        95.65
+      ],
+      "states": {
+        "flowsThrough": [
+          "Arunachal Pradesh",
+          "Assam"
+        ],
+        "basinStates": [
+          "Arunachal Pradesh",
+          "Assam"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [],
+        "rightBank": []
+      },
+      "confluences": [
+        {
+          "tributary": "Brahmaputra (Siang)",
+          "sangam": "Near Sadiya",
+          "state": "Assam / Arunachal Pradesh"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Anini",
+          "type": "Administrative",
+          "significance": "Headquarters of Dibang Valley, one of India's least densely populated districts",
+          "state": "Arunachal Pradesh"
+        },
+        {
+          "name": "Roing",
+          "type": "Administrative",
+          "significance": "Where the Dibang leaves the hills; Idu Mishmi homeland",
+          "state": "Arunachal Pradesh"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Dibang Multipurpose Project",
+          "state": "Arunachal Pradesh",
+          "type": "2,880 MW storage project under construction; designed as India's tallest dam (~278 m, concrete gravity) for hydropower and flood control"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Dibang Wildlife Sanctuary",
+          "relation": "Upper Dibang catchment",
+          "state": "Arunachal Pradesh"
+        }
+      ],
+      "species": [
+        {
+          "name": "Mishmi Takin",
+          "iucn": "Vulnerable",
+          "role": "Goat-antelope of the high Mishmi Hills"
+        }
+      ],
+      "commonMistake": "The Dibang is a LEFT-bank tributary (NCERT), joining with the Lohit near Sadiya where the river becomes the Brahmaputra."
+    },
+    "staticFacts": [
+      "Together with the Lohit and Siang, its confluence near Sadiya marks the start of the 'Brahmaputra' name.",
+      "The Dibang Valley is home to the Idu Mishmi community, whose land and forests are central to the debate on the Dibang project."
+    ],
+    "similarPYQ": [
+      "GEO-UPSC-2016-04",
+      "GEO-CDS1-2016-07"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-03C",
+    "slug": "lohit-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Lohit River",
+    "aliases": [
+      "Zayu Chu",
+      "River of Blood",
+      "Parasuram Kund River",
+      "Mishmi River"
+    ],
+    "placeType": "Trans-Himalayan Left-Bank Tributary of Brahmaputra",
+    "priority": "Medium",
+    "locatedIn": {
+      "country": "China (Tibet), India",
+      "stateOrProvince": "Tibet Autonomous Region, Arunachal Pradesh, Assam"
+    },
+    "lat": 28.08,
+    "lng": 96.55,
+    "shape": [
+      [
+        28.66,
+        97.47
+      ],
+      [
+        28.23,
+        97.02
+      ],
+      [
+        28.08,
+        96.55
+      ],
+      [
+        27.93,
+        96.18
+      ],
+      [
+        27.85,
+        95.55
+      ]
+    ],
+    "neighbours": [
+      "Source: Rises in the Zayul (Zayu) region of south-east Tibet as the Zayu Chu; enters Ind",
+      "Mouth: Joins the Siang-Brahmaputra near Sadiya"
+    ],
+    "riverDetails": {
+      "length": "~200 km in India",
+      "origin": "Rises in the Zayul (Zayu) region of south-east Tibet as the Zayu Chu; enters India at Kibithu, Anjaw district",
+      "mouth": "Joins the Siang-Brahmaputra near Sadiya",
+      "sourceCoords": [
+        28.66,
+        97.47
+      ],
+      "mouthCoords": [
+        27.85,
+        95.55
+      ],
+      "states": {
+        "flowsThrough": [
+          "Arunachal Pradesh",
+          "Assam"
+        ],
+        "basinStates": [
+          "Arunachal Pradesh",
+          "Assam"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Noa Dihing River",
+            "note": "Flows through Namdapha; meets the Lohit system in the plains"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Kamlang River",
+            "note": "Flows through Kamlang Tiger Reserve"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Brahmaputra (Siang)",
+          "sangam": "Near Sadiya",
+          "state": "Assam / Arunachal Pradesh"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Kibithu and Walong",
+          "type": "Strategic",
+          "significance": "Entry point from Tibet; site of the 1962 Battle of Walong",
+          "state": "Arunachal Pradesh"
+        },
+        {
+          "name": "Dong",
+          "type": "Tourism",
+          "significance": "Valley near the Lohit where India first sees sunrise",
+          "state": "Arunachal Pradesh"
+        },
+        {
+          "name": "Parshuram Kund",
+          "type": "Cultural",
+          "significance": "Pilgrimage pool on the Lohit; Makar Sankranti mela",
+          "state": "Arunachal Pradesh"
+        },
+        {
+          "name": "Tezu",
+          "type": "Administrative",
+          "significance": "Headquarters of Lohit district",
+          "state": "Arunachal Pradesh"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Dhola-Sadiya Bridge (Bhupen Hazarika Setu)",
+          "state": "Assam / Arunachal Pradesh",
+          "type": "~9.15 km road bridge over the Lohit (2017), among India's longest"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Kamlang Tiger Reserve",
+          "relation": "Kamlang tributary catchment",
+          "state": "Arunachal Pradesh"
+        },
+        {
+          "name": "Namdapha National Park",
+          "relation": "Noa Dihing catchment; only park with four big cats (tiger, leopard, clouded leopard, snow leopard)",
+          "state": "Arunachal Pradesh"
+        }
+      ],
+      "species": [
+        {
+          "name": "Hoolock Gibbon",
+          "iucn": "Endangered",
+          "role": "India's only ape; found in the Namdapha forests"
+        }
+      ],
+      "commonMistake": "The Dhola-Sadiya (Bhupen Hazarika) bridge is over the LOHIT, while Bogibeel is over the Brahmaputra main stem. The Lohit is a LEFT-bank tributary."
+    },
+    "staticFacts": [
+      "Its name means 'river of blood', from the reddish lateritic soil it carries.",
+      "It flows through the Mishmi Hills, one of the easternmost parts of India."
+    ],
+    "similarPYQ": [
+      "GEO-UPSC-2016-04",
+      "GEO-UPSC-2014-06",
+      "GEO-CDS1-2016-07"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-03D",
+    "slug": "subansiri-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Subansiri River",
+    "aliases": [
+      "Gold River",
+      "Kamla River",
+      "Lower Subansiri River",
+      "Mirihills River"
+    ],
+    "placeType": "Antecedent Right-Bank Tributary of Brahmaputra (Largest by Discharge)",
+    "priority": "High",
+    "locatedIn": {
+      "country": "China (Tibet), India",
+      "stateOrProvince": "Tibet Autonomous Region, Arunachal Pradesh, Assam"
+    },
+    "lat": 27.98,
+    "lng": 94.22,
+    "shape": [
+      [
+        28.65,
+        92.8
+      ],
+      [
+        28.15,
+        93.85
+      ],
+      [
+        27.55,
+        94.25
+      ],
+      [
+        27.2,
+        94.15
+      ],
+      [
+        26.95,
+        94.2
+      ]
+    ],
+    "neighbours": [
+      "Source: Rises in Tibet and cuts across the Himalaya through the Miri hills into Upper Su",
+      "Mouth: Joins the Brahmaputra near Majuli, Lakhimpur district (Assam)"
+    ],
+    "riverDetails": {
+      "length": "~442 km",
+      "origin": "Rises in Tibet and cuts across the Himalaya through the Miri hills into Upper Subansiri district (Arunachal Pradesh)",
+      "mouth": "Joins the Brahmaputra near Majuli, Lakhimpur district (Assam)",
+      "sourceCoords": [
+        28.65,
+        92.8
+      ],
+      "mouthCoords": [
+        26.95,
+        94.2
+      ],
+      "states": {
+        "flowsThrough": [
+          "Arunachal Pradesh",
+          "Assam"
+        ],
+        "basinStates": [
+          "Arunachal Pradesh",
+          "Assam"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [],
+        "rightBank": [
+          {
+            "name": "Kamla River",
+            "note": "Major tributary in Lower Subansiri district"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Brahmaputra",
+          "sangam": "Near Majuli, Lakhimpur district",
+          "state": "Assam"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Daporijo",
+          "type": "Administrative",
+          "significance": "Headquarters of Upper Subansiri on the river",
+          "state": "Arunachal Pradesh"
+        },
+        {
+          "name": "Gerukamukh",
+          "type": "Infrastructure",
+          "significance": "Site of the Subansiri Lower dam on the Assam-Arunachal border",
+          "state": "Assam / Arunachal Pradesh"
+        },
+        {
+          "name": "North Lakhimpur",
+          "type": "Administrative",
+          "significance": "Main town of the lower Subansiri plains",
+          "state": "Assam"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Subansiri Lower Hydroelectric Project",
+          "state": "Assam / Arunachal Pradesh border",
+          "type": "2,000 MW (8 × 250 MW) by NHPC; India's largest hydro project, being commissioned unit by unit"
+        }
+      ],
+      "protectedAreas": [],
+      "species": [
+        {
+          "name": "Ganges River Dolphin",
+          "iucn": "Endangered",
+          "role": "Found in the lower Subansiri; affected by changed flows below the dam"
+        },
+        {
+          "name": "Golden Mahseer",
+          "iucn": "Endangered",
+          "role": "Migratory game fish of the Subansiri"
+        }
+      ],
+      "commonMistake": "The Subansiri is a RIGHT-bank (north-bank) tributary and an ANTECEDENT river (NCERT). It is the largest Brahmaputra tributary by discharge."
+    },
+    "staticFacts": [
+      "Its name means 'gold river': gold placers have been worked from its sands.",
+      "Its Tibetan origin and gorge through the Himalaya make it an antecedent river, like the Brahmaputra itself."
+    ],
+    "similarPYQ": [
+      "GEO-UPSC-2014-06",
+      "GEO-CDS1-2016-07",
+      "GEO-CDS2-2022-07"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-03E",
+    "slug": "kameng-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Kameng (Jia Bharali) River",
+    "aliases": [
+      "Jia Bharali",
+      "Bhareli",
+      "Kameng River",
+      "Pakke River"
+    ],
+    "placeType": "Himalayan Right-Bank Tributary of Brahmaputra",
+    "priority": "Medium",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Arunachal Pradesh, Assam"
+    },
+    "lat": 27.33,
+    "lng": 92.82,
+    "shape": [
+      [
+        27.8,
+        92.4
+      ],
+      [
+        27.33,
+        92.82
+      ],
+      [
+        26.95,
+        92.85
+      ],
+      [
+        26.62,
+        92.85
+      ]
+    ],
+    "neighbours": [
+      "Source: Below the Gori Chen glacier near the India-Tibet border, Tawang district (Arunac",
+      "Mouth: Joins the Brahmaputra near Tezpur (Assam), where it is called the Jia Bharali"
+    ],
+    "riverDetails": {
+      "length": "~264 km",
+      "origin": "Below the Gori Chen glacier near the India-Tibet border, Tawang district (Arunachal Pradesh)",
+      "mouth": "Joins the Brahmaputra near Tezpur (Assam), where it is called the Jia Bharali",
+      "sourceCoords": [
+        27.8,
+        92.4
+      ],
+      "mouthCoords": [
+        26.62,
+        92.85
+      ],
+      "states": {
+        "flowsThrough": [
+          "Arunachal Pradesh",
+          "Assam"
+        ],
+        "basinStates": [
+          "Arunachal Pradesh",
+          "Assam"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Pakke River",
+            "note": "Forms the eastern boundary of Pakke Tiger Reserve"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Bichom River",
+            "note": "Dammed for the Kameng Hydroelectric Project"
+          },
+          {
+            "name": "Tenga River",
+            "note": "Dammed for the Kameng Hydroelectric Project"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Brahmaputra",
+          "sangam": "Near Tezpur",
+          "state": "Assam"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Seppa",
+          "type": "Administrative",
+          "significance": "Headquarters of East Kameng on the river",
+          "state": "Arunachal Pradesh"
+        },
+        {
+          "name": "Bhalukpong",
+          "type": "Tourism",
+          "significance": "Where the river enters the Assam plains; river rafting",
+          "state": "Arunachal Pradesh"
+        },
+        {
+          "name": "Tezpur",
+          "type": "Historical",
+          "significance": "Near the Jia Bharali-Brahmaputra confluence",
+          "state": "Assam"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Kameng Hydroelectric Project",
+          "state": "Arunachal Pradesh",
+          "type": "600 MW (NEEPCO), with dams on the Bichom and Tenga; commissioned 2020"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Pakke Tiger Reserve",
+          "relation": "Lies between the Kameng and Pakke rivers; hornbill nest adoption programme",
+          "state": "Arunachal Pradesh"
+        },
+        {
+          "name": "Nameri National Park",
+          "relation": "On the Jia Bharali in Assam; contiguous with Pakke",
+          "state": "Assam"
+        },
+        {
+          "name": "Eaglenest Wildlife Sanctuary",
+          "relation": "West Kameng hills; where the Bugun liocichla was discovered (2006)",
+          "state": "Arunachal Pradesh"
+        }
+      ],
+      "species": [
+        {
+          "name": "Great Hornbill",
+          "iucn": "Vulnerable",
+          "role": "Flagship of Pakke; state bird of Arunachal Pradesh"
+        },
+        {
+          "name": "White-winged Wood Duck",
+          "iucn": "Endangered",
+          "role": "Forest-pool duck of Nameri; state bird of Assam"
+        }
+      ],
+      "commonMistake": "The Kameng and the Jia Bharali are the SAME river: Kameng in Arunachal, Jia Bharali in Assam. It is a RIGHT-bank tributary."
+    },
+    "staticFacts": [
+      "It separates the Kameng region (Tawang, West and East Kameng) of Arunachal into its western and eastern parts.",
+      "The Pakke-Nameri landscape along this river forms one contiguous tiger habitat across the Arunachal-Assam border."
+    ],
+    "similarPYQ": [
+      "GEO-UPSC-2016-04",
+      "GEO-CDS1-2016-07"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-03F",
+    "slug": "manas-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Manas River",
+    "aliases": [
+      "Drangme Chhu",
+      "Dangme Chhu",
+      "Manasa",
+      "Manas National Park River"
+    ],
+    "placeType": "Transboundary Right-Bank Tributary of Brahmaputra (from Bhutan)",
+    "priority": "High",
+    "locatedIn": {
+      "country": "China (Tibet), Bhutan, India",
+      "stateOrProvince": "Bhutan, Assam"
+    },
+    "lat": 26.79,
+    "lng": 90.97,
+    "shape": [
+      [
+        28,
+        91
+      ],
+      [
+        26.79,
+        90.97
+      ],
+      [
+        26.5,
+        90.8
+      ],
+      [
+        26.23,
+        90.57
+      ]
+    ],
+    "neighbours": [
+      "Source: Headwaters in southern Tibet and the Bhutan Himalaya; formed in Bhutan by the me",
+      "Mouth: Joins the Brahmaputra near Jogighopa, Bongaigaon district (Assam)"
+    ],
+    "riverDetails": {
+      "length": "~376 km",
+      "origin": "Headwaters in southern Tibet and the Bhutan Himalaya; formed in Bhutan by the meeting of the Drangme Chhu and the Mangde Chhu",
+      "mouth": "Joins the Brahmaputra near Jogighopa, Bongaigaon district (Assam)",
+      "sourceCoords": [
+        28,
+        91
+      ],
+      "mouthCoords": [
+        26.23,
+        90.57
+      ],
+      "states": {
+        "flowsThrough": [
+          "Assam"
+        ],
+        "basinStates": [
+          "Assam"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Drangme Chhu",
+            "note": "Eastern headstream draining eastern Bhutan (with the Kuri Chhu from Tibet)"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Mangde Chhu",
+            "note": "Western headstream draining central Bhutan"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Drangme Chhu + Mangde Chhu",
+          "sangam": "Southern Bhutan (forms the Manas)",
+          "state": "Bhutan"
+        },
+        {
+          "tributary": "Brahmaputra",
+          "sangam": "Near Jogighopa",
+          "state": "Assam"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Mathanguri",
+          "type": "Tourism",
+          "significance": "Where the Manas enters India inside Manas National Park",
+          "state": "Assam"
+        },
+        {
+          "name": "Barpeta Road",
+          "type": "Administrative",
+          "significance": "Gateway town to Manas National Park",
+          "state": "Assam"
+        },
+        {
+          "name": "Jogighopa",
+          "type": "Infrastructure",
+          "significance": "Manas-Brahmaputra confluence; inland waterway terminal and multimodal logistics park",
+          "state": "Assam"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Mangdechhu Hydroelectric Project",
+          "state": "Bhutan",
+          "type": "720 MW on the Mangde Chhu, built with Indian assistance (2019)"
+        },
+        {
+          "name": "Kurichhu Hydroelectric Project",
+          "state": "Bhutan",
+          "type": "60 MW on the Kuri Chhu"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Manas National Park",
+          "relation": "The river forms its core; UNESCO World Heritage Site (1985), tiger reserve, elephant reserve and biosphere reserve",
+          "state": "Assam"
+        },
+        {
+          "name": "Royal Manas National Park",
+          "relation": "Contiguous transboundary park across the river in Bhutan",
+          "state": "Bhutan"
+        }
+      ],
+      "species": [
+        {
+          "name": "Pygmy Hog",
+          "iucn": "Endangered",
+          "role": "World's smallest wild pig; reintroduced into Manas"
+        },
+        {
+          "name": "Golden Langur",
+          "iucn": "Endangered",
+          "role": "Primate confined to the Manas-Sankosh region of Assam and Bhutan"
+        },
+        {
+          "name": "Bengal Florican",
+          "iucn": "Critically Endangered",
+          "role": "Grassland bustard of the Manas floodplain"
+        }
+      ],
+      "commonMistake": "Manas National Park was on UNESCO's 'World Heritage in Danger' list from 1992 to 2011, but it has since been removed. The Manas is a RIGHT-bank tributary entering from BHUTAN, not Arunachal."
+    },
+    "staticFacts": [
+      "Named after the serpent goddess Manasa.",
+      "Its floodplain grasslands in the Bhutan foothills (Terai-Duar savanna) hold several of India's rarest grassland species."
+    ],
+    "similarPYQ": [
+      "GEO-CDS1-2016-07",
+      "ENV-UPSC-2020-05",
+      "ENV-UPSC-2012-11",
+      "GEO-UPSC-2019-04"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-03G",
+    "slug": "teesta-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Teesta River",
+    "aliases": [
+      "Tista",
+      "Rangeet River",
+      "Lifeline of Sikkim",
+      "Tso Lhamo River"
+    ],
+    "placeType": "Himalayan Right-Bank Tributary of Brahmaputra (joins in Bangladesh)",
+    "priority": "High",
+    "locatedIn": {
+      "country": "India, Bangladesh",
+      "stateOrProvince": "Sikkim, West Bengal (India); Rangpur division (Bangladesh)"
+    },
+    "lat": 27.08,
+    "lng": 88.45,
+    "shape": [
+      [
+        27.98,
+        88.8
+      ],
+      [
+        27.6,
+        88.55
+      ],
+      [
+        27.33,
+        88.5
+      ],
+      [
+        27.08,
+        88.45
+      ],
+      [
+        26.88,
+        88.58
+      ],
+      [
+        26.55,
+        88.75
+      ],
+      [
+        25.55,
+        89.65
+      ]
+    ],
+    "neighbours": [
+      "Source: Tso Lhamo (Cholamu) lake and the Teesta Khangse glacier, North Sikkim, at over 5",
+      "Mouth: Joins the Brahmaputra (Jamuna) near Chilmari, Kurigram district (Bangladesh)"
+    ],
+    "riverDetails": {
+      "length": "~414 km",
+      "origin": "Tso Lhamo (Cholamu) lake and the Teesta Khangse glacier, North Sikkim, at over 5,000 m",
+      "mouth": "Joins the Brahmaputra (Jamuna) near Chilmari, Kurigram district (Bangladesh)",
+      "sourceCoords": [
+        27.98,
+        88.8
+      ],
+      "mouthCoords": [
+        25.55,
+        89.65
+      ],
+      "states": {
+        "flowsThrough": [
+          "Sikkim",
+          "West Bengal"
+        ],
+        "basinStates": [
+          "Sikkim",
+          "West Bengal"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Lachung Chu",
+            "note": "Headstream joining the Lachen Chu at Chungthang"
+          },
+          {
+            "name": "Rangpo Chu",
+            "note": "Joins at Rangpo on the Sikkim-West Bengal border"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Rangit River",
+            "note": "Drains West Sikkim (Pelling-Jorethang); joins at Melli (Triveni)"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Lachen Chu + Lachung Chu",
+          "sangam": "Chungthang",
+          "state": "Sikkim"
+        },
+        {
+          "tributary": "Rangit",
+          "sangam": "Melli (Triveni)",
+          "state": "Sikkim / West Bengal"
+        },
+        {
+          "tributary": "Brahmaputra (Jamuna)",
+          "sangam": "Near Chilmari, Kurigram",
+          "state": "Bangladesh"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Chungthang",
+          "type": "Infrastructure",
+          "significance": "Site of the Teesta-III dam, damaged by the October 2023 GLOF",
+          "state": "Sikkim"
+        },
+        {
+          "name": "Singtam and Rangpo",
+          "type": "Economic",
+          "significance": "Main valley towns on the NH-10 corridor",
+          "state": "Sikkim"
+        },
+        {
+          "name": "Sevoke",
+          "type": "Infrastructure",
+          "significance": "Coronation Bridge where the Teesta leaves the hills",
+          "state": "West Bengal"
+        },
+        {
+          "name": "Jalpaiguri",
+          "type": "Administrative",
+          "significance": "Teesta plains; Gajoldoba barrage nearby",
+          "state": "West Bengal"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Teesta-III Hydroelectric Project",
+          "state": "Sikkim",
+          "type": "1,200 MW at Chungthang; its dam was washed away by the October 2023 GLOF"
+        },
+        {
+          "name": "Teesta-V Hydroelectric Project",
+          "state": "Sikkim",
+          "type": "510 MW at Dikchu (NHPC); damaged in the 2023 floods"
+        },
+        {
+          "name": "Teesta Low Dam III and IV",
+          "state": "West Bengal",
+          "type": "Run-of-the-river projects in the Darjeeling-Kalimpong stretch"
+        },
+        {
+          "name": "Teesta Barrage (Gajoldoba)",
+          "state": "West Bengal",
+          "type": "Irrigation diversion in North Bengal"
+        },
+        {
+          "name": "Dalia (Teesta) Barrage",
+          "state": "Bangladesh",
+          "type": "Irrigation barrage at Lalmonirhat"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Khangchendzonga National Park",
+          "relation": "Upper catchment in Sikkim; India's first 'mixed' UNESCO World Heritage Site (2016)",
+          "state": "Sikkim"
+        },
+        {
+          "name": "Mahananda Wildlife Sanctuary",
+          "relation": "Borders the Teesta near Sevoke where it leaves the hills",
+          "state": "West Bengal"
+        }
+      ],
+      "species": [
+        {
+          "name": "Red Panda",
+          "iucn": "Endangered",
+          "role": "State animal of Sikkim; temperate forests of the Teesta catchment"
+        },
+        {
+          "name": "Snow Leopard",
+          "iucn": "Vulnerable",
+          "role": "High-altitude catchment of North Sikkim"
+        }
+      ],
+      "commonMistake": "The Teesta joins the BRAHMAPUTRA (Jamuna) in Bangladesh, not the Ganga. After the 1787 floods it shifted to its present course; earlier it drained towards the Ganga system."
+    },
+    "staticFacts": [
+      "The lifeline of Sikkim; almost the whole state lies in its basin.",
+      "India and Bangladesh have not signed a Teesta water-sharing agreement; the 2011 draft remains unsigned because of West Bengal's objections."
+    ],
+    "similarPYQ": [
+      "GEO-UPSC-2017-04",
+      "UPSC-2026-25",
+      "GEO-CDS1-2016-07"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-03H",
+    "slug": "dhansiri-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Dhansiri (South) River",
+    "aliases": [
+      "Dhansiri South",
+      "Doyang River",
+      "Dimapur River",
+      "Golaghat River"
+    ],
+    "placeType": "Left-Bank (South-Bank) Tributary of Brahmaputra",
+    "priority": "Medium",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Nagaland, Assam"
+    },
+    "lat": 25.9,
+    "lng": 93.73,
+    "shape": [
+      [
+        25.55,
+        93.95
+      ],
+      [
+        25.9,
+        93.73
+      ],
+      [
+        26.15,
+        93.8
+      ],
+      [
+        26.5,
+        93.85
+      ],
+      [
+        26.73,
+        93.83
+      ]
+    ],
+    "neighbours": [
+      "Source: Laisang peak area, Nagaland",
+      "Mouth: Joins the Brahmaputra at Dhansirimukh, Golaghat district (Assam)"
+    ],
+    "riverDetails": {
+      "length": "~352 km",
+      "origin": "Laisang peak area, Nagaland",
+      "mouth": "Joins the Brahmaputra at Dhansirimukh, Golaghat district (Assam)",
+      "sourceCoords": [
+        25.55,
+        93.95
+      ],
+      "mouthCoords": [
+        26.73,
+        93.83
+      ],
+      "states": {
+        "flowsThrough": [
+          "Nagaland",
+          "Assam"
+        ],
+        "basinStates": [
+          "Nagaland",
+          "Assam"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [],
+        "rightBank": [
+          {
+            "name": "Doyang River",
+            "note": "From central Nagaland; Doyang reservoir is the Amur falcon roost"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Brahmaputra",
+          "sangam": "Dhansirimukh, Golaghat",
+          "state": "Assam"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Dimapur",
+          "type": "Economic",
+          "significance": "Nagaland's commercial hub; Kachari ruins on the Dhansiri",
+          "state": "Nagaland"
+        },
+        {
+          "name": "Golaghat",
+          "type": "Administrative",
+          "significance": "Lower Dhansiri plains near Kaziranga",
+          "state": "Assam"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Doyang Hydroelectric Project",
+          "state": "Nagaland",
+          "type": "75 MW on the Doyang (NEEPCO)"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Intanki National Park",
+          "relation": "Foothill forests of the Dhansiri catchment",
+          "state": "Nagaland"
+        },
+        {
+          "name": "Doyang Reservoir (Pangti)",
+          "relation": "World's largest known roost of migrating Amur falcons",
+          "state": "Nagaland"
+        }
+      ],
+      "species": [
+        {
+          "name": "Amur Falcon",
+          "iucn": "Least Concern",
+          "role": "Long-distance migrant (Siberia-China to southern Africa) that roosts at Doyang every autumn"
+        }
+      ],
+      "commonMistake": "There are two Dhansiris: this SOUTH Dhansiri (Nagaland-Golaghat) is a LEFT-bank tributary, while the North Dhansiri joins from Bhutan on the right bank."
+    },
+    "staticFacts": [
+      "NCERT names the Burhi Dihing and the Dhansiri (South) as major left-bank tributaries of the Brahmaputra.",
+      "Pangti village turned from hunting Amur falcons to protecting them, a well-known community conservation example."
+    ],
+    "similarPYQ": [
+      "UPSC-2026-27",
+      "GEO-CDS2-2022-07"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-03I",
+    "slug": "barak-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Barak River",
+    "aliases": [
+      "Surma",
+      "Kushiyara",
+      "Meghna headwaters",
+      "Tuivai",
+      "NW-16 River"
+    ],
+    "placeType": "Major North-East River of the Meghna System (often studied with the Brahmaputra)",
+    "priority": "High",
+    "locatedIn": {
+      "country": "India, Bangladesh",
+      "stateOrProvince": "Manipur, Mizoram, Assam (India); Sylhet division (Bangladesh)"
+    },
+    "lat": 24.24,
+    "lng": 93.03,
+    "shape": [
+      [
+        25.4,
+        94.1
+      ],
+      [
+        24.85,
+        93.05
+      ],
+      [
+        24.82,
+        92.8
+      ],
+      [
+        24.88,
+        92.48
+      ],
+      [
+        24.05,
+        91
+      ]
+    ],
+    "neighbours": [
+      "Source: Liyai Kullen village, Senapati district, Manipur hills",
+      "Mouth: At the Bangladesh border it splits into the Surma and the Kushiyara, which reuni"
+    ],
+    "riverDetails": {
+      "length": "~900 km including its Bangladesh course (~560 km in India)",
+      "origin": "Liyai Kullen village, Senapati district, Manipur hills",
+      "mouth": "At the Bangladesh border it splits into the Surma and the Kushiyara, which reunite as the Meghna and reach the Bay of Bengal",
+      "sourceCoords": [
+        25.4,
+        94.1
+      ],
+      "mouthCoords": [
+        24.88,
+        92.48
+      ],
+      "states": {
+        "flowsThrough": [
+          "Manipur",
+          "Mizoram",
+          "Assam"
+        ],
+        "basinStates": [
+          "Manipur",
+          "Mizoram",
+          "Assam",
+          "Meghalaya",
+          "Nagaland",
+          "Tripura"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Tuivai River",
+            "note": "From Mizoram-Manipur; joins at Tipaimukh"
+          },
+          {
+            "name": "Dhaleswari (Tlawng) River",
+            "note": "Longest river of Mizoram; joins in Cachar"
+          },
+          {
+            "name": "Sonai River",
+            "note": "From Mizoram; joins in Cachar"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Jiri River",
+            "note": "Forms part of the Manipur-Assam boundary"
+          },
+          {
+            "name": "Jatinga River",
+            "note": "Drains the Dima Hasao hills"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Tuivai",
+          "sangam": "Tipaimukh (Manipur-Mizoram border)",
+          "state": "Manipur / Mizoram"
+        },
+        {
+          "tributary": "Surma-Kushiyara bifurcation",
+          "sangam": "Near Amalshid at the Bangladesh border",
+          "state": "Assam / Bangladesh"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Silchar",
+          "type": "Economic",
+          "significance": "Main city of the Barak Valley; western end of National Waterway-16",
+          "state": "Assam"
+        },
+        {
+          "name": "Karimganj",
+          "type": "Strategic",
+          "significance": "Border town near the Surma-Kushiyara bifurcation",
+          "state": "Assam"
+        },
+        {
+          "name": "Jatinga",
+          "type": "Tourism",
+          "significance": "Known for the 'mass bird suicide' phenomenon on monsoon nights",
+          "state": "Assam"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Tipaimukh Dam",
+          "state": "Manipur / Mizoram border",
+          "type": "Proposed multipurpose dam at the Barak-Tuivai confluence; opposed in Manipur and Bangladesh"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Barail Wildlife Sanctuary",
+          "relation": "Barail range forests above the Barak Valley",
+          "state": "Assam"
+        }
+      ],
+      "species": [
+        {
+          "name": "Ganges River Dolphin",
+          "iucn": "Endangered",
+          "role": "Present in the Barak and Kushiyara channels"
+        }
+      ],
+      "commonMistake": "The Barak is NOT a Brahmaputra tributary; it belongs to the MEGHNA system. Manipur's Imphal (Manipur) river and Loktak lake drain to the CHINDWIN in Myanmar, not to the Barak."
+    },
+    "staticFacts": [
+      "The second-largest river system of North-East India after the Brahmaputra.",
+      "Its Lakhipur-Bhanga stretch is National Waterway-16, linked to Bangladesh under the Indo-Bangladesh Protocol route."
+    ],
+    "similarPYQ": [
+      "GEO-UPSC-2014-06",
+      "GEO-CDS2-2022-07"
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
