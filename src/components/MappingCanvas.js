@@ -378,9 +378,6 @@ function CameraController({ cameraTarget, selectedNode, onZoomChange }) {
     map.on('zoomend', handleZoom);
     return () => map.off('zoomend', handleZoom);
   }, [map, onZoomChange]);
-  const map = useMap();
-  const lastNodeId = useRef(null);
-  const lastCameraKey = useRef('');
 
   // Auto-invalidate map size when stage split width changes (58% / 72% / 100%) or when becoming visible
   useEffect(() => {
