@@ -7661,7 +7661,263 @@ export const CURATED_MAPPING_NODES = [
     "linkedIssueDomain": "GEOGRAPHY"
   },
   {
-    "id": "IND-RIV-04",
+    "id": "IND-RIV-07",
+    "slug": "mahanadi-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Mahanadi River",
+    "aliases": [
+      "Chitrotpala",
+      "Mahananda of Odisha",
+      "Hirakud River",
+      "Sihawa River"
+    ],
+    "placeType": "Major East-Flowing Peninsular River (Delta-Forming)",
+    "priority": "High",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Chhattisgarh, Odisha"
+    },
+    "lat": 21.52,
+    "lng": 83.87,
+    "shape": [
+      [
+        20.3,
+        81.9
+      ],
+      [
+        20.7,
+        81.65
+      ],
+      [
+        21.15,
+        81.75
+      ],
+      [
+        21.5,
+        82.55
+      ],
+      [
+        21.6,
+        83.3
+      ],
+      [
+        21.52,
+        83.87
+      ],
+      [
+        20.58,
+        84.85
+      ],
+      [
+        20.46,
+        85.88
+      ],
+      [
+        20.32,
+        86.72
+      ]
+    ],
+    "neighbours": [
+      "Source: Near Sihawa, Dhamtari district (Chhattisgarh), at ~442 m",
+      "Mouth: Bay of Bengal through a delta near False Point and Paradip (Odisha)"
+    ],
+    "riverDetails": {
+      "length": "~851 km (NCERT)",
+      "origin": "Near Sihawa, Dhamtari district (Chhattisgarh), at ~442 m",
+      "mouth": "Bay of Bengal through a delta near False Point and Paradip (Odisha)",
+      "sourceCoords": [
+        20.3,
+        81.9
+      ],
+      "mouthCoords": [
+        20.32,
+        86.72
+      ],
+      "states": {
+        "flowsThrough": [
+          "Chhattisgarh",
+          "Odisha"
+        ],
+        "basinStates": [
+          "Chhattisgarh",
+          "Odisha",
+          "Jharkhand",
+          "Maharashtra",
+          "Madhya Pradesh"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Seonath River",
+            "note": "Largest tributary; flows past Durg; joins near Shivrinarayan (Janjgir-Champa)"
+          },
+          {
+            "name": "Hasdeo River",
+            "note": "Drains the Korba coalfield and Hasdeo Arand forest; Minimata Bango dam"
+          },
+          {
+            "name": "Mand River",
+            "note": "Joins in Raigarh-Janjgir region"
+          },
+          {
+            "name": "Ib River",
+            "note": "Rises at Pandrapat, Jashpur (Chhattisgarh); joins the Hirakud reservoir"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Jonk River",
+            "note": "Joins near Mahasamund-Shivrinarayan"
+          },
+          {
+            "name": "Ong River",
+            "note": "Joins near Sonepur (Odisha)"
+          },
+          {
+            "name": "Tel River",
+            "note": "Largest right-bank tributary; drains Kalahandi-Bolangir; joins at Sonepur"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Pairi + Sondur",
+          "sangam": "Rajim (Triveni)",
+          "state": "Chhattisgarh"
+        },
+        {
+          "tributary": "Seonath",
+          "sangam": "Near Shivrinarayan",
+          "state": "Chhattisgarh"
+        },
+        {
+          "tributary": "Ib",
+          "sangam": "Hirakud reservoir",
+          "state": "Odisha"
+        },
+        {
+          "tributary": "Tel",
+          "sangam": "Sonepur",
+          "state": "Odisha"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Rajim",
+          "type": "Cultural",
+          "significance": "'Prayag of Chhattisgarh' at the Mahanadi-Pairi-Sondur confluence",
+          "state": "Chhattisgarh"
+        },
+        {
+          "name": "Sambalpur",
+          "type": "Economic / Cultural",
+          "significance": "Hirakud dam; Samaleswari temple; Sambalpuri handloom",
+          "state": "Odisha"
+        },
+        {
+          "name": "Sonepur",
+          "type": "Cultural",
+          "significance": "Temple town at the Mahanadi-Tel confluence",
+          "state": "Odisha"
+        },
+        {
+          "name": "Cuttack",
+          "type": "Historical",
+          "significance": "Old capital at the head of the delta, between the Mahanadi and Kathajodi; silver filigree",
+          "state": "Odisha"
+        },
+        {
+          "name": "Paradip",
+          "type": "Economic",
+          "significance": "Major port near the river mouth",
+          "state": "Odisha"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Ravishankar Sagar (Gangrel) Dam",
+          "state": "Chhattisgarh",
+          "type": "Main dam on the upper Mahanadi, Dhamtari"
+        },
+        {
+          "name": "Minimata Bango Dam",
+          "state": "Chhattisgarh",
+          "type": "On the Hasdeo tributary; feeds the Korba power belt"
+        },
+        {
+          "name": "Hirakud Dam",
+          "state": "Odisha",
+          "type": "Among the longest earthen dams in the world; irrigation, hydropower and delta flood control"
+        },
+        {
+          "name": "Chiplima Power House",
+          "state": "Odisha",
+          "type": "Hydro station using Hirakud releases"
+        },
+        {
+          "name": "Mahanadi Barrage (Jobra)",
+          "state": "Odisha",
+          "type": "Delta irrigation headworks at Cuttack"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Udanti-Sitanadi Tiger Reserve",
+          "relation": "Sitanadi tributary catchment in the upper basin",
+          "state": "Chhattisgarh"
+        },
+        {
+          "name": "Debrigarh Wildlife Sanctuary",
+          "relation": "On the Hirakud reservoir",
+          "state": "Odisha"
+        },
+        {
+          "name": "Satkosia Tiger Reserve",
+          "relation": "Satkosia gorge of the Mahanadi; the only natural gharial habitat in Odisha",
+          "state": "Odisha"
+        },
+        {
+          "name": "Chilika Lake",
+          "relation": "Fed by Mahanadi delta distributaries (Daya, Bhargavi); India's first Ramsar site (1981, with Keoladeo)",
+          "state": "Odisha"
+        }
+      ],
+      "species": [
+        {
+          "name": "Gharial",
+          "iucn": "Critically Endangered",
+          "role": "Small natural population in the Satkosia gorge"
+        },
+        {
+          "name": "Irrawaddy Dolphin",
+          "iucn": "Endangered",
+          "role": "Lagoon population in Chilika"
+        }
+      ],
+      "commonMistake": "SEONATH, Hasdeo, Mand and Ib are LEFT-bank tributaries; Tel, Ong and Jonk are RIGHT-bank. West Bengal is NOT in the Mahanadi basin. The Ib rises in CHHATTISGARH, not Jharkhand. Mandira Dam is on the Sankh (BRAHMANI basin), not the Mahanadi."
+    },
+    "staticFacts": [
+      "NCERT: about 53% of its basin lies in Madhya Pradesh-Chhattisgarh and 47% in Odisha.",
+      "Its delta merges with those of the Brahmani and Baitarani to form one composite delta on the Odisha coast.",
+      "The Mahanadi Water Disputes Tribunal (2018) is hearing the Odisha-Chhattisgarh dispute over barrages in the upper basin."
+    ],
+    "similarPYQ": [
+      "GEO-UPSC-2016-03",
+      "UPSC-2025-17",
+      "GEO-CDS1-2017-08"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-05",
     "slug": "godavari-river",
     "pillar": "STATIC",
     "regionScope": "India",
@@ -7672,134 +7928,173 @@ export const CURATED_MAPPING_NODES = [
     "place": "Godavari River",
     "aliases": [
       "Dakshin Ganga",
-      "Vridha Ganga",
-      "Pranhita",
-      "Indravati",
-      "Manjira",
-      "Wainganga",
-      "Penganga",
-      "Wardha",
-      "Sabari",
-      "Pattiseema",
-      "Asmaka"
+      "Vriddha Ganga",
+      "Gautami",
+      "Godavari Delta River"
     ],
-    "placeType": "Peninsular River System",
+    "placeType": "Largest Peninsular River ('Dakshin Ganga')",
     "priority": "High",
     "locatedIn": {
       "country": "India",
       "stateOrProvince": "Maharashtra, Telangana, Andhra Pradesh"
     },
-    "lat": 17.0005,
-    "lng": 81.804,
+    "lat": 18.97,
+    "lng": 78.33,
     "shape": [
       [
         19.93,
         73.53
       ],
       [
+        19.98,
+        73.8
+      ],
+      [
+        19.85,
+        74.48
+      ],
+      [
+        19.48,
+        75.38
+      ],
+      [
         19.15,
-        77.31
+        77.32
       ],
       [
-        18.8,
-        79.9
+        18.97,
+        78.33
       ],
       [
-        17.7,
-        81.1
+        18.88,
+        79.92
       ],
       [
-        16.98,
+        17.55,
+        81.28
+      ],
+      [
+        17.4,
+        81.5
+      ],
+      [
+        17.25,
+        81.65
+      ],
+      [
+        17,
         81.78
       ],
       [
-        16.5,
-        82.25
+        16.33,
+        81.73
       ]
     ],
     "neighbours": [
-      "Left-bank: Purna, Pranhita (Wainganga+Penganga+Wardha), Indravati, Sabari",
-      "Right-bank: Pravara, Manjira"
+      "Source: Brahmagiri hills at Trimbakeshwar, Nashik district (Maharashtra), at ~1,067 m",
+      "Mouth: Bay of Bengal through a large delta in the East and West Godavari districts (And"
     ],
     "riverDetails": {
-      "length": "1,465 km",
-      "origin": "Trimbakeshwar in the Brahmagiri hills (Nashik, Maharashtra)",
-      "mouth": "Bay of Bengal, forming a large mangrove delta at Coringa (Andhra Pradesh)",
+      "length": "~1,465 km",
+      "origin": "Brahmagiri hills at Trimbakeshwar, Nashik district (Maharashtra), at ~1,067 m",
+      "mouth": "Bay of Bengal through a large delta in the East and West Godavari districts (Andhra Pradesh), near Antarvedi and Yanam",
+      "sourceCoords": [
+        19.93,
+        73.53
+      ],
+      "mouthCoords": [
+        16.33,
+        81.73
+      ],
       "states": {
         "flowsThrough": [
           "Maharashtra",
           "Telangana",
-          "Andhra Pradesh",
-          "Puducherry (Yanam)"
+          "Andhra Pradesh"
         ],
         "basinStates": [
           "Maharashtra",
           "Telangana",
           "Andhra Pradesh",
-          "Madhya Pradesh",
           "Chhattisgarh",
           "Odisha",
-          "Karnataka"
+          "Madhya Pradesh",
+          "Karnataka",
+          "Puducherry (Yanam)"
         ]
       },
       "tributaries": {
         "leftBank": [
           {
-            "name": "Purna",
-            "note": "Rises in Ajanta Hills"
+            "name": "Kadva River",
+            "note": "Joins near Nandur Madhmeshwar, Nashik"
           },
           {
-            "name": "Pranhita",
-            "note": "Wainganga + Wardha + Penganga combined; largest tributary"
+            "name": "Purna River",
+            "note": "Drains Marathwada; joins near Jambulbet, Parbhani"
           },
           {
-            "name": "Indravati",
-            "note": "Rises in Dandakaranya; famous for Chitrakote waterfall"
+            "name": "Pranhita River",
+            "note": "Formed by the Wardha (with Penganga) and Wainganga; largest tributary by basin; joins at Kaleshwaram"
           },
           {
-            "name": "Sabari",
-            "note": "Sinkaram Hill; Kolab is its upper course"
+            "name": "Indravati River",
+            "note": "Rises in Kalahandi (Odisha); flows through Bastar; joins at the Maharashtra-Telangana-Chhattisgarh tri-junction"
           },
           {
-            "name": "Sileru",
-            "note": "Tributary of Sabari; hydro projects"
+            "name": "Sabari River",
+            "note": "With the Sileru; forms part of the Odisha-Chhattisgarh boundary; joins at Kunavaram (AP)"
           }
         ],
         "rightBank": [
           {
-            "name": "Pravara",
-            "note": "Rises in Kalsubai; joins at Nevasa Sangam"
+            "name": "Darna River",
+            "note": "From the Igatpuri ghats; joins near Nashik"
           },
           {
-            "name": "Sindphana",
-            "note": "Flows from Chhatrapati Sambhajinagar"
+            "name": "Pravara River",
+            "note": "From Bhandardara; joins at Pravara Sangam (Ahmednagar)"
           },
           {
-            "name": "Manjira",
-            "note": "Only major right-bank tributary; hosts Nizam Sagar dam"
+            "name": "Manjira River",
+            "note": "Longest right-bank tributary; Nizam Sagar dam; joins near Kandakurthi (Nizamabad)"
           },
           {
-            "name": "Maner",
-            "note": "Rises in Telangana; joins downstream of Pochampad"
+            "name": "Manair River",
+            "note": "Drains Karimnagar; Lower Manair dam"
           }
         ]
       },
       "confluences": [
         {
-          "tributary": "Pravara",
-          "sangam": "Pravara Sangam (Nevasa)",
+          "tributary": "Kadva",
+          "sangam": "Nandur Madhmeshwar, Nashik",
           "state": "Maharashtra"
+        },
+        {
+          "tributary": "Pravara",
+          "sangam": "Pravara Sangam (Toka), Ahmednagar",
+          "state": "Maharashtra"
+        },
+        {
+          "tributary": "Purna",
+          "sangam": "Near Jambulbet, Parbhani",
+          "state": "Maharashtra"
+        },
+        {
+          "tributary": "Manjira",
+          "sangam": "Near Kandakurthi, Nizamabad",
+          "state": "Telangana"
         },
         {
           "tributary": "Pranhita",
           "sangam": "Kaleshwaram",
-          "state": "Telangana",
-          "note": "Site of Kaleshwaram Lift Irrigation"
+          "state": "Telangana"
         },
         {
           "tributary": "Indravati",
-          "sangam": "Somnoor / Bhadrakali",
-          "state": "Telangana/Chhattisgarh border"
+          "sangam": "Maharashtra-Telangana-Chhattisgarh tri-junction",
+          "state": "Telangana / Chhattisgarh / Maharashtra"
         },
         {
           "tributary": "Sabari",
@@ -7809,33 +8104,45 @@ export const CURATED_MAPPING_NODES = [
       ],
       "towns": [
         {
-          "name": "Nashik",
+          "name": "Trimbakeshwar",
           "type": "Cultural",
-          "significance": "Kumbh Mela & Trimbakeshwar Jyotirlinga",
+          "significance": "Source; Jyotirlinga; Simhastha Kumbh with Nashik",
+          "state": "Maharashtra"
+        },
+        {
+          "name": "Nashik",
+          "type": "Cultural / Economic",
+          "significance": "Kumbh Mela city; India's main wine-grape region",
           "state": "Maharashtra"
         },
         {
           "name": "Paithan",
           "type": "Historical",
-          "significance": "Ancient capital of Satavahanas (Pratishthana)",
+          "significance": "Satavahana capital Pratishthana; Paithani silk; Jayakwadi dam",
           "state": "Maharashtra"
         },
         {
           "name": "Nanded",
           "type": "Cultural",
-          "significance": "Hazur Sahib Gurudwara",
+          "significance": "Takht Sachkhand Sri Hazur Sahib (Guru Gobind Singh)",
           "state": "Maharashtra"
         },
         {
-          "name": "Bodhan",
-          "type": "Historical",
-          "significance": "Ancient capital of Asmaka Mahajanapada (UPSC 2025)",
+          "name": "Basara",
+          "type": "Cultural",
+          "significance": "Gnana Saraswati temple",
           "state": "Telangana"
         },
         {
-          "name": "Rajahmundry",
-          "type": "Economic",
-          "significance": "Delta cultural capital, Arthur Cotton Barrage",
+          "name": "Bhadrachalam",
+          "type": "Cultural",
+          "significance": "Sri Sita Ramachandra Swamy temple",
+          "state": "Telangana"
+        },
+        {
+          "name": "Rajahmundry (Rajamahendravaram)",
+          "type": "Cultural",
+          "significance": "Head of the delta; Godavari Pushkaram",
           "state": "Andhra Pradesh"
         }
       ],
@@ -7843,86 +8150,819 @@ export const CURATED_MAPPING_NODES = [
         {
           "name": "Jayakwadi Dam (Nath Sagar)",
           "state": "Maharashtra",
-          "type": "Major irrigation & bird sanctuary"
+          "type": "Major irrigation dam at Paithan"
         },
         {
           "name": "Sriram Sagar Project (Pochampad)",
           "state": "Telangana",
-          "type": "Key Telangana reservoir"
+          "type": "Major irrigation dam in Nizamabad"
         },
         {
-          "name": "Kaleshwaram Lift Irrigation",
+          "name": "Kaleshwaram Lift Irrigation Project",
           "state": "Telangana",
-          "type": "World's largest multi-stage lift project"
+          "type": "Multi-stage lift scheme from the Pranhita-Godavari; Medigadda (Laxmi) barrage piers sank in October 2023"
         },
         {
-          "name": "Polavaram National Project",
+          "name": "Polavaram Project",
           "state": "Andhra Pradesh",
-          "type": "Interstate multi-purpose project"
+          "type": "National multipurpose project; submergence affects Odisha, Chhattisgarh and Telangana"
         },
         {
-          "name": "Dowleswaram (Sir Arthur Cotton) Barrage",
+          "name": "Sir Arthur Cotton Barrage (Dowleswaram)",
           "state": "Andhra Pradesh",
-          "type": "Delta canal headworks"
+          "type": "Delta irrigation headworks near Rajahmundry"
         }
       ],
       "protectedAreas": [
         {
-          "name": "Papikonda National Park",
-          "relation": "River cuts right through the middle through Papikonda hills gorge",
-          "state": "Andhra Pradesh"
+          "name": "Nandur Madhmeshwar Bird Sanctuary",
+          "relation": "At the Godavari-Kadva confluence; Maharashtra's first Ramsar site (2019)",
+          "state": "Maharashtra"
         },
         {
-          "name": "Indravati National Park",
-          "relation": "Indravati river flows along its northern boundary",
+          "name": "Tadoba-Andhari Tiger Reserve",
+          "relation": "Wardha-Wainganga (Pranhita) catchment",
+          "state": "Maharashtra"
+        },
+        {
+          "name": "Indravati Tiger Reserve",
+          "relation": "Indravati catchment in Bastar",
           "state": "Chhattisgarh"
         },
         {
-          "name": "Coringa Wildlife Sanctuary",
-          "relation": "Located in the mangrove estuary of Godavari delta",
+          "name": "Papikonda National Park",
+          "relation": "Papi Hills gorge where the Godavari cuts the Eastern Ghats",
           "state": "Andhra Pradesh"
         },
         {
-          "name": "Kawal & Tadoba-Andhari Tiger Reserves",
-          "relation": "Fall within the wider Godavari/Pranhita basin",
-          "state": "Telangana / Maharashtra"
+          "name": "Coringa Wildlife Sanctuary",
+          "relation": "Godavari delta mangroves near Kakinada",
+          "state": "Andhra Pradesh"
         }
       ],
       "species": [
         {
-          "name": "Indian Skimmer",
+          "name": "Bengal Tiger",
           "iucn": "Endangered",
-          "role": "Nests on river sandbars and delta"
-        },
-        {
-          "name": "Mugger Crocodile",
-          "iucn": "Vulnerable",
-          "role": "Found in main river & Manjira sanctuary"
-        },
-        {
-          "name": "Smooth-coated Otter",
-          "iucn": "Vulnerable",
-          "role": "Estuary and mangrove creeks"
+          "role": "Tadoba, Indravati and Kawal reserves in the basin"
         },
         {
           "name": "Fishing Cat",
           "iucn": "Vulnerable",
-          "role": "Coringa mangrove delta"
+          "role": "Mangrove wetlands of Coringa"
         }
       ],
-      "commonMistake": "Don't confuse Pennar or Vamsadhara as Godavari tributaries—they are completely independent east-flowing rivers. Also remember Bhima is a tributary of Krishna, not Godavari."
+      "commonMistake": "PURNA, PRANHITA (Wardha + Wainganga), INDRAVATI and SABARI are LEFT-bank (north) tributaries; PRAVARA, MANJIRA and MANAIR are RIGHT-bank. The Indravati joins at the tri-junction, NOT at Bhadrachalam. The Godavari basin is the LARGEST among PENINSULAR rivers, not 'second-largest in India' (the Ganga and Indus basins are bigger)."
     },
     "staticFacts": [
-      "Largest Peninsular river system (1,465 km); rises at Trimbakeshwar (Nashik district, Western Ghats).",
-      "UPSC 2015 Exact Question: Indravati and Pranahita are major left-bank tributaries of Godavari (Vamsadhara and Pennar are independent east-flowing rivers).",
-      "UPSC 2016: Godavari and Krishna rivers were linked via the Pattiseema Lift Irrigation Project; Ancient Mahajanapada Asmaka was located on the banks of the Godavari (UPSC 2025)."
+      "The longest Peninsular river; called the 'Dakshin Ganga' or 'Vriddha Ganga'.",
+      "Its basin (~3,12,812 sq km) lies about half in Maharashtra.",
+      "It cuts a gorge through the Eastern Ghats at the Papi Hills before forming its delta.",
+      "Kolleru Lake, a Ramsar site, lies between the Godavari and Krishna deltas."
     ],
     "similarPYQ": [
       "GEO-UPSC-2015-07",
-      "ANC-UPSC-2025-17",
-      "GEO-CDS1-2017-08",
       "GEO-UPSC-2016-03",
-      "GEO-UPSC-2016-01"
+      "GEO-CDS2-2021-08",
+      "GEO-CDS2-2019-06"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-08",
+    "slug": "krishna-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Krishna River",
+    "aliases": [
+      "Krishnaveni",
+      "Kanhar",
+      "Mahabaleshwar River",
+      "Prakasam River"
+    ],
+    "placeType": "Second-Largest East-Flowing Peninsular River",
+    "priority": "High",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Maharashtra, Karnataka, Telangana, Andhra Pradesh"
+    },
+    "lat": 16.33,
+    "lng": 77.7,
+    "shape": [
+      [
+        17.92,
+        73.66
+      ],
+      [
+        17.3,
+        74.18
+      ],
+      [
+        16.85,
+        74.58
+      ],
+      [
+        16.58,
+        74.6
+      ],
+      [
+        16.33,
+        75.88
+      ],
+      [
+        16.15,
+        76.55
+      ],
+      [
+        16.4,
+        77.35
+      ],
+      [
+        16.33,
+        77.7
+      ],
+      [
+        15.95,
+        78.25
+      ],
+      [
+        16.08,
+        78.9
+      ],
+      [
+        16.57,
+        79.31
+      ],
+      [
+        16.52,
+        80.62
+      ],
+      [
+        15.85,
+        81.05
+      ]
+    ],
+    "neighbours": [
+      "Source: Spring near Mahabaleshwar (Jor village), Satara district (Maharashtra), at ~1,33",
+      "Mouth: Bay of Bengal through a delta near Hamsaladeevi, Krishna district (Andhra Prades"
+    ],
+    "riverDetails": {
+      "length": "~1,400 km",
+      "origin": "Spring near Mahabaleshwar (Jor village), Satara district (Maharashtra), at ~1,337 m",
+      "mouth": "Bay of Bengal through a delta near Hamsaladeevi, Krishna district (Andhra Pradesh)",
+      "sourceCoords": [
+        17.92,
+        73.66
+      ],
+      "mouthCoords": [
+        15.85,
+        81.05
+      ],
+      "states": {
+        "flowsThrough": [
+          "Maharashtra",
+          "Karnataka",
+          "Telangana",
+          "Andhra Pradesh"
+        ],
+        "basinStates": [
+          "Maharashtra",
+          "Karnataka",
+          "Telangana",
+          "Andhra Pradesh"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Bhima River",
+            "note": "Largest left-bank tributary; from Bhimashankar; joins near Raichur"
+          },
+          {
+            "name": "Dindi River",
+            "note": "Telangana tributary joining near Nagarjuna Sagar"
+          },
+          {
+            "name": "Musi River",
+            "note": "Flows through Hyderabad; joins near Wazirabad (Nalgonda)"
+          },
+          {
+            "name": "Paleru and Munneru Rivers",
+            "note": "Telangana-AP tributaries of the lower course"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Venna River",
+            "note": "Joins at Sangam Mahuli, Satara"
+          },
+          {
+            "name": "Koyna River",
+            "note": "Koyna dam; joins at Karad (Preeti Sangam)"
+          },
+          {
+            "name": "Warna and Panchganga Rivers",
+            "note": "Join near Sangli-Kolhapur (Panchganga at Narsobawadi)"
+          },
+          {
+            "name": "Dudhganga River",
+            "note": "Drains southern Kolhapur"
+          },
+          {
+            "name": "Ghataprabha River",
+            "note": "Gokak Falls; joins in Bagalkot district"
+          },
+          {
+            "name": "Malaprabha River",
+            "note": "Joins at Kudalasangama, Bagalkot"
+          },
+          {
+            "name": "Tungabhadra River",
+            "note": "Largest right-bank tributary; joins near Alampur-Sangameswaram"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Venna",
+          "sangam": "Sangam Mahuli, Satara",
+          "state": "Maharashtra"
+        },
+        {
+          "tributary": "Koyna",
+          "sangam": "Karad (Preeti Sangam)",
+          "state": "Maharashtra"
+        },
+        {
+          "tributary": "Panchganga",
+          "sangam": "Narsobawadi, Kolhapur",
+          "state": "Maharashtra"
+        },
+        {
+          "tributary": "Malaprabha",
+          "sangam": "Kudalasangama, Bagalkot",
+          "state": "Karnataka"
+        },
+        {
+          "tributary": "Bhima",
+          "sangam": "Near Raichur (Kadlur)",
+          "state": "Karnataka / Telangana"
+        },
+        {
+          "tributary": "Tungabhadra",
+          "sangam": "Near Alampur-Sangameswaram",
+          "state": "Telangana / Andhra Pradesh"
+        },
+        {
+          "tributary": "Musi",
+          "sangam": "Near Wazirabad, Nalgonda",
+          "state": "Telangana"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Mahabaleshwar",
+          "type": "Cultural",
+          "significance": "Source; Panchganga temple (Krishna, Koyna, Venna, Savitri, Gayatri)",
+          "state": "Maharashtra"
+        },
+        {
+          "name": "Sangli",
+          "type": "Economic",
+          "significance": "Sugar and turmeric belt",
+          "state": "Maharashtra"
+        },
+        {
+          "name": "Kudalasangama",
+          "type": "Cultural",
+          "significance": "Aikya Mantapa of Basavanna",
+          "state": "Karnataka"
+        },
+        {
+          "name": "Srisailam",
+          "type": "Cultural",
+          "significance": "Mallikarjuna Jyotirlinga above the Srisailam dam",
+          "state": "Andhra Pradesh"
+        },
+        {
+          "name": "Nagarjunakonda",
+          "type": "Historical",
+          "significance": "Ikshvaku-era Buddhist site, relocated to an island in the reservoir",
+          "state": "Telangana / Andhra Pradesh"
+        },
+        {
+          "name": "Amaravati",
+          "type": "Historical / Administrative",
+          "significance": "Satavahana-era Buddhist stupa; AP capital region",
+          "state": "Andhra Pradesh"
+        },
+        {
+          "name": "Vijayawada",
+          "type": "Economic",
+          "significance": "Head of the delta; Prakasam barrage; Kanaka Durga temple",
+          "state": "Andhra Pradesh"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Koyna Dam",
+          "state": "Maharashtra",
+          "type": "On the Koyna; Maharashtra's largest hydro scheme; Koynanagar earthquake (1967) linked to reservoir-induced seismicity"
+        },
+        {
+          "name": "Almatti Dam (Lal Bahadur Shastri Sagar)",
+          "state": "Karnataka",
+          "type": "Upper Krishna Project, with Narayanpur downstream"
+        },
+        {
+          "name": "Jurala (Priyadarshini) Project",
+          "state": "Telangana",
+          "type": "First major dam on entering Telangana"
+        },
+        {
+          "name": "Srisailam Dam",
+          "state": "Andhra Pradesh / Telangana border",
+          "type": "Hydropower and storage in the Nallamala gorge"
+        },
+        {
+          "name": "Nagarjuna Sagar Dam",
+          "state": "Telangana / Andhra Pradesh border",
+          "type": "Among the largest masonry dams in the world"
+        },
+        {
+          "name": "Prakasam Barrage",
+          "state": "Andhra Pradesh",
+          "type": "Delta irrigation headworks at Vijayawada"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Koyna Wildlife Sanctuary",
+          "relation": "Koyna catchment; part of the Sahyadri Tiger Reserve with Chandoli",
+          "state": "Maharashtra"
+        },
+        {
+          "name": "Nagarjunsagar-Srisailam Tiger Reserve",
+          "relation": "Nallamala forests along the Krishna gorge; largest tiger reserve in India",
+          "state": "Andhra Pradesh"
+        },
+        {
+          "name": "Krishna Wildlife Sanctuary",
+          "relation": "Delta mangroves",
+          "state": "Andhra Pradesh"
+        },
+        {
+          "name": "Kolleru Lake",
+          "relation": "Freshwater lake between the Krishna and Godavari deltas; Ramsar site (2002)",
+          "state": "Andhra Pradesh"
+        }
+      ],
+      "species": [
+        {
+          "name": "Bengal Tiger",
+          "iucn": "Endangered",
+          "role": "Nagarjunsagar-Srisailam reserve"
+        },
+        {
+          "name": "Fishing Cat",
+          "iucn": "Vulnerable",
+          "role": "Delta mangroves of the Krishna Wildlife Sanctuary"
+        }
+      ],
+      "commonMistake": "BHIMA and MUSI are LEFT-bank tributaries; KOYNA, GHATAPRABHA, MALAPRABHA and TUNGABHADRA are RIGHT-bank. ALAMPUR is in TELANGANA, not AP. PULICAT lake is near Chennai on the AP-TN border, not near the Krishna delta. DANDELI is in the Kali basin (west-flowing), not the Krishna."
+    },
+    "staticFacts": [
+      "Its basin (~2,58,948 sq km) is shared mainly by Karnataka, Maharashtra, Telangana and Andhra Pradesh.",
+      "For a stretch through the Nallamala hills it forms the Telangana-Andhra Pradesh boundary.",
+      "Water sharing is governed by the Krishna Water Disputes Tribunals (KWDT-I, Bachawat, 1976; KWDT-II, Brijesh Kumar)."
+    ],
+    "similarPYQ": [
+      "GEO-UPSC-2023-07",
+      "GEO-UPSC-2016-03",
+      "GEO-CDS2-2021-08"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-08B",
+    "slug": "bhima-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Bhima River",
+    "aliases": [
+      "Chandrabhaga",
+      "Bhimashankar River",
+      "Pandharpur River",
+      "Ujani River"
+    ],
+    "placeType": "Major Left-Bank Tributary of Krishna",
+    "priority": "Medium",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Maharashtra, Karnataka, Telangana (border)"
+    },
+    "lat": 17.68,
+    "lng": 75.32,
+    "shape": [
+      [
+        19.07,
+        73.53
+      ],
+      [
+        18.67,
+        74.1
+      ],
+      [
+        18.52,
+        74.3
+      ],
+      [
+        18.07,
+        75.12
+      ],
+      [
+        17.68,
+        75.32
+      ],
+      [
+        17.3,
+        76
+      ],
+      [
+        16.4,
+        77.35
+      ]
+    ],
+    "neighbours": [
+      "Source: Bhimashankar hills of the Sahyadri, Pune district (Maharashtra)",
+      "Mouth: Joins the Krishna near Raichur (Kadlur), on the Karnataka-Telangana border"
+    ],
+    "riverDetails": {
+      "length": "~861 km",
+      "origin": "Bhimashankar hills of the Sahyadri, Pune district (Maharashtra)",
+      "mouth": "Joins the Krishna near Raichur (Kadlur), on the Karnataka-Telangana border",
+      "sourceCoords": [
+        19.07,
+        73.53
+      ],
+      "mouthCoords": [
+        16.4,
+        77.35
+      ],
+      "states": {
+        "flowsThrough": [
+          "Maharashtra",
+          "Karnataka"
+        ],
+        "basinStates": [
+          "Maharashtra",
+          "Karnataka",
+          "Telangana"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Ghod River",
+            "note": "From Ambegaon (Pune); Dimbhe dam"
+          },
+          {
+            "name": "Indrayani River",
+            "note": "Flows past Alandi and Dehu; joins at Tulapur"
+          },
+          {
+            "name": "Sina River",
+            "note": "Drains Ahmednagar-Solapur; joins in Solapur district"
+          },
+          {
+            "name": "Kagina River",
+            "note": "Joins in Kalaburagi district"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Mula-Mutha River",
+            "note": "Flows through Pune; joins at Ranjangaon Sandas"
+          },
+          {
+            "name": "Nira River",
+            "note": "From Bhor; joins at Nira Narsingpur"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Indrayani + Bhama",
+          "sangam": "Tulapur, Pune",
+          "state": "Maharashtra"
+        },
+        {
+          "tributary": "Nira",
+          "sangam": "Nira Narsingpur",
+          "state": "Maharashtra"
+        },
+        {
+          "tributary": "Krishna",
+          "sangam": "Near Raichur (Kadlur)",
+          "state": "Karnataka / Telangana"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Bhimashankar",
+          "type": "Cultural",
+          "significance": "Source; Jyotirlinga temple",
+          "state": "Maharashtra"
+        },
+        {
+          "name": "Alandi and Dehu",
+          "type": "Cultural",
+          "significance": "Sant Dnyaneshwar and Sant Tukaram, on the Indrayani",
+          "state": "Maharashtra"
+        },
+        {
+          "name": "Koregaon Bhima",
+          "type": "Historical",
+          "significance": "Battle of Koregaon (1818)",
+          "state": "Maharashtra"
+        },
+        {
+          "name": "Pandharpur",
+          "type": "Cultural",
+          "significance": "Vitthal-Rukmini temple; river called Chandrabhaga here; Ashadhi Wari",
+          "state": "Maharashtra"
+        },
+        {
+          "name": "Ganagapur",
+          "type": "Cultural",
+          "significance": "Dattatreya shrine",
+          "state": "Karnataka"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Ujani Dam",
+          "state": "Maharashtra",
+          "type": "Largest reservoir in the Bhima basin (Solapur); irrigation for the drought-prone east"
+        },
+        {
+          "name": "Chaskaman and Bhama Askhed Dams",
+          "state": "Maharashtra",
+          "type": "Upper basin dams in Pune district"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Bhimashankar Wildlife Sanctuary",
+          "relation": "Source forests; habitat of the Indian giant squirrel (Shekru), Maharashtra's state animal",
+          "state": "Maharashtra"
+        },
+        {
+          "name": "Great Indian Bustard Sanctuary",
+          "relation": "Grasslands around Nannaj, Solapur, in the Bhima-Sina interfluve",
+          "state": "Maharashtra"
+        }
+      ],
+      "species": [
+        {
+          "name": "Great Indian Bustard",
+          "iucn": "Critically Endangered",
+          "role": "Historic grassland habitat near Solapur"
+        },
+        {
+          "name": "Indian Giant Squirrel",
+          "iucn": "Least Concern",
+          "role": "State animal of Maharashtra; Bhimashankar forests"
+        }
+      ],
+      "commonMistake": "The Bhima is a LEFT-bank tributary of the Krishna. At Pandharpur it is called the CHANDRABHAGA (not to be confused with the Chenab's old name). Kalaburagi and Gulbarga are the SAME district."
+    },
+    "staticFacts": [
+      "Flows across the drought-prone black-soil Deccan; Ujani is its key storage.",
+      "The Pune metropolitan region lies in its upper basin through the Mula-Mutha and Indrayani."
+    ],
+    "similarPYQ": [
+      "ART-CDS1-2023-01"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-08C",
+    "slug": "tungabhadra-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Tungabhadra River",
+    "aliases": [
+      "Pampa",
+      "Tunga-Bhadra",
+      "Hampi River",
+      "Vijayanagara River"
+    ],
+    "placeType": "Largest Right-Bank Tributary of Krishna",
+    "priority": "High",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Karnataka, Andhra Pradesh, Telangana (border)"
+    },
+    "lat": 15.33,
+    "lng": 76.46,
+    "shape": [
+      [
+        13.2,
+        75.2
+      ],
+      [
+        14,
+        75.67
+      ],
+      [
+        14.8,
+        75.85
+      ],
+      [
+        15.28,
+        76.35
+      ],
+      [
+        15.33,
+        76.46
+      ],
+      [
+        15.88,
+        77.05
+      ],
+      [
+        15.95,
+        78.25
+      ]
+    ],
+    "neighbours": [
+      "Source: Formed at Koodli near Shivamogga by the Tunga and the Bhadra, both rising at Gan",
+      "Mouth: Joins the Krishna near Alampur-Sangameswaram (Telangana-AP border)"
+    ],
+    "riverDetails": {
+      "length": "~531 km",
+      "origin": "Formed at Koodli near Shivamogga by the Tunga and the Bhadra, both rising at Gangamoola, Varaha Parvatha (Kudremukh), Chikkamagaluru district (Karnataka)",
+      "mouth": "Joins the Krishna near Alampur-Sangameswaram (Telangana-AP border)",
+      "sourceCoords": [
+        13.2,
+        75.2
+      ],
+      "mouthCoords": [
+        15.95,
+        78.25
+      ],
+      "states": {
+        "flowsThrough": [
+          "Karnataka",
+          "Andhra Pradesh"
+        ],
+        "basinStates": [
+          "Karnataka",
+          "Andhra Pradesh",
+          "Telangana"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Varada River",
+            "note": "Rises near Sagar; joins in Haveri district"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Vedavathi (Hagari) River",
+            "note": "Drains the dry Chitradurga-Ballari plateau; joins near Siruguppa"
+          },
+          {
+            "name": "Handri River",
+            "note": "Joins at Kurnool"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Tunga + Bhadra",
+          "sangam": "Koodli, Shivamogga",
+          "state": "Karnataka"
+        },
+        {
+          "tributary": "Krishna",
+          "sangam": "Near Alampur-Sangameswaram",
+          "state": "Telangana / Andhra Pradesh"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Sringeri",
+          "type": "Cultural",
+          "significance": "Sharada Peetham of Adi Shankaracharya, on the Tunga",
+          "state": "Karnataka"
+        },
+        {
+          "name": "Hampi",
+          "type": "Historical",
+          "significance": "Vijayanagara capital; UNESCO World Heritage Site",
+          "state": "Karnataka"
+        },
+        {
+          "name": "Hosapete",
+          "type": "Infrastructure",
+          "significance": "Tungabhadra Dam (Pampa Sagar)",
+          "state": "Karnataka"
+        },
+        {
+          "name": "Mantralayam",
+          "type": "Cultural",
+          "significance": "Sri Raghavendra Swamy Math",
+          "state": "Andhra Pradesh"
+        },
+        {
+          "name": "Kurnool",
+          "type": "Administrative",
+          "significance": "At the Tungabhadra-Handri confluence",
+          "state": "Andhra Pradesh"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Bhadra Dam (Lakkavalli)",
+          "state": "Karnataka",
+          "type": "On the Bhadra headstream"
+        },
+        {
+          "name": "Tungabhadra Dam",
+          "state": "Karnataka",
+          "type": "Inter-state dam at Hosapete serving Karnataka, AP and Telangana; a crest gate was washed away in August 2024"
+        },
+        {
+          "name": "Sunkesula Barrage",
+          "state": "Andhra Pradesh",
+          "type": "Feeds the Kurnool-Cuddapah canal"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Kudremukh National Park",
+          "relation": "Source of the Tunga and Bhadra",
+          "state": "Karnataka"
+        },
+        {
+          "name": "Bhadra Tiger Reserve",
+          "relation": "Bhadra catchment",
+          "state": "Karnataka"
+        },
+        {
+          "name": "Daroji Sloth Bear Sanctuary",
+          "relation": "Rocky hills near Hampi",
+          "state": "Karnataka"
+        },
+        {
+          "name": "Tungabhadra Otter Conservation Reserve",
+          "relation": "Hampi stretch; India's first otter conservation reserve (2015)",
+          "state": "Karnataka"
+        }
+      ],
+      "species": [
+        {
+          "name": "Smooth-coated Otter",
+          "iucn": "Vulnerable",
+          "role": "Flagship of the Tungabhadra Otter Reserve"
+        },
+        {
+          "name": "Sloth Bear",
+          "iucn": "Vulnerable",
+          "role": "Daroji sanctuary near Hampi"
+        }
+      ],
+      "commonMistake": "The Tungabhadra is the LARGEST RIGHT-bank tributary of the Krishna (the PDF had it as left-bank). It is formed at KOODLI; Gangamoola is the source of its two headstreams."
+    },
+    "staticFacts": [
+      "The saying 'Tunga pana, Ganga snana' praises the sweetness of Tunga water.",
+      "Its middle course through the Hampi boulder landscape is a classic granite-tor terrain."
+    ],
+    "similarPYQ": [
+      "GEO-UPSC-2022-03",
+      "GEO-UPSC-2016-03"
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
@@ -7930,268 +8970,480 @@ export const CURATED_MAPPING_NODES = [
   },
   {
     "id": "IND-RIV-06",
-    "slug": "kaveri-river",
+    "slug": "cauvery-river",
     "pillar": "STATIC",
     "regionScope": "India",
     "subject": "Geography",
     "mapCategory": [
       "India – rivers, lakes, reservoirs & glaciers"
     ],
-    "place": "Kaveri (Cauvery) River",
+    "place": "Cauvery (Kaveri) River",
     "aliases": [
-      "Cauvery",
+      "Kaveri",
+      "Dakshina Ganga of Deep South",
       "Ponni",
-      "Hemavati",
-      "Kabini",
-      "Bhavani",
-      "Noyyal",
-      "Amaravati",
-      "Srirangam"
+      "Thanjavur River"
     ],
-    "placeType": "Peninsular River System",
+    "placeType": "East-Flowing Peninsular River Fed by Both Monsoons",
     "priority": "High",
     "locatedIn": {
       "country": "India",
       "stateOrProvince": "Karnataka, Tamil Nadu"
     },
-    "lat": 10.82,
-    "lng": 78.69,
+    "lat": 11.8,
+    "lng": 77.8,
     "shape": [
       [
-        12.38,
+        12.39,
         75.49
       ],
       [
         12.42,
+        75.95
+      ],
+      [
+        12.43,
         76.57
       ],
       [
-        11.79,
+        12.42,
+        76.68
+      ],
+      [
+        12.28,
+        76.9
+      ],
+      [
+        12.28,
+        77.17
+      ],
+      [
+        12.12,
+        77.78
+      ],
+      [
+        11.8,
         77.8
       ],
       [
-        10.82,
+        11.35,
+        77.72
+      ],
+      [
+        11.08,
+        78.15
+      ],
+      [
+        10.86,
         78.69
       ],
       [
+        10.78,
+        79.13
+      ],
+      [
         11.14,
-        79.85
+        79.86
       ]
     ],
     "neighbours": [
-      "Left-bank: Hemavati, Shimsha, Arkavathi",
-      "Right-bank: Kabini, Bhavani, Noyyal, Amaravati"
+      "Source: Talakaveri, Brahmagiri hills, Kodagu district (Karnataka), at ~1,341 m",
+      "Mouth: Bay of Bengal near Poompuhar (Kaveripoompattinam), Mayiladuthurai district (Tami"
     ],
     "riverDetails": {
-      "length": "805 km",
-      "origin": "Talakaveri in Brahmagiri range (Kodagu/Coorg district, Western Ghats, Karnataka)",
-      "mouth": "Bay of Bengal at Poompuhar (Kaveripoompattinam, Tamil Nadu; forms a rich agricultural delta)",
+      "length": "~805 km",
+      "origin": "Talakaveri, Brahmagiri hills, Kodagu district (Karnataka), at ~1,341 m",
+      "mouth": "Bay of Bengal near Poompuhar (Kaveripoompattinam), Mayiladuthurai district (Tamil Nadu), through the Thanjavur delta",
+      "sourceCoords": [
+        12.39,
+        75.49
+      ],
+      "mouthCoords": [
+        11.14,
+        79.86
+      ],
       "states": {
         "flowsThrough": [
           "Karnataka",
           "Tamil Nadu"
         ],
         "basinStates": [
-          "Tamil Nadu (56%)",
-          "Karnataka (41%)",
-          "Kerala (3%)",
+          "Karnataka",
+          "Tamil Nadu",
+          "Kerala",
           "Puducherry (Karaikal)"
         ]
       },
       "tributaries": {
         "leftBank": [
           {
-            "name": "Harangi",
-            "note": "Rises in Pushpagiri Hills; joins Kaveri in Kodagu"
+            "name": "Harangi River",
+            "note": "Harangi dam, Kodagu"
           },
           {
-            "name": "Hemavati",
-            "note": "Rises in Western Ghats (Mudigere); major Gorur Dam; joins near KRS"
+            "name": "Hemavati River",
+            "note": "Largest left-bank tributary; Gorur dam; joins at the KRS reservoir"
           },
           {
-            "name": "Shimsha",
-            "note": "Rises in Tumakuru; joins Kaveri near Shivanasamudra Falls"
+            "name": "Shimsha River",
+            "note": "Drains Tumakuru-Mandya"
           },
           {
-            "name": "Arkavathi",
-            "note": "Rises in Nandi Hills; flows through Bengaluru outskirts; joins at Mekedatu"
+            "name": "Arkavathi River",
+            "note": "Drains the Bengaluru region; joins at Sangama, Kanakapura"
           }
         ],
         "rightBank": [
           {
-            "name": "Lakshmantirtha",
-            "note": "Rises in Brahmagiri hills; passes through Nagarhole NP"
+            "name": "Lakshmana Tirtha River",
+            "note": "From Kodagu; joins at the KRS reservoir"
           },
           {
-            "name": "Kabini (Kapila)",
-            "note": "Rises in Wayanad (Kerala); passes Bandipur-Nagarhole; joins at Tirumakudal Narsipur"
+            "name": "Kabini River",
+            "note": "Rises in Wayanad (Kerala); joins at T. Narasipura"
           },
           {
-            "name": "Suvarnavathi",
-            "note": "Rises in Chamarajanagar; joins near T. Narsipur"
+            "name": "Suvarnavati River",
+            "note": "Drains Chamarajanagar"
           },
           {
-            "name": "Bhavani",
-            "note": "Rises in Silent Valley (Kerala); joined by Moyar; meets at Bhavani Sangameshwarar"
+            "name": "Bhavani River",
+            "note": "From the Nilgiris (with the Moyar); joins at Bhavani, Erode"
           },
           {
-            "name": "Noyyal",
-            "note": "Rises in Velliangiri hills (Coimbatore); ancient river of Kongu Nadu; joins at Kodumudi"
+            "name": "Noyyal River",
+            "note": "Flows past Coimbatore and Tiruppur; joins near Karur"
           },
           {
-            "name": "Amaravati",
-            "note": "Rises in Anaimalai hills; flows through Karur into Kaveri"
+            "name": "Amaravati River",
+            "note": "From the Anamalai hills; joins near Karur"
           }
         ]
       },
       "confluences": [
         {
-          "tributary": "Kabini + Lakshmantirtha",
-          "sangam": "Tirumakudal Narsipur (T. Narsipur)",
-          "state": "Karnataka",
-          "note": "Sacred Triveni Sangam of Karnataka"
+          "tributary": "Kannike + Sujyoti",
+          "sangam": "Bhagamandala (Triveni)",
+          "state": "Karnataka"
+        },
+        {
+          "tributary": "Kabini",
+          "sangam": "Tirumakudalu Narasipura",
+          "state": "Karnataka"
         },
         {
           "tributary": "Arkavathi",
-          "sangam": "Mekedatu (Goat's Leap)",
-          "state": "Karnataka",
-          "note": "Deep gorge confluence; proposed balancing reservoir site"
+          "sangam": "Sangama, Kanakapura",
+          "state": "Karnataka"
         },
         {
           "tributary": "Bhavani",
-          "sangam": "Bhavani Kooduthurai",
-          "state": "Tamil Nadu",
-          "note": "Dakshina Triveni Sangam with Sangameshwarar temple"
+          "sangam": "Bhavani (Kooduthurai), Erode",
+          "state": "Tamil Nadu"
         },
         {
           "tributary": "Amaravati",
-          "sangam": "Karur Sangam",
+          "sangam": "Near Karur",
           "state": "Tamil Nadu"
         }
       ],
       "towns": [
         {
+          "name": "Talakaveri and Bhagamandala",
+          "type": "Cultural",
+          "significance": "Source shrine and triveni confluence",
+          "state": "Karnataka"
+        },
+        {
           "name": "Srirangapatna",
           "type": "Historical",
-          "significance": "River island fortress; capital of Tipu Sultan and Hyder Ali",
+          "significance": "River island; Tipu Sultan's capital; Ranganathaswamy temple",
           "state": "Karnataka"
         },
         {
-          "name": "Mysuru (Mysore)",
-          "type": "Cultural",
-          "significance": "Historic heritage capital near the Krishnarajasagara dam",
+          "name": "Shivanasamudra",
+          "type": "Geological / Infrastructure",
+          "significance": "Gaganachukki and Bharachukki falls; Asia's first hydroelectric station (1902)",
           "state": "Karnataka"
         },
         {
-          "name": "Tiruchirappalli (Trichy)",
-          "type": "Cultural / Religious",
-          "significance": "Famous Srirangam river island temple & Rockfort",
+          "name": "Hogenakkal",
+          "type": "Tourism",
+          "significance": "Falls on the Karnataka-Tamil Nadu border",
           "state": "Tamil Nadu"
         },
         {
-          "name": "Thanjavur (Tanjore)",
-          "type": "Historical / Architectural",
-          "significance": "Rice bowl of Tamil Nadu; Brihadisvara Chola Temple",
-          "state": "Tamil Nadu"
-        },
-        {
-          "name": "Kumbakonam",
+          "name": "Tiruchirappalli (Srirangam)",
           "type": "Cultural",
-          "significance": "Temple town situated between Kaveri and Arasalar distributaries",
+          "significance": "Srirangam island between the Cauvery and Kollidam",
           "state": "Tamil Nadu"
         },
         {
-          "name": "Poompuhar",
-          "type": "Ancient Port",
-          "significance": "Ancient Chola port city celebrated in Silappadikaram",
+          "name": "Thanjavur and Kumbakonam",
+          "type": "Cultural",
+          "significance": "Delta temple towns; Brihadeeswara (UNESCO); 'Rice bowl of Tamil Nadu'",
           "state": "Tamil Nadu"
         }
       ],
       "dams": [
         {
-          "name": "Krishnarajasagara (KRS) Dam",
+          "name": "Krishnaraja Sagar (KRS) Dam",
           "state": "Karnataka",
-          "type": "Historic dam built by Sir M. Visvesvaraya; Brindavan Gardens"
+          "type": "Main Karnataka reservoir near Mysuru; Brindavan Gardens"
         },
         {
           "name": "Kabini Dam",
           "state": "Karnataka",
-          "type": "Crucial reservoir on the Kabini tributary"
+          "type": "On the Kabini near the Nagarhole-Bandipur boundary"
         },
         {
           "name": "Mettur Dam (Stanley Reservoir)",
           "state": "Tamil Nadu",
-          "type": "Main storage reservoir of Tamil Nadu on the Kaveri main stem"
+          "type": "Main Tamil Nadu reservoir (1934)"
         },
         {
           "name": "Grand Anicut (Kallanai)",
           "state": "Tamil Nadu",
-          "type": "Built by Chola King Karikalan in 2nd century CE; one of world's oldest functional water diversion structures"
+          "type": "Built by Karikala Chola (c. 2nd century CE); among the oldest water-regulation structures still in use"
         },
         {
-          "name": "Lower Anicut (Anaikarai)",
+          "name": "Upper Anicut (Mukkombu)",
           "state": "Tamil Nadu",
-          "type": "Distributary canal barrage controlling Kollidam (Coleroon)"
+          "type": "Where the Cauvery splits into the Cauvery and the Kollidam (Coleroon)"
+        },
+        {
+          "name": "Mekedatu Project",
+          "state": "Karnataka",
+          "type": "Proposed balancing reservoir near the TN border; opposed by Tamil Nadu"
         }
       ],
       "protectedAreas": [
         {
-          "name": "Nagarhole National Park & Tiger Reserve",
-          "relation": "Kaveri basin; Lakshmantirtha and Kabini form vital lifelines",
+          "name": "Nagarhole and Bandipur Tiger Reserves",
+          "relation": "Kabini catchment",
           "state": "Karnataka"
         },
         {
-          "name": "Bandipur National Park",
-          "relation": "Separated from Wayanad by the Moyar and Kabini tributaries",
+          "name": "Ranganathittu Bird Sanctuary",
+          "relation": "River islets near Srirangapatna; Ramsar site (2022)",
           "state": "Karnataka"
-        },
-        {
-          "name": "Sathyamangalam Tiger Reserve",
-          "relation": "Drained by the Moyar River flowing into Bhavani tributary",
-          "state": "Tamil Nadu"
         },
         {
           "name": "Cauvery Wildlife Sanctuary",
-          "relation": "Stretches along the Kaveri river in Chamarajanagar/Ramanagara",
+          "relation": "Gorge stretch along the Karnataka-TN border",
           "state": "Karnataka"
         },
         {
-          "name": "Wayanad Wildlife Sanctuary",
-          "relation": "Catchment of Kabini tributary in Kerala Western Ghats",
-          "state": "Kerala"
+          "name": "Mudumalai and Sathyamangalam Tiger Reserves",
+          "relation": "Moyar-Bhavani catchment",
+          "state": "Tamil Nadu"
+        },
+        {
+          "name": "Point Calimere (Kodiakkarai)",
+          "relation": "Southern edge of the delta; Ramsar site (2002)",
+          "state": "Tamil Nadu"
         }
       ],
       "species": [
         {
-          "name": "Humpback Mahseer (Tor remadevii)",
+          "name": "Hump-backed Mahseer",
           "iucn": "Critically Endangered",
-          "role": "Endemic giant freshwater sport fish exclusively found in Cauvery basin"
+          "role": "Giant fish endemic to the Cauvery basin"
         },
         {
-          "name": "Grizzled Giant Squirrel",
-          "iucn": "Near Threatened",
-          "role": "Found in riverine forests of Cauvery Wildlife Sanctuary"
-        },
-        {
-          "name": "Mugger Crocodile",
-          "iucn": "Vulnerable",
-          "role": "Thrives around Srirangapatna and Ranganathittu Bird Sanctuary"
+          "name": "Asian Elephant",
+          "iucn": "Endangered",
+          "role": "Nilgiri landscape around Nagarhole-Bandipur-Mudumalai"
         }
       ],
-      "commonMistake": "UPSC 2020 Question: Nagarhole NP, Bandipur TR, Sathyamangalam TR, and Wayanad WLS all lie in the Cauvery basin (Papikonda NP is on Godavari!). Also note: Kaveri receives water in both summer (SW Monsoon in Western Ghats) and winter (NE Monsoon in Tamil Nadu), making it less seasonal than other peninsular rivers."
+      "commonMistake": "HARANGI, HEMAVATI, SHIMSHA and ARKAVATHI are LEFT-bank; KABINI, BHAVANI, NOYYAL and AMARAVATI are RIGHT-bank. The Cauvery is nearly perennial because its upper catchment gets the SOUTH-WEST monsoon and its lower catchment the NORTH-EAST monsoon."
     },
     "staticFacts": [
-      "Rises at Talakaveri (Brahmagiri Hills, Kodagu, Karnataka), forms Sivasamudram and Hogenakkal falls, passes Tiruchirappalli (Srirangam Island — UPSC 2019), and empties into the Bay of Bengal at Poompuhar.",
-      "Protected Areas in Cauvery Basin (UPSC 2020): Nagarhole NP, Bandipur TR, Sathyamangalam TR, and Wayanad WLS (Papikonda is on Godavari)."
+      "NCERT: it is almost a perennial river with comparatively little fluctuation in flow, because of rain from both monsoons.",
+      "It forms three famous river islands: Srirangapatna, Shivanasamudra and Srirangam.",
+      "After the 2018 Supreme Court verdict on the Cauvery Water Disputes Tribunal award, the Cauvery Water Management Authority (CWMA) and Regulation Committee (CWRC) oversee water releases."
+    ],
+    "similarPYQ": [
+      "ENV-UPSC-2020-13",
+      "ENV-UPSC-2019-09",
+      "GEO-UPSC-2016-03"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-13",
+    "slug": "pennar-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Pennar (Penna) River",
+    "aliases": [
+      "Penna",
+      "Pinakini",
+      "Gandikota River",
+      "Nandi Hills River"
+    ],
+    "placeType": "East-Flowing Rain-Shadow River (Gandikota Canyon)",
+    "priority": "Medium",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Karnataka, Andhra Pradesh"
+    },
+    "lat": 14.82,
+    "lng": 78.28,
+    "shape": [
+      [
+        13.37,
+        77.68
+      ],
+      [
+        13.8,
+        77.5
+      ],
+      [
+        14.68,
+        77.6
+      ],
+      [
+        14.82,
+        78.28
+      ],
+      [
+        14.75,
+        78.48
+      ],
+      [
+        14.47,
+        78.82
+      ],
+      [
+        14.6,
+        80.18
+      ]
+    ],
+    "neighbours": [
+      "Source: Nandi hills, Chikkaballapur district (Karnataka)",
+      "Mouth: Bay of Bengal near Nellore (Andhra Pradesh)"
+    ],
+    "riverDetails": {
+      "length": "~597 km",
+      "origin": "Nandi hills, Chikkaballapur district (Karnataka)",
+      "mouth": "Bay of Bengal near Nellore (Andhra Pradesh)",
+      "sourceCoords": [
+        13.37,
+        77.68
+      ],
+      "mouthCoords": [
+        14.6,
+        80.18
+      ],
+      "states": {
+        "flowsThrough": [
+          "Karnataka",
+          "Andhra Pradesh"
+        ],
+        "basinStates": [
+          "Karnataka",
+          "Andhra Pradesh"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Kunderu River",
+            "note": "Largest tributary; drains Kurnool-Nandyal; joins near Kamalapuram"
+          },
+          {
+            "name": "Sagileru River",
+            "note": "Joins in the Kadapa region"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Chitravathi River",
+            "note": "Drains Anantapur; joins near Gandikota"
+          },
+          {
+            "name": "Papagni River",
+            "note": "Drains Kadapa district"
+          },
+          {
+            "name": "Cheyyeru River",
+            "note": "Joins near Sidhavatam"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Kunderu",
+          "sangam": "Near Kamalapuram, Kadapa",
+          "state": "Andhra Pradesh"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Gandikota",
+          "type": "Geological / Historical",
+          "significance": "Gorge called the 'Grand Canyon of India'; medieval hill fort",
+          "state": "Andhra Pradesh"
+        },
+        {
+          "name": "Nellore",
+          "type": "Economic",
+          "significance": "Delta town; rice and aquaculture",
+          "state": "Andhra Pradesh"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Mylavaram Dam",
+          "state": "Andhra Pradesh",
+          "type": "Near Gandikota (Kadapa)"
+        },
+        {
+          "name": "Somasila Dam",
+          "state": "Andhra Pradesh",
+          "type": "Largest reservoir on the Pennar (Nellore district)"
+        },
+        {
+          "name": "Nellore (Sangam) Barrages",
+          "state": "Andhra Pradesh",
+          "type": "Delta irrigation headworks"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Sri Lankamalleswara Wildlife Sanctuary",
+          "relation": "Kadapa hills of the Pennar basin; habitat of Jerdon's courser",
+          "state": "Andhra Pradesh"
+        },
+        {
+          "name": "Sri Penusila Narasimha Wildlife Sanctuary",
+          "relation": "Nellore hills of the lower basin",
+          "state": "Andhra Pradesh"
+        }
+      ],
+      "species": [
+        {
+          "name": "Jerdon's Courser",
+          "iucn": "Critically Endangered",
+          "role": "Nocturnal bird rediscovered in 1986 near Kadapa; endemic to this region"
+        }
+      ],
+      "commonMistake": "Do not confuse the PENNAR (North Pennar, to Nellore) with the PENNAIYAR (South Pennar, to Cuddalore in Tamil Nadu); both rise in the Nandi hills. The Gandikota canyon is on the Pennar."
+    },
+    "staticFacts": [
+      "Flows through the rain-shadow Rayalaseema plateau, so it is seasonal and carries little water for most of the year.",
+      "The Nandi hills are a radial drainage centre from which the Pennar, South Pennar, Palar and Arkavathi flow out."
     ],
     "similarPYQ": [
       "GEO-UPSC-2022-03",
-      "ENV-UPSC-2020-13",
-      "ENV-UPSC-2019-09",
-      "GEO-UPSC-2019-02",
-      "ART-CDS2-2017-02",
-      "GEO-UPSC-2016-01",
-      "ENV-UPSC-2013-15"
+      "GEO-UPSC-2015-07"
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
@@ -9818,541 +11070,6 @@ export const CURATED_MAPPING_NODES = [
     "linkedIssueDomain": "GEOGRAPHY"
   },
   {
-    "id": "IND-RIV-07",
-    "slug": "krishna-river-reservoirs",
-    "pillar": "STATIC",
-    "regionScope": "India",
-    "subject": "Geography",
-    "mapCategory": [
-      "India – rivers, lakes, reservoirs & glaciers"
-    ],
-    "place": "Krishna River Basin, Reservoirs & Tributaries",
-    "aliases": [
-      "Ghataprabha",
-      "Malaprabha",
-      "Bhima",
-      "Tungabhadra",
-      "Koyna",
-      "Musi",
-      "Munneru",
-      "Almatti Dam",
-      "Nagarjuna Sagar",
-      "Srisailam"
-    ],
-    "placeType": "East-Flowing Peninsular River System",
-    "priority": "High",
-    "locatedIn": {
-      "country": "India",
-      "stateOrProvince": "Maharashtra, Karnataka, Telangana, Andhra Pradesh"
-    },
-    "lat": 16.5167,
-    "lng": 80.6167,
-    "shape": [
-      [
-        17.92,
-        73.65
-      ],
-      [
-        16.85,
-        74.6
-      ],
-      [
-        16.2,
-        75.8
-      ],
-      [
-        16.05,
-        77.2
-      ],
-      [
-        16.25,
-        78.85
-      ],
-      [
-        16.5,
-        80.6
-      ],
-      [
-        15.8,
-        80.9
-      ]
-    ],
-    "neighbours": [
-      "Right-bank: Venna, Koyna, Panchganga, Dudhganga, Ghataprabha, Malaprabha, Tungabhadra",
-      "Left-bank: Bhima, Dindi, Musi, Paleru, Munneru"
-    ],
-    "riverDetails": {
-      "length": "1,400 km",
-      "origin": "Mahabaleshwar in the Western Ghats (Satara district, Maharashtra)",
-      "mouth": "Bay of Bengal at Hamsaladeevi (near Machilipatnam, Andhra Pradesh)",
-      "states": {
-        "flowsThrough": [
-          "Maharashtra",
-          "Karnataka",
-          "Telangana",
-          "Andhra Pradesh"
-        ],
-        "basinStates": [
-          "Maharashtra (27%)",
-          "Karnataka (44%)",
-          "Telangana & Andhra Pradesh (29%)"
-        ]
-      },
-      "tributaries": {
-        "leftBank": [
-          {
-            "name": "Bhima",
-            "note": "Longest tributary of Krishna (861 km); rises at Bhimashankar; joined by Sina and Mula-Mutha"
-          },
-          {
-            "name": "Dindi",
-            "note": "Rises in Mahbubnagar hills; flows through Telangana"
-          },
-          {
-            "name": "Musi",
-            "note": "Rises in Ananthagiri hills (Vikarabad); flows through Hyderabad city; joins near Wadapally"
-          },
-          {
-            "name": "Paleru & Munneru",
-            "note": "Drain Khammam and Warangal districts in Telangana"
-          }
-        ],
-        "rightBank": [
-          {
-            "name": "Koyna",
-            "note": "Rises near Mahabaleshwar; joins at Karad (Preeti Sangam); Koyna Hydroelectric Project"
-          },
-          {
-            "name": "Panchganga",
-            "note": "Flows past Kolhapur; joins Krishna at Narsobawadi"
-          },
-          {
-            "name": "Dudhganga",
-            "note": "Flows from Maharashtra/Karnataka border"
-          },
-          {
-            "name": "Ghataprabha",
-            "note": "Rises in Western Ghats (Sindhudurg); Gokak Falls; joins near Almatti"
-          },
-          {
-            "name": "Malaprabha",
-            "note": "Rises near Kanakumbi; passes historic Aihole/Pattadakal; joins at Kudalasangama"
-          },
-          {
-            "name": "Tungabhadra",
-            "note": "Formed by Tunga + Bhadra at Kudli; largest tributary by water discharge; flows past Hampi"
-          }
-        ]
-      },
-      "confluences": [
-        {
-          "tributary": "Koyna",
-          "sangam": "Karad (Preeti Sangam)",
-          "state": "Maharashtra",
-          "note": "Memorial site of Yashwantrao Chavan"
-        },
-        {
-          "tributary": "Panchganga",
-          "sangam": "Narsobawadi",
-          "state": "Maharashtra",
-          "note": "Major pilgrimage confluence"
-        },
-        {
-          "tributary": "Malaprabha",
-          "sangam": "Kudalasangama",
-          "state": "Karnataka",
-          "note": "Aikya Mantapa of 12th century social reformer Basavanna"
-        },
-        {
-          "tributary": "Bhima",
-          "sangam": "Kurgunti / Kadlur Sangam",
-          "state": "Karnataka / Telangana border"
-        },
-        {
-          "tributary": "Tungabhadra",
-          "sangam": "Sangameswaram (Kurnool)",
-          "state": "Andhra Pradesh",
-          "note": "Meeting of Krishna and Tungabhadra upstream of Srisailam"
-        },
-        {
-          "tributary": "Musi",
-          "sangam": "Wadapally Sangam",
-          "state": "Telangana",
-          "note": "Confluence with ancient Shiva temple"
-        }
-      ],
-      "towns": [
-        {
-          "name": "Satara & Karad",
-          "type": "Historical",
-          "significance": "Historic Maratha power center on Krishna-Koyna confluence",
-          "state": "Maharashtra"
-        },
-        {
-          "name": "Sangli",
-          "type": "Economic",
-          "significance": "Major turmeric trading hub on the Krishna banks",
-          "state": "Maharashtra"
-        },
-        {
-          "name": "Bagalkot",
-          "type": "Historical",
-          "significance": "Historic chalukyan cultural landscape near Almatti Dam",
-          "state": "Karnataka"
-        },
-        {
-          "name": "Hampi (Vijayanagara)",
-          "type": "UNESCO World Heritage",
-          "significance": "Capital of Vijayanagara Empire on the Tungabhadra tributary",
-          "state": "Karnataka"
-        },
-        {
-          "name": "Kurnool",
-          "type": "Historical",
-          "significance": "Gateway to Rayalaseema on Tungabhadra near Krishna confluence",
-          "state": "Andhra Pradesh"
-        },
-        {
-          "name": "Amaravati & Vijayawada",
-          "type": "Capital / Economic",
-          "significance": "Prakasam Barrage and ancient Buddhist stupa on Krishna banks",
-          "state": "Andhra Pradesh"
-        }
-      ],
-      "dams": [
-        {
-          "name": "Almatti Dam (Lal Bahadur Shastri Reservoir)",
-          "state": "Karnataka",
-          "type": "Main upper Krishna multipurpose reservoir (Upper Krishna Project)"
-        },
-        {
-          "name": "Basava Sagar (Narayanpur Dam)",
-          "state": "Karnataka",
-          "type": "Key downstream reservoir for irrigation in Raichur/Yadgir"
-        },
-        {
-          "name": "Tungabhadra Dam (Pampa Sagar)",
-          "state": "Karnataka",
-          "type": "Major reservoir on Tungabhadra near Hosapete"
-        },
-        {
-          "name": "Jurala Project (Priyadarshini)",
-          "state": "Telangana",
-          "type": "First reservoir on Krishna entering Telangana"
-        },
-        {
-          "name": "Srisailam Dam",
-          "state": "AP / Telangana border",
-          "type": "Major hydroelectric power station and deep canyon gorge reservoir"
-        },
-        {
-          "name": "Nagarjuna Sagar Dam",
-          "state": "AP / Telangana border",
-          "type": "One of the world's largest masonry dams; creates massive reservoir around Nagarjunakonda"
-        },
-        {
-          "name": "Prakasam Barrage",
-          "state": "Andhra Pradesh",
-          "type": "Terminal barrage at Vijayawada regulating Krishna delta irrigation"
-        }
-      ],
-      "protectedAreas": [
-        {
-          "name": "Koyna Wildlife Sanctuary",
-          "relation": "Surrounds the Shivsagar lake / Koyna reservoir in Western Ghats",
-          "state": "Maharashtra"
-        },
-        {
-          "name": "Amrabad Tiger Reserve",
-          "relation": "Extensive dry deciduous forest overlooking the Krishna river gorge",
-          "state": "Telangana"
-        },
-        {
-          "name": "Nagarjunsagar-Srisailam Tiger Reserve",
-          "relation": "India's largest tiger reserve by core area; surrounds the Krishna river gorge",
-          "state": "Andhra Pradesh"
-        },
-        {
-          "name": "Daroji Sloth Bear Sanctuary",
-          "relation": "Situated near Hampi in the Tungabhadra basin",
-          "state": "Karnataka"
-        }
-      ],
-      "species": [
-        {
-          "name": "Krishna River Mahseer",
-          "iucn": "Endangered",
-          "role": "Indigenous river sport fish of upper rapids"
-        },
-        {
-          "name": "Indian Pangolin (Manis crassicaudata)",
-          "iucn": "Endangered",
-          "role": "Inhabits the dry scrub of Srisailam-Amrabad forest tract"
-        },
-        {
-          "name": "Smooth-coated Otter",
-          "iucn": "Vulnerable",
-          "role": "Thrives in the Tungabhadra Otter Reserve near Hampi"
-        }
-      ],
-      "commonMistake": "UPSC 2022 Question: Ghataprabha reservoir is in Karnataka (NOT Telangana). Tungabhadra is formed by Tunga + Bhadra rivers uniting at Kudli near Shimoga. Also, remember Musi river (Hyderabad) joins Krishna on its left bank."
-    },
-    "staticFacts": [
-      "Second largest east-flowing peninsular river in India; rises near Mahabaleshwar in the Western Ghats (Maharashtra).",
-      "UPSC 2022 Fact: Ghataprabha reservoir is located in Karnataka (NOT Telangana); Gandhi Sagar is on Chambal (MP); Indira Sagar on Narmada (MP); Maithon dam on Barakar river (Jharkhand).",
-      "Major multipurpose reservoirs: Almatti Dam (Lal Bahadur Shastri reservoir, Karnataka), Srisailam Dam (AP/Telangana border), and Nagarjuna Sagar Dam."
-    ],
-    "similarPYQ": [
-      "GEO-UPSC-2022-10",
-      "GEO-UPSC-2019-04",
-      "GEO-CDS1-2019-04",
-      "GEO-CDS2-2018-06"
-    ],
-    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
-    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
-  },
-  {
-    "id": "IND-RIV-08",
-    "slug": "mahanadi-river-basin",
-    "pillar": "STATIC",
-    "regionScope": "India",
-    "subject": "Geography",
-    "mapCategory": [
-      "India – rivers, lakes, reservoirs & glaciers"
-    ],
-    "place": "Mahanadi, Brahmani & Subarnarekha River Basins",
-    "aliases": [
-      "Seonath",
-      "Hasdeo",
-      "Mand",
-      "Ib",
-      "Ong",
-      "Jonk",
-      "Tel",
-      "Hirakud Dam",
-      "Nagawali",
-      "Vamsadhara"
-    ],
-    "placeType": "East-Flowing Peninsular River Basin",
-    "priority": "High",
-    "locatedIn": {
-      "country": "India",
-      "stateOrProvince": "Chhattisgarh, Odisha, Jharkhand"
-    },
-    "lat": 20.4625,
-    "lng": 85.883,
-    "shape": [
-      [
-        20.55,
-        81.9
-      ],
-      [
-        21.15,
-        82.8
-      ],
-      [
-        21.5,
-        83.85
-      ],
-      [
-        20.9,
-        84.8
-      ],
-      [
-        20.45,
-        85.85
-      ],
-      [
-        20.25,
-        86.7
-      ]
-    ],
-    "neighbours": [
-      "Left-bank tributaries: Seonath, Hasdeo, Mand, Ib",
-      "Right-bank tributaries: Ong, Jonk, Tel",
-      "Eastern Ghats independent streams: Nagawali, Vamsadhara"
-    ],
-    "riverDetails": {
-      "length": "851 km (Mahanadi)",
-      "origin": "Sihawa highlands in Dhamtari/Raipur district (Chhattisgarh)",
-      "mouth": "Bay of Bengal at False Point (Kendrapara district, Odisha; forms extensive delta)",
-      "states": {
-        "flowsThrough": [
-          "Chhattisgarh",
-          "Odisha"
-        ],
-        "basinStates": [
-          "Chhattisgarh (53%)",
-          "Odisha (46%)",
-          "Jharkhand & Maharashtra (1%)"
-        ]
-      },
-      "tributaries": {
-        "leftBank": [
-          {
-            "name": "Seonath",
-            "note": "Longest tributary of Mahanadi; rises in Rajnandgaon; joins near Shivrinarayan"
-          },
-          {
-            "name": "Hasdeo",
-            "note": "Rises in Koriya hills; passes Hasdeo Arand forests; Hasdeo Bango Dam"
-          },
-          {
-            "name": "Mand",
-            "note": "Drains Raigarh plateau coalfields"
-          },
-          {
-            "name": "Ib",
-            "note": "Rises in Raigarh/Jashpur hills; joins directly into Hirakud Reservoir"
-          }
-        ],
-        "rightBank": [
-          {
-            "name": "Jonk",
-            "note": "Rises in Nuapada hills; joins at Shivrinarayan Sangam"
-          },
-          {
-            "name": "Ong",
-            "note": "Rises in Gandhamardan hills; joins near Binka"
-          },
-          {
-            "name": "Tel",
-            "note": "Second largest tributary of Mahanadi; rises in Nabarangpur; joins near Subarnapur"
-          }
-        ]
-      },
-      "confluences": [
-        {
-          "tributary": "Seonath + Jonk",
-          "sangam": "Shivrinarayan Sangam",
-          "state": "Chhattisgarh",
-          "note": "Sacred Triveni Sangam of Chhattisgarh"
-        },
-        {
-          "tributary": "Tel River",
-          "sangam": "Manamunda / Subarnapur (Sonepur)",
-          "state": "Odisha",
-          "note": "Confluence with famous Kosaleshwara temple"
-        },
-        {
-          "tributary": "Brahmani River Formation",
-          "sangam": "Vedvyas (Rourkela)",
-          "state": "Odisha",
-          "note": "Sankh + South Koel confluence forming the Brahmani river"
-        }
-      ],
-      "towns": [
-        {
-          "name": "Raipur & Bilaspur",
-          "type": "Industrial / Administrative",
-          "significance": "Major urban hubs in the upper Mahanadi/Seonath basin",
-          "state": "Chhattisgarh"
-        },
-        {
-          "name": "Sambalpur",
-          "type": "Cultural / Economic",
-          "significance": "Historic handloom hub situated at the foot of Hirakud Dam",
-          "state": "Odisha"
-        },
-        {
-          "name": "Cuttack",
-          "type": "Historical",
-          "significance": "Millennium city at the apex of the Mahanadi delta (Barabati Fort)",
-          "state": "Odisha"
-        },
-        {
-          "name": "Bhubaneswar",
-          "type": "Capital",
-          "significance": "Temple city of Odisha situated on the Daya/Kuakhai deltaic branches",
-          "state": "Odisha"
-        },
-        {
-          "name": "Paradeep",
-          "type": "Deepwater Port",
-          "significance": "Major artificial deepwater port on the Mahanadi delta mouth",
-          "state": "Odisha"
-        }
-      ],
-      "dams": [
-        {
-          "name": "Hirakud Dam",
-          "state": "Odisha",
-          "type": "One of the longest earthen dams in the world (25.8 km total); creates 55-km long Hirakud Ramsar Wetland"
-        },
-        {
-          "name": "Hasdeo Bango (Minimata) Dam",
-          "state": "Chhattisgarh",
-          "type": "Major multi-purpose reservoir in Korba district"
-        },
-        {
-          "name": "Gangrel (Pt. Ravishankar Shukla) Dam",
-          "state": "Chhattisgarh",
-          "type": "Key reservoir on upper Mahanadi near Dhamtari"
-        },
-        {
-          "name": "Rengali Dam",
-          "state": "Odisha",
-          "type": "Major dam on the Brahmani River"
-        }
-      ],
-      "protectedAreas": [
-        {
-          "name": "Satkosia Tiger Reserve & Gorge Sanctuary",
-          "relation": "Mahanadi carves a magnificent 22-km deep gorge through the Eastern Ghats",
-          "state": "Odisha"
-        },
-        {
-          "name": "Debrigarh Wildlife Sanctuary",
-          "relation": "Flanks the right bank of the Hirakud reservoir",
-          "state": "Odisha"
-        },
-        {
-          "name": "Bhitarkanika National Park & Ramsar Site",
-          "relation": "Delta of Brahmani, Baitarani and Dhamra rivers (Saltwater crocodile haven)",
-          "state": "Odisha"
-        },
-        {
-          "name": "Achanakmar Tiger Reserve",
-          "relation": "Located in the upper catchment of the Hasdeo/Mahanadi basin",
-          "state": "Chhattisgarh"
-        }
-      ],
-      "species": [
-        {
-          "name": "Gharial & Mugger Crocodile",
-          "iucn": "Critically Endangered / Vulnerable",
-          "role": "Satkosia Gorge is one of the few sites where both crocodilians coexist"
-        },
-        {
-          "name": "Saltwater Crocodile (Crocodylus porosus)",
-          "iucn": "Least Concern",
-          "role": "Largest population in India residing in Bhitarkanika delta"
-        },
-        {
-          "name": "Olive Ridley Sea Turtle",
-          "iucn": "Vulnerable",
-          "role": "World's largest mass nesting rookery at Gahirmatha near the delta mouth"
-        }
-      ],
-      "commonMistake": "UPSC 2021 Question: Nagawali and Vamsadhara rise in the Eastern Ghats of Odisha (NOT Chota Nagpur). Brahmani (formed by Sankh & South Koel) and Subarnarekha rise on the Chota Nagpur plateau! Baitarani rises in Keonjhar hills."
-    },
-    "staticFacts": [
-      "Rises in the Sihawa highlands of Raipur/Dhamtari district in Chhattisgarh; drains into Bay of Bengal at False Point, Kendrapara.",
-      "Hirakud Dam near Sambalpur is one of the longest earthen dams in the world, creating a 55-km long reservoir (Ramsar wetland site).",
-      "UPSC 2021 Fact: Nagawali and Vamsadhara rise directly in the Eastern Ghats of Odisha and flow south into Andhra Pradesh; Brahmani (formed by Sankh and South Koel) and Subarnarekha rise on the Chota Nagpur plateau."
-    ],
-    "similarPYQ": [
-      "GEO-UPSC-2021-07",
-      "GEO-CDS2-2018-06",
-      "GEO-CDS2-2017-07",
-      "GEO-CDS2-2017-10"
-    ],
-    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
-    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
-  },
-  {
     "id": "IND-RIV-11",
     "slug": "brahmani-river",
     "pillar": "STATIC",
@@ -10726,215 +11443,6 @@ export const CURATED_MAPPING_NODES = [
     "similarPYQ": [
       "GEO-UPSC-2021-07",
       "GEO-CDS2-2018-06"
-    ],
-    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
-    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
-  },
-  {
-    "id": "IND-RIV-13",
-    "slug": "pennar-river",
-    "pillar": "STATIC",
-    "regionScope": "India",
-    "subject": "Geography",
-    "mapCategory": [
-      "India – rivers, lakes, reservoirs & glaciers"
-    ],
-    "place": "Pennar (Pinakini) River System",
-    "aliases": [
-      "Pinakini",
-      "Uttara Pinakini",
-      "Gandikota",
-      "Somasila",
-      "Chitravathi",
-      "Papagni"
-    ],
-    "placeType": "East-Flowing Peninsular River",
-    "priority": "High",
-    "locatedIn": {
-      "country": "India",
-      "stateOrProvince": "Karnataka, Andhra Pradesh"
-    },
-    "lat": 14.5,
-    "lng": 78.5,
-    "shape": [
-      [
-        13.38,
-        77.7
-      ],
-      [
-        13.8,
-        77.5
-      ],
-      [
-        14.65,
-        77.6
-      ],
-      [
-        14.8,
-        78.28
-      ],
-      [
-        14.5,
-        78.8
-      ],
-      [
-        14.55,
-        80.15
-      ]
-    ],
-    "neighbours": [
-      "Krishna Basin (North)",
-      "Palar and Kaveri Basins (South)",
-      "Eragonda & Nallamala Hills (Flanks)"
-    ],
-    "riverDetails": {
-      "length": "597 km",
-      "origin": "Nandi Hills (Chennakesava hill, Chikkaballapura district, Karnataka)",
-      "mouth": "Bay of Bengal at Utukuru near Nellore (Andhra Pradesh)",
-      "states": {
-        "flowsThrough": [
-          "Karnataka",
-          "Andhra Pradesh"
-        ],
-        "basinStates": [
-          "Andhra Pradesh (88%)",
-          "Karnataka (12%)"
-        ]
-      },
-      "tributaries": {
-        "leftBank": [
-          {
-            "name": "Jayamangali",
-            "note": "Rises in Tumakuru district (Karnataka); joins Pennar in Anantapur"
-          },
-          {
-            "name": "Kunderu (Kumudvathi)",
-            "note": "Drains the limestone Nandyal valley in Kurnool/Kadapa; joins near Kamalapuram"
-          },
-          {
-            "name": "Sagileru",
-            "note": "Rises in Velikonda range; joins Pennar in Kadapa district"
-          }
-        ],
-        "rightBank": [
-          {
-            "name": "Chitravathi",
-            "note": "Rises in Chikkaballapura; flows past Puttaparthi; joins Pennar near Gandikota"
-          },
-          {
-            "name": "Papagni",
-            "note": "Rises in Chikkaballapura; carves picturesque gorge; joins near Kamalapuram"
-          },
-          {
-            "name": "Cheyyeru (Bahuda)",
-            "note": "Formed by Bahuda and Punchu; famous for Attirala Parasurama temple; joins near Nandalur"
-          }
-        ]
-      },
-      "confluences": [
-        {
-          "tributary": "Chitravathi River",
-          "sangam": "Gandikota Confluence",
-          "state": "Andhra Pradesh",
-          "note": "Where Chitravathi joins Pennar just upstream of the dramatic canyon"
-        },
-        {
-          "tributary": "Papagni + Kunderu",
-          "sangam": "Kamalapuram Sangam",
-          "state": "Andhra Pradesh",
-          "note": "Major confluence in central YSR Kadapa district"
-        }
-      ],
-      "towns": [
-        {
-          "name": "Gauribidanur",
-          "type": "Regional",
-          "significance": "First major town on Pennar in Karnataka before entering AP",
-          "state": "Karnataka"
-        },
-        {
-          "name": "Anantapur",
-          "type": "Agrarian",
-          "significance": "Major rain-shadow district center in Rayalaseema",
-          "state": "Andhra Pradesh"
-        },
-        {
-          "name": "Gandikota",
-          "type": "Geological / Historical",
-          "significance": "'Grand Canyon of India'; 300-ft red sandstone canyon gorge & historic fort",
-          "state": "Andhra Pradesh"
-        },
-        {
-          "name": "Kadapa (Cuddapah)",
-          "type": "Historical",
-          "significance": "Historic gateway to Tirumala hills on Pennar tributary plains",
-          "state": "Andhra Pradesh"
-        },
-        {
-          "name": "Nellore",
-          "type": "Coastal Economic",
-          "significance": "Major rice and aquaculture port city at Pennar delta mouth",
-          "state": "Andhra Pradesh"
-        }
-      ],
-      "dams": [
-        {
-          "name": "Somasila Dam",
-          "state": "Andhra Pradesh",
-          "type": "Largest reservoir in the Pennar basin; feeds Telugu Ganga canal to Chennai"
-        },
-        {
-          "name": "Mylavaram Dam",
-          "state": "Andhra Pradesh",
-          "type": "Medium irrigation reservoir located near Jammalamadugu"
-        },
-        {
-          "name": "Mid Pennar Dam",
-          "state": "Andhra Pradesh",
-          "type": "Crucial storage reservoir in Anantapur district"
-        }
-      ],
-      "protectedAreas": [
-        {
-          "name": "Sri Lankamalleswara Wildlife Sanctuary",
-          "relation": "Surrounds the Velikonda and Lankamalla hills in Pennar basin; home of Jerdon's Courser",
-          "state": "Andhra Pradesh"
-        },
-        {
-          "name": "Sri Penusila Narasimha Wildlife Sanctuary",
-          "relation": "Eastern Ghats dry evergreen forest belt in Kadapa/Nellore border",
-          "state": "Andhra Pradesh"
-        }
-      ],
-      "species": [
-        {
-          "name": "Jerdon's Courser (Rhinoptilus bitorquatus)",
-          "iucn": "Critically Endangered",
-          "role": "Extremely rare nocturnal courser bird endemic exclusively to scrub forests of Pennar basin"
-        },
-        {
-          "name": "Golden Gecko (Calodactylodes aureus)",
-          "iucn": "Least Concern",
-          "role": "Rock-dwelling endemic lizard of Gandikota canyon and Tirumala hills"
-        },
-        {
-          "name": "Slender Loris (Loris lydekkerianus)",
-          "iucn": "Near Threatened",
-          "role": "Nocturnal primate residing in thorn scrub forests"
-        }
-      ],
-      "commonMistake": "UPSC 2015 Trap: Pennar is an independent east-flowing river, NOT a tributary of Godavari or Krishna! It rises at Nandi Hills (Karnataka) and flows between Krishna and Kaveri basins. Don't confuse Gandikota gorge (on Pennar) with Chambal ravines."
-    },
-    "staticFacts": [
-      "Originates in Nandi Hills (Chikkaballapura, Karnataka) and flows 597 km through Rayalaseema into the Bay of Bengal near Nellore.",
-      "Carves the spectacular 300-ft Gandikota canyon gorge in Erramala hills ('Grand Canyon of India').",
-      "Somasila Dam is the largest reservoir on the river; supplies drinking water to Chennai via Telugu Ganga canal."
-    ],
-    "similarPYQ": [
-      "GEO-UPSC-2015-07",
-      "GEO-CDS1-2017-08",
-      "GEO-UPSC-2019-04"
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
