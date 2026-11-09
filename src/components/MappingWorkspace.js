@@ -352,9 +352,173 @@ function formatCleanPlaceHeading(node) {
 }
 
 /**
- * 1A-2. Returns the canonical sub-basin grouping for river nodes
- * (e.g. Indus System, Ganga System, Brahmaputra & Barak System, etc.)
+ * 1A-2. Canonical hydrological ordering of all 59 Indian river & confluence nodes.
+ * Grouped strictly by Basin -> Sub-Basin -> Main Trunk River first -> Tributaries (North-to-South / West-to-East).
  */
+const HYDROLOGICAL_RIVER_ORDER = [
+  // 1. HIMALAYAN — Indus River System (Main Trunk -> N-to-S Panjnad Tributaries)
+  'indus-river',
+  'jhelum-river',
+  'chenab-river',
+  'ravi-river',
+  'beas-river',
+  'sutlej-river',
+
+  // 2. HIMALAYAN — Ganga River System (Main Trunk -> Yamuna -> Left-Bank W-to-E -> Right-Bank W-to-E -> Panch Prayags N-to-S)
+  'ganga-river',
+  'yamuna-river',
+  'ramganga-river',
+  'gomti-river',
+  'ghaghara-river',
+  'gandak-river',
+  'kosi-river',
+  'mahananda-river',
+  'chambal-river',
+  'betwa-river',
+  'ken-river',
+  'son-river',
+  'damodar-river',
+  'vishnuprayag-confluence',
+  'nandaprayag-confluence',
+  'karnaprayag-confluence',
+  'rudraprayag-confluence',
+  'devprayag-confluence',
+
+  // 3. HIMALAYAN — Brahmaputra & Barak System (Main Trunks -> Right-Bank -> Left-Bank)
+  'brahmaputra-river',
+  'barak-river',
+  'subansiri-river',
+  'kameng-river',
+  'manas-river',
+  'teesta-river',
+  'dibang-river',
+  'lohit-river',
+  'dhansiri-river',
+
+  // 4. PENINSULAR — West-Flowing Rift Valley Rivers (N-to-S)
+  'narmada-river',
+  'tapi-river',
+
+  // 5. PENINSULAR — East-Flowing Peninsular River Systems (N-to-S, Main River before Tributaries)
+  'mahanadi-river',
+  'godavari-river',
+  'krishna-river',
+  'bhima-river',
+  'tungabhadra-river',
+  'cauvery-river',
+
+  // 6. COASTAL — West Coast & Inland Rivers (N-to-S: Rajasthan/Gujarat -> Goa -> Karnataka -> Kerala)
+  'luni-river',
+  'sabarmati-river',
+  'mahi-river',
+  'mandovi-river',
+  'zuari-river',
+  'sharavati-river',
+  'bharathapuzha-river',
+  'periyar-river',
+
+  // 7. COASTAL — East Coast Minor Rivers (N-to-S: Jharkhand/Odisha -> Andhra Pradesh -> Tamil Nadu)
+  'subarnarekha-river',
+  'baitarani-river',
+  'brahmani-river',
+  'vamsadhara-river',
+  'nagavali-river',
+  'pennar-river',
+  'palar-river',
+  'south-pennar-river',
+  'vellar-river',
+  'vaigai-river',
+];
+
+const MAIN_TRUNK_RIVER_SLUGS = new Set([
+  // Himalayan Main Trunks (5)
+  'indus-river',
+  'ganga-river',
+  'yamuna-river',
+  'brahmaputra-river',
+  'barak-river',
+  // Peninsular Main Trunks (6)
+  'narmada-river',
+  'tapi-river',
+  'mahanadi-river',
+  'godavari-river',
+  'krishna-river',
+  'cauvery-river',
+  // Coastal Representative Main Trunks (8)
+  'luni-river',
+  'sabarmati-river',
+  'mahi-river',
+  'periyar-river',
+  'subarnarekha-river',
+  'brahmani-river',
+  'pennar-river',
+  'vaigai-river',
+]);
+
+const BASIN_CATCHMENT_STATES = {
+  HIMALAYAN: [
+    'ladakh',
+    'jammu and kashmir',
+    'himachal pradesh',
+    'punjab',
+    'uttarakhand',
+    'haryana',
+    'delhi',
+    'uttar pradesh',
+    'rajasthan',
+    'bihar',
+    'jharkhand',
+    'west bengal',
+    'sikkim',
+    'arunachal pradesh',
+    'assam',
+    'meghalaya',
+    'nagaland',
+    'manipur',
+    'mizoram',
+    'tripura',
+  ],
+  PENINSULAR: [
+    'madhya pradesh',
+    'gujarat',
+    'maharashtra',
+    'chhattisgarh',
+    'odisha',
+    'telangana',
+    'andhra pradesh',
+    'karnataka',
+    'tamil nadu',
+    'kerala',
+  ],
+  COASTAL: [
+    'rajasthan',
+    'gujarat',
+    'maharashtra',
+    'goa',
+    'karnataka',
+    'kerala',
+    'tamil nadu',
+    'puducherry',
+    'andhra pradesh',
+    'odisha',
+    'jharkhand',
+    'west bengal',
+  ],
+};
+
+function isMainTrunkRiver(node) {
+  if (!node) return false;
+  const s = (node.slug || '').toLowerCase();
+  return MAIN_TRUNK_RIVER_SLUGS.has(s);
+}
+
+function getRiverHydroRank(node) {
+  if (!node) return 9999;
+  const s = (node.slug || '').toLowerCase();
+  const idx = HYDROLOGICAL_RIVER_ORDER.indexOf(s);
+  return idx >= 0 ? idx : 999;
+}
+
 function getRiverSubBasin(node) {
   if (!node) return 'Drainage Basin';
   const s = (node.slug || '').toLowerCase();
@@ -362,23 +526,23 @@ function getRiverSubBasin(node) {
   if (['indus-river', 'jhelum-river', 'chenab-river', 'ravi-river', 'beas-river', 'sutlej-river'].includes(s) || id.startsWith('IND-RIV-02')) {
     return 'Indus River System';
   }
-  if (['brahmaputra-river', 'dibang-river', 'lohit-river', 'subansiri-river', 'kameng-river', 'manas-river', 'teesta-river', 'dhansiri-river', 'barak-river'].includes(s) || id.startsWith('IND-RIV-03')) {
-    return 'Brahmaputra & Barak System';
-  }
   if (s.includes('prayag') || id.startsWith('IND-PRY') || ['ganga-river', 'ramganga-river', 'gomti-river', 'ghaghara-river', 'gandak-river', 'kosi-river', 'mahananda-river', 'yamuna-river', 'chambal-river', 'betwa-river', 'ken-river', 'son-river', 'damodar-river'].includes(s) || id.startsWith('IND-RIV-01')) {
     return 'Ganga River System';
+  }
+  if (['brahmaputra-river', 'dibang-river', 'lohit-river', 'subansiri-river', 'kameng-river', 'manas-river', 'teesta-river', 'dhansiri-river', 'barak-river'].includes(s) || id.startsWith('IND-RIV-03')) {
+    return 'Brahmaputra & Barak System';
   }
   if (['narmada-river', 'tapi-river'].includes(s)) {
     return 'West-Flowing Peninsular Rifts';
   }
   if (['godavari-river', 'krishna-river', 'bhima-river', 'tungabhadra-river', 'cauvery-river', 'mahanadi-river'].includes(s)) {
-    return 'Major East-Flowing Peninsular Rivers';
+    return 'East-Flowing Peninsular Systems';
   }
   if (['sabarmati-river', 'mahi-river', 'luni-river', 'mandovi-river', 'zuari-river', 'sharavati-river', 'periyar-river', 'bharathapuzha-river'].includes(s)) {
-    return 'West Coast Rivers';
+    return 'West Coast & Inland Rivers (N → S)';
   }
   if (['subarnarekha-river', 'brahmani-river', 'baitarani-river', 'vamsadhara-river', 'nagavali-river', 'palar-river', 'south-pennar-river', 'pennar-river', 'vaigai-river', 'vellar-river'].includes(s)) {
-    return 'East Coast Rivers';
+    return 'East Coast Minor Rivers (N → S)';
   }
   return node.basinLabel || 'Drainage Basin';
 }
@@ -622,7 +786,9 @@ export default function MappingWorkspace({
   const [pinTimeMode, setPinTimeMode] = useState('DAY'); // 'DAY' | 'WEEK' | 'MONTH' | 'ALL'
   const [selectedPinPeriod, setSelectedPinPeriod] = useState('ALL');
   const [selectedThemeFilter, setSelectedThemeFilter] = useState(null); // null = Level 1 Layer Chooser screen | folder.id | 'ALL'
-  const [selectedRiverBasin, setSelectedRiverBasin] = useState('ALL'); // 'ALL' | 'HIMALAYAN' | 'PENINSULAR' | 'COASTAL'
+  const [selectedRiverBasin, setSelectedRiverBasin] = useState(null); // null = Step 2 Choose Basin | 'HIMALAYAN' | 'PENINSULAR' | 'COASTAL' | 'ALL'
+  const [activeSubBasin, setActiveSubBasin] = useState(null); // null | 'Indus River System' | 'Ganga River System' | etc.
+  const [collapsedSubBasins, setCollapsedSubBasins] = useState({});
   const [collapsedFolders, setCollapsedFolders] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
   const [basemap, setBasemap] = useState('light'); // 'light' (Clean) | 'topo' (Terrain) | 'satellite' (Satellite)
@@ -868,7 +1034,7 @@ export default function MappingWorkspace({
 
     const filteredBase = modeBaseNodes.filter((n) => {
       if (!matchesSearch(n)) return false;
-      if (selectedRiverBasin !== 'ALL') {
+      if (selectedRiverBasin && selectedRiverBasin !== 'ALL') {
         const isRiver = Boolean(
           n.basinGroup ||
           n.category === 'river' ||
@@ -921,7 +1087,14 @@ export default function MappingWorkspace({
             }
             return false;
           })
-          .sort((a, b) => (a.place || '').localeCompare(b.place || ''));
+          .sort((a, b) => {
+            if (f.id === 'india-rivers') {
+              const rankA = getRiverHydroRank(a);
+              const rankB = getRiverHydroRank(b);
+              if (rankA !== rankB) return rankA - rankB;
+            }
+            return (a.place || '').localeCompare(b.place || '');
+          });
 
         const itemsWithIndex = matchedItems.map((item) => {
           const shouldNumber = selectedThemeFilter === 'ALL' || selectedThemeFilter === f.id;
@@ -950,6 +1123,28 @@ export default function MappingWorkspace({
     return { folders: builtFolders, numberedNodes: flatList };
   }, [activeMode, modeBaseNodes, organizations, searchQuery, selectedThemeFilter, selectedRiverBasin]);
 
+  // Progressive Map Canvas Nodes:
+  // - Step 1 (selectedThemeFilter === null): 0 nodes
+  // - Step 2 (Rivers Overview, selectedRiverBasin === null, !selectedNode): Main Trunk Rivers of all 3 basins
+  // - Step 3 (Basin Overview, selectedRiverBasin selected, !selectedNode): Main Trunk Rivers of that basin (or activeSubBasin if focused)
+  // - Step 4 (selectedNode !== null): Rivers of the selected river's Sub-Basin (selected river in 100% crimson, siblings at 18% opacity)
+  const mapCanvasNodes = useMemo(() => {
+    if (!numberedNodes || numberedNodes.length === 0) return [];
+    if (activeMode === 'STATIC_INDIA' && selectedThemeFilter === 'india-rivers') {
+      if (selectedNode) {
+        const targetSubBasin = getRiverSubBasin(selectedNode);
+        return numberedNodes.filter(
+          (n) => n.id === selectedNode.id || getRiverSubBasin(n) === targetSubBasin
+        );
+      }
+      if (activeSubBasin) {
+        return numberedNodes.filter((n) => getRiverSubBasin(n) === activeSubBasin);
+      }
+      return numberedNodes.filter((n) => isMainTrunkRiver(n));
+    }
+    return numberedNodes;
+  }, [numberedNodes, activeMode, selectedThemeFilter, selectedNode, activeSubBasin]);
+
   // Reset theme filter if the selected theme has no items in the newly chosen period
   useEffect(() => {
     if (!selectedThemeFilter || selectedThemeFilter === 'ALL') return;
@@ -959,11 +1154,21 @@ export default function MappingWorkspace({
     }
   }, [folders, selectedThemeFilter]);
 
-  // Auto-select #1 place in the current feed so the 3-column layout and glowing red pin are immediately active
+  // Keep selectedNode in sync with numberedNodes (NEVER auto-select #1 in STATIC_INDIA or STATIC_WORLD!)
   useEffect(() => {
     if (!activeMode || activeOrg) return;
     if (numberedNodes.length === 0) {
       setSelectedNode(null);
+      return;
+    }
+    if (activeMode === 'STATIC_INDIA' || activeMode === 'STATIC_WORLD') {
+      if (!selectedNode) return;
+      const currentMatch = numberedNodes.find((n) => n.id === selectedNode.id);
+      if (!currentMatch) {
+        setSelectedNode(null);
+      } else if (currentMatch.displayIndex !== selectedNode.displayIndex) {
+        setSelectedNode(currentMatch);
+      }
       return;
     }
     const currentMatch = selectedNode
@@ -991,17 +1196,18 @@ export default function MappingWorkspace({
     setActiveMode(mode);
     setSelectedNode(null);
     setActiveOrg(null);
+    setActiveSubBasin(null);
     setSearchQuery('');
     setPanelMode('STUDY');
 
     if (mode === 'STATIC_INDIA') {
       // Level 1: Start on Layer Chooser Hub so all layers are NOT opened at once creating clutter!
       setSelectedThemeFilter(null);
-      setSelectedRiverBasin('ALL');
+      setSelectedRiverBasin(null);
       setCameraTarget({ center: [22.8, 79.5], zoom: 4.8, ts: Date.now() });
     } else if (mode === 'STATIC_WORLD') {
       setSelectedThemeFilter(null);
-      setSelectedRiverBasin('ALL');
+      setSelectedRiverBasin(null);
       setCameraTarget({ center: [20.0, 18.0], zoom: 2.4, ts: Date.now() });
     } else if (mode === 'PIN') {
       setSelectedThemeFilter('ALL');
@@ -1383,6 +1589,24 @@ export default function MappingWorkspace({
 
   const activeThemeFolder = folders.find((f) => f.id === selectedThemeFilter) || null;
 
+  const activeBasinHighlightStates =
+    activeMode === 'STATIC_INDIA' &&
+    selectedThemeFilter === 'india-rivers' &&
+    !selectedNode &&
+    selectedRiverBasin &&
+    BASIN_CATCHMENT_STATES[selectedRiverBasin]
+      ? BASIN_CATCHMENT_STATES[selectedRiverBasin]
+      : [];
+
+  const activeBasinHighlightColor =
+    selectedRiverBasin === 'HIMALAYAN'
+      ? '#0284c7'
+      : selectedRiverBasin === 'PENINSULAR'
+        ? '#0d9488'
+        : selectedRiverBasin === 'COASTAL'
+          ? '#4f46e5'
+          : '#0284c7';
+
   const selectedLocationSubtitle = selectedNode
     ? formatPlaceDescriptor(selectedNode)
     : 'All mapped regions';
@@ -1587,7 +1811,8 @@ export default function MappingWorkspace({
                 type="button"
                 onClick={() => {
                   setSelectedThemeFilter(null);
-                  setSelectedRiverBasin('ALL');
+                  setSelectedRiverBasin(null);
+                  setActiveSubBasin(null);
                   setSelectedNode(null);
                   setCameraTarget({ center: [22.8, 79.5], zoom: 4.8, ts: Date.now() });
                 }}
@@ -1614,17 +1839,18 @@ export default function MappingWorkspace({
                   <button
                     type="button"
                     onClick={() => {
-                      setSelectedRiverBasin('ALL');
+                      setSelectedRiverBasin(null);
+                      setActiveSubBasin(null);
                       setSelectedNode(null);
                       setCameraTarget({ center: [22.8, 79.5], zoom: 4.8, ts: Date.now() });
                     }}
-                    title="Return to Layer Overview"
+                    title="Return to Layer / Basin Selection"
                     style={{
                       border: 'none',
                       background: 'none',
                       padding: 0,
-                      color: (selectedRiverBasin !== 'ALL' || selectedNode) ? '#2563eb' : '#0f172a',
-                      fontWeight: (selectedRiverBasin !== 'ALL' || selectedNode) ? 600 : 800,
+                      color: (selectedRiverBasin || selectedNode) ? '#2563eb' : '#0f172a',
+                      fontWeight: (selectedRiverBasin || selectedNode) ? 600 : 800,
                       cursor: 'pointer',
                     }}
                   >
@@ -1641,35 +1867,44 @@ export default function MappingWorkspace({
               )}
 
               {/* Level 3: River Basin */}
-              {selectedThemeFilter === 'india-rivers' && selectedRiverBasin !== 'ALL' && (
+              {selectedThemeFilter === 'india-rivers' && (
                 <>
                   <span style={{ color: '#cbd5e1', fontWeight: 600 }}>/</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setSelectedNode(null);
-                      if (selectedRiverBasin === 'HIMALAYAN') {
-                        setCameraTarget({ center: [28.8, 83.0], zoom: 5.6, ts: Date.now() });
-                      } else if (selectedRiverBasin === 'PENINSULAR') {
-                        setCameraTarget({ center: [17.5, 78.5], zoom: 5.8, ts: Date.now() });
-                      } else if (selectedRiverBasin === 'COASTAL') {
-                        setCameraTarget({ center: [16.0, 76.5], zoom: 5.8, ts: Date.now() });
-                      }
-                    }}
-                    title="Zoom to Basin Overview"
-                    style={{
-                      border: 'none',
-                      background: 'none',
-                      padding: 0,
-                      color: selectedNode ? '#2563eb' : '#0f172a',
-                      fontWeight: selectedNode ? 600 : 800,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {selectedRiverBasin === 'HIMALAYAN' ? '🏔️ Himalayan Basin' :
-                     selectedRiverBasin === 'PENINSULAR' ? '⛰️ Peninsular Basin' :
-                     selectedRiverBasin === 'COASTAL' ? '🌊 Coastal & Minor' : 'Basin'}
-                  </button>
+                  {selectedRiverBasin ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedNode(null);
+                        setActiveSubBasin(null);
+                        if (selectedRiverBasin === 'HIMALAYAN') {
+                          setCameraTarget({ center: [28.2, 81.5], zoom: 5.2, ts: Date.now() });
+                        } else if (selectedRiverBasin === 'PENINSULAR') {
+                          setCameraTarget({ center: [18.2, 78.5], zoom: 5.4, ts: Date.now() });
+                        } else if (selectedRiverBasin === 'COASTAL') {
+                          setCameraTarget({ center: [16.8, 78.0], zoom: 5.2, ts: Date.now() });
+                        } else {
+                          setCameraTarget({ center: [22.8, 79.5], zoom: 4.8, ts: Date.now() });
+                        }
+                      }}
+                      title="Return to Basin Overview (Main Rivers)"
+                      style={{
+                        border: 'none',
+                        background: 'none',
+                        padding: 0,
+                        color: (selectedNode || activeSubBasin) ? '#2563eb' : '#0f172a',
+                        fontWeight: (selectedNode || activeSubBasin) ? 600 : 800,
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {selectedRiverBasin === 'HIMALAYAN' ? '🏔️ Himalayan Basin' :
+                       selectedRiverBasin === 'PENINSULAR' ? '⛰️ Peninsular Basin' :
+                       selectedRiverBasin === 'COASTAL' ? '🌊 Coastal & Minor' : '🌊 All Basins'}
+                    </button>
+                  ) : (
+                    <span style={{ color: '#64748b', fontStyle: 'italic' }}>
+                      Choose a basin
+                    </span>
+                  )}
                 </>
               )}
 
@@ -2064,7 +2299,8 @@ export default function MappingWorkspace({
                   type="button"
                   onClick={() => {
                     setSelectedThemeFilter(null);
-                    setSelectedRiverBasin('ALL');
+                    setSelectedRiverBasin(null);
+                    setActiveSubBasin(null);
                     setSelectedNode(null);
                     setCameraTarget({ center: [22.8, 79.5], zoom: 4.8, ts: Date.now() });
                   }}
@@ -2095,11 +2331,14 @@ export default function MappingWorkspace({
                     type="button"
                     onClick={() => {
                       setSelectedThemeFilter(folder.id);
+                      setSelectedNode(null);
+                      setActiveSubBasin(null);
                       if (folder.id === 'india-rivers') {
-                        setSelectedRiverBasin('HIMALAYAN');
-                        setCameraTarget({ center: [28.8, 83.0], zoom: 5.6, ts: Date.now() });
+                        setSelectedRiverBasin(null);
+                        setCameraTarget({ center: [22.8, 79.5], zoom: 4.8, ts: Date.now() });
                       } else {
                         setSelectedRiverBasin('ALL');
+                        setCameraTarget({ center: [22.8, 79.5], zoom: 4.8, ts: Date.now() });
                       }
                     }}
                     style={{
@@ -2138,9 +2377,10 @@ export default function MappingWorkspace({
             </div>
           )}
 
-          {/* 3-Master River Basin Selection (Himalayan, Peninsular, Coastal) */}
+          {/* 3-Master River Basin Selection (Shown once a Basin is active so user can switch between Basins) */}
           {activeMode === 'STATIC_INDIA' &&
-            (selectedThemeFilter === 'ALL' || selectedThemeFilter === 'india-rivers') && (
+            selectedThemeFilter === 'india-rivers' &&
+            selectedRiverBasin !== null && (
               <div
                 style={{
                   padding: '8px 12px 10px',
@@ -2172,33 +2412,32 @@ export default function MappingWorkspace({
                   >
                     <span>🌊</span> River Basin Selection
                   </span>
-                  {selectedRiverBasin !== 'ALL' && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedRiverBasin('ALL');
-                        setCameraTarget({ center: [22.8, 79.5], zoom: 4.8, ts: Date.now() });
-                      }}
-                      style={{
-                        fontSize: 11,
-                        color: '#0284c7',
-                        background: 'none',
-                        border: 'none',
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        padding: 0,
-                      }}
-                    >
-                      Reset (Show All 59)
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedRiverBasin(null);
+                      setActiveSubBasin(null);
+                      setSelectedNode(null);
+                      setCameraTarget({ center: [22.8, 79.5], zoom: 4.8, ts: Date.now() });
+                    }}
+                    style={{
+                      fontSize: 11,
+                      color: '#0284c7',
+                      background: 'none',
+                      border: 'none',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      padding: 0,
+                    }}
+                  >
+                    ← All 3 Basins
+                  </button>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 5 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 5 }}>
                   {[
-                    { id: 'ALL', label: 'All Basins', count: 59, emoji: '🌊', center: [22.8, 79.5], zoom: 4.8 },
-                    { id: 'HIMALAYAN', label: 'Himalayan', count: 33, emoji: '🏔️', center: [28.8, 83.0], zoom: 5.6 },
-                    { id: 'PENINSULAR', label: 'Peninsular', count: 8, emoji: '⛰️', center: [17.5, 78.5], zoom: 5.8 },
-                    { id: 'COASTAL', label: 'Coastal & Minor', count: 18, emoji: '⛵', center: [16.0, 76.5], zoom: 5.8 },
+                    { id: 'HIMALAYAN', label: 'Himalayan', count: 33, emoji: '🏔️', center: [28.2, 81.5], zoom: 5.2 },
+                    { id: 'PENINSULAR', label: 'Peninsular', count: 8, emoji: '⛰️', center: [18.2, 78.5], zoom: 5.4 },
+                    { id: 'COASTAL', label: 'Coastal', count: 18, emoji: '🌊', center: [16.8, 78.0], zoom: 5.2 },
                   ].map((b) => {
                     const isActive = selectedRiverBasin === b.id;
                     return (
@@ -2207,32 +2446,34 @@ export default function MappingWorkspace({
                         type="button"
                         onClick={() => {
                           setSelectedRiverBasin(b.id);
+                          setActiveSubBasin(null);
+                          setSelectedNode(null);
                           setCameraTarget({ center: b.center, zoom: b.zoom, ts: Date.now() });
                         }}
                         style={{
                           display: 'inline-flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
-                          padding: '5px 8px',
+                          padding: '5px 7px',
                           borderRadius: 7,
                           border: isActive ? '1.5px solid #0284c7' : '1px solid #cbd5e1',
                           background: isActive ? '#0284c7' : '#ffffff',
                           color: isActive ? '#ffffff' : '#334155',
-                          fontSize: 11.5,
+                          fontSize: 11,
                           fontWeight: isActive ? 800 : 600,
                           cursor: 'pointer',
                           boxShadow: isActive ? '0 2px 6px rgba(2, 132, 199, 0.25)' : 'none',
                           transition: 'all 0.15s ease',
                         }}
                       >
-                        <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                          <span style={{ fontSize: 12 }}>{b.emoji}</span>
-                          <span>{b.label}</span>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: 4, minWidth: 0 }}>
+                          <span style={{ fontSize: 11 }}>{b.emoji}</span>
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.label}</span>
                         </span>
                         <span
                           style={{
-                            fontSize: 10,
-                            padding: '1px 5px',
+                            fontSize: 9.5,
+                            padding: '1px 4px',
                             borderRadius: 999,
                             background: isActive ? 'rgba(255, 255, 255, 0.28)' : '#f1f5f9',
                             color: isActive ? '#ffffff' : '#64748b',
@@ -2271,11 +2512,14 @@ export default function MappingWorkspace({
                     type="button"
                     onClick={() => {
                       setSelectedThemeFilter(folder.id);
+                      setSelectedNode(null);
+                      setActiveSubBasin(null);
                       if (folder.id === 'india-rivers') {
-                        setSelectedRiverBasin('HIMALAYAN');
-                        setCameraTarget({ center: [28.8, 83.0], zoom: 5.6, ts: Date.now() });
+                        setSelectedRiverBasin(null);
+                        setCameraTarget({ center: [22.8, 79.5], zoom: 4.8, ts: Date.now() });
                       } else {
                         setSelectedRiverBasin('ALL');
+                        setCameraTarget({ center: [22.8, 79.5], zoom: 4.8, ts: Date.now() });
                       }
                     }}
                     style={{
@@ -2320,6 +2564,123 @@ export default function MappingWorkspace({
                   </button>
                 ))}
               </div>
+            ) : (activeMode === 'STATIC_INDIA' && selectedThemeFilter === 'india-rivers' && selectedRiverBasin === null && !searchQuery.trim()) ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ padding: '2px 4px 6px' }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#0284c7' }}>
+                    Step 2 · Choose a River Basin
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', marginTop: 2 }}>
+                    Select a drainage basin to explore:
+                  </div>
+                  <div style={{ fontSize: 11.5, color: '#64748b', marginTop: 3, lineHeight: 1.4 }}>
+                    The map currently displays India&apos;s main trunk rivers. Select a basin to highlight its catchment region and study system by system:
+                  </div>
+                </div>
+
+                {[
+                  {
+                    id: 'HIMALAYAN',
+                    emoji: '🏔️',
+                    title: 'Himalayan River Basins',
+                    count: 33,
+                    color: '#0284c7',
+                    systems: 'Indus System (6) · Ganga System (18) · Brahmaputra & Barak (9)',
+                    mainRivers: 'Main Rivers: Indus, Ganga, Yamuna, Brahmaputra, Barak',
+                    center: [28.2, 81.5],
+                    zoom: 5.2,
+                  },
+                  {
+                    id: 'PENINSULAR',
+                    emoji: '⛰️',
+                    title: 'Peninsular River Basins',
+                    count: 8,
+                    color: '#0d9488',
+                    systems: 'West-Flowing Rifts (2) · East-Flowing Deltas (6)',
+                    mainRivers: 'Main Rivers: Narmada, Tapi, Mahanadi, Godavari, Krishna, Cauvery',
+                    center: [18.2, 78.5],
+                    zoom: 5.4,
+                  },
+                  {
+                    id: 'COASTAL',
+                    emoji: '🌊',
+                    title: 'Coastal & Inland Rivers',
+                    count: 18,
+                    color: '#4f46e5',
+                    systems: 'West Coast & Inland (8) · East Coast Minor (10)',
+                    mainRivers: 'Main Rivers: Luni, Sabarmati, Mahi, Periyar, Subarnarekha, Brahmani, Pennar, Vaigai',
+                    center: [16.8, 78.0],
+                    zoom: 5.2,
+                  },
+                ].map((b) => (
+                  <button
+                    key={b.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedRiverBasin(b.id);
+                      setActiveSubBasin(null);
+                      setSelectedNode(null);
+                      setCameraTarget({ center: b.center, zoom: b.zoom, ts: Date.now() });
+                    }}
+                    style={{
+                      width: '100%',
+                      textAlign: 'left',
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: 12,
+                      padding: '13px 14px',
+                      borderRadius: 12,
+                      border: `1.5px solid ${b.color}38`,
+                      background: '#ffffff',
+                      boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: 10,
+                        background: `${b.color}14`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 21,
+                        flexShrink: 0,
+                        marginTop: 2,
+                      }}
+                    >
+                      {b.emoji}
+                    </span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
+                        <span style={{ fontSize: 13.5, fontWeight: 800, color: '#0f172a' }}>
+                          {b.title}
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 11,
+                            fontWeight: 800,
+                            padding: '1px 7px',
+                            borderRadius: 999,
+                            background: `${b.color}15`,
+                            color: b.color,
+                          }}
+                        >
+                          {b.count}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 11.5, fontWeight: 600, color: '#334155', marginTop: 4 }}>
+                        {b.systems}
+                      </div>
+                      <div style={{ fontSize: 11, color: '#64748b', marginTop: 3 }}>
+                        {b.mainRivers}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
             ) : visibleFolders.length === 0 ? (
               <div style={{ fontSize: 12.5, color: '#64748b', padding: '16px', textAlign: 'center' }}>
                 No mapped places match the current filter.
@@ -2328,7 +2689,19 @@ export default function MappingWorkspace({
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {visibleFolders.map((folder) => {
                   const isCollapsed = Boolean(collapsedFolders[folder.id]);
-                  let lastSubBasin = '';
+                  const subBasinGroups = [];
+                  if (folder.id === 'india-rivers') {
+                    const groupMap = new Map();
+                    folder.items.forEach((node) => {
+                      const sbName = getRiverSubBasin(node);
+                      if (!groupMap.has(sbName)) {
+                        const grp = { name: sbName, items: [] };
+                        groupMap.set(sbName, grp);
+                        subBasinGroups.push(grp);
+                      }
+                      groupMap.get(sbName).items.push(node);
+                    });
+                  }
                   return (
                     <div
                       key={folder.id}
@@ -2467,141 +2840,340 @@ export default function MappingWorkspace({
                                   </div>
                                 );
                               })
-                            : folder.items.map((node, nodeIdx) => {
-                                const isSelected = selectedNode?.id === node.id;
-                                const subBasin = getRiverSubBasin(node);
-                                const showSubHeader = folder.id === 'india-rivers' && subBasin !== lastSubBasin;
-                                if (showSubHeader) {
-                                  lastSubBasin = subBasin;
-                                }
-                                const locParts = [
-                                  node.locatedIn?.district,
-                                  node.locatedIn?.stateOrProvince,
-                                  node.locatedIn?.country || node.regionScope,
-                                ].filter(Boolean);
-                                const subLocation =
-                                  locParts.slice(0, 2).join(', ') +
-                                  (locParts.length > 2 ? ` · ${locParts[locParts.length - 1]}` : '');
-
-                                return (
-                                  <React.Fragment key={node.id}>
-                                    {showSubHeader && (
-                                      <div
-                                        style={{
-                                          fontSize: 10.5,
-                                          fontWeight: 800,
-                                          color: '#0284c7',
-                                          textTransform: 'uppercase',
-                                          letterSpacing: '0.07em',
-                                          padding: nodeIdx === 0 ? '4px 6px 4px' : '10px 6px 4px',
-                                          borderTop: nodeIdx === 0 ? 'none' : '1px dashed #e2e8f0',
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          gap: 6,
-                                        }}
-                                      >
-                                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#0284c7' }} />
-                                        <span>{subBasin}</span>
-                                      </div>
-                                    )}
+                            : folder.id === 'india-rivers'
+                              ? subBasinGroups.map((sbGroup) => {
+                                  const isSbCollapsed = Boolean(collapsedSubBasins[sbGroup.name]);
+                                  const isSbFocused = activeSubBasin === sbGroup.name;
+                                  return (
                                     <div
-                                      onClick={() => handleSelectNode(node)}
-                                    style={{
-                                      padding: '9px 11px',
-                                      borderRadius: 9,
-                                      cursor: 'pointer',
-                                      background: isSelected ? '#fff1f2' : '#ffffff',
-                                      border: isSelected
-                                        ? '1.5px solid #ef4444'
-                                        : '1px solid #cbd5e1',
-                                      borderLeft: isSelected
-                                        ? '4px solid #ef4444'
-                                        : `3px solid ${folder.color}88`,
-                                      boxShadow: isSelected
-                                        ? '0 3px 10px rgba(239, 68, 68, 0.14)'
-                                        : '0 1px 2px rgba(15, 23, 42, 0.03)',
-                                      display: 'flex',
-                                      alignItems: 'flex-start',
-                                      gap: 10,
-                                      transition: 'all 0.12s ease',
-                                    }}
-                                  >
-                                    {/* Numbered Badge (Crimson Red when selected, Theme Tinted with Border when unselected) */}
-                                    <span
+                                      key={sbGroup.name}
                                       style={{
-                                        width: 23,
-                                        height: 23,
-                                        borderRadius: '50%',
-                                        background: isSelected
-                                          ? '#ef4444'
-                                          : `${folder.color}18`,
-                                        color: isSelected ? '#ffffff' : folder.color,
-                                        border: isSelected
-                                          ? '1.5px solid #ffffff'
-                                          : `1.5px solid ${folder.color}66`,
-                                        boxShadow: isSelected
-                                          ? '0 0 0 2.5px rgba(239,68,68,0.28)'
-                                          : 'none',
-                                        fontSize: 11,
-                                        fontWeight: 800,
+                                        border: isSbFocused ? '1.5px solid #0284c7' : '1px solid #e2e8f0',
+                                        borderRadius: 10,
+                                        background: isSbFocused ? '#f0f9ff' : '#f8fafc',
+                                        padding: '6px',
                                         display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        flexShrink: 0,
-                                        marginTop: 1,
+                                        flexDirection: 'column',
+                                        gap: 5,
                                       }}
                                     >
-                                      {node.displayIndex || '•'}
-                                    </span>
-
-                                    <div style={{ minWidth: 0, flex: 1 }}>
+                                      {/* Collapsible Sub-Basin Header */}
                                       <div
                                         style={{
-                                          fontSize: 13.2,
-                                          fontWeight: isSelected ? 700 : 600,
-                                          color: '#0f172a',
-                                          lineHeight: 1.32,
                                           display: 'flex',
                                           alignItems: 'center',
+                                          justifyContent: 'space-between',
+                                          padding: '3px 4px',
                                           gap: 6,
-                                          flexWrap: 'wrap',
                                         }}
                                       >
-                                        <span>{formatCleanPlaceHeading(node)}</span>
-                                        {(node.isMaster || node.tier === 'master') && (
+                                        <button
+                                          type="button"
+                                          onClick={() =>
+                                            setCollapsedSubBasins((prev) => ({
+                                              ...prev,
+                                              [sbGroup.name]: !prev[sbGroup.name],
+                                            }))
+                                          }
+                                          style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 6,
+                                            border: 'none',
+                                            background: 'none',
+                                            padding: 0,
+                                            cursor: 'pointer',
+                                            textAlign: 'left',
+                                            flex: 1,
+                                          }}
+                                        >
+                                          <span style={{ fontSize: 11, color: '#0284c7', fontWeight: 800 }}>
+                                            {isSbCollapsed ? '▸' : '▾'}
+                                          </span>
                                           <span
                                             style={{
-                                              fontSize: 9.5,
+                                              fontSize: 11,
                                               fontWeight: 800,
-                                              background: '#fef3c7',
-                                              color: '#b45309',
-                                              border: '1px solid #fde68a',
-                                              padding: '1px 5px',
-                                              borderRadius: 4,
-                                              letterSpacing: '0.02em',
+                                              color: '#0369a1',
+                                              textTransform: 'uppercase',
+                                              letterSpacing: '0.05em',
                                             }}
                                           >
-                                            ⭐ Core
+                                            {sbGroup.name}
                                           </span>
-                                        )}
+                                          <span
+                                            style={{
+                                              fontSize: 10,
+                                              fontWeight: 700,
+                                              background: '#e0f2fe',
+                                              color: '#0369a1',
+                                              padding: '1px 6px',
+                                              borderRadius: 999,
+                                            }}
+                                          >
+                                            {sbGroup.items.length}
+                                          </span>
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setSelectedNode(null);
+                                            setActiveSubBasin((prev) =>
+                                              prev === sbGroup.name ? null : sbGroup.name
+                                            );
+                                          }}
+                                          title="Preview all rivers of this sub-basin on the map"
+                                          style={{
+                                            fontSize: 10,
+                                            fontWeight: 700,
+                                            padding: '2px 7px',
+                                            borderRadius: 6,
+                                            border: isSbFocused ? '1px solid #0284c7' : '1px solid #cbd5e1',
+                                            background: isSbFocused ? '#0284c7' : '#ffffff',
+                                            color: isSbFocused ? '#ffffff' : '#475569',
+                                            cursor: 'pointer',
+                                          }}
+                                        >
+                                          {isSbFocused ? 'Showing System' : 'Show System'}
+                                        </button>
                                       </div>
-                                      <div
+
+                                      {/* Sub-Basin Rivers (Main River First -> Tributaries in Hydrological Order) */}
+                                      {!isSbCollapsed && (
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                                          {sbGroup.items.map((node) => {
+                                            const isSelected = selectedNode?.id === node.id;
+                                            const isMainRiver = isMainTrunkRiver(node);
+                                            const locParts = [
+                                              node.locatedIn?.district,
+                                              node.locatedIn?.stateOrProvince,
+                                              node.locatedIn?.country || node.regionScope,
+                                            ].filter(Boolean);
+                                            const subLocation =
+                                              locParts.slice(0, 2).join(', ') +
+                                              (locParts.length > 2 ? ` · ${locParts[locParts.length - 1]}` : '');
+
+                                            return (
+                                              <div
+                                                key={node.id}
+                                                onClick={() => handleSelectNode(node)}
+                                                style={{
+                                                  padding: '8px 10px',
+                                                  borderRadius: 8,
+                                                  cursor: 'pointer',
+                                                  background: isSelected
+                                                    ? '#fff1f2'
+                                                    : isMainRiver
+                                                      ? '#ffffff'
+                                                      : '#fcfdfe',
+                                                  border: isSelected
+                                                    ? '1.5px solid #ef4444'
+                                                    : isMainRiver
+                                                      ? '1.5px solid #7dd3fc'
+                                                      : '1px solid #cbd5e1',
+                                                  borderLeft: isSelected
+                                                    ? '4px solid #ef4444'
+                                                    : isMainRiver
+                                                      ? '4px solid #0284c7'
+                                                      : `3px solid ${folder.color}66`,
+                                                  boxShadow: isSelected
+                                                    ? '0 3px 10px rgba(239, 68, 68, 0.14)'
+                                                    : '0 1px 2px rgba(15, 23, 42, 0.03)',
+                                                  display: 'flex',
+                                                  alignItems: 'flex-start',
+                                                  gap: 9,
+                                                  transition: 'all 0.12s ease',
+                                                }}
+                                              >
+                                                <span
+                                                  style={{
+                                                    width: 22,
+                                                    height: 22,
+                                                    borderRadius: '50%',
+                                                    background: isSelected
+                                                      ? '#ef4444'
+                                                      : isMainRiver
+                                                        ? '#0284c7'
+                                                        : `${folder.color}18`,
+                                                    color: isSelected || isMainRiver ? '#ffffff' : folder.color,
+                                                    border: isSelected
+                                                      ? '1.5px solid #ffffff'
+                                                      : isMainRiver
+                                                        ? '1.5px solid #bae6fd'
+                                                        : `1.5px solid ${folder.color}66`,
+                                                    fontSize: 10.5,
+                                                    fontWeight: 800,
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    flexShrink: 0,
+                                                    marginTop: 1,
+                                                  }}
+                                                >
+                                                  {node.displayIndex || '•'}
+                                                </span>
+
+                                                <div style={{ minWidth: 0, flex: 1 }}>
+                                                  <div
+                                                    style={{
+                                                      fontSize: 13,
+                                                      fontWeight: isSelected || isMainRiver ? 800 : 600,
+                                                      color: '#0f172a',
+                                                      lineHeight: 1.3,
+                                                      display: 'flex',
+                                                      alignItems: 'center',
+                                                      gap: 6,
+                                                      flexWrap: 'wrap',
+                                                    }}
+                                                  >
+                                                    <span>{formatCleanPlaceHeading(node)}</span>
+                                                    {isMainRiver && (
+                                                      <span
+                                                        style={{
+                                                          fontSize: 9.5,
+                                                          fontWeight: 800,
+                                                          background: '#e0f2fe',
+                                                          color: '#0369a1',
+                                                          border: '1px solid #7dd3fc',
+                                                          padding: '1px 5px',
+                                                          borderRadius: 4,
+                                                          letterSpacing: '0.02em',
+                                                        }}
+                                                      >
+                                                        ⭐ Main River
+                                                      </span>
+                                                    )}
+                                                  </div>
+                                                  <div
+                                                    style={{
+                                                      fontSize: 11.2,
+                                                      color: isSelected ? '#9f1239' : '#64748b',
+                                                      marginTop: 2,
+                                                      whiteSpace: 'nowrap',
+                                                      overflow: 'hidden',
+                                                      textOverflow: 'ellipsis',
+                                                    }}
+                                                  >
+                                                    {subLocation || node.placeType}
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      )}
+                                    </div>
+                                  );
+                                })
+                              : folder.items.map((node) => {
+                                  const isSelected = selectedNode?.id === node.id;
+                                  const locParts = [
+                                    node.locatedIn?.district,
+                                    node.locatedIn?.stateOrProvince,
+                                    node.locatedIn?.country || node.regionScope,
+                                  ].filter(Boolean);
+                                  const subLocation =
+                                    locParts.slice(0, 2).join(', ') +
+                                    (locParts.length > 2 ? ` · ${locParts[locParts.length - 1]}` : '');
+
+                                  return (
+                                    <div
+                                      key={node.id}
+                                      onClick={() => handleSelectNode(node)}
+                                      style={{
+                                        padding: '9px 11px',
+                                        borderRadius: 9,
+                                        cursor: 'pointer',
+                                        background: isSelected ? '#fff1f2' : '#ffffff',
+                                        border: isSelected
+                                          ? '1.5px solid #ef4444'
+                                          : '1px solid #cbd5e1',
+                                        borderLeft: isSelected
+                                          ? '4px solid #ef4444'
+                                          : `3px solid ${folder.color}88`,
+                                        boxShadow: isSelected
+                                          ? '0 3px 10px rgba(239, 68, 68, 0.14)'
+                                          : '0 1px 2px rgba(15, 23, 42, 0.03)',
+                                        display: 'flex',
+                                        alignItems: 'flex-start',
+                                        gap: 10,
+                                        transition: 'all 0.12s ease',
+                                      }}
+                                    >
+                                      <span
                                         style={{
-                                          fontSize: 11.5,
-                                          color: isSelected ? '#9f1239' : '#64748b',
-                                          marginTop: 3,
-                                          whiteSpace: 'nowrap',
-                                          overflow: 'hidden',
-                                          textOverflow: 'ellipsis',
+                                          width: 23,
+                                          height: 23,
+                                          borderRadius: '50%',
+                                          background: isSelected
+                                            ? '#ef4444'
+                                            : `${folder.color}18`,
+                                          color: isSelected ? '#ffffff' : folder.color,
+                                          border: isSelected
+                                            ? '1.5px solid #ffffff'
+                                            : `1.5px solid ${folder.color}66`,
+                                          boxShadow: isSelected
+                                            ? '0 0 0 2.5px rgba(239,68,68,0.28)'
+                                            : 'none',
+                                          fontSize: 11,
+                                          fontWeight: 800,
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          flexShrink: 0,
+                                          marginTop: 1,
                                         }}
                                       >
-                                        {subLocation || node.placeType}
+                                        {node.displayIndex || '•'}
+                                      </span>
+
+                                      <div style={{ minWidth: 0, flex: 1 }}>
+                                        <div
+                                          style={{
+                                            fontSize: 13.2,
+                                            fontWeight: isSelected ? 700 : 600,
+                                            color: '#0f172a',
+                                            lineHeight: 1.32,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: 6,
+                                            flexWrap: 'wrap',
+                                          }}
+                                        >
+                                          <span>{formatCleanPlaceHeading(node)}</span>
+                                          {(node.isMaster || node.tier === 'master') && (
+                                            <span
+                                              style={{
+                                                fontSize: 9.5,
+                                                fontWeight: 800,
+                                                background: '#fef3c7',
+                                                color: '#b45309',
+                                                border: '1px solid #fde68a',
+                                                padding: '1px 5px',
+                                                borderRadius: 4,
+                                                letterSpacing: '0.02em',
+                                              }}
+                                            >
+                                              ⭐ Core
+                                            </span>
+                                          )}
+                                        </div>
+                                        <div
+                                          style={{
+                                            fontSize: 11.5,
+                                            color: isSelected ? '#9f1239' : '#64748b',
+                                            marginTop: 3,
+                                            whiteSpace: 'nowrap',
+                                            overflow: 'hidden',
+                                            textOverflow: 'ellipsis',
+                                          }}
+                                        >
+                                          {subLocation || node.placeType}
+                                        </div>
                                       </div>
                                     </div>
-                                    </div>
-                                  </React.Fragment>
-                                );
-                              })}
+                                  );
+                                })}
                         </div>
                       )}
                     </div>
@@ -2672,9 +3244,17 @@ export default function MappingWorkspace({
                 <strong style={{ color: '#0f172a' }}>
                   Step 1 · Choose a layer to begin
                 </strong>
+              ) : selectedThemeFilter === 'india-rivers' && !selectedRiverBasin ? (
+                <strong style={{ color: '#0f172a' }}>
+                  Step 2 · Main Rivers of India (Choose a Basin to explore)
+                </strong>
+              ) : selectedThemeFilter === 'india-rivers' && selectedRiverBasin ? (
+                <strong style={{ color: '#0f172a' }}>
+                  Step 3 · {selectedRiverBasin === 'HIMALAYAN' ? 'Himalayan' : selectedRiverBasin === 'PENINSULAR' ? 'Peninsular' : 'Coastal'} Basin ({mapCanvasNodes.length} main rivers shown)
+                </strong>
               ) : (
                 <strong style={{ color: '#0f172a' }}>
-                  Showing {numberedNodes.length} mapped places
+                  Showing {mapCanvasNodes.length} mapped places
                 </strong>
               )}
             </span>
@@ -2683,7 +3263,13 @@ export default function MappingWorkspace({
               <button
                 type="button"
                 onClick={() => {
-                  setSelectedRiverBasin('ALL');
+                  setSelectedNode(null);
+                  setActiveSubBasin(null);
+                  if (selectedThemeFilter === 'india-rivers') {
+                    setSelectedRiverBasin(null);
+                  } else {
+                    setSelectedRiverBasin('ALL');
+                  }
                   setCameraTarget({
                     center: [22.8, 79.5],
                     zoom: 4.8,
@@ -2693,8 +3279,8 @@ export default function MappingWorkspace({
                 style={{
                   border: 'none',
                   background: 'none',
-                  color: selectedRiverBasin === 'ALL' ? '#2563eb' : '#64748b',
-                  fontWeight: selectedRiverBasin === 'ALL' ? 700 : 500,
+                  color: !selectedRiverBasin || selectedRiverBasin === 'ALL' ? '#2563eb' : '#64748b',
+                  fontWeight: !selectedRiverBasin || selectedRiverBasin === 'ALL' ? 700 : 500,
                   fontSize: 12,
                   cursor: 'pointer',
                   padding: 0,
@@ -2707,15 +3293,17 @@ export default function MappingWorkspace({
                 <>
                   <span style={{ width: 1, height: 12, background: '#cbd5e1' }} />
                   {[
-                    { id: 'HIMALAYAN', label: '🏔️ Himalayan', center: [28.8, 83.0], zoom: 5.6 },
-                    { id: 'PENINSULAR', label: '⛰️ Peninsular', center: [17.5, 78.5], zoom: 5.8 },
-                    { id: 'COASTAL', label: '🌊 Coastal', center: [16.0, 76.5], zoom: 5.8 },
+                    { id: 'HIMALAYAN', label: '🏔️ Himalayan', center: [28.2, 81.5], zoom: 5.2 },
+                    { id: 'PENINSULAR', label: '⛰️ Peninsular', center: [18.2, 78.5], zoom: 5.4 },
+                    { id: 'COASTAL', label: '🌊 Coastal', center: [16.8, 78.0], zoom: 5.2 },
                   ].map((b) => (
                     <button
                       key={b.id}
                       type="button"
                       onClick={() => {
-                        setSelectedRiverBasin((prev) => (prev === b.id ? 'ALL' : b.id));
+                        setSelectedNode(null);
+                        setActiveSubBasin(null);
+                        setSelectedRiverBasin(b.id);
                         setCameraTarget({ center: b.center, zoom: b.zoom, ts: Date.now() });
                       }}
                       style={{
@@ -2869,7 +3457,7 @@ export default function MappingWorkspace({
           </div>
 
           <MappingCanvas
-            nodes={numberedNodes}
+            nodes={mapCanvasNodes}
             selectedNode={selectedNode}
             onSelectNode={handleSelectNode}
             basemap={basemap}
@@ -2877,6 +3465,8 @@ export default function MappingWorkspace({
             showGraticules={true}
             cameraTarget={cameraTarget}
             activeOrg={activeOrg}
+            basinHighlightStates={activeBasinHighlightStates}
+            basinHighlightColor={activeBasinHighlightColor}
           />
 
           {/* LEVEL 1: Map Stage Layer Chooser Card (Zero Clutter Entry) */}
@@ -2905,7 +3495,7 @@ export default function MappingWorkspace({
                 India Static Geography
               </h2>
               <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 18px', lineHeight: 1.55 }}>
-                To avoid map clutter, choose a thematic layer to explore:
+                Step 1 · Choose a thematic layer to begin:
               </p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                 {folders.map((f) => (
@@ -2914,11 +3504,14 @@ export default function MappingWorkspace({
                     type="button"
                     onClick={() => {
                       setSelectedThemeFilter(f.id);
+                      setSelectedNode(null);
+                      setActiveSubBasin(null);
                       if (f.id === 'india-rivers') {
-                        setSelectedRiverBasin('HIMALAYAN');
-                        setCameraTarget({ center: [28.8, 83.0], zoom: 5.6, ts: Date.now() });
+                        setSelectedRiverBasin(null);
+                        setCameraTarget({ center: [22.8, 79.5], zoom: 4.8, ts: Date.now() });
                       } else {
                         setSelectedRiverBasin('ALL');
+                        setCameraTarget({ center: [22.8, 79.5], zoom: 4.8, ts: Date.now() });
                       }
                     }}
                     style={{
@@ -2954,6 +3547,69 @@ export default function MappingWorkspace({
               </div>
             </div>
           )}
+
+          {/* LEVEL 2: Floating River Basin Chooser Bar on Map (Shown while viewing All-India Main Trunk Rivers) */}
+          {activeMode === 'STATIC_INDIA' &&
+            selectedThemeFilter === 'india-rivers' &&
+            selectedRiverBasin === null &&
+            !selectedNode && (
+              <div
+                style={{
+                  position: 'absolute',
+                  bottom: isMobile ? 64 : 20,
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  zIndex: 495,
+                  background: 'rgba(255, 255, 255, 0.96)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1.5px solid #bae6fd',
+                  borderRadius: 14,
+                  padding: isMobile ? '10px 12px' : '12px 16px',
+                  boxShadow: '0 14px 34px rgba(15, 23, 42, 0.14)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 8,
+                  maxWidth: '94%',
+                }}
+              >
+                <div style={{ fontSize: 11.5, fontWeight: 800, color: '#0369a1', letterSpacing: '0.03em' }}>
+                  Step 2 · Select a River Basin to Highlight Its Region &amp; Main Rivers:
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8 }}>
+                  {[
+                    { id: 'HIMALAYAN', label: '🏔️ Himalayan Basin (33)', color: '#0284c7', center: [28.2, 81.5], zoom: 5.2 },
+                    { id: 'PENINSULAR', label: '⛰️ Peninsular Basin (8)', color: '#0d9488', center: [18.2, 78.5], zoom: 5.4 },
+                    { id: 'COASTAL', label: '🌊 Coastal & Inland (18)', color: '#4f46e5', center: [16.8, 78.0], zoom: 5.2 },
+                  ].map((b) => (
+                    <button
+                      key={b.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedRiverBasin(b.id);
+                        setActiveSubBasin(null);
+                        setSelectedNode(null);
+                        setCameraTarget({ center: b.center, zoom: b.zoom, ts: Date.now() });
+                      }}
+                      style={{
+                        padding: '8px 14px',
+                        borderRadius: 9,
+                        border: `1.5px solid ${b.color}`,
+                        background: `${b.color}12`,
+                        color: '#0f172a',
+                        fontSize: 12.5,
+                        fontWeight: 800,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {b.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
           {/* Floating On-Map PYQ Challenge Dock (Vibrant High-Yield Gold/Amber Visual Identity) */}
           {selectedNode && practiceQuestionsForSelected.length > 0 && (() => {

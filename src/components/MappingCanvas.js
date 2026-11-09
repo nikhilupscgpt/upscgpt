@@ -434,6 +434,22 @@ function CameraController({ cameraTarget, selectedNode, onZoomChange }) {
 
     if (lastNodeId.current === selectedNode.id) return;
     lastNodeId.current = selectedNode.id;
+
+    if (Array.isArray(selectedNode.polylinePoints) && selectedNode.polylinePoints.length >= 2) {
+      try {
+        const bounds = L.latLngBounds(selectedNode.polylinePoints);
+        if (bounds.isValid()) {
+          map.fitBounds(bounds, {
+            padding: [65, 65],
+            maxZoom: 6.4,
+            animate: true,
+            duration: 0.9,
+          });
+          return;
+        }
+      } catch (_) {}
+    }
+
     const targetZoom = selectedNode.regionScope === 'India' ? 6 : 4.5;
     try {
       map.flyTo([lat, lng], targetZoom, {
@@ -456,6 +472,8 @@ function WorldAndIndiaGeoBorders({
   selectedNode,
   onStateClick,
   basemap,
+  basinHighlightStates = [],
+  basinHighlightColor = '#0284c7',
 }) {
   const [indiaGeo, setIndiaGeo] = useState(() => cachedIndiaGeoJson);
   const [worldGeo, setWorldGeo] = useState(() => cachedWorldGeoJson);
@@ -656,10 +674,10 @@ function WorldAndIndiaGeoBorders({
         />
       )}
 
-      {/* 3. Official India State & UT Borders (with Active State Highlight) */}
+      {/* 3. Official India State & UT Borders (with Active State or Basin Catchment Highlight) */}
       {(showIndiaStates || hasIndiaInOrg) && indiaGeo && (
         <GeoJSON
-          key={`india-states-${activeOrg?.id || 'base'}-${showIndiaStates}-${basemap}-${selectedNode?.id || 'none'}`}
+          key={`india-states-${activeOrg?.id || 'base'}-${showIndiaStates}-${basemap}-${selectedNode?.id || 'none'}-${basinHighlightStates.join('|')}`}
           data={indiaGeo}
           style={(feature) => {
             const stName = (
@@ -675,6 +693,13 @@ function WorldAndIndiaGeoBorders({
               selectedStateNames.length > 0 &&
               selectedStateNames.some(
                 (sn) => stName === sn || stName.includes(sn) || sn.includes(stName)
+              );
+
+            const isBasinState =
+              !selectedNode &&
+              basinHighlightStates.length > 0 &&
+              basinHighlightStates.some(
+                (bs) => stName === bs || stName.includes(bs) || bs.includes(stName)
               );
 
             if (hasIndiaInOrg) {
@@ -694,6 +719,26 @@ function WorldAndIndiaGeoBorders({
                 color: '#dc2626',
                 weight: 2.3,
                 opacity: 0.95,
+              };
+            }
+
+            if (isBasinState) {
+              return {
+                fillColor: basinHighlightColor,
+                fillOpacity: 0.14,
+                color: basinHighlightColor,
+                weight: 1.7,
+                opacity: 0.88,
+              };
+            }
+
+            if (!selectedNode && basinHighlightStates.length > 0) {
+              return {
+                fillColor: '#94a3b8',
+                fillOpacity: 0.01,
+                color: isSatellite ? 'rgba(255,255,255,0.35)' : '#94a3b8',
+                weight: 0.9,
+                opacity: 0.4,
               };
             }
 
@@ -758,6 +803,8 @@ export default function MappingCanvas({
   cameraTarget,
   activeOrg = null,
   onStateClick,
+  basinHighlightStates = [],
+  basinHighlightColor = '#0284c7',
 }) {
   const tile = TILE_LAYERS[basemap] || TILE_LAYERS.topo;
 
@@ -915,6 +962,8 @@ export default function MappingCanvas({
           selectedNode={selectedNode}
           onStateClick={onStateClick}
           basemap={basemap}
+          basinHighlightStates={basinHighlightStates}
+          basinHighlightColor={basinHighlightColor}
         />
 
         {/* Reference Graticules (Equator, Tropics, IST 82.5°E) */}
