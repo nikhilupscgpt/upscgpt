@@ -352,6 +352,38 @@ function formatCleanPlaceHeading(node) {
 }
 
 /**
+ * 1A-2. Returns the canonical sub-basin grouping for river nodes
+ * (e.g. Indus System, Ganga System, Brahmaputra & Barak System, etc.)
+ */
+function getRiverSubBasin(node) {
+  if (!node) return 'Drainage Basin';
+  const s = (node.slug || '').toLowerCase();
+  const id = node.id || '';
+  if (['indus-river', 'jhelum-river', 'chenab-river', 'ravi-river', 'beas-river', 'sutlej-river'].includes(s) || id.startsWith('IND-RIV-02')) {
+    return 'Indus River System';
+  }
+  if (['brahmaputra-river', 'dibang-river', 'lohit-river', 'subansiri-river', 'kameng-river', 'manas-river', 'teesta-river', 'dhansiri-river', 'barak-river'].includes(s) || id.startsWith('IND-RIV-03')) {
+    return 'Brahmaputra & Barak System';
+  }
+  if (s.includes('prayag') || id.startsWith('IND-PRY') || ['ganga-river', 'ramganga-river', 'gomti-river', 'ghaghara-river', 'gandak-river', 'kosi-river', 'mahananda-river', 'yamuna-river', 'chambal-river', 'betwa-river', 'ken-river', 'son-river', 'damodar-river'].includes(s) || id.startsWith('IND-RIV-01')) {
+    return 'Ganga River System';
+  }
+  if (['narmada-river', 'tapi-river'].includes(s)) {
+    return 'West-Flowing Peninsular Rifts';
+  }
+  if (['godavari-river', 'krishna-river', 'bhima-river', 'tungabhadra-river', 'cauvery-river', 'mahanadi-river'].includes(s)) {
+    return 'Major East-Flowing Peninsular Rivers';
+  }
+  if (['sabarmati-river', 'mahi-river', 'luni-river', 'mandovi-river', 'zuari-river', 'sharavati-river', 'periyar-river', 'bharathapuzha-river'].includes(s)) {
+    return 'West Coast Rivers';
+  }
+  if (['subarnarekha-river', 'brahmani-river', 'baitarani-river', 'vamsadhara-river', 'nagavali-river', 'palar-river', 'south-pennar-river', 'pennar-river', 'vaigai-river', 'vellar-river'].includes(s)) {
+    return 'East Coast Rivers';
+  }
+  return node.basinLabel || 'Drainage Basin';
+}
+
+/**
  * 1B. Returns the concise 1-line "Place" geographic anchor:
  * e.g. "Sehore District (Vindhyan Range / Narmada Basin, MP)"
  */
@@ -589,7 +621,7 @@ export default function MappingWorkspace({
   const [pinScope, setPinScope] = useState('ALL'); // 'ALL' | 'India' | 'World'
   const [pinTimeMode, setPinTimeMode] = useState('DAY'); // 'DAY' | 'WEEK' | 'MONTH' | 'ALL'
   const [selectedPinPeriod, setSelectedPinPeriod] = useState('ALL');
-  const [selectedThemeFilter, setSelectedThemeFilter] = useState('ALL'); // 'ALL' or folder.id
+  const [selectedThemeFilter, setSelectedThemeFilter] = useState(null); // null = Level 1 Layer Chooser screen | folder.id | 'ALL'
   const [selectedRiverBasin, setSelectedRiverBasin] = useState('ALL'); // 'ALL' | 'HIMALAYAN' | 'PENINSULAR' | 'COASTAL'
   const [collapsedFolders, setCollapsedFolders] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
@@ -920,10 +952,10 @@ export default function MappingWorkspace({
 
   // Reset theme filter if the selected theme has no items in the newly chosen period
   useEffect(() => {
-    if (selectedThemeFilter === 'ALL') return;
+    if (!selectedThemeFilter || selectedThemeFilter === 'ALL') return;
     const stillExists = folders.some((f) => f.id === selectedThemeFilter);
     if (!stillExists) {
-      setSelectedThemeFilter('ALL');
+      setSelectedThemeFilter(null);
     }
   }, [folders, selectedThemeFilter]);
 
@@ -960,21 +992,26 @@ export default function MappingWorkspace({
     setSelectedNode(null);
     setActiveOrg(null);
     setSearchQuery('');
-    setSelectedThemeFilter('ALL');
-    setSelectedRiverBasin('ALL');
     setPanelMode('STUDY');
-    if (mode === 'PIN') {
-      setPinTimeMode(initialPinTime);
-      setPinScope('ALL');
-    }
 
     if (mode === 'STATIC_INDIA') {
-      setCameraTarget({ center: [22.5, 80.5], zoom: 5, ts: Date.now() });
+      // Level 1: Start on Layer Chooser Hub so all layers are NOT opened at once creating clutter!
+      setSelectedThemeFilter(null);
+      setSelectedRiverBasin('ALL');
+      setCameraTarget({ center: [22.8, 79.5], zoom: 4.8, ts: Date.now() });
     } else if (mode === 'STATIC_WORLD') {
+      setSelectedThemeFilter(null);
+      setSelectedRiverBasin('ALL');
       setCameraTarget({ center: [20.0, 18.0], zoom: 2.4, ts: Date.now() });
     } else if (mode === 'PIN') {
+      setSelectedThemeFilter('ALL');
+      setSelectedRiverBasin('ALL');
+      setPinTimeMode(initialPinTime);
+      setPinScope('ALL');
       setCameraTarget({ center: [24.0, 78.0], zoom: 4.8, ts: Date.now() });
     } else if (mode === 'IR') {
+      setSelectedThemeFilter('ALL');
+      setSelectedRiverBasin('ALL');
       setCameraTarget({ center: [24.0, 48.0], zoom: 3, ts: Date.now() });
     }
   };
@@ -1338,10 +1375,13 @@ export default function MappingWorkspace({
 
   const studiedInCurrentFeed = numberedNodes.filter((n) => studiedIds.has(n.id)).length;
 
-  const visibleFolders =
-    selectedThemeFilter === 'ALL'
-      ? folders
-      : folders.filter((f) => f.id === selectedThemeFilter);
+  const visibleFolders = useMemo(() => {
+    if (!selectedThemeFilter) return [];
+    if (selectedThemeFilter === 'ALL') return folders;
+    return folders.filter((f) => f.id === selectedThemeFilter);
+  }, [folders, selectedThemeFilter]);
+
+  const activeThemeFolder = folders.find((f) => f.id === selectedThemeFilter) || null;
 
   const selectedLocationSubtitle = selectedNode
     ? formatPlaceDescriptor(selectedNode)
@@ -1525,6 +1565,134 @@ export default function MappingWorkspace({
             >
               🌐 IR Mapping & Groupings
             </span>
+          )}
+
+          {/* Interactive Navigation Breadcrumbs for Static India Flow */}
+          {activeMode === 'STATIC_INDIA' && (
+            <nav
+              aria-label="Mapping Breadcrumb"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                fontSize: 12.5,
+                background: '#f8fafc',
+                border: '1px solid #e2e8f0',
+                padding: '4px 10px',
+                borderRadius: 8,
+              }}
+            >
+              {/* Level 1: India */}
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedThemeFilter(null);
+                  setSelectedRiverBasin('ALL');
+                  setSelectedNode(null);
+                  setCameraTarget({ center: [22.8, 79.5], zoom: 4.8, ts: Date.now() });
+                }}
+                title="Return to Layer Selection"
+                style={{
+                  border: 'none',
+                  background: 'none',
+                  padding: 0,
+                  color: selectedThemeFilter ? '#2563eb' : '#0f172a',
+                  fontWeight: selectedThemeFilter ? 600 : 800,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 4,
+                }}
+              >
+                <span>🇮🇳 India</span>
+              </button>
+
+              {/* Level 2: Layer / Theme */}
+              {selectedThemeFilter ? (
+                <>
+                  <span style={{ color: '#cbd5e1', fontWeight: 600 }}>/</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedRiverBasin('ALL');
+                      setSelectedNode(null);
+                      setCameraTarget({ center: [22.8, 79.5], zoom: 4.8, ts: Date.now() });
+                    }}
+                    title="Return to Layer Overview"
+                    style={{
+                      border: 'none',
+                      background: 'none',
+                      padding: 0,
+                      color: (selectedRiverBasin !== 'ALL' || selectedNode) ? '#2563eb' : '#0f172a',
+                      fontWeight: (selectedRiverBasin !== 'ALL' || selectedNode) ? 600 : 800,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {activeThemeFolder?.shortLabel || 'Theme'}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <span style={{ color: '#cbd5e1', fontWeight: 600 }}>/</span>
+                  <span style={{ color: '#64748b', fontStyle: 'italic' }}>
+                    Select a layer
+                  </span>
+                </>
+              )}
+
+              {/* Level 3: River Basin */}
+              {selectedThemeFilter === 'india-rivers' && selectedRiverBasin !== 'ALL' && (
+                <>
+                  <span style={{ color: '#cbd5e1', fontWeight: 600 }}>/</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedNode(null);
+                      if (selectedRiverBasin === 'HIMALAYAN') {
+                        setCameraTarget({ center: [28.8, 83.0], zoom: 5.6, ts: Date.now() });
+                      } else if (selectedRiverBasin === 'PENINSULAR') {
+                        setCameraTarget({ center: [17.5, 78.5], zoom: 5.8, ts: Date.now() });
+                      } else if (selectedRiverBasin === 'COASTAL') {
+                        setCameraTarget({ center: [16.0, 76.5], zoom: 5.8, ts: Date.now() });
+                      }
+                    }}
+                    title="Zoom to Basin Overview"
+                    style={{
+                      border: 'none',
+                      background: 'none',
+                      padding: 0,
+                      color: selectedNode ? '#2563eb' : '#0f172a',
+                      fontWeight: selectedNode ? 600 : 800,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {selectedRiverBasin === 'HIMALAYAN' ? '🏔️ Himalayan Basin' :
+                     selectedRiverBasin === 'PENINSULAR' ? '⛰️ Peninsular Basin' :
+                     selectedRiverBasin === 'COASTAL' ? '🌊 Coastal & Minor' : 'Basin'}
+                  </button>
+                </>
+              )}
+
+              {/* Level 4: Selected Place / River */}
+              {selectedNode && (
+                <>
+                  <span style={{ color: '#cbd5e1', fontWeight: 600 }}>/</span>
+                  <span
+                    style={{
+                      color: '#0f172a',
+                      fontWeight: 800,
+                      maxWidth: isMobile ? 120 : 180,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                    }}
+                    title={selectedNode.place}
+                  >
+                    {formatCleanPlaceHeading(selectedNode)}
+                  </span>
+                </>
+              )}
+            </nav>
           )}
 
           {/* Divider */}
@@ -1879,28 +2047,61 @@ export default function MappingWorkspace({
             </div>
           </div>
 
-          {/* Quick Thematic Category Filter Chips */}
-          {folders.length > 0 && (
+          {/* Quick Thematic Category Filter Chips (Shown when a layer is active) */}
+          {selectedThemeFilter !== null && folders.length > 0 && (
             <div
               style={{
-                padding: '2px 12px 10px',
+                padding: '4px 12px 10px',
                 borderBottom: '1px solid #f1f5f9',
                 display: 'flex',
                 flexWrap: 'wrap',
                 gap: 6,
+                alignItems: 'center',
               }}
             >
+              {activeMode === 'STATIC_INDIA' && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedThemeFilter(null);
+                    setSelectedRiverBasin('ALL');
+                    setSelectedNode(null);
+                    setCameraTarget({ center: [22.8, 79.5], zoom: 4.8, ts: Date.now() });
+                  }}
+                  title="Return to Layer Chooser"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                    padding: '3px 8px',
+                    borderRadius: 999,
+                    border: '1px solid #cbd5e1',
+                    background: '#f8fafc',
+                    color: '#475569',
+                    fontSize: 11,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
+                >
+                  <span>←</span>
+                  <span>Layers</span>
+                </button>
+              )}
               {folders.map((folder) => {
                 const isChipActive = selectedThemeFilter === folder.id;
                 return (
                   <button
                     key={folder.id}
                     type="button"
-                    onClick={() =>
-                      setSelectedThemeFilter((prev) =>
-                        prev === folder.id ? 'ALL' : folder.id
-                      )
-                    }
+                    onClick={() => {
+                      setSelectedThemeFilter(folder.id);
+                      if (folder.id === 'india-rivers') {
+                        setSelectedRiverBasin('HIMALAYAN');
+                        setCameraTarget({ center: [28.8, 83.0], zoom: 5.6, ts: Date.now() });
+                      } else {
+                        setSelectedRiverBasin('ALL');
+                      }
+                    }}
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
@@ -1908,12 +2109,12 @@ export default function MappingWorkspace({
                       padding: '4px 9px',
                       borderRadius: 999,
                       border: isChipActive
-                        ? `1px solid ${folder.color}`
+                        ? `1.5px solid ${folder.color}`
                         : '1px solid #e2e8f0',
                       background: isChipActive ? `${folder.color}14` : '#ffffff',
                       color: isChipActive ? folder.color : '#334155',
                       fontSize: 11.5,
-                      fontWeight: 600,
+                      fontWeight: isChipActive ? 800 : 600,
                       cursor: 'pointer',
                       transition: 'all 0.15s ease',
                     }}
@@ -2053,6 +2254,72 @@ export default function MappingWorkspace({
               <div style={{ fontSize: 12.5, color: '#64748b', padding: '12px 6px' }}>
                 Loading mapped places...
               </div>
+            ) : (activeMode === 'STATIC_INDIA' && selectedThemeFilter === null) ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div style={{ padding: '2px 4px 6px' }}>
+                  <div style={{ fontSize: 11, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#64748b' }}>
+                    Step 1 · Choose UPSC Mapping Layer
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: '#0f172a', marginTop: 2 }}>
+                    Select a theme to explore on map:
+                  </div>
+                </div>
+
+                {folders.map((folder) => (
+                  <button
+                    key={folder.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedThemeFilter(folder.id);
+                      if (folder.id === 'india-rivers') {
+                        setSelectedRiverBasin('HIMALAYAN');
+                        setCameraTarget({ center: [28.8, 83.0], zoom: 5.6, ts: Date.now() });
+                      } else {
+                        setSelectedRiverBasin('ALL');
+                      }
+                    }}
+                    style={{
+                      width: '100%',
+                      textAlign: 'left',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 12,
+                      padding: '12px 14px',
+                      borderRadius: 12,
+                      border: '1.5px solid #e2e8f0',
+                      background: '#ffffff',
+                      boxShadow: '0 2px 8px rgba(15, 23, 42, 0.04)',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: 38,
+                        height: 38,
+                        borderRadius: 10,
+                        background: `${folder.color}14`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 20,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {folder.emoji}
+                    </span>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 13.5, fontWeight: 800, color: '#0f172a' }}>
+                        {folder.title}
+                      </div>
+                      <div style={{ fontSize: 11.5, color: '#64748b', marginTop: 2 }}>
+                        {folder.items.length} mapped {folder.items.length === 1 ? 'place' : 'places'} with notes &amp; PYQs
+                      </div>
+                    </div>
+                    <span style={{ color: '#94a3b8', fontSize: 16 }}>›</span>
+                  </button>
+                ))}
+              </div>
             ) : visibleFolders.length === 0 ? (
               <div style={{ fontSize: 12.5, color: '#64748b', padding: '16px', textAlign: 'center' }}>
                 No mapped places match the current filter.
@@ -2061,6 +2328,7 @@ export default function MappingWorkspace({
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {visibleFolders.map((folder) => {
                   const isCollapsed = Boolean(collapsedFolders[folder.id]);
+                  let lastSubBasin = '';
                   return (
                     <div
                       key={folder.id}
@@ -2199,8 +2467,13 @@ export default function MappingWorkspace({
                                   </div>
                                 );
                               })
-                            : folder.items.map((node) => {
+                            : folder.items.map((node, nodeIdx) => {
                                 const isSelected = selectedNode?.id === node.id;
+                                const subBasin = getRiverSubBasin(node);
+                                const showSubHeader = folder.id === 'india-rivers' && subBasin !== lastSubBasin;
+                                if (showSubHeader) {
+                                  lastSubBasin = subBasin;
+                                }
                                 const locParts = [
                                   node.locatedIn?.district,
                                   node.locatedIn?.stateOrProvince,
@@ -2211,9 +2484,28 @@ export default function MappingWorkspace({
                                   (locParts.length > 2 ? ` · ${locParts[locParts.length - 1]}` : '');
 
                                 return (
-                                  <div
-                                    key={node.id}
-                                    onClick={() => handleSelectNode(node)}
+                                  <React.Fragment key={node.id}>
+                                    {showSubHeader && (
+                                      <div
+                                        style={{
+                                          fontSize: 10.5,
+                                          fontWeight: 800,
+                                          color: '#0284c7',
+                                          textTransform: 'uppercase',
+                                          letterSpacing: '0.07em',
+                                          padding: nodeIdx === 0 ? '4px 6px 4px' : '10px 6px 4px',
+                                          borderTop: nodeIdx === 0 ? 'none' : '1px dashed #e2e8f0',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          gap: 6,
+                                        }}
+                                      >
+                                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#0284c7' }} />
+                                        <span>{subBasin}</span>
+                                      </div>
+                                    )}
+                                    <div
+                                      onClick={() => handleSelectNode(node)}
                                     style={{
                                       padding: '9px 11px',
                                       borderRadius: 9,
@@ -2306,7 +2598,7 @@ export default function MappingWorkspace({
                                         {subLocation || node.placeType}
                                       </div>
                                     </div>
-                                  </div>
+                                  </React.Fragment>
                                 );
                               })}
                         </div>
@@ -2375,6 +2667,10 @@ export default function MappingWorkspace({
                   Zoomed to{' '}
                   <strong style={{ color: '#0f172a' }}>{selectedLocationSubtitle}</strong>
                 </>
+              ) : selectedThemeFilter === null ? (
+                <strong style={{ color: '#0f172a' }}>
+                  Step 1 · Choose a layer to begin
+                </strong>
               ) : (
                 <strong style={{ color: '#0f172a' }}>
                   Showing {numberedNodes.length} mapped places
@@ -2581,6 +2877,82 @@ export default function MappingWorkspace({
             cameraTarget={cameraTarget}
             activeOrg={activeOrg}
           />
+
+          {/* LEVEL 1: Map Stage Layer Chooser Card (Zero Clutter Entry) */}
+          {activeMode === 'STATIC_INDIA' && selectedThemeFilter === null && (
+            <div
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                zIndex: 490,
+                background: 'rgba(255, 255, 255, 0.96)',
+                backdropFilter: 'blur(12px)',
+                border: '1.5px solid #cbd5e1',
+                borderRadius: 18,
+                padding: isMobile ? '20px 16px' : '26px 30px',
+                maxWidth: 480,
+                width: '90%',
+                boxShadow: '0 20px 45px rgba(15, 23, 42, 0.16)',
+                textAlign: 'center',
+                pointerEvents: 'auto',
+              }}
+            >
+              <div style={{ fontSize: 36, marginBottom: 8 }}>🇮🇳</div>
+              <h2 style={{ fontSize: 20, fontWeight: 800, margin: '0 0 6px', color: '#0f172a' }}>
+                India Static Geography
+              </h2>
+              <p style={{ fontSize: 13, color: '#64748b', margin: '0 0 18px', lineHeight: 1.55 }}>
+                To avoid map clutter, choose a thematic layer to explore:
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                {folders.map((f) => (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedThemeFilter(f.id);
+                      if (f.id === 'india-rivers') {
+                        setSelectedRiverBasin('HIMALAYAN');
+                        setCameraTarget({ center: [28.8, 83.0], zoom: 5.6, ts: Date.now() });
+                      } else {
+                        setSelectedRiverBasin('ALL');
+                      }
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      padding: '10px 12px',
+                      borderRadius: 10,
+                      border: `1.5px solid ${f.color}33`,
+                      background: `${f.color}0c`,
+                      color: '#0f172a',
+                      fontSize: 12.5,
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'all 0.15s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = f.color;
+                      e.currentTarget.style.background = `${f.color}18`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = `${f.color}33`;
+                      e.currentTarget.style.background = `${f.color}0c`;
+                    }}
+                  >
+                    <span style={{ fontSize: 18 }}>{f.emoji}</span>
+                    <span style={{ flex: 1, minWidth: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {f.shortLabel} ({f.items.length})
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Floating On-Map PYQ Challenge Dock (Vibrant High-Yield Gold/Amber Visual Identity) */}
           {selectedNode && practiceQuestionsForSelected.length > 0 && (() => {
