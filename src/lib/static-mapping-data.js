@@ -352,24 +352,17 @@ export const CURATED_MAPPING_NODES = [
     "aliases": [
       "Sindhu",
       "Singi Khamban",
-      "Jhelum",
-      "Chenab",
-      "Ravi",
-      "Beas",
-      "Sutlej",
-      "Zaskar",
-      "Zanskar",
-      "Shyok",
-      "Gilgit"
+      "Lion's Mouth",
+      "Indus"
     ],
-    "placeType": "Antecedent Himalayan River System",
+    "placeType": "Trans-Himalayan Antecedent River (Main Stem of Indus System)",
     "priority": "High",
     "locatedIn": {
-      "country": "India",
-      "stateOrProvince": "Ladakh, J&K, HP, Punjab"
+      "country": "China (Tibet), India, Pakistan",
+      "stateOrProvince": "Tibet Autonomous Region, Ladakh (India), Gilgit-Baltistan, Khyber Pakhtunkhwa, Punjab, Sindh (Pakistan)"
     },
-    "lat": 34.1526,
-    "lng": 77.5771,
+    "lat": 34.08,
+    "lng": 72.7,
     "shape": [
       [
         31.25,
@@ -392,7 +385,7 @@ export const CURATED_MAPPING_NODES = [
         74.6
       ],
       [
-        34,
+        34.08,
         72.7
       ],
       [
@@ -409,196 +402,1454 @@ export const CURATED_MAPPING_NODES = [
       ]
     ],
     "neighbours": [
-      "Flows NW between Ladakh Range (North) and Zanskar Range (South)",
-      "Tributaries: Jhelum, Chenab, Ravi, Beas, Sutlej, Shyok, Nubra, Zanskar"
+      "Source: Glacier near Bokhar Chu, north-west of Lake Mansarovar, Kailash Range, Tibet, at",
+      "Mouth: Arabian Sea through a delta south-east of Karachi, Sindh (Pakistan)"
     ],
     "riverDetails": {
-      "length": "3,180 km (approx. 1,114 km within India)",
-      "origin": "Bokhar Chu glacier near Lake Manasarovar (Kailash Range, Tibet; known as Singi Khamban / Lion's Mouth)",
-      "mouth": "Arabian Sea (south of Karachi, Pakistan)",
+      "length": "2,880 km as per NCERT (some sources give ~3,180 km); 1,114 km within India's territorial claim",
+      "origin": "Glacier near Bokhar Chu, north-west of Lake Mansarovar, Kailash Range, Tibet, at ~4,164 m; called Singi Khamban (Lion's Mouth) in Tibet",
+      "mouth": "Arabian Sea through a delta south-east of Karachi, Sindh (Pakistan)",
+      "sourceCoords": [
+        31.25,
+        81.67
+      ],
+      "mouthCoords": [
+        24.1,
+        67.45
+      ],
       "states": {
         "flowsThrough": [
-          "Ladakh (India)",
-          "Gilgit-Baltistan",
-          "Pakistan"
+          "Ladakh (UT)"
         ],
         "basinStates": [
           "Ladakh",
           "Jammu & Kashmir",
           "Himachal Pradesh",
           "Punjab",
+          "Haryana",
           "Rajasthan",
-          "Haryana"
+          "Chandigarh"
         ]
       },
       "tributaries": {
         "leftBank": [
           {
-            "name": "Zanskar",
-            "note": "Carves Zanskar gorge in Ladakh; joins Indus at Nimmu"
+            "name": "Zanskar River",
+            "note": "Drains the Zanskar Range; joins at Nimmu near Leh; frozen 'Chadar' trek route in winter"
           },
           {
-            "name": "Suru",
-            "note": "Originates from Penzella glacier; flows past Kargil"
+            "name": "Suru River",
+            "note": "Flows past Kargil (receives the Dras); joins the Indus downstream of Kargil near the LoC"
           },
           {
-            "name": "Panjnad (Chenab+Jhelum+Ravi+Sutlej+Beas)",
-            "note": "Combined flow of the five Punjab rivers joining Indus at Mithankot (Pakistan)"
+            "name": "Soan River",
+            "note": "Drains the Potwar Plateau in Pakistan"
+          },
+          {
+            "name": "Panjnad",
+            "note": "Combined flow of the five Punjab rivers (Jhelum, Chenab, Ravi, Beas, Sutlej); joins the Indus at Mithankot"
           }
         ],
         "rightBank": [
           {
-            "name": "Shyok (River of Death)",
-            "note": "Rises from Rimo Glacier (Karakoram); joined by Nubra; joins Indus near Skardu"
+            "name": "Shyok River",
+            "note": "Rises near the Rimo Glacier (Karakoram); receives the Nubra; joins near Keris, east of Skardu"
           },
           {
-            "name": "Shigar",
-            "note": "Drains Baltoro and K2 glaciers; joins Indus at Skardu"
+            "name": "Shigar River",
+            "note": "Drains the Baltoro-Biafo glacier region; joins near Skardu"
           },
           {
-            "name": "Gilgit",
-            "note": "Drains NW Karakoram/Hindukush; joins Indus near Bunji"
+            "name": "Gilgit River",
+            "note": "Receives the Hunza; joins near Jaglot-Bunji, the meeting point of Himalaya, Karakoram and Hindu Kush"
           },
           {
-            "name": "Kabul",
-            "note": "Rises in Hindukush (Afghanistan); joins Indus at Attock"
+            "name": "Kabul River",
+            "note": "From Afghanistan; receives the Swat; joins at Attock"
           },
           {
-            "name": "Kurram & Gomal",
-            "note": "Right-bank tributaries draining Sulaiman Range"
+            "name": "Kurram, Tochi and Gomal Rivers",
+            "note": "Western tributaries draining the Sulaiman Range; Zhob joins the Gomal"
           }
         ]
       },
       "confluences": [
         {
           "tributary": "Zanskar",
-          "sangam": "Nimmu Sangam",
-          "state": "Ladakh",
-          "note": "Famous picturesque confluence near Leh"
+          "sangam": "Nimmu, near Leh",
+          "state": "Ladakh"
         },
         {
           "tributary": "Shyok",
-          "sangam": "Keris (near Skardu)",
-          "state": "Ladakh / Baltistan"
+          "sangam": "Near Keris, east of Skardu",
+          "state": "Gilgit-Baltistan"
         },
         {
           "tributary": "Gilgit",
-          "sangam": "Bunji / Partab Bridge",
-          "state": "Gilgit-Baltistan",
-          "note": "Tri-junction of Himalayas, Karakoram & Hindukush"
+          "sangam": "Near Jaglot-Bunji",
+          "state": "Gilgit-Baltistan"
         },
         {
           "tributary": "Kabul",
-          "sangam": "Attock Sangam",
-          "state": "Punjab (Pakistan)",
-          "note": "Where Indus emerges from the mountains into Punjab plains"
+          "sangam": "Attock",
+          "state": "Punjab (Pakistan)"
         },
         {
           "tributary": "Panjnad",
-          "sangam": "Mithankot Sangam",
-          "state": "Punjab / Sindh (Pakistan)",
-          "note": "Where the combined Punjab 5 rivers join Indus"
+          "sangam": "Mithankot",
+          "state": "Punjab (Pakistan)"
         }
       ],
       "towns": [
         {
+          "name": "Demchok",
+          "type": "Strategic",
+          "significance": "Point where the Indus enters India from Tibet",
+          "state": "Ladakh"
+        },
+        {
           "name": "Leh",
-          "type": "Cultural / Historical",
-          "significance": "Historic capital of Ladakh Kingdom on the Indus banks",
+          "type": "Administrative / Cultural",
+          "significance": "Largest town on the Indian Indus; Sindhu Darshan festival at Shey (Sindhu Ghat)",
+          "state": "Ladakh"
+        },
+        {
+          "name": "Alchi",
+          "type": "Cultural",
+          "significance": "Ancient Buddhist monastery complex on the Indus bank",
           "state": "Ladakh"
         },
         {
           "name": "Skardu",
-          "type": "Strategic / Tourism",
-          "significance": "Gateway to Karakoram 8000ers (K2, Broad Peak)",
+          "type": "Strategic",
+          "significance": "Main town of Baltistan near the Shyok and Shigar confluences",
           "state": "Gilgit-Baltistan"
         },
         {
           "name": "Attock",
-          "type": "Historical / Strategic",
-          "significance": "Historic fortress town guarding the Indus river crossing",
-          "state": "Pakistan"
+          "type": "Historical",
+          "significance": "Kabul-Indus confluence; historic river crossing on the Grand Trunk Road",
+          "state": "Punjab (Pakistan)"
         },
         {
-          "name": "Hyderabad (Sindh)",
+          "name": "Mohenjo-daro",
           "type": "Historical",
-          "significance": "Major historic cultural capital of lower Indus plain",
-          "state": "Pakistan"
+          "significance": "Harappan city on the right bank of the Indus; UNESCO World Heritage Site",
+          "state": "Sindh (Pakistan)"
         }
       ],
       "dams": [
         {
-          "name": "Nimoo Bazgo Hydro Project",
+          "name": "Nimoo Bazgo Hydroelectric Project",
           "state": "Ladakh",
-          "type": "Run-of-the-river hydroelectric plant on Indus (45 MW)"
+          "type": "45 MW run-of-the-river project near Alchi"
         },
         {
           "name": "Chutak Hydroelectric Project",
           "state": "Ladakh",
-          "type": "Run-of-the-river project on Suru tributary near Kargil"
+          "type": "44 MW run-of-the-river project on the Suru (Indus tributary), Kargil"
         },
         {
           "name": "Tarbela Dam",
-          "state": "Pakistan",
-          "type": "Massive earth-filled reservoir dam on Indus main stem"
+          "state": "Khyber Pakhtunkhwa (Pakistan)",
+          "type": "Among the world's largest earth-filled dams"
         },
         {
           "name": "Diamer-Bhasha Dam",
-          "state": "Gilgit-Baltistan",
-          "type": "Under-construction gravity dam on Indus"
+          "state": "Gilgit-Baltistan (Pakistan)",
+          "type": "Large storage dam under construction"
+        },
+        {
+          "name": "Sukkur and Kotri Barrages",
+          "state": "Sindh (Pakistan)",
+          "type": "Irrigation barrages on the lower Indus"
         }
       ],
       "protectedAreas": [
         {
           "name": "Hemis National Park",
-          "relation": "India's largest national park; bounded by the Indus river on the north (Snow Leopard habitat)",
+          "relation": "Borders the Indus near Leh; among India's largest national parks (~4,400 sq km)",
           "state": "Ladakh"
         },
         {
-          "name": "Karakoram Wildlife Sanctuary",
-          "relation": "Drained by the Shyok river tributary (Tibetan Antelope / Chiru)",
+          "name": "Changthang Cold Desert Wildlife Sanctuary",
+          "relation": "Upper Indus valley after entry into India",
           "state": "Ladakh"
         },
         {
-          "name": "Changthang Cold Desert Sanctuary",
-          "relation": "Surrounds high-altitude Indus headwaters and Tso Moriri lake",
-          "state": "Ladakh"
+          "name": "Indus River Dolphin Reserve",
+          "relation": "Guddu-Sukkur stretch of the lower Indus",
+          "state": "Sindh (Pakistan)"
         }
       ],
       "species": [
         {
-          "name": "Indus River Dolphin (Platanista minor)",
-          "iucn": "Endangered",
-          "role": "State aquatic animal of Punjab; survives in Beas river in India and Indus main stem in Pakistan"
-        },
-        {
-          "name": "Snow Leopard (Panthera uncia)",
+          "name": "Snow Leopard",
           "iucn": "Vulnerable",
-          "role": "Apex predator of the Indus gorges in Hemis and Ladakh"
+          "role": "Flagship species of Hemis National Park"
         },
         {
-          "name": "Tibetan Antelope (Chiru)",
+          "name": "Black-necked Crane",
           "iucn": "Near Threatened",
-          "role": "Inhabits high altitude valleys of Shyok and Chang Chenmo"
+          "role": "Breeds in the high-altitude wetlands of Changthang; state bird of Ladakh"
+        },
+        {
+          "name": "Indus River Dolphin",
+          "iucn": "Endangered",
+          "role": "Mainly in the lower Indus in Pakistan; a small population survives in the Beas in India"
         }
       ],
-      "commonMistake": "UPSC 2021 Trap: Jhelum and Ravi join Chenab; Beas joins Sutlej; Chenab then joins Sutlej to form Panjnad, which then pours directly into the Indus. Chenab is the largest tributary by volume!"
+      "commonMistake": "The Indus does not rise in Lake Mansarovar itself; it rises near Bokhar Chu, north-west of the lake. Shyok, Gilgit and Kabul are RIGHT-bank tributaries; Zanskar, Suru and Panjnad are LEFT-bank. The five Punjab rivers join the Indus together as the Panjnad at Mithankot, not individually."
     },
     "staticFacts": [
-      "Originates near Bokhar Chu glacier (Kailash Range, Tibet) as Singi Khamban; enters India at Demchok (Ladakh).",
-      "UPSC 2021 Exact Trap: Jhelum and Ravi join Chenab; Beas joins Sutlej at Harike; Chenab joins Sutlej (Panjnad) to pour into the Indus directly.",
-      "UPSC 2026 Rigvedic Names: Vitasta (Jhelum), Asikni (Chenab), Parushni (Ravi), Vipasha (Beas), Shutudri (Sutlej)."
+      "An antecedent river: it is older than the Himalaya and kept its course by cutting deep gorges as the mountains rose, notably near Gilgit.",
+      "In Ladakh it flows north-west along the Indus-Tsangpo Suture Zone, between the Ladakh and Zanskar ranges.",
+      "Basin area is about 11,65,000 sq km, of which about 3,21,289 sq km lies in India.",
+      "Under the Indus Waters Treaty (1960), the western rivers (Indus, Jhelum, Chenab) were allocated to Pakistan and the eastern rivers (Ravi, Beas, Sutlej) to India."
     ],
     "similarPYQ": [
-      "ANC-UPSC-2026-13",
-      "GEO-UPSC-2026-25",
-      "GEO-UPSC-2026-11",
+      "GEO-UPSC-2021-05",
       "GEO-CDS1-2023-10",
+      "GEO-UPSC-2020-03",
+      "UPSC-2026-11"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-02B",
+    "slug": "jhelum-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Jhelum River",
+    "aliases": [
+      "Vitasta",
+      "Hydaspes",
+      "Kashmiri: Vyeth",
+      "Bihat"
+    ],
+    "placeType": "Himalayan Tributary of Indus (Western River under IWT)",
+    "priority": "High",
+    "locatedIn": {
+      "country": "India, Pakistan",
+      "stateOrProvince": "Jammu & Kashmir (India), Pakistan-occupied Kashmir, Punjab (Pakistan)"
+    },
+    "lat": 34.1,
+    "lng": 73.5,
+    "shape": [
+      [
+        33.53,
+        75.25
+      ],
+      [
+        33.73,
+        75.15
+      ],
+      [
+        34.08,
+        74.8
+      ],
+      [
+        34.35,
+        74.58
+      ],
+      [
+        34.2,
+        74.35
+      ],
+      [
+        34.09,
+        74.04
+      ],
+      [
+        34.37,
+        73.47
+      ],
+      [
+        33.14,
+        73.64
+      ],
+      [
+        31.15,
+        72.15
+      ]
+    ],
+    "neighbours": [
+      "Source: Spring at Verinag, at the foot of the Pir Panjal, south-east Kashmir Valley (Ana",
+      "Mouth: Joins the Chenab at Trimmu, near Jhang, Punjab (Pakistan)"
+    ],
+    "riverDetails": {
+      "length": "~725 km (some sources ~813 km)",
+      "origin": "Spring at Verinag, at the foot of the Pir Panjal, south-east Kashmir Valley (Anantnag district) at ~1,850 m",
+      "mouth": "Joins the Chenab at Trimmu, near Jhang, Punjab (Pakistan)",
+      "sourceCoords": [
+        33.54,
+        75.25
+      ],
+      "mouthCoords": [
+        31.15,
+        72.15
+      ],
+      "states": {
+        "flowsThrough": [
+          "Jammu & Kashmir"
+        ],
+        "basinStates": [
+          "Jammu & Kashmir"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Vishav River",
+            "note": "Drains the Pir Panjal slopes in south Kashmir"
+          },
+          {
+            "name": "Rambiara River",
+            "note": "Pir Panjal stream joining in the upper valley"
+          },
+          {
+            "name": "Doodhganga River",
+            "note": "Drains the Pir Panjal west of Srinagar"
+          },
+          {
+            "name": "Poonch River",
+            "note": "Joins in Pakistan at the Mangla reservoir"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Lidder River",
+            "note": "Fed by the Kolahoi Glacier; flows past Pahalgam; joins near Khanabal (Anantnag)"
+          },
+          {
+            "name": "Sind River",
+            "note": "Rises near Sonamarg; joins at Shadipora near Srinagar"
+          },
+          {
+            "name": "Pohru River",
+            "note": "Drains north-west Kashmir; joins near Sopore"
+          },
+          {
+            "name": "Kishanganga (Neelum) River",
+            "note": "Flows through the Gurez Valley; joins at Muzaffarabad (PoK)"
+          },
+          {
+            "name": "Kunhar River",
+            "note": "Drains the Kaghan Valley; joins near Muzaffarabad"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Lidder",
+          "sangam": "Near Khanabal, Anantnag",
+          "state": "Jammu & Kashmir"
+        },
+        {
+          "tributary": "Sind",
+          "sangam": "Shadipora, near Srinagar",
+          "state": "Jammu & Kashmir"
+        },
+        {
+          "tributary": "Kishanganga (Neelum)",
+          "sangam": "Muzaffarabad",
+          "state": "Pakistan-occupied Kashmir"
+        },
+        {
+          "tributary": "Poonch",
+          "sangam": "Mangla reservoir",
+          "state": "Pakistan-occupied Kashmir / Punjab (Pakistan)"
+        },
+        {
+          "tributary": "Chenab",
+          "sangam": "Trimmu, near Jhang",
+          "state": "Punjab (Pakistan)"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Verinag",
+          "type": "Cultural / Historical",
+          "significance": "Source spring; octagonal Mughal tank built by Jahangir",
+          "state": "Jammu & Kashmir"
+        },
+        {
+          "name": "Srinagar",
+          "type": "Administrative / Cultural",
+          "significance": "Summer capital of J&K; river crossed by historic bridges such as Amira Kadal and Zero Bridge",
+          "state": "Jammu & Kashmir"
+        },
+        {
+          "name": "Sopore",
+          "type": "Economic",
+          "significance": "Major apple-trading town near the Wular outflow",
+          "state": "Jammu & Kashmir"
+        },
+        {
+          "name": "Baramulla",
+          "type": "Strategic",
+          "significance": "Western end of the Kashmir Valley before the Uri gorge",
+          "state": "Jammu & Kashmir"
+        },
+        {
+          "name": "Uri",
+          "type": "Strategic",
+          "significance": "Point where the river passes through a deep gorge towards the LoC",
+          "state": "Jammu & Kashmir"
+        },
+        {
+          "name": "Jhelum (city)",
+          "type": "Historical",
+          "significance": "Near the site of the Battle of the Hydaspes (326 BCE), Alexander vs Porus",
+          "state": "Punjab (Pakistan)"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Uri-I Hydroelectric Project",
+          "state": "Jammu & Kashmir",
+          "type": "480 MW run-of-the-river project, Baramulla district"
+        },
+        {
+          "name": "Uri-II Hydroelectric Project",
+          "state": "Jammu & Kashmir",
+          "type": "240 MW run-of-the-river project"
+        },
+        {
+          "name": "Lower Jhelum Hydroelectric Project",
+          "state": "Jammu & Kashmir",
+          "type": "105 MW project near Baramulla"
+        },
+        {
+          "name": "Kishanganga Hydroelectric Project",
+          "state": "Jammu & Kashmir",
+          "type": "330 MW; diverts Kishanganga water from Gurez to the Bonar Nallah, Bandipora"
+        },
+        {
+          "name": "Tulbul Navigation Project (Wular Barrage)",
+          "state": "Jammu & Kashmir",
+          "type": "Navigation barrage at the Wular outflow; work suspended since 1987 over treaty objections"
+        },
+        {
+          "name": "Mangla Dam",
+          "state": "Pakistan-occupied Kashmir / Punjab (Pakistan)",
+          "type": "Major storage dam on the Jhelum in Pakistan"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Wular Lake",
+          "relation": "The Jhelum flows through it; India's largest freshwater lake; Ramsar site (1990)",
+          "state": "Jammu & Kashmir"
+        },
+        {
+          "name": "Hokersar Wetland",
+          "relation": "Floodplain wetland near Srinagar; Ramsar site (2005)",
+          "state": "Jammu & Kashmir"
+        },
+        {
+          "name": "Dachigam National Park",
+          "relation": "Catchment near Srinagar in the Jhelum basin; last stronghold of the Hangul",
+          "state": "Jammu & Kashmir"
+        },
+        {
+          "name": "Overa-Aru Wildlife Sanctuary",
+          "relation": "Lidder valley, a right-bank tributary catchment",
+          "state": "Jammu & Kashmir"
+        }
+      ],
+      "species": [
+        {
+          "name": "Hangul (Kashmir Stag)",
+          "iucn": null,
+          "role": "Endemic Kashmir red deer of Dachigam; Schedule I species"
+        },
+        {
+          "name": "Snow Trout (Schizothorax spp.)",
+          "iucn": null,
+          "role": "Dominant native cold-water fish of the Jhelum and its tributaries"
+        }
+      ],
+      "commonMistake": "Wular Lake is TECTONIC in origin, not an oxbow lake. The Jhelum joins the Chenab at Trimmu, not the Indus directly. Lidder and Sind are RIGHT-bank tributaries."
+    },
+    "staticFacts": [
+      "Known as the Vitasta in the Rigveda and the Hydaspes to the Greeks.",
+      "It meanders across the flat floor of the Kashmir Valley, then leaves through a deep, narrow gorge below Baramulla.",
+      "Navigable within the Kashmir Valley between roughly Khanabal and Baramulla.",
+      "A 'western river' under the Indus Waters Treaty, where India's use was limited mainly to run-of-the-river hydropower."
+    ],
+    "similarPYQ": [
       "GEO-UPSC-2023-07",
       "GEO-UPSC-2021-05",
-      "GEO-UPSC-2020-03",
+      "UPSC-2026-13"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-02C",
+    "slug": "chenab-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Chenab River",
+    "aliases": [
+      "Asikni",
+      "Chandrabhaga",
+      "Acesines",
+      "Chandra-Bhaga"
+    ],
+    "placeType": "Largest Tributary of Indus (Western River under IWT)",
+    "priority": "High",
+    "locatedIn": {
+      "country": "India, Pakistan",
+      "stateOrProvince": "Himachal Pradesh, Jammu & Kashmir (India), Punjab (Pakistan)"
+    },
+    "lat": 32.89,
+    "lng": 74.73,
+    "shape": [
+      [
+        32.75,
+        77.4
+      ],
+      [
+        32.55,
+        76.97
+      ],
+      [
+        33.08,
+        76.43
+      ],
+      [
+        33.31,
+        75.76
+      ],
+      [
+        33.17,
+        75.19
+      ],
+      [
+        33.15,
+        74.88
+      ],
+      [
+        32.9,
+        74.74
+      ],
+      [
+        31.15,
+        72.15
+      ],
+      [
+        29.35,
+        71.03
+      ]
+    ],
+    "neighbours": [
+      "Source: Formed by the Chandra and Bhaga, which meet at Tandi near Keylong, Lahaul (HP); ",
+      "Mouth: Joins the Sutlej at Panjnad near Uch, Bahawalpur, Punjab (Pakistan); the Panjnad"
+    ],
+    "riverDetails": {
+      "length": "~960 km in common sources (NCERT states 1,180 km before entering Pakistan)",
+      "origin": "Formed by the Chandra and Bhaga, which meet at Tandi near Keylong, Lahaul (HP); the Chandra rises near Baralacha La and the Bhaga from Suraj Tal",
+      "mouth": "Joins the Sutlej at Panjnad near Uch, Bahawalpur, Punjab (Pakistan); the Panjnad then joins the Indus at Mithankot",
+      "sourceCoords": [
+        32.56,
+        76.98
+      ],
+      "mouthCoords": [
+        29.35,
+        71.03
+      ],
+      "states": {
+        "flowsThrough": [
+          "Himachal Pradesh",
+          "Jammu & Kashmir"
+        ],
+        "basinStates": [
+          "Himachal Pradesh",
+          "Jammu & Kashmir"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Neeru River",
+            "note": "Drains the Bhaderwah valley; joins at Pul Doda"
+          },
+          {
+            "name": "Tawi River",
+            "note": "Flows through Jammu city; joins the Chenab across the border in Pakistan"
+          },
+          {
+            "name": "Ravi River",
+            "note": "Joins near Ahmadpur Sial, Punjab (Pakistan)"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Marusudar River",
+            "note": "Largest Chenab tributary in J&K; drains the Warwan valley; joins at Bhandarkoot, Kishtwar"
+          },
+          {
+            "name": "Jhelum River",
+            "note": "Joins at Trimmu, near Jhang (Pakistan)"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Chandra + Bhaga",
+          "sangam": "Tandi, near Keylong",
+          "state": "Himachal Pradesh"
+        },
+        {
+          "tributary": "Marusudar",
+          "sangam": "Bhandarkoot, Kishtwar",
+          "state": "Jammu & Kashmir"
+        },
+        {
+          "tributary": "Neeru",
+          "sangam": "Pul Doda",
+          "state": "Jammu & Kashmir"
+        },
+        {
+          "tributary": "Jhelum",
+          "sangam": "Trimmu, near Jhang",
+          "state": "Punjab (Pakistan)"
+        },
+        {
+          "tributary": "Ravi",
+          "sangam": "Near Ahmadpur Sial",
+          "state": "Punjab (Pakistan)"
+        },
+        {
+          "tributary": "Sutlej",
+          "sangam": "Panjnad, near Uch",
+          "state": "Punjab (Pakistan)"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Keylong",
+          "type": "Administrative",
+          "significance": "Headquarters of Lahaul-Spiti, on the Bhaga near the Tandi confluence",
+          "state": "Himachal Pradesh"
+        },
+        {
+          "name": "Kishtwar",
+          "type": "Economic",
+          "significance": "Saffron-growing area and hydropower hub",
+          "state": "Jammu & Kashmir"
+        },
+        {
+          "name": "Ramban",
+          "type": "Economic",
+          "significance": "Site of Baglihar dam on the Jammu-Srinagar highway",
+          "state": "Jammu & Kashmir"
+        },
+        {
+          "name": "Reasi",
+          "type": "Infrastructure",
+          "significance": "Chenab Rail Bridge and Salal dam",
+          "state": "Jammu & Kashmir"
+        },
+        {
+          "name": "Akhnoor",
+          "type": "Strategic",
+          "significance": "Where the Chenab leaves the hills and heads for the international border",
+          "state": "Jammu & Kashmir"
+        },
+        {
+          "name": "Jhang",
+          "type": "Cultural",
+          "significance": "Near the Jhelum-Chenab confluence; setting of the Heer-Ranjha legend",
+          "state": "Punjab (Pakistan)"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Salal Dam",
+          "state": "Jammu & Kashmir",
+          "type": "690 MW run-of-the-river project, Reasi district"
+        },
+        {
+          "name": "Baglihar Dam",
+          "state": "Jammu & Kashmir",
+          "type": "900 MW run-of-the-river project, Ramban district"
+        },
+        {
+          "name": "Dulhasti Hydroelectric Project",
+          "state": "Jammu & Kashmir",
+          "type": "390 MW, Kishtwar district"
+        },
+        {
+          "name": "Ratle Hydroelectric Project",
+          "state": "Jammu & Kashmir",
+          "type": "850 MW, under construction, Kishtwar district"
+        },
+        {
+          "name": "Pakal Dul Hydroelectric Project",
+          "state": "Jammu & Kashmir",
+          "type": "1,000 MW on the Marusudar; first storage project in J&K; under construction"
+        },
+        {
+          "name": "Kiru and Kwar Hydroelectric Projects",
+          "state": "Jammu & Kashmir",
+          "type": "624 MW and 540 MW, under construction, Kishtwar district"
+        },
+        {
+          "name": "Marala, Khanki, Qadirabad and Trimmu Headworks",
+          "state": "Punjab (Pakistan)",
+          "type": "Irrigation headworks on the Chenab in Pakistan"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Kishtwar High Altitude National Park",
+          "relation": "Upper Marusudar and Chenab catchment",
+          "state": "Jammu & Kashmir"
+        }
+      ],
+      "species": [
+        {
+          "name": "Snow Leopard",
+          "iucn": "Vulnerable",
+          "role": "Found in the high-altitude catchment around Kishtwar"
+        },
+        {
+          "name": "Himalayan Brown Bear",
+          "iucn": null,
+          "role": "Inhabits alpine meadows of Kishtwar High Altitude National Park"
+        }
+      ],
+      "commonMistake": "The Chenab is the LARGEST tributary of the Indus by volume, but the Sutlej is the LONGEST of the five rivers. The Tawi joins the Chenab in Pakistan, not at Jammu. The Chenab meets the Sutlej at Panjnad; it does not meet the Indus directly."
+    },
+    "staticFacts": [
+      "Also called the Chandrabhaga after its two headstreams; known as the Asikni in the Rigveda.",
+      "Flows through the Pangi valley between the Pir Panjal and the Great Himalaya before entering Jammu & Kashmir.",
+      "A 'western river' under the Indus Waters Treaty; Baglihar and Kishanganga were the projects taken to a Neutral Expert and arbitration in the past."
+    ],
+    "similarPYQ": [
+      "GEO-UPSC-2021-05",
       "GEO-UPSC-2019-04",
-      "ENV-UPSC-2014-09"
+      "UPSC-2026-13"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-02D",
+    "slug": "ravi-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Ravi River",
+    "aliases": [
+      "Parushni",
+      "Iravati",
+      "Hydraotes",
+      "Ravi"
+    ],
+    "placeType": "Himalayan Tributary of Indus (Eastern River under IWT)",
+    "priority": "Medium",
+    "locatedIn": {
+      "country": "India, Pakistan",
+      "stateOrProvince": "Himachal Pradesh, Jammu & Kashmir, Punjab (India), Punjab (Pakistan)"
+    },
+    "lat": 32.03,
+    "lng": 75.03,
+    "shape": [
+      [
+        32.32,
+        76.85
+      ],
+      [
+        32.55,
+        76.12
+      ],
+      [
+        32.58,
+        75.92
+      ],
+      [
+        32.44,
+        75.73
+      ],
+      [
+        32.28,
+        75.65
+      ],
+      [
+        32.04,
+        75.03
+      ],
+      [
+        31.62,
+        74.28
+      ],
+      [
+        30.62,
+        71.8
+      ]
+    ],
+    "neighbours": [
+      "Source: Bara Bhangal area of the Dhauladhar, Kangra district (HP); NCERT describes it as",
+      "Mouth: Joins the Chenab near Ahmadpur Sial (NCERT: near Sarai Sidhu), Punjab (Pakistan)"
+    ],
+    "riverDetails": {
+      "length": "~720 km",
+      "origin": "Bara Bhangal area of the Dhauladhar, Kangra district (HP); NCERT describes it as rising west of the Rohtang Pass in the Kullu hills",
+      "mouth": "Joins the Chenab near Ahmadpur Sial (NCERT: near Sarai Sidhu), Punjab (Pakistan)",
+      "sourceCoords": [
+        32.4,
+        76.7
+      ],
+      "mouthCoords": [
+        30.62,
+        71.8
+      ],
+      "states": {
+        "flowsThrough": [
+          "Himachal Pradesh",
+          "Jammu & Kashmir",
+          "Punjab"
+        ],
+        "basinStates": [
+          "Himachal Pradesh",
+          "Jammu & Kashmir",
+          "Punjab"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Budhil River",
+            "note": "Drains the Manimahesh-Bharmour area; joins in Chamba district"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Siul River",
+            "note": "Drains the Pir Panjal side of Chamba district"
+          },
+          {
+            "name": "Ujh River",
+            "note": "Rises in Kathua district (J&K); joins the Ravi across the border in Pakistan"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Budhil",
+          "sangam": "Near Kharamukh, Chamba",
+          "state": "Himachal Pradesh"
+        },
+        {
+          "tributary": "Chenab",
+          "sangam": "Near Ahmadpur Sial",
+          "state": "Punjab (Pakistan)"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Bharmour",
+          "type": "Cultural",
+          "significance": "Home of the Gaddi pastoralists; base for the Manimahesh Yatra",
+          "state": "Himachal Pradesh"
+        },
+        {
+          "name": "Chamba",
+          "type": "Historical",
+          "significance": "Former princely capital on the Ravi; known for Chamba rumal and miniature painting",
+          "state": "Himachal Pradesh"
+        },
+        {
+          "name": "Madhopur (Pathankot)",
+          "type": "Economic",
+          "significance": "Headworks of the Upper Bari Doab Canal",
+          "state": "Punjab"
+        },
+        {
+          "name": "Dera Baba Nanak",
+          "type": "Cultural",
+          "significance": "Start of the Kartarpur Corridor; Gurdwara Darbar Sahib Kartarpur stands across the Ravi in Pakistan",
+          "state": "Punjab"
+        },
+        {
+          "name": "Lahore",
+          "type": "Historical",
+          "significance": "Major city on the Ravi; Harappa lies near an old course of the river",
+          "state": "Punjab (Pakistan)"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Chamera I, II and III",
+          "state": "Himachal Pradesh",
+          "type": "540 MW, 300 MW and 231 MW hydro projects, Chamba district"
+        },
+        {
+          "name": "Ranjit Sagar (Thein) Dam",
+          "state": "Punjab / Jammu & Kashmir border",
+          "type": "600 MW multipurpose dam near Pathankot"
+        },
+        {
+          "name": "Shahpur Kandi Dam",
+          "state": "Punjab / Jammu & Kashmir border",
+          "type": "Downstream of Ranjit Sagar; completed in 2024 to use Ravi water that earlier flowed to Pakistan"
+        },
+        {
+          "name": "Madhopur Headworks",
+          "state": "Punjab",
+          "type": "Diverts water into the Upper Bari Doab Canal"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Kalatop-Khajjiar Wildlife Sanctuary",
+          "relation": "Ravi catchment near Dalhousie, Chamba district",
+          "state": "Himachal Pradesh"
+        },
+        {
+          "name": "Gamgul Siahbehi Wildlife Sanctuary",
+          "relation": "Upper catchment in Chamba district",
+          "state": "Himachal Pradesh"
+        }
+      ],
+      "species": [
+        {
+          "name": "Golden Mahseer",
+          "iucn": "Endangered",
+          "role": "Large migratory game fish of the Himalayan stretch"
+        }
+      ],
+      "commonMistake": "The Ravi joins the CHENAB, not the Sutlej or the Indus. It drains the area between the south-eastern Pir Panjal and the Dhauladhar."
+    },
+    "staticFacts": [
+      "Known as the Parushni or Iravati in the Rigveda; the Battle of the Ten Kings is placed on its banks.",
+      "For a stretch in Punjab, the Ravi forms part of the India-Pakistan border.",
+      "An 'eastern river' allotted to India under the Indus Waters Treaty."
+    ],
+    "similarPYQ": [
+      "GEO-UPSC-2021-05",
+      "UPSC-2026-13"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-02E",
+    "slug": "beas-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Beas River",
+    "aliases": [
+      "Vipasa",
+      "Vipasha",
+      "Hyphasis",
+      "Arjikiya"
+    ],
+    "placeType": "Himalayan Tributary of Sutlej (Eastern River under IWT)",
+    "priority": "High",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Himachal Pradesh, Punjab"
+    },
+    "lat": 31.97,
+    "lng": 75.95,
+    "shape": [
+      [
+        32.36,
+        77.08
+      ],
+      [
+        32.24,
+        77.19
+      ],
+      [
+        31.96,
+        77.11
+      ],
+      [
+        31.67,
+        77.06
+      ],
+      [
+        31.71,
+        76.93
+      ],
+      [
+        31.97,
+        75.95
+      ],
+      [
+        32,
+        75.6
+      ],
+      [
+        31.17,
+        75
+      ]
+    ],
+    "neighbours": [
+      "Source: Beas Kund near the Rohtang Pass, Kullu district (HP), at ~4,000 m (NCERT)",
+      "Mouth: Joins the Sutlej at Harike, Punjab"
+    ],
+    "riverDetails": {
+      "length": "~470 km",
+      "origin": "Beas Kund near the Rohtang Pass, Kullu district (HP), at ~4,000 m (NCERT)",
+      "mouth": "Joins the Sutlej at Harike, Punjab",
+      "sourceCoords": [
+        32.36,
+        77.08
+      ],
+      "mouthCoords": [
+        31.17,
+        75
+      ],
+      "states": {
+        "flowsThrough": [
+          "Himachal Pradesh",
+          "Punjab"
+        ],
+        "basinStates": [
+          "Himachal Pradesh",
+          "Punjab"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Parbati River",
+            "note": "Drains the Parvati valley (Manikaran); joins at Bhuntar"
+          },
+          {
+            "name": "Sainj River",
+            "note": "Drains part of the Great Himalayan National Park; joins near Larji"
+          },
+          {
+            "name": "Tirthan River",
+            "note": "Drains part of the Great Himalayan National Park; joins near Larji"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Uhl River",
+            "note": "Drains the Dhauladhar; Shanan power house at Jogindernagar; joins near Mandi"
+          },
+          {
+            "name": "Chakki River",
+            "note": "Joins near Pathankot"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Parbati",
+          "sangam": "Bhuntar",
+          "state": "Himachal Pradesh"
+        },
+        {
+          "tributary": "Sainj and Tirthan",
+          "sangam": "Larji",
+          "state": "Himachal Pradesh"
+        },
+        {
+          "tributary": "Sutlej",
+          "sangam": "Harike",
+          "state": "Punjab"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Manali",
+          "type": "Tourism",
+          "significance": "Major hill resort near the source; gateway to the Rohtang and Atal Tunnel",
+          "state": "Himachal Pradesh"
+        },
+        {
+          "name": "Kullu",
+          "type": "Cultural",
+          "significance": "Kullu valley; international Dussehra festival",
+          "state": "Himachal Pradesh"
+        },
+        {
+          "name": "Mandi",
+          "type": "Cultural",
+          "significance": "Temple town called 'Chhoti Kashi'; Shivratri fair",
+          "state": "Himachal Pradesh"
+        },
+        {
+          "name": "Talwara",
+          "type": "Infrastructure",
+          "significance": "Site of the Pong Dam",
+          "state": "Punjab"
+        },
+        {
+          "name": "Harike",
+          "type": "Ecological",
+          "significance": "Beas-Sutlej confluence; Harike Wetland and barrage",
+          "state": "Punjab"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Pong Dam (Maharana Pratap Sagar)",
+          "state": "Himachal Pradesh / Punjab",
+          "type": "Earth-fill storage dam at Talwara; ~396 MW"
+        },
+        {
+          "name": "Pandoh Dam",
+          "state": "Himachal Pradesh",
+          "type": "Diversion dam; sends Beas water via the Beas-Sutlej Link to the 990 MW Dehar power house"
+        },
+        {
+          "name": "Larji Hydroelectric Project",
+          "state": "Himachal Pradesh",
+          "type": "126 MW, Kullu district"
+        },
+        {
+          "name": "Shanan Power House",
+          "state": "Himachal Pradesh",
+          "type": "Historic 1930s project on the Uhl at Jogindernagar"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Great Himalayan National Park",
+          "relation": "Drained by the Sainj, Tirthan and Jiwa Nal; UNESCO World Heritage Site (2014)",
+          "state": "Himachal Pradesh"
+        },
+        {
+          "name": "Pong Dam Lake Wildlife Sanctuary",
+          "relation": "Reservoir wetland; Ramsar site (2002)",
+          "state": "Himachal Pradesh"
+        },
+        {
+          "name": "Beas Conservation Reserve",
+          "relation": "Lower Beas in Punjab; Ramsar site (2019); habitat of the Indus River Dolphin",
+          "state": "Punjab"
+        },
+        {
+          "name": "Harike Wetland",
+          "relation": "At the Beas-Sutlej confluence; Ramsar site (1990)",
+          "state": "Punjab"
+        }
+      ],
+      "species": [
+        {
+          "name": "Indus River Dolphin",
+          "iucn": "Endangered",
+          "role": "India's only population lives in the lower Beas; state aquatic animal of Punjab"
+        },
+        {
+          "name": "Gharial",
+          "iucn": "Critically Endangered",
+          "role": "Reintroduced into the Beas Conservation Reserve"
+        },
+        {
+          "name": "Western Tragopan",
+          "iucn": "Vulnerable",
+          "role": "Pheasant of the Great Himalayan National Park; state bird of Himachal Pradesh"
+        }
+      ],
+      "commonMistake": "The Beas is the only one of the five rivers that flows ENTIRELY within India. It joins the SUTLEJ at Harike, not the Chenab. The Indus River Dolphin DOES occur in India, in the Beas."
+    },
+    "staticFacts": [
+      "Known as the Vipasa in the Rigveda and the Hyphasis to the Greeks; Alexander's army refused to advance beyond it in 326 BCE.",
+      "Flows through the Kullu valley and forms gorges at Kati and Largi in the Dhauladhar range (NCERT).",
+      "The Beas-Sutlej Link transfers Beas water to the Sutlej through the Pandoh-Dehar system."
+    ],
+    "similarPYQ": [
+      "ENV-UPSC-2014-09",
+      "UPSC-2026-13"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-02F",
+    "slug": "sutlej-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Sutlej River",
+    "aliases": [
+      "Shutudri",
+      "Zadadros",
+      "Langchen Khambab",
+      "Elephant's Mouth",
+      "Satluj"
+    ],
+    "placeType": "Trans-Himalayan Antecedent River; Longest of the Five Punjab Rivers",
+    "priority": "High",
+    "locatedIn": {
+      "country": "China (Tibet), India, Pakistan",
+      "stateOrProvince": "Tibet Autonomous Region, Himachal Pradesh, Punjab (India), Punjab (Pakistan)"
+    },
+    "lat": 31.41,
+    "lng": 76.43,
+    "shape": [
+      [
+        30.68,
+        81.25
+      ],
+      [
+        31.81,
+        78.75
+      ],
+      [
+        31.82,
+        78.65
+      ],
+      [
+        31.56,
+        77.98
+      ],
+      [
+        31.45,
+        77.63
+      ],
+      [
+        31.37,
+        76.86
+      ],
+      [
+        31.41,
+        76.43
+      ],
+      [
+        30.97,
+        76.53
+      ],
+      [
+        31.17,
+        75
+      ],
+      [
+        30.93,
+        74.6
+      ],
+      [
+        29.35,
+        71.03
+      ]
+    ],
+    "neighbours": [
+      "Source: Rakshastal, near Lake Mansarovar, Tibet, at ~4,555 m (NCERT); called Langchen Kh",
+      "Mouth: Joins the Chenab at Panjnad near Uch, Bahawalpur, Punjab (Pakistan); the Panjnad"
+    ],
+    "riverDetails": {
+      "length": "~1,450 km",
+      "origin": "Rakshastal, near Lake Mansarovar, Tibet, at ~4,555 m (NCERT); called Langchen Khambab (Elephant's Mouth) in Tibet",
+      "mouth": "Joins the Chenab at Panjnad near Uch, Bahawalpur, Punjab (Pakistan); the Panjnad then joins the Indus at Mithankot",
+      "sourceCoords": [
+        30.68,
+        81.25
+      ],
+      "mouthCoords": [
+        29.35,
+        71.03
+      ],
+      "states": {
+        "flowsThrough": [
+          "Himachal Pradesh",
+          "Punjab"
+        ],
+        "basinStates": [
+          "Himachal Pradesh",
+          "Punjab"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Baspa River",
+            "note": "Drains the Sangla valley; joins at Karcham, Kinnaur"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Spiti River",
+            "note": "Drains the cold desert of Spiti; joins at Khab, Kinnaur"
+          },
+          {
+            "name": "Beas River",
+            "note": "Joins at Harike, Punjab"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Spiti",
+          "sangam": "Khab, Kinnaur",
+          "state": "Himachal Pradesh"
+        },
+        {
+          "tributary": "Baspa",
+          "sangam": "Karcham, Kinnaur",
+          "state": "Himachal Pradesh"
+        },
+        {
+          "tributary": "Beas",
+          "sangam": "Harike",
+          "state": "Punjab"
+        },
+        {
+          "tributary": "Chenab",
+          "sangam": "Panjnad, near Uch",
+          "state": "Punjab (Pakistan)"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Shipki La",
+          "type": "Strategic",
+          "significance": "Pass where the Sutlej enters India from Tibet",
+          "state": "Himachal Pradesh"
+        },
+        {
+          "name": "Rampur Bushahr",
+          "type": "Historical",
+          "significance": "Former capital of Bushahr state; Lavi trade fair",
+          "state": "Himachal Pradesh"
+        },
+        {
+          "name": "Bilaspur",
+          "type": "Infrastructure",
+          "significance": "Bhakra Dam and Gobind Sagar reservoir; old town submerged and rebuilt",
+          "state": "Himachal Pradesh"
+        },
+        {
+          "name": "Rupnagar (Ropar)",
+          "type": "Historical",
+          "significance": "River leaves the hills here; Harappan site; Ropar headworks",
+          "state": "Punjab"
+        },
+        {
+          "name": "Hussainiwala (Ferozepur)",
+          "type": "Historical",
+          "significance": "Memorial of Bhagat Singh, Rajguru and Sukhdev on the Sutlej; border post",
+          "state": "Punjab"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Bhakra Dam",
+          "state": "Himachal Pradesh",
+          "type": "Concrete gravity dam (~226 m) forming Gobind Sagar; ~1,379 MW installed"
+        },
+        {
+          "name": "Nangal Dam",
+          "state": "Punjab",
+          "type": "Regulates releases from Bhakra into the Bhakra Main Canal"
+        },
+        {
+          "name": "Nathpa Jhakri Hydroelectric Project",
+          "state": "Himachal Pradesh",
+          "type": "1,500 MW underground run-of-the-river project"
+        },
+        {
+          "name": "Karcham Wangtoo Hydroelectric Project",
+          "state": "Himachal Pradesh",
+          "type": "~1,000 MW run-of-the-river project, Kinnaur"
+        },
+        {
+          "name": "Rampur Hydroelectric Project",
+          "state": "Himachal Pradesh",
+          "type": "412 MW, tail-race project of Nathpa Jhakri"
+        },
+        {
+          "name": "Kol Dam",
+          "state": "Himachal Pradesh",
+          "type": "800 MW rock-fill dam, Bilaspur district"
+        },
+        {
+          "name": "Harike Barrage",
+          "state": "Punjab",
+          "type": "Head of the Indira Gandhi Canal (Rajasthan) and Ferozepur feeder"
+        },
+        {
+          "name": "Sulemanki and Islam Headworks",
+          "state": "Punjab (Pakistan)",
+          "type": "Irrigation headworks in Pakistan"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Pin Valley National Park",
+          "relation": "Spiti catchment, a right-bank tributary",
+          "state": "Himachal Pradesh"
+        },
+        {
+          "name": "Rakchham-Chitkul Wildlife Sanctuary",
+          "relation": "Baspa catchment, a left-bank tributary",
+          "state": "Himachal Pradesh"
+        },
+        {
+          "name": "Ropar Wetland",
+          "relation": "Reservoir wetland at the Ropar headworks; Ramsar site (2002)",
+          "state": "Punjab"
+        },
+        {
+          "name": "Nangal Wildlife Sanctuary",
+          "relation": "Reservoir wetland below Bhakra; Ramsar site (2019)",
+          "state": "Punjab"
+        },
+        {
+          "name": "Harike Wetland",
+          "relation": "At the Beas-Sutlej confluence; Ramsar site (1990)",
+          "state": "Punjab"
+        }
+      ],
+      "species": [
+        {
+          "name": "Snow Leopard",
+          "iucn": "Vulnerable",
+          "role": "Key predator of Pin Valley National Park"
+        },
+        {
+          "name": "Smooth-coated Otter",
+          "iucn": "Vulnerable",
+          "role": "Found in the Harike and Ropar wetlands"
+        }
+      ],
+      "commonMistake": "The Sutlej rises from RAKSHASTAL, not Mansarovar, and enters India through SHIPKI LA (the Indus enters at Demchok). It is the LONGEST of the five rivers, while the Chenab is the largest by volume."
+    },
+    "staticFacts": [
+      "An antecedent river: it flows parallel to the Indus for about 400 km in Tibet, then cuts across the Himalaya through Shipki La and leaves the hills through a gorge at Rupnagar.",
+      "Known as the Shutudri in the Rigveda.",
+      "Feeds the Bhakra-Nangal canal system and, via Harike, the Indira Gandhi Canal in Rajasthan.",
+      "An 'eastern river' allotted to India under the Indus Waters Treaty."
+    ],
+    "similarPYQ": [
+      "GEO-UPSC-2021-05",
+      "ENV-UPSC-2014-09",
+      "UPSC-2026-13"
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
