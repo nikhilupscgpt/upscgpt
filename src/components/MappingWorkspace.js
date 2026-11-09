@@ -2598,6 +2598,7 @@ export default function MappingWorkspace({
                                         {subLocation || node.placeType}
                                       </div>
                                     </div>
+                                    </div>
                                   </React.Fragment>
                                 );
                               })}
