@@ -21,7 +21,7 @@ export function getStructuredExplanation(q) {
         }
 
         if (typeof parsed.explanation === 'string' && parsed.explanation.trim()) {
-          explanationText = parsed.explanation;
+          explanationText = parsed.explanation.trim();
         } else {
           // Clear explanationText so raw JSON string is never printed as text
           explanationText = null;
@@ -29,6 +29,31 @@ export function getStructuredExplanation(q) {
       } catch (e) {
         // Keep raw text if not valid JSON
       }
+    }
+  }
+
+  // Synthesize substantive explanation text from structured analysis if explanationText is empty
+  if (!explanationText && analysis) {
+    if (typeof analysis.whyCorrect === 'string' && analysis.whyCorrect.trim()) {
+      explanationText = analysis.whyCorrect.trim();
+    } else if (Array.isArray(analysis.optionBreakdown) && analysis.optionBreakdown.length > 0) {
+      const correctLbl = (q.correctLabel || '').toLowerCase();
+      const match = analysis.optionBreakdown.find(o => (o.label || '').toLowerCase() === correctLbl);
+      if (match && typeof match.explanation === 'string' && match.explanation.trim()) {
+        explanationText = match.explanation.trim();
+      } else {
+        const firstWithExp = analysis.optionBreakdown.find(o => o.explanation && o.explanation.trim());
+        if (firstWithExp) explanationText = firstWithExp.explanation.trim();
+      }
+    } else if (Array.isArray(analysis.statementBreakdown) && analysis.statementBreakdown.length > 0) {
+      const parts = analysis.statementBreakdown
+        .map(s => s.explanation || s.text)
+        .filter(Boolean)
+        .slice(0, 3);
+      if (parts.length > 0) explanationText = parts.join(' ');
+    } else if (Array.isArray(analysis.keywords) && analysis.keywords.length > 0) {
+      const kw = analysis.keywords.find(k => k.concept || k.shortNote);
+      if (kw) explanationText = (kw.concept || kw.shortNote || '').trim();
     }
   }
 
