@@ -5951,6 +5951,1717 @@ export const CURATED_MAPPING_NODES = [
   },
   {
     "id": "IND-RIV-04",
+    "slug": "narmada-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Narmada River",
+    "aliases": [
+      "Reva",
+      "Nerbudda",
+      "Lifeline of MP and Gujarat",
+      "Amarkantak River"
+    ],
+    "placeType": "Largest West-Flowing Peninsular River (Rift Valley River)",
+    "priority": "High",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Madhya Pradesh, Maharashtra, Gujarat"
+    },
+    "lat": 22.28,
+    "lng": 76.47,
+    "shape": [
+      [
+        22.67,
+        81.75
+      ],
+      [
+        22.95,
+        80.6
+      ],
+      [
+        23.13,
+        79.8
+      ],
+      [
+        22.8,
+        78.75
+      ],
+      [
+        22.75,
+        77.72
+      ],
+      [
+        22.25,
+        76.47
+      ],
+      [
+        22.24,
+        76.15
+      ],
+      [
+        22.17,
+        75.58
+      ],
+      [
+        21.83,
+        73.75
+      ],
+      [
+        21.7,
+        73
+      ],
+      [
+        21.65,
+        72.6
+      ]
+    ],
+    "neighbours": [
+      "Source: Narmada Kund on the western flank of the Amarkantak plateau, Anuppur district (M",
+      "Mouth: Arabian Sea through a wide estuary near Bharuch, Gulf of Khambhat (Gujarat)"
+    ],
+    "riverDetails": {
+      "length": "1,312 km",
+      "origin": "Narmada Kund on the western flank of the Amarkantak plateau, Anuppur district (Madhya Pradesh), at ~1,057 m",
+      "mouth": "Arabian Sea through a wide estuary near Bharuch, Gulf of Khambhat (Gujarat)",
+      "sourceCoords": [
+        22.67,
+        81.75
+      ],
+      "mouthCoords": [
+        21.65,
+        72.6
+      ],
+      "states": {
+        "flowsThrough": [
+          "Madhya Pradesh",
+          "Maharashtra",
+          "Gujarat"
+        ],
+        "basinStates": [
+          "Madhya Pradesh",
+          "Maharashtra",
+          "Gujarat",
+          "Chhattisgarh"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Burhner River",
+            "note": "Maikal hills; drains Kanha"
+          },
+          {
+            "name": "Banjar River",
+            "note": "Drains Kanha; joins at Mandla"
+          },
+          {
+            "name": "Sher, Shakkar and Dudhi Rivers",
+            "note": "Satpura streams joining in the middle course"
+          },
+          {
+            "name": "Tawa River",
+            "note": "Largest tributary; rises near Pachmarhi; joins at Bandrabhan near Narmadapuram"
+          },
+          {
+            "name": "Ganjal, Kundi and Goi Rivers",
+            "note": "Satpura streams joining in the lower course"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Hiran River",
+            "note": "Vindhyan tributary joining near Jabalpur"
+          },
+          {
+            "name": "Barna and Kolar Rivers",
+            "note": "Drain the Vindhyan plateau near Bhopal-Raisen"
+          },
+          {
+            "name": "Orsang River",
+            "note": "Joins at Chandod (Karnali Triveni), Vadodara district"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Banjar",
+          "sangam": "Mandla",
+          "state": "Madhya Pradesh"
+        },
+        {
+          "tributary": "Tawa",
+          "sangam": "Bandrabhan, near Narmadapuram",
+          "state": "Madhya Pradesh"
+        },
+        {
+          "tributary": "Orsang",
+          "sangam": "Chandod (Karnali)",
+          "state": "Gujarat"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Amarkantak",
+          "type": "Cultural",
+          "significance": "Source (Narmada Kund); the Son and Johilla also rise here",
+          "state": "Madhya Pradesh"
+        },
+        {
+          "name": "Jabalpur (Bhedaghat)",
+          "type": "Geological / Tourism",
+          "significance": "Marble Rocks gorge and Dhuandhar Falls",
+          "state": "Madhya Pradesh"
+        },
+        {
+          "name": "Narmadapuram (Hoshangabad)",
+          "type": "Historical",
+          "significance": "Renamed in 2022; Hathnora nearby yielded the 'Narmada Man' hominin fossil",
+          "state": "Madhya Pradesh"
+        },
+        {
+          "name": "Omkareshwar",
+          "type": "Cultural",
+          "significance": "Jyotirlinga on Mandhata island in the river",
+          "state": "Madhya Pradesh"
+        },
+        {
+          "name": "Maheshwar",
+          "type": "Historical",
+          "significance": "Holkar capital of Rani Ahilyabai; Maheshwari handloom",
+          "state": "Madhya Pradesh"
+        },
+        {
+          "name": "Ekta Nagar (Kevadia)",
+          "type": "Tourism",
+          "significance": "Sardar Sarovar Dam and the Statue of Unity",
+          "state": "Gujarat"
+        },
+        {
+          "name": "Bharuch",
+          "type": "Historical",
+          "significance": "Ancient port of Bharukachchha (Barygaza) at the estuary",
+          "state": "Gujarat"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Bargi Dam (Rani Avanti Bai Sagar)",
+          "state": "Madhya Pradesh",
+          "type": "First major dam on the Narmada, near Jabalpur"
+        },
+        {
+          "name": "Tawa Dam",
+          "state": "Madhya Pradesh",
+          "type": "On the Tawa tributary; irrigation for the Narmadapuram plains"
+        },
+        {
+          "name": "Indira Sagar Dam",
+          "state": "Madhya Pradesh",
+          "type": "At Punasa (Khandwa); largest reservoir in India by storage; 1,000 MW"
+        },
+        {
+          "name": "Omkareshwar Dam",
+          "state": "Madhya Pradesh",
+          "type": "520 MW; its reservoir hosts a large floating solar park"
+        },
+        {
+          "name": "Sardar Sarovar Dam",
+          "state": "Gujarat",
+          "type": "Concrete gravity dam (~163 m) at Kevadia; 1,450 MW; Narmada canal to Gujarat and Rajasthan"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Kanha Tiger Reserve",
+          "relation": "Banjar and Halon (Burhner) catchments",
+          "state": "Madhya Pradesh"
+        },
+        {
+          "name": "Satpura Tiger Reserve",
+          "relation": "Tawa and Denwa catchment around Pachmarhi",
+          "state": "Madhya Pradesh"
+        },
+        {
+          "name": "Shoolpaneshwar Wildlife Sanctuary",
+          "relation": "Lower Narmada near Sardar Sarovar",
+          "state": "Gujarat"
+        }
+      ],
+      "species": [
+        {
+          "name": "Barasingha (Hard-ground Swamp Deer)",
+          "iucn": "Vulnerable",
+          "role": "Saved from near-extinction in Kanha; state animal of MP"
+        },
+        {
+          "name": "Indian Gaur",
+          "iucn": "Vulnerable",
+          "role": "Found in Satpura and Kanha"
+        },
+        {
+          "name": "Golden Mahseer",
+          "iucn": "Endangered",
+          "role": "State fish of Madhya Pradesh"
+        }
+      ],
+      "commonMistake": "TAWA is the largest tributary and joins from the LEFT bank (Satpura side); right-bank tributaries come from the VINDHYAS. The Narmada forms an ESTUARY, not a delta. It flows in a RIFT VALLEY between the Vindhya and Satpura ranges."
+    },
+    "staticFacts": [
+      "Flows west through a rift valley between the Vindhya (north) and Satpura (south) ranges, which is why it has a straight course, few long tributaries and an estuary instead of a delta.",
+      "Also called the Reva; it is the traditional boundary between North and South India.",
+      "Its basin covers about 98,796 sq km; the Narmada Water Disputes Tribunal award (1979) allocates its water among MP, Gujarat, Maharashtra and Rajasthan.",
+      "Sardar Sarovar was the focus of the Narmada Bachao Andolan over displacement."
+    ],
+    "similarPYQ": [
+      "GEO-UPSC-2013-11",
+      "GEO-CDS2-2017-04",
+      "GEO-UPSC-2016-03",
+      "GEO-CDS2-2021-08"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-10",
+    "slug": "tapi-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Tapi (Tapti) River",
+    "aliases": [
+      "Tapti",
+      "Suryaputri",
+      "Tapi Kund River",
+      "Surat River"
+    ],
+    "placeType": "Second-Largest West-Flowing Peninsular River (Rift Valley River)",
+    "priority": "High",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Madhya Pradesh, Maharashtra, Gujarat"
+    },
+    "lat": 21.1,
+    "lng": 75.4,
+    "shape": [
+      [
+        21.77,
+        78.25
+      ],
+      [
+        21.3,
+        76.22
+      ],
+      [
+        21.05,
+        75.8
+      ],
+      [
+        21.12,
+        75.4
+      ],
+      [
+        21.28,
+        74.75
+      ],
+      [
+        21.25,
+        73.58
+      ],
+      [
+        21.17,
+        72.83
+      ],
+      [
+        21.05,
+        72.68
+      ]
+    ],
+    "neighbours": [
+      "Source: Multai (Tapi Kund), Satpura range, Betul district (Madhya Pradesh), at ~752 m",
+      "Mouth: Arabian Sea through an estuary near Surat (Gujarat)"
+    ],
+    "riverDetails": {
+      "length": "724 km",
+      "origin": "Multai (Tapi Kund), Satpura range, Betul district (Madhya Pradesh), at ~752 m",
+      "mouth": "Arabian Sea through an estuary near Surat (Gujarat)",
+      "sourceCoords": [
+        21.77,
+        78.25
+      ],
+      "mouthCoords": [
+        21.05,
+        72.68
+      ],
+      "states": {
+        "flowsThrough": [
+          "Madhya Pradesh",
+          "Maharashtra",
+          "Gujarat"
+        ],
+        "basinStates": [
+          "Madhya Pradesh",
+          "Maharashtra",
+          "Gujarat"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Purna River",
+            "note": "Largest tributary; drains Vidarbha (Amravati-Akola); joins at Changdev, Jalgaon"
+          },
+          {
+            "name": "Waghur River",
+            "note": "From the Ajanta hills; joins in Jalgaon district"
+          },
+          {
+            "name": "Girna River",
+            "note": "From the Western Ghats (Nashik); joins near Nandre, Jalgaon"
+          },
+          {
+            "name": "Bori River",
+            "note": "Joins in Jalgaon-Dhule"
+          },
+          {
+            "name": "Panjhra River",
+            "note": "Flows past Dhule; joins at Mudawad"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Suki River",
+            "note": "Satpura stream in Jalgaon district"
+          },
+          {
+            "name": "Aner River",
+            "note": "Satpura stream along the MP-Maharashtra border"
+          },
+          {
+            "name": "Arunavati River",
+            "note": "Satpura stream joining in Dhule"
+          },
+          {
+            "name": "Gomai River",
+            "note": "Joins at Prakasha, Nandurbar"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Purna",
+          "sangam": "Changdev, Muktainagar (Jalgaon)",
+          "state": "Maharashtra"
+        },
+        {
+          "tributary": "Girna",
+          "sangam": "Near Nandre, Jalgaon",
+          "state": "Maharashtra"
+        },
+        {
+          "tributary": "Panjhra",
+          "sangam": "Mudawad, Dhule",
+          "state": "Maharashtra"
+        },
+        {
+          "tributary": "Gomai",
+          "sangam": "Prakasha, Nandurbar",
+          "state": "Maharashtra"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Multai",
+          "type": "Cultural",
+          "significance": "Source of the Tapi (Mulatapi)",
+          "state": "Madhya Pradesh"
+        },
+        {
+          "name": "Burhanpur",
+          "type": "Historical",
+          "significance": "Mughal 'Gateway to the Deccan'; Asirgarh fort nearby",
+          "state": "Madhya Pradesh"
+        },
+        {
+          "name": "Bhusawal",
+          "type": "Economic",
+          "significance": "Railway junction; thermal power station",
+          "state": "Maharashtra"
+        },
+        {
+          "name": "Prakasha",
+          "type": "Cultural",
+          "significance": "'Dakshin Kashi'; temples at the Tapi-Gomai confluence",
+          "state": "Maharashtra"
+        },
+        {
+          "name": "Surat",
+          "type": "Economic",
+          "significance": "Diamond-cutting and textile capital at the Tapi estuary",
+          "state": "Gujarat"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Ukai Dam (Vallabh Sagar)",
+          "state": "Gujarat",
+          "type": "Largest reservoir on the Tapi; irrigation, hydropower, flood control"
+        },
+        {
+          "name": "Kakrapar Weir",
+          "state": "Gujarat",
+          "type": "Irrigation weir; Kakrapar Atomic Power Station on its reservoir"
+        },
+        {
+          "name": "Hatnur Dam",
+          "state": "Maharashtra",
+          "type": "Near Bhusawal (Jalgaon); irrigation"
+        },
+        {
+          "name": "Sarangkheda and Prakasha Barrages",
+          "state": "Maharashtra",
+          "type": "Barrages in Nandurbar district"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Melghat Tiger Reserve",
+          "relation": "Gawilgarh hills of the Satpura draining to the Tapi; one of the first nine tiger reserves (1973)",
+          "state": "Maharashtra"
+        },
+        {
+          "name": "Yawal Wildlife Sanctuary",
+          "relation": "Satpura foothills north of the Tapi in Jalgaon",
+          "state": "Maharashtra"
+        }
+      ],
+      "species": [
+        {
+          "name": "Forest Owlet",
+          "iucn": "Endangered",
+          "role": "Rediscovered in 1997 near Shahada (Nandurbar); also in Melghat"
+        },
+        {
+          "name": "Indian Gaur",
+          "iucn": "Vulnerable",
+          "role": "Found in Melghat"
+        }
+      ],
+      "commonMistake": "The PURNA is the largest tributary and joins from the LEFT (south) bank. The Tapi flows through Jalgaon, Dhule and Nandurbar, not Nashik (only its tributary Girna rises there). It forms an ESTUARY, not a delta."
+    },
+    "staticFacts": [
+      "Flows parallel to the Narmada in a rift valley south of the Satpura range.",
+      "Its basin of about 65,145 sq km lies mostly in Maharashtra's Khandesh and Vidarbha regions.",
+      "Jalgaon in the Tapi valley is India's leading banana district (Jalgaon banana has a GI tag)."
+    ],
+    "similarPYQ": [
+      "GEO-CDS2-2017-04",
+      "GEO-CDS2-2021-08"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-04B",
+    "slug": "sabarmati-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Sabarmati River",
+    "aliases": [
+      "Sabarmati",
+      "Vakaland",
+      "Harnav",
+      "Ahmedabad River"
+    ],
+    "placeType": "West-Flowing River of Gujarat Plains",
+    "priority": "Medium",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Rajasthan, Gujarat"
+    },
+    "lat": 23.22,
+    "lng": 72.65,
+    "shape": [
+      [
+        24.4,
+        73.4
+      ],
+      [
+        23.95,
+        72.9
+      ],
+      [
+        23.22,
+        72.65
+      ],
+      [
+        23.03,
+        72.58
+      ],
+      [
+        22.65,
+        72.5
+      ],
+      [
+        22.25,
+        72.45
+      ]
+    ],
+    "neighbours": [
+      "Source: Aravalli hills, Udaipur district (Rajasthan)",
+      "Mouth: Gulf of Khambhat (Gujarat)"
+    ],
+    "riverDetails": {
+      "length": "~371 km",
+      "origin": "Aravalli hills, Udaipur district (Rajasthan)",
+      "mouth": "Gulf of Khambhat (Gujarat)",
+      "sourceCoords": [
+        24.4,
+        73.4
+      ],
+      "mouthCoords": [
+        22.25,
+        72.45
+      ],
+      "states": {
+        "flowsThrough": [
+          "Rajasthan",
+          "Gujarat"
+        ],
+        "basinStates": [
+          "Rajasthan",
+          "Gujarat"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Wakal River",
+            "note": "Aravalli stream joining in the upper course"
+          },
+          {
+            "name": "Harnav River",
+            "note": "Flows through the Polo forest (Vijaynagar)"
+          },
+          {
+            "name": "Hathmati River",
+            "note": "Flows past Himmatnagar"
+          },
+          {
+            "name": "Watrak River",
+            "note": "Largest tributary, with the Meshwo, Majum and Shedhi"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Sei River",
+            "note": "Aravalli stream joining in the upper course"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Watrak",
+          "sangam": "Near Vautha, Ahmedabad district",
+          "state": "Gujarat"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Gandhinagar",
+          "type": "Administrative",
+          "significance": "Capital of Gujarat on the Sabarmati",
+          "state": "Gujarat"
+        },
+        {
+          "name": "Ahmedabad",
+          "type": "Historical / Economic",
+          "significance": "Sabarmati Ashram (1917) and the Sabarmati Riverfront",
+          "state": "Gujarat"
+        },
+        {
+          "name": "Vautha",
+          "type": "Cultural",
+          "significance": "Seven-river confluence; Vautha fair",
+          "state": "Gujarat"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Dharoi Dam",
+          "state": "Gujarat",
+          "type": "Main storage dam on the Sabarmati (Mehsana district)"
+        }
+      ],
+      "protectedAreas": [],
+      "species": [],
+      "commonMistake": "The Sabarmati drains into the Gulf of KHAMBHAT, not the Gulf of Kutch. Gandhi's Dandi March (1930) started from Sabarmati Ashram, but Dandi lies on the coast near Navsari, not on the Sabarmati."
+    },
+    "staticFacts": [
+      "A rain-fed river whose dry-season flow at Ahmedabad is now largely supplied by Narmada canal water.",
+      "Among the most polluted river stretches in India below Ahmedabad."
+    ],
+    "similarPYQ": [
+      "GEO-CDS2-2021-08"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-04C",
+    "slug": "mahi-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Mahi River",
+    "aliases": [
+      "Mahisagar",
+      "Tropic of Cancer River",
+      "Vagad River",
+      "Mahi Bajaj Sagar"
+    ],
+    "placeType": "West-Flowing River Crossing the Tropic of Cancer Twice",
+    "priority": "High",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Madhya Pradesh, Rajasthan, Gujarat"
+    },
+    "lat": 23.55,
+    "lng": 74.45,
+    "shape": [
+      [
+        22.62,
+        75.15
+      ],
+      [
+        23.35,
+        75.05
+      ],
+      [
+        23.63,
+        74.55
+      ],
+      [
+        23.55,
+        74
+      ],
+      [
+        23.1,
+        73.45
+      ],
+      [
+        22.75,
+        73.2
+      ],
+      [
+        22.25,
+        72.6
+      ]
+    ],
+    "neighbours": [
+      "Source: Vindhya range near Minda village, Dhar district (Madhya Pradesh)",
+      "Mouth: Gulf of Khambhat through a wide estuary (Gujarat)"
+    ],
+    "riverDetails": {
+      "length": "~583 km",
+      "origin": "Vindhya range near Minda village, Dhar district (Madhya Pradesh)",
+      "mouth": "Gulf of Khambhat through a wide estuary (Gujarat)",
+      "sourceCoords": [
+        22.62,
+        75.15
+      ],
+      "mouthCoords": [
+        22.25,
+        72.6
+      ],
+      "states": {
+        "flowsThrough": [
+          "Madhya Pradesh",
+          "Rajasthan",
+          "Gujarat"
+        ],
+        "basinStates": [
+          "Madhya Pradesh",
+          "Rajasthan",
+          "Gujarat"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Anas River",
+            "note": "From western MP; joins on the Rajasthan-Gujarat border"
+          },
+          {
+            "name": "Panam River",
+            "note": "Joins in the Panchmahal region of Gujarat"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Som River",
+            "note": "Joins with the Jakham at Beneshwar, Dungarpur"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Som + Jakham",
+          "sangam": "Beneshwar (triveni), Dungarpur",
+          "state": "Rajasthan"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Banswara",
+          "type": "Cultural",
+          "significance": "'City of a hundred islands' in the Mahi backwaters; Bhil heartland",
+          "state": "Rajasthan"
+        },
+        {
+          "name": "Beneshwar Dham",
+          "type": "Cultural",
+          "significance": "Som-Mahi-Jakham confluence; Beneshwar fair, called the 'Kumbh of the Bhils'",
+          "state": "Rajasthan"
+        },
+        {
+          "name": "Galteshwar",
+          "type": "Cultural",
+          "significance": "Solanki-era temple at the Mahi-Galti confluence",
+          "state": "Gujarat"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Mahi Bajaj Sagar Dam",
+          "state": "Rajasthan",
+          "type": "Main dam in Banswara; irrigation and hydropower"
+        },
+        {
+          "name": "Kadana Dam",
+          "state": "Gujarat",
+          "type": "Multipurpose dam in Mahisagar district"
+        },
+        {
+          "name": "Wanakbori Weir",
+          "state": "Gujarat",
+          "type": "Diverts water to the Mahi Right Bank Canal; Wanakbori thermal station"
+        }
+      ],
+      "protectedAreas": [],
+      "species": [],
+      "commonMistake": "The Mahi crosses the TROPIC OF CANCER TWICE because of its inverted-U course: north from MP into Rajasthan, then south-west into Gujarat. It is a west-flowing river, not a Yamuna tributary."
+    },
+    "staticFacts": [
+      "Its inverted-U course through Vagad (Banswara-Dungarpur) makes it a favourite map-based question.",
+      "Like the Narmada and Tapi, it ends in an estuary in the Gulf of Khambhat."
+    ],
+    "similarPYQ": [
+      "GEO-CDS2-2017-04"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-04D",
+    "slug": "luni-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Luni River",
+    "aliases": [
+      "Lavanavari",
+      "Salt River",
+      "Sagarmati",
+      "Thar Desert River"
+    ],
+    "placeType": "Inland-Ending Ephemeral River of the Thar (Ends in the Rann of Kutch)",
+    "priority": "High",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Rajasthan, Gujarat"
+    },
+    "lat": 25.83,
+    "lng": 72.24,
+    "shape": [
+      [
+        26.48,
+        74.55
+      ],
+      [
+        26.35,
+        74.3
+      ],
+      [
+        25.83,
+        72.85
+      ],
+      [
+        25.65,
+        72.24
+      ],
+      [
+        25.05,
+        71.7
+      ],
+      [
+        24.5,
+        71.2
+      ]
+    ],
+    "neighbours": [
+      "Source: Naga hills of the Aravallis near Pushkar, Ajmer district (Rajasthan), where it i",
+      "Mouth: Ends in the marshes of the Rann of Kutch (Gujarat); it does not reach the sea"
+    ],
+    "riverDetails": {
+      "length": "~495 km",
+      "origin": "Naga hills of the Aravallis near Pushkar, Ajmer district (Rajasthan), where it is called the Sagarmati",
+      "mouth": "Ends in the marshes of the Rann of Kutch (Gujarat); it does not reach the sea",
+      "sourceCoords": [
+        26.48,
+        74.55
+      ],
+      "mouthCoords": [
+        24.5,
+        71.2
+      ],
+      "states": {
+        "flowsThrough": [
+          "Rajasthan",
+          "Gujarat"
+        ],
+        "basinStates": [
+          "Rajasthan",
+          "Gujarat"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Sukri River",
+            "note": "Aravalli tributary; joins near Samdari"
+          },
+          {
+            "name": "Jawai River",
+            "note": "Dammed at Jawai (Pali), the largest dam in western Rajasthan"
+          },
+          {
+            "name": "Bandi, Guhiya and Khari Rivers",
+            "note": "Aravalli tributaries from the Pali-Sirohi side"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Jojari River",
+            "note": "The ONLY right-bank tributary; carries Jodhpur's effluents"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Sarsuti",
+          "sangam": "Govindgarh (headstream joins the Sagarmati to form the Luni)",
+          "state": "Rajasthan"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Pushkar",
+          "type": "Cultural",
+          "significance": "Brahma temple and lake near the source",
+          "state": "Rajasthan"
+        },
+        {
+          "name": "Balotra",
+          "type": "Economic",
+          "significance": "Textile dyeing hub; river turns saline below here; Pachpadra salt and refinery nearby",
+          "state": "Rajasthan"
+        },
+        {
+          "name": "Jalore",
+          "type": "Historical",
+          "significance": "Lower Luni basin; Jalore fort",
+          "state": "Rajasthan"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Jawai Dam",
+          "state": "Rajasthan",
+          "type": "On the Jawai tributary (Pali); main water source for Jodhpur-Pali region"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Wild Ass Sanctuary (Little Rann of Kutch)",
+          "relation": "Terminal marsh region of the Luni system",
+          "state": "Gujarat"
+        }
+      ],
+      "species": [
+        {
+          "name": "Indian Wild Ass (Khur)",
+          "iucn": "Near Threatened",
+          "role": "Endemic to the Rann of Kutch"
+        }
+      ],
+      "commonMistake": "The Luni does NOT reach the Arabian Sea; it ends in the Rann of Kutch. It is fresh in its upper course but SALINE below Balotra. JOJARI is its only right-bank tributary; all others come from the Aravallis on the left."
+    },
+    "staticFacts": [
+      "The only significant river of the Thar desert; ephemeral, flowing mainly in the monsoon.",
+      "Called 'Lavanavari' (salt river) in Sanskrit because of its salinity in the lower course."
+    ],
+    "similarPYQ": [
+      "GEO-CDS2-2018-02"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-04E",
+    "slug": "mandovi-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Mandovi (Mahadayi) River",
+    "aliases": [
+      "Mahadayi",
+      "Mhadei",
+      "Lifeline of Goa",
+      "Dudhsagar River"
+    ],
+    "placeType": "Short West-Flowing Western Ghats River (Lifeline of Goa)",
+    "priority": "High",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Karnataka, Goa, Maharashtra (small catchment)"
+    },
+    "lat": 15.48,
+    "lng": 74.05,
+    "shape": [
+      [
+        15.55,
+        74.35
+      ],
+      [
+        15.52,
+        74.2
+      ],
+      [
+        15.5,
+        74.05
+      ],
+      [
+        15.5,
+        73.92
+      ],
+      [
+        15.5,
+        73.82
+      ]
+    ],
+    "neighbours": [
+      "Source: Bhimgad area of the Western Ghats, Belagavi district (Karnataka), where it is ca",
+      "Mouth: Arabian Sea at Panaji through the Aguada Bay estuary (Goa)"
+    ],
+    "riverDetails": {
+      "length": "~77 km",
+      "origin": "Bhimgad area of the Western Ghats, Belagavi district (Karnataka), where it is called the Mahadayi (Mhadei)",
+      "mouth": "Arabian Sea at Panaji through the Aguada Bay estuary (Goa)",
+      "sourceCoords": [
+        15.55,
+        74.35
+      ],
+      "mouthCoords": [
+        15.5,
+        73.82
+      ],
+      "states": {
+        "flowsThrough": [
+          "Karnataka",
+          "Goa"
+        ],
+        "basinStates": [
+          "Karnataka",
+          "Goa",
+          "Maharashtra"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [],
+        "rightBank": []
+      },
+      "confluences": [
+        {
+          "tributary": "Zuari (via Cumbarjua Canal)",
+          "sangam": "Cumbarjua canal links the Mandovi and Zuari estuaries",
+          "state": "Goa"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Panaji",
+          "type": "Administrative",
+          "significance": "Capital of Goa on the Mandovi estuary",
+          "state": "Goa"
+        },
+        {
+          "name": "Old Goa",
+          "type": "Historical",
+          "significance": "Portuguese capital; Basilica of Bom Jesus (UNESCO World Heritage Site)",
+          "state": "Goa"
+        },
+        {
+          "name": "Divar and Chorao islands",
+          "type": "Ecological",
+          "significance": "Estuarine islands; Salim Ali Bird Sanctuary on Chorao",
+          "state": "Goa"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Kalasa-Banduri Diversion Project",
+          "state": "Karnataka",
+          "type": "Proposed diversion of Mahadayi headwater streams to the Malaprabha (Krishna basin); disputed by Goa"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Bhagwan Mahaveer Wildlife Sanctuary and Mollem National Park",
+          "relation": "Upper Mandovi catchment; Dudhsagar Falls",
+          "state": "Goa"
+        },
+        {
+          "name": "Mhadei Wildlife Sanctuary",
+          "relation": "Mahadayi headwaters in Goa",
+          "state": "Goa"
+        },
+        {
+          "name": "Salim Ali Bird Sanctuary",
+          "relation": "Mangroves on Chorao island in the estuary",
+          "state": "Goa"
+        }
+      ],
+      "species": [
+        {
+          "name": "Bengal Tiger",
+          "iucn": "Endangered",
+          "role": "Moves through the Mhadei-Mollem-Kali corridor"
+        }
+      ],
+      "commonMistake": "Mandovi and Mahadayi (Mhadei) are the SAME river. Dudhsagar Falls is on the Mandovi, not the Zuari. The Mahadayi dispute is between GOA and KARNATAKA (with Maharashtra a minor party)."
+    },
+    "staticFacts": [
+      "A short, fast Western Ghats river that forms an estuary, typical of west-flowing rivers.",
+      "The Mahadayi Water Disputes Tribunal gave its award in 2018; Goa opposes Karnataka's Kalasa-Banduri diversion."
+    ],
+    "similarPYQ": [
+      "GEO-CDS2-2017-04"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-04F",
+    "slug": "zuari-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Zuari River",
+    "aliases": [
+      "Aghanashini of Goa",
+      "Cortalim River",
+      "Mormugao River"
+    ],
+    "placeType": "Short West-Flowing Western Ghats River (Goa)",
+    "priority": "Medium",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Goa"
+    },
+    "lat": 15.3,
+    "lng": 74.02,
+    "shape": [
+      [
+        15.1,
+        74.2
+      ],
+      [
+        15.25,
+        74.1
+      ],
+      [
+        15.3,
+        74.02
+      ],
+      [
+        15.41,
+        73.8
+      ]
+    ],
+    "neighbours": [
+      "Source: Western Ghats in Sanguem taluka (Goa)",
+      "Mouth: Arabian Sea at Mormugao Bay (Goa)"
+    ],
+    "riverDetails": {
+      "length": "~92 km",
+      "origin": "Western Ghats in Sanguem taluka (Goa)",
+      "mouth": "Arabian Sea at Mormugao Bay (Goa)",
+      "sourceCoords": [
+        15.1,
+        74.2
+      ],
+      "mouthCoords": [
+        15.41,
+        73.8
+      ],
+      "states": {
+        "flowsThrough": [
+          "Goa"
+        ],
+        "basinStates": [
+          "Goa"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [],
+        "rightBank": []
+      },
+      "confluences": [
+        {
+          "tributary": "Mandovi (via Cumbarjua Canal)",
+          "sangam": "Cumbarjua canal",
+          "state": "Goa"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Mormugao (Vasco da Gama)",
+          "type": "Economic",
+          "significance": "Major port at the Zuari mouth; iron-ore exports",
+          "state": "Goa"
+        },
+        {
+          "name": "Agassaim-Cortalim",
+          "type": "Infrastructure",
+          "significance": "New Zuari cable-stayed bridge on NH-66",
+          "state": "Goa"
+        }
+      ],
+      "dams": [],
+      "protectedAreas": [
+        {
+          "name": "Netravali Wildlife Sanctuary",
+          "relation": "Upper catchment in Sanguem",
+          "state": "Goa"
+        }
+      ],
+      "species": [],
+      "commonMistake": "MORMUGAO port is at the Zuari mouth, while PANAJI is on the Mandovi. The Mandovi and Zuari are linked by the Cumbarjua canal, making Tiswadi (Ilhas) an island."
+    },
+    "staticFacts": [
+      "Together with the Mandovi it forms Goa's main estuarine and inland-waterway system.",
+      "Its estuary is lined with mangroves and khazan (reclaimed saline) farmlands."
+    ],
+    "similarPYQ": [
+      "GEO-CDS2-2017-04"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-04G",
+    "slug": "sharavati-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Sharavati River",
+    "aliases": [
+      "Sharavathi",
+      "Jog Falls River",
+      "Gersoppa River",
+      "Linganamakki River"
+    ],
+    "placeType": "Short West-Flowing Western Ghats River (Jog Falls)",
+    "priority": "High",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Karnataka"
+    },
+    "lat": 14.23,
+    "lng": 74.81,
+    "shape": [
+      [
+        13.83,
+        75.12
+      ],
+      [
+        14.15,
+        74.9
+      ],
+      [
+        14.23,
+        74.81
+      ],
+      [
+        14.28,
+        74.6
+      ],
+      [
+        14.28,
+        74.45
+      ]
+    ],
+    "neighbours": [
+      "Source: Ambutirtha, near Thirthahalli, Shivamogga district (Karnataka)",
+      "Mouth: Arabian Sea at Honnavar, Uttara Kannada district (Karnataka)"
+    ],
+    "riverDetails": {
+      "length": "~128 km",
+      "origin": "Ambutirtha, near Thirthahalli, Shivamogga district (Karnataka)",
+      "mouth": "Arabian Sea at Honnavar, Uttara Kannada district (Karnataka)",
+      "sourceCoords": [
+        13.83,
+        75.12
+      ],
+      "mouthCoords": [
+        14.28,
+        74.45
+      ],
+      "states": {
+        "flowsThrough": [
+          "Karnataka"
+        ],
+        "basinStates": [
+          "Karnataka"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [],
+        "rightBank": []
+      },
+      "confluences": [],
+      "towns": [
+        {
+          "name": "Jog Falls",
+          "type": "Tourism / Geological",
+          "significance": "~253 m plunge in four streams (Raja, Rani, Roarer, Rocket); among India's highest waterfalls",
+          "state": "Karnataka"
+        },
+        {
+          "name": "Honnavar",
+          "type": "Economic",
+          "significance": "Estuary and fishing port at the mouth",
+          "state": "Karnataka"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Linganamakki Dam",
+          "state": "Karnataka",
+          "type": "Main reservoir above Jog Falls; feeds the Sharavati hydro stations"
+        },
+        {
+          "name": "Mahatma Gandhi Hydroelectric Station",
+          "state": "Karnataka",
+          "type": "Old power station at Jog"
+        },
+        {
+          "name": "Sharavati Pumped Storage Project",
+          "state": "Karnataka",
+          "type": "Proposed large pumped-storage scheme between Talakalale and Gerusoppa reservoirs"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Sharavathi Valley Lion-tailed Macaque Sanctuary",
+          "relation": "Evergreen forests of the Sharavati valley",
+          "state": "Karnataka"
+        }
+      ],
+      "species": [
+        {
+          "name": "Lion-tailed Macaque",
+          "iucn": "Endangered",
+          "role": "Endemic Western Ghats primate; flagship of the Sharavati valley"
+        }
+      ],
+      "commonMistake": "Jog Falls is on the SHARAVATI, not the Kali or Netravati. The Sharavati flows WEST to the Arabian Sea and is not a tributary of the Krishna or Tungabhadra."
+    },
+    "staticFacts": [
+      "A classic Western Ghats river: short, steep, monsoon-fed, with waterfalls where it drops off the Ghats.",
+      "The Sharavati valley was one of Karnataka's earliest major hydropower developments."
+    ],
+    "similarPYQ": [
+      "GEO-CDS1-2017-08"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-04H",
+    "slug": "periyar-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Periyar River",
+    "aliases": [
+      "Lifeline of Kerala",
+      "Churni",
+      "Idukki River",
+      "Mullaperiyar River"
+    ],
+    "placeType": "Longest River of Kerala (West-Flowing)",
+    "priority": "High",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Kerala, Tamil Nadu (headwaters)"
+    },
+    "lat": 9.84,
+    "lng": 76.97,
+    "shape": [
+      [
+        9.45,
+        77.25
+      ],
+      [
+        9.52,
+        77.15
+      ],
+      [
+        9.84,
+        76.97
+      ],
+      [
+        10.02,
+        76.5
+      ],
+      [
+        10.11,
+        76.35
+      ],
+      [
+        10.18,
+        76.17
+      ]
+    ],
+    "neighbours": [
+      "Source: Sivagiri hills of the Western Ghats on the Kerala-Tamil Nadu border",
+      "Mouth: Arabian Sea near Kochi: splits at Aluva into the Mangalapuzha (to the sea at Mun"
+    ],
+    "riverDetails": {
+      "length": "~244 km",
+      "origin": "Sivagiri hills of the Western Ghats on the Kerala-Tamil Nadu border",
+      "mouth": "Arabian Sea near Kochi: splits at Aluva into the Mangalapuzha (to the sea at Munambam) and the Marthandan (to the Vembanad backwaters)",
+      "sourceCoords": [
+        9.45,
+        77.25
+      ],
+      "mouthCoords": [
+        10.18,
+        76.17
+      ],
+      "states": {
+        "flowsThrough": [
+          "Kerala"
+        ],
+        "basinStates": [
+          "Kerala",
+          "Tamil Nadu"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [],
+        "rightBank": [
+          {
+            "name": "Muthirapuzha River",
+            "note": "Drains Munnar"
+          },
+          {
+            "name": "Edamalayar River",
+            "note": "Dammed at Idamalayar"
+          }
+        ]
+      },
+      "confluences": [],
+      "towns": [
+        {
+          "name": "Thekkady",
+          "type": "Tourism",
+          "significance": "Periyar Tiger Reserve on the Mullaperiyar reservoir",
+          "state": "Kerala"
+        },
+        {
+          "name": "Idukki",
+          "type": "Infrastructure",
+          "significance": "Idukki arch dam and Kerala's largest hydro scheme",
+          "state": "Kerala"
+        },
+        {
+          "name": "Aluva",
+          "type": "Cultural",
+          "significance": "Shivaratri festival on the Periyar sand banks",
+          "state": "Kerala"
+        },
+        {
+          "name": "Kodungallur (Muziris)",
+          "type": "Historical",
+          "significance": "Ancient Muziris port near the old Periyar mouth",
+          "state": "Kerala"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Mullaperiyar Dam",
+          "state": "Kerala (operated by Tamil Nadu)",
+          "type": "1895 gravity dam; diverts water east to the Vaigai basin; long-running Kerala-TN dispute over safety and water level"
+        },
+        {
+          "name": "Idukki Dam",
+          "state": "Kerala",
+          "type": "Arch dam (~169 m) between Kuravan and Kurathi hills, with Cheruthoni and Kulamavu dams"
+        },
+        {
+          "name": "Idamalayar Dam",
+          "state": "Kerala",
+          "type": "On the Edamalayar tributary"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Periyar Tiger Reserve",
+          "relation": "Around the Mullaperiyar reservoir at Thekkady",
+          "state": "Kerala"
+        },
+        {
+          "name": "Idukki Wildlife Sanctuary",
+          "relation": "Around the Idukki reservoir",
+          "state": "Kerala"
+        },
+        {
+          "name": "Thattekad Bird Sanctuary (Salim Ali)",
+          "relation": "On the Periyar near Kothamangalam",
+          "state": "Kerala"
+        }
+      ],
+      "species": [
+        {
+          "name": "Asian Elephant",
+          "iucn": "Endangered",
+          "role": "Large population in Periyar Tiger Reserve"
+        }
+      ],
+      "commonMistake": "The MULLAPERIYAR dam is in Kerala but is OPERATED by Tamil Nadu, and its water flows EAST to the Vaigai basin. The Periyar is the LONGEST river of Kerala; the Bharathapuzha is second."
+    },
+    "staticFacts": [
+      "Called the 'lifeline of Kerala' for its power, irrigation and drinking-water role.",
+      "The 2018 Kerala floods saw Idukki's shutters opened after 26 years."
+    ],
+    "similarPYQ": [
+      "GEO-CDS1-2017-08",
+      "ENV-UPSC-2019-09"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-04I",
+    "slug": "bharathapuzha-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Bharathapuzha (Nila) River",
+    "aliases": [
+      "Nila",
+      "Ponnani River",
+      "Palakkad Gap River",
+      "Kalamandalam River"
+    ],
+    "placeType": "Second-Longest River of Kerala (Flows through the Palakkad Gap)",
+    "priority": "Medium",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Kerala, Tamil Nadu"
+    },
+    "lat": 10.77,
+    "lng": 76.37,
+    "shape": [
+      [
+        10.55,
+        77
+      ],
+      [
+        10.65,
+        76.85
+      ],
+      [
+        10.77,
+        76.65
+      ],
+      [
+        10.77,
+        76.37
+      ],
+      [
+        10.82,
+        76.05
+      ],
+      [
+        10.78,
+        75.9
+      ]
+    ],
+    "neighbours": [
+      "Source: Anamalai hills of the Western Ghats (Tamil Nadu)",
+      "Mouth: Arabian Sea at Ponnani, Malappuram district (Kerala)"
+    ],
+    "riverDetails": {
+      "length": "~209 km",
+      "origin": "Anamalai hills of the Western Ghats (Tamil Nadu)",
+      "mouth": "Arabian Sea at Ponnani, Malappuram district (Kerala)",
+      "sourceCoords": [
+        10.55,
+        77
+      ],
+      "mouthCoords": [
+        10.78,
+        75.9
+      ],
+      "states": {
+        "flowsThrough": [
+          "Tamil Nadu",
+          "Kerala"
+        ],
+        "basinStates": [
+          "Tamil Nadu",
+          "Kerala"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Gayathripuzha River",
+            "note": "From the Anamalai side; joins near Mayannur"
+          },
+          {
+            "name": "Kannadipuzha River",
+            "note": "From the Tamil Nadu side through Palakkad"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Kalpathipuzha River",
+            "note": "Fed by Malampuzha dam; flows past Kalpathy (Palakkad)"
+          },
+          {
+            "name": "Thuthapuzha River",
+            "note": "Fed by the Kunthipuzha from Silent Valley"
+          }
+        ]
+      },
+      "confluences": [],
+      "towns": [
+        {
+          "name": "Palakkad",
+          "type": "Strategic / Cultural",
+          "significance": "Palakkad Gap in the Western Ghats; Kalpathy chariot festival",
+          "state": "Kerala"
+        },
+        {
+          "name": "Cheruthuruthy",
+          "type": "Cultural",
+          "significance": "Kerala Kalamandalam (Kathakali centre) on its banks",
+          "state": "Kerala"
+        },
+        {
+          "name": "Thirunavaya",
+          "type": "Historical",
+          "significance": "Site of the medieval Mamankam festival",
+          "state": "Kerala"
+        },
+        {
+          "name": "Ponnani",
+          "type": "Historical",
+          "significance": "Ancient port at the river mouth",
+          "state": "Kerala"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Malampuzha Dam",
+          "state": "Kerala",
+          "type": "Largest irrigation reservoir in Kerala, on a Bharathapuzha tributary"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Silent Valley National Park",
+          "relation": "Drained by the Kunthipuzha into the Thuthapuzha-Bharathapuzha",
+          "state": "Kerala"
+        }
+      ],
+      "species": [
+        {
+          "name": "Lion-tailed Macaque",
+          "iucn": "Endangered",
+          "role": "Flagship species of Silent Valley"
+        }
+      ],
+      "commonMistake": "Silent Valley's Kunthipuzha drains into the BHARATHAPUZHA system, not the Periyar. The Bharathapuzha flows WEST through the Palakkad Gap from Tamil Nadu into Kerala."
+    },
+    "staticFacts": [
+      "Known as the Nila; central to Kerala's literature and performing arts.",
+      "Heavily affected by sand mining, which has lowered the riverbed and reduced its flow."
+    ],
+    "similarPYQ": [
+      "GEO-CDS1-2017-08"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-04",
     "slug": "godavari-river",
     "pillar": "STATIC",
     "regionScope": "India",
@@ -6212,261 +7923,6 @@ export const CURATED_MAPPING_NODES = [
       "GEO-CDS1-2017-08",
       "GEO-UPSC-2016-03",
       "GEO-UPSC-2016-01"
-    ],
-    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
-    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
-  },
-  {
-    "id": "IND-RIV-05",
-    "slug": "narmada-river",
-    "pillar": "STATIC",
-    "regionScope": "India",
-    "subject": "Geography",
-    "mapCategory": [
-      "India – rivers, lakes, reservoirs & glaciers"
-    ],
-    "place": "Narmada River",
-    "aliases": [
-      "Rewa",
-      "Nerbudda",
-      "Dhuandhar",
-      "Bhedaghat",
-      "Omkareshwar",
-      "Mandhata"
-    ],
-    "placeType": "West-Flowing Rift Valley River",
-    "priority": "High",
-    "locatedIn": {
-      "country": "India",
-      "stateOrProvince": "Madhya Pradesh, Maharashtra, Gujarat"
-    },
-    "lat": 22.6708,
-    "lng": 76,
-    "shape": [
-      [
-        22.67,
-        81.75
-      ],
-      [
-        23.12,
-        79.93
-      ],
-      [
-        22.75,
-        77.72
-      ],
-      [
-        22.2,
-        75.5
-      ],
-      [
-        21.83,
-        73.72
-      ],
-      [
-        21.7,
-        72.98
-      ]
-    ],
-    "neighbours": [
-      "Vindhya Range (North)",
-      "Satpura Range (South)",
-      "Amarkantak Plateau (Origin)"
-    ],
-    "riverDetails": {
-      "length": "1,312 km",
-      "origin": "Amarkantak Plateau in Maikal Range (Anuppur district, Madhya Pradesh)",
-      "mouth": "Gulf of Khambhat / Arabian Sea (near Bharuch, Gujarat; forms an estuary without delta)",
-      "states": {
-        "flowsThrough": [
-          "Madhya Pradesh",
-          "Maharashtra",
-          "Gujarat"
-        ],
-        "basinStates": [
-          "Madhya Pradesh (86%)",
-          "Gujarat (12%)",
-          "Maharashtra (2%)"
-        ]
-      },
-      "tributaries": {
-        "leftBank": [
-          {
-            "name": "Sher",
-            "note": "Rises in Seoni district; joins Narmada in Narsinghpur"
-          },
-          {
-            "name": "Shakkar",
-            "note": "Rises in Chhindwara hills; joins Narmada in Narsinghpur"
-          },
-          {
-            "name": "Dudhi",
-            "note": "Rises in Mahadeo hills (Satpura range)"
-          },
-          {
-            "name": "Tawa",
-            "note": "Longest tributary of Narmada; rises in Satpura Range (Pachmarhi); major Tawa Reservoir"
-          },
-          {
-            "name": "Ganjal",
-            "note": "Rises in Betul plateau; joins near Hoshangabad"
-          }
-        ],
-        "rightBank": [
-          {
-            "name": "Hiran",
-            "note": "Rises in Jabalpur hills; largest right-bank tributary"
-          },
-          {
-            "name": "Barna",
-            "note": "Rises in Raisen district (Vindhyan range); Barna Dam"
-          },
-          {
-            "name": "Choral",
-            "note": "Rises in Vindhyan hills near Mhow"
-          },
-          {
-            "name": "Orsang",
-            "note": "Rises in Chhota Udepur (Gujarat); joins near Chandod"
-          }
-        ]
-      },
-      "confluences": [
-        {
-          "tributary": "Tawa River",
-          "sangam": "Bandrabhan Sangam (Hoshangabad)",
-          "state": "Madhya Pradesh",
-          "note": "Meeting of Tawa and Narmada; venue of annual Narmada mela"
-        },
-        {
-          "tributary": "Hiran River",
-          "sangam": "Sankal Ghat",
-          "state": "Madhya Pradesh"
-        },
-        {
-          "tributary": "Orsang River",
-          "sangam": "Chandod (Triveni of Orsang, Hiran, Narmada)",
-          "state": "Gujarat",
-          "note": "Important pilgrimage center"
-        }
-      ],
-      "towns": [
-        {
-          "name": "Amarkantak",
-          "type": "Origin / Cultural",
-          "significance": "Sacred source plateau; Narmada Udgam temple & Kapildhara falls",
-          "state": "Madhya Pradesh"
-        },
-        {
-          "name": "Jabalpur / Bhedaghat",
-          "type": "Scenic / Cultural",
-          "significance": "Dhuandhar Falls & Marble Rocks gorge in Mahakoshal region",
-          "state": "Madhya Pradesh"
-        },
-        {
-          "name": "Omkareshwar",
-          "type": "Pilgrimage",
-          "significance": "One of the 12 Jyotirlingas situated on the Om-shaped Mandhata island",
-          "state": "Madhya Pradesh"
-        },
-        {
-          "name": "Maheshwar",
-          "type": "Historical",
-          "significance": "Ancient Mahishmati, capital of Queen Ahilyabai Holkar",
-          "state": "Madhya Pradesh"
-        },
-        {
-          "name": "Bharuch",
-          "type": "Port / Economic",
-          "significance": "Ancient Barygaza port at the mouth on Gulf of Khambhat",
-          "state": "Gujarat"
-        },
-        {
-          "name": "Kevadia (Ekta Nagar)",
-          "type": "National Symbol",
-          "significance": "Site of the 182m Statue of Unity & Sardar Sarovar Dam",
-          "state": "Gujarat"
-        }
-      ],
-      "dams": [
-        {
-          "name": "Sardar Sarovar Dam",
-          "state": "Gujarat",
-          "type": "Terminal gravity dam on Narmada (1,450 MW); supplies Narmada Canal to Saurashtra/Kutch"
-        },
-        {
-          "name": "Indira Sagar Dam (Punasa)",
-          "state": "Madhya Pradesh",
-          "type": "India's largest reservoir by water storage capacity (12.22 billion m³)"
-        },
-        {
-          "name": "Omkareshwar Dam",
-          "state": "Madhya Pradesh",
-          "type": "Major run-of-the-river dam; hosts floating solar farm"
-        },
-        {
-          "name": "Maheshwar Dam",
-          "state": "Madhya Pradesh",
-          "type": "Hydroelectric power station on lower Narmada"
-        },
-        {
-          "name": "Bargi Dam",
-          "state": "Madhya Pradesh",
-          "type": "First major completed dam on Narmada near Jabalpur"
-        },
-        {
-          "name": "Tawa Dam",
-          "state": "Madhya Pradesh",
-          "type": "Large irrigation reservoir on the Tawa tributary inside Hoshangabad"
-        }
-      ],
-      "protectedAreas": [
-        {
-          "name": "Kanha Tiger Reserve",
-          "relation": "Falls in the upper catchment of the Narmada basin in Maikal range",
-          "state": "Madhya Pradesh"
-        },
-        {
-          "name": "Satpura National Park & Pachmarhi BR",
-          "relation": "Catchment of Tawa and Denwa tributaries of Narmada",
-          "state": "Madhya Pradesh"
-        },
-        {
-          "name": "Shoolpaneshwar Wildlife Sanctuary",
-          "relation": "Dense teak forest sanctuary surrounding Sardar Sarovar reservoir",
-          "state": "Gujarat"
-        }
-      ],
-      "species": [
-        {
-          "name": "Mahseer (Tor tor)",
-          "iucn": "Endangered",
-          "role": "State fish of Madhya Pradesh; sacred sport and indicator fish of clear Narmada rapids"
-        },
-        {
-          "name": "Mugger Crocodile",
-          "iucn": "Vulnerable",
-          "role": "Inhabits the Sardar Sarovar and Narmada canals"
-        },
-        {
-          "name": "Otter (Lutrogale perspicillata)",
-          "iucn": "Vulnerable",
-          "role": "Inhabits the rocky stretches near Bhedaghat"
-        }
-      ],
-      "commonMistake": "UPSC 2013 Trap: Narmada flows west because it flows through a fault / linear rift valley created by tectonic subsidence, NOT because of any regional slope! It flows between the Vindhyas on the north and Satpuras on the south. Forms estuary, NO delta."
-    },
-    "staticFacts": [
-      "Originates at Amarkantak Plateau (Maikal Range, MP) and flows westward in a linear rift valley between the Vindhyas and Satpuras (UPSC 2013).",
-      "Forms Dhuandhar Falls at Bhedaghat near Jabalpur (Mahakoshal region, NOT Malwa — UPSC 2024) and houses the Omkareshwar island shrine (Mandhata hills — UPSC 2015)."
-    ],
-    "similarPYQ": [
-      "GEO-UPSC-2024-09",
-      "GEO-UPSC-2023-09",
-      "GEO-UPSC-2016-03",
-      "GEO-UPSC-2015-10",
-      "GEO-UPSC-2013-11"
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
@@ -8891,241 +10347,6 @@ export const CURATED_MAPPING_NODES = [
       "GEO-CDS2-2018-06",
       "GEO-CDS2-2017-07",
       "GEO-CDS2-2017-10"
-    ],
-    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
-    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
-  },
-  {
-    "id": "IND-RIV-10",
-    "slug": "tapi-river",
-    "pillar": "STATIC",
-    "regionScope": "India",
-    "subject": "Geography",
-    "mapCategory": [
-      "India – rivers, lakes, reservoirs & glaciers"
-    ],
-    "place": "Tapi (Tapti) River System",
-    "aliases": [
-      "Tapti",
-      "Surya Putri",
-      "Ukai Dam",
-      "Kakrapar",
-      "Purna",
-      "Girna",
-      "Multai"
-    ],
-    "placeType": "West-Flowing Rift Valley River",
-    "priority": "High",
-    "locatedIn": {
-      "country": "India",
-      "stateOrProvince": "Madhya Pradesh, Maharashtra, Gujarat"
-    },
-    "lat": 21.17,
-    "lng": 72.83,
-    "shape": [
-      [
-        21.77,
-        78.25
-      ],
-      [
-        21.5,
-        77
-      ],
-      [
-        21.3,
-        76.22
-      ],
-      [
-        21.05,
-        75.8
-      ],
-      [
-        21.35,
-        74.45
-      ],
-      [
-        21.25,
-        73.58
-      ],
-      [
-        21.1,
-        72.7
-      ]
-    ],
-    "neighbours": [
-      "Satpura Range (North)",
-      "Ajanta & Satmala Hills (South)",
-      "Narmada River (Flows parallel to the North)"
-    ],
-    "riverDetails": {
-      "length": "724 km",
-      "origin": "Multai in the Betul district (Satpura Range, Madhya Pradesh)",
-      "mouth": "Gulf of Khambhat / Arabian Sea near Dumas/Surat (forms an estuary, no delta)",
-      "states": {
-        "flowsThrough": [
-          "Madhya Pradesh",
-          "Maharashtra",
-          "Gujarat"
-        ],
-        "basinStates": [
-          "Maharashtra (79%)",
-          "Madhya Pradesh (15%)",
-          "Gujarat (6%)"
-        ]
-      },
-      "tributaries": {
-        "leftBank": [
-          {
-            "name": "Purna (Tapi)",
-            "note": "Chief tributary (334 km); rises in Gawilgarh hills (Melghat); drains Vidarbha and Khandesh; joins at Changdeo"
-          },
-          {
-            "name": "Vaghur",
-            "note": "Rises in Ajanta hills; carves the semicircular horseshoe canyon holding UNESCO Ajanta Caves; joins near Jalgaon"
-          },
-          {
-            "name": "Bori",
-            "note": "Rises in northern slopes of Satmala hills; joins Tapi in Jalgaon district"
-          },
-          {
-            "name": "Panjhra",
-            "note": "Rises in Western Ghats near Dhule; joins Tapi near Sindkheda"
-          }
-        ],
-        "rightBank": [
-          {
-            "name": "Girna",
-            "note": "Major tributary (260 km); rises in Western Ghats (Nashik); passes Malegaon and Chalisgaon; joins at Nanded village"
-          },
-          {
-            "name": "Aner",
-            "note": "Rises in Satpura range; forms interstate border between MP and Maharashtra"
-          },
-          {
-            "name": "Arunavati",
-            "note": "Rises in Satpura hills; joins Tapi in Shirpur taluka"
-          },
-          {
-            "name": "Gomai",
-            "note": "Rises in Satpura range; joins Tapi near Prakasha (Dakshin Kashi)"
-          }
-        ]
-      },
-      "confluences": [
-        {
-          "tributary": "Purna River",
-          "sangam": "Changdeo Sangam (Jalgaon)",
-          "state": "Maharashtra",
-          "note": "Holy meeting of Tapi and Purna near 11th century Changdeo Maharaj temple"
-        },
-        {
-          "tributary": "Girna River",
-          "sangam": "Nanded Sangam (Jalgaon)",
-          "state": "Maharashtra",
-          "note": "Major right-bank confluence in Khandesh plain"
-        },
-        {
-          "tributary": "Gomai River",
-          "sangam": "Prakasha (Dakshin Kashi)",
-          "state": "Maharashtra",
-          "note": "Sacred temple town on the Tapi banks in Nandurbar"
-        }
-      ],
-      "towns": [
-        {
-          "name": "Multai",
-          "type": "Origin",
-          "significance": "Sacred spring pool 'Tapi Kund' in Betul district",
-          "state": "Madhya Pradesh"
-        },
-        {
-          "name": "Burhanpur",
-          "type": "Historical / Strategic",
-          "significance": "Historic 'Gateway to Deccan' on Tapi banks; Shahi Qila and Asirgarh Fort",
-          "state": "Madhya Pradesh"
-        },
-        {
-          "name": "Bhusawal & Jalgaon",
-          "type": "Economic",
-          "significance": "Major railway junction and banana capital of India in Khandesh",
-          "state": "Maharashtra"
-        },
-        {
-          "name": "Surat",
-          "type": "Port / Economic",
-          "significance": "Diamond cutting, textile capital & historic Mughal maritime trading port",
-          "state": "Gujarat"
-        }
-      ],
-      "dams": [
-        {
-          "name": "Ukai Dam (Vallabh Sagar)",
-          "state": "Gujarat",
-          "type": "Second largest reservoir in Gujarat (300 MW hydro + massive irrigation canal network)"
-        },
-        {
-          "name": "Kakrapar Weir",
-          "state": "Gujarat",
-          "type": "Diversion weir feeding Kakrapar Atomic Power Station cooling water"
-        },
-        {
-          "name": "Hathnur Dam (Upper Tapi)",
-          "state": "Maharashtra",
-          "type": "Major irrigation reservoir located in Jalgaon district"
-        },
-        {
-          "name": "Prakasha Barrage",
-          "state": "Maharashtra",
-          "type": "Lower Tapi irrigation barrage in Nandurbar"
-        }
-      ],
-      "protectedAreas": [
-        {
-          "name": "Melghat Tiger Reserve",
-          "relation": "Falls in the upper catchment of Tapi and Purna rivers in Satpura/Gawilgarh hills",
-          "state": "Maharashtra"
-        },
-        {
-          "name": "Yawal Wildlife Sanctuary",
-          "relation": "Located on the southern slopes of the Satpura range facing the Tapi valley",
-          "state": "Maharashtra"
-        },
-        {
-          "name": "Gugamal National Park",
-          "relation": "Core tiger and leopard habitat in the Tapi-Purna basin",
-          "state": "Maharashtra"
-        }
-      ],
-      "species": [
-        {
-          "name": "Forest Owlet (Athene blewitti)",
-          "iucn": "Endangered",
-          "role": "Rediscovered endemic raptor found in the Satpura-Tapi dry deciduous forests"
-        },
-        {
-          "name": "Bengal Tiger & Sloth Bear",
-          "iucn": "Endangered / Vulnerable",
-          "role": "Prime population residing in Melghat along the Purna headwaters"
-        },
-        {
-          "name": "Mugger Crocodile",
-          "iucn": "Vulnerable",
-          "role": "Found in Ukai and Hathnur reservoirs"
-        }
-      ],
-      "commonMistake": "Remember: Tapi flows in a linear rift valley parallel to Narmada, situated south of the Satpura range and north of Ajanta/Satmala hills. Don't confuse Purna of Tapi (flows west through Vidarbha/Khandesh) with Purna of Godavari (flows south into Godavari near Nanded)!"
-    },
-    "staticFacts": [
-      "Second largest west-flowing river of Peninsular India (724 km); rises at Multai in Betul district (MP) and flows through a rift valley into the Gulf of Khambhat near Surat.",
-      "Chief left-bank tributary is Purna; chief right-bank tributary is Girna (rising in Western Ghats, Nashik).",
-      "Major multi-purpose projects: Ukai Dam (Vallabh Sagar) and Kakrapar Nuclear Power Station weir in Gujarat; Hathnur Dam in Maharashtra."
-    ],
-    "similarPYQ": [
-      "GEO-UPSC-2021-07",
-      "GEO-CDS2-2018-06",
-      "GEO-CDS1-2014-06",
-      "GEO-CDS2-2017-07"
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
