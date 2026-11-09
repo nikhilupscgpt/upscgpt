@@ -9450,6 +9450,1108 @@ export const CURATED_MAPPING_NODES = [
     "linkedIssueDomain": "GEOGRAPHY"
   },
   {
+    "id": "IND-RIV-14",
+    "slug": "subarnarekha-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Subarnarekha River",
+    "aliases": [
+      "Golden Line River",
+      "Subarnarekha",
+      "Singhbhum River",
+      "Hundru River"
+    ],
+    "placeType": "Minor East-Flowing River of the Chotanagpur Plateau",
+    "priority": "Medium",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Jharkhand, West Bengal, Odisha"
+    },
+    "lat": 22.8,
+    "lng": 86.2,
+    "shape": [
+      [
+        23.35,
+        85.2
+      ],
+      [
+        23.45,
+        85.65
+      ],
+      [
+        22.8,
+        86.2
+      ],
+      [
+        22.35,
+        86.75
+      ],
+      [
+        21.9,
+        87.1
+      ],
+      [
+        21.6,
+        87.45
+      ]
+    ],
+    "neighbours": [
+      "Source: Near Nagri village, Ranchi district (Jharkhand)",
+      "Mouth: Bay of Bengal through an estuary near Talsari, Balasore district (Odisha)"
+    ],
+    "riverDetails": {
+      "length": "~395 km",
+      "origin": "Near Nagri village, Ranchi district (Jharkhand)",
+      "mouth": "Bay of Bengal through an estuary near Talsari, Balasore district (Odisha)",
+      "sourceCoords": [
+        23.35,
+        85.2
+      ],
+      "mouthCoords": [
+        21.6,
+        87.45
+      ],
+      "states": {
+        "flowsThrough": [
+          "Jharkhand",
+          "West Bengal",
+          "Odisha"
+        ],
+        "basinStates": [
+          "Jharkhand",
+          "West Bengal",
+          "Odisha"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [],
+        "rightBank": [
+          {
+            "name": "Kharkai River",
+            "note": "Joins at Domuhani, Jamshedpur"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Kharkai",
+          "sangam": "Domuhani, Jamshedpur",
+          "state": "Jharkhand"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Hundru Falls",
+          "type": "Tourism",
+          "significance": "Plunge where the river drops off the Ranchi plateau",
+          "state": "Jharkhand"
+        },
+        {
+          "name": "Jamshedpur",
+          "type": "Economic",
+          "significance": "Tata Steel city at the Subarnarekha-Kharkai confluence",
+          "state": "Jharkhand"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Getalsud and Chandil Dams",
+          "state": "Jharkhand",
+          "type": "Water supply for Ranchi and the Subarnarekha Multipurpose Project"
+        }
+      ],
+      "protectedAreas": [],
+      "species": [],
+      "commonMistake": "The name means 'streak of gold' from gold traces in its sands. It forms an ESTUARY, not a significant delta."
+    },
+    "staticFacts": [
+      "Flows through the mineral-rich Chotanagpur plateau and the Singhbhum copper-iron belt."
+    ],
+    "similarPYQ": [
+      "GEO-UPSC-2021-07",
+      "UPSC-2024-09",
+      "GEO-CDS1-2017-08"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-11",
+    "slug": "brahmani-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Brahmani River",
+    "aliases": [
+      "Vedavyas River",
+      "South Koel Sankh",
+      "Rengali River",
+      "Talcher River"
+    ],
+    "placeType": "East-Flowing River of Odisha (Shares Delta with Baitarani)",
+    "priority": "High",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Jharkhand, Chhattisgarh, Odisha"
+    },
+    "lat": 21.1,
+    "lng": 85.2,
+    "shape": [
+      [
+        22.22,
+        84.85
+      ],
+      [
+        21.5,
+        85
+      ],
+      [
+        21.1,
+        85.2
+      ],
+      [
+        20.85,
+        85.85
+      ],
+      [
+        20.8,
+        86.95
+      ]
+    ],
+    "neighbours": [
+      "Source: Formed by the South Koel and the Sankh at Vedavyas, near Rourkela (Odisha)",
+      "Mouth: Bay of Bengal near Dhamra, after joining the Baitarani in a common delta (Odisha"
+    ],
+    "riverDetails": {
+      "length": "~799 km including the South Koel headstream",
+      "origin": "Formed by the South Koel and the Sankh at Vedavyas, near Rourkela (Odisha)",
+      "mouth": "Bay of Bengal near Dhamra, after joining the Baitarani in a common delta (Odisha)",
+      "sourceCoords": [
+        22.22,
+        84.85
+      ],
+      "mouthCoords": [
+        20.8,
+        86.95
+      ],
+      "states": {
+        "flowsThrough": [
+          "Odisha"
+        ],
+        "basinStates": [
+          "Jharkhand",
+          "Chhattisgarh",
+          "Odisha"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [],
+        "rightBank": []
+      },
+      "confluences": [
+        {
+          "tributary": "South Koel + Sankh",
+          "sangam": "Vedavyas, near Rourkela",
+          "state": "Odisha"
+        },
+        {
+          "tributary": "Baitarani",
+          "sangam": "Dhamra estuary",
+          "state": "Odisha"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Rourkela",
+          "type": "Economic",
+          "significance": "SAIL steel plant at the head of the river",
+          "state": "Odisha"
+        },
+        {
+          "name": "Talcher-Angul",
+          "type": "Economic",
+          "significance": "Coalfield and NALCO aluminium smelter",
+          "state": "Odisha"
+        },
+        {
+          "name": "Dhamra",
+          "type": "Economic",
+          "significance": "Deep-water port at the mouth",
+          "state": "Odisha"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Mandira Dam",
+          "state": "Odisha",
+          "type": "On the Sankh headstream; supplies Rourkela Steel Plant"
+        },
+        {
+          "name": "Rengali Dam",
+          "state": "Odisha",
+          "type": "Main multipurpose dam on the Brahmani (Angul)"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Bhitarkanika National Park",
+          "relation": "Brahmani-Baitarani delta mangroves; Ramsar site (2002)",
+          "state": "Odisha"
+        },
+        {
+          "name": "Gahirmatha Marine Sanctuary",
+          "relation": "Coast off the delta; major olive ridley mass-nesting beach",
+          "state": "Odisha"
+        }
+      ],
+      "species": [
+        {
+          "name": "Saltwater Crocodile",
+          "iucn": "Least Concern",
+          "role": "India's largest population in Bhitarkanika"
+        },
+        {
+          "name": "Olive Ridley Turtle",
+          "iucn": "Vulnerable",
+          "role": "Arribada (mass nesting) at Gahirmatha"
+        }
+      ],
+      "commonMistake": "The BAITARANI is NOT a tributary of the Brahmani; the two are separate rivers sharing one delta. MANDIRA dam belongs here, not to the Mahanadi."
+    },
+    "staticFacts": [
+      "Its delta merges with the Mahanadi and Baitarani deltas on the Odisha coast."
+    ],
+    "similarPYQ": [
+      "GEO-UPSC-2021-07"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-12",
+    "slug": "baitarani-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Baitarani River",
+    "aliases": [
+      "Vaitarani",
+      "Gonasika River",
+      "Guptaganga River",
+      "Jajpur River"
+    ],
+    "placeType": "East-Flowing River of Odisha",
+    "priority": "Medium",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Odisha, Jharkhand"
+    },
+    "lat": 21.2,
+    "lng": 86.1,
+    "shape": [
+      [
+        21.75,
+        85.6
+      ],
+      [
+        21.5,
+        85.9
+      ],
+      [
+        21.2,
+        86.1
+      ],
+      [
+        20.95,
+        86.55
+      ],
+      [
+        20.8,
+        86.95
+      ]
+    ],
+    "neighbours": [
+      "Source: Guptaganga hills near Gonasika, Keonjhar district (Odisha)",
+      "Mouth: Bay of Bengal at the Dhamra estuary, after joining the Brahmani (Odisha)"
+    ],
+    "riverDetails": {
+      "length": "~360 km",
+      "origin": "Guptaganga hills near Gonasika, Keonjhar district (Odisha)",
+      "mouth": "Bay of Bengal at the Dhamra estuary, after joining the Brahmani (Odisha)",
+      "sourceCoords": [
+        21.75,
+        85.6
+      ],
+      "mouthCoords": [
+        20.8,
+        86.95
+      ],
+      "states": {
+        "flowsThrough": [
+          "Odisha",
+          "Jharkhand"
+        ],
+        "basinStates": [
+          "Odisha",
+          "Jharkhand"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [],
+        "rightBank": []
+      },
+      "confluences": [
+        {
+          "tributary": "Brahmani",
+          "sangam": "Dhamra estuary",
+          "state": "Odisha"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Gonasika",
+          "type": "Cultural",
+          "significance": "Source; the stream emerges from a rock shaped like a cow's nostril",
+          "state": "Odisha"
+        },
+        {
+          "name": "Jajpur",
+          "type": "Cultural",
+          "significance": "Biraja temple; one of Odisha's holiest river towns",
+          "state": "Odisha"
+        }
+      ],
+      "dams": [],
+      "protectedAreas": [
+        {
+          "name": "Bhitarkanika National Park",
+          "relation": "Shared Brahmani-Baitarani delta",
+          "state": "Odisha"
+        }
+      ],
+      "species": [],
+      "commonMistake": "Its sacred status comes from the mythological VAITARANI (the river of the underworld), not from Jagannath rituals."
+    },
+    "staticFacts": [
+      "For a stretch it forms the Odisha-Jharkhand boundary."
+    ],
+    "similarPYQ": [
+      "GEO-UPSC-2021-07"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-15A",
+    "slug": "vamsadhara-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Vamsadhara River",
+    "aliases": [
+      "Bansadhara",
+      "Kalingapatnam River",
+      "Gotta Barrage River"
+    ],
+    "placeType": "Minor East-Flowing Inter-State River (Odisha-AP)",
+    "priority": "Medium",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Odisha, Andhra Pradesh"
+    },
+    "lat": 18.85,
+    "lng": 83.9,
+    "shape": [
+      [
+        19.45,
+        83.3
+      ],
+      [
+        19.05,
+        83.82
+      ],
+      [
+        18.85,
+        83.9
+      ],
+      [
+        18.33,
+        84.12
+      ]
+    ],
+    "neighbours": [
+      "Source: Eastern Ghats near Thuamul Rampur, Kalahandi district (Odisha)",
+      "Mouth: Bay of Bengal at Kalingapatnam, Srikakulam district (Andhra Pradesh)"
+    ],
+    "riverDetails": {
+      "length": "~254 km",
+      "origin": "Eastern Ghats near Thuamul Rampur, Kalahandi district (Odisha)",
+      "mouth": "Bay of Bengal at Kalingapatnam, Srikakulam district (Andhra Pradesh)",
+      "sourceCoords": [
+        19.45,
+        83.3
+      ],
+      "mouthCoords": [
+        18.33,
+        84.12
+      ],
+      "states": {
+        "flowsThrough": [
+          "Odisha",
+          "Andhra Pradesh"
+        ],
+        "basinStates": [
+          "Odisha",
+          "Andhra Pradesh"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [],
+        "rightBank": [
+          {
+            "name": "Mahendratanaya River",
+            "note": "From the Mahendragiri hills"
+          }
+        ]
+      },
+      "confluences": [],
+      "towns": [
+        {
+          "name": "Mukhalingam",
+          "type": "Historical",
+          "significance": "Eastern Ganga dynasty temples near the river",
+          "state": "Andhra Pradesh"
+        },
+        {
+          "name": "Kalingapatnam",
+          "type": "Historical",
+          "significance": "Ancient port at the mouth",
+          "state": "Andhra Pradesh"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Neradi Barrage (proposed)",
+          "state": "Odisha / Andhra Pradesh border",
+          "type": "Subject of the Vamsadhara Water Disputes Tribunal"
+        }
+      ],
+      "protectedAreas": [],
+      "species": [],
+      "commonMistake": "The Vamsadhara dispute is between ODISHA and ANDHRA PRADESH; the Vamsadhara Water Disputes Tribunal gave its award in 2017."
+    },
+    "staticFacts": [],
+    "similarPYQ": [
+      "GEO-UPSC-2021-07",
+      "GEO-UPSC-2015-07"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-15B",
+    "slug": "nagavali-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Nagavali (Langulya) River",
+    "aliases": [
+      "Langulya",
+      "Thotapalli River",
+      "Srikakulam River"
+    ],
+    "placeType": "Minor East-Flowing Inter-State River (Odisha-AP)",
+    "priority": "Low",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Odisha, Andhra Pradesh"
+    },
+    "lat": 19.17,
+    "lng": 83.42,
+    "shape": [
+      [
+        19.55,
+        83.15
+      ],
+      [
+        19.17,
+        83.42
+      ],
+      [
+        18.78,
+        83.6
+      ],
+      [
+        18.3,
+        83.9
+      ],
+      [
+        18.25,
+        84.05
+      ]
+    ],
+    "neighbours": [
+      "Source: Eastern Ghats near Lakhbahal, Kalahandi district (Odisha)",
+      "Mouth: Bay of Bengal near Srikakulam (Andhra Pradesh)"
+    ],
+    "riverDetails": {
+      "length": "~256 km",
+      "origin": "Eastern Ghats near Lakhbahal, Kalahandi district (Odisha)",
+      "mouth": "Bay of Bengal near Srikakulam (Andhra Pradesh)",
+      "sourceCoords": [
+        19.55,
+        83.15
+      ],
+      "mouthCoords": [
+        18.25,
+        84.05
+      ],
+      "states": {
+        "flowsThrough": [
+          "Odisha",
+          "Andhra Pradesh"
+        ],
+        "basinStates": [
+          "Odisha",
+          "Andhra Pradesh"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Jhanjavati River",
+            "note": "Joins in Andhra Pradesh"
+          }
+        ],
+        "rightBank": []
+      },
+      "confluences": [],
+      "towns": [
+        {
+          "name": "Rayagada",
+          "type": "Economic",
+          "significance": "Main Odisha town on the river",
+          "state": "Odisha"
+        },
+        {
+          "name": "Srikakulam",
+          "type": "Administrative",
+          "significance": "District town near the mouth",
+          "state": "Andhra Pradesh"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Thotapalli Barrage",
+          "state": "Andhra Pradesh",
+          "type": "Irrigation in Vizianagaram-Srikakulam"
+        }
+      ],
+      "protectedAreas": [],
+      "species": [],
+      "commonMistake": "Called the LANGULYA in Odisha. It and the Vamsadhara both reach the sea in Srikakulam district."
+    },
+    "staticFacts": [],
+    "similarPYQ": [
+      "GEO-UPSC-2021-07"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-17A",
+    "slug": "palar-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Palar River",
+    "aliases": [
+      "Kshira Nadi",
+      "Palar Anicut River",
+      "Vellore River",
+      "Kanchipuram River"
+    ],
+    "placeType": "Seasonal East-Flowing River (Nandi Hills to Tamil Nadu)",
+    "priority": "Medium",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Karnataka, Andhra Pradesh, Tamil Nadu"
+    },
+    "lat": 12.92,
+    "lng": 79.13,
+    "shape": [
+      [
+        13.3,
+        77.95
+      ],
+      [
+        12.95,
+        78.6
+      ],
+      [
+        12.92,
+        79.13
+      ],
+      [
+        12.83,
+        79.7
+      ],
+      [
+        12.52,
+        80.17
+      ]
+    ],
+    "neighbours": [
+      "Source: Nandi hills region, Chikkaballapur-Kolar (Karnataka)",
+      "Mouth: Bay of Bengal near Vayalur, south of Kalpakkam (Tamil Nadu)"
+    ],
+    "riverDetails": {
+      "length": "~348 km",
+      "origin": "Nandi hills region, Chikkaballapur-Kolar (Karnataka)",
+      "mouth": "Bay of Bengal near Vayalur, south of Kalpakkam (Tamil Nadu)",
+      "sourceCoords": [
+        13.3,
+        77.95
+      ],
+      "mouthCoords": [
+        12.52,
+        80.17
+      ],
+      "states": {
+        "flowsThrough": [
+          "Karnataka",
+          "Andhra Pradesh",
+          "Tamil Nadu"
+        ],
+        "basinStates": [
+          "Karnataka",
+          "Andhra Pradesh",
+          "Tamil Nadu"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Ponnai (Poini) River",
+            "note": "From the Chittoor side"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Cheyyar River",
+            "note": "From the Javadi hills"
+          }
+        ]
+      },
+      "confluences": [],
+      "towns": [
+        {
+          "name": "Vaniyambadi-Ambur",
+          "type": "Economic",
+          "significance": "Leather tannery belt; major source of Palar pollution",
+          "state": "Tamil Nadu"
+        },
+        {
+          "name": "Vellore",
+          "type": "Historical",
+          "significance": "Vellore fort; CMC hospital",
+          "state": "Tamil Nadu"
+        },
+        {
+          "name": "Kalpakkam",
+          "type": "Infrastructure",
+          "significance": "Nuclear power station near the mouth",
+          "state": "Tamil Nadu"
+        }
+      ],
+      "dams": [],
+      "protectedAreas": [],
+      "species": [],
+      "commonMistake": "The Palar is dry for most of the year; its value is GROUNDWATER in its sandy bed, an important source for Chennai and Kanchipuram."
+    },
+    "staticFacts": [
+      "Andhra Pradesh's check dams in its upper course have led to an AP-Tamil Nadu dispute."
+    ],
+    "similarPYQ": [
+      "GEO-UPSC-2022-03"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-17B",
+    "slug": "south-pennar-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "South Pennar (Pennaiyar / Thenpennai) River",
+    "aliases": [
+      "Pennaiyar",
+      "Thenpennai",
+      "Dakshina Pinakini",
+      "Sathanur River"
+    ],
+    "placeType": "East-Flowing River (Nandi Hills to Cuddalore)",
+    "priority": "Medium",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Karnataka, Tamil Nadu"
+    },
+    "lat": 12.18,
+    "lng": 78.85,
+    "shape": [
+      [
+        13.37,
+        77.7
+      ],
+      [
+        12.85,
+        78
+      ],
+      [
+        12.3,
+        78.45
+      ],
+      [
+        12.18,
+        78.85
+      ],
+      [
+        11.9,
+        79.5
+      ],
+      [
+        11.75,
+        79.78
+      ]
+    ],
+    "neighbours": [
+      "Source: Nandi hills, Chikkaballapur district (Karnataka); also called the Dakshina Pinak",
+      "Mouth: Bay of Bengal near Cuddalore (Tamil Nadu)"
+    ],
+    "riverDetails": {
+      "length": "~430–497 km (sources vary)",
+      "origin": "Nandi hills, Chikkaballapur district (Karnataka); also called the Dakshina Pinakini",
+      "mouth": "Bay of Bengal near Cuddalore (Tamil Nadu)",
+      "sourceCoords": [
+        13.37,
+        77.7
+      ],
+      "mouthCoords": [
+        11.75,
+        79.78
+      ],
+      "states": {
+        "flowsThrough": [
+          "Karnataka",
+          "Tamil Nadu"
+        ],
+        "basinStates": [
+          "Karnataka",
+          "Tamil Nadu",
+          "Andhra Pradesh"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [],
+        "rightBank": []
+      },
+      "confluences": [],
+      "towns": [
+        {
+          "name": "Hosur",
+          "type": "Economic",
+          "significance": "Industrial town near the Karnataka-TN border",
+          "state": "Tamil Nadu"
+        },
+        {
+          "name": "Cuddalore",
+          "type": "Economic",
+          "significance": "Port town at the mouth",
+          "state": "Tamil Nadu"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Krishnagiri (KRP) Dam",
+          "state": "Tamil Nadu",
+          "type": "Irrigation reservoir"
+        },
+        {
+          "name": "Sathanur Dam",
+          "state": "Tamil Nadu",
+          "type": "Main reservoir, Tiruvannamalai district"
+        }
+      ],
+      "protectedAreas": [],
+      "species": [],
+      "commonMistake": "Do not confuse it with the PENNAR (North Pennar), which flows to Nellore in AP. Bengaluru's Bellandur and Varthur lakes (known for toxic foam) drain into the South Pennar."
+    },
+    "staticFacts": [],
+    "similarPYQ": [
+      "GEO-UPSC-2022-03"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-16",
+    "slug": "vaigai-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Vaigai River",
+    "aliases": [
+      "Kritamala",
+      "Madurai River",
+      "Chithirai Festival River",
+      "Megamalai River"
+    ],
+    "placeType": "East-Flowing River of South Tamil Nadu",
+    "priority": "Medium",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Tamil Nadu"
+    },
+    "lat": 9.93,
+    "lng": 78.12,
+    "shape": [
+      [
+        9.65,
+        77.35
+      ],
+      [
+        10.05,
+        77.58
+      ],
+      [
+        9.93,
+        78.12
+      ],
+      [
+        9.7,
+        78.5
+      ],
+      [
+        9.4,
+        79
+      ]
+    ],
+    "neighbours": [
+      "Source: Varusanadu hills (Megamalai), Western Ghats, Theni district (Tamil Nadu)",
+      "Mouth: Ends in the Ramanathapuram big tank; surplus reaches Palk Bay near Athangarai (n"
+    ],
+    "riverDetails": {
+      "length": "~258 km",
+      "origin": "Varusanadu hills (Megamalai), Western Ghats, Theni district (Tamil Nadu)",
+      "mouth": "Ends in the Ramanathapuram big tank; surplus reaches Palk Bay near Athangarai (no delta)",
+      "sourceCoords": [
+        9.65,
+        77.35
+      ],
+      "mouthCoords": [
+        9.4,
+        79
+      ],
+      "states": {
+        "flowsThrough": [
+          "Tamil Nadu"
+        ],
+        "basinStates": [
+          "Tamil Nadu"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [],
+        "rightBank": [
+          {
+            "name": "Suruliyar River",
+            "note": "Suruli falls; brings Periyar water diverted through Mullaperiyar"
+          }
+        ]
+      },
+      "confluences": [],
+      "towns": [
+        {
+          "name": "Madurai",
+          "type": "Cultural / Historical",
+          "significance": "Pandya capital; Meenakshi temple; Chithirai festival on the Vaigai",
+          "state": "Tamil Nadu"
+        },
+        {
+          "name": "Keezhadi",
+          "type": "Historical",
+          "significance": "Sangam-era urban settlement excavated on the Vaigai bank",
+          "state": "Tamil Nadu"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Vaigai Dam",
+          "state": "Tamil Nadu",
+          "type": "Near Andipatti (Theni); stores Periyar water diverted east"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Srivilliputhur-Megamalai Tiger Reserve",
+          "relation": "Source hills of the Vaigai",
+          "state": "Tamil Nadu"
+        }
+      ],
+      "species": [],
+      "commonMistake": "Much of the Vaigai's water comes from the PERIYAR (Kerala) via the Mullaperiyar diversion. It usually does not reach the sea as a flowing river."
+    },
+    "staticFacts": [],
+    "similarPYQ": [
+      "GEO-CDS1-2017-08"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-17C",
+    "slug": "vellar-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Vellar River",
+    "aliases": [
+      "South Vellar",
+      "Kalrayan River",
+      "Porto Novo River",
+      "Parangipettai River"
+    ],
+    "placeType": "Minor East-Flowing River of Tamil Nadu",
+    "priority": "Low",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Tamil Nadu"
+    },
+    "lat": 11.52,
+    "lng": 79.32,
+    "shape": [
+      [
+        11.8,
+        78.55
+      ],
+      [
+        11.55,
+        78.9
+      ],
+      [
+        11.52,
+        79.32
+      ],
+      [
+        11.5,
+        79.77
+      ]
+    ],
+    "neighbours": [
+      "Source: Chitteri-Kalrayan hills of the Eastern Ghats, Salem-Kallakurichi region (Tamil N",
+      "Mouth: Bay of Bengal at Parangipettai (Porto Novo), Cuddalore district (Tamil Nadu)"
+    ],
+    "riverDetails": {
+      "length": "~200 km",
+      "origin": "Chitteri-Kalrayan hills of the Eastern Ghats, Salem-Kallakurichi region (Tamil Nadu)",
+      "mouth": "Bay of Bengal at Parangipettai (Porto Novo), Cuddalore district (Tamil Nadu)",
+      "sourceCoords": [
+        11.8,
+        78.55
+      ],
+      "mouthCoords": [
+        11.5,
+        79.77
+      ],
+      "states": {
+        "flowsThrough": [
+          "Tamil Nadu"
+        ],
+        "basinStates": [
+          "Tamil Nadu"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [],
+        "rightBank": [
+          {
+            "name": "Swetha Nadi",
+            "note": "Joins in the middle course"
+          }
+        ]
+      },
+      "confluences": [],
+      "towns": [
+        {
+          "name": "Vriddhachalam",
+          "type": "Cultural",
+          "significance": "Temple town in the Vellar basin",
+          "state": "Tamil Nadu"
+        },
+        {
+          "name": "Parangipettai",
+          "type": "Historical",
+          "significance": "Old Porto Novo port at the mouth",
+          "state": "Tamil Nadu"
+        }
+      ],
+      "dams": [],
+      "protectedAreas": [
+        {
+          "name": "Pichavaram Mangroves",
+          "relation": "Between the Vellar and Kollidam (Coleroon) estuaries",
+          "state": "Tamil Nadu"
+        }
+      ],
+      "species": [],
+      "commonMistake": "Pichavaram mangroves lie between the VELLAR and the COLEROON (Kollidam) estuaries, not on the main Cauvery."
+    },
+    "staticFacts": [],
+    "similarPYQ": [
+      "GEO-CDS1-2017-08"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
     "id": "IND-REL-01",
     "slug": "siachen-glacier-karakoram",
     "pillar": "STATIC",
@@ -11067,957 +12169,6 @@ export const CURATED_MAPPING_NODES = [
     ],
     "linkedIssueSlug": "world-physical-features-straits-seas-rivers-mountains-deserts",
     "linkedIssueTitle": "World Physical Features — Straits, Seas, Rivers, Mountains & Deserts",
-    "linkedIssueDomain": "GEOGRAPHY"
-  },
-  {
-    "id": "IND-RIV-11",
-    "slug": "brahmani-river",
-    "pillar": "STATIC",
-    "regionScope": "India",
-    "subject": "Geography",
-    "mapCategory": [
-      "India – rivers, lakes, reservoirs & glaciers"
-    ],
-    "place": "Brahmani River System",
-    "aliases": [
-      "Sankh",
-      "South Koel",
-      "Rengali Dam",
-      "Vedvyas",
-      "Bhitarkanika"
-    ],
-    "placeType": "East-Flowing Peninsular River",
-    "priority": "High",
-    "locatedIn": {
-      "country": "India",
-      "stateOrProvince": "Odisha, Jharkhand"
-    },
-    "lat": 20.8,
-    "lng": 86.85,
-    "shape": [
-      [
-        22.25,
-        84.85
-      ],
-      [
-        21.8,
-        85
-      ],
-      [
-        21.28,
-        85.18
-      ],
-      [
-        20.95,
-        85.9
-      ],
-      [
-        20.75,
-        86.85
-      ]
-    ],
-    "neighbours": [
-      "Formed at Vedvyas (Rourkela) by Sankh and South Koel",
-      "Baitarani River (North)",
-      "Mahanadi Basin (South)"
-    ],
-    "riverDetails": {
-      "length": "799 km (480 km from Vedvyas confluence)",
-      "origin": "Formed at Vedvyas near Rourkela (Odisha) by confluence of Sankh (Jharkhand) and South Koel (Chota Nagpur Plateau, Jharkhand)",
-      "mouth": "Bay of Bengal at Dhamra (merges with Baitarani to form the delta containing Bhitarkanika Mangroves)",
-      "states": {
-        "flowsThrough": [
-          "Jharkhand (headwaters)",
-          "Odisha"
-        ],
-        "basinStates": [
-          "Odisha (57%)",
-          "Jharkhand (40%)",
-          "Chhattisgarh (3%)"
-        ]
-      },
-      "tributaries": {
-        "leftBank": [
-          {
-            "name": "Sankh River",
-            "note": "Rises near Netarhat plateau (Jharkhand); tumbles down Sadni Falls (60 m); forms Brahmani at Vedvyas"
-          },
-          {
-            "name": "Kharasrota",
-            "note": "Important deltaic distributary and branch river flowing past Jajpur"
-          }
-        ],
-        "rightBank": [
-          {
-            "name": "South Koel",
-            "note": "Rises near Nagri in Ranchi district; flows south through Singhbhum to join Sankh at Vedvyas"
-          },
-          {
-            "name": "Tikra",
-            "note": "Drains the forested valleys of Angul and Deogarh into Brahmani"
-          },
-          {
-            "name": "Singhadajhor",
-            "note": "Right-bank stream draining Dhenkanal into the lower basin"
-          }
-        ]
-      },
-      "confluences": [
-        {
-          "tributary": "Sankh + South Koel",
-          "sangam": "Vedvyas (Rourkela)",
-          "state": "Odisha",
-          "note": "Holy confluence named after Sage Vyasa who composed Mahabharata here"
-        },
-        {
-          "tributary": "Brahmani + Baitarani",
-          "sangam": "Dhamra Estuary",
-          "state": "Odisha",
-          "note": "Combined mouth entering the Bay of Bengal into Bhitarkanika delta"
-        }
-      ],
-      "towns": [
-        {
-          "name": "Rourkela",
-          "type": "Industrial",
-          "significance": "Steel City of India situated at the Vedvyas confluence",
-          "state": "Odisha"
-        },
-        {
-          "name": "Talcher",
-          "type": "Mining / Energy",
-          "significance": "One of India's largest coalfields and thermal power complexes on Brahmani banks",
-          "state": "Odisha"
-        },
-        {
-          "name": "Dhenkanal",
-          "type": "Historical",
-          "significance": "Heritage princely capital in the middle Brahmani valley",
-          "state": "Odisha"
-        },
-        {
-          "name": "Dhamra",
-          "type": "Port",
-          "significance": "Deepwater commercial port on the joint Brahmani-Baitarani estuary",
-          "state": "Odisha"
-        }
-      ],
-      "dams": [
-        {
-          "name": "Rengali Dam",
-          "state": "Odisha",
-          "type": "Major multi-purpose reservoir in Angul district (250 MW hydro + massive flood moderation)"
-        },
-        {
-          "name": "Samal Barrage",
-          "state": "Odisha",
-          "type": "Irrigation diversion barrage located downstream of Rengali"
-        }
-      ],
-      "protectedAreas": [
-        {
-          "name": "Bhitarkanika National Park & Ramsar Site",
-          "relation": "World-renowned mangrove wetland formed by the delta of Brahmani, Baitarani and Dhamra",
-          "state": "Odisha"
-        },
-        {
-          "name": "Gahirmatha Marine Sanctuary",
-          "relation": "Adjacent to Brahmani-Baitarani estuary; world's largest Olive Ridley turtle nesting beach",
-          "state": "Odisha"
-        }
-      ],
-      "species": [
-        {
-          "name": "Saltwater Crocodile (Crocodylus porosus)",
-          "iucn": "Least Concern",
-          "role": "Bhitarkanika holds over 1,700 estuarine crocodiles including giant specimens over 20 feet"
-        },
-        {
-          "name": "King Cobra (Ophiophagus hannah)",
-          "iucn": "Vulnerable",
-          "role": "High density in the Brahmani mangrove forests"
-        },
-        {
-          "name": "Mangrove Horseshoe Crab",
-          "iucn": "Data Deficient",
-          "role": "Living fossil residing in mudflats of the Dhamra estuary"
-        }
-      ],
-      "commonMistake": "UPSC 2021 Question: Brahmani is formed by Sankh and South Koel rising on the Chota Nagpur plateau (Jharkhand). It is NOT formed in Keonjhar (that is Baitarani). Also note that Brahmani and Baitarani share a common delta at Dhamra."
-    },
-    "staticFacts": [
-      "Second largest river in Odisha (799 km total); formed at Vedvyas (Rourkela) by the meeting of Sankh and South Koel rivers from Chota Nagpur.",
-      "UPSC 2021: Brahmani (rises on Chota Nagpur) joins Baitarani near Dhamra to form the mangrove delta of Bhitarkanika National Park.",
-      "Rengali Dam in Angul district is the primary multipurpose reservoir on the Brahmani River."
-    ],
-    "similarPYQ": [
-      "GEO-UPSC-2021-07",
-      "GEO-CDS2-2018-06",
-      "ENV-UPSC-2013-15"
-    ],
-    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
-    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
-  },
-  {
-    "id": "IND-RIV-12",
-    "slug": "baitarani-river",
-    "pillar": "STATIC",
-    "regionScope": "India",
-    "subject": "Geography",
-    "mapCategory": [
-      "India – rivers, lakes, reservoirs & glaciers"
-    ],
-    "place": "Baitarani River System",
-    "aliases": [
-      "Gonasika",
-      "Guptaganga",
-      "Anandapur",
-      "Dhamra",
-      "Bhitarkanika"
-    ],
-    "placeType": "East-Flowing Peninsular Coastal River",
-    "priority": "High",
-    "locatedIn": {
-      "country": "India",
-      "stateOrProvince": "Odisha"
-    },
-    "lat": 20.85,
-    "lng": 86.6,
-    "shape": [
-      [
-        21.5,
-        85.5
-      ],
-      [
-        21.2,
-        85.9
-      ],
-      [
-        20.95,
-        86.2
-      ],
-      [
-        20.82,
-        86.85
-      ]
-    ],
-    "neighbours": [
-      "Subarnarekha & Budhabalanga (North)",
-      "Brahmani River (South)",
-      "Originates in Gonasika Hills (Keonjhar)"
-    ],
-    "riverDetails": {
-      "length": "360 km",
-      "origin": "Gonasika / Guptaganga in the Gonasika hills near Keonjhar (Odisha, elevation 900 m)",
-      "mouth": "Bay of Bengal at Dhamra (unites with Brahmani in the estuarine mangrove delta)",
-      "states": {
-        "flowsThrough": [
-          "Odisha"
-        ],
-        "basinStates": [
-          "Odisha (96%)",
-          "Jharkhand (4% in border stream headwaters)"
-        ]
-      },
-      "tributaries": {
-        "leftBank": [
-          {
-            "name": "Salandi",
-            "note": "Major tributary; rises in Similipal Biosphere Reserve; Hadgarh Dam located on it; joins near Bhadrak"
-          },
-          {
-            "name": "Kanjhari",
-            "note": "Rises in mineral-rich plateau of Keonjhar"
-          }
-        ],
-        "rightBank": [
-          {
-            "name": "Musala",
-            "note": "Rises in Gonasika hills; drains iron-ore belt"
-          },
-          {
-            "name": "Ardei",
-            "note": "Rises in Keonjhar highlands; joins near Anandapur"
-          }
-        ]
-      },
-      "confluences": [
-        {
-          "tributary": "Salandi River",
-          "sangam": "Tihidi Sangam (Bhadrak)",
-          "state": "Odisha",
-          "note": "Meeting of Salandi with the main Baitarani channel"
-        },
-        {
-          "tributary": "Baitarani + Brahmani",
-          "sangam": "Dhamra Estuary",
-          "state": "Odisha",
-          "note": "Enters Bay of Bengal adjacent to Kanika island and Bhitarkanika"
-        }
-      ],
-      "towns": [
-        {
-          "name": "Keonjhar",
-          "type": "Mining / Regional",
-          "significance": "Iron ore and manganese mining capital near the source hills",
-          "state": "Odisha"
-        },
-        {
-          "name": "Anandapur",
-          "type": "Irrigation",
-          "significance": "Site of major Baitarani Anandapur Barrage project",
-          "state": "Odisha"
-        },
-        {
-          "name": "Jajpur (Biraja Kshetra)",
-          "type": "Pilgrimage / Historical",
-          "significance": "Ancient capital of Somavamshi dynasty on sacred Baitarani banks",
-          "state": "Odisha"
-        },
-        {
-          "name": "Bhadrak",
-          "type": "Commercial",
-          "significance": "Major agrarian trade center in the lower coastal alluvium",
-          "state": "Odisha"
-        }
-      ],
-      "dams": [
-        {
-          "name": "Anandapur Barrage",
-          "state": "Odisha",
-          "type": "Major irrigation barrage across the Baitarani River in Keonjhar"
-        },
-        {
-          "name": "Hadgarh Dam",
-          "state": "Odisha",
-          "type": "Storage dam on Salandi tributary inside Hadgarh Wildlife Sanctuary"
-        },
-        {
-          "name": "Kanupur Irrigation Project",
-          "state": "Odisha",
-          "type": "Dam project on upper Baitarani to irrigate Keonjhar plateaus"
-        }
-      ],
-      "protectedAreas": [
-        {
-          "name": "Similipal National Park & Biosphere Reserve",
-          "relation": "Catchment of the chief tributary Salandi rises inside Similipal",
-          "state": "Odisha"
-        },
-        {
-          "name": "Hadgarh Wildlife Sanctuary",
-          "relation": "Surrounds the Hadgarh reservoir on Salandi river",
-          "state": "Odisha"
-        },
-        {
-          "name": "Bhitarkanika Mangroves",
-          "relation": "Delta mouth formed jointly with Brahmani at Dhamra",
-          "state": "Odisha"
-        }
-      ],
-      "species": [
-        {
-          "name": "Saltwater Crocodile",
-          "iucn": "Least Concern",
-          "role": "Inhabits the tidal mangrove creeks of the lower Baitarani-Dhamra estuary"
-        },
-        {
-          "name": "White-bellied Sea Eagle",
-          "iucn": "Least Concern",
-          "role": "Resident raptor nesting along the coastal delta canopy"
-        },
-        {
-          "name": "Indian Python (Python molurus)",
-          "iucn": "Near Threatened",
-          "role": "Abundant in the delta swamp forests"
-        }
-      ],
-      "commonMistake": "UPSC 2021 Trap: Baitarani originates in the Gonasika hills of Keonjhar (Odisha), NOT the Chota Nagpur plateau! Only Subarnarekha and Brahmani (Sankh+South Koel) originate on the Chota Nagpur plateau."
-    },
-    "staticFacts": [
-      "Originates at Gonasika / Guptaganga in Keonjhar hills (Odisha); flows 360 km entirely through Odisha before joining Brahmani at Dhamra.",
-      "Chief tributary is Salandi, which rises in Similipal Biosphere Reserve and feeds the Hadgarh reservoir.",
-      "Ancient Biraja Kshetra (Jajpur) is situated on its banks; revered as the sacred river of Odisha."
-    ],
-    "similarPYQ": [
-      "GEO-UPSC-2021-07",
-      "GEO-CDS2-2018-06"
-    ],
-    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
-    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
-  },
-  {
-    "id": "IND-RIV-14",
-    "slug": "subarnarekha-river",
-    "pillar": "STATIC",
-    "regionScope": "India",
-    "subject": "Geography",
-    "mapCategory": [
-      "India – rivers, lakes, reservoirs & glaciers"
-    ],
-    "place": "Subarnarekha River System",
-    "aliases": [
-      "Streak of Gold",
-      "Hundru Falls",
-      "Jamshedpur",
-      "Karkari",
-      "Kharkai",
-      "Getalsud Dam"
-    ],
-    "placeType": "East-Flowing Chota Nagpur River",
-    "priority": "High",
-    "locatedIn": {
-      "country": "India",
-      "stateOrProvince": "Jharkhand, West Bengal, Odisha"
-    },
-    "lat": 21.6,
-    "lng": 87.35,
-    "shape": [
-      [
-        23.35,
-        85.2
-      ],
-      [
-        23.45,
-        85.65
-      ],
-      [
-        22.8,
-        86.2
-      ],
-      [
-        22.4,
-        86.8
-      ],
-      [
-        21.6,
-        87.35
-      ]
-    ],
-    "neighbours": [
-      "Damodar Basin (North)",
-      "Brahmani & Baitarani Basins (South)",
-      "Chota Nagpur Plateau (Origin)"
-    ],
-    "riverDetails": {
-      "length": "395 km",
-      "origin": "Nagri village near Ranchi (Chota Nagpur Plateau, Jharkhand, elevation 610 m)",
-      "mouth": "Bay of Bengal at Kirtania near Talsari beach (Balasore district, Odisha)",
-      "states": {
-        "flowsThrough": [
-          "Jharkhand",
-          "West Bengal",
-          "Odisha"
-        ],
-        "basinStates": [
-          "Jharkhand (71%)",
-          "Odisha (19%)",
-          "West Bengal (10%)"
-        ]
-      },
-      "tributaries": {
-        "leftBank": [
-          {
-            "name": "Dulung",
-            "note": "Rises in West Midnapore (WB); joins Subarnarekha in Odisha border"
-          },
-          {
-            "name": "Raru",
-            "note": "Famous for Jonha / Gautamdhara Falls near Ranchi"
-          }
-        ],
-        "rightBank": [
-          {
-            "name": "Kanchi",
-            "note": "Tumbles over picturesque Dassam Falls (44 m); joins near Tamar"
-          },
-          {
-            "name": "Karkari",
-            "note": "Major tributary in Khunti district"
-          },
-          {
-            "name": "Kharkai",
-            "note": "Chief tributary; flows past Chaibasa; meets Subarnarekha at Jamshedpur (Tatanagar)"
-          },
-          {
-            "name": "Garra",
-            "note": "Drains the Jaduguda uranium mining belt"
-          }
-        ]
-      },
-      "confluences": [
-        {
-          "tributary": "Kharkai River",
-          "sangam": "Sonari Sangam (Jamshedpur)",
-          "state": "Jharkhand",
-          "note": "Meeting of Subarnarekha and Kharkai; chosen by J.N. Tata for Tata Steel plant in 1907"
-        }
-      ],
-      "towns": [
-        {
-          "name": "Ranchi",
-          "type": "Capital",
-          "significance": "City of Waterfalls on the Chota Nagpur plateau source",
-          "state": "Jharkhand"
-        },
-        {
-          "name": "Jamshedpur (Tatanagar)",
-          "type": "Industrial",
-          "significance": "India's first planned industrial steel city at Subarnarekha-Kharkai confluence",
-          "state": "Jharkhand"
-        },
-        {
-          "name": "Ghatshila",
-          "type": "Mining / Tourism",
-          "significance": "Copper smelting and mining hub along the scenic river gorge",
-          "state": "Jharkhand"
-        },
-        {
-          "name": "Balasore (Kirtania)",
-          "type": "Coastal",
-          "significance": "Maritime mouth and aquaculture port in northern Odisha",
-          "state": "Odisha"
-        }
-      ],
-      "dams": [
-        {
-          "name": "Getalsud Dam (Rukku)",
-          "state": "Jharkhand",
-          "type": "Major reservoir supplying drinking water to Ranchi city"
-        },
-        {
-          "name": "Chandil Dam",
-          "state": "Jharkhand",
-          "type": "Large multipurpose dam on Subarnarekha (Subarnarekha Multipurpose Project)"
-        },
-        {
-          "name": "Icha Dam",
-          "state": "Jharkhand",
-          "type": "Dam on the Kharkai tributary in West Singhbhum"
-        }
-      ],
-      "protectedAreas": [
-        {
-          "name": "Dalma Wildlife Sanctuary",
-          "relation": "Dalma hills flank the Subarnarekha river at Jamshedpur; famous for Asian Elephants",
-          "state": "Jharkhand"
-        }
-      ],
-      "species": [
-        {
-          "name": "Asian Elephant (Elephas maximus)",
-          "iucn": "Endangered",
-          "role": "Key migratory corridor crossing the river at Dalma-Jamshedpur"
-        },
-        {
-          "name": "Mahseer",
-          "iucn": "Endangered",
-          "role": "Inhabits the clear rocky pools below Hundru Falls"
-        }
-      ],
-      "commonMistake": "UPSC 2021 Fact: Subarnarekha rises directly on the Chota Nagpur plateau near Ranchi, flowing independently into the Bay of Bengal. It does NOT join the Hooghly or Mahanadi. Name means 'Streak of Gold' due to gold panning in river sands."
-    },
-    "staticFacts": [
-      "Originates near Ranchi on Chota Nagpur Plateau (395 km); flows through Jharkhand, West Bengal, and Odisha into Bay of Bengal.",
-      "Forms Hundru Falls (98 m) near Ranchi; chosen by J.N. Tata for India's first steel city (Jamshedpur) at its confluence with Kharkai.",
-      "UPSC 2021: Subarnarekha and Brahmani rise on Chota Nagpur (Nagawali & Vamsadhara rise in Eastern Ghats)."
-    ],
-    "similarPYQ": [
-      "GEO-UPSC-2021-07",
-      "GEO-CDS2-2018-06"
-    ],
-    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
-    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
-  },
-  {
-    "id": "IND-RIV-15",
-    "slug": "rushikulya-vamsadhara-nagavali",
-    "pillar": "STATIC",
-    "regionScope": "India",
-    "subject": "Geography",
-    "mapCategory": [
-      "India – rivers, lakes, reservoirs & glaciers"
-    ],
-    "place": "Rushikulya, Vamsadhara & Nagavali River Systems",
-    "aliases": [
-      "Bansadhara",
-      "Langulya",
-      "Olive Ridley Rookery",
-      "Ganjam Coast",
-      "Kalingapatnam",
-      "Srikakulam"
-    ],
-    "placeType": "Eastern Ghats Independent Coastal Drainage",
-    "priority": "High",
-    "locatedIn": {
-      "country": "India",
-      "stateOrProvince": "Odisha, Andhra Pradesh"
-    },
-    "lat": 18.3,
-    "lng": 84.15,
-    "shape": [
-      [
-        19.8,
-        83.7
-      ],
-      [
-        19,
-        83.85
-      ],
-      [
-        18.55,
-        84
-      ],
-      [
-        18.3,
-        84.15
-      ]
-    ],
-    "neighbours": [
-      "Mahanadi Basin (North)",
-      "Godavari Basin (South)",
-      "Eastern Ghats Escarpment (West)"
-    ],
-    "riverDetails": {
-      "length": "Rushikulya: 165 km | Vamsadhara: 254 km | Nagavali: 256 km",
-      "origin": "All three rise directly in the Eastern Ghats: Rushikulya in Daringbadi (Kandhamal); Vamsadhara in Thuamul Rampur (Kalahandi); Nagavali near Lakhbahal (Kalahandi, Odisha)",
-      "mouth": "Bay of Bengal (Rushikulya at Ganjam; Vamsadhara at Kalingapatnam, AP; Nagavali at Kallepalli near Srikakulam)",
-      "states": {
-        "flowsThrough": [
-          "Odisha",
-          "Andhra Pradesh"
-        ],
-        "basinStates": [
-          "Odisha",
-          "Andhra Pradesh"
-        ]
-      },
-      "tributaries": {
-        "leftBank": [
-          {
-            "name": "Mahendratanaya (Vamsadhara)",
-            "note": "Rises near Mahendragiri peak (Gajapati); subject of interstate dispute"
-          },
-          {
-            "name": "Jhanjavati (Nagavali)",
-            "note": "Rises in Eastern Ghats; site of rubber dam project"
-          },
-          {
-            "name": "Baghua (Rushikulya)",
-            "note": "Rises in Sanakhemundi hills"
-          }
-        ],
-        "rightBank": [
-          {
-            "name": "Peddagedda (Vamsadhara)",
-            "note": "Feeds Gotta Barrage in Srikakulam"
-          },
-          {
-            "name": "Vegavathi (Nagavali)",
-            "note": "Passes through Bobbili historical region in AP"
-          },
-          {
-            "name": "Dhanei (Rushikulya)",
-            "note": "Feeds Dhanei reservoir project"
-          }
-        ]
-      },
-      "confluences": [
-        {
-          "tributary": "Vamsadhara into Bay of Bengal",
-          "sangam": "Kalingapatnam Port",
-          "state": "Andhra Pradesh",
-          "note": "Ancient Kalinga maritime port at the river mouth"
-        },
-        {
-          "tributary": "Rushikulya into Bay of Bengal",
-          "sangam": "Purunabandha (Ganjam)",
-          "state": "Odisha",
-          "note": "Site of global mass nesting Arribada of Olive Ridley turtles"
-        }
-      ],
-      "towns": [
-        {
-          "name": "Ganjam & Chhatrapur",
-          "type": "Coastal",
-          "significance": "Historic salt manufacturing center at Rushikulya mouth near Chilika Lake",
-          "state": "Odisha"
-        },
-        {
-          "name": "Rayagada",
-          "type": "Industrial / Tribal",
-          "significance": "Paper and aluminium city located in the upper Nagavali valley",
-          "state": "Odisha"
-        },
-        {
-          "name": "Srikakulam",
-          "type": "Historical / Cultural",
-          "significance": "Arasavalli Sun Temple situated on the banks of Nagavali River",
-          "state": "Andhra Pradesh"
-        },
-        {
-          "name": "Kalingapatnam",
-          "type": "Ancient Port",
-          "significance": "Historic lighthouse and maritime port on Vamsadhara mouth",
-          "state": "Andhra Pradesh"
-        }
-      ],
-      "dams": [
-        {
-          "name": "Gotta Barrage (Vamsadhara Project)",
-          "state": "Andhra Pradesh",
-          "type": "Major diversion barrage irrigating Srikakulam district"
-        },
-        {
-          "name": "Thotapalli Barrage (Nagavali)",
-          "state": "Andhra Pradesh",
-          "type": "Major irrigation regulator on River Nagavali"
-        },
-        {
-          "name": "Jhanjavati Rubber Dam",
-          "state": "Andhra Pradesh",
-          "type": "India's first rubber dam on the Jhanjavati tributary of Nagavali"
-        }
-      ],
-      "protectedAreas": [
-        {
-          "name": "Rushikulya Rookery",
-          "relation": "World-renowned mass nesting beach for Olive Ridley turtles at river mouth",
-          "state": "Odisha"
-        },
-        {
-          "name": "Chilika Lake Ramsar Site",
-          "relation": "Located immediately north of the Rushikulya estuary",
-          "state": "Odisha"
-        }
-      ],
-      "species": [
-        {
-          "name": "Olive Ridley Sea Turtle (Lepidochelys olivacea)",
-          "iucn": "Vulnerable",
-          "role": "Over 300,000 turtles nest simultaneously in mass Arribadas at Rushikulya mouth"
-        },
-        {
-          "name": "Irrawaddy Dolphin",
-          "iucn": "Endangered",
-          "role": "Resides in adjacent waters of Chilika lagoon"
-        }
-      ],
-      "commonMistake": "UPSC 2021 Question: Nagawali and Vamsadhara originate in the Eastern Ghats of Kalahandi/Rayagada in Odisha (NOT Chota Nagpur). Brahmani and Subarnarekha rise on Chota Nagpur. Vamsadhara Water Dispute Tribunal addresses sharing between Odisha and AP."
-    },
-    "staticFacts": [
-      "UPSC 2021 Exact Question: Nagawali and Vamsadhara rise in the Eastern Ghats of Odisha and flow south into Andhra Pradesh (Srikakulam).",
-      "Rushikulya river mouth on Ganjam coast is India's second-largest mass nesting site (Arribada) for Olive Ridley sea turtles after Gahirmatha.",
-      "Vamsadhara Water Dispute is an active interstate water dispute between Odisha and Andhra Pradesh."
-    ],
-    "similarPYQ": [
-      "GEO-UPSC-2021-07",
-      "GEO-CDS2-2017-07",
-      "ENV-UPSC-2014-09"
-    ],
-    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
-    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
-    "linkedIssueDomain": "GEOGRAPHY"
-  },
-  {
-    "id": "IND-RIV-16",
-    "slug": "vaigai-tamirabarani-rivers",
-    "pillar": "STATIC",
-    "regionScope": "India",
-    "subject": "Geography",
-    "mapCategory": [
-      "India – rivers, lakes, reservoirs & glaciers"
-    ],
-    "place": "Vaigai & Tamirabarani (Porunai) River Systems",
-    "aliases": [
-      "Porunai",
-      "Madurai",
-      "Palk Strait",
-      "Agasthyamalai",
-      "Adichanallur",
-      "Korkai",
-      "Gulf of Mannar"
-    ],
-    "placeType": "Deep South Peninsular River Systems",
-    "priority": "High",
-    "locatedIn": {
-      "country": "India",
-      "stateOrProvince": "Tamil Nadu, Kerala (headwaters)"
-    },
-    "lat": 9.92,
-    "lng": 78.12,
-    "shape": [
-      [
-        9.6,
-        77.3
-      ],
-      [
-        10,
-        77.6
-      ],
-      [
-        9.92,
-        78.12
-      ],
-      [
-        9.5,
-        78.6
-      ],
-      [
-        9.3,
-        79
-      ]
-    ],
-    "neighbours": [
-      "Kaveri Basin (North)",
-      "Agasthyamalai & Cardamom Hills (West)",
-      "Palk Strait & Gulf of Mannar (East)"
-    ],
-    "riverDetails": {
-      "length": "Vaigai: 258 km | Tamirabarani: 128 km",
-      "origin": "Vaigai rises in Varusanadu Hills (Periyar plateau, Western Ghats); Tamirabarani rises on Agasthyamalai peak (Pothigai Hills, Tirunelveli)",
-      "mouth": "Vaigai empties into Palk Strait near Uchipuli (Ramanathapuram); Tamirabarani empties into Gulf of Mannar at Punnaikayal near Tiruchendur",
-      "states": {
-        "flowsThrough": [
-          "Tamil Nadu"
-        ],
-        "basinStates": [
-          "Tamil Nadu"
-        ]
-      },
-      "tributaries": {
-        "leftBank": [
-          {
-            "name": "Suruliyar (Vaigai)",
-            "note": "Famous for Suruli Falls; receives diverted Mullaperiyar water via tunnel"
-          },
-          {
-            "name": "Manjalar (Vaigai)",
-            "note": "Rises in Palani Hills; passes Kodaikanal foothills; Manjalar Dam"
-          },
-          {
-            "name": "Servalar (Tamirabarani)",
-            "note": "Rises in Western Ghats; joins near Papanasam Dam"
-          }
-        ],
-        "rightBank": [
-          {
-            "name": "Varahanadhi (Vaigai)",
-            "note": "Drains Theni valley into Vaigai"
-          },
-          {
-            "name": "Karuppanadhi (Tamirabarani)",
-            "note": "Rises in Kalakkad hills"
-          },
-          {
-            "name": "Chittar (Tamirabarani)",
-            "note": "Famous for Courtallam (Kutralam) Falls; joins Tamirabarani near Sivalaperi"
-          }
-        ]
-      },
-      "confluences": [
-        {
-          "tributary": "Chittar River",
-          "sangam": "Sivalaperi Sangam",
-          "state": "Tamil Nadu",
-          "note": "Sacred confluence known as Dakshina Kashi near Tirunelveli"
-        },
-        {
-          "tributary": "Vaigai into Palk Strait",
-          "sangam": "Attankarai (Ramanathapuram)",
-          "state": "Tamil Nadu",
-          "note": "Empties into the shallow Palk Strait opposite Sri Lanka"
-        }
-      ],
-      "towns": [
-        {
-          "name": "Madurai",
-          "type": "Cultural / Historical",
-          "significance": "Ancient Sangam capital of the Pandyas; Meenakshi Amman Temple on Vaigai banks",
-          "state": "Tamil Nadu"
-        },
-        {
-          "name": "Keezhadi",
-          "type": "Archaeological",
-          "significance": "Major Sangam-era urban civilization excavation site (6th century BCE) on Vaigai banks",
-          "state": "Tamil Nadu"
-        },
-        {
-          "name": "Tirunelveli",
-          "type": "Cultural",
-          "significance": "Historic Nellaiappar temple town situated on Tamirabarani river banks",
-          "state": "Tamil Nadu"
-        },
-        {
-          "name": "Adichanallur & Korkai",
-          "type": "Ancient Port / Metallurgy",
-          "significance": "Ancient 3,200-year-old iron-age burial urn site and historic Pandyan pearl port",
-          "state": "Tamil Nadu"
-        }
-      ],
-      "dams": [
-        {
-          "name": "Vaigai Dam",
-          "state": "Tamil Nadu",
-          "type": "Major storage dam near Andipatti (Theni) regulating irrigation for Madurai and Dindigul"
-        },
-        {
-          "name": "Papanasam Dam (Karaiyar Dam)",
-          "state": "Tamil Nadu",
-          "type": "Historic hydroelectric dam on Tamirabarani; Agasthiyar Falls"
-        },
-        {
-          "name": "Manimuthar Dam",
-          "state": "Tamil Nadu",
-          "type": "Largest reservoir in Tirunelveli district on Manimuthar tributary"
-        }
-      ],
-      "protectedAreas": [
-        {
-          "name": "Megamalai Wildlife Sanctuary (Srivilliputhur-Megamalai TR)",
-          "relation": "Catchment of Suruli and upper Vaigai river headwaters",
-          "state": "Tamil Nadu"
-        },
-        {
-          "name": "Kalakkad Mundanthurai Tiger Reserve (KMTR)",
-          "relation": "Origin sanctuary of Tamirabarani ('River of Life'); pristine wet evergreen forest",
-          "state": "Tamil Nadu"
-        },
-        {
-          "name": "Gulf of Mannar Marine National Park",
-          "relation": "Marine biosphere reserve adjacent to the Tamirabarani delta mouth",
-          "state": "Tamil Nadu"
-        }
-      ],
-      "species": [
-        {
-          "name": "Nilgiri Tahr & Lion-tailed Macaque",
-          "iucn": "Endangered",
-          "role": "Key endemic primates and ungulates in the Agasthyamalai-KMTR catchment"
-        },
-        {
-          "name": "Dugong (Sea Cow)",
-          "iucn": "Vulnerable",
-          "role": "Grazes on seagrass meadows in Gulf of Mannar near river mouths"
-        }
-      ],
-      "commonMistake": "Tamirabarani is the ONLY perennial river in Tamil Nadu because it receives copious rainfall during both South-West Monsoon (Western Ghats crest) and North-East Monsoon. Keezhadi (on Vaigai) and Adichanallur/Porunai (on Tamirabarani) are landmark archaeological discoveries proving ancient urban Sangam civilization."
-    },
-    "staticFacts": [
-      "Tamirabarani (Porunai) is the only perennial river in Tamil Nadu; rises on Agasthyamalai peak and empties into Gulf of Mannar.",
-      "Archaeological carbon-dating at Adichanallur and Sivagalai on Tamirabarani established an advanced iron-age Porunai river civilization dating back to 1155 BCE (3,200 years ago).",
-      "Vaigai river rises in Varusanadu hills and flows past Madurai and the ancient Keezhadi excavation site into Palk Strait."
-    ],
-    "similarPYQ": [
-      "ANC-UPSC-2023-04",
-      "GEO-CDS1-2019-04",
-      "GEO-UPSC-2016-03"
-    ],
-    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
-    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
     "linkedIssueDomain": "GEOGRAPHY"
   },
   {
