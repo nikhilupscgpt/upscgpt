@@ -1375,11 +1375,11 @@ export default function MappingWorkspace({
 
   const studiedInCurrentFeed = numberedNodes.filter((n) => studiedIds.has(n.id)).length;
 
-  const visibleFolders = useMemo(() => {
-    if (!selectedThemeFilter) return [];
-    if (selectedThemeFilter === 'ALL') return folders;
-    return folders.filter((f) => f.id === selectedThemeFilter);
-  }, [folders, selectedThemeFilter]);
+  const visibleFolders = !selectedThemeFilter
+    ? []
+    : selectedThemeFilter === 'ALL'
+      ? folders
+      : folders.filter((f) => f.id === selectedThemeFilter);
 
   const activeThemeFolder = folders.find((f) => f.id === selectedThemeFilter) || null;
 
