@@ -3458,7 +3458,7 @@ export default function MappingWorkspace({
                         </div>
                       )}
 
-                      {/* DEDICATED RIVER STUDY DOSSIER (For Static River Nodes) */}
+                      {/* DEDICATED RIVER DETAILS (For Static River Nodes) */}
                       {selectedNode.riverDetails && (() => {
                         const rd = selectedNode.riverDetails;
                         return (
@@ -3475,7 +3475,7 @@ export default function MappingWorkspace({
                           >
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e0f2fe', paddingBottom: 8 }}>
                               <span style={{ fontSize: 12, fontWeight: 800, color: '#0369a1', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                                <span>🌊</span> River Study Dossier ({rd.length || 'Full Course'})
+                                <span>🌊</span> River Details ({rd.length || 'Full Course'})
                               </span>
                             </div>
 
