@@ -18,25 +18,19 @@ export const CURATED_MAPPING_NODES = [
     "aliases": [
       "Bhagirathi",
       "Alaknanda",
-      "Mandakini",
-      "Ramganga",
-      "Yamuna",
-      "Son",
-      "Gomti",
-      "Ghaghara",
-      "Gandak",
-      "Kosi",
+      "Padma",
       "Hooghly",
-      "Padma"
+      "Ganges",
+      "Jahnavi"
     ],
-    "placeType": "Himalayan River System",
+    "placeType": "Main Stem of the Ganga System; Largest River Basin in India",
     "priority": "High",
     "locatedIn": {
-      "country": "India",
-      "stateOrProvince": "Uttarakhand, UP, Bihar, WB"
+      "country": "India, Bangladesh",
+      "stateOrProvince": "Uttarakhand, Uttar Pradesh, Bihar, Jharkhand, West Bengal (India); Rajshahi, Dhaka divisions (Bangladesh)"
     },
-    "lat": 25.3176,
-    "lng": 82.9739,
+    "lat": 25.32,
+    "lng": 83.01,
     "shape": [
       [
         30.92,
@@ -55,6 +49,10 @@ export const CURATED_MAPPING_NODES = [
         78.05
       ],
       [
+        27.1,
+        79.95
+      ],
+      [
         26.45,
         80.33
       ],
@@ -67,12 +65,16 @@ export const CURATED_MAPPING_NODES = [
         82.97
       ],
       [
-        25.6,
-        85.14
+        25.73,
+        84.83
       ],
       [
-        25.25,
-        87
+        25.68,
+        85.18
+      ],
+      [
+        25.45,
+        87.25
       ],
       [
         24.8,
@@ -83,157 +85,222 @@ export const CURATED_MAPPING_NODES = [
         88.25
       ],
       [
-        21.95,
-        88.8
+        22.57,
+        88.36
+      ],
+      [
+        21.8,
+        88.1
       ]
     ],
     "neighbours": [
-      "Left-bank (W→E): Ramganga, Gomti, Ghaghara, Gandak, Kosi, Mahananda",
-      "Right-bank: Yamuna, Tamsa, Son, Punpun"
+      "Source: Gangotri Glacier at Gaumukh, Uttarkashi district (Uttarakhand), at ~3,900 m, as ",
+      "Mouth: Bay of Bengal through the Ganga-Brahmaputra-Meghna delta; in Bangladesh the main"
     ],
     "riverDetails": {
-      "length": "2,525 km",
-      "origin": "Formed at Devprayag (Uttarakhand) by the meeting of Bhagirathi (Gangotri Glacier) and Alaknanda (Satopanth Glacier)",
-      "mouth": "Bay of Bengal (splits into Padma in Bangladesh and Hooghly in West Bengal; forms Sundarbans delta)",
+      "length": "2,525 km (NCERT)",
+      "origin": "Gangotri Glacier at Gaumukh, Uttarkashi district (Uttarakhand), at ~3,900 m, as the Bhagirathi; named Ganga after meeting the Alaknanda at Devprayag",
+      "mouth": "Bay of Bengal through the Ganga-Brahmaputra-Meghna delta; in Bangladesh the main channel (Padma) joins the Jamuna (Brahmaputra) at Goalundo and then the Meghna",
+      "sourceCoords": [
+        30.92,
+        79.08
+      ],
+      "mouthCoords": [
+        22.5,
+        90.75
+      ],
       "states": {
         "flowsThrough": [
           "Uttarakhand",
           "Uttar Pradesh",
           "Bihar",
+          "Jharkhand",
           "West Bengal"
         ],
         "basinStates": [
           "Uttarakhand",
-          "Uttar Pradesh",
-          "Bihar",
-          "West Bengal",
-          "Delhi",
+          "Himachal Pradesh",
           "Haryana",
+          "Delhi",
+          "Uttar Pradesh",
           "Rajasthan",
           "Madhya Pradesh",
-          "Himachal Pradesh",
           "Chhattisgarh",
-          "Jharkhand"
+          "Bihar",
+          "Jharkhand",
+          "West Bengal"
         ]
       },
       "tributaries": {
         "leftBank": [
           {
-            "name": "Ramganga",
-            "note": "Rises in Garhwal; passes through Jim Corbett National Park"
+            "name": "Ramganga River",
+            "note": "Rises near Gairsain (Garhwal); joins near Kannauj"
           },
           {
-            "name": "Gomti",
-            "note": "Only major tributary rising in the plains (Gomat Taal/Fulhar Jheel, Pilibhit)"
+            "name": "Gomti River",
+            "note": "Plains-fed river from Pilibhit; joins near Kaithi (Varanasi-Ghazipur)"
           },
           {
-            "name": "Ghaghara (Karnali)",
-            "note": "Rises near Gurla Mandhata (Tibet); largest tributary by water volume; joined by Sarda (Kali)"
+            "name": "Ghaghara River",
+            "note": "Karnali in Nepal; largest Ganga tributary by discharge; joins near Chhapra"
           },
           {
-            "name": "Gandak",
-            "note": "Rises in Nepal Himalayas (Dhaulagiri & Mt Everest); enters near Champaran"
+            "name": "Gandak River",
+            "note": "Narayani in Nepal; joins at Sonpur-Hajipur opposite Patna"
           },
           {
-            "name": "Kosi",
-            "note": "'Sorrow of Bihar'; 7 streams (Saptakoshi); famous for severe course shifts and silt"
+            "name": "Burhi Gandak River",
+            "note": "Plains river of north Bihar; joins near Munger-Khagaria"
           },
           {
-            "name": "Mahananda",
-            "note": "Last major left-bank tributary; rises in Darjeeling hills"
+            "name": "Kosi River",
+            "note": "'Sorrow of Bihar'; joins near Kursela (Katihar)"
+          },
+          {
+            "name": "Mahananda River",
+            "note": "From Darjeeling hills; last major left-bank tributary; joins in Bangladesh"
           }
         ],
         "rightBank": [
           {
-            "name": "Yamuna",
-            "note": "Largest and longest right-bank tributary (1,376 km); rises at Yamunotri"
+            "name": "Yamuna River",
+            "note": "Longest Ganga tributary and largest by basin; joins at Prayagraj"
           },
           {
-            "name": "Tamsa (Tons)",
-            "note": "Rises in Kaimur Range; joins downstream of Prayagraj"
+            "name": "Tamsa (Tons) River",
+            "note": "Rises in the Kaimur range; joins below Prayagraj"
           },
           {
-            "name": "Son",
-            "note": "Rises in Amarkantak Plateau (MP); joins directly on right bank near Patna"
+            "name": "Son River",
+            "note": "From the Amarkantak plateau; joins near Arrah-Maner, west of Patna"
           },
           {
-            "name": "Punpun",
-            "note": "Rises in Palamu hills (Jharkhand); joins near Fatuha"
+            "name": "Punpun River",
+            "note": "From the Chotanagpur plateau edge; joins near Fatuha (Patna)"
           }
         ]
       },
       "confluences": [
         {
-          "tributary": "Panch Prayag",
-          "sangam": "Vishnuprayag (Alaknanda+Dhauliganga), Nandaprayag (+Nandakini), Karnaprayag (+Pindar), Rudraprayag (+Mandakini), Devprayag (+Bhagirathi)",
+          "tributary": "Alaknanda + Dhauliganga (Vishnuprayag)",
+          "sangam": "Near Joshimath, Chamoli",
           "state": "Uttarakhand"
         },
         {
+          "tributary": "Alaknanda + Nandakini (Nandprayag)",
+          "sangam": "Nandprayag, Chamoli",
+          "state": "Uttarakhand"
+        },
+        {
+          "tributary": "Alaknanda + Pindar (Karnaprayag)",
+          "sangam": "Karnaprayag, Chamoli",
+          "state": "Uttarakhand"
+        },
+        {
+          "tributary": "Alaknanda + Mandakini (Rudraprayag)",
+          "sangam": "Rudraprayag",
+          "state": "Uttarakhand"
+        },
+        {
+          "tributary": "Alaknanda + Bhagirathi (Devprayag)",
+          "sangam": "Devprayag, Tehri Garhwal; Ganga is formed here",
+          "state": "Uttarakhand"
+        },
+        {
+          "tributary": "Ramganga",
+          "sangam": "Near Kannauj",
+          "state": "Uttar Pradesh"
+        },
+        {
           "tributary": "Yamuna",
-          "sangam": "Triveni Sangam (Prayagraj)",
+          "sangam": "Triveni Sangam, Prayagraj",
           "state": "Uttar Pradesh"
         },
         {
           "tributary": "Gomti",
-          "sangam": "Saidpur (Ghazipur)",
+          "sangam": "Near Kaithi (Varanasi-Ghazipur)",
           "state": "Uttar Pradesh"
         },
         {
           "tributary": "Ghaghara",
-          "sangam": "Revelganj (Chhapra)",
+          "sangam": "Near Chhapra (Doriganj)",
           "state": "Bihar"
         },
         {
           "tributary": "Son",
-          "sangam": "Danapur / Patna",
+          "sangam": "Near Maner, west of Patna",
           "state": "Bihar"
         },
         {
           "tributary": "Gandak",
-          "sangam": "Sonpur (near Patna)",
+          "sangam": "Sonpur-Hajipur, opposite Patna",
           "state": "Bihar"
         },
         {
           "tributary": "Kosi",
-          "sangam": "Kursela (Katihar)",
+          "sangam": "Near Kursela, Katihar",
           "state": "Bihar"
+        },
+        {
+          "tributary": "Jamuna (Brahmaputra)",
+          "sangam": "Goalundo",
+          "state": "Bangladesh"
         }
       ],
       "towns": [
         {
-          "name": "Haridwar & Rishikesh",
+          "name": "Gangotri",
           "type": "Cultural",
-          "significance": "Where Ganga leaves the Himalayas and enters the plains",
+          "significance": "Char Dham shrine; Gaumukh snout about 18 km upstream",
+          "state": "Uttarakhand"
+        },
+        {
+          "name": "Haridwar",
+          "type": "Cultural",
+          "significance": "Point where the Ganga enters the plains (NCERT); Kumbh Mela; Bhimgoda barrage",
           "state": "Uttarakhand"
         },
         {
           "name": "Kanpur",
           "type": "Economic",
-          "significance": "Major industrial city and leather hub",
+          "significance": "Leather and textile industrial city",
           "state": "Uttar Pradesh"
         },
         {
           "name": "Prayagraj",
           "type": "Cultural",
-          "significance": "Triveni Sangam (Kumbh Mela)",
+          "significance": "Triveni Sangam; Kumbh and Maha Kumbh Mela; western end of National Waterway-1",
           "state": "Uttar Pradesh"
         },
         {
           "name": "Varanasi",
-          "type": "Cultural / Historical",
-          "significance": "Continuous ancient living city; Kashi Vishwanath",
+          "type": "Cultural",
+          "significance": "Ghats and Kashi Vishwanath; Ganga flows north here (Uttarvahini)",
           "state": "Uttar Pradesh"
         },
         {
-          "name": "Patna (Pataliputra)",
-          "type": "Historical / Economic",
-          "significance": "Ancient capital of Magadha & Mauryan Empire",
+          "name": "Patna",
+          "type": "Historical",
+          "significance": "Ancient Pataliputra; capital of Bihar",
           "state": "Bihar"
+        },
+        {
+          "name": "Bhagalpur",
+          "type": "Ecological",
+          "significance": "Vikramshila Gangetic Dolphin Sanctuary; Bhagalpur silk",
+          "state": "Bihar"
+        },
+        {
+          "name": "Farakka",
+          "type": "Infrastructure",
+          "significance": "Farakka Barrage; Ganga splits into the Bhagirathi-Hooghly and the Padma",
+          "state": "West Bengal"
         },
         {
           "name": "Kolkata",
           "type": "Economic",
-          "significance": "Major port city situated on the Hooghly distributary",
+          "significance": "Major port city on the Hooghly distributary",
           "state": "West Bengal"
         }
       ],
@@ -241,99 +308,1165 @@ export const CURATED_MAPPING_NODES = [
         {
           "name": "Tehri Dam",
           "state": "Uttarakhand",
-          "type": "Highest dam in India (on Bhagirathi river)"
+          "type": "Rock-and-earth-fill dam on the Bhagirathi (~260.5 m), highest dam in India; 1,000 MW first stage"
         },
         {
-          "name": "Bhimawala / Pashulok Barrage",
+          "name": "Koteshwar Dam",
           "state": "Uttarakhand",
-          "type": "Rishikesh hydro diversion"
+          "type": "400 MW; downstream unit of the Tehri complex"
         },
         {
-          "name": "Narora Atomic Power Station Barrage",
-          "state": "Uttar Pradesh",
-          "type": "Cooling water barrage"
+          "name": "Bhimgoda Barrage",
+          "state": "Uttarakhand",
+          "type": "At Haridwar; head of the Upper Ganga Canal"
         },
         {
-          "name": "Kanpur Barrage (Luv Kush Barrage)",
+          "name": "Narora Barrage",
           "state": "Uttar Pradesh",
-          "type": "Drinking water supply"
+          "type": "Head of the Lower Ganga Canal; Narora atomic power station nearby"
         },
         {
           "name": "Farakka Barrage",
           "state": "West Bengal",
-          "type": "Diverts water into Hooghly to flush silt from Kolkata Port; major Indo-Bangladesh treaty (1996)"
+          "type": "Commissioned 1975; diverts water into the Hooghly to keep Kolkata port navigable"
         }
       ],
       "protectedAreas": [
         {
           "name": "Gangotri National Park",
-          "relation": "Contains the origin glacier (Gaumukh)",
+          "relation": "Glacial source region of the Bhagirathi",
           "state": "Uttarakhand"
         },
         {
-          "name": "Jim Corbett National Park",
-          "relation": "Drained by Ramganga tributary",
+          "name": "Nanda Devi and Valley of Flowers National Parks",
+          "relation": "Alaknanda catchment; UNESCO World Heritage Site",
           "state": "Uttarakhand"
         },
         {
-          "name": "Dudhwa National Park",
-          "relation": "Drained by Suheli and Mohana (Ghaghara/Sharda basin)",
+          "name": "Rajaji Tiger Reserve",
+          "relation": "Shivalik stretch where the Ganga leaves the hills near Haridwar",
+          "state": "Uttarakhand"
+        },
+        {
+          "name": "Upper Ganga River (Brijghat to Narora)",
+          "relation": "Ramsar site (2005); dolphin and gharial habitat",
           "state": "Uttar Pradesh"
         },
         {
-          "name": "Valmiki National Park & Tiger Reserve",
-          "relation": "Situated on the banks of River Gandak",
-          "state": "Bihar"
-        },
-        {
           "name": "Vikramshila Gangetic Dolphin Sanctuary",
-          "relation": "50 km stretch of the Ganga in Bhagalpur district dedicated to dolphins",
+          "relation": "Sultanganj-Kahalgaon stretch near Bhagalpur; India's only dolphin sanctuary",
           "state": "Bihar"
         },
         {
-          "name": "Sundarbans National Park & Biosphere Reserve",
-          "relation": "World's largest mangrove delta formed at Ganga-Brahmaputra mouth",
+          "name": "Sundarbans National Park",
+          "relation": "Delta mangroves; UNESCO World Heritage Site and Ramsar site",
           "state": "West Bengal"
         }
       ],
       "species": [
         {
-          "name": "Gangetic River Dolphin (Susu)",
+          "name": "Ganges River Dolphin",
           "iucn": "Endangered",
-          "role": "India's National Aquatic Animal; blind, uses echolocation; lives only in freshwater"
+          "role": "National Aquatic Animal of India (2009); indicator of river health"
         },
         {
           "name": "Gharial",
           "iucn": "Critically Endangered",
-          "role": "Found in tributaries like Chambal and Son"
+          "role": "Found in the upper Ganga and its tributaries"
         },
         {
-          "name": "Ganges River Shark",
-          "iucn": "Critically Endangered",
-          "role": "Rare true freshwater shark found in Hooghly/Ganga waters"
+          "name": "Bengal Tiger",
+          "iucn": "Endangered",
+          "role": "Mangrove-adapted population in the Sundarbans"
         },
         {
-          "name": "Hilsa Fish (Tenualosa ilisha)",
-          "iucn": "Least Concern",
-          "role": "Anadromous fish; migrates from sea to Ganga to spawn (impacted by Farakka barrage)"
+          "name": "Hilsa",
+          "iucn": null,
+          "role": "Migratory fish that swims upriver to breed; Farakka obstructs its migration"
         }
       ],
-      "commonMistake": "Remember the West-to-East sequence of left-bank tributaries downstream of Prayagraj: Gomti → Ghaghara → Gandak → Kosi. Also note that Chambal, Betwa, and Ken do NOT join Ganga directly; they join Yamuna!"
+      "commonMistake": "The Ganga enters the plains at HARIDWAR, not Rishikesh. Yamuna and Son are RIGHT-bank tributaries; Ramganga, Gomti, Ghaghara, Gandak and Kosi are LEFT-bank. The Kosi joins at Kursela, not Bhagalpur. The Damodar joins the Hooghly, not the main Ganga."
     },
     "staticFacts": [
-      "Formed at Devprayag by the confluence of Bhagirathi (Gangotri Glacier) and Alaknanda (Satopanth Glacier).",
-      "UPSC 2024 Sequence downstream of Prayagraj (West to East): Gomti → Ghaghara → Gandak → Kosi.",
-      "Son River rises near Amarkantak and joins the Ganga directly on its right bank near Patna (CDS 2020)."
+      "Its Indian basin covers about 8.6 lakh sq km, the largest river basin in India; the total basin including Nepal and Bangladesh is about 10.8 lakh sq km.",
+      "The Alaknanda rises from the Satopanth glacier above Badrinath and collects the Dhauliganga, Nandakini, Pindar and Mandakini at the Panch Prayag before meeting the Bhagirathi at Devprayag.",
+      "Its Himalayan tributaries are perennial (snow- and rain-fed); its peninsular tributaries (Yamuna's southern feeders, Son) are mainly monsoon-fed.",
+      "The Haldia-Prayagraj stretch is National Waterway-1, India's longest national waterway (~1,620 km)."
     ],
     "similarPYQ": [
-      "GEO-UPSC-2024-06",
-      "GEO-UPSC-2026-11",
-      "GEO-UPSC-2023-07",
+      "UPSC-2024-06",
       "GEO-CDS1-2020-05",
       "GEO-UPSC-2019-04",
-      "GEO-CDS1-2019-04",
       "GEO-CDS1-2018-08",
-      "ENV-UPSC-2013-15"
+      "ENV-UPSC-2014-15"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-01B",
+    "slug": "ramganga-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Ramganga River",
+    "aliases": [
+      "Ramganga",
+      "Rathwahini",
+      "Jim Corbett River"
+    ],
+    "placeType": "Himalayan Left-Bank Tributary of Ganga",
+    "priority": "Medium",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Uttarakhand, Uttar Pradesh"
+    },
+    "lat": 28.84,
+    "lng": 78.78,
+    "shape": [
+      [
+        30.07,
+        79.27
+      ],
+      [
+        30.05,
+        79.28
+      ],
+      [
+        29.53,
+        78.75
+      ],
+      [
+        28.84,
+        78.78
+      ],
+      [
+        28.37,
+        79.43
+      ],
+      [
+        27.1,
+        79.95
+      ]
+    ],
+    "neighbours": [
+      "Source: Dudhatoli hills of the Garhwal Himalaya near Gairsain (Uttarakhand)",
+      "Mouth: Joins the Ganga near Kannauj, Uttar Pradesh"
+    ],
+    "riverDetails": {
+      "length": "~596 km",
+      "origin": "Dudhatoli hills of the Garhwal Himalaya near Gairsain (Uttarakhand)",
+      "mouth": "Joins the Ganga near Kannauj, Uttar Pradesh",
+      "sourceCoords": [
+        30.07,
+        79.27
+      ],
+      "mouthCoords": [
+        27.1,
+        79.95
+      ],
+      "states": {
+        "flowsThrough": [
+          "Uttarakhand",
+          "Uttar Pradesh"
+        ],
+        "basinStates": [
+          "Uttarakhand",
+          "Uttar Pradesh"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Kosi River (Kumaon)",
+            "note": "Rises near Kausani; flows past Ramnagar; a different river from the Bihar Kosi"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Mandal River",
+            "note": "Joins inside Corbett National Park"
+          },
+          {
+            "name": "Khoh River",
+            "note": "Drains the Kotdwar area; joins in the plains"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Ganga",
+          "sangam": "Near Kannauj",
+          "state": "Uttar Pradesh"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Gairsain",
+          "type": "Administrative",
+          "significance": "Summer capital of Uttarakhand, near the source",
+          "state": "Uttarakhand"
+        },
+        {
+          "name": "Kalagarh",
+          "type": "Infrastructure",
+          "significance": "Ramganga Dam where the river leaves the Shivaliks",
+          "state": "Uttarakhand"
+        },
+        {
+          "name": "Moradabad",
+          "type": "Economic",
+          "significance": "'Brass City'; major metal-handicraft export centre",
+          "state": "Uttar Pradesh"
+        },
+        {
+          "name": "Kannauj",
+          "type": "Economic / Historical",
+          "significance": "Traditional attar (perfume) centre; ancient capital of Harsha",
+          "state": "Uttar Pradesh"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Ramganga Dam (Kalagarh Dam)",
+          "state": "Uttarakhand",
+          "type": "Earth-and-rock-fill dam; irrigation and ~198 MW hydropower"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Jim Corbett National Park",
+          "relation": "The Ramganga flows through it; India's first national park (1936, as Hailey National Park)",
+          "state": "Uttarakhand"
+        },
+        {
+          "name": "Sonanadi Wildlife Sanctuary",
+          "relation": "Adjoins Corbett around the Kalagarh reservoir",
+          "state": "Uttarakhand"
+        }
+      ],
+      "species": [
+        {
+          "name": "Gharial",
+          "iucn": "Critically Endangered",
+          "role": "Breeding population in the Ramganga within Corbett"
+        },
+        {
+          "name": "Golden Mahseer",
+          "iucn": "Endangered",
+          "role": "Game fish of the Ramganga and Kumaon Kosi"
+        }
+      ],
+      "commonMistake": "The Kumaon Kosi (a Ramganga tributary near Corbett) is NOT the Bihar Kosi ('Sorrow of Bihar'). The Ramganga is a LEFT-bank Ganga tributary that enters the plains near Najibabad-Kalagarh."
+    },
+    "staticFacts": [
+      "NCERT describes it as a comparatively small river rising in the Garhwal hills near Gairsain; it turns south-west after crossing the Shivaliks and enters the plains of Uttar Pradesh near Najibabad.",
+      "The Kalagarh reservoir inside Corbett is a key water source for wildlife in the dry season."
+    ],
+    "similarPYQ": [
+      "GEO-CDS1-2018-08",
+      "ENV-UPSC-2014-15"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-01C",
+    "slug": "gomti-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Gomti River",
+    "aliases": [
+      "Gomati",
+      "Gomat River",
+      "Fulhar Jheel River"
+    ],
+    "placeType": "Plains-Origin Left-Bank Tributary of Ganga",
+    "priority": "Medium",
+    "locatedIn": {
+      "country": "India",
+      "stateOrProvince": "Uttar Pradesh"
+    },
+    "lat": 26.26,
+    "lng": 82.07,
+    "shape": [
+      [
+        28.6,
+        80.05
+      ],
+      [
+        27.57,
+        80.66
+      ],
+      [
+        26.85,
+        80.95
+      ],
+      [
+        26.26,
+        82.07
+      ],
+      [
+        25.75,
+        82.68
+      ],
+      [
+        25.5,
+        83.17
+      ]
+    ],
+    "neighbours": [
+      "Source: Gomat Taal (Fulhar Jheel) near Madho Tanda, Pilibhit district (Uttar Pradesh); f",
+      "Mouth: Joins the Ganga near Kaithi (Markandey Mahadev), on the Varanasi-Ghazipur border"
+    ],
+    "riverDetails": {
+      "length": "~900 km",
+      "origin": "Gomat Taal (Fulhar Jheel) near Madho Tanda, Pilibhit district (Uttar Pradesh); fed by groundwater and monsoon rain, not glaciers",
+      "mouth": "Joins the Ganga near Kaithi (Markandey Mahadev), on the Varanasi-Ghazipur border",
+      "sourceCoords": [
+        28.6,
+        80.05
+      ],
+      "mouthCoords": [
+        25.5,
+        83.17
+      ],
+      "states": {
+        "flowsThrough": [
+          "Uttar Pradesh"
+        ],
+        "basinStates": [
+          "Uttar Pradesh"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Kathna River",
+            "note": "Joins in the upper course in Kheri-Sitapur"
+          },
+          {
+            "name": "Sarayan River",
+            "note": "Drains Sitapur district"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Sai River",
+            "note": "Largest tributary; flows past Rae Bareli; joins near Jaunpur"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Sai",
+          "sangam": "Near Jaunpur",
+          "state": "Uttar Pradesh"
+        },
+        {
+          "tributary": "Ganga",
+          "sangam": "Kaithi (Varanasi-Ghazipur)",
+          "state": "Uttar Pradesh"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Lucknow",
+          "type": "Administrative",
+          "significance": "State capital on the Gomti; Gomti Riverfront and barrage",
+          "state": "Uttar Pradesh"
+        },
+        {
+          "name": "Sultanpur",
+          "type": "Administrative",
+          "significance": "District town on the middle course",
+          "state": "Uttar Pradesh"
+        },
+        {
+          "name": "Jaunpur",
+          "type": "Historical",
+          "significance": "Sharqi-era city; Mughal-era Shahi Bridge over the Gomti",
+          "state": "Uttar Pradesh"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Gomti Barrage",
+          "state": "Uttar Pradesh",
+          "type": "Barrage at Lucknow for urban water supply"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Pilibhit Tiger Reserve",
+          "relation": "Terai forests near the Gomti's source area",
+          "state": "Uttar Pradesh"
+        }
+      ],
+      "species": [
+        {
+          "name": "Indian Softshell Turtle",
+          "iucn": "Endangered",
+          "role": "Freshwater turtle of the Gomti and middle Ganga"
+        }
+      ],
+      "commonMistake": "The Gomti is NOT a Himalayan glacier-fed river; it rises from a lake in the Terai plains of Pilibhit and is groundwater- and rain-fed. It joins the Ganga below Varanasi, not at Varanasi."
+    },
+    "staticFacts": [
+      "Flows entirely within Uttar Pradesh.",
+      "As a plains-fed river its flow drops sharply in the dry season, which makes urban pollution at Lucknow more concentrated."
+    ],
+    "similarPYQ": [
+      "UPSC-2024-06",
+      "GEO-CDS1-2018-08"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-01D",
+    "slug": "ghaghara-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Ghaghara River",
+    "aliases": [
+      "Karnali",
+      "Sarda",
+      "Sarju",
+      "Sarayu",
+      "Mapchachungo"
+    ],
+    "placeType": "Trans-Himalayan Left-Bank Tributary of Ganga (Largest by Discharge)",
+    "priority": "High",
+    "locatedIn": {
+      "country": "China (Tibet), Nepal, India",
+      "stateOrProvince": "Karnali region (Nepal), Uttar Pradesh, Bihar (India)"
+    },
+    "lat": 28.33,
+    "lng": 81.13,
+    "shape": [
+      [
+        30.45,
+        81.35
+      ],
+      [
+        28.64,
+        81.28
+      ],
+      [
+        28.33,
+        81.13
+      ],
+      [
+        27.58,
+        81.6
+      ],
+      [
+        26.8,
+        82.2
+      ],
+      [
+        26.27,
+        83.75
+      ],
+      [
+        25.73,
+        84.83
+      ]
+    ],
+    "neighbours": [
+      "Source: Glaciers of Mapchachungo, Tibet, south of Lake Mansarovar; called the Karnali in",
+      "Mouth: Joins the Ganga near Chhapra (Doriganj), Saran district, Bihar"
+    ],
+    "riverDetails": {
+      "length": "~1,080 km",
+      "origin": "Glaciers of Mapchachungo, Tibet, south of Lake Mansarovar; called the Karnali in Nepal",
+      "mouth": "Joins the Ganga near Chhapra (Doriganj), Saran district, Bihar",
+      "sourceCoords": [
+        30.45,
+        81.35
+      ],
+      "mouthCoords": [
+        25.73,
+        84.83
+      ],
+      "states": {
+        "flowsThrough": [
+          "Uttar Pradesh",
+          "Bihar"
+        ],
+        "basinStates": [
+          "Uttarakhand",
+          "Uttar Pradesh",
+          "Bihar"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Rapti River",
+            "note": "From Nepal; flows past Gorakhpur; joins near Barhaj, Deoria"
+          },
+          {
+            "name": "Chhoti Gandak River",
+            "note": "Plains river joining in the lower course"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Sarda (Kali / Mahakali) River",
+            "note": "Rises at Kalapani near Lipulekh; forms the India-Nepal border in Uttarakhand; joins near Bahramghat"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Sarda",
+          "sangam": "Near Bahramghat (Barabanki-Bahraich)",
+          "state": "Uttar Pradesh"
+        },
+        {
+          "tributary": "Rapti",
+          "sangam": "Near Barhaj, Deoria",
+          "state": "Uttar Pradesh"
+        },
+        {
+          "tributary": "Ganga",
+          "sangam": "Near Chhapra (Doriganj)",
+          "state": "Bihar"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Bahraich",
+          "type": "Administrative",
+          "significance": "Where the Ghaghara enters the Indian plains",
+          "state": "Uttar Pradesh"
+        },
+        {
+          "name": "Ayodhya",
+          "type": "Cultural",
+          "significance": "On the Ghaghara, known here as the Saryu; birthplace of Lord Ram in tradition",
+          "state": "Uttar Pradesh"
+        },
+        {
+          "name": "Gorakhpur",
+          "type": "Cultural / Economic",
+          "significance": "On the Rapti tributary; Gorakhnath temple",
+          "state": "Uttar Pradesh"
+        },
+        {
+          "name": "Chhapra",
+          "type": "Historical",
+          "significance": "Near the Ganga-Ghaghara confluence",
+          "state": "Bihar"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Girijapuri Barrage",
+          "state": "Uttar Pradesh",
+          "type": "On the Ghaghara near Katarniaghat; feeds the Saryu Nahar canal system"
+        },
+        {
+          "name": "Banbasa and Tanakpur Barrages",
+          "state": "Uttarakhand",
+          "type": "On the Sarda at the India-Nepal border; Tanakpur covered by the Mahakali Treaty (1996)"
+        },
+        {
+          "name": "Pancheshwar Multipurpose Project",
+          "state": "Uttarakhand / Nepal border",
+          "type": "Proposed India-Nepal dam on the Mahakali (Sarda)"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Katarniaghat Wildlife Sanctuary",
+          "relation": "Girwa (Ghaghara) river stretch; gharial and dolphin habitat",
+          "state": "Uttar Pradesh"
+        },
+        {
+          "name": "Dudhwa National Park",
+          "relation": "Sarda-Ghaghara Terai; swamp deer and rhino reintroduction",
+          "state": "Uttar Pradesh"
+        },
+        {
+          "name": "Bardiya National Park",
+          "relation": "Karnali river stretch in Nepal",
+          "state": "Nepal"
+        }
+      ],
+      "species": [
+        {
+          "name": "Gharial",
+          "iucn": "Critically Endangered",
+          "role": "Breeds in the Girwa river at Katarniaghat"
+        },
+        {
+          "name": "Ganges River Dolphin",
+          "iucn": "Endangered",
+          "role": "Present in the Girwa-Ghaghara stretch"
+        },
+        {
+          "name": "Swamp Deer (Barasingha)",
+          "iucn": "Vulnerable",
+          "role": "Northern population in Dudhwa grasslands"
+        }
+      ],
+      "commonMistake": "The Sarda is a RIGHT-bank tributary and the Rapti is a LEFT-bank tributary. The Ghaghara enters India in Uttar Pradesh directly from Nepal, not through Uttarakhand; it is the Sarda (Kali) that forms the Uttarakhand-Nepal border. 'Saryu' at Ayodhya is the Ghaghara itself."
+    },
+    "staticFacts": [
+      "NCERT: after collecting the Tila, Seti and Beri in Nepal, it cuts a deep gorge at Shishapani before entering the plains.",
+      "The largest tributary of the Ganga by discharge, while the Yamuna is the longest and largest by basin.",
+      "The Kali (Sarda) boundary near Kalapani-Lipulekh is at the centre of the India-Nepal boundary dispute."
+    ],
+    "similarPYQ": [
+      "UPSC-2024-06",
+      "GEO-CDS1-2018-08"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-01E",
+    "slug": "gandak-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Gandak River",
+    "aliases": [
+      "Narayani",
+      "Kali Gandak",
+      "Gandaki",
+      "Salagrami"
+    ],
+    "placeType": "Himalayan Left-Bank Tributary of Ganga",
+    "priority": "High",
+    "locatedIn": {
+      "country": "China (Tibet border), Nepal, India",
+      "stateOrProvince": "Gandaki region (Nepal), Bihar, Uttar Pradesh (India)"
+    },
+    "lat": 27.43,
+    "lng": 84.13,
+    "shape": [
+      [
+        29.25,
+        83.95
+      ],
+      [
+        28.5,
+        83.65
+      ],
+      [
+        27.43,
+        83.92
+      ],
+      [
+        27.1,
+        84.09
+      ],
+      [
+        25.68,
+        85.2
+      ],
+      [
+        25.68,
+        85.18
+      ]
+    ],
+    "neighbours": [
+      "Source: Kali Gandaki rises near Nhubine Himal on the Nepal-Tibet border (Mustang); NCERT",
+      "Mouth: Joins the Ganga at Sonpur, opposite Patna, Bihar"
+    ],
+    "riverDetails": {
+      "length": "~630 km",
+      "origin": "Kali Gandaki rises near Nhubine Himal on the Nepal-Tibet border (Mustang); NCERT says the river rises between Dhaulagiri and Mount Everest from two streams, the Kali Gandak and the Trishulganga",
+      "mouth": "Joins the Ganga at Sonpur, opposite Patna, Bihar",
+      "sourceCoords": [
+        29.25,
+        83.95
+      ],
+      "mouthCoords": [
+        25.68,
+        85.18
+      ],
+      "states": {
+        "flowsThrough": [
+          "Bihar",
+          "Uttar Pradesh"
+        ],
+        "basinStates": [
+          "Bihar",
+          "Uttar Pradesh"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Trishuli River",
+            "note": "Headstream from the central Himalaya; meets the Kali Gandaki at Devghat"
+          },
+          {
+            "name": "East Rapti River",
+            "note": "Flows through Chitwan; joins the Narayani in Nepal"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Kali Gandaki River",
+            "note": "Headstream; cuts the Kali Gandaki gorge between Dhaulagiri and Annapurna"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Kali Gandaki + Trishuli",
+          "sangam": "Devghat (forms the Narayani)",
+          "state": "Nepal"
+        },
+        {
+          "tributary": "Ganga",
+          "sangam": "Sonpur-Hajipur, opposite Patna",
+          "state": "Bihar"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Valmikinagar",
+          "type": "Infrastructure",
+          "significance": "Point of entry into India; Gandak Barrage; Valmiki Tiger Reserve",
+          "state": "Bihar"
+        },
+        {
+          "name": "Kushinagar",
+          "type": "Cultural",
+          "significance": "Mahaparinirvana site of the Buddha, near the Gandak in east UP",
+          "state": "Uttar Pradesh"
+        },
+        {
+          "name": "Hajipur (Vaishali)",
+          "type": "Historical",
+          "significance": "Near ancient Vaishali, birthplace of Mahavira",
+          "state": "Bihar"
+        },
+        {
+          "name": "Sonpur",
+          "type": "Cultural",
+          "significance": "Gandak-Ganga confluence; Harihar Kshetra / Sonepur cattle fair",
+          "state": "Bihar"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Gandak Barrage",
+          "state": "Bihar / Nepal border",
+          "type": "At Valmikinagar under the India-Nepal Gandak Agreement (1959); irrigation canals for Bihar, UP and Nepal"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Valmiki Tiger Reserve",
+          "relation": "Gandak floodplain and Shivalik forests at the entry point",
+          "state": "Bihar"
+        },
+        {
+          "name": "Chitwan National Park",
+          "relation": "Narayani and Rapti valleys in Nepal; UNESCO World Heritage Site",
+          "state": "Nepal"
+        }
+      ],
+      "species": [
+        {
+          "name": "Gharial",
+          "iucn": "Critically Endangered",
+          "role": "Wild breeding population restored in the Gandak in Bihar"
+        },
+        {
+          "name": "Greater One-horned Rhinoceros",
+          "iucn": "Vulnerable",
+          "role": "Flagship species of Chitwan"
+        }
+      ],
+      "commonMistake": "The Gandak is called the NARAYANI in Nepal; the KARNALI is the Ghaghara. It joins the Ganga at Sonpur opposite Patna, not at Patna city itself. The Burhi Gandak is a separate plains river."
+    },
+    "staticFacts": [
+      "The Kali Gandaki gorge between Dhaulagiri and Annapurna is among the deepest gorges in the world.",
+      "The Kali Gandaki bed yields shaligram stones, which are fossil ammonites.",
+      "For part of its course the Gandak forms the Bihar-Uttar Pradesh boundary."
+    ],
+    "similarPYQ": [
+      "UPSC-2024-06",
+      "GEO-UPSC-2023-07",
+      "GEO-CDS1-2018-08"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-01F",
+    "slug": "kosi-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Kosi River",
+    "aliases": [
+      "Saptakoshi",
+      "Sapta Kosi",
+      "Arun",
+      "Kausiki",
+      "Sorrow of Bihar"
+    ],
+    "placeType": "Antecedent Himalayan Left-Bank Tributary of Ganga ('Sorrow of Bihar')",
+    "priority": "High",
+    "locatedIn": {
+      "country": "China (Tibet), Nepal, India",
+      "stateOrProvince": "Koshi province (Nepal), Bihar (India)"
+    },
+    "lat": 26.85,
+    "lng": 87.15,
+    "shape": [
+      [
+        28.45,
+        86.55
+      ],
+      [
+        26.85,
+        87.15
+      ],
+      [
+        26.52,
+        86.93
+      ],
+      [
+        26.12,
+        86.6
+      ],
+      [
+        25.88,
+        86.6
+      ],
+      [
+        25.45,
+        87.25
+      ]
+    ],
+    "neighbours": [
+      "Source: Main stream Arun rises north of Mount Everest in Tibet (NCERT); the PDF's 'Matsa",
+      "Mouth: Joins the Ganga near Kursela, Katihar district, Bihar"
+    ],
+    "riverDetails": {
+      "length": "~720 km",
+      "origin": "Main stream Arun rises north of Mount Everest in Tibet (NCERT); the PDF's 'Matsang glacier near Gosainthan' refers to the Sun Kosi headwaters",
+      "mouth": "Joins the Ganga near Kursela, Katihar district, Bihar",
+      "sourceCoords": [
+        28.45,
+        86.55
+      ],
+      "mouthCoords": [
+        25.45,
+        87.25
+      ],
+      "states": {
+        "flowsThrough": [
+          "Bihar"
+        ],
+        "basinStates": [
+          "Bihar"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Arun River",
+            "note": "Main stream, rising in Tibet north of Everest; cuts through the Himalaya"
+          },
+          {
+            "name": "Tamur River",
+            "note": "Drains the Kanchenjunga area of eastern Nepal"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Sun Kosi River",
+            "note": "Collects the Indravati, Bhote Kosi, Tama Kosi, Likhu and Dudh Kosi"
+          },
+          {
+            "name": "Bagmati River",
+            "note": "From the Kathmandu valley; joins the Kosi in north Bihar"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Sun Kosi + Arun + Tamur",
+          "sangam": "Tribeni (forms the Sapta Kosi)",
+          "state": "Nepal"
+        },
+        {
+          "tributary": "Ganga",
+          "sangam": "Near Kursela, Katihar",
+          "state": "Bihar"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Barahakshetra",
+          "type": "Cultural",
+          "significance": "Pilgrimage site at the Chatra gorge where the Kosi leaves the hills",
+          "state": "Nepal"
+        },
+        {
+          "name": "Birpur / Bhimnagar",
+          "type": "Infrastructure",
+          "significance": "Kosi Barrage on the India-Nepal border",
+          "state": "Bihar"
+        },
+        {
+          "name": "Saharsa and Supaul",
+          "type": "Economic",
+          "significance": "Flood-prone Kosi plains; Mithila makhana belt",
+          "state": "Bihar"
+        },
+        {
+          "name": "Purnia",
+          "type": "Historical",
+          "significance": "Lies along old courses of the westward-shifting Kosi",
+          "state": "Bihar"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Kosi Barrage",
+          "state": "Nepal / Bihar border",
+          "type": "At Bhimnagar under the India-Nepal Kosi Agreement (1954); embankments and canals"
+        },
+        {
+          "name": "Sapta Kosi High Dam",
+          "state": "Nepal",
+          "type": "Proposed India-Nepal multipurpose dam for flood control"
+        },
+        {
+          "name": "Kosi-Mechi Link Project",
+          "state": "Bihar",
+          "type": "Intra-state link carrying surplus Kosi water to the Mahananda basin"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Koshi Tappu Wildlife Reserve",
+          "relation": "Floodplain above the Kosi barrage; Ramsar site (1987)",
+          "state": "Nepal"
+        }
+      ],
+      "species": [
+        {
+          "name": "Wild Water Buffalo",
+          "iucn": "Endangered",
+          "role": "Last Nepalese population in Koshi Tappu"
+        },
+        {
+          "name": "Ganges River Dolphin",
+          "iucn": "Endangered",
+          "role": "Present in the Kosi and its confluence stretch"
+        }
+      ],
+      "commonMistake": "The Kosi joins the Ganga at KURSELA, not Bhagalpur. It is an ANTECEDENT river whose main stream is the ARUN. Valmiki Tiger Reserve belongs to the GANDAK, not the Kosi."
+    },
+    "staticFacts": [
+      "Called the Sapta Kosi in Nepal after its seven headstreams: Indravati, Sun Kosi, Tama Kosi, Likhu, Dudh Kosi, Arun and Tamur.",
+      "Its heavy silt load built the Kosi megafan, and the river has shifted westward by more than 100 km over about two centuries.",
+      "The 2008 embankment breach at Kusaha (Nepal) diverted the river eastwards and caused catastrophic floods in Bihar."
+    ],
+    "similarPYQ": [
+      "UPSC-2024-06",
+      "GEO-CDS1-2019-04",
+      "GEO-CDS1-2018-08"
+    ],
+    "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
+    "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
+    "linkedIssueDomain": "GEOGRAPHY"
+  },
+  {
+    "id": "IND-RIV-01G",
+    "slug": "mahananda-river",
+    "pillar": "STATIC",
+    "regionScope": "India",
+    "subject": "Geography",
+    "mapCategory": [
+      "India – rivers, lakes, reservoirs & glaciers"
+    ],
+    "place": "Mahananda River",
+    "aliases": [
+      "Mahananda",
+      "Mahaldiram River",
+      "Siliguri Corridor River"
+    ],
+    "placeType": "Transboundary Left-Bank Tributary of Ganga",
+    "priority": "Medium",
+    "locatedIn": {
+      "country": "India, Bangladesh",
+      "stateOrProvince": "West Bengal, Bihar (India); Rajshahi division (Bangladesh)"
+    },
+    "lat": 26.1,
+    "lng": 87.95,
+    "shape": [
+      [
+        26.88,
+        88.32
+      ],
+      [
+        26.72,
+        88.43
+      ],
+      [
+        26.1,
+        87.95
+      ],
+      [
+        25,
+        88.14
+      ],
+      [
+        24.47,
+        88.33
+      ]
+    ],
+    "neighbours": [
+      "Source: Mahaldiram hill near Kurseong, Darjeeling district (West Bengal), at ~2,100 m",
+      "Mouth: Joins the Ganga (Padma) near Godagari, Rajshahi district, Bangladesh"
+    ],
+    "riverDetails": {
+      "length": "~360 km",
+      "origin": "Mahaldiram hill near Kurseong, Darjeeling district (West Bengal), at ~2,100 m",
+      "mouth": "Joins the Ganga (Padma) near Godagari, Rajshahi district, Bangladesh",
+      "sourceCoords": [
+        26.88,
+        88.32
+      ],
+      "mouthCoords": [
+        24.47,
+        88.33
+      ],
+      "states": {
+        "flowsThrough": [
+          "West Bengal",
+          "Bihar"
+        ],
+        "basinStates": [
+          "West Bengal",
+          "Bihar"
+        ]
+      },
+      "tributaries": {
+        "leftBank": [
+          {
+            "name": "Nagar River",
+            "note": "Forms part of the Bihar-West Bengal boundary"
+          },
+          {
+            "name": "Tangon and Punarbhaba Rivers",
+            "note": "Join in the lower course near the Bangladesh border"
+          }
+        ],
+        "rightBank": [
+          {
+            "name": "Balason River",
+            "note": "Darjeeling hill stream joining near Siliguri"
+          },
+          {
+            "name": "Mechi River",
+            "note": "Forms part of the India-Nepal border; joins in Kishanganj district"
+          },
+          {
+            "name": "Kankai River",
+            "note": "From eastern Nepal; joins in Bihar"
+          }
+        ]
+      },
+      "confluences": [
+        {
+          "tributary": "Mechi",
+          "sangam": "Kishanganj district",
+          "state": "Bihar"
+        },
+        {
+          "tributary": "Ganga (Padma)",
+          "sangam": "Near Godagari",
+          "state": "Bangladesh"
+        }
+      ],
+      "towns": [
+        {
+          "name": "Siliguri",
+          "type": "Strategic / Economic",
+          "significance": "Hub of the Siliguri Corridor ('Chicken's Neck') linking the Northeast",
+          "state": "West Bengal"
+        },
+        {
+          "name": "Kishanganj",
+          "type": "Economic",
+          "significance": "Tea-growing district of Bihar",
+          "state": "Bihar"
+        },
+        {
+          "name": "Malda (English Bazar)",
+          "type": "Historical / Economic",
+          "significance": "Mango orchards; ruins of Gaur and Pandua nearby",
+          "state": "West Bengal"
+        }
+      ],
+      "dams": [
+        {
+          "name": "Mahananda Barrage",
+          "state": "West Bengal",
+          "type": "At Fulbari near Siliguri; part of the Teesta Barrage Project canal system"
+        }
+      ],
+      "protectedAreas": [
+        {
+          "name": "Mahananda Wildlife Sanctuary",
+          "relation": "Source area in the Darjeeling foothills",
+          "state": "West Bengal"
+        }
+      ],
+      "species": [
+        {
+          "name": "Asian Elephant",
+          "iucn": "Endangered",
+          "role": "Uses the Mahananda forests as a corridor between Nepal, Bengal and Assam"
+        }
+      ],
+      "commonMistake": "The Mahananda joins the Ganga in BANGLADESH, not in India. It flows through West Bengal and Bihar (Bangladesh is a country, not an Indian state)."
+    },
+    "staticFacts": [
+      "The last major left-bank tributary of the Ganga in its Indian course.",
+      "Its upper course crosses the Siliguri Corridor, India's narrow land link to the Northeast."
+    ],
+    "similarPYQ": [
+      "UPSC-2024-06",
+      "UPSC-2026-61"
     ],
     "linkedIssueSlug": "indian-drainage-himalayan-peninsular-river-systems",
     "linkedIssueTitle": "Indian Drainage — Himalayan & Peninsular River Systems",
