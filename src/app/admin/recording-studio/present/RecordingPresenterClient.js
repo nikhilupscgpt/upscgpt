@@ -1,6 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback, useSyncExternalStore } from 'react';
+
+// False during server render and hydration, true after: lets saved settings (theme, size) apply before the first paint.
+const subscribeNever = () => () => {};
 import Link from 'next/link';
 import {
   ChevronLeft,
@@ -55,6 +58,7 @@ import {
   Film,
 } from 'lucide-react';
 import { buildQuestionSteps, buildTopicSteps, buildMappingSteps } from '@/lib/pyqSlideDeck';
+import SlideBody, { SlideHead, Prose, useAutoFit } from '../../pyq/present/SlideBody';
 import { parseStem } from '@/app/prelims/pyq/StemView';
 import {
   saveRecordingToVault,
@@ -153,7 +157,7 @@ function buildChapterLabel(item, index) {
   return `Q${index + 1} [${examTag} · ${topicTag}]: ${snippet}...`;
 }
 
-export default function RecordingPresenterClient({ questions: initialQuestions = [] }) {
+function RecordingPresenterClientInner({ questions: initialQuestions = [] }) {
   const [customDeckItems] = useState(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -862,6 +866,10 @@ export default function RecordingPresenterClient({ questions: initialQuestions =
     setSpotlightIndex(null);
   }, [qIndex, stepIndex]);
 
+  // Keep long questions and slides on screen: shrink text slightly instead of scrolling.
+  useAutoFit(".pq-present-q-scrollable", [currentQ, stepIndex, contentFontScale, theme, presentationMode]);
+  useAutoFit(".pq-present-slide-body", [currentQ, stepIndex, contentFontScale, theme, presentationMode]);
+
   const isMappingMode = currentQ?.type === 'mapping';
   const isFullStageScratchpad = currentStep?.type === 'scratchpad' && currentStep?.isFullStage;
   const canvasWidth = presentationMode === 'screen' ? screenStageSize.width : 1920;
@@ -869,8 +877,8 @@ export default function RecordingPresenterClient({ questions: initialQuestions =
   const mapSplitRatio = mapWidthMode === 'full' ? 1.0 : mapWidthMode === 'wide' ? 0.70 : 0.58;
   const mapSplitPx169 = mapWidthMode === 'full' ? 1920 : mapWidthMode === 'wide' ? 1344 : 1114;
   const leftBoundaryX = presentationMode === 'screen'
-    ? Math.round(screenStageSize.width * (isMappingMode ? mapSplitRatio : 0.44))
-    : (isMappingMode ? mapSplitPx169 : 830);
+    ? Math.round(screenStageSize.width * (isMappingMode ? mapSplitRatio : 0.48))
+    : (isMappingMode ? mapSplitPx169 : 922);
 
   const toggleTheme = useCallback(() => {
     setTheme(prev => {
@@ -1238,7 +1246,7 @@ export default function RecordingPresenterClient({ questions: initialQuestions =
       : { width: 320, height: 180 };
 
   return (
-    <div className="pq-present-root" data-present-theme={theme}>
+    <div className="pq-present-root" data-present-theme={theme} style={{ "--content-scale": contentFontScale }}>
       {/* 3-2-1 Recording Countdown Overlay */}
       {recState === 'countdown' && (
         <div
@@ -1381,9 +1389,7 @@ export default function RecordingPresenterClient({ questions: initialQuestions =
                     {isTopicMode ? (
                       <div className="pq-present-anchor-topic">
                         <h2 className="pq-topic-anchor-title">{currentQ.title}</h2>
-                        <div className="pq-topic-anchor-summary">
-                          {currentQ.cumulativeSummary || currentQ.overview || currentQ.backgroundNote || 'Foundational syllabus topic anchor.'}
-                        </div>
+                        <Prose className="pq-topic-anchor-summary" title={currentQ.title} text={currentQ.cumulativeSummary || currentQ.overview || currentQ.backgroundNote || ''} />
                       </div>
                     ) : (
                       <>
@@ -1452,7 +1458,10 @@ export default function RecordingPresenterClient({ questions: initialQuestions =
           </aside>
 
           {/* RIGHT PANEL: DYNAMIC EXPLANATION / TOPIC SLIDES */}
-          <main className={`pq-present-right-panel ${isMappingMode ? 'is-map-right-panel' : ''}`}>
+          <main
+            className={`pq-present-right-panel ${isMappingMode ? "is-map-right-panel" : ""} ${showWebcamBox && webcamLive ? "has-webcam" : ""}`}
+            style={{ "--cam-h": `${webcamDimensions.height}px` }}
+          >
             {isMappingMode && stemBlocks.length > 0 && (
               <div className="pq-mapping-stem-box" style={{ marginBottom: 14 }}>
                 {stemBlocks.map((b, idx) => (
@@ -1473,18 +1482,7 @@ export default function RecordingPresenterClient({ questions: initialQuestions =
               </div>
             )}
 
-            {currentStep?.type !== 'scratchpad' && (
-              <div className="pq-present-step-head">
-                <span className="pq-present-step-badge">
-                  <Sparkles size={13} />
-                  <span>{currentStep?.badge || 'LECTURE STAGE'}</span>
-                </span>
-                <h1 className="pq-present-step-title">{currentStep?.title}</h1>
-                {currentStep?.subtitle && (
-                  <p className="pq-present-step-sub">{currentStep.subtitle}</p>
-                )}
-              </div>
-            )}
+            <SlideHead step={currentStep} />
 
             <div className={`pq-present-slide-body ${currentStep?.type === 'scratchpad' ? 'is-scratchpad-body' : ''}`}>
               {currentStep?.type === 'scratchpad' && (
@@ -1555,645 +1553,21 @@ export default function RecordingPresenterClient({ questions: initialQuestions =
                 </div>
               )}
 
-              {currentStep?.type === 'image' && currentStep.imageUrl && (
-                <div className="pq-present-image-container">
-                  <div
-                    className={`pq-present-image-wrap ${isZoomedImage ? 'is-zoomed' : ''}`}
-                    onClick={() => setIsZoomedImage(z => !z)}
-                  >
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={currentStep.imageUrl}
-                      alt={currentStep.caption || 'Infographic'}
-                      className="pq-present-img"
-                    />
-                  </div>
-                  <div className="pq-present-image-caption">
-                    <span>{currentStep.caption || currentStep.title}</span>
-                    <span className="pq-present-zoom-hint">
-                      {isZoomedImage ? <ZoomOut size={13} /> : <ZoomIn size={13} />}
-                      <span>Press Z to {isZoomedImage ? 'Reset' : 'Zoom'}</span>
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {currentStep?.type === 'sketch' && (
-                <div className="pq-present-sketch-slide">
-                  <span className="pq-sketch-watermark">
-                    FREEHAND SKETCH &amp; MINDMAP CANVAS · DRAW WITH XP-PEN
-                  </span>
-                </div>
-              )}
-
-              {currentStep?.type === 'intro' && (
-                <div className="pq-present-intro-grid">
-                  <div className="pq-present-stat-box">
-                    <div className="pq-present-stat-label">Subject &amp; Theme</div>
-                    <div className="pq-present-stat-value">{currentQ.srcSubject || 'GS Paper 1'}</div>
-                  </div>
-                  <div className="pq-present-stat-box">
-                    <div className="pq-present-stat-label">Micro-Topic</div>
-                    <div className="pq-present-stat-value">{currentQ.srcTopic || 'General'}</div>
-                  </div>
-                  <div className="pq-present-stat-box">
-                    <div className="pq-present-stat-label">Exam Paper</div>
-                    <div className="pq-present-stat-value">{currentQ.examName} {currentQ.examYear}</div>
-                  </div>
-                  <div className="pq-present-stat-box">
-                    <div className="pq-present-stat-label">Question Pattern</div>
-                    <div className="pq-present-stat-value">{currentQ.stem?.length > 250 ? 'Statement-Based' : 'Standard MCQ'}</div>
-                  </div>
-                </div>
-              )}
-
-              {(currentStep?.type === 'breakdown' || currentStep?.type === 'statement_breakdown') && currentStep.items && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  {currentStep.items.map((item, i) => {
-                    const isCorrect = (item.verdict || '').toLowerCase().includes('correct') && !(item.verdict || '').toLowerCase().includes('incorrect') && !(item.verdict || '').toLowerCase().includes('false');
-                    const isStmt = currentStep.type === 'statement_breakdown' || item.statementNo != null;
-                    const labelText = isStmt
-                      ? `Statement ${item.statementNo || i + 1}`
-                      : `Option (${String(item.label || i + 1).toUpperCase()})`;
-
-                    return (
-                      <div
-                        key={i}
-                        className={`pq-present-breakdown-card ${isCorrect ? 'is-correct-card' : 'is-incorrect-card'}`}
-                      >
-                        <div className="pq-present-bc-head">
-                          <span className="pq-present-bc-label">{labelText}</span>
-                          <span className={`pq-present-bc-badge ${isCorrect ? 'is-correct' : 'is-incorrect'}`}>
-                            {isCorrect ? <CheckCircle2 size={13} /> : <XCircle size={13} />}
-                            {item.verdict || (isCorrect ? 'Correct' : 'Incorrect')}
-                          </span>
-                          {item.reference && (
-                            <span
-                              className="pq-present-bc-ref"
-                              style={{
-                                marginLeft: 'auto',
-                                padding: '3px 9px',
-                                borderRadius: '6px',
-                                background: 'rgba(56, 189, 248, 0.15)',
-                                border: '1px solid rgba(56, 189, 248, 0.35)',
-                                color: '#38bdf8',
-                                fontSize: '12px',
-                                fontWeight: 800,
-                              }}
-                            >
-                              {item.reference}
-                            </span>
-                          )}
-                        </div>
-                        {item.text && <p className="pq-present-bc-text">{item.text}</p>}
-                        <p className="pq-present-bc-exp">{item.explanation}</p>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              {currentStep?.type === 'answer' && (
-                <div className="pq-present-card" style={{ borderColor: 'rgba(34, 197, 94, 0.45)', background: theme === 'light' ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.12), #ffffff)' : 'linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(15, 23, 42, 0.85))' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-                    <div style={{ width: 44, height: 44, borderRadius: 12, background: '#22c55e', color: '#052e16', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 900 }}>
-                      ✓
-                    </div>
-                    <div>
-                      <div style={{ fontSize: 13, fontWeight: 800, textTransform: 'uppercase', color: theme === 'light' ? '#15803d' : '#4ade80' }}>Official Answer Key</div>
-                      <div style={{ fontSize: 24, fontWeight: 900, color: theme === 'light' ? '#0f172a' : '#ffffff' }}>Option ({currentStep.correctLabel || 'Verified'})</div>
-                    </div>
-                  </div>
-                  <div style={{ fontSize: 18.5, lineHeight: 1.6, color: theme === 'light' ? '#1e293b' : '#f1f5f9' }}>
-                    {currentStep.explanationText}
-                  </div>
-                </div>
-              )}
-
-              {currentStep?.type === 'keywords' && currentStep.keywords && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  {currentStep.keywords.map((kw, i) => (
-                    <div key={i} className="pq-present-concept-card">
-                      <div className="pq-present-concept-title">
-                        <Tag size={18} />
-                        <span>#{kw.term}</span>
-                      </div>
-                      <p className="pq-present-concept-note">
-                        {kw.shortNote || 'High-yield conceptual keyword frequently tested in UPSC Prelims.'}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {currentStep?.type === 'valueAddition' && currentStep.points && (
-                <ul className="pq-present-va-list">
-                  {currentStep.points.map((pt, i) => (
-                    <li key={i} className="pq-present-va-item">
-                      <span className="pq-present-va-bullet">•</span>
-                      <div>{pt}</div>
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              {currentStep?.type === 'inNews' && currentStep.inNews && (
-                <div className="pq-present-news-card">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: theme === 'light' ? '#dc2626' : '#f87171', textTransform: 'uppercase' }}>
-                    <Flame size={14} />
-                    <span>{currentStep.inNews.source || 'Current Context'} {currentStep.inNews.date ? `· ${currentStep.inNews.date}` : ''}</span>
-                  </div>
-                  <h3 className="pq-present-news-headline">{currentStep.inNews.headline || 'Contemporary Context'}</h3>
-                  {(currentStep.inNews.relevance || currentStep.inNews.context) && (
-                    <p className="pq-present-news-context">{currentStep.inNews.relevance || currentStep.inNews.context}</p>
-                  )}
-                </div>
-              )}
-
-              {currentStep?.type === 'similarPyq' && currentStep.similarPyq && (
-                <div className="pq-present-card" style={{ borderColor: 'rgba(168, 85, 247, 0.4)', background: theme === 'light' ? 'linear-gradient(135deg, rgba(168, 85, 247, 0.1), #ffffff)' : 'linear-gradient(135deg, rgba(168, 85, 247, 0.12), rgba(15, 23, 42, 0.85))' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 800, color: theme === 'light' ? '#7e22ce' : '#c084fc', textTransform: 'uppercase', marginBottom: 10 }}>
-                    <Layers size={14} />
-                    <span>{currentStep.similarPyq.examName || 'UPSC CSE Pre'} {currentStep.similarPyq.examYear || ''}</span>
-                  </div>
-                  <p style={{ fontSize: 18, lineHeight: 1.55, color: theme === 'light' ? '#0f172a' : '#f8fafc', margin: '0 0 12px' }}>
-                    {currentStep.similarPyq.stem}
-                  </p>
-                  {currentStep.similarPyq.keyTakeaway && (
-                    <div style={{ fontSize: 15, color: theme === 'light' ? '#b45309' : '#fbbf24', fontStyle: 'italic' }}>
-                      💡 Pattern Insight: {currentStep.similarPyq.keyTakeaway}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {currentStep?.type === 'table' && (
-                <div
-                  className="pq-present-card"
-                  style={{
-                    padding: '24px 28px',
-                    overflowX: 'auto',
-                    borderColor: 'rgba(56, 189, 248, 0.4)',
-                  }}
-                >
-                  {currentStep.tableData?.headers && (
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '16px' }}>
-                      <thead>
-                        <tr style={{ borderBottom: '2px solid rgba(56, 189, 248, 0.4)', background: 'rgba(56, 189, 248, 0.12)' }}>
-                          {currentStep.tableData.headers.map((h, i) => (
-                            <th
-                              key={i}
-                              style={{
-                                padding: '12px 16px',
-                                color: theme === 'light' ? '#0369a1' : '#38bdf8',
-                                fontWeight: 800,
-                                textAlign: 'left',
-                                fontSize: '13.5px',
-                                textTransform: 'uppercase',
-                              }}
-                            >
-                              {h}
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {currentStep.tableData.rows?.map((row, rIdx) => (
-                          <tr key={rIdx} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                            {row.map((cell, cIdx) => (
-                              <td
-                                key={cIdx}
-                                style={{
-                                  padding: '12px 16px',
-                                  color: cIdx === 0 ? (theme === 'light' ? '#0f172a' : '#ffffff') : (theme === 'light' ? '#334155' : '#cbd5e1'),
-                                  fontWeight: cIdx === 0 ? 800 : 500,
-                                }}
-                              >
-                                {cell}
-                              </td>
-                            ))}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-              )}
-
-              {currentStep?.type?.startsWith('topic_') && (
-                <div className="pq-present-topic-card">
-                  <p className="pq-present-topic-prose">
-                    {currentStep.content || currentStep.summary || ''}
-                  </p>
-                </div>
-              )}
-
-              {/* RIVER STAGES 1–5 */}
-              {currentStep?.type === 'river_course' && currentStep.riverDetails && (() => {
-                const rd = currentStep.riverDetails;
-                return (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                    <div className="pq-present-intro-grid">
-                      <div className="pq-present-stat-box">
-                        <div className="pq-present-stat-label">Total River Length</div>
-                        <div className="pq-present-stat-value" style={{ color: '#38bdf8', fontSize: fs(21) }}>{rd.length || 'Major System'}</div>
-                      </div>
-                      <div className="pq-present-stat-box">
-                        <div className="pq-present-stat-label">Source / Origin</div>
-                        <div className="pq-present-stat-value" style={{ fontSize: fs(17.5), lineHeight: 1.35 }}>{rd.origin}</div>
-                      </div>
-                      <div className="pq-present-stat-box">
-                        <div className="pq-present-stat-label">Outflow / Mouth</div>
-                        <div className="pq-present-stat-value" style={{ fontSize: fs(17.5), lineHeight: 1.35 }}>{rd.mouth}</div>
-                      </div>
-                      <div className="pq-present-stat-box">
-                        <div className="pq-present-stat-label">River Classification</div>
-                        <div className="pq-present-stat-value" style={{ fontSize: fs(18) }}>{currentQ.placeType || 'Major River System'}</div>
-                      </div>
-                    </div>
-
-                    {rd.states && (
-                      <div className="pq-present-card" style={{ padding: '18px 20px' }}>
-                        <div style={{ fontSize: fs(14), fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span>🗺️</span>
-                          <span>States It Passes Through vs Total Catchment Basin</span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 10, marginBottom: 12 }}>
-                          <span style={{ fontSize: fs(15.5), fontWeight: 800, color: theme === 'light' ? '#334155' : '#cbd5e1' }}>Direct River Flow:</span>
-                          {rd.states.flowsThrough?.map((st, idx) => (
-                            <span key={idx} style={{ fontSize: fs(16), fontWeight: 800, padding: '5px 14px', borderRadius: 8, background: '#0284c7', color: '#ffffff' }}>
-                              {st}
-                            </span>
-                          ))}
-                        </div>
-                        {rd.states.basinStates && (
-                          <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
-                            <span style={{ fontSize: fs(14.5), fontWeight: 700, color: theme === 'light' ? '#475569' : '#94a3b8' }}>Basin Catchment:</span>
-                            {rd.states.basinStates.map((st, idx) => (
-                              <span key={idx} style={{ fontSize: fs(14), fontWeight: 700, padding: '4px 11px', borderRadius: 6, background: theme === 'light' ? '#f1f5f9' : 'rgba(255, 255, 255, 0.1)', color: theme === 'light' ? '#1e293b' : '#e2e8f0' }}>
-                                {st}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })()}
-
-              {currentStep?.type === 'river_left_tributaries' && currentStep.riverDetails && (() => {
-                const rd = currentStep.riverDetails;
-                const leftList = rd.tributaries?.leftBank || [];
-                const useTwoCols = leftList.length > 3 && mapWidthMode === 'split';
-                return (
-                  <div className="pq-present-card" style={{ borderColor: 'rgba(56, 189, 248, 0.45)', background: theme === 'light' ? '#f0f9ff' : 'rgba(15, 23, 42, 0.9)', padding: '18px 20px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 14, borderBottom: '2px solid rgba(2, 132, 199, 0.3)', paddingBottom: 10 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: fs(16), fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase' }}>
-                        <span>⬅️</span>
-                        <span>Left-Bank Tributaries (Click or press 1–{leftList.length})</span>
-                      </div>
-                      <span style={{ fontSize: 12, fontWeight: 800, padding: '4px 11px', borderRadius: 8, background: '#0284c7', color: '#ffffff' }}>
-                        MAP LAYER: CYAN
-                      </span>
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: useTwoCols ? 'minmax(0, 1fr) minmax(0, 1fr)' : '1fr', gap: 12 }}>
-                      {leftList.map((trib, idx) => {
-                        const isSpotlit = spotlightIndex === idx + 1;
-                        return (
-                          <div
-                            key={idx}
-                            onClick={() => setSpotlightIndex(prev => (prev === idx + 1 ? null : idx + 1))}
-                            style={{
-                              cursor: 'pointer',
-                              minWidth: 0,
-                              background: isSpotlit
-                                ? (theme === 'light' ? '#e0f2fe' : 'rgba(14, 165, 233, 0.22)')
-                                : (theme === 'light' ? '#ffffff' : 'rgba(255, 255, 255, 0.05)'),
-                              padding: '13px 16px',
-                              borderRadius: 12,
-                              borderLeft: '6px solid #0284c7',
-                              outline: isSpotlit ? '2px solid #38bdf8' : 'none',
-                            }}
-                          >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                              <span style={{ width: 26, height: 26, borderRadius: '50%', background: '#0284c7', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13.5, fontWeight: 900, flexShrink: 0 }}>
-                                {idx + 1}
-                              </span>
-                              <span style={{ fontSize: fs(18.5), fontWeight: 800, color: theme === 'light' ? '#0f172a' : '#ffffff' }}>
-                                {trib.name}
-                              </span>
-                            </div>
-                            {trib.note && (
-                              <div style={{ fontSize: fs(15.5), fontWeight: 500, color: theme === 'light' ? '#1e293b' : '#e2e8f0', marginTop: 6, lineHeight: 1.48, paddingLeft: 36 }}>
-                                {trib.note}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {currentStep?.type === 'river_right_tributaries' && currentStep.riverDetails && (() => {
-                const rd = currentStep.riverDetails;
-                const rightList = rd.tributaries?.rightBank || [];
-                const useTwoCols = rightList.length > 3 && mapWidthMode === 'split';
-                return (
-                  <div className="pq-present-card" style={{ borderColor: 'rgba(245, 158, 11, 0.45)', background: theme === 'light' ? '#fffbeb' : 'rgba(15, 23, 42, 0.9)', padding: '18px 20px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, marginBottom: 14, borderBottom: '2px solid rgba(217, 119, 6, 0.3)', paddingBottom: 10 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: fs(16), fontWeight: 800, color: '#fbbf24', textTransform: 'uppercase' }}>
-                        <span>➡️</span>
-                        <span>Right-Bank Tributaries (Click or press 1–{rightList.length})</span>
-                      </div>
-                      <span style={{ fontSize: 12, fontWeight: 800, padding: '4px 11px', borderRadius: 8, background: '#d97706', color: '#ffffff' }}>
-                        MAP LAYER: AMBER
-                      </span>
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: useTwoCols ? 'minmax(0, 1fr) minmax(0, 1fr)' : '1fr', gap: 12 }}>
-                      {rightList.map((trib, idx) => {
-                        const isSpotlit = spotlightIndex === idx + 1;
-                        return (
-                          <div
-                            key={idx}
-                            onClick={() => setSpotlightIndex(prev => (prev === idx + 1 ? null : idx + 1))}
-                            style={{
-                              cursor: 'pointer',
-                              minWidth: 0,
-                              background: isSpotlit
-                                ? (theme === 'light' ? '#fef3c7' : 'rgba(245, 158, 11, 0.22)')
-                                : (theme === 'light' ? '#ffffff' : 'rgba(255, 255, 255, 0.05)'),
-                              padding: '13px 16px',
-                              borderRadius: 12,
-                              borderLeft: '6px solid #d97706',
-                              outline: isSpotlit ? '2px solid #fbbf24' : 'none',
-                            }}
-                          >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                              <span style={{ width: 26, height: 26, borderRadius: '50%', background: '#d97706', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13.5, fontWeight: 900, flexShrink: 0 }}>
-                                {idx + 1}
-                              </span>
-                              <span style={{ fontSize: fs(18.5), fontWeight: 800, color: theme === 'light' ? '#0f172a' : '#ffffff' }}>
-                                {trib.name}
-                              </span>
-                            </div>
-                            {trib.note && (
-                              <div style={{ fontSize: fs(15.5), fontWeight: 500, color: theme === 'light' ? '#1e293b' : '#e2e8f0', marginTop: 6, lineHeight: 1.48, paddingLeft: 36 }}>
-                                {trib.note}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {currentStep?.type === 'river_dams_confluences' && currentStep.riverDetails && (() => {
-                const rd = currentStep.riverDetails;
-                const sangams = rd.confluences || [];
-                const dams = rd.dams || [];
-                return (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                    <div className="pq-present-card" style={{ borderColor: 'rgba(139, 92, 246, 0.45)', padding: '16px 20px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, fontSize: fs(15.5), fontWeight: 800, color: '#a78bfa', textTransform: 'uppercase', marginBottom: 12, borderBottom: '2px solid rgba(139, 92, 246, 0.3)', paddingBottom: 8 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <span>🤝</span>
-                          <span>Important Sangams / Confluences</span>
-                        </div>
-                        <span style={{ fontSize: 11.5, fontWeight: 800, padding: '3px 10px', borderRadius: 6, background: '#8b5cf6', color: '#ffffff' }}>
-                          PURPLE PINS
-                        </span>
-                      </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: mapWidthMode === 'wide' ? '1fr' : 'minmax(0, 1fr) minmax(0, 1fr)', gap: 10 }}>
-                        {sangams.map((c, idx) => {
-                          const pinNum = idx + 1;
-                          const isSpotlit = spotlightIndex === pinNum;
-                          return (
-                            <div
-                              key={idx}
-                              onClick={() => setSpotlightIndex(prev => (prev === pinNum ? null : pinNum))}
-                              style={{
-                                cursor: 'pointer',
-                                background: isSpotlit ? (theme === 'light' ? '#ede9fe' : 'rgba(139, 92, 246, 0.22)') : (theme === 'light' ? '#f8fafc' : 'rgba(255, 255, 255, 0.05)'),
-                                padding: '11px 14px',
-                                borderRadius: 10,
-                                borderLeft: '4px solid #8b5cf6',
-                              }}
-                            >
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <span style={{ width: 22, height: 22, borderRadius: '50%', background: '#8b5cf6', color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 900 }}>
-                                  {pinNum}
-                                </span>
-                                <strong style={{ fontSize: fs(16.5), color: theme === 'light' ? '#0f172a' : '#ffffff' }}>{c.sangam}</strong>
-                              </div>
-                              {c.note && (
-                                <div style={{ fontSize: fs(14.5), color: theme === 'light' ? '#334155' : '#cbd5e1', marginTop: 4, paddingLeft: 30 }}>
-                                  {c.note}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    <div className="pq-present-card" style={{ borderColor: 'rgba(56, 189, 248, 0.45)', padding: '16px 20px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: fs(15.5), fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', marginBottom: 12, borderBottom: '2px solid rgba(2, 132, 199, 0.3)', paddingBottom: 8 }}>
-                        <span>🏗️ Major Dams &amp; Multipurpose Projects</span>
-                        <span style={{ fontSize: 11.5, fontWeight: 800, padding: '3px 10px', borderRadius: 6, background: '#0284c7', color: '#ffffff' }}>
-                          BLUE PINS
-                        </span>
-                      </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: mapWidthMode === 'wide' ? '1fr' : 'minmax(0, 1fr) minmax(0, 1fr)', gap: 10 }}>
-                        {dams.map((dam, idx) => {
-                          const pinNum = 6 + idx + 1;
-                          const isSpotlit = spotlightIndex === pinNum;
-                          return (
-                            <div
-                              key={idx}
-                              onClick={() => setSpotlightIndex(prev => (prev === pinNum ? null : pinNum))}
-                              style={{
-                                cursor: 'pointer',
-                                background: isSpotlit ? (theme === 'light' ? '#e0f2fe' : 'rgba(14, 165, 233, 0.22)') : (theme === 'light' ? '#f8fafc' : 'rgba(255, 255, 255, 0.05)'),
-                                padding: '11px 14px',
-                                borderRadius: 10,
-                                borderLeft: '4px solid #0284c7',
-                              }}
-                            >
-                              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 6 }}>
-                                <strong style={{ fontSize: fs(16.5), color: theme === 'light' ? '#0f172a' : '#ffffff' }}>{dam.name}</strong>
-                                {dam.state && (
-                                  <span style={{ fontSize: fs(12.5), fontWeight: 800, padding: '2px 9px', borderRadius: 6, background: '#fee2e2', color: '#991b1b' }}>
-                                    {dam.state}
-                                  </span>
-                                )}
-                              </div>
-                              {dam.type && (
-                                <div style={{ fontSize: fs(14.5), color: theme === 'light' ? '#334155' : '#cbd5e1', marginTop: 4 }}>
-                                  {dam.type}
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {currentStep?.type === 'river_ecology_towns' && currentStep.riverDetails && (() => {
-                const rd = currentStep.riverDetails;
-                return (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                    <div className="pq-present-card" style={{ borderColor: 'rgba(16, 185, 129, 0.45)', padding: '15px 18px' }}>
-                      <div style={{ fontSize: fs(15), fontWeight: 800, color: '#10b981', textTransform: 'uppercase', marginBottom: 10 }}>
-                        🌲 National Parks &amp; Sanctuaries in Basin
-                      </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: mapWidthMode === 'wide' ? '1fr' : 'minmax(0, 1fr) minmax(0, 1fr)', gap: 10 }}>
-                        {rd.protectedAreas?.map((pa, idx) => (
-                          <div
-                            key={idx}
-                            onClick={() => setSpotlightIndex(prev => (prev === idx + 1 ? null : idx + 1))}
-                            style={{ cursor: 'pointer', fontSize: fs(15.5), padding: '9px 12px', borderRadius: 8, background: theme === 'light' ? '#f0fdf4' : 'rgba(255, 255, 255, 0.04)', borderLeft: '4px solid #10b981' }}
-                          >
-                            <strong style={{ color: '#34d399', fontSize: fs(16.5) }}>{idx + 1}. {pa.name}</strong> ({pa.state})
-                            <div style={{ color: theme === 'light' ? '#1e293b' : '#e2e8f0', marginTop: 3 }}>{pa.relation}</div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="pq-present-card" style={{ borderColor: 'rgba(234, 179, 8, 0.45)', padding: '15px 18px' }}>
-                      <div style={{ fontSize: fs(15), fontWeight: 800, color: '#fbbf24', textTransform: 'uppercase', marginBottom: 10 }}>
-                        🏛️ Important Cities &amp; Historical Capitals
-                      </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: mapWidthMode === 'wide' ? '1fr' : 'minmax(0, 1fr) minmax(0, 1fr)', gap: 10 }}>
-                        {rd.towns?.map((tw, idx) => {
-                          const pinNum = (rd.protectedAreas?.length || 6) + idx + 1;
-                          return (
-                            <div
-                              key={idx}
-                              onClick={() => setSpotlightIndex(prev => (prev === pinNum ? null : pinNum))}
-                              style={{ cursor: 'pointer', fontSize: fs(15.5), padding: '9px 12px', borderRadius: 8, background: theme === 'light' ? '#fefce8' : 'rgba(255, 255, 255, 0.04)', borderLeft: '4px solid #eab308' }}
-                            >
-                              <strong style={{ color: theme === 'light' ? '#0f172a' : '#ffffff', fontSize: fs(16.5) }}>{pinNum}. {tw.name}</strong> ({tw.state})
-                              <div style={{ color: theme === 'light' ? '#1e293b' : '#e2e8f0', marginTop: 3 }}>{tw.significance}</div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })()}
-
-              {currentStep?.type === 'mapping_overview' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  <div className="pq-present-intro-grid">
-                    <div className="pq-present-stat-box">
-                      <div className="pq-present-stat-label">Place / Feature Name</div>
-                      <div className="pq-present-stat-value">{currentQ.place || currentQ.title}</div>
-                    </div>
-                    <div className="pq-present-stat-box">
-                      <div className="pq-present-stat-label">Latitude &amp; Longitude</div>
-                      <div className="pq-present-stat-value" style={{ fontFamily: 'monospace' }}>
-                        {currentQ.lat && currentQ.lng ? `${Number(currentQ.lat).toFixed(2)}° N, ${Number(currentQ.lng).toFixed(2)}° E` : 'Coordinates on Map'}
-                      </div>
-                    </div>
-                    <div className="pq-present-stat-box">
-                      <div className="pq-present-stat-label">State / Region</div>
-                      <div className="pq-present-stat-value">{currentStep.locationText || 'India'}</div>
-                    </div>
-                    <div className="pq-present-stat-box">
-                      <div className="pq-present-stat-label">Topic / Category</div>
-                      <div className="pq-present-stat-value">{currentStep.categories || currentQ.placeType || 'Geography'}</div>
-                    </div>
-                  </div>
-
-                  {Array.isArray(currentQ.staticFacts) && currentQ.staticFacts.length > 0 && (
-                    <div className="pq-present-topic-card">
-                      <p className="pq-present-topic-prose">
-                        {currentQ.staticFacts[0]}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {currentStep?.type === 'mapping_facts' && currentStep.facts && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  {currentStep.facts.map((fact, idx) => (
-                    <div key={idx} className="pq-present-concept-card">
-                      <div className="pq-present-concept-title">
-                        <Compass size={19} color="#34d399" />
-                        <span>Key Fact #{idx + 1}</span>
-                      </div>
-                      <p className="pq-present-concept-note" style={{ fontSize: 18.5, lineHeight: 1.6 }}>
-                        {fact}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {currentStep?.type === 'mapping_angle' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                  {currentStep.upscAngle && (
-                    <div className="pq-present-card" style={{ borderColor: 'rgba(245, 158, 11, 0.45)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 15, fontWeight: 800, color: '#fbbf24', textTransform: 'uppercase', marginBottom: 10 }}>
-                        <Sparkles size={17} />
-                        <span>⚠️ Common UPSC Mistake / Examiner Trap</span>
-                      </div>
-                      <p style={{ fontSize: 19.5, lineHeight: 1.6, margin: 0 }}>
-                        {currentStep.upscAngle}
-                      </p>
-                    </div>
-                  )}
-
-                  {currentStep.newsHook && (
-                    <div className="pq-present-news-card">
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14.5, fontWeight: 800, color: '#f87171', textTransform: 'uppercase' }}>
-                        <Flame size={15} />
-                        <span>📰 Why in the News Recently</span>
-                      </div>
-                      <h3 className="pq-present-news-headline">{currentStep.newsHook}</h3>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {currentStep?.type === 'mapping_pyq' && currentStep.pyq && (
-                <div className="pq-present-card" style={{ borderColor: 'rgba(56, 189, 248, 0.4)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14.5, fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', marginBottom: 10 }}>
-                    <Layers size={15} />
-                    <span>Past Year UPSC Question: {currentStep.pyq.exam || 'UPSC CSE Pre'} {currentStep.pyq.examYear || ''}</span>
-                  </div>
-                  <p style={{ fontSize: 19, lineHeight: 1.55, margin: '0 0 14px' }}>
-                    {currentStep.pyq.stem}
-                  </p>
-                  {currentStep.pyq.correctLabel && (
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 8, background: '#22c55e', color: '#052e16', fontSize: 15, fontWeight: 800, marginBottom: 8 }}>
-                      <span>Correct Answer: Option ({currentStep.pyq.correctLabel})</span>
-                    </div>
-                  )}
-                  {currentStep.pyq.answerText && (
-                    <div style={{ fontSize: 16.5, marginTop: 10, lineHeight: 1.55 }}>
-                      {currentStep.pyq.answerText}
-                    </div>
-                  )}
-                </div>
-              )}
+              <SlideBody
+                step={currentStep}
+                q={currentQ}
+                steps={steps}
+                spotlightIndex={spotlightIndex}
+                onSpotlight={(n) => setSpotlightIndex((prev) => (prev === n ? null : n))}
+                isZoomedImage={isZoomedImage}
+                onToggleZoom={() => setIsZoomedImage((z) => !z)}
+              />
             </div>
 
             {/* ========================================================= */}
             {/* LIVE WEBCAM FEED OR SAFE ZONE BOUNDARY (Bottom Right)      */}
             {/* ========================================================= */}
-            {showWebcamBox && (
+            {showWebcamBox && webcamLive && (
               <div
                 className="pq-present-webcam-safe-zone"
                 style={{
@@ -2726,7 +2100,9 @@ export default function RecordingPresenterClient({ questions: initialQuestions =
           </button>
 
           <div className="pq-dock-steps">
-            {steps.map((st, idx) => (
+            {steps.length > 7 ? (
+              <span className="pq-step-count" title={steps[stepIndex]?.title || ""}>{stepIndex + 1} / {steps.length}</span>
+            ) : steps.map((st, idx) => (
               <button
                 key={st.id || idx}
                 type="button"
@@ -3268,4 +2644,10 @@ export default function RecordingPresenterClient({ questions: initialQuestions =
       )}
     </div>
   );
+}
+
+/** Mounts the presenter only in the browser, so saved settings (theme, size) apply before the first paint. */
+export default function RecordingPresenterClient(props) {
+  const hydrated = useSyncExternalStore(subscribeNever, () => true, () => false);
+  return hydrated ? <RecordingPresenterClientInner {...props} /> : null;
 }

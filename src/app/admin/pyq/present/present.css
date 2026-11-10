@@ -50,7 +50,7 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 25px 80px rgba(0, 0, 0, 0.85);
   display: grid;
-  grid-template-columns: minmax(340px, 44%) minmax(380px, 56%);
+  grid-template-columns: minmax(340px, 48%) minmax(380px, 52%);
   overflow: hidden;
   box-sizing: border-box;
   transform: none !important;
@@ -91,7 +91,7 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   box-shadow: 0 25px 80px rgba(0, 0, 0, 0.85);
   display: grid;
-  grid-template-columns: 830px 1090px;
+  grid-template-columns: 922px 998px;
   overflow: hidden;
   box-sizing: border-box;
   flex-shrink: 0;
@@ -123,7 +123,7 @@
 }
 
 /* ==========================================================================
-   LEFT PANEL: PINNED QUESTION STAGE (44%)
+   LEFT PANEL: PINNED QUESTION STAGE (48%)
    ========================================================================== */
 
 .pq-present-left-panel {
@@ -993,8 +993,8 @@
 [data-present-theme="light"] .pq-present-stem-lead,
 [data-present-theme="light"] .pq-present-stem-ask {
   font-family: var(--font-serif, "Newsreader", "Merriweather", "Charter", Georgia, "Times New Roman", serif) !important;
-  font-size: 16px !important;
-  line-height: 1.6 !important;
+  font-size: calc(var(--fs-q) * var(--fit, 1)) !important;
+  line-height: 1.55 !important;
   color: #111827 !important;
 }
 
@@ -1002,7 +1002,8 @@
   display: flex !important;
   flex-direction: column !important;
   gap: 8px !important;
-  margin: 10px 0 12px 16px !important;
+  margin: 0.5em 0 0.6em 0.8em !important;
+  gap: 0.45em !important;
 }
 
 [data-present-theme="light"] .pq-present-statement-item {
@@ -1014,8 +1015,8 @@
   align-items: flex-start !important;
   gap: 10px !important;
   font-family: var(--font-serif, "Newsreader", "Merriweather", "Charter", Georgia, "Times New Roman", serif) !important;
-  font-size: 15.5px !important;
-  line-height: 1.55 !important;
+  font-size: calc(var(--fs-q) * var(--fit, 1)) !important;
+  line-height: 1.5 !important;
   color: #1a1a1a !important;
 }
 
@@ -1023,9 +1024,9 @@
   background: transparent !important;
   color: #0f172a !important;
   font-family: var(--font-serif, "Newsreader", "Merriweather", "Charter", Georgia, "Times New Roman", serif) !important;
-  font-size: 15.5px !important;
+  font-size: calc(var(--fs-q) * var(--fit, 1)) !important;
   font-weight: 700 !important;
-  min-width: 18px !important;
+  min-width: 1.2em !important;
   height: auto !important;
   padding: 0 !important;
   border-radius: 0 !important;
@@ -1038,16 +1039,17 @@
 [data-present-theme="light"] .pq-present-options-grid {
   display: flex !important;
   flex-direction: column !important;
-  gap: 6px !important;
-  margin-top: 12px !important;
+  gap: 0.2em !important;
+  margin-top: 0.6em !important;
 }
 
 [data-present-theme="light"] .pq-present-option-row {
   background: transparent !important;
   border: 1px solid transparent !important;
   box-shadow: none !important;
-  padding: 5px 8px !important;
-  border-radius: 6px !important;
+  padding: 0.25em 0.45em !important;
+  border-radius: 8px !important;
+  font-size: calc(var(--fs-q) * var(--fit, 1)) !important;
   display: flex !important;
   align-items: flex-start !important;
   gap: 10px !important;
@@ -1058,10 +1060,10 @@
   background: transparent !important;
   border: none !important;
   font-family: var(--font-serif, "Newsreader", "Merriweather", "Charter", Georgia, "Times New Roman", serif) !important;
-  font-size: 15px !important;
+  font-size: calc(var(--fs-q) * var(--fit, 1)) !important;
   font-weight: 700 !important;
   color: #1e293b !important;
-  min-width: 22px !important;
+  min-width: 1.9em !important;
   padding: 0 !important;
 }
 
@@ -1075,8 +1077,8 @@
 
 [data-present-theme="light"] .pq-present-opt-text {
   font-family: var(--font-serif, "Newsreader", "Merriweather", "Charter", Georgia, "Times New Roman", serif) !important;
-  font-size: 15px !important;
-  line-height: 1.5 !important;
+  font-size: calc(var(--fs-q) * var(--fit, 1)) !important;
+  line-height: 1.45 !important;
   color: #1a1a1a !important;
 }
 
@@ -2167,3 +2169,651 @@
 
 
 
+
+/* =====================================================================
+   SLIDE TYPOGRAPHY & SHARED SLIDE COMPONENTS (SlideBody.js)
+   One type system for both panels: the exam-paper serif for content,
+   small capital sans labels for tags. Sizes follow the stage width
+   (container units) and the A+ button (--content-scale); --fit shrinks
+   text a little when a panel would otherwise overflow.
+   ===================================================================== */
+.pq-present-stage {
+  container-type: inline-size;
+}
+
+.pq-present-root {
+  --sb-serif: var(--font-serif, "Newsreader", "Merriweather", "Charter", Georgia, "Times New Roman", serif);
+  --sb-ink: #1a1a1a;
+  --sb-muted: #4b5563;
+  --sb-label: #6b7280;
+  --sb-card: #ffffff;
+  --sb-line: #e7e2da;
+  --sb-soft: #f6f4ef;
+  --sb-green: #15803d;
+  --sb-green-soft: #f0fdf4;
+  --sb-green-line: #bbf7d0;
+  --sb-red: #b91c1c;
+  --sb-red-soft: #fef2f2;
+  --sb-accent: #1d4ed8;
+}
+
+[data-present-theme="dark"] {
+  --sb-serif: inherit;
+  --sb-ink: #f1f5f9;
+  --sb-muted: #cbd5e1;
+  --sb-label: #94a3b8;
+  --sb-card: rgba(255, 255, 255, 0.04);
+  --sb-line: rgba(255, 255, 255, 0.12);
+  --sb-soft: rgba(255, 255, 255, 0.06);
+  --sb-green: #4ade80;
+  --sb-green-soft: rgba(34, 197, 94, 0.1);
+  --sb-green-line: rgba(34, 197, 94, 0.35);
+  --sb-red: #f87171;
+  --sb-red-soft: rgba(239, 68, 68, 0.08);
+  --sb-accent: #60a5fa;
+}
+
+.pq-present-stage {
+  --fs-q: calc(clamp(18px, 1.42cqw, 30px) * var(--content-scale, 1));
+  --fs-body: calc(clamp(17px, 1.3cqw, 28px) * var(--content-scale, 1));
+  --fs-title: calc(clamp(26px, 2.05cqw, 44px) * var(--content-scale, 1));
+  --fs-sub: calc(clamp(16px, 1.15cqw, 24px) * var(--content-scale, 1));
+  --fs-label: clamp(11.5px, 0.82cqw, 16px);
+}
+
+/* ---- Heading ---- */
+.sb-head {
+  margin-bottom: 1.1em;
+  padding-right: 150px; /* clear of the UPSCGPT STUDIO watermark */
+}
+
+.pq-present-step-head .sb-badge {
+  display: inline-block;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sb-label);
+  margin-bottom: 0.7em;
+}
+
+[data-present-theme="light"] .pq-present-step-head .sb-badge {
+  background: none;
+  border: none;
+  padding: 0;
+  box-shadow: none;
+  color: var(--sb-label);
+}
+
+[data-present-theme="light"] .sb-title {
+  font-family: var(--sb-serif);
+  font-size: var(--fs-title);
+  font-weight: 600;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  color: #111827;
+  margin: 0;
+}
+
+[data-present-theme="light"] .sb-sub {
+  font-family: var(--sb-serif);
+  font-size: var(--fs-sub);
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--sb-muted);
+  margin: 0.35em 0 0;
+}
+
+/* ---- Body text ---- */
+.pq-present-slide-body {
+  font-size: calc(var(--fs-body) * var(--fit, 1));
+}
+
+[data-present-theme="light"] .pq-present-slide-body {
+  font-family: var(--sb-serif);
+  color: var(--sb-ink);
+}
+
+.sb-label {
+  display: block;
+  font-family: var(--font-outfit), system-ui, sans-serif;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--sb-label);
+  margin-bottom: 0.45em;
+}
+
+.sb-text,
+.sb-prose p {
+  font-size: 1em;
+  line-height: 1.55;
+  margin: 0;
+  color: var(--sb-ink);
+}
+
+.sb-prose {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7em;
+}
+
+.sb-prose-h {
+  font-size: 1.08em;
+  font-weight: 700;
+  margin: 0.2em 0 0;
+  color: var(--sb-ink);
+}
+
+.sb-prose-ul {
+  margin: 0;
+  padding-left: 1.2em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+  line-height: 1.5;
+}
+
+.sb-meta {
+  margin: 0.6em 0 0;
+  font-size: 0.85em;
+  color: var(--sb-muted);
+}
+
+.sb-empty {
+  color: var(--sb-muted);
+  font-style: italic;
+}
+
+/* ---- Cards ---- */
+.sb-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+}
+
+.sb-card {
+  background: var(--sb-card);
+  border: 1px solid var(--sb-line);
+  border-radius: 12px;
+  padding: 0.85em 1.05em;
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.sb-card-title {
+  font-size: 1.08em;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0 0 0.3em;
+  color: var(--sb-ink);
+}
+
+/* Option / statement verdicts */
+.sb-verdict {
+  border-left-width: 4px;
+}
+
+.sb-verdict.is-correct {
+  border-left-color: var(--sb-green);
+}
+
+.sb-verdict.is-wrong {
+  border-left-color: var(--sb-red);
+}
+
+.sb-verdict-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  margin-bottom: 0.35em;
+}
+
+.sb-verdict-label {
+  font-weight: 700;
+  font-size: 1.05em;
+}
+
+.sb-verdict-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-outfit), system-ui, sans-serif;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 999px;
+}
+
+.is-correct .sb-verdict-pill {
+  color: var(--sb-green);
+  background: var(--sb-green-soft);
+}
+
+.is-wrong .sb-verdict-pill {
+  color: var(--sb-red);
+  background: var(--sb-red-soft);
+}
+
+.sb-ref {
+  margin-left: auto;
+  font-family: var(--font-outfit), system-ui, sans-serif;
+  font-size: var(--fs-label);
+  font-weight: 600;
+  color: var(--sb-muted);
+  background: var(--sb-soft);
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+
+.sb-verdict-quote {
+  margin: 0 0 0.35em;
+  font-style: italic;
+  color: var(--sb-muted);
+  line-height: 1.5;
+}
+
+/* Answer */
+.sb-answer {
+  background: var(--sb-green-soft);
+  border-color: var(--sb-green-line);
+}
+
+.sb-answer-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-bottom: 0.5em;
+  color: var(--sb-green);
+}
+
+.sb-answer-head .sb-label {
+  margin: 0;
+  color: var(--sb-green);
+}
+
+/* Value addition: group label shows once per group */
+.sb-point .sb-label {
+  color: var(--sb-accent);
+}
+
+/* Asked before */
+.sb-note {
+  border-left: 3px solid #d97706;
+  padding: 0.2em 0 0.2em 0.9em;
+}
+
+.sb-note .sb-label {
+  color: #b45309;
+}
+
+/* A question written inside a slide (asked before / map PYQ) */
+.sb-question {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45em;
+  line-height: 1.5;
+}
+
+.sb-q-lead,
+.sb-q-ask {
+  margin: 0;
+}
+
+.sb-q-ask {
+  font-style: italic;
+}
+
+.sb-q-stmts {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 0.6em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+}
+
+.sb-q-stmts li,
+.sb-q-opt {
+  display: flex;
+  gap: 0.55em;
+}
+
+.sb-q-key,
+.sb-q-opt-label {
+  font-weight: 700;
+  flex-shrink: 0;
+  min-width: 1.4em;
+}
+
+.sb-q-opts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.25em 1.2em;
+  margin-top: 0.2em;
+}
+
+/* Table */
+.sb-table-wrap {
+  padding: 0.4em 0.6em;
+  overflow-x: auto;
+}
+
+.sb-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92em;
+  line-height: 1.4;
+}
+
+.sb-table th {
+  font-family: var(--font-outfit), system-ui, sans-serif;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--sb-label);
+  text-align: left;
+  padding: 0.6em 0.7em;
+  border-bottom: 1.5px solid var(--sb-line);
+}
+
+.sb-table td {
+  padding: 0.6em 0.7em;
+  vertical-align: top;
+  border-bottom: 1px solid var(--sb-line);
+}
+
+.sb-table tr:last-child td {
+  border-bottom: none;
+}
+
+.sb-table td:first-child {
+  font-weight: 700;
+}
+
+/* Topic outline */
+.sb-outline ol {
+  margin: 0;
+  padding-left: 1.3em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+}
+
+/* Fact grid (river course, place overview) */
+.sb-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.6em;
+  margin: 0;
+}
+
+.sb-fact {
+  background: var(--sb-card);
+  border: 1px solid var(--sb-line);
+  border-radius: 12px;
+  padding: 0.7em 0.95em;
+}
+
+.sb-fact dd {
+  margin: 0;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.sb-chip-row + .sb-chip-row {
+  margin-top: 0.8em;
+}
+
+.sb-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em;
+}
+
+.sb-chip {
+  font-size: 0.85em;
+  padding: 0.2em 0.65em;
+  border-radius: 8px;
+  background: var(--sb-soft);
+  border: 1px solid var(--sb-line);
+}
+
+.sb-chip.is-strong {
+  background: #e0ecff;
+  border-color: #bfd4fb;
+  color: #1e3a8a;
+  font-weight: 600;
+}
+
+[data-present-theme="dark"] .sb-chip.is-strong {
+  background: rgba(59, 130, 246, 0.18);
+  border-color: rgba(96, 165, 250, 0.4);
+  color: #bfdbfe;
+}
+
+.sb-numbered {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+}
+
+.sb-numbered li {
+  display: flex;
+  gap: 0.8em;
+  align-items: flex-start;
+}
+
+.sb-numbered-n {
+  flex-shrink: 0;
+  width: 1.7em;
+  height: 1.7em;
+  border-radius: 50%;
+  background: var(--sb-soft);
+  border: 1px solid var(--sb-line);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-outfit), system-ui, sans-serif;
+  font-size: 0.8em;
+  font-weight: 700;
+}
+
+/* ---- River / place lists ---- */
+.sb-river-section {
+  --tone: #0369a1;
+  --tone-soft: #f0f9ff;
+}
+
+.sb-river-section.tone-right,
+.sb-river-item.tone-right { --tone: #b45309; --tone-soft: #fffbeb; }
+.sb-river-section.tone-sangam,
+.sb-river-item.tone-sangam { --tone: #7c3aed; --tone-soft: #f5f3ff; }
+.sb-river-section.tone-dam,
+.sb-river-item.tone-dam { --tone: #0369a1; --tone-soft: #f0f9ff; }
+.sb-river-section.tone-park,
+.sb-river-item.tone-park { --tone: #15803d; --tone-soft: #f0fdf4; }
+.sb-river-section.tone-town,
+.sb-river-item.tone-town { --tone: #a16207; --tone-soft: #fefce8; }
+.sb-river-item.tone-left { --tone: #0369a1; --tone-soft: #f0f9ff; }
+
+.sb-river-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.3em 1em;
+  margin-bottom: 0.5em;
+}
+
+.sb-river-head .sb-label {
+  color: var(--tone);
+  margin: 0;
+}
+
+.sb-river-hint {
+  font-family: var(--font-outfit), system-ui, sans-serif;
+  font-size: var(--fs-label);
+  color: var(--sb-label);
+}
+
+.sb-river-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 0.5em;
+}
+
+.sb-river-item {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  gap: 0.6em;
+  align-items: flex-start;
+  cursor: pointer;
+  background: var(--sb-card);
+  border: 1px solid var(--sb-line);
+  border-left: 4px solid var(--tone);
+  border-radius: 10px;
+  padding: 0.55em 0.8em;
+  min-width: 0;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sb-river-item:hover,
+.sb-river-item.is-active {
+  background: var(--tone-soft);
+}
+
+.sb-river-item.is-active {
+  box-shadow: 0 0 0 2px var(--tone);
+}
+
+[data-present-theme="dark"] .sb-river-item:hover,
+[data-present-theme="dark"] .sb-river-item.is-active {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.sb-river-n {
+  flex-shrink: 0;
+  width: 1.55em;
+  height: 1.55em;
+  border-radius: 50%;
+  background: var(--tone);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-outfit), system-ui, sans-serif;
+  font-size: 0.75em;
+  font-weight: 700;
+  margin-top: 0.2em;
+}
+
+.sb-river-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15em;
+  min-width: 0;
+}
+
+.sb-river-title {
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--sb-ink);
+}
+
+.sb-river-tag {
+  margin-left: 0.5em;
+  font-family: var(--font-outfit), system-ui, sans-serif;
+  font-size: var(--fs-label);
+  font-weight: 600;
+  color: var(--sb-label);
+}
+
+.sb-river-note {
+  font-size: 0.88em;
+  line-height: 1.45;
+  color: var(--sb-muted);
+}
+
+/* Map decks: the right panel is narrower, so text runs a size smaller. */
+.is-map-right-panel .pq-present-slide-body {
+  font-size: calc(var(--fs-body) * 0.92 * var(--fit, 1));
+}
+
+/* Question shown above map slides: keep it compact. */
+[data-present-theme="light"] .pq-mapping-stem-box .pq-present-stem-lead,
+[data-present-theme="light"] .pq-mapping-stem-box .pq-present-stem-ask,
+[data-present-theme="light"] .pq-mapping-stem-box .pq-present-opt-text,
+[data-present-theme="light"] .pq-mapping-stem-box .pq-present-opt-label,
+[data-present-theme="light"] .pq-mapping-stem-box .pq-present-option-row {
+  font-size: calc(var(--fs-body) * 0.9) !important;
+}
+
+/* ---- Topic decks (left panel) ---- */
+[data-present-theme="light"] .pq-topic-anchor-title {
+  font-family: var(--sb-serif);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-size: var(--fs-title);
+}
+
+[data-present-theme="light"] .pq-topic-anchor-summary {
+  font-family: var(--sb-serif);
+  font-size: calc(var(--fs-body) * var(--fit, 1));
+  font-weight: 400;
+  color: var(--sb-ink);
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+/* ---- Webcam: keep slide text clear of the camera corner ---- */
+.pq-present-right-panel.has-webcam .pq-present-slide-body {
+  padding-bottom: calc(var(--cam-h, 180px) + 12px);
+}
+
+/* ---- Dock: compact step counter for long decks ---- */
+.pq-step-count {
+  font-size: 12.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: inherit;
+  opacity: 0.85;
+  padding: 0 4px;
+  white-space: nowrap;
+}
+
+/* Headings inside slides use the same serif as the text. */
+[data-present-theme="light"] .pq-present-slide-body h3,
+[data-present-theme="light"] .pq-topic-anchor-summary h3 {
+  font-family: var(--sb-serif);
+}
+
+/* (A)–(D) and 1., 2. sit on the same line as their text. */
+[data-present-theme="light"] .pq-present-option-row,
+[data-present-theme="light"] .pq-present-statement-item {
+  align-items: baseline !important;
+}
+
+/* Slide content keeps its natural height (no squashed, clipped cards);
+   the fit-to-panel shrink handles anything too tall. */
+.pq-present-slide-body > *,
+.sb-stack > * {
+  flex-shrink: 0;
+}
+
+/* Map decks have no studio watermark over the right panel. */
+.is-map-right-panel .sb-head {
+  padding-right: 0;
+}
+
+.sb-fact dd {
+  font-weight: 500;
+}

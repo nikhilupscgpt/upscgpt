@@ -29,7 +29,7 @@ export function buildQuestionSteps(q, customAssets = {}) {
   }
 
   const imageUrl = q.imageUrl || customAssets.imageUrl || null;
-  const imageCaption = q.imageCaption || customAssets.imageCaption || 'High-Resolution Diagram / Map';
+  const imageCaption = q.imageCaption || customAssets.imageCaption || 'Diagram';
 
   // -------------------------------------------------------------
   // STEP 0: Question Spotlight & Initial Read
@@ -37,9 +37,9 @@ export function buildQuestionSteps(q, customAssets = {}) {
   steps.push({
     id: 'intro',
     type: 'intro',
-    badge: 'STAGE 1 · QUESTION SPOTLIGHT',
-    title: 'Question Stem & Statements Framing',
-    subtitle: `${q.examName || 'UPSC CSE Pre'} ${q.examYear || ''} · ${q.srcSubject || 'General Studies'} · ${q.srcTopic || 'General'}`,
+    label: 'The question',
+    title: 'Read the question',
+    subtitle: [q.srcSubject, q.srcTopic, /\n\s*(?:[1-6]|I{1,3}|IV)\s*[.:)]/.test(String(q.stem || '')) ? 'Statement-based' : null].filter(Boolean).join(' · '),
     showAnswer: false,
     highlightedOption: null,
     verdicts: {},
@@ -56,9 +56,9 @@ export function buildQuestionSteps(q, customAssets = {}) {
     steps.push({
       id: 'statement_breakdown',
       type: 'statement_breakdown',
-      badge: 'STAGE 2 · STEM STATEMENTS EVALUATION',
-      title: 'Stem Statements Evaluation',
-      subtitle: 'Evaluate statutory citations, factual veracity, and examiner traps for each numbered statement',
+      label: 'Each statement',
+      title: 'Checking each statement',
+      subtitle: 'True or false, and where the trap is',
       items: analysis.statementBreakdown,
       showAnswer: false,
       highlightedOption: null,
@@ -84,9 +84,9 @@ export function buildQuestionSteps(q, customAssets = {}) {
       steps.push({
         id: `breakdown_${partNum}`,
         type: 'breakdown',
-        badge: totalParts > 1 ? `STAGE 2 · ELIMINATION BREAKDOWN (${partNum}/${totalParts})` : 'STAGE 2 · ELIMINATION BREAKDOWN',
-        title: 'Option & Statement Elimination Analysis',
-        subtitle: 'Evaluate validity, historical/constitutional accuracy, and distractor traps',
+        label: 'Option by option',
+        title: totalParts > 1 ? `Option by option (${partNum} of ${totalParts})` : 'Option by option',
+        subtitle: 'Why each one is right or wrong',
         items: chunk,
         showAnswer: false,
         highlightedOption: null,
@@ -103,9 +103,9 @@ export function buildQuestionSteps(q, customAssets = {}) {
     steps.push({
       id: 'visual_explainer',
       type: 'image',
-      badge: 'STAGE 3 · VISUAL EXPLAINER & MAP INSIGHT',
+      label: 'Diagram',
       title: imageCaption,
-      subtitle: 'High-resolution diagram: annotate boundaries, river systems, or schematic structures',
+      subtitle: "Let's mark it on the diagram",
       imageUrl,
       caption: imageCaption,
       showAnswer: false,
@@ -121,9 +121,9 @@ export function buildQuestionSteps(q, customAssets = {}) {
     steps.push({
       id: 'sketch_canvas',
       type: 'sketch',
-      badge: 'STAGE 3B · FREEHAND DIAGRAM CANVAS',
-      title: 'Handwritten Concept Flow & Schematic',
-      subtitle: 'Draw freely with XP-Pen tablet stylus',
+      label: 'Whiteboard',
+      title: "Let's draw it out",
+      subtitle: null,
       showAnswer: false,
       highlightedOption: null,
       verdicts,
@@ -136,11 +136,15 @@ export function buildQuestionSteps(q, customAssets = {}) {
   steps.push({
     id: 'answer',
     type: 'answer',
-    badge: 'STAGE 4 · VERIFIED ANSWER & CORE LOGIC',
-    title: correctLabel ? `Official Answer: Option (${correctLabel})` : 'Verified Answer & Key Takeaway',
-    subtitle: correctOpt ? correctOpt.text : 'Verified official UPSC answer key logic',
+    label: 'The answer',
+    title: !correctLabel
+      ? 'The answer'
+      : correctOpt && String(correctOpt.text).length <= 40
+        ? `Answer: (${correctLabel}) ${correctOpt.text}`
+        : `Answer: (${correctLabel})`,
+    subtitle: correctOpt && String(correctOpt.text).length > 40 ? correctOpt.text : null,
     correctLabel,
-    explanationText: explanationText || (correctOpt ? correctOpt.text : 'Official UPSC answer verified against official key.'),
+    explanationText: explanationText || (correctOpt ? correctOpt.text : 'As per the official UPSC answer key.'),
     showAnswer: true,
     highlightedOption: correctLabel,
     verdicts,
@@ -162,9 +166,9 @@ export function buildQuestionSteps(q, customAssets = {}) {
         steps.push({
           id: `keywords_${partNum}`,
           type: 'keywords',
-          badge: totalParts > 1 ? `STAGE 5 · CORE CONCEPTS & TERMINOLOGY (${partNum}/${totalParts})` : 'STAGE 5 · CORE CONCEPTS & TERMINOLOGY',
-          title: 'High-Yield Prelims Concept Cards',
-          subtitle: 'Definitions, constitutional articles, doctrines, and syllabus linkages',
+          label: 'Key terms',
+          title: totalParts > 1 ? `Key terms to know (${partNum} of ${totalParts})` : 'Key terms to know',
+          subtitle: null,
           keywords: chunk,
           showAnswer: true,
           highlightedOption: correctLabel,
@@ -233,9 +237,9 @@ export function buildQuestionSteps(q, customAssets = {}) {
         steps.push({
           id: `valueAddition_${partNum}`,
           type: 'valueAddition',
-          badge: totalParts > 1 ? `STAGE 6 · HIGH-YIELD VALUE ADDITION (${partNum}/${totalParts})` : 'STAGE 6 · HIGH-YIELD VALUE ADDITION',
-          title: 'Exhaustive Value Addition & Facts',
-          subtitle: 'Crucial dimensions, landmark judgments, constitutional provisions, and facts',
+          label: 'Beyond this question',
+          title: totalParts > 1 ? `Beyond this question (${partNum} of ${totalParts})` : 'Beyond this question',
+          subtitle: 'Related points UPSC can ask next',
           points: chunk,
           showAnswer: true,
           highlightedOption: correctLabel,
@@ -252,9 +256,9 @@ export function buildQuestionSteps(q, customAssets = {}) {
     steps.push({
       id: 'inNews',
       type: 'inNews',
-      badge: 'STAGE 7 · CONTEMPORARY / CURRENT AFFAIRS LINKAGE',
-      title: 'Current Affairs & News Context',
-      subtitle: 'Why UPSC chose this theme in this exam year',
+      label: 'Why now',
+      title: q.examYear ? `Why UPSC asked this in ${q.examYear}` : 'Why this was in the news',
+      subtitle: null,
       inNews: analysis.inNews,
       showAnswer: true,
       highlightedOption: correctLabel,
@@ -269,9 +273,9 @@ export function buildQuestionSteps(q, customAssets = {}) {
     steps.push({
       id: 'similarPyq',
       type: 'similarPyq',
-      badge: 'STAGE 8 · RECURRING THEME & PYQ FAMILY',
-      title: 'Interlinked Previous Year Question',
-      subtitle: 'How UPSC tests this recurring theme across multiple examination years',
+      label: 'Asked before',
+      title: 'UPSC has asked this before',
+      subtitle: null,
       similarPyq: analysis.similarPyq,
       showAnswer: true,
       highlightedOption: correctLabel,
@@ -286,9 +290,9 @@ export function buildQuestionSteps(q, customAssets = {}) {
     steps.push({
       id: 'visual_table',
       type: 'table',
-      badge: 'STAGE 9 · HIGH-YIELD COMPARISON MATRIX',
-      title: analysis.visualSuggestion.title || 'High-Yield Comparison Matrix',
-      subtitle: analysis.visualSuggestion.caption || 'Side-by-side comparative examination framework',
+      label: 'At a glance',
+      title: analysis.visualSuggestion.title || 'At a glance',
+      subtitle: analysis.visualSuggestion.caption || null,
       tableData: analysis.visualSuggestion.tableData || null,
       caption: analysis.visualSuggestion.caption || '',
       showAnswer: true,
@@ -297,7 +301,7 @@ export function buildQuestionSteps(q, customAssets = {}) {
     });
   }
 
-  return steps;
+  return numberSteps(steps);
 }
 
 /**
@@ -317,7 +321,7 @@ export function buildTopicSteps(topic, customAssets = {}) {
   steps.push({
     id: 'topic_spotlight',
     type: 'topic_spotlight',
-    badge: 'STAGE 1 · THEMATIC OVERVIEW',
+    label: 'Overview',
     title: topic.title,
     subtitle: `${topic.domain || 'General Studies'} · ${topic.topic || 'Core Concept'} · ${Array.isArray(topic.gsPapers) ? topic.gsPapers.join(', ') : (topic.gsPapers || 'GS')}`,
     summary: topic.cumulativeSummary || topic.overview || topic.backgroundNote || 'Core syllabus conceptual overview.',
@@ -330,9 +334,9 @@ export function buildTopicSteps(topic, customAssets = {}) {
     steps.push({
       id: 'topic_evolution',
       type: 'topic_evolution',
-      badge: 'STAGE 2 · HISTORICAL & STATUTORY EVOLUTION',
-      title: 'Genesis, Evolution & Legal Framework',
-      subtitle: 'How this doctrine, institution, or concept developed over time',
+      label: 'Background',
+      title: 'How it came about',
+      subtitle: null,
       content: topic.backgroundNote,
     });
   }
@@ -344,9 +348,9 @@ export function buildTopicSteps(topic, customAssets = {}) {
     steps.push({
       id: 'topic_visual',
       type: 'image',
-      badge: 'STAGE 3 · INFOGRAPHIC & DIAGRAM',
+      label: 'Diagram',
       title: imageCaption,
-      subtitle: 'Visual reference: flowcharts, geographic maps, and structural schematics',
+      subtitle: null,
       imageUrl,
       caption: imageCaption,
     });
@@ -359,9 +363,9 @@ export function buildTopicSteps(topic, customAssets = {}) {
     steps.push({
       id: 'topic_sketch',
       type: 'sketch',
-      badge: 'STAGE 3B · FREEHAND CONCEPT SKETCH',
-      title: 'Handwritten Flowchart / Mindmap',
-      subtitle: 'Draw freely with XP-Pen tablet stylus',
+      label: 'Whiteboard',
+      title: "Let's draw it out",
+      subtitle: null,
     });
   }
 
@@ -372,9 +376,9 @@ export function buildTopicSteps(topic, customAssets = {}) {
     steps.push({
       id: 'topic_value_add',
       type: 'topic_value_add',
-      badge: 'STAGE 4 · HIGH-YIELD VALUE ADDITION',
-      title: 'Landmark Cases, Committees & Core Dimensions',
-      subtitle: 'Judicial precedents, constitutional articles, and committee recommendations',
+      label: 'Key points',
+      title: 'Key points to remember',
+      subtitle: 'Cases, committees and provisions worth quoting',
       content: topic.valueAddition,
     });
   }
@@ -386,9 +390,9 @@ export function buildTopicSteps(topic, customAssets = {}) {
     steps.push({
       id: 'topic_facts',
       type: 'topic_facts',
-      badge: 'STAGE 5 · MAINS DATA & KEY FACTS',
-      title: 'High-Impact Facts, Data & Case Studies',
-      subtitle: 'Statistical backing and factual fodder for answer writing',
+      label: 'Facts & data',
+      title: 'Facts and data for your answers',
+      subtitle: null,
       content: topic.mainsFacts,
     });
   }
@@ -400,9 +404,9 @@ export function buildTopicSteps(topic, customAssets = {}) {
     steps.push({
       id: 'topic_questions',
       type: 'topic_questions',
-      badge: 'STAGE 6 · EXAM APPLICATION & MODEL QUESTIONS',
-      title: 'Exam Traps & Model Mains Questions',
-      subtitle: 'How to structure high-scoring answers on this topic',
+      label: 'Practice',
+      title: 'Questions to practise',
+      subtitle: null,
       content: topic.possibleQuestions,
     });
   }
@@ -414,7 +418,7 @@ export function buildTopicSteps(topic, customAssets = {}) {
     }
   }
 
-  return steps;
+  return numberSteps(steps);
 }
 
 // ---------------------------------------------------------------------------
@@ -427,7 +431,7 @@ export function buildMappingSteps(item, customAssets = {}) {
   const steps = [];
 
   const imageUrl = item.imageUrl || customAssets.imageUrl || null;
-  const imageCaption = item.imageCaption || customAssets.imageCaption || `${item.place || item.title || 'Location'} Spatial Map`;
+  const imageCaption = item.imageCaption || customAssets.imageCaption || `${item.place || item.title || 'Location'} on the map`;
   const locationText = item.locatedIn 
     ? (typeof item.locatedIn === 'object' ? Object.values(item.locatedIn).filter(Boolean).join(', ') : String(item.locatedIn))
     : (item.location || item.state || item.country || 'India');
@@ -449,9 +453,9 @@ export function buildMappingSteps(item, customAssets = {}) {
     steps.push({
       id: 'river_course',
       type: 'river_course',
-      badge: 'STAGE 1 · WHERE IT STARTS & ENDS',
-      title: `${item.place} — Origin, Course & Basin States`,
-      subtitle: 'Where it starts, how long it is, and the states it passes through',
+      label: 'Course',
+      title: `${item.place}: where it rises and flows`,
+      subtitle: 'Source, length and the states it flows through',
       riverDetails: rd,
       item,
       locationText,
@@ -462,9 +466,9 @@ export function buildMappingSteps(item, customAssets = {}) {
     steps.push({
       id: 'river_left_tributaries',
       type: 'river_left_tributaries',
-      badge: 'STAGE 2 · LEFT-BANK TRIBUTARIES',
-      title: `${item.place} — Left-Bank Tributaries`,
-      subtitle: 'Which tributaries join from the left bank (and key facts to remember)',
+      label: 'Left bank',
+      title: 'Left-bank tributaries',
+      subtitle: `Rivers that join the ${item.place} from the left`,
       riverDetails: rd,
       item,
     });
@@ -473,9 +477,9 @@ export function buildMappingSteps(item, customAssets = {}) {
     steps.push({
       id: 'river_right_tributaries',
       type: 'river_right_tributaries',
-      badge: 'STAGE 3 · RIGHT-BANK TRIBUTARIES',
-      title: `${item.place} — Right-Bank Tributaries`,
-      subtitle: 'Which tributaries join from the right bank (and key facts to remember)',
+      label: 'Right bank',
+      title: 'Right-bank tributaries',
+      subtitle: `Rivers that join the ${item.place} from the right`,
       riverDetails: rd,
       item,
     });
@@ -484,9 +488,9 @@ export function buildMappingSteps(item, customAssets = {}) {
     steps.push({
       id: 'river_dams_confluences',
       type: 'river_dams_confluences',
-      badge: 'STAGE 4 · IMPORTANT SANGAMS & MAJOR DAMS',
-      title: `${item.place} — Confluences & Major Dams`,
-      subtitle: 'Where tributaries meet the main river and major dams (with their states)',
+      label: 'Sangams & dams',
+      title: 'Where rivers meet, and the big dams',
+      subtitle: 'Sangams and major dams, with their states',
       riverDetails: rd,
       item,
     });
@@ -495,9 +499,9 @@ export function buildMappingSteps(item, customAssets = {}) {
     steps.push({
       id: 'river_ecology_towns',
       type: 'river_ecology_towns',
-      badge: 'STAGE 5 · PARKS, TOWNS & ANIMALS',
-      title: `${item.place} — National Parks, Cities & River Wildlife`,
-      subtitle: 'National parks it flows through, historical towns on its banks, and animals/birds',
+      label: 'Parks, towns & wildlife',
+      title: 'Parks, towns and wildlife along the river',
+      subtitle: null,
       riverDetails: rd,
       item,
     });
@@ -520,8 +524,8 @@ export function buildMappingSteps(item, customAssets = {}) {
       steps.push({
         id: 'map_pyq',
         type: 'mapping_pyq',
-        badge: 'STAGE 6 · PAST UPSC PRELIMS QUESTION',
-        title: 'How UPSC Asked About This River',
+        label: 'Asked before',
+        title: 'How UPSC asked about this river',
         subtitle: `${pyqFormatted.exam || 'UPSC CSE Pre'} ${pyqFormatted.examYear || ''}`.trim(),
         pyq: pyqFormatted,
       });
@@ -532,15 +536,15 @@ export function buildMappingSteps(item, customAssets = {}) {
       steps.push({
         id: 'map_visual',
         type: 'image',
-        badge: 'STAGE 7 · MAP DIAGRAM & SATELLITE VIEW',
+        label: 'Map',
         title: imageCaption,
-        subtitle: 'Draw freely on the river course and boundaries with your stylus',
+        subtitle: null,
         imageUrl,
         caption: imageCaption,
       });
     }
 
-    return steps;
+    return numberSteps(steps);
   }
 
   // -------------------------------------------------------------
@@ -550,7 +554,7 @@ export function buildMappingSteps(item, customAssets = {}) {
   steps.push({
     id: 'map_overview',
     type: 'mapping_overview',
-    badge: 'STAGE 1 · BASIC LOCATION & OVERVIEW',
+    label: 'Location',
     title: item.place || item.title || 'Location Overview',
     subtitle: `${item.regionScope || 'India'} · ${categories} · ${locationText}`,
     item,
@@ -567,9 +571,9 @@ export function buildMappingSteps(item, customAssets = {}) {
     steps.push({
       id: 'map_facts',
       type: 'mapping_facts',
-      badge: 'STAGE 2 · IMPORTANT FACTS FOR PRELIMS',
-      title: 'Key Facts & What to Remember',
-      subtitle: 'Important geography facts, terrain, and background for prelims',
+      label: 'Key facts',
+      title: 'What to remember',
+      subtitle: null,
       facts,
     });
   }
@@ -579,9 +583,9 @@ export function buildMappingSteps(item, customAssets = {}) {
     steps.push({
       id: 'map_angle',
       type: 'mapping_angle',
-      badge: 'STAGE 3 · COMMON MISTAKES & UPSC TRAPS',
-      title: "Examiner's Trap & Ordering Traps",
-      subtitle: 'Watch out for North-to-South ordering, border questions, and news context',
+      label: 'Traps',
+      title: 'Where students slip up',
+      subtitle: 'Common mistakes, and how UPSC frames it',
       upscAngle: item.upscAngle,
       newsHook: item.newsHook,
     });
@@ -605,8 +609,8 @@ export function buildMappingSteps(item, customAssets = {}) {
     steps.push({
       id: 'map_pyq',
       type: 'mapping_pyq',
-      badge: 'STAGE 4 · PAST UPSC PRELIMS QUESTION',
-      title: 'How UPSC Tested This Location',
+      label: 'Asked before',
+      title: 'How UPSC asked about this place',
       subtitle: `${pyqFormatted.exam || 'UPSC CSE Pre'} ${pyqFormatted.examYear || ''}`.trim(),
       pyq: pyqFormatted,
     });
@@ -617,13 +621,22 @@ export function buildMappingSteps(item, customAssets = {}) {
     steps.push({
       id: 'map_visual',
       type: 'image',
-      badge: 'STAGE 5 · CUSTOM DIAGRAM & SATELLITE OVERLAY',
+      label: 'Map',
       title: imageCaption,
-      subtitle: 'Annotate river courses, mountain passes, buffer zones & borders with XP-Pen stylus',
+      subtitle: null,
       imageUrl,
       caption: imageCaption,
     });
   }
 
-  return steps;
+  return numberSteps(steps);
+}
+
+/**
+ * Gives each step a small label like "3 of 9 · Key terms", so numbers never skip
+ * when a stage has no data. Steps that already carry a badge (custom slides) keep it.
+ */
+export function numberSteps(steps) {
+  const total = steps.length;
+  return steps.map((st, i) => (st.badge && !st.label ? st : { ...st, badge: `${i + 1} of ${total} · ${st.label || 'Slide'}` }));
 }
