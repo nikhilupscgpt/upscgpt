@@ -394,12 +394,14 @@ export default function StandaloneQuestionClient({ question: q }) {
         </div>
 
         {/* Lecture-Grade Micro Deep-Dive */}
-        {analysis && (
+        {(analysis || q.deepDiveLocked) && (
           <PyqDeepDive
             analysis={analysis}
             questionId={q.id}
             subject={q.srcSubject}
             topic={q.srcTopic}
+            deepDiveLocked={Boolean(q.deepDiveLocked) && !analysis}
+            correctLabel={q.correctLabel}
           />
         )}
       </article>

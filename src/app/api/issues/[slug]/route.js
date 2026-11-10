@@ -3,6 +3,10 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
+// Public endpoint: only expose processed (published) items, matching the public
+// issue page (src/app/issues/[slug]/page.js filters articles by status 'DONE').
+const PUBLISHED = { status: 'DONE' };
+
 export async function GET(req, { params }) {
   try {
     const resolvedParams = await params;
@@ -30,6 +34,7 @@ export async function GET(req, { params }) {
         },
         
         articles: {
+          where: PUBLISHED,
           select: {
             id: true,
             title: true,
@@ -38,11 +43,10 @@ export async function GET(req, { params }) {
             contentType: true,
             publishedAt: true,
             structuredData: true,
-            rawContent: true,
-            status: true,
           }
         },
         editorials: {
+          where: PUBLISHED,
           select: {
             id: true,
             title: true,
@@ -51,19 +55,18 @@ export async function GET(req, { params }) {
             url: true,
             publishedAt: true,
             structuredData: true,
-            rawContent: true,
-            status: true,
           }
         },
         _count: {
           select: {
-            articles: true,
-            editorials: true,
+            articles: { where: PUBLISHED },
+            editorials: { where: PUBLISHED },
           }
         },
         subNodes: {
           include: {
             articles: {
+              where: PUBLISHED,
               select: { id: true, title: true, source: true }
             },
             subNodes: {
@@ -83,7 +86,7 @@ export async function GET(req, { params }) {
     const manualSubNodes = await prisma.issue.findMany({
       where: { parentIssueId: issue.id },
       include: { 
-        articles: { select: { id: true, title: true, source: true } },
+        articles: { where: PUBLISHED, select: { id: true, title: true, source: true } },
         subNodes: { where: { nodeType: 'MAINS_QUESTION' } }
       },
       orderBy: { orderIndex: 'asc' }

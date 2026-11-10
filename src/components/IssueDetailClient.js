@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
+import { SAFE_REHYPE_PLUGINS } from '@/lib/markdownSanitize';
 import { 
   ChevronRight, Calendar, BookOpen, Lightbulb, Zap, HelpCircle, 
   MessageSquareQuote, Newspaper, History, Link as LinkIcon, FileText, Target
@@ -122,7 +122,7 @@ export default function IssueDetailClient({ issue, initialFlow, initialBookmarke
     <div className="summary-section">
       <ZenCard title="Neural Executive Summary" accentColor="blue">
         <div className="issue-md">
-          <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+          <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={SAFE_REHYPE_PLUGINS}>
             {localizedCumulativeSummary || "Strategic synthesis in progress..."}
           </ReactMarkdown>
         </div>
@@ -132,7 +132,7 @@ export default function IssueDetailClient({ issue, initialFlow, initialBookmarke
         <div style={{ marginTop: '40px' }}>
           <div className="section-header">Contextual Background</div>
           <div className="context-box">
-             <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{localizedBackgroundNote}</ReactMarkdown>
+             <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={SAFE_REHYPE_PLUGINS}>{localizedBackgroundNote}</ReactMarkdown>
           </div>
         </div>
       )}
@@ -232,7 +232,7 @@ export default function IssueDetailClient({ issue, initialFlow, initialBookmarke
               <div className="prelims-note-section">
                 <ZenCard title={getTabLabel('prelims_note')} accentColor="amber">
                   <div className="issue-md">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={SAFE_REHYPE_PLUGINS}>
                       {localizedPrelimsNote || "No prelims notes available."}
                     </ReactMarkdown>
                   </div>
@@ -243,7 +243,7 @@ export default function IssueDetailClient({ issue, initialFlow, initialBookmarke
               <div className="mains-note-section">
                 <ZenCard title={getTabLabel('mains_note')} accentColor="emerald">
                   <div className="issue-md">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={SAFE_REHYPE_PLUGINS}>
                       {localizedMainsNote || "No mains notes available."}
                     </ReactMarkdown>
                   </div>

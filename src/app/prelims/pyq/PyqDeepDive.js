@@ -23,6 +23,8 @@ import {
 import { normalizeKeywordsList } from '@/lib/pyqKeywords';
 import ConceptStudyModal from './ConceptStudyModal';
 import SimilarPyqModal from './SimilarPyqModal';
+import SafeHtml from './SafeHtml';
+import { getStructuredExplanation } from '@/lib/pyqExplanationHelper';
 
 function parseValueAdditionPoints(text) {
   if (!text || typeof text !== 'string') return [];
@@ -43,7 +45,21 @@ function parseValueAdditionPoints(text) {
   return items;
 }
 
-export default function PyqDeepDive({ analysis, questionId, subject, topic, isAdmin = false, compactTabs = false }) {
+export default function PyqDeepDive({
+  analysis: analysisProp,
+  questionId,
+  subject,
+  topic,
+  isAdmin = false,
+  compactTabs = false,
+  deepDiveLocked = false,
+  correctLabel = null,
+}) {
+  // When the server withheld the deep-dive (deepDiveLocked), it is fetched on unlock below.
+  // Keyed by question so a reused component instance never shows another question's deep-dive.
+  const [unlocked, setUnlocked] = useState(null); // { qid, analysis }
+  const unlockedAnalysis = unlocked && unlocked.qid === questionId ? unlocked.analysis : null;
+  const analysis = analysisProp || unlockedAnalysis;
   const [activeKeywordIdx, setActiveKeywordIdx] = useState(null);
   const [modalConcept, setModalConcept] = useState(null);
   const [activeTab, setActiveTab] = useState(compactTabs ? 'breakdown' : 'all');
@@ -84,23 +100,33 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
           body: JSON.stringify({
             feature: 'deep_dive',
             entityId: questionId || 'unknown_q',
+            includeExplanation: Boolean(deepDiveLocked),
           }),
         });
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
+        const granted = res.ok && data.allowed === true;
+        const denied = res.status === 403 || data.allowed === false;
+        let unlockedData = null;
+        if (granted && deepDiveLocked && typeof data.explanation === 'string') {
+          unlockedData = getStructuredExplanation({ explanation: data.explanation, correctLabel }).analysis;
+        }
         if (!cancelled) {
+          setUnlocked({ qid: questionId, analysis: unlockedData });
           setUsageState({
             loading: false,
-            allowed: data.allowed !== false,
+            // Fail closed: a withheld deep-dive stays locked unless the server granted it.
+            // (Content the server already sent as entitled stays visible on transient errors.)
+            allowed: granted || (!denied && !deepDiveLocked),
             isPro: Boolean(data.isPro),
             authenticated: Boolean(data.authenticated),
             used: Number(data.used || 0),
-            limit: data.limit,
+            limit: data.limit ?? null,
             gatingEnabled: data.gatingEnabled !== false,
           });
         }
       } catch {
         if (!cancelled) {
-          setUsageState((prev) => ({ ...prev, loading: false, allowed: true }));
+          setUsageState((prev) => ({ ...prev, loading: false, allowed: !deepDiveLocked }));
         }
       }
     }
@@ -108,12 +134,14 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
     return () => {
       cancelled = true;
     };
-  }, [questionId]);
+  }, [questionId, deepDiveLocked, correctLabel]);
 
-  if (!analysis) return null;
-
-  const { keywords, optionBreakdown, statementBreakdown, valueAddition, inNews, similarPyq, visualSuggestion } = analysis;
   const isLocked = !usageState.loading && !usageState.allowed;
+  // Locked server-side: render the shell (header + upsell) without any deep-dive data.
+  if (!analysis && !(deepDiveLocked && (usageState.loading || isLocked))) return null;
+
+  const { keywords, optionBreakdown, statementBreakdown, valueAddition, inNews, similarPyq, visualSuggestion } =
+    analysis || {};
 
   const hasKeywords = Boolean(keywords && keywords.length > 0 && normalizeKeywordsList(keywords).length > 0);
   const hasBreakdown = Boolean(
@@ -663,11 +691,10 @@ export default function PyqDeepDive({ analysis, questionId, subject, topic, isAd
                               )}
                               <ul className="pq-va-list">
                                 {(sec.points || sec.bullets || []).map((pt, k) => (
-                                  <li
+                                  <SafeHtml
+                                    as="li"
                                     key={k}
-                                    dangerouslySetInnerHTML={{
-                                      __html: typeof pt === 'string' ? pt : JSON.stringify(pt),
-                                    }}
+                                    html={typeof pt === 'string' ? pt : JSON.stringify(pt)}
                                   />
                                 ))}
                               </ul>

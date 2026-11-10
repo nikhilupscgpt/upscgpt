@@ -74,7 +74,7 @@ export async function POST(req) {
     
     let hashedPassword = null
     if (password) {
-      hashedPassword = await bcrypt.hash(password, 10)
+      hashedPassword = await bcrypt.hash(password, 12)
     }
     
     // Upsert by username or email if user already exists, otherwise create
@@ -146,6 +146,6 @@ export async function POST(req) {
         { status: 409 }
       )
     }
-    return NextResponse.json({ error: error?.message || "Failed to create user" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to create user" }, { status: 500 })
   }
 }

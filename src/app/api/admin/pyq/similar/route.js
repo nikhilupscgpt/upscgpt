@@ -10,8 +10,28 @@ import {
 
 export const dynamic = 'force-dynamic';
 
+// Students use this lookup too. Non-staff only get the similar-question link,
+// never the full deep-dive analysis (that is PRO content).
+function stripDeepDive(value) {
+  if (Array.isArray(value)) return value.map(stripDeepDive);
+  if (!value || typeof value !== 'object') return value;
+  const out = {};
+  for (const [k, v] of Object.entries(value)) {
+    if (k === 'analysis') {
+      out.analysis = v && typeof v === 'object' && v.similarPyq ? { similarPyq: v.similarPyq } : null;
+    } else if (k === 'explanation') {
+      continue;
+    } else {
+      out[k] = stripDeepDive(v);
+    }
+  }
+  return out;
+}
+
 export async function GET(req) {
   try {
+    const session = await getServerSession(authOptions).catch(() => null);
+    const isStaff = session?.user?.role === 'ADMIN' || session?.user?.role === 'FACULTY';
     const { searchParams } = new URL(req.url);
     const questionId = searchParams.get('questionId');
     const search = searchParams.get('q');
@@ -25,7 +45,7 @@ export async function GET(req) {
         excludeId: questionId,
         limit: Number(searchParams.get('limit')) || 10,
       });
-      return NextResponse.json({ count: results.length, results });
+      return NextResponse.json({ count: results.length, results: isStaff ? results : stripDeepDive(results) });
     }
 
     if (!questionId) {
@@ -39,11 +59,11 @@ export async function GET(req) {
       limit: Number(searchParams.get('limit')) || 5,
     });
 
-    return NextResponse.json(data);
+    return NextResponse.json(isStaff ? data : stripDeepDive(data));
   } catch (err) {
     console.error('[GET /api/admin/pyq/similar] Error:', err);
     return NextResponse.json(
-      { error: err.message || 'Failed to fetch similar PYQ data' },
+      { error: 'Failed to fetch similar PYQ data' },
       { status: 500 }
     );
   }

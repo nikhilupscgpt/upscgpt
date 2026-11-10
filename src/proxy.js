@@ -55,8 +55,7 @@ export async function proxy(request) {
     pathname.startsWith("/mains") ||
     pathname.startsWith("/issues") ||
     pathname.startsWith("/remote") ||
-    pathname.startsWith("/node") ||
-    (pathname.startsWith("/admin/pyq/present") && /^\d{6}$/.test(request.nextUrl.searchParams.get("board") || ""))
+    pathname.startsWith("/node")
   ) {
     return NextResponse.next();
   }

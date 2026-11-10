@@ -7,12 +7,14 @@ import {
   Marker,
   Tooltip,
   Polyline,
+  CircleMarker,
   ZoomControl,
   GeoJSON,
   useMap,
 } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-cluster';
 import L from 'leaflet';
+import { escapeHtml } from '@/lib/escapeHtml';
 import 'leaflet/dist/leaflet.css';
 
 const INDIA_OFFICIAL_GEOJSON_URL =
@@ -199,6 +201,137 @@ function getLabelDirStyle(dir = 'right') {
   }
 }
 
+// ---- River label helpers (shared by icons, label placement and collision culling) ----
+const MAJOR_RIVER_SLUGS = new Set([
+  'ganga-river', 'indus-river', 'brahmaputra-river', 'yamuna-river',
+  'narmada-river', 'tapi-river', 'godavari-river', 'krishna-river',
+  'cauvery-river', 'mahanadi-river', 'sutlej-river', 'chambal-river',
+  'son-river', 'barak-river', 'jhelum-river', 'chenab-river',
+]);
+
+const SELECTED_RIVER_COLOR = '#1d4ed8';
+const SELECTED_RIVER_GLOW = '#93c5fd';
+
+function riverLabelFontSize(zoom) {
+  return Math.max(9.5, Math.min(15, 9.5 + (zoom - 4.5) * 1.8));
+}
+
+function getRiverLabelParts(node) {
+  const rawPlace = node.place || '';
+  const matchParen = rawPlace.match(/^([^(]+)\(([^)]+)\)$/);
+  const mainTitle = matchParen ? matchParen[1].trim() : rawPlace;
+  const shortTitle = (node.shortLabel || mainTitle.replace(/\s+(River|Sangam|Barrage|National Park|Tiger Reserve)$/i, '')).trim();
+  const cleanMain = mainTitle.length > 24 ? `${mainTitle.slice(0, 22)}…` : mainTitle;
+  const cleanShort = shortTitle.length > 18 ? `${shortTitle.slice(0, 16)}…` : shortTitle;
+  return { cleanMain, cleanShort };
+}
+
+/** Flat list of [lat, lng] points for a river/mountain line, if it has one. */
+function getShapePoints(node) {
+  const raw = (Array.isArray(node?.shape) && node.shape.length > 1)
+    ? node.shape
+    : (Array.isArray(node?.polylinePoints) ? node.polylinePoints : []);
+  return raw
+    .filter((pt) => Array.isArray(pt) && pt.length >= 2)
+    .map((pt) => [Number(pt[0]), Number(pt[1])])
+    .filter((pt) => Number.isFinite(pt[0]) && Number.isFinite(pt[1]));
+}
+
+/**
+ * Where to put a river's name: halfway along its course (not at the source or a confluence,
+ * where many rivers meet and names pile up). Falls back to the node's own point.
+ */
+function getLabelAnchor(node) {
+  const pts = getShapePoints(node);
+  if (pts.length >= 2) {
+    let total = 0;
+    const seg = [];
+    for (let i = 1; i < pts.length; i++) {
+      const d = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
+      seg.push(d);
+      total += d;
+    }
+    let target = total / 2;
+    for (let i = 0; i < seg.length; i++) {
+      if (target <= seg[i] && seg[i] > 0) {
+        const t = target / seg[i];
+        return [
+          pts[i][0] + (pts[i + 1][0] - pts[i][0]) * t,
+          pts[i][1] + (pts[i + 1][1] - pts[i][1]) * t,
+        ];
+      }
+      target -= seg[i];
+    }
+    return pts[Math.floor(pts.length / 2)];
+  }
+  return [Number(node.lat), Number(node.lng)];
+}
+
+function riverLabelPriority(node, selectedNode) {
+  if (selectedNode?.id === node.id) return 1000;
+  if (node.focusTier === 'system') return 500;
+  if (MAJOR_RIVER_SLUGS.has(node.slug)) return 100;
+  return 0;
+}
+
+/**
+ * Decides which river names fit on screen without overlapping. Higher-priority names
+ * (selected river, its system, major rivers) win; the rest stay hidden until you zoom in.
+ */
+function RiverLabelCollision({ riverNodes, selectedNode, onChange }) {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!map) return undefined;
+    const compute = () => {
+      const zoom = map.getZoom();
+      const fontSize = riverLabelFontSize(zoom);
+      const size = map.getSize();
+      const candidates = riverNodes
+        .filter((n) => !(selectedNode && n.focusTier === 'basin'))
+        .map((n) => ({ n, prio: riverLabelPriority(n, selectedNode) }))
+        .sort((a, b) => b.prio - a.prio);
+
+      const placed = [];
+      const visible = new Set();
+      for (const { n } of candidates) {
+        const anchor = getLabelAnchor(n);
+        if (!Number.isFinite(anchor[0]) || !Number.isFinite(anchor[1])) continue;
+        const pt = map.latLngToContainerPoint(anchor);
+        const isSel = selectedNode?.id === n.id;
+        const { cleanMain, cleanShort } = getRiverLabelParts(n);
+        let box;
+        if (isSel) {
+          const w = cleanMain.length * 7.4 + 34;
+          box = { x1: pt.x - 9, y1: pt.y - 16, x2: pt.x + 14 + w, y2: pt.y + 16 };
+        } else {
+          const w = cleanShort.length * fontSize * 0.62 + 10;
+          const h = fontSize + 8;
+          box = { x1: pt.x - w / 2, y1: pt.y - h / 2, x2: pt.x + w / 2, y2: pt.y + h / 2 };
+        }
+        // Off-screen labels don't block anything.
+        if (box.x2 < 0 || box.y2 < 0 || box.x1 > size.x || box.y1 > size.y) {
+          visible.add(n.id);
+          continue;
+        }
+        const hits = placed.some(
+          (b) => box.x1 < b.x2 && box.x2 > b.x1 && box.y1 < b.y2 && box.y2 > b.y1
+        );
+        if (!hits || isSel) {
+          placed.push(box);
+          visible.add(n.id);
+        }
+      }
+      onChange(visible);
+    };
+    compute();
+    map.on('zoomend moveend resize', compute);
+    return () => map.off('zoomend moveend resize', compute);
+  }, [map, riverNodes, selectedNode, onChange]);
+
+  return null;
+}
+
 /**
  * Numbered circular map badge with crisp double-ring border; when selected, transforms into a
  * crimson-red glowing & pulsating beacon with dual radar rings + floating title pill.
@@ -226,8 +359,47 @@ function createNodeIcon(node, isSelected, showLabels = false, currentZoom = 5, h
 
   const cleanMain = mainTitle.length > 24 ? `${mainTitle.slice(0, 22)}…` : mainTitle;
   const cleanShort = shortTitle.length > 18 ? `${shortTitle.slice(0, 16)}…` : shortTitle;
+  // Escaped copies for interpolation into the divIcon HTML string.
+  const safeMain = escapeHtml(cleanMain);
+  const safeShort = escapeHtml(cleanShort);
+  const safeSubDetail = escapeHtml(subDetail);
+  const safeColor = escapeHtml(color);
+  const safeEmoji = escapeHtml(emoji);
 
-  // 1. ACTIVE / SELECTED STATE: Glorious beacon with pulsing rings and title pill
+  // 1a. SELECTED RIVER: calm blue marker + clean white label (no red alarm beacon)
+  if (isSelected && isRiver) {
+    return L.divIcon({
+      html: `
+        <div style="position:relative;width:18px;height:18px;pointer-events:auto;z-index:1000;">
+          <div style="
+            position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);
+            width:14px;height:14px;border-radius:50%;
+            background:${SELECTED_RIVER_COLOR};
+            border:2.5px solid #ffffff;
+            box-shadow:0 0 0 3px rgba(29,78,216,0.25), 0 2px 6px rgba(15,23,42,0.35);
+            cursor:pointer;
+          "></div>
+          <div style="
+            position:absolute;top:50%;left:16px;transform:translateY(-50%);
+            background:rgba(255,255,255,0.97);color:#0f172a;
+            border:1.5px solid rgba(29,78,216,0.55);
+            border-radius:8px;padding:4px 10px;
+            font-family:Inter,system-ui,sans-serif;
+            white-space:nowrap;max-width:240px;overflow:hidden;
+            box-shadow:0 4px 14px rgba(15,23,42,0.18);
+            pointer-events:none;z-index:1001;
+          ">
+            <div style="font-size:12.5px;font-weight:800;color:${SELECTED_RIVER_COLOR};line-height:1.2;overflow:hidden;text-overflow:ellipsis;">${safeMain}</div>
+            ${subDetail ? `<div style="font-size:10.5px;font-weight:600;color:#64748b;margin-top:1px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;">${safeSubDetail}</div>` : ''}
+          </div>
+        </div>`,
+      iconSize: [18, 18],
+      iconAnchor: [9, 9],
+      className: '',
+    });
+  }
+
+  // 1b. ACTIVE / SELECTED STATE (non-river places): beacon with pulsing rings and title pill
   if (isSelected) {
     const activeIcon = isRiver ? '🌊' : (emoji || '📍');
     return L.divIcon({
@@ -243,7 +415,7 @@ function createNodeIcon(node, isSelected, showLabels = false, currentZoom = 5, h
             display:flex;align-items:center;justify-content:center;
             cursor:pointer;box-shadow:0 0 16px rgba(239,68,68,0.8);
           ">
-            <span style="font-size:14px;line-height:1;">${activeIcon}</span>
+            <span style="font-size:14px;line-height:1;">${escapeHtml(activeIcon)}</span>
           </div>
           <div style="
             position:absolute;top:50%;left:38px;transform:translateY(-50%);
@@ -255,8 +427,8 @@ function createNodeIcon(node, isSelected, showLabels = false, currentZoom = 5, h
             box-shadow:0 6px 20px rgba(15,23,42,0.6), 0 0 14px rgba(239,68,68,0.45);
             pointer-events:none;z-index:1001;
           ">
-            <div style="font-size:13px;font-weight:800;color:#ffffff;line-height:1.2;overflow:hidden;text-overflow:ellipsis;">${cleanMain}</div>
-            ${subDetail ? `<div style="font-size:10.5px;font-weight:600;color:#94a3b8;margin-top:2px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;">${subDetail}</div>` : ''}
+            <div style="font-size:13px;font-weight:800;color:#ffffff;line-height:1.2;overflow:hidden;text-overflow:ellipsis;">${safeMain}</div>
+            ${subDetail ? `<div style="font-size:10.5px;font-weight:600;color:#94a3b8;margin-top:2px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;">${safeSubDetail}</div>` : ''}
           </div>
         </div>`,
       iconSize: [34, 34],
@@ -267,23 +439,18 @@ function createNodeIcon(node, isSelected, showLabels = false, currentZoom = 5, h
 
   // 2. RIVERS (Non-selected): Render clean river name text label with halo (NO circular badge!)
   if (isRiver) {
-    const isMajor = [
-      'ganga-river', 'indus-river', 'brahmaputra-river', 'yamuna-river',
-      'narmada-river', 'tapi-river', 'godavari-river', 'krishna-river',
-      'cauvery-river', 'mahanadi-river', 'sutlej-river', 'chambal-river',
-      'son-river', 'barak-river', 'jhelum-river', 'chenab-river'
-    ].includes(node.slug);
+    const isMajor = MAJOR_RIVER_SLUGS.has(node.slug);
 
     // Zoom-adaptive font sizing:
     // zoom <= 5: 10px
     // zoom == 6: 12px
     // zoom >= 7: 14.5px
-    const fontSize = Math.max(9.5, Math.min(15, 9.5 + (currentZoom - 4.5) * 1.8));
+    const fontSize = riverLabelFontSize(currentZoom);
 
-    // Dimming: if user selected a place, other rivers fade to 0.22 opacity
+    // Dimming: with a river selected, rivers of the same system stay readable; others fade.
     const labelOpacity = hasSelection
-      ? 0.22
-      : (currentZoom <= 5 ? (isMajor ? 0.95 : 0.45) : 0.92);
+      ? (node.focusTier === 'system' ? 0.85 : 0.22)
+      : (currentZoom <= 5 ? (isMajor ? 0.95 : 0.6) : 0.92);
 
     return L.divIcon({
       html: `
@@ -310,7 +477,7 @@ function createNodeIcon(node, isSelected, showLabels = false, currentZoom = 5, h
           transition:opacity 0.2s ease, font-size 0.2s ease;
           user-select:none;
         ">
-          ${cleanShort}
+          ${safeShort}
         </div>`,
       iconSize: [120, 20],
       iconAnchor: [60, 10],
@@ -328,26 +495,26 @@ function createNodeIcon(node, isSelected, showLabels = false, currentZoom = 5, h
         <div style="
           position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);
           width:24px;height:24px;border-radius:50%;
-          background:${color};
+          background:${safeColor};
           border:2px solid #ffffff;
-          outline:1.5px solid ${color};
+          outline:1.5px solid ${safeColor};
           display:flex;align-items:center;justify-content:center;
           box-shadow:0 3px 8px rgba(15,23,42,0.4);cursor:pointer;
         ">
-          <span style="font-size:12px;line-height:1;">${emoji}</span>
+          <span style="font-size:12px;line-height:1;">${safeEmoji}</span>
         </div>
         ${showNamePill ? `
           <div style="
             position:absolute;top:50%;left:28px;transform:translateY(-50%);
             background:rgba(15, 23, 42, 0.92);backdrop-filter:blur(4px);color:#ffffff;
-            border:1.5px solid ${color};
+            border:1.5px solid ${safeColor};
             border-radius:6px;padding:2px 7px;
             font-family:Inter,system-ui,sans-serif;
             font-size:11.5px;font-weight:700;letter-spacing:0.01em;
             white-space:nowrap;
             box-shadow:0 3px 10px rgba(15,23,42,0.4);
             pointer-events:none;z-index:9;
-          ">${cleanShort}</div>
+          ">${safeShort}</div>
         ` : ''}
       </div>`,
     iconSize: [26, 26],
@@ -366,10 +533,15 @@ function createClusterIcon(cluster) {
   });
 }
 
-function CameraController({ cameraTarget, selectedNode, onZoomChange }) {
+function CameraController({ cameraTarget, selectedNode, onZoomChange, focusPoints = [] }) {
   const map = useMap();
   const lastNodeId = useRef(null);
   const lastCameraKey = useRef('');
+  const focusPointsRef = useRef(focusPoints);
+  // Declared before the selection effect so it always holds the latest points when that runs.
+  useEffect(() => {
+    focusPointsRef.current = focusPoints;
+  }, [focusPoints]);
 
   useEffect(() => {
     if (!map || !onZoomChange) return;
@@ -435,12 +607,18 @@ function CameraController({ cameraTarget, selectedNode, onZoomChange }) {
     if (lastNodeId.current === selectedNode.id) return;
     lastNodeId.current = selectedNode.id;
 
-    if (Array.isArray(selectedNode.polylinePoints) && selectedNode.polylinePoints.length >= 2) {
+    // Rivers: frame the river together with its own river system so it reads in context.
+    const contextPts = focusPointsRef.current && focusPointsRef.current.length >= 2
+      ? focusPointsRef.current
+      : getShapePoints(selectedNode);
+    if (contextPts.length >= 2) {
       try {
-        const bounds = L.latLngBounds(selectedNode.polylinePoints);
+        const bounds = L.latLngBounds(contextPts);
         if (bounds.isValid()) {
+          const size = map.getSize();
+          const pad = Math.max(24, Math.min(70, Math.round(Math.min(size.x, size.y) * 0.08)));
           map.fitBounds(bounds, {
-            padding: [65, 65],
+            padding: [pad, pad],
             maxZoom: 6.4,
             animate: true,
             duration: 0.9,
@@ -474,10 +652,72 @@ function WorldAndIndiaGeoBorders({
   basemap,
   basinHighlightStates = [],
   basinHighlightColor = '#0284c7',
+  basinFitKey = 0,
+  basinFitPoints = [],
 }) {
   const [indiaGeo, setIndiaGeo] = useState(() => cachedIndiaGeoJson);
   const [worldGeo, setWorldGeo] = useState(() => cachedWorldGeoJson);
   const map = useMap();
+  const lastBasinFitKey = useRef(0);
+  const selectedIsRiver = Boolean(selectedNode && getCategoryVisual(selectedNode).isRiver);
+
+  // Fit the view to the chosen basin: its catchment states plus the full course of its
+  // main rivers. Runs once per basin choice (and again if the state borders load late).
+  useEffect(() => {
+    if (!map || !basinFitKey || basinFitKey === lastBasinFitKey.current) return;
+    if (selectedNode || basinHighlightStates.length === 0) return;
+    const container = map.getContainer();
+    if (!container || container.clientWidth <= 0 || container.clientHeight <= 0) return;
+
+    let bounds = null;
+    const extend = (b) => {
+      if (!b || !b.isValid()) return;
+      bounds = bounds ? bounds.extend(b) : L.latLngBounds(b.getSouthWest(), b.getNorthEast());
+    };
+
+    if (indiaGeo?.features?.length) {
+      const basinFeatures = indiaGeo.features.filter((feature) => {
+        const stName = (
+          feature.properties?.st_nm ||
+          feature.properties?.NAME_1 ||
+          feature.properties?.name ||
+          ''
+        )
+          .trim()
+          .toLowerCase();
+        return stName && basinHighlightStates.some(
+          (bs) => stName === bs || stName.includes(bs) || bs.includes(stName)
+        );
+      });
+      if (basinFeatures.length > 0) {
+        try {
+          extend(L.geoJSON({ type: 'FeatureCollection', features: basinFeatures }).getBounds());
+        } catch (_) {}
+      }
+    } else {
+      return; // wait for state borders to load, then fit
+    }
+
+    const riverPts = (basinFitPoints || []).filter(
+      (pt) => Array.isArray(pt) && Number.isFinite(Number(pt[0])) && Number.isFinite(Number(pt[1]))
+    );
+    if (riverPts.length >= 2) {
+      try {
+        extend(L.latLngBounds(riverPts));
+      } catch (_) {}
+    }
+
+    if (!bounds) return;
+    lastBasinFitKey.current = basinFitKey;
+    const pad = Math.max(16, Math.min(56, Math.round(Math.min(container.clientWidth, container.clientHeight) * 0.06)));
+    try {
+      map.flyToBounds(bounds, { padding: [pad, pad], maxZoom: 6.2, duration: 0.9 });
+    } catch (_) {
+      try {
+        map.fitBounds(bounds, { padding: [pad, pad], maxZoom: 6.2 });
+      } catch (__) {}
+    }
+  }, [map, basinFitKey, indiaGeo, selectedNode, basinHighlightStates, basinFitPoints]);
 
   useEffect(() => {
     if (!cachedIndiaGeoJson) {
@@ -640,7 +880,7 @@ function WorldAndIndiaGeoBorders({
               feature.properties?.name ||
               feature.properties?.NAME ||
               'Country';
-            layer.bindTooltip(`<strong>${cName}</strong>`, {
+            layer.bindTooltip(`<strong>${escapeHtml(cName)}</strong>`, {
               sticky: true,
               direction: 'top',
             });
@@ -667,7 +907,7 @@ function WorldAndIndiaGeoBorders({
               feature.properties?.NAME ||
               'Member';
             layer.bindTooltip(
-              `<strong>${cName}</strong><br/><span style="font-size:11px;color:#d97706">${activeOrg.shortName} Member</span>`,
+              `<strong>${escapeHtml(cName)}</strong><br/><span style="font-size:11px;color:#d97706">${escapeHtml(activeOrg.shortName)} Member</span>`,
               { sticky: true, direction: 'top' }
             );
           }}
@@ -696,7 +936,6 @@ function WorldAndIndiaGeoBorders({
               );
 
             const isBasinState =
-              !selectedNode &&
               basinHighlightStates.length > 0 &&
               basinHighlightStates.some(
                 (bs) => stName === bs || stName.includes(bs) || bs.includes(stName)
@@ -713,26 +952,34 @@ function WorldAndIndiaGeoBorders({
             }
 
             if (isHighlightedState) {
-              return {
-                fillColor: '#ef4444',
-                fillOpacity: 0.12,
-                color: '#dc2626',
-                weight: 2.3,
-                opacity: 0.95,
-              };
+              return selectedIsRiver
+                ? {
+                    fillColor: SELECTED_RIVER_COLOR,
+                    fillOpacity: 0.1,
+                    color: SELECTED_RIVER_COLOR,
+                    weight: 1.8,
+                    opacity: 0.75,
+                  }
+                : {
+                    fillColor: '#ef4444',
+                    fillOpacity: 0.12,
+                    color: '#dc2626',
+                    weight: 2.3,
+                    opacity: 0.95,
+                  };
             }
 
             if (isBasinState) {
               return {
                 fillColor: basinHighlightColor,
-                fillOpacity: 0.14,
+                fillOpacity: selectedNode ? 0.06 : 0.14,
                 color: basinHighlightColor,
-                weight: 1.7,
-                opacity: 0.88,
+                weight: selectedNode ? 1.1 : 1.7,
+                opacity: selectedNode ? 0.5 : 0.88,
               };
             }
 
-            if (!selectedNode && basinHighlightStates.length > 0) {
+            if (basinHighlightStates.length > 0) {
               return {
                 fillColor: '#94a3b8',
                 fillOpacity: 0.01,
@@ -756,7 +1003,7 @@ function WorldAndIndiaGeoBorders({
               feature.properties?.NAME_1 ||
               feature.properties?.name ||
               'India';
-            layer.bindTooltip(`<strong>${stName}</strong> (India)`, {
+            layer.bindTooltip(`<strong>${escapeHtml(stName)}</strong> (India)`, {
               sticky: true,
               direction: 'top',
             });
@@ -791,6 +1038,121 @@ const TILE_LAYERS = {
   },
 };
 
+/**
+ * Study-panel highlight: a tributary, sangam or source/mouth pin chosen in the side panel.
+ * Pans only when the highlight is off-screen, so the student keeps their view.
+ */
+function StudyHighlightLayer({ highlight }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!highlight) return;
+    const pts = [
+      ...(Array.isArray(highlight.points) ? highlight.points : []),
+      ...(highlight.point ? [highlight.point] : []),
+      ...(highlight.coords ? [highlight.coords] : []),
+    ];
+    if (pts.length === 0) return;
+    const target = L.latLngBounds(pts);
+    if (!map.getBounds().contains(target)) {
+      map.flyToBounds(map.getBounds().extend(target), { padding: [40, 40], duration: 0.6, maxZoom: 7 });
+    }
+  }, [highlight, map]);
+
+  if (!highlight) return null;
+  const color = highlight.color || '#2563eb';
+  const pin = highlight.point || highlight.coords || null;
+  return (
+    <>
+      {Array.isArray(highlight.points) && highlight.points.length > 1 && (
+        <>
+          <Polyline positions={highlight.points} interactive={false} pathOptions={{ color: '#ffffff', weight: 9, opacity: 0.9, lineCap: 'round', lineJoin: 'round' }} />
+          <Polyline positions={highlight.points} interactive={false} pathOptions={{ color, weight: 5, opacity: 1, lineCap: 'round', lineJoin: 'round' }} />
+        </>
+      )}
+      {pin && (
+        <CircleMarker center={pin} radius={8} interactive={false} pathOptions={{ color: '#ffffff', weight: 3, fillColor: color, fillOpacity: 1 }}>
+          {highlight.label && (
+            <Tooltip permanent direction="top" offset={[0, -8]} className="study-highlight-tip">
+              {highlight.label}
+            </Tooltip>
+          )}
+        </CircleMarker>
+      )}
+    </>
+  );
+}
+
+/** "Trace the course": draws the selected river from source to mouth with a moving dot. */
+function CourseTrace({ traceKey, points, color = '#1d4ed8' }) {
+  const map = useMap();
+  useEffect(() => {
+    if (!traceKey || !Array.isArray(points) || points.length < 2) return undefined;
+
+    const cum = [0];
+    for (let i = 1; i < points.length; i++) {
+      cum.push(cum[i - 1] + Math.hypot(points[i][0] - points[i - 1][0], points[i][1] - points[i - 1][1]));
+    }
+    const total = cum[cum.length - 1] || 1;
+
+    const halo = L.polyline([points[0]], { color: '#ffffff', weight: 10, opacity: 0.95, interactive: false, lineCap: 'round' }).addTo(map);
+    const line = L.polyline([points[0]], { color, weight: 6, opacity: 1, interactive: false, lineCap: 'round' }).addTo(map);
+    const dot = L.circleMarker(points[0], { radius: 7, color: '#ffffff', weight: 3, fillColor: color, fillOpacity: 1, interactive: false }).addTo(map);
+    const source = L.circleMarker(points[0], { radius: 6, color: '#ffffff', weight: 2, fillColor: '#0891b2', fillOpacity: 1, interactive: false })
+      .bindTooltip('Source', { permanent: true, direction: 'top', offset: [0, -6] })
+      .addTo(map);
+    let mouth = null;
+
+    map.flyToBounds(L.latLngBounds(points), { padding: [50, 50], duration: 0.6, maxZoom: 6.5 });
+
+    const DURATION = 3200;
+    let raf = 0;
+    let startAt = 0;
+    let cleanupTimer = 0;
+    const step = (now) => {
+      if (!startAt) startAt = now;
+      const t = Math.min(1, (now - startAt) / DURATION);
+      const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      const target = eased * total;
+      let i = 1;
+      while (i < cum.length - 1 && cum[i] < target) i++;
+      const segLen = cum[i] - cum[i - 1] || 1;
+      const f = Math.min(1, Math.max(0, (target - cum[i - 1]) / segLen));
+      const head = [
+        points[i - 1][0] + (points[i][0] - points[i - 1][0]) * f,
+        points[i - 1][1] + (points[i][1] - points[i - 1][1]) * f,
+      ];
+      const drawn = [...points.slice(0, i), head];
+      halo.setLatLngs(drawn);
+      line.setLatLngs(drawn);
+      dot.setLatLng(head);
+      if (t < 1) {
+        raf = requestAnimationFrame(step);
+      } else {
+        mouth = L.circleMarker(points[points.length - 1], { radius: 6, color: '#ffffff', weight: 2, fillColor: '#7c3aed', fillOpacity: 1, interactive: false })
+          .bindTooltip('Mouth', { permanent: true, direction: 'top', offset: [0, -6] })
+          .addTo(map);
+        cleanupTimer = window.setTimeout(removeAll, 2500);
+      }
+    };
+    const removeAll = () => {
+      [halo, line, dot, source, mouth].forEach((layer) => {
+        if (layer && map.hasLayer(layer)) map.removeLayer(layer);
+      });
+    };
+    const startTimer = window.setTimeout(() => {
+      raf = requestAnimationFrame(step);
+    }, 650);
+
+    return () => {
+      window.clearTimeout(startTimer);
+      window.clearTimeout(cleanupTimer);
+      cancelAnimationFrame(raf);
+      removeAll();
+    };
+  }, [traceKey, points, color, map]);
+  return null;
+}
+
 export default function MappingCanvas({
   nodes = [],
   selectedNode,
@@ -805,8 +1167,36 @@ export default function MappingCanvas({
   onStateClick,
   basinHighlightStates = [],
   basinHighlightColor = '#0284c7',
+  basinFitKey = 0,
+  studyHighlight = null,
+  traceKey = 0,
+  tracePoints = [],
+  quizMode = false,
 }) {
   const tile = TILE_LAYERS[basemap] || TILE_LAYERS.topo;
+
+  // Main-river courses shown for the chosen basin, used to size the basin view.
+  const basinFitPoints = useMemo(() => {
+    if (!basinHighlightStates.length) return [];
+    return nodes.flatMap((n) => getShapePoints(n));
+  }, [nodes, basinHighlightStates]);
+
+  // With a river selected: the points of that river and its own system (camera framing).
+  const riverFocusPoints = useMemo(() => {
+    if (!selectedNode) return [];
+    return nodes
+      .filter((n) => n.id === selectedNode.id || n.focusTier === 'system')
+      .flatMap((n) => getShapePoints(n));
+  }, [nodes, selectedNode]);
+
+  // Which river names fit without overlapping (null = not computed yet, show all).
+  const [visibleLabelIds, setVisibleLabelIds] = useState(null);
+  const handleLabelVisibility = React.useCallback((ids) => {
+    setVisibleLabelIds((prev) => {
+      if (prev && prev.size === ids.size && [...ids].every((id) => prev.has(id))) return prev;
+      return ids;
+    });
+  }, []);
 
   const graticules = [
     { pts: [[0, -180], [0, 180]], label: 'Equator (0°)' },
@@ -951,7 +1341,8 @@ export default function MappingCanvas({
         preferCanvas={true}
       >
         <ZoomControl position="bottomright" />
-        <CameraController cameraTarget={cameraTarget} selectedNode={selectedNode} onZoomChange={setCurrentZoom} />
+        <CameraController cameraTarget={cameraTarget} selectedNode={selectedNode} onZoomChange={setCurrentZoom} focusPoints={riverFocusPoints} />
+        <RiverLabelCollision riverNodes={riverNodes} selectedNode={selectedNode} onChange={handleLabelVisibility} />
 
         <TileLayer key={basemap} url={tile.url} attribution={tile.attr} crossOrigin={true} />
 
@@ -964,6 +1355,8 @@ export default function MappingCanvas({
           basemap={basemap}
           basinHighlightStates={basinHighlightStates}
           basinHighlightColor={basinHighlightColor}
+          basinFitKey={basinFitKey}
+          basinFitPoints={basinFitPoints}
         />
 
         {/* Reference Graticules (Equator, Tropics, IST 82.5°E) */}
@@ -986,18 +1379,50 @@ export default function MappingCanvas({
           ))}
 
         {/* River & Mountain GIS Polylines */}
-        {polylineNodes.map((node) => {
+        {[...polylineNodes]
+          .sort((a, b) => (a.id === selectedNode?.id ? 1 : 0) - (b.id === selectedNode?.id ? 1 : 0))
+          .map((node) => {
           const hasSelection = Boolean(selectedNode);
           const isSelected = selectedNode?.id === node.id;
           const vis = getCategoryVisual(node);
           const strokeColor = node.strokeColor || node.customColor || (vis.isRiver ? '#0284c7' : '#7c3aed');
-          const glowColor = isSelected ? '#ef4444' : (node.glowColor || (vis.isRiver ? '#38bdf8' : '#a78bfa'));
+          const selectedIsRiverLine = isSelected && vis.isRiver;
+          const glowColor = isSelected
+            ? (selectedIsRiverLine ? SELECTED_RIVER_GLOW : '#ef4444')
+            : (node.glowColor || (vis.isRiver ? '#38bdf8' : '#a78bfa'));
+          const tier = node.focusTier;
 
-          // Visual focus & dimming: non-selected polylines drop to 0.18 opacity
-          const polyOpacity = hasSelection
-            ? (isSelected ? 1 : 0.18)
-            : (node.opacity != null ? node.opacity : 0.78);
-          const polyWeight = isSelected ? 5 : (hasSelection ? 1.8 : (node.weight || 2.5));
+          // Focus & context: selected river strong, its river system readable,
+          // the rest of the basin faded (still visible for context).
+          let polyOpacity;
+          let polyWeight;
+          let polyColor;
+          if (!hasSelection) {
+            polyOpacity = node.opacity != null ? node.opacity : 0.78;
+            polyWeight = node.weight || 2.5;
+            polyColor = strokeColor;
+          } else if (quizMode && !isSelected) {
+            // Drill: every candidate looks the same, so the styling gives nothing away.
+            polyOpacity = 0.8;
+            polyWeight = 2.6;
+            polyColor = '#0284c7';
+          } else if (isSelected) {
+            polyOpacity = 1;
+            polyWeight = 5.5;
+            polyColor = selectedIsRiverLine ? SELECTED_RIVER_COLOR : '#dc2626';
+          } else if (tier === 'system') {
+            polyOpacity = 0.7;
+            polyWeight = 2.4;
+            polyColor = strokeColor;
+          } else if (tier === 'basin') {
+            polyOpacity = 0.32;
+            polyWeight = 1.6;
+            polyColor = '#7dd3fc';
+          } else {
+            polyOpacity = 0.18;
+            polyWeight = 1.8;
+            polyColor = '#64748b';
+          }
 
           return (
             <React.Fragment key={`poly-${node.id}`}>
@@ -1006,17 +1431,25 @@ export default function MappingCanvas({
                   positions={node.shape}
                   pathOptions={{
                     color: glowColor,
-                    weight: isSelected ? 14 : (node.glowWeight || 12),
-                    opacity: isSelected ? 0.45 : (node.glowOpacity || 0.35),
+                    weight: isSelected ? 13 : (node.glowWeight || 12),
+                    opacity: isSelected ? 0.5 : (hasSelection ? 0.12 : (node.glowOpacity || 0.35)),
                     lineCap: 'round',
                     lineJoin: 'round',
                   }}
                 />
               )}
+              {quizMode && !isSelected && (
+                // Wide invisible hit area so thin rivers are easy to tap.
+                <Polyline
+                  positions={node.shape}
+                  pathOptions={{ color: '#000000', weight: 18, opacity: 0 }}
+                  eventHandlers={{ click: () => onSelectNode && onSelectNode(node) }}
+                />
+              )}
               <Polyline
                 positions={node.shape}
                 pathOptions={{
-                  color: isSelected ? '#dc2626' : (hasSelection ? '#64748b' : strokeColor),
+                  color: polyColor,
                   weight: polyWeight,
                   opacity: polyOpacity,
                   dashArray: node.dashArray || (vis.isMountain ? '7,4' : undefined),
@@ -1027,21 +1460,30 @@ export default function MappingCanvas({
                   click: () => onSelectNode && onSelectNode(node),
                 }}
               >
-                <Tooltip direction="top" sticky>
-                  {node.customEmoji || vis.emoji} <strong>{node.place}</strong> ({node.placeType})
-                </Tooltip>
+                {!quizMode && (
+                  <Tooltip direction="top" sticky>
+                    {node.customEmoji || vis.emoji} <strong>{node.place}</strong> ({node.placeType})
+                  </Tooltip>
+                )}
               </Polyline>
             </React.Fragment>
           );
         })}
 
+        <StudyHighlightLayer highlight={studyHighlight} />
+        <CourseTrace traceKey={traceKey} points={tracePoints} color={SELECTED_RIVER_COLOR} />
+
         {/* River Labels (Rendered directly and unclustered, so river names are always visible like a real atlas) */}
         {riverNodes.map((node) => {
           const isSelected = selectedNode?.id === node.id;
+          if (!isSelected && quizMode) return null;
+          if (!isSelected && selectedNode && node.focusTier === 'basin') return null;
+          if (!isSelected && visibleLabelIds && !visibleLabelIds.has(node.id)) return null;
+          const anchor = getLabelAnchor(node);
           return (
             <Marker
               key={`river-marker-${node.id}`}
-              position={[Number(node.lat), Number(node.lng)]}
+              position={anchor}
               icon={createNodeIcon(node, isSelected, showLabels, currentZoom, Boolean(selectedNode))}
               zIndexOffset={isSelected ? 1000 : 200}
               eventHandlers={{

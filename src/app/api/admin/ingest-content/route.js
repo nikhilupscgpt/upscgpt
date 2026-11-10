@@ -6,6 +6,9 @@ import { chunkText, generateEmbedding } from '@/lib/rag-utils';
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 
+const MAX_UPLOAD_BYTES = 25 * 1024 * 1024; // 25 MB
+const MAX_PDF_PAGES = 1000;
+
 export async function POST(req) {
   const session = await getServerSession(authOptions);
   if (!session || session.user.role !== 'ADMIN') {
@@ -26,6 +29,10 @@ export async function POST(req) {
       isOptional = formData.get('isOptional') === 'true';
       const optionalSlug = formData.get('optionalSlug');
 
+      if (file && typeof file === 'object' && file.size > MAX_UPLOAD_BYTES) {
+        return NextResponse.json({ error: 'File too large (max 25 MB)' }, { status: 413 });
+      }
+
       if (optionalSlug) {
         const opt = await prisma.optionalSubject.findUnique({ where: { slug: optionalSlug } });
         optionalId = opt?.id;
@@ -36,9 +43,12 @@ export async function POST(req) {
         const buffer = Buffer.from(bytes);
         const { PDFParse } = require('pdf-parse');
         const parser = new PDFParse({ data: buffer });
-        const result = await parser.getText();
-        contentMarkdown = result.text;
-        await parser.destroy();
+        try {
+          const result = await parser.getText({ first: MAX_PDF_PAGES });
+          contentMarkdown = result.text;
+        } finally {
+          await parser.destroy();
+        }
       } else if (file) {
         contentMarkdown = await file.text();
       }
@@ -95,6 +105,6 @@ export async function POST(req) {
 
   } catch (error) {
     console.error('[AdminIngest] Failed:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Content ingestion failed' }, { status: 500 });
   }
 }

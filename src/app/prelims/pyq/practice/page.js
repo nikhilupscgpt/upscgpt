@@ -1,7 +1,14 @@
+import crypto from 'crypto';
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
+import { headers } from 'next/headers';
 import prisma from '@/lib/prisma';
+import {
+  getTierStatus,
+  computeUsageState,
+  applyDeepDiveGate,
+  USAGE_ACTION_MAP,
+} from '@/lib/tier-gate';
 import PracticeClient from './PracticeClient';
 import { isNewPatternQuestion } from '@/lib/pyqPattern';
 
@@ -45,8 +52,9 @@ export default async function PracticePage({ searchParams }) {
   const isDailyDrill = drill === 'daily';
 
   // Require login for custom quiz sets & practice sessions (prevents bulk scraping via /practice?n=100)
-  const session = await getServerSession(authOptions);
-  if (!session?.user && !isDailyDrill) {
+  const tierStatus = await getTierStatus();
+  const userId = tierStatus.user?.id || null;
+  if (!userId && !isDailyDrill) {
     redirect('/login?callbackUrl=' + encodeURIComponent('/prelims/pyq'));
   }
 
@@ -58,10 +66,44 @@ export default async function PracticePage({ searchParams }) {
   const topics = get('topics').split(',').map(s => s.trim()).filter(Boolean);
   const exam = get('exam');
   const years = get('years');
-  const ids = get('ids').split(',').map(s => s.trim()).filter(Boolean);
-  const n = isDailyDrill
+  const ids = get('ids').split(',').map(s => s.trim()).filter(s => s && s.length <= 64).slice(0, 200);
+  let n = isDailyDrill
     ? 10
     : Math.min(Math.max(parseInt(get('n'), 10) || 20, 5), 50);
+
+  // Server-side free-tier enforcement for custom practice sets (daily drill is exempt).
+  const reqLike = { headers: await headers() };
+  if (!isDailyDrill && !tierStatus.isPro) {
+    const usage = await computeUsageState(reqLike, 'practice_set', tierStatus);
+    if (usage.gatingEnabled) {
+      const maxFree = Number(usage.freeLimits?.freeMaxQuestionsPerSet ?? 10);
+      if (Number.isFinite(maxFree) && maxFree > 0) n = Math.min(n, maxFree);
+
+      // One "set" = one distinct combination of filters; reloading the same set is free.
+      const signature = crypto
+        .createHash('sha256')
+        .update(JSON.stringify({ pattern, subject, subjects, topic, topics, exam, years, ids, n }))
+        .digest('hex')
+        .slice(0, 24);
+      const setKey = `set_${signature}`;
+
+      if (!usage.unlockedIds.includes(setKey)) {
+        if (!usage.allowed) {
+          return <PracticeLimitReached limit={usage.limit} maxQuestions={maxFree} />;
+        }
+        await prisma.actionLog.create({
+          data: {
+            userId,
+            action: USAGE_ACTION_MAP.practice_set,
+            entityType: 'PRACTICE_SET',
+            entityId: setKey,
+            status: 'SUCCESS',
+            message: `Daily practice_set usage recorded (${usage.dayKey})`,
+          },
+        });
+      }
+    }
+  }
 
   // Dropped questions (no official key) can't be graded — exclude them from tests
   const where = { correctLabel: { not: null } };
@@ -113,7 +155,7 @@ export default async function PracticePage({ searchParams }) {
     picked = shuffle(rows).slice(0, n);
   }
 
-  const formattedQuestions = picked.map(q => ({
+  const formattedQuestionsRaw = picked.map(q => ({
     id: q.id,
     questionNo: q.questionNo,
     examName: q.examName || 'UPSC CSE Pre',
@@ -125,6 +167,17 @@ export default async function PracticePage({ searchParams }) {
     correctLabel: q.correctLabel,
     explanation: q.explanation || null,
   }));
+
+  // PRO deep-dive gate (practice view shows explanation text only)
+  let deepDiveAccess = tierStatus.isPro ? { isPro: true } : null;
+  if (!deepDiveAccess) {
+    try {
+      deepDiveAccess = await computeUsageState(reqLike, 'deep_dive', tierStatus);
+    } catch {
+      deepDiveAccess = null; // fail closed
+    }
+  }
+  const formattedQuestions = applyDeepDiveGate(formattedQuestionsRaw, deepDiveAccess);
 
   let title = 'Custom set';
   if (isDailyDrill) {
@@ -160,5 +213,46 @@ export default async function PracticePage({ searchParams }) {
         ...(exam && { exam }),
       }).toString()}`}
     />
+  );
+}
+
+function PracticeLimitReached({ limit, maxQuestions }) {
+  return (
+    <div style={{ minHeight: '70vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 16px' }}>
+      <div
+        style={{
+          maxWidth: '520px',
+          width: '100%',
+          padding: '28px 24px',
+          borderRadius: '16px',
+          background: 'linear-gradient(180deg, rgba(15, 23, 42, 0.96), rgba(7, 11, 20, 0.98))',
+          border: '1px solid rgba(16, 185, 129, 0.35)',
+          textAlign: 'center',
+          color: '#f8fafc',
+        }}
+      >
+        <h1 style={{ margin: '0 0 10px', fontSize: '19px', fontWeight: 900 }}>
+          Daily free practice limit reached
+        </h1>
+        <p style={{ margin: '0 0 18px', fontSize: '14px', lineHeight: 1.55, color: '#94a3b8' }}>
+          {`Free accounts get ${limit ?? 1} custom practice set(s) per day (up to ${maxQuestions} questions each). `}
+          Your quota resets at midnight IST. Upgrade to the Prelims Pass for unlimited sets of any length.
+        </p>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <Link
+            href="/prelims/pyq"
+            style={{ padding: '10px 18px', borderRadius: '10px', background: '#1e293b', color: '#f8fafc', textDecoration: 'none', fontSize: '13px', fontWeight: 800 }}
+          >
+            Back to PYQs
+          </Link>
+          <Link
+            href="/pricing"
+            style={{ padding: '10px 20px', borderRadius: '10px', background: '#10b981', color: '#042f2e', textDecoration: 'none', fontSize: '13.5px', fontWeight: 900 }}
+          >
+            Get Prelims Pass
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }

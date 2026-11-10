@@ -4,7 +4,7 @@ import { useState, useEffect, useTransition } from 'react';
 import { toast, Toaster } from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
+import { SAFE_REHYPE_PLUGINS } from '@/lib/markdownSanitize';
 import { 
   Search, ChevronDown, ChevronRight, Folder, FolderOpen, 
   FileText, Sparkles, Save, Plus, Trash2, Edit3, 
@@ -1074,7 +1074,7 @@ export default function PrelimsCMSPage() {
                           </div>
                           <div className="markdown-preview">
                             {prelimsNote ? (
-                              <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                              <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={SAFE_REHYPE_PLUGINS}>
                                 {prelimsNote}
                               </ReactMarkdown>
                             ) : (

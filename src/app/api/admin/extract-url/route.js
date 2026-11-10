@@ -3,6 +3,7 @@ import { JSDOM } from 'jsdom';
 import { Readability } from '@mozilla/readability';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { safeFetch, SafeFetchError } from "@/lib/safeFetch";
 
 export async function POST(req) {
   const session = await getServerSession(authOptions);
@@ -12,20 +13,35 @@ export async function POST(req) {
 
   try {
     const { url } = await req.json();
-    if (!url) return NextResponse.json({ error: 'URL is required' }, { status: 400 });
+    if (!url || typeof url !== 'string') return NextResponse.json({ error: 'URL is required' }, { status: 400 });
 
-    const res = await fetch(url, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
-    });
-    
-    if (!res.ok) throw new Error(`Failed to fetch URL: ${res.statusText}`);
-    
+    let res;
+    try {
+      res = await safeFetch(url, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' }
+      });
+    } catch (err) {
+      if (err instanceof SafeFetchError) {
+        console.warn('[Extract API] Blocked/failed fetch:', err.code, err.message);
+        return NextResponse.json({ error: 'URL could not be fetched (blocked or invalid destination)' }, { status: 400 });
+      }
+      throw err;
+    }
+
+    if (!res.ok) {
+      console.error('[Extract API] Upstream status:', res.status, res.statusText);
+      return NextResponse.json({ error: `Failed to fetch URL (HTTP ${res.status})` }, { status: 502 });
+    }
+
     const html = await res.text();
-    const dom = new JSDOM(html, { url });
+    // Use the final URL (after validated redirects); JSDOM does not execute scripts or load resources by default.
+    const dom = new JSDOM(html, { url: res.url });
     const reader = new Readability(dom.window.document);
     const article = reader.parse();
 
-    if (!article) throw new Error('Could not parse article content');
+    if (!article) {
+      return NextResponse.json({ error: 'Could not parse article content' }, { status: 422 });
+    }
 
     // Extract source from hostname
     let source = '';
@@ -43,6 +59,6 @@ export async function POST(req) {
     });
   } catch (error) {
     console.error('[Extract API] Error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to extract URL content' }, { status: 500 });
   }
 }

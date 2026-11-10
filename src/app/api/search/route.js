@@ -4,6 +4,28 @@ import { generateEmbedding } from "../../../lib/rag-utils";
 import { generateQuestionSlug } from "../../../lib/pyqSlug";
 import { extractCoreSubjectEntity, stripBoilerplateFromStem } from "../../../lib/seo";
 import { resolveSyllabusNodesForQuestion } from "../../../lib/nodeBridge";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import { getClientIp, rateLimit } from "@/lib/rateLimit";
+
+const MAX_QUERY_CHARS = 300;
+
+// Embedding calls are the paid part of search. Budget them per user / IP; once the
+// budget is spent, search keeps working with keyword (full-text) results only.
+async function canUseSemanticSearch(req) {
+  let userId = null;
+  try {
+    const session = await getServerSession(authOptions);
+    userId = session?.user?.id || null;
+  } catch {}
+  const { allowed } = await rateLimit({
+    bucket: "search-embed",
+    key: userId ? `user:${userId}` : `ip:${getClientIp(req)}`,
+    limit: userId ? 300 : 60,
+    windowMs: 60 * 60 * 1000,
+  });
+  return allowed;
+}
 
 const QUESTION_BOILERPLATE_STOPWORDS = new Set([
   "consider",
@@ -200,7 +222,7 @@ export async function GET(req) {
 
   try {
     const { searchParams } = new URL(req.url);
-    const query = searchParams.get("q")?.trim() || "";
+    const query = (searchParams.get("q") || "").trim().slice(0, MAX_QUERY_CHARS);
 
     // RULE 1: Queries under 3 chars return immediately with no DB call
     if (query.length < 3) {
@@ -264,7 +286,7 @@ export async function GET(req) {
     }
 
     // RULE 2: Embedding is ONLY called when keywordNodes.length === 0 AND query.length >= 6
-    if (query.length >= 6 && finalNodes.length === 0) {
+    if (query.length >= 6 && finalNodes.length === 0 && (await canUseSemanticSearch(req))) {
       try {
         const embedding = await generateEmbedding(cleanedSearchQuery);
         const vectorStr = `[${embedding.join(",")}]`;
@@ -330,7 +352,7 @@ export async function GET(req) {
   } catch (error) {
     console.error("[Search API Error]:", error);
     return NextResponse.json(
-      { error: "Search failed", details: error.message },
+      { error: "Search failed" },
       { status: 500 }
     );
   }

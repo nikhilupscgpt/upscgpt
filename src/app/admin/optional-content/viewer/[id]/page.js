@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import DOMPurify from 'dompurify';
 
 export default function ContentViewerPage() {
   const params = useParams();
@@ -54,7 +55,9 @@ export default function ContentViewerPage() {
           srcDoc={rawHtml}
           style={{ width: '100%', height: '100%', border: 'none' }}
           title={content.title}
-          sandbox="allow-scripts allow-same-origin allow-popups"
+          // No allow-same-origin: scripts in the stored HTML run in an opaque origin
+          // and cannot reach this app's cookies/storage/DOM.
+          sandbox="allow-scripts allow-popups"
         />
       </div>
     );
@@ -84,7 +87,7 @@ export default function ContentViewerPage() {
         </div>
         <div
           style={{ fontSize: '0.95rem', lineHeight: 1.8, whiteSpace: 'pre-wrap' }}
-          dangerouslySetInnerHTML={{ __html: content.contentMarkdown }}
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content.contentMarkdown || '') }}
         />
       </div>
     </div>

@@ -7,7 +7,13 @@ import StemView from '../StemView';
 import { usePyqStore } from '../pyqStore';
 import { isPairQuestion, isStatementQuestion } from '@/lib/pyqPattern';
 import { triggerNativeHaptic } from '@/lib/capacitorBridge';
+import { getStructuredExplanation } from '@/lib/pyqExplanationHelper';
 import '../pyq-ui.css';
+
+// Explanations may be stored as JSON ({ explanation, analysis }); show only the readable text.
+function explanationTextOf(q) {
+  return getStructuredExplanation(q).explanationText;
+}
 
 const MARKS_RIGHT = 2;
 const MARKS_WRONG = 2 / 3;
@@ -330,7 +336,7 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
                       ? <b>✓ You got it right — ({qq.correctLabel.toUpperCase()})</b>
                       : <><b>✗ You chose ({sel.toUpperCase()}).</b> Correct answer: <b>({qq.correctLabel.toUpperCase()})</b>{correctOpt ? ` — ${correctOpt.text}` : ''}</>
                     : <><b>Skipped.</b> Correct answer: <b>({qq.correctLabel.toUpperCase()})</b>{correctOpt ? ` — ${correctOpt.text}` : ''}</>}
-                  {qq.explanation && <div className="pq-verdict-exp">{qq.explanation}</div>}
+                  {explanationTextOf(qq) && <div className="pq-verdict-exp">{explanationTextOf(qq)}</div>}
                 </div>
               </article>
             );
@@ -453,9 +459,9 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
                 ) : (
                   <><b>✗ Incorrect.</b> You selected ({answers[q.id]?.toUpperCase()}). Correct answer: <b>({q.correctLabel.toUpperCase()})</b>{correctOpt ? ` — ${correctOpt.text}` : ''}</>
                 )}
-                {q.explanation && (
+                {explanationTextOf(q) && (
                   <div className="pq-verdict-exp" style={{ marginTop: 8 }}>
-                    {q.explanation}
+                    {explanationTextOf(q)}
                   </div>
                 )}
               </div>

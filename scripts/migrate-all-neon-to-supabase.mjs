@@ -152,7 +152,7 @@ async function migrate() {
   // Setup/ensure Admin user
   console.log("Setting up Admin user and admin privileges...");
   const adminCheck = await supa.query(`SELECT id FROM "User" WHERE username = 'admin';`);
-  const adminPasswordHash = await bcrypt.hash('AdminPassword2026!', 10);
+  const adminPasswordHash = await bcrypt.hash(process.env.ADMIN_PASSWORD || (() => { throw new Error('Set ADMIN_PASSWORD'); })(), 12);
 
   if (adminCheck.rows.length === 0) {
     console.log("Creating dedicated 'admin' user with username credentials...");

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
+import { SAFE_REHYPE_PLUGINS } from '@/lib/markdownSanitize';
 import { useRouter } from 'next/navigation';
 import { 
   ChevronRight, ChevronLeft, Home, BookOpen, Lightbulb, Zap, 
@@ -47,7 +47,7 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
     if (typeof mainsNote === 'string') {
       return (
         <div className="markdown-content">
-          <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{mainsNote}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={SAFE_REHYPE_PLUGINS}>{mainsNote}</ReactMarkdown>
         </div>
       );
     }
@@ -74,7 +74,7 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
               <div key={key} className="mains-note-section-block">
                 <h3 className="mains-section-title">{formattedKey}</h3>
                 <div className="mains-section-content">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{valStr}</ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={SAFE_REHYPE_PLUGINS}>{valStr}</ReactMarkdown>
                 </div>
               </div>
             );
@@ -125,7 +125,7 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
           <div key={index} className="fact-card">
             <div className="fact-icon">📊</div>
             <div className="fact-content">
-              <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{fact}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={SAFE_REHYPE_PLUGINS}>{fact}</ReactMarkdown>
             </div>
           </div>
         ))}
@@ -147,7 +147,7 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
             <h4>Value Addition Material</h4>
           </div>
           <div className="value-add-card-body">
-            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{issue.valueAddition}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={SAFE_REHYPE_PLUGINS}>{issue.valueAddition}</ReactMarkdown>
           </div>
         </div>
       </div>
@@ -194,7 +194,7 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
               <h4>{item.title}</h4>
             </div>
             <div className="value-add-card-body">
-              <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{item.content}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={SAFE_REHYPE_PLUGINS}>{item.content}</ReactMarkdown>
             </div>
           </div>
         ))}
@@ -217,7 +217,7 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
           <div className="questions-section">
             <h4 className="questions-section-title">Possible Questions & Practice Drills</h4>
             <div className="questions-box">
-              <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{issue.possibleQuestions}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={SAFE_REHYPE_PLUGINS}>{issue.possibleQuestions}</ReactMarkdown>
             </div>
           </div>
         )}
@@ -394,7 +394,7 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
                     <span className="badge-bullet"></span> BRIEF SUMMARY
                   </div>
                   <div className="markdown-content">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={SAFE_REHYPE_PLUGINS}>
                       {issue.cumulativeSummary || issue.backgroundNote || "No summary compiled."}
                     </ReactMarkdown>
                   </div>

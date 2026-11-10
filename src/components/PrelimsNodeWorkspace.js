@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
+import { SAFE_REHYPE_PLUGINS } from '@/lib/markdownSanitize';
 import { useRouter } from 'next/navigation';
 import { 
   ChevronRight, 
@@ -304,7 +304,7 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
                   <span className="badge-bullet"></span> BRIEF SUMMARY
                 </div>
                 <div className="markdown-content">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={SAFE_REHYPE_PLUGINS}>
                     {issue.cumulativeSummary || issue.backgroundNote || 'No detailed summary available for this node yet.'}
                   </ReactMarkdown>
                 </div>
@@ -319,13 +319,13 @@ export default function PrelimsNodeWorkspace({ issue, articles = [], sessionExis
                 </div>
                 {issue.nodeContent?.prelimsNote ? (
                   <div className="markdown-content">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={SAFE_REHYPE_PLUGINS}>
                       {issue.nodeContent.prelimsNote}
                     </ReactMarkdown>
                   </div>
                 ) : issue.prelimsNote ? (
                   <div className="markdown-content">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={SAFE_REHYPE_PLUGINS}>
                       {typeof issue.prelimsNote === 'string' ? issue.prelimsNote : JSON.stringify(issue.prelimsNote)}
                     </ReactMarkdown>
                   </div>

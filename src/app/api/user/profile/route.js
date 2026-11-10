@@ -46,7 +46,6 @@ export async function PATCH(request) {
     }
 
     const body = await request.json();
-    console.log("[Profile API] Body:", body);
     
     // 1. Validate incoming data
     const validatedData = profileSchema.parse(body);
@@ -87,6 +86,6 @@ export async function PATCH(request) {
       return NextResponse.json({ error: error.errors }, { status: 400 });
     }
     console.error("[Profile API] Uncaught PATCH Error:", error);
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

@@ -69,10 +69,21 @@ const PRIORITY_RANK = {
  */
 export function sanitizeUrl(rawUrl) {
   if (!rawUrl || typeof rawUrl !== 'string') return '';
-  const trimmed = rawUrl.trim();
-  const mdMatch = trimmed.match(/^\[.*?\]\((https?:\/\/[^\s)]+)\)$/i);
-  if (mdMatch) return mdMatch[1];
-  return trimmed;
+  let candidate = rawUrl.trim();
+  const mdMatch = candidate.match(/^\[.*?\]\((https?:\/\/[^\s)]+)\)$/i);
+  if (mdMatch) candidate = mdMatch[1];
+  // Bare domains like "www.pib.gov.in/..." -> assume https.
+  if (!/^[a-z][a-z0-9+.-]*:/i.test(candidate) && /^[\w-]+(\.[\w-]+)+(\/|$)/.test(candidate)) {
+    candidate = `https://${candidate}`;
+  }
+  // Only http(s) URLs are allowed (blocks javascript:, data:, vbscript:, etc.).
+  try {
+    const parsed = new URL(candidate);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') return '';
+    return parsed.href;
+  } catch {
+    return '';
+  }
 }
 
 /**

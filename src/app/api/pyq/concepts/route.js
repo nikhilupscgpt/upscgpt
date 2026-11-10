@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
+import { getTierStatus, computeUsageState, applyDeepDiveGate } from '@/lib/tier-gate';
 import prisma from '@/lib/prisma';
 import {
   normalizeKeywordsList,
@@ -242,7 +243,17 @@ export async function GET(request) {
         }
       }
 
-      const associatedQuestions = Array.from(concept.questionsMap.values())
+      const tierStatus = await getTierStatus();
+      let deepDiveAccess = tierStatus.isPro ? { isPro: true } : null;
+      if (!deepDiveAccess) {
+        try {
+          deepDiveAccess = await computeUsageState(request, 'deep_dive', tierStatus);
+        } catch {
+          deepDiveAccess = null; // fail closed
+        }
+      }
+
+      const associatedQuestionsRaw = Array.from(concept.questionsMap.values())
         .sort((a, b) => (b.examYear || 0) - (a.examYear || 0))
         .map(q => ({
           id: q.id,
@@ -257,6 +268,7 @@ export async function GET(request) {
           correctLabel: q.correctLabel,
           explanation: q.explanation || null,
         }));
+      const associatedQuestions = applyDeepDiveGate(associatedQuestionsRaw, deepDiveAccess);
 
       return NextResponse.json({
         success: true,

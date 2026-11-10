@@ -24,7 +24,7 @@ export async function POST(request) {
     const requestedCouponCode = body?.couponCode || null;
 
     // 1. Resolve authoritative server-side price & coupon
-    const quote = await resolveServerOrderQuote(requestedPlanCode, requestedCouponCode);
+    const quote = await resolveServerOrderQuote(requestedPlanCode, requestedCouponCode, session.user.id);
     const { plan, amountPaise, finalPriceInr, discountInr, scheduledPriceInr, appliedCoupon } = quote;
 
     const options = {

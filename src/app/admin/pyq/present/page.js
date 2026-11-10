@@ -13,10 +13,10 @@ export const metadata = {
 
 export default async function PyqPresentPage({ searchParams }) {
   const sp = await searchParams;
-  const hasBoardCode = sp?.board && /^\d{6}$/.test(String(sp.board));
   const session = await getServerSession(authOptions).catch(() => null);
 
-  if (!hasBoardCode && (!session || (session.user?.role !== 'ADMIN' && session.user?.role !== 'FACULTY'))) {
+  // Always require staff: a board code alone must not unlock answers and explanations.
+  if (!session || (session.user?.role !== 'ADMIN' && session.user?.role !== 'FACULTY')) {
     redirect("/admin-login");
   }
 

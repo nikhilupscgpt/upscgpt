@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <external-path name="my_images" path="." />
-    <cache-path name="my_cache_images" path="." />
+    <!--
+      Only FileProvider consumer in this app: Capacitor's BridgeWebChromeClient
+      (camera capture for <input type="file" capture>), which writes to
+      getExternalFilesDir(Environment.DIRECTORY_PICTURES) = app-specific "Pictures/".
+      Previously this exposed the whole external storage root (external-path ".")
+      and the whole cache dir; both are narrowed here.
+    -->
+    <external-files-path name="my_images" path="Pictures/" />
+    <!-- Reserved app-cache subfolder for any future share/export (nothing uses it today). -->
+    <cache-path name="my_cache_images" path="shared/" />
 </paths>

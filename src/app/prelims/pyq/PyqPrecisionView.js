@@ -10,6 +10,7 @@ import {
   ArrowLeft 
 } from 'lucide-react';
 import SyllabusNodeBridge from '@/components/SyllabusNodeBridge';
+import SafeHtml from './SafeHtml';
 import './pyq-ui.css';
 
 export default function PyqPrecisionView({ question: q }) {
@@ -178,10 +179,11 @@ export default function PyqPrecisionView({ question: q }) {
               <div className="pqp-note-box">
                 <div className="pqp-nb-title">WORTH A NOTE</div>
                 {why.worthANote.map((item, idx) => (
-                  <div 
-                    key={idx} 
-                    className="pqp-nb-item" 
-                    dangerouslySetInnerHTML={{ __html: item }} 
+                  <SafeHtml
+                    as="div"
+                    key={idx}
+                    className="pqp-nb-item"
+                    html={item}
                   />
                 ))}
               </div>
@@ -246,7 +248,7 @@ export default function PyqPrecisionView({ question: q }) {
             {current.bullets && (
               <ul className="pqp-current-list">
                 {current.bullets.map((b, idx) => (
-                  <li key={idx} dangerouslySetInnerHTML={{ __html: b }} />
+                  <SafeHtml as="li" key={idx} html={b} />
                 ))}
               </ul>
             )}
@@ -270,7 +272,7 @@ export default function PyqPrecisionView({ question: q }) {
                 {(notAsked.items || []).map((item, idx) => (
                   <div key={idx} style={{ display: 'flex', gap: '8px' }}>
                     <span style={{ color: '#38bdf8', fontWeight: '700' }}>•</span>
-                    <span dangerouslySetInnerHTML={{ __html: item }} />
+                    <SafeHtml as="span" html={item} />
                   </div>
                 ))}
               </div>

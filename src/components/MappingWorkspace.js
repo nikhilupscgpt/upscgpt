@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
+import { safeHttpUrl } from '@/lib/escapeHtml';
+import RiverStudyPanel, { RiverQuizCard } from '@/components/mapping/RiverStudyPanel';
 
 const MappingCanvas = dynamic(() => import('./MappingCanvas'), {
   ssr: false,
@@ -551,10 +553,74 @@ function getRiverSubBasin(node) {
  * 1B. Returns the concise 1-line "Place" geographic anchor:
  * e.g. "Sehore District (Vindhyan Range / Narmada Basin, MP)"
  */
+/** Drops comma-separated parts already named earlier, e.g. "... (Bangladesh), India, Bangladesh". */
+function dedupePlaceLine(line) {
+  const parts = line.split(/,\s*/);
+  const kept = [];
+  for (const part of parts) {
+    const p = part.trim();
+    if (!p) continue;
+    const seen = kept.join(', ').toLowerCase();
+    // Only plain names are compared; "." is the one regex character they can contain.
+    if (/^[A-Za-z .'-]+$/.test(p) && new RegExp(`\\b${p.toLowerCase().replace(/\./g, '\\.')}\\b`).test(seen)) continue;
+    kept.push(p);
+  }
+  return kept.join(', ');
+}
+
+/** Curation notes (e.g. "reviewed (keyword + manual)") that must never be shown to students. */
+function isInternalPyqTag(text) {
+  const t = String(text || '').trim();
+  if (!t) return true;
+  return (
+    /^(reviewed|concept[- ]?tagged|auto[- ]?tagged|tagged|keyword|manual|pending|verified|unverified)\b/i.test(t) ||
+    /\(\s*keyword\s*\+\s*manual\s*\)/i.test(t)
+  );
+}
+
+/** Name keys for matching a tributary name to a river on the map: "Tamsa (Tons) River" → tamsa, tons. */
+function riverNameKeys(name) {
+  if (!name) return [];
+  const s = String(name).toLowerCase();
+  const clean = (x) =>
+    x
+      .replace(/\b(river|nadi|basin|system)\b/g, ' ')
+      .replace(/[^a-z\s-]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  const keys = new Set([clean(s.replace(/\(.*?\)/g, ' '))]);
+  for (const m of s.matchAll(/\(([^)]*)\)/g)) keys.add(clean(m[1]));
+  keys.delete('');
+  return [...keys];
+}
+
+/** Flat [lat, lng] list for a river line (shape, falling back to polylinePoints). */
+function nodeShapePoints(node) {
+  const raw =
+    Array.isArray(node?.shape) && node.shape.length > 1
+      ? node.shape
+      : Array.isArray(node?.polylinePoints)
+        ? node.polylinePoints
+        : [];
+  return raw
+    .filter((pt) => Array.isArray(pt) && pt.length >= 2)
+    .map((pt) => [Number(pt[0]), Number(pt[1])])
+    .filter((pt) => Number.isFinite(pt[0]) && Number.isFinite(pt[1]));
+}
+
+function shuffled(list) {
+  const a = [...list];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 function formatPlaceDescriptor(node) {
   if (!node) return '';
   if (node.locatedIn?.placeLine && typeof node.locatedIn.placeLine === 'string') {
-    return node.locatedIn.placeLine.trim();
+    return dedupePlaceLine(node.locatedIn.placeLine.trim());
   }
 
   const district = (node.locatedIn?.district || '').trim();
@@ -676,16 +742,18 @@ function formatRelatedPyqList(node) {
   if (!node) return [];
 
   if (Array.isArray(node.upscAngle?.pyqBullets) && node.upscAngle.pyqBullets.length > 0) {
-    return node.upscAngle.pyqBullets
+    const cleaned = node.upscAngle.pyqBullets
       .map((item) => {
         if (typeof item === 'string') {
           const m = item.match(/^\*\*?([^*:]+?)\*\*?:\s*(.+)$/) || item.match(/^([^:]+):\s*(.+)$/);
           if (m) {
+            if (isInternalPyqTag(m[2])) return null;
             return { yearLabel: m[1].trim(), summary: m[2].trim() };
           }
           return { yearLabel: 'UPSC PYQ', summary: item.trim() };
         }
         if (item && typeof item === 'object') {
+          if (isInternalPyqTag(item.summary || item.text)) return null;
           return {
             yearLabel: item.yearLabel || item.year || 'UPSC PYQ',
             summary: item.summary || item.text || '',
@@ -694,6 +762,7 @@ function formatRelatedPyqList(node) {
         return null;
       })
       .filter((x) => x && x.summary);
+    if (cleaned.length > 0) return cleaned;
   }
 
   const pyqs = Array.isArray(node.resolvedSimilarPYQs) ? node.resolvedSimilarPYQs : [];
@@ -705,7 +774,7 @@ function formatRelatedPyqList(node) {
   for (const q of pyqs.slice(0, 3)) {
     const yr = q.examYear ? `UPSC ${q.examYear}` : q.exam || 'UPSC Prelims';
     let summary = '';
-    if (q.selection && typeof q.selection === 'string') {
+    if (q.selection && typeof q.selection === 'string' && !isInternalPyqTag(q.selection)) {
       summary = q.selection.trim();
     } else if (q.answerText && typeof q.answerText === 'string' && q.answerText.length > 10 && !/^(1|2|both|neither|all|only)/i.test(q.answerText.trim())) {
       summary = `${q.subject || 'Mapping'} — ${q.answerText.trim()}`;
@@ -793,6 +862,12 @@ export default function MappingWorkspace({
   const [searchQuery, setSearchQuery] = useState('');
   const [basemap, setBasemap] = useState('light'); // 'light' (Clean) | 'topo' (Terrain) | 'satellite' (Satellite)
   const [panelMode, setPanelMode] = useState('STUDY'); // 'STUDY' | 'PRACTICE'
+  // River study flow (Locate → Connect → Remember → Test) and its map overlays.
+  const [riverTab, setRiverTab] = useState('LOCATE');
+  const [riverHighlight, setRiverHighlight] = useState(null);
+  const [riverTraceKey, setRiverTraceKey] = useState(0);
+  const [riverQuiz, setRiverQuiz] = useState(null);
+  const [riverPanelNodeId, setRiverPanelNodeId] = useState(null);
 
   // Data
   const [allNodes, setAllNodes] = useState([]);
@@ -823,6 +898,17 @@ export default function MappingWorkspace({
     zoom: 5,
     ts: 0,
   });
+
+  // Bumped when a river basin is chosen: the map then fits itself to that basin's
+  // catchment states + main rivers (works on any screen size, never zooms to one river).
+  const [basinFitKey, setBasinFitKey] = useState(0);
+  const focusBasin = (basinId) => {
+    if (basinId && BASIN_CATCHMENT_STATES[basinId]) {
+      setBasinFitKey(Date.now());
+    } else {
+      setCameraTarget({ center: [22.8, 79.5], zoom: 4.8, ts: Date.now() });
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -1132,10 +1218,26 @@ export default function MappingWorkspace({
     if (!numberedNodes || numberedNodes.length === 0) return [];
     if (activeMode === 'STATIC_INDIA' && selectedThemeFilter === 'india-rivers') {
       if (selectedNode) {
+        // Step 4: the selected river stands out, its own river system stays readable,
+        // and the rest of its basin stays visible but faded so the river reads in context.
         const targetSubBasin = getRiverSubBasin(selectedNode);
-        return numberedNodes.filter(
-          (n) => n.id === selectedNode.id || getRiverSubBasin(n) === targetSubBasin
-        );
+        const targetBasin = selectedNode.basinGroup || null;
+        return numberedNodes
+          .filter(
+            (n) =>
+              n.id === selectedNode.id ||
+              getRiverSubBasin(n) === targetSubBasin ||
+              (targetBasin && n.basinGroup === targetBasin)
+          )
+          .map((n) => ({
+            ...n,
+            focusTier:
+              n.id === selectedNode.id
+                ? 'selected'
+                : getRiverSubBasin(n) === targetSubBasin
+                  ? 'system'
+                  : 'basin',
+          }));
       }
       if (activeSubBasin) {
         return numberedNodes.filter((n) => getRiverSubBasin(n) === activeSubBasin);
@@ -1144,6 +1246,152 @@ export default function MappingWorkspace({
     }
     return numberedNodes;
   }, [numberedNodes, activeMode, selectedThemeFilter, selectedNode, activeSubBasin]);
+
+  // ---- River study flow -------------------------------------------------------
+  // Start every river on step 1 with a clean map (adjusting state during render,
+  // React's recommended alternative to an effect for prop-driven resets).
+  const currentPanelNodeId = selectedNode?.id ?? null;
+  if (currentPanelNodeId !== riverPanelNodeId) {
+    setRiverPanelNodeId(currentPanelNodeId);
+    setRiverTab('LOCATE');
+    setRiverHighlight(null);
+    setRiverQuiz(null);
+  }
+
+  // All drawable rivers in this mode, indexed by name, to link panel text to map lines.
+  const riverIndex = useMemo(() => {
+    const byKey = new Map();
+    const byId = new Map();
+    for (const n of modeBaseNodes || []) {
+      if (nodeShapePoints(n).length < 2) continue;
+      byId.set(n.id, n);
+      for (const k of riverNameKeys(n.place || n.name)) {
+        if (!byKey.has(k)) byKey.set(k, n);
+      }
+    }
+    return { byKey, byId };
+  }, [modeBaseNodes]);
+
+  const findRiverNode = (name) => {
+    if (!name) return null;
+    const joining = String(name).split('+').pop();
+    for (const k of riverNameKeys(joining)) {
+      const n = riverIndex.byKey.get(k);
+      if (n && n.id !== selectedNode?.id) return n;
+    }
+    return null;
+  };
+
+  // Where a tributary meets the selected river: its end nearest the main river's line.
+  const getConfluencePoint = (tNode) => {
+    const pts = nodeShapePoints(tNode);
+    if (pts.length === 0) return null;
+    const main = nodeShapePoints(selectedNode);
+    if (main.length === 0) return pts[pts.length - 1];
+    const dist = (p) => Math.min(...main.map((m) => (m[0] - p[0]) ** 2 + (m[1] - p[1]) ** 2));
+    const a = pts[0];
+    const b = pts[pts.length - 1];
+    return dist(a) <= dist(b) ? a : b;
+  };
+
+  const handleRiverHighlight = (h) => {
+    if (!h) {
+      setRiverHighlight(null);
+      return;
+    }
+    if (h.kind === 'river') {
+      const n = riverIndex.byId.get(h.nodeId);
+      setRiverHighlight({ ...h, points: n ? nodeShapePoints(n) : [] });
+      return;
+    }
+    setRiverHighlight(h);
+  };
+
+  const riverTracePoints = useMemo(() => nodeShapePoints(selectedNode), [selectedNode]);
+
+  // Map drill: tributaries of the selected river that are actually drawn on the map now.
+  const quizCandidates = useMemo(() => {
+    const rd = selectedNode?.riverDetails;
+    if (!rd?.tributaries) return [];
+    const onMap = new Set(mapCanvasNodes.map((n) => n.id));
+    const out = [];
+    const seen = new Set();
+    for (const [side, list] of [['left', rd.tributaries.leftBank || []], ['right', rd.tributaries.rightBank || []]]) {
+      for (const t of list) {
+        let match = null;
+        for (const k of riverNameKeys(t.name)) {
+          const n = riverIndex.byKey.get(k);
+          if (n && n.id !== selectedNode.id) {
+            match = n;
+            break;
+          }
+        }
+        if (match && onMap.has(match.id) && !seen.has(match.id)) {
+          seen.add(match.id);
+          out.push({ side, name: t.name.replace(/\s+River$/i, ''), nodeId: match.id });
+        }
+      }
+    }
+    return out;
+  }, [selectedNode, mapCanvasNodes, riverIndex]);
+
+  const startRiverQuiz = () => {
+    const picks = shuffled(quizCandidates).slice(0, 3);
+    if (picks.length === 0) return;
+    setRiverHighlight(null);
+    setRiverQuiz({
+      active: true,
+      index: 0,
+      score: 0,
+      feedback: null,
+      questions: picks.map((c) => ({
+        prompt: `Tap the ${c.name} — a ${c.side}-bank tributary of the ${formatCleanPlaceHeading(selectedNode)}.`,
+        answerId: c.nodeId,
+        answerName: c.name,
+      })),
+    });
+    if (isMobile) setMobileTab('map');
+  };
+
+  const answerRiverQuiz = (node) => {
+    const q = riverQuiz?.questions?.[riverQuiz.index];
+    if (!q || riverQuiz.feedback) return;
+    const correct = node?.id === q.answerId;
+    const tappedName = String(node?.place || node?.name || 'another place').replace(/\s+River$/i, '');
+    setRiverQuiz((prev) => ({
+      ...prev,
+      score: prev.score + (correct ? 1 : 0),
+      feedback: { correct, tappedName },
+    }));
+    const answerNode = riverIndex.byId.get(q.answerId);
+    setRiverHighlight({
+      key: `quiz:${q.answerId}`,
+      kind: 'river',
+      nodeId: q.answerId,
+      points: answerNode ? nodeShapePoints(answerNode) : [],
+      label: q.answerName,
+      color: correct ? '#059669' : '#d97706',
+    });
+  };
+
+  const nextRiverQuiz = () => {
+    setRiverHighlight(null);
+    setRiverQuiz((prev) => {
+      if (!prev) return prev;
+      if (prev.index >= prev.questions.length - 1) {
+        return { active: false, done: true, score: prev.score, total: prev.questions.length };
+      }
+      return { ...prev, index: prev.index + 1, feedback: null };
+    });
+  };
+
+  const stopRiverQuiz = () => {
+    setRiverHighlight(null);
+    setRiverQuiz(null);
+  };
+
+  const isRiverStudy = Boolean(selectedNode?.riverDetails);
+  const quizActive = Boolean(riverQuiz?.active);
 
   // Reset theme filter if the selected theme has no items in the newly chosen period
   useEffect(() => {
@@ -1236,6 +1484,11 @@ export default function MappingWorkspace({
   }, [selectedNode]);
 
   const handleSelectNode = (node) => {
+    // During the map drill a tap is an answer, not a new selection.
+    if (riverQuiz?.active) {
+      answerRiverQuiz(node);
+      return;
+    }
     setActiveOrg(null);
     setSelectedNode(node);
     if (isMobile) {
@@ -1589,21 +1842,23 @@ export default function MappingWorkspace({
 
   const activeThemeFolder = folders.find((f) => f.id === selectedThemeFilter) || null;
 
+  const activeBasinKey =
+    (selectedRiverBasin && selectedRiverBasin !== 'ALL' && selectedRiverBasin) ||
+    (selectedNode?.basinGroup || null);
   const activeBasinHighlightStates =
     activeMode === 'STATIC_INDIA' &&
     selectedThemeFilter === 'india-rivers' &&
-    !selectedNode &&
-    selectedRiverBasin &&
-    BASIN_CATCHMENT_STATES[selectedRiverBasin]
-      ? BASIN_CATCHMENT_STATES[selectedRiverBasin]
+    activeBasinKey &&
+    BASIN_CATCHMENT_STATES[activeBasinKey]
+      ? BASIN_CATCHMENT_STATES[activeBasinKey]
       : [];
 
   const activeBasinHighlightColor =
-    selectedRiverBasin === 'HIMALAYAN'
+    activeBasinKey === 'HIMALAYAN'
       ? '#0284c7'
-      : selectedRiverBasin === 'PENINSULAR'
+      : activeBasinKey === 'PENINSULAR'
         ? '#0d9488'
-        : selectedRiverBasin === 'COASTAL'
+        : activeBasinKey === 'COASTAL'
           ? '#4f46e5'
           : '#0284c7';
 
@@ -1876,15 +2131,7 @@ export default function MappingWorkspace({
                       onClick={() => {
                         setSelectedNode(null);
                         setActiveSubBasin(null);
-                        if (selectedRiverBasin === 'HIMALAYAN') {
-                          setCameraTarget({ center: [28.2, 81.5], zoom: 5.2, ts: Date.now() });
-                        } else if (selectedRiverBasin === 'PENINSULAR') {
-                          setCameraTarget({ center: [18.2, 78.5], zoom: 5.4, ts: Date.now() });
-                        } else if (selectedRiverBasin === 'COASTAL') {
-                          setCameraTarget({ center: [16.8, 78.0], zoom: 5.2, ts: Date.now() });
-                        } else {
-                          setCameraTarget({ center: [22.8, 79.5], zoom: 4.8, ts: Date.now() });
-                        }
+                        focusBasin(selectedRiverBasin);
                       }}
                       title="Return to Basin Overview (Main Rivers)"
                       style={{
@@ -2448,7 +2695,7 @@ export default function MappingWorkspace({
                           setSelectedRiverBasin(b.id);
                           setActiveSubBasin(null);
                           setSelectedNode(null);
-                          setCameraTarget({ center: b.center, zoom: b.zoom, ts: Date.now() });
+                          focusBasin(b.id);
                         }}
                         style={{
                           display: 'inline-flex',
@@ -2620,7 +2867,7 @@ export default function MappingWorkspace({
                       setSelectedRiverBasin(b.id);
                       setActiveSubBasin(null);
                       setSelectedNode(null);
-                      setCameraTarget({ center: b.center, zoom: b.zoom, ts: Date.now() });
+                      focusBasin(b.id);
                     }}
                     style={{
                       width: '100%',
@@ -3304,7 +3551,7 @@ export default function MappingWorkspace({
                         setSelectedNode(null);
                         setActiveSubBasin(null);
                         setSelectedRiverBasin(b.id);
-                        setCameraTarget({ center: b.center, zoom: b.zoom, ts: Date.now() });
+                        focusBasin(b.id);
                       }}
                       style={{
                         border: 'none',
@@ -3402,6 +3649,7 @@ export default function MappingWorkspace({
               position: 'absolute',
               bottom:
                 selectedNode &&
+                !isRiverStudy &&
                 practiceQuestionsForSelected.length > 0 &&
                 mapPyqDockMode !== 'hidden'
                   ? (isMobile ? 116 : 58)
@@ -3467,7 +3715,33 @@ export default function MappingWorkspace({
             activeOrg={activeOrg}
             basinHighlightStates={activeBasinHighlightStates}
             basinHighlightColor={activeBasinHighlightColor}
+            basinFitKey={basinFitKey}
+            studyHighlight={isRiverStudy ? riverHighlight : null}
+            traceKey={isRiverStudy ? riverTraceKey : 0}
+            tracePoints={riverTracePoints}
+            quizMode={quizActive}
           />
+
+          {/* Map drill prompt, shown on the map so it works on mobile too */}
+          {quizActive && (
+            <div
+              style={{
+                position: 'absolute',
+                top: isMobile ? 64 : 16,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 520,
+                width: isMobile ? 'calc(100% - 24px)' : 380,
+                background: '#ffffff',
+                border: '1.5px solid #5eead4',
+                borderRadius: 14,
+                padding: '12px 14px',
+                boxShadow: '0 10px 30px rgba(15,23,42,0.18)',
+              }}
+            >
+              <RiverQuizCard quiz={riverQuiz} onNext={nextRiverQuiz} onStop={stopRiverQuiz} />
+            </div>
+          )}
 
           {/* LEVEL 1: Map Stage Layer Chooser Card (Zero Clutter Entry) */}
           {activeMode === 'STATIC_INDIA' && selectedThemeFilter === null && (
@@ -3589,7 +3863,7 @@ export default function MappingWorkspace({
                         setSelectedRiverBasin(b.id);
                         setActiveSubBasin(null);
                         setSelectedNode(null);
-                        setCameraTarget({ center: b.center, zoom: b.zoom, ts: Date.now() });
+                        focusBasin(b.id);
                       }}
                       style={{
                         padding: '8px 14px',
@@ -3612,7 +3886,7 @@ export default function MappingWorkspace({
             )}
 
           {/* Floating On-Map PYQ Challenge Dock (Vibrant High-Yield Gold/Amber Visual Identity) */}
-          {selectedNode && practiceQuestionsForSelected.length > 0 && (() => {
+          {selectedNode && !isRiverStudy && practiceQuestionsForSelected.length > 0 && (() => {
             const currentMapQ = practiceQuestionsForSelected[mapPyqIndex] || practiceQuestionsForSelected[0];
             const chosen = currentMapQ ? selectedAnswers[currentMapQ.id] : null;
             const isRevealed = currentMapQ ? revealedQuestions[currentMapQ.id] : false;
@@ -4389,6 +4663,36 @@ export default function MappingWorkspace({
                   const relatedPyqList = formatRelatedPyqList(selectedNode);
                   const firstTrigger = selectedNode.newsTriggers?.[0] || null;
 
+                  if (selectedNode.riverDetails) {
+                    const flowsCount = selectedNode.riverDetails.states?.flowsThrough?.length || 0;
+                    return (
+                      <RiverStudyPanel
+                        node={selectedNode}
+                        placeLine={flowsCount ? '' : placeDescriptor}
+                        keyFacts={otherImportanceList}
+                        pyqHistory={relatedPyqList}
+                        pyqCount={practiceQuestionsForSelected.length}
+                        tab={riverTab}
+                        onTabChange={setRiverTab}
+                        findRiverNode={findRiverNode}
+                        getConfluencePoint={getConfluencePoint}
+                        highlight={riverHighlight}
+                        onHighlight={handleRiverHighlight}
+                        onTrace={() => {
+                          setRiverHighlight(null);
+                          setRiverTraceKey((k) => k + 1);
+                          if (isMobile) setMobileTab('map');
+                        }}
+                        onOpenPractice={() => setPanelMode('PRACTICE')}
+                        quiz={riverQuiz}
+                        quizAvailable={quizCandidates.length}
+                        onStartQuiz={startRiverQuiz}
+                        onNextQuiz={nextRiverQuiz}
+                        onStopQuiz={stopRiverQuiz}
+                      />
+                    );
+                  }
+
                   return (
                     <div
                       style={{
@@ -4498,10 +4802,10 @@ export default function MappingWorkspace({
                             {whyInNewsText}
                           </div>
 
-                          {firstTrigger?.url && (
+                          {safeHttpUrl(firstTrigger?.url) && (
                             <div style={{ marginTop: 6 }}>
                               <a
-                                href={firstTrigger.url}
+                                href={safeHttpUrl(firstTrigger.url)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 style={{
@@ -5173,6 +5477,7 @@ export default function MappingWorkspace({
                 )}
               </div>
 
+              {(!isRiverStudy || panelMode === 'PRACTICE') && (
               <button
                 type="button"
                 onClick={() =>
@@ -5219,6 +5524,7 @@ export default function MappingWorkspace({
                   <span style={{ color: '#f59e0b', fontWeight: 800 }}>→</span>
                 </div>
               </button>
+              )}
             </div>
           </div>
         )}

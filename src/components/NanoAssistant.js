@@ -86,6 +86,7 @@ export default function NanoAssistant({ isOpen, onClose }) {
           type="text"
           className="nano-input"
           placeholder="Ask a strategic question..."
+          maxLength={2000}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           disabled={loading}

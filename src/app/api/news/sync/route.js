@@ -1,5 +1,15 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import crypto from 'crypto';
+
+/** Constant-time bearer token check. */
+function isValidEngineToken(authHeader, token) {
+  if (!token || typeof authHeader !== 'string') return false;
+  const provided = Buffer.from(authHeader);
+  const expected = Buffer.from(`Bearer ${token}`);
+  if (provided.length !== expected.length) return false;
+  return crypto.timingSafeEqual(provided, expected);
+}
 
 // Force hot-reload after Prisma schema update
 /**
@@ -13,7 +23,7 @@ export async function POST(req) {
     const authHeader = req.headers.get('authorization');
     const token = process.env.NEWS_ENGINE_TOKEN;
 
-    if (!token || !authHeader || authHeader !== `Bearer ${token}`) {
+    if (!isValidEngineToken(authHeader, token)) {
       return NextResponse.json({ error: 'Unauthorized: Missing or invalid engine token.' }, { status: 401 });
     }
 
@@ -119,7 +129,7 @@ export async function POST(req) {
 
       } catch (err) {
         console.error(`[Sync API] Error processing article: ${data.url}`, err);
-        results.errors.push({ url: data.url, error: err.message });
+        results.errors.push({ url: data.url, error: 'Failed to process article' });
       }
     }
 

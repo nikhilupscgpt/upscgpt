@@ -33,7 +33,7 @@ export async function PATCH(req, { params }) {
     const updateData = { ...validation.data }
     
     if (updateData.password) {
-      updateData.password = await bcrypt.hash(updateData.password, 10)
+      updateData.password = await bcrypt.hash(updateData.password, 12)
     } else {
       delete updateData.password
     }
@@ -61,7 +61,7 @@ export async function PATCH(req, { params }) {
     return NextResponse.json(user)
   } catch (error) {
     console.error("User update failed:", error)
-    return NextResponse.json({ error: error?.message || "Failed to update user" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to update user" }, { status: 500 })
   }
 }
 
@@ -93,6 +93,6 @@ export async function DELETE(req, { params }) {
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("User deletion failed:", error)
-    return NextResponse.json({ error: error?.message || "Failed to delete user" }, { status: 500 })
+    return NextResponse.json({ error: "Failed to delete user" }, { status: 500 })
   }
 }

@@ -22,9 +22,11 @@ export default function StudentLogin() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
       })
-      const data = await res.json()
-      if (data.success) {
+      const data = await res.json().catch(() => ({}))
+      if (res.ok && data.success) {
         setStep(2)
+      } else if (res.status === 429) {
+        setError(data.error || "Too many requests. Please try again later.")
       } else {
         setError(data.error || "Failed to send OTP")
       }
@@ -59,6 +61,9 @@ export default function StudentLogin() {
 
     if (result?.ok) {
       window.location.href = targetUrl
+    } else if (result?.error === "TooManyAttempts") {
+      setError("Too many attempts — request a new code")
+      setLoading(false)
     } else {
       setError("Invalid OTP or expired")
       setLoading(false)

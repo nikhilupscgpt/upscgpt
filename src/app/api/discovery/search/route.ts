@@ -1,18 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/lib/prisma';
+import { getClientIp, rateLimit, tooManyRequests } from '@/lib/rateLimit';
 
-const prisma = new PrismaClient();
-const OLLAMA_HOST = process.env.OLLAMA_HOST || 'http://localhost:11434';
-const EMBEDDING_MODEL = 'nomic-embed-text';
+const MAX_QUERY_CHARS = 300;
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const query = searchParams.get('q');
+  const query = (searchParams.get('q') || '').trim().slice(0, MAX_QUERY_CHARS);
   const type = searchParams.get('type') || 'all'; // all, issues, pyqs
-  const mode = searchParams.get('mode') || 'keyword'; // keyword, semantic
 
-  if (!query) {
+  if (query.length < 2) {
     return NextResponse.json({ results: [] });
+  }
+
+  const rl = await rateLimit({
+    bucket: 'discovery-search',
+    key: `ip:${getClientIp(req)}`,
+    limit: 300,
+    windowMs: 60 * 60 * 1000,
+  });
+  if (!rl.allowed) {
+    return tooManyRequests(NextResponse, rl.retryAfterSec, 'Too many searches. Please try again shortly.');
   }
 
   try {
@@ -70,7 +78,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ results: mergedResults });
   } catch (error: any) {
     console.error('Search API Error:', error);
-    return NextResponse.json({ error: 'Search failed', details: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Search failed' }, { status: 500 });
   }
 }
 

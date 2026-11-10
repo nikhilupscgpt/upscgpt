@@ -4,7 +4,11 @@ const prisma = new PrismaClient();
 
 async function main() {
   const username = 'admin';
-  const passwordToTest = 'AdminPassword2026!';
+  const passwordToTest = process.env.ADMIN_PASSWORD;
+  if (!passwordToTest) {
+    console.error('Set ADMIN_PASSWORD in the environment first.');
+    process.exit(1);
+  }
 
   const user = await prisma.user.findUnique({
     where: { username: username }
@@ -16,8 +20,6 @@ async function main() {
   }
 
   const isMatch = await bcrypt.compare(passwordToTest, user.password);
-  console.log(`Password: ${passwordToTest}`);
-  console.log(`Hash in DB: ${user.password}`);
   console.log(`Match: ${isMatch}`);
 }
 

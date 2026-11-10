@@ -7,6 +7,29 @@ import TurndownService from 'turndown';
 import { gfm } from 'turndown-plugin-gfm';
 import fs from 'fs';
 import path from 'path';
+import { safeFetch, SafeFetchError } from '@/lib/safeFetch';
+
+// Only raster formats are stored (SVG can carry script → stored XSS from /uploads).
+const IMAGE_EXT_BY_MIME = {
+  'image/png': 'png',
+  'image/jpeg': 'jpg',
+  'image/jpg': 'jpg',
+  'image/gif': 'gif',
+  'image/webp': 'webp',
+};
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024; // 5 MB per image
+const MAX_IMAGES = 50;                   // per document
+const MAX_DOC_BYTES = 20 * 1024 * 1024;  // 20 MB HTML export
+
+// Verify magic bytes so a mislabelled payload can't be stored under an image extension.
+function sniffImageExt(buf) {
+  if (!buf || buf.length < 12) return null;
+  if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) return 'png';
+  if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) return 'jpg';
+  if (buf.slice(0, 6).toString('ascii') === 'GIF87a' || buf.slice(0, 6).toString('ascii') === 'GIF89a') return 'gif';
+  if (buf.slice(0, 4).toString('ascii') === 'RIFF' && buf.slice(8, 12).toString('ascii') === 'WEBP') return 'webp';
+  return null;
+}
 
 async function requireAdmin() {
   const session = await getServerSession(authOptions);
@@ -66,8 +89,18 @@ export async function POST(req) {
 
     // 1. Fetch HTML export from Google Docs (expects shared as "Anyone with link can view")
     const exportUrl = `https://docs.google.com/document/d/${docId}/export?format=html`;
-    const response = await fetch(exportUrl);
-    
+    let response;
+    try {
+      response = await safeFetch(exportUrl, { maxBytes: MAX_DOC_BYTES });
+    } catch (err) {
+      console.error('[GDOC INGEST] Doc fetch failed:', err);
+      return NextResponse.json({
+        error: err instanceof SafeFetchError && err.code === 'TOO_LARGE'
+          ? 'Document export is too large.'
+          : 'Could not access document.'
+      }, { status: 400 });
+    }
+
     if (!response.ok) {
       return NextResponse.json({ 
         error: `Could not access document. Verify it is shared as "Anyone with link can view". (HTTP ${response.status})` 
@@ -93,42 +126,50 @@ export async function POST(req) {
       const src = img.getAttribute('src');
       if (!src) continue;
 
-      try {
-        let imgBuffer;
-        let ext = 'png';
+      if (imagesCount >= MAX_IMAGES) {
+        console.warn(`[GDOC INGEST] Image limit (${MAX_IMAGES}) reached; dropping remaining images.`);
+        img.remove();
+        continue;
+      }
 
-        if (src.startsWith('data:image/')) {
-          const base64Matches = src.match(/^data:image\/([a-zA-Z+]+);base64,(.+)$/);
-          if (base64Matches && base64Matches.length === 3) {
-            ext = base64Matches[1];
-            imgBuffer = Buffer.from(base64Matches[2], 'base64');
-          }
-        } else {
-          const imgRes = await fetch(src);
-          if (imgRes.ok) {
-            const arrBuffer = await imgRes.arrayBuffer();
-            imgBuffer = Buffer.from(arrBuffer);
-            
-            const contentType = imgRes.headers.get('content-type');
-            if (contentType) {
-              const mimeExt = contentType.split('/')[1];
-              if (mimeExt && ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg+xml'].includes(mimeExt)) {
-                ext = mimeExt === 'svg+xml' ? 'svg' : mimeExt;
-              }
+      try {
+        let imgBuffer = null;
+        let declaredExt = null;
+
+        if (src.startsWith('data:')) {
+          const base64Matches = src.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+          if (base64Matches) {
+            declaredExt = IMAGE_EXT_BY_MIME[base64Matches[1].toLowerCase()] || null;
+            // base64 expands 4/3; reject before decoding if clearly too big
+            if (declaredExt && base64Matches[2].length <= Math.ceil(MAX_IMAGE_BYTES * 4 / 3) + 4) {
+              imgBuffer = Buffer.from(base64Matches[2], 'base64');
             }
           }
+        } else {
+          const imgRes = await safeFetch(src, { maxBytes: MAX_IMAGE_BYTES });
+          if (imgRes.ok) {
+            const contentType = (imgRes.headers.get('content-type') || '').split(';')[0].trim().toLowerCase();
+            declaredExt = IMAGE_EXT_BY_MIME[contentType] || null;
+            if (declaredExt) imgBuffer = imgRes.buffer;
+          }
         }
 
-        if (imgBuffer) {
-          imagesCount++;
-          const filename = `gdoc_${docId}_${Date.now()}_${imagesCount}.${ext}`;
-          const localPath = path.join(uploadDir, filename);
-          
-          fs.writeFileSync(localPath, imgBuffer);
-          img.setAttribute('src', `/uploads/${filename}`);
+        const sniffedExt = imgBuffer ? sniffImageExt(imgBuffer) : null;
+        if (!imgBuffer || imgBuffer.length > MAX_IMAGE_BYTES || !declaredExt || !sniffedExt) {
+          console.warn('[GDOC INGEST] Skipping disallowed/oversized image');
+          img.remove();
+          continue;
         }
+
+        imagesCount++;
+        const filename = `gdoc_${docId}_${Date.now()}_${imagesCount}.${sniffedExt}`;
+        const localPath = path.join(uploadDir, filename);
+
+        fs.writeFileSync(localPath, imgBuffer);
+        img.setAttribute('src', `/uploads/${filename}`);
       } catch (err) {
-        console.error('Failed to download embedded Google Doc image:', src, err);
+        console.error('Failed to download embedded Google Doc image:', err instanceof SafeFetchError ? err.code : err);
+        // Leave the original src in place (same as previous behaviour) on network failure.
       }
     }
 
@@ -290,8 +331,7 @@ export async function POST(req) {
   } catch (error) {
     console.error('[GDOC INGEST FATAL ERROR]', error);
     return NextResponse.json({ 
-      error: 'Ingestion server error', 
-      msg: error.message 
+      error: 'Ingestion server error'
     }, { status: 500 });
   }
 }

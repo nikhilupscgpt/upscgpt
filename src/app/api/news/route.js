@@ -1,5 +1,8 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, after } from 'next/server'
+import { timingSafeEqual, createHash } from 'node:crypto'
+import { getServerSession } from 'next-auth/next'
 import prisma from "@/lib/prisma"
+import { authOptions } from '@/lib/auth'
 import { getGeminiModel } from '@/lib/gemini'
 import { getRenderedPrompt } from '@/lib/aiPromptRegistry'
 
@@ -122,7 +125,8 @@ async function runAiEnrichment(articles) {
 
       const response = await model.generateContent(promptText)
 
-      let cleanText = response.text.trim()
+      const rawText = typeof response.text === 'function' ? response.text() : (response.text || '')
+      let cleanText = String(rawText).trim()
         .replace(/^```json\n?/, '').replace(/\n?```$/, '')
         .replace(/^```\n?/, '').replace(/\n?```$/, '')
 
@@ -190,7 +194,41 @@ async function runAiEnrichment(articles) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// FAST GET ENDPOINT — responds in <1s, fires AI enrichment in background
+// ENRICHMENT AUTHORISATION — only admins or the cron job may trigger Gemini work.
+// Public visitors just get the (cached) headlines.
+// ─────────────────────────────────────────────────────────────────────────────
+function safeEqual(a, b) {
+  // Hash both sides so lengths always match before the constant-time compare.
+  const ha = createHash('sha256').update(String(a)).digest()
+  const hb = createHash('sha256').update(String(b)).digest()
+  return timingSafeEqual(ha, hb)
+}
+
+async function canRunEnrichment(req) {
+  const cronSecret = process.env.CRON_SECRET
+  const authHeader = req.headers.get('authorization') || ''
+  if (cronSecret && authHeader.startsWith('Bearer ')) {
+    if (safeEqual(authHeader.slice('Bearer '.length), cronSecret)) return true
+  }
+
+  try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.id) return false
+    // Confirm the role from the DB rather than trusting the JWT alone.
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { role: true },
+    })
+    return user?.role === 'ADMIN'
+  } catch (err) {
+    console.error('[News API] Enrichment auth check failed:', err?.message)
+    return false
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FAST GET ENDPOINT — responds in <1s. GNews calls go through fetch() with
+// next.revalidate=3600, so each query URL hits GNews at most ~once per hour.
 // ─────────────────────────────────────────────────────────────────────────────
 export async function GET(req) {
   try {
@@ -243,10 +281,15 @@ export async function GET(req) {
       return article
     })
 
-    // Fire-and-forget AI enrichment (non-blocking)
-    runAiEnrichment(fetchedArticles).catch(err =>
-      console.error('[AI Enrichment] Background run failed:', err.message)
-    )
+    // AI enrichment (Gemini + DB writes) only for admins / cron, never for public
+    // visitors, and never on mock data. Runs after the response is sent.
+    if (!usingMock && await canRunEnrichment(req)) {
+      after(() =>
+        runAiEnrichment(fetchedArticles).catch(err =>
+          console.error('[AI Enrichment] Background run failed:', err?.message)
+        )
+      )
+    }
 
     return NextResponse.json({
       articles: enrichedArticles,
@@ -255,6 +298,6 @@ export async function GET(req) {
     })
   } catch (error) {
     console.error('[News API] Crash:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to load news.' }, { status: 500 })
   }
 }

@@ -6,6 +6,7 @@ import { getServerSession } from 'next-auth/next'
 import prisma from '@/lib/prisma'
 import { authOptions } from "@/lib/auth"
 import { getRenderedPrompt } from '@/lib/aiPromptRegistry'
+import { getClientIp, rateLimit, tooManyRequests } from '@/lib/rateLimit'
 
 const REGION_CONFIG = {
   asia: {
@@ -118,13 +119,18 @@ function getIstDayWindow(referenceDate = new Date()) {
   }
 }
 
-function getRequestIp(req) {
-  const forwarded = req.headers.get('x-forwarded-for')
-  if (forwarded) {
-    return forwarded.split(',')[0]?.trim() || null
-  }
-
-  return req.headers.get('x-real-ip') || null
+function sanitizeChatHistory(history) {
+  if (!Array.isArray(history)) return []
+  return history
+    .slice(-6)
+    .map((item) => {
+      if (!item || typeof item !== 'object') return null
+      const role = item.role === 'user' ? 'user' : (item.role === 'assistant' || item.role === 'model') ? 'assistant' : null
+      const content = typeof item.content === 'string' ? item.content : (typeof item.text === 'string' ? item.text : '')
+      if (!role || !content.trim()) return null
+      return { role, content: content.slice(0, 2000) }
+    })
+    .filter(Boolean)
 }
 
 function getChatLimitForTier(tier) {
@@ -169,9 +175,9 @@ async function resolveChatIdentity(req) {
     }
   }
 
+  // Key anonymous usage on the client IP only (the User-Agent is trivially rotated).
   const identifierHash = hashPayload({
-    ip: getRequestIp(req) || 'unknown',
-    userAgent: req.headers.get('user-agent') || 'unknown',
+    ip: getClientIp(req),
   })
 
   return {
@@ -868,7 +874,7 @@ export async function POST(req) {
     const entryId = body?.entryId || (writesSharedCache ? body?.selectedEntrySnapshot?.id : null) || null
     const userPrompt = writesSharedCache ? '' : String(body?.userPrompt || '').trim().slice(0, 2000)
     const lang = body?.lang || 'en'
-    const chatHistory = !writesSharedCache && Array.isArray(body?.chatHistory) ? body.chatHistory.slice(-6) : []
+    const chatHistory = !writesSharedCache ? sanitizeChatHistory(body?.chatHistory) : []
     const entriesSnapshot = !writesSharedCache && Array.isArray(body?.entriesSnapshot)
       ? body.entriesSnapshot.slice(0, 100).map(normalizeEntrySnapshot).filter(Boolean)
       : []
@@ -953,6 +959,27 @@ export async function POST(req) {
         },
         { status: 429 }
       )
+    }
+
+    // Cache miss on a shared-cache mode: this request will call Gemini.
+    if (mode !== 'chat') {
+      const session = await getServerSession(authOptions)
+      const userId = session?.user?.id || null
+      const limitCheck = await rateLimit({
+        bucket: 'mapbot-generate',
+        key: userId ? `user:${userId}` : `ip:${getClientIp(req)}`,
+        limit: userId ? 100 : 30,
+        windowMs: 60 * 60 * 1000,
+      })
+      if (!limitCheck.allowed) {
+        return tooManyRequests(
+          NextResponse,
+          limitCheck.retryAfterSec,
+          userId
+            ? 'Nano is generating a lot of new insights for you right now. Please try again in a little while.'
+            : 'Nano has reached its hourly limit for new insights. Sign in or try again in a little while.'
+        )
+      }
     }
 
     const prompt = await buildPrompt({

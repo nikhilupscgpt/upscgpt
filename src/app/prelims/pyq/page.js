@@ -5,6 +5,7 @@ import { isNewPatternQuestion } from '@/lib/pyqPattern';
 import { generateQuestionSlug } from '@/lib/pyqSlug';
 import { SUBJECT_ORDER, SUBJECT_SHORT, getTopicSyllabusOrder } from './topicGroups';
 import { safeJsonLd } from '@/lib/jsonLd';
+import { applyDeepDiveGate } from '@/lib/tier-gate';
 
 // Incremental Static Regeneration (ISR): Revalidate every 5 minutes
 export const revalidate = 300;
@@ -157,7 +158,8 @@ export default async function PyqExplorerPage() {
     orderBy: [{ examYear: 'desc' }, { questionNo: 'asc' }],
   });
 
-  const initialQuestions = initialDrafts.map(q => {
+  // ISR page (shared cache): never embed PRO deep-dives; the client fetches /api/pyq per user.
+  const initialQuestionsRaw = initialDrafts.map(q => {
     let opts = [];
     if (typeof q.options === 'string') {
       try { opts = JSON.parse(q.options); } catch { opts = []; }
@@ -178,6 +180,7 @@ export default async function PyqExplorerPage() {
       explanation: q.explanation || null,
     };
   });
+  const initialQuestions = applyDeepDiveGate(initialQuestionsRaw, null);
 
   // 3. Schema.org CollectionPage + ItemList for SEO & GEO Discovery
   const jsonLd = {

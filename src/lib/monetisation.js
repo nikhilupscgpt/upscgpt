@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import prisma from '@/lib/prisma';
+import { getClientIp } from '@/lib/rateLimit';
 
 export const MONETISATION_CONFIG_KEY = 'monetisation:config';
 
@@ -337,10 +338,73 @@ export function evaluateCoupon(config, planCode, basePriceInr, rawCouponCode) {
   };
 }
 
+/** ActionLog actions written once per successful (paid) upgrade, carrying `couponCode` in message JSON. */
+export const SUCCESSFUL_UPGRADE_ACTIONS = ['USER_UPGRADED', 'USER_UPGRADED_WEBHOOK'];
+
+/**
+ * Counts successful paid upgrades that used a coupon (optionally for one user).
+ * Each verified payment writes exactly one USER_UPGRADED / USER_UPGRADED_WEBHOOK log
+ * (PaymentLog idempotency guarantees this), so this is the authoritative redemption count.
+ */
+export async function countCouponRedemptions(couponCode, userId = null) {
+  const code = String(couponCode || '').trim();
+  if (!code) return 0;
+  return prisma.actionLog.count({
+    where: {
+      action: { in: SUCCESSFUL_UPGRADE_ACTIONS },
+      status: 'SUCCESS',
+      message: { contains: `"couponCode":${JSON.stringify(code)}`, mode: 'insensitive' },
+      ...(userId ? { userId } : {}),
+    },
+  });
+}
+
+/**
+ * evaluateCoupon + DB-backed usage checks:
+ *  - a user may redeem the same coupon only once (successful payments);
+ *  - maxUses is checked against successful redemptions (not just the config counter).
+ * Fails closed (coupon rejected) if the usage lookup errors.
+ */
+export async function evaluateCouponForUser(config, planCode, basePriceInr, rawCouponCode, userId = null) {
+  const result = evaluateCoupon(config, planCode, basePriceInr, rawCouponCode);
+  if (!result.valid) return result;
+
+  const invalid = (error) => ({
+    valid: false,
+    discountInr: 0,
+    finalPriceInr: basePriceInr,
+    coupon: null,
+    error,
+  });
+
+  const code = String(rawCouponCode).trim().toUpperCase();
+  const coupon = (config?.coupons || []).find((c) => String(c.code || '').toUpperCase() === code);
+
+  try {
+    if (userId) {
+      const mine = await countCouponRedemptions(coupon?.code || code, userId);
+      if (mine > 0) return invalid('You have already used this coupon.');
+    }
+    if (coupon?.maxUses != null) {
+      const total = await countCouponRedemptions(coupon.code || code);
+      const used = Math.max(total, Number(coupon.usedCount || 0));
+      if (used >= Number(coupon.maxUses)) {
+        return invalid('This coupon has reached its usage limit.');
+      }
+    }
+  } catch (err) {
+    console.error('[Monetisation] Coupon usage lookup failed:', err?.message);
+    return invalid('Could not validate this coupon right now. Please try again.');
+  }
+
+  return result;
+}
+
 /**
  * Resolves full server-side pricing for a plan + optional coupon.
+ * Pass `userId` so per-user coupon reuse is blocked.
  */
-export async function resolveServerOrderQuote(planCode = 'PRELIMS_PASS_2027', couponCode = null) {
+export async function resolveServerOrderQuote(planCode = 'PRELIMS_PASS_2027', couponCode = null, userId = null) {
   const config = await getMonetisationConfig();
   const plan =
     config.plans.find((p) => p.code === planCode && p.active) ||
@@ -351,7 +415,7 @@ export async function resolveServerOrderQuote(planCode = 'PRELIMS_PASS_2027', co
   }
 
   const { priceInr: scheduledPriceInr, activeWindowLabel, activeWindowId } = resolveActivePlanPrice(plan);
-  const couponEval = evaluateCoupon(config, plan.code, scheduledPriceInr, couponCode);
+  const couponEval = await evaluateCouponForUser(config, plan.code, scheduledPriceInr, couponCode, userId);
 
   if (couponCode && !couponEval.valid) {
     throw new Error(couponEval.error || 'Invalid coupon code.');
@@ -405,7 +469,9 @@ export function isUserProActive(user) {
 }
 
 /**
- *Increments coupon usage count in PlatformConfig when a payment is verified.
+ * Increments the display counter `usedCount` in PlatformConfig when a payment is verified.
+ * NOTE: this is a non-atomic read-modify-write kept for the admin UI; the maxUses limit is
+ * enforced from ActionLog redemptions in evaluateCouponForUser().
  */
 export async function incrementCouponUsage(couponCode) {
   if (!couponCode) return;
@@ -429,8 +495,8 @@ export async function incrementCouponUsage(couponCode) {
 }
 
 export function getAnonymousHash(req) {
-  const forwarded = req?.headers?.get?.('x-forwarded-for');
-  const ip = forwarded ? forwarded.split(',')[0]?.trim() : req?.headers?.get?.('x-real-ip') || 'unknown';
+  // Platform-set IP (x-real-ip on Vercel) — not the client-controllable x-forwarded-for.
+  const ip = getClientIp(req);
   const ua = req?.headers?.get?.('user-agent') || 'unknown';
   return crypto.createHash('sha256').update(`${ip}|${ua}`).digest('hex').slice(0, 24);
 }

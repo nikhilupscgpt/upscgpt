@@ -5,7 +5,7 @@ import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
+import { SAFE_REHYPE_PLUGINS } from '@/lib/markdownSanitize';
 import { 
   ChevronLeft, Search, BookOpen, History, Award, Focus, Sparkles, Cpu 
 } from 'lucide-react';
@@ -782,7 +782,7 @@ export default function OptionalStudyClient({ optional, contents = [], pyqs = []
                         </header>
 
                         <section className="doc-body markdown-content">
-                          <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>
+                          <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={SAFE_REHYPE_PLUGINS}>
                             {selectedChunk.contentMarkdown}
                           </ReactMarkdown>
                         </section>

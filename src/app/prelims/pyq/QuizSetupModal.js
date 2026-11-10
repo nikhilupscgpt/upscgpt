@@ -192,22 +192,20 @@ export default function QuizSetupModal({ isOpen, onClose, questions = [], initia
         setGateNotice('Please sign in to create a free custom practice set.');
         return;
       }
+      // Pre-check only: the practice page records the set and enforces the daily
+      // count & size limits server-side (so we must not record it here as well).
       try {
-        const res = await fetch('/api/monetisation/usage', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ feature: 'practice_set' }),
-        });
+        const res = await fetch('/api/monetisation/usage?feature=practice_set');
         const data = await res.json();
-        setUsageInfo(data);
-        if (!res.ok || data.allowed === false) {
+        if (res.ok) setUsageInfo(data);
+        if (res.ok && data.allowed === false) {
           setGateNotice(
             `You've used your ${data.limit ?? 1} free custom practice set(s) for today. Upgrade to Prelims Pass for unlimited sets of any length.`
           );
           return;
         }
       } catch {
-        // Allow launch if usage check fails transiently
+        // The practice page re-checks the quota server-side.
       }
     }
 

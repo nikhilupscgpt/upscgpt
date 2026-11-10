@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
+import os from 'os';
+import crypto from 'crypto';
 import path from 'path';
 import fs from 'fs';
 import { generateJSON } from '@/lib/ai';
+
+const MAX_UPLOAD_BYTES = 25 * 1024 * 1024; // 25 MB
 
 export async function POST(req) {
   const session = await getServerSession(authOptions);
@@ -12,31 +16,31 @@ export async function POST(req) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  let filePath = null;
   try {
     const formData = await req.formData();
     const file = formData.get('file');
 
-    if (!file) {
+    if (!file || typeof file.arrayBuffer !== 'function') {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
+    }
+    if (file.size > MAX_UPLOAD_BYTES) {
+      return NextResponse.json({ error: 'File too large (max 25 MB)' }, { status: 413 });
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads');
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-    
-    const filePath = path.join(uploadDir, `ocr_temp_${Date.now()}.pdf`);
+
+    // Temp file goes to the OS temp dir (never under public/, which is web-served)
+    filePath = path.join(os.tmpdir(), `ocr_temp_${Date.now()}_${crypto.randomBytes(6).toString('hex')}.pdf`);
     fs.writeFileSync(filePath, buffer);
 
-    // 1. Run OCR Tool (Swift)
+    // 1. Run OCR Tool (Swift) — execFile, no shell interpolation
     console.log(`[OCR API] Running OCR on: ${filePath}`);
-    const ocrOutput = execSync(`swift scripts/ocr.swift "${filePath}"`, { 
+    const ocrOutput = execFileSync('swift', [path.join(process.cwd(), 'scripts', 'ocr.swift'), filePath], {
       encoding: 'utf-8', 
       timeout: 600000, // 10 minutes
       maxBuffer: 50 * 1024 * 1024 // 50MB
     });
-    
-    // Cleanup temp file
-    fs.unlinkSync(filePath);
 
     if (!ocrOutput || ocrOutput.trim().length < 50) {
       return NextResponse.json({ error: 'OCR failed or produced too little text.' }, { status: 422 });
@@ -72,6 +76,10 @@ export async function POST(req) {
 
   } catch (error) {
     console.error('[OCR API] Error:', error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'OCR processing failed' }, { status: 500 });
+  } finally {
+    if (filePath) {
+      try { fs.unlinkSync(filePath); } catch { /* already gone */ }
+    }
   }
 }

@@ -16,7 +16,7 @@ async function main() {
   console.log(`Name:     ${name}`);
   console.log(`Email:    ${email}`);
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const hashedPassword = await bcrypt.hash(password, 12);
 
   const faculty = await prisma.user.upsert({
     where: { username },

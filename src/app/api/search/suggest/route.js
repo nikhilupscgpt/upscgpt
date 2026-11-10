@@ -1,13 +1,28 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { generateEmbedding } from "@/lib/rag-utils";
+import { getClientIp, rateLimit, tooManyRequests } from "@/lib/rateLimit";
+
+const MAX_QUERY_CHARS = 300;
+const MIN_QUERY_CHARS = 3;
 
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
-  const query = searchParams.get("q");
+  const query = (searchParams.get("q") || "").trim().slice(0, MAX_QUERY_CHARS);
 
-  if (!query || query.length < 2) {
+  if (query.length < MIN_QUERY_CHARS) {
     return NextResponse.json({ suggestions: [] });
+  }
+
+  // Called on keystrokes: cap per IP so it can't be used to burn DB/embedding quota.
+  const rl = await rateLimit({
+    bucket: "search-suggest",
+    key: `ip:${getClientIp(req)}`,
+    limit: 300,
+    windowMs: 60 * 60 * 1000,
+  });
+  if (!rl.allowed) {
+    return tooManyRequests(NextResponse, rl.retryAfterSec, "Too many suggestion requests. Please slow down and try again shortly.");
   }
 
   try {
@@ -40,7 +55,17 @@ export async function GET(req) {
     ];
 
     // 2. If no exact matches, try Semantic Fallback (limit to top 3 for speed)
-    if (suggestions.length < 3) {
+    // Embeddings share the per-IP budget used by /api/search; when it is spent,
+    // suggestions fall back to plain text matches only.
+    const embedBudget = suggestions.length < 3
+      ? await rateLimit({
+          bucket: "search-embed",
+          key: `ip:${getClientIp(req)}`,
+          limit: 60,
+          windowMs: 60 * 60 * 1000,
+        })
+      : { allowed: false };
+    if (suggestions.length < 3 && embedBudget.allowed) {
       try {
         const embedding = await generateEmbedding(query);
         const vectorStr = `[${embedding.join(",")}]`;
@@ -66,7 +91,7 @@ export async function GET(req) {
           }
         });
       } catch (e) {
-        console.warn("Semantic suggest failed:", e);
+        console.warn("Semantic suggest failed:", e?.message);
       }
     }
 

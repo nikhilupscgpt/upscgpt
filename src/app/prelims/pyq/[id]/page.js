@@ -11,6 +11,7 @@ import {
 } from '@/lib/seo';
 import { resolveSyllabusNodesForQuestion } from '@/lib/nodeBridge';
 import { safeJsonLd } from '@/lib/jsonLd';
+import { applyDeepDiveGate } from '@/lib/tier-gate';
 
 // 24-hour ISR Cache: Ensures search crawlers consume 0 DB/server compute after initial cache
 export const revalidate = 86400;
@@ -272,6 +273,17 @@ export default async function StandaloneQuestionPage({ params }) {
     }
   ];
 
+  // This page is ISR-cached for everyone, so the PRO deep-dive is never embedded here.
+  // The client unlocks it per user via POST /api/monetisation/usage (quota/PRO checked server-side).
+  const combinedExplanation =
+    q.analysis && typeof q.analysis === 'object'
+      ? JSON.stringify({ explanation: q.explanation || '', analysis: q.analysis })
+      : q.explanation || null;
+  const [gated] = applyDeepDiveGate(
+    [{ id: q.id, correctLabel: q.correctLabel, explanation: combinedExplanation }],
+    null
+  );
+
   const questionData = {
     id: q.id,
     dedupHash: q.dedupHash,
@@ -285,8 +297,9 @@ export default async function StandaloneQuestionPage({ params }) {
     stem: q.stem,
     options: opts,
     correctLabel: q.correctLabel,
-    explanation: q.explanation || null,
-    analysis: q.analysis || null,
+    explanation: gated.deepDiveLocked ? gated.explanation : q.explanation || null,
+    analysis: gated.deepDiveLocked ? null : q.analysis || null,
+    deepDiveLocked: Boolean(gated.deepDiveLocked),
     relatedQuestions,
     syllabusNodes,
   };

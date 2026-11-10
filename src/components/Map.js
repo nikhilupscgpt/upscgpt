@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import { MapContainer, TileLayer, Marker, Tooltip, Polyline, ZoomControl, GeoJSON, useMapEvents, useMap } from 'react-leaflet'
 import MarkerClusterGroup from 'react-leaflet-cluster'
 import L from 'leaflet'
+import { escapeHtml } from '@/lib/escapeHtml'
 import 'leaflet/dist/leaflet.css'
 
 if (typeof window !== 'undefined') {
@@ -46,7 +47,9 @@ function getContinentKey(value) {
   return aliasMap[normalized] || ''
 }
 
-function createMarkerIcon(cat, hasNews, name, isMinimal = false, isSelected = false, isOrgMember = false, orgColor = null) {
+function createMarkerIcon(cat, hasNews, rawName, isMinimal = false, isSelected = false, isOrgMember = false, rawOrgColor = null) {
+  const name = escapeHtml(rawName)
+  const orgColor = rawOrgColor ? escapeHtml(rawOrgColor) : rawOrgColor
   const { color, emoji } = catStyles[cat] || { color: '#94a3b8', emoji: '📍' }
   const borderColor = isSelected ? '#6366f1' : (isOrgMember && orgColor ? orgColor : color);
   const borderWidth = isSelected ? '3px' : (isOrgMember ? '3px' : '2px');
@@ -165,7 +168,9 @@ function createMarkerIcon(cat, hasNews, name, isMinimal = false, isSelected = fa
   return L.divIcon({ html, iconSize: [0,0], iconAnchor: [0,0], popupAnchor: [0,-34], className: '' })
 }
 
-function createOrgHQIcon(shortName, color) {
+function createOrgHQIcon(rawShortName, rawColor) {
+  const shortName = escapeHtml(rawShortName)
+  const color = rawColor ? escapeHtml(rawColor) : rawColor
   const html = `
     <div style="
       position: absolute;
@@ -344,7 +349,7 @@ function OrgGeoLayer({ activeOrg, orgColor }) {
           })}
           onEachFeature={(feature, layer) => {
             const name = feature.properties.ADMIN || feature.properties.name || feature.properties.NAME || 'Unknown'
-            layer.bindTooltip(`<strong>${name}</strong><br/><span style="font-size:10px;color:${color}">${activeOrg.shortName} member</span>`, {
+            layer.bindTooltip(`<strong>${escapeHtml(name)}</strong><br/><span style="font-size:10px;color:${escapeHtml(color)}">${escapeHtml(activeOrg.shortName)} member</span>`, {
               sticky: true,
               className: 'org-tooltip',
               direction: 'top'
@@ -368,8 +373,8 @@ function OrgGeoLayer({ activeOrg, orgColor }) {
             const name = feature.properties.st_nm || feature.properties.NAME_1 || feature.properties.name || 'India'
             layer.bindTooltip(
               hasIndiaMember
-                ? `<strong>${name}</strong><br/><span style="font-size:10px;color:${color}">India boundary as per official position</span>`
-                : `<strong>${name}</strong><br/><span style="font-size:10px;color:#475569">India boundary overlay</span>`,
+                ? `<strong>${escapeHtml(name)}</strong><br/><span style="font-size:10px;color:${escapeHtml(color)}">India boundary as per official position</span>`
+                : `<strong>${escapeHtml(name)}</strong><br/><span style="font-size:10px;color:#475569">India boundary overlay</span>`,
               {
                 sticky: true,
                 className: 'org-tooltip',

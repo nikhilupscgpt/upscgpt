@@ -3,6 +3,31 @@ import { generateEmbedding, searchSimilarContent, searchSimilarPYQs } from '@/li
 import { getTierStatus } from '@/lib/tier-gate';
 import { getPromptValue, getRenderedPrompt } from '@/lib/aiPromptRegistry';
 import prisma from '@/lib/prisma';
+import { rateLimit } from '@/lib/rateLimit';
+
+const MAX_QUERY_CHARS = 2000;
+const MAX_HISTORY_ITEMS = 10;
+// No RAG/AI-chat quota exists in monetisation freeLimits, so use fixed daily caps.
+const RAG_DAILY_LIMIT_FREE = 20;
+const RAG_DAILY_LIMIT_PRO = 200;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+function sanitizeHistory(history) {
+  if (!Array.isArray(history)) return [];
+  return history
+    .slice(-MAX_HISTORY_ITEMS)
+    .map((m) => {
+      if (!m || typeof m !== 'object') return null;
+      const role = m.role === 'user' ? 'user' : ['ai', 'assistant', 'model'].includes(m.role) ? 'assistant' : null;
+      const content = typeof m.content === 'string' ? m.content.trim().slice(0, MAX_QUERY_CHARS) : '';
+      if (!role || !content) return null;
+      return { role, content };
+    })
+    .filter(Boolean);
+}
+
+const jsonResponse = (data, status, headers = {}) =>
+  new Response(JSON.stringify(data), { status, headers: { 'Content-Type': 'application/json', ...headers } });
 
 const OLLAMA_HOST = process.env.OLLAMA_HOST || 'http://localhost:11434';
 const OLLAMA_FAST_MODEL = 'gemma:2b';       
@@ -38,13 +63,36 @@ async function getStandaloneQuery(history, currentQuery) {
 
 export async function POST(req) {
   const { isPro, user } = await getTierStatus();
-  if (!user) return new Response(JSON.stringify({ error: 'Auth required' }), { status: 401 });
+  if (!user?.id) return jsonResponse({ error: 'Auth required' }, 401);
 
   try {
     const body = await req.json();
-    const { query, subject, examType, optionalSlug, history = [], lang = 'en', language = 'en', exam = 'UPSC' } = body;
+    const { subject, examType, optionalSlug, lang = 'en', language = 'en', exam = 'UPSC' } = body || {};
     const activeLanguage = lang || language;
-    if (!query) return new Response(JSON.stringify({ error: 'Missing query' }), { status: 400 });
+    const query = typeof body?.query === 'string' ? body.query.trim() : '';
+    const history = sanitizeHistory(body?.history);
+    if (!query) return jsonResponse({ error: 'Missing query' }, 400);
+    if (query.length > MAX_QUERY_CHARS) {
+      return jsonResponse({ error: `Please keep your question under ${MAX_QUERY_CHARS} characters.` }, 400);
+    }
+
+    const rl = await rateLimit({
+      bucket: 'rag-query',
+      key: `user:${user.id}`,
+      limit: isPro ? RAG_DAILY_LIMIT_PRO : RAG_DAILY_LIMIT_FREE,
+      windowMs: DAY_MS,
+    });
+    if (!rl.allowed) {
+      return jsonResponse(
+        {
+          error: isPro
+            ? `You've reached today's limit of ${RAG_DAILY_LIMIT_PRO} AI questions. Please try again tomorrow.`
+            : `You've used your ${RAG_DAILY_LIMIT_FREE} free AI questions for today. Upgrade to Pro for more, or try again tomorrow.`,
+        },
+        429,
+        { 'Retry-After': String(rl.retryAfterSec || 3600) }
+      );
+    }
 
     let optionalId = null;
     if (optionalSlug) {
@@ -194,6 +242,6 @@ export async function POST(req) {
 
   } catch (error) {
     console.error('[RAG Query] Failed:', error);
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    return jsonResponse({ error: 'AI query failed. Please try again.' }, 500);
   }
 }

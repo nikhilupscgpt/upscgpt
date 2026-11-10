@@ -9,6 +9,7 @@ import remarkGfm from 'remark-gfm'
 import html2canvas from 'html2canvas'
 import { useTranslation } from '@/context/TranslationContext'
 import { jsPDF } from 'jspdf'
+import { escapeHtml } from '@/lib/escapeHtml'
 
 const MapWrapper = dynamic(() => import('../../../components/MapWrapper'), { ssr: false })
 import AtlasTimeTracker from '../../../components/AtlasTimeTracker'
@@ -149,9 +150,12 @@ async function requestMapBot(payload) {
     body: JSON.stringify(payload),
   })
 
-  const data = await res.json()
+  const data = await res.json().catch(() => null)
   if (!res.ok) {
-    const error = new Error(data?.error || 'Nano could not respond.')
+    const fallback = res.status === 429
+      ? 'Too many requests. Please wait a moment and try again.'
+      : 'Nano could not respond.'
+    const error = new Error(data?.error || fallback)
     error.status = res.status
     error.usage = data?.usage || null
     throw error
@@ -162,7 +166,7 @@ async function requestMapBot(payload) {
 
 async function requestMapBotChatUsage() {
   const res = await fetch('/api/mapbot?usage=chat')
-  const data = await res.json()
+  const data = await res.json().catch(() => null)
 
   if (!res.ok) {
     throw new Error(data?.error || 'Nano usage could not be loaded.')
@@ -649,15 +653,15 @@ function MapPageInner() {
           <p class="subtitle">Daily Autonomous Assessment Report - ${new Date().toLocaleDateString()}</p>
           ${filteredEntries.map(entry => `
             <div class="entry">
-              <h2 style="margin-top: 0">${entry.name} <span style="font-size: 0.9rem; color: #94a3b8">(${entry.category.toUpperCase()})</span></h2>
+              <h2 style="margin-top: 0">${escapeHtml(entry.name)} <span style="font-size: 0.9rem; color: #94a3b8">(${escapeHtml(String(entry.category || '').toUpperCase())})</span></h2>
               <div class="meta">📌 ${entry.lat ? Number(entry.lat).toFixed(4) : 'N/A'}°, ${entry.lon ? Number(entry.lon).toFixed(4) : 'N/A'}°</div>
               <div class="mains">
                  <strong style="color: #475569; font-size: 0.85rem; text-transform: uppercase;">Mains Geography Background</strong><br/>
-                 <div style="margin-top: 8px;">${entry.mains ? entry.mains.replace(/\n\n/g, '<br/><br/>').replace(/\n/g, '<br/>') : 'No static context available.'}</div>
+                 <div style="margin-top: 8px;">${entry.mains ? escapeHtml(entry.mains).replace(/\n/g, '<br/>') : 'No static context available.'}</div>
               </div>
               <div class="crux">
                 <strong style="color: #0284c7; font-size: 0.85rem; text-transform: uppercase;">24-Hour AI Intel Crux</strong><br/>
-                <div style="margin-top: 8px;">${entry.newsMentions ? entry.newsMentions.replace(/\n\n/g, '<br/><br/>').replace(/\n/g, '<br/>') : 'No recent news.'}</div>
+                <div style="margin-top: 8px;">${entry.newsMentions ? escapeHtml(entry.newsMentions).replace(/\n/g, '<br/>') : 'No recent news.'}</div>
               </div>
             </div>
           `).join('')}

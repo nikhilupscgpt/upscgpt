@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
 import {
   getMonetisationConfig,
   resolveActivePlanPrice,
-  evaluateCoupon,
+  evaluateCouponForUser,
 } from '@/lib/monetisation';
 
 export async function POST(request) {
@@ -19,7 +21,14 @@ export async function POST(request) {
     }
 
     const { priceInr: scheduledPriceInr, activeWindowLabel } = resolveActivePlanPrice(plan);
-    const result = evaluateCoupon(config, plan.code, scheduledPriceInr, couponCode);
+    const session = await getServerSession(authOptions).catch(() => null);
+    const result = await evaluateCouponForUser(
+      config,
+      plan.code,
+      scheduledPriceInr,
+      couponCode,
+      session?.user?.id || null
+    );
 
     return NextResponse.json({
       valid: result.valid,

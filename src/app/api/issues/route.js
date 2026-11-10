@@ -23,14 +23,14 @@ export async function GET(req) {
       const startOfDay = new Date(`${dateParam}T00:00:00.000Z`);
       const endOfDay = new Date(`${dateParam}T23:59:59.999Z`);
       where.OR = [
-        { articles: { some: { publishedAt: { gte: startOfDay, lte: endOfDay } } } },
-        { editorials: { some: { publishedAt: { gte: startOfDay, lte: endOfDay } } } }
+        { articles: { some: { status: 'DONE', publishedAt: { gte: startOfDay, lte: endOfDay } } } },
+        { editorials: { some: { status: 'DONE', publishedAt: { gte: startOfDay, lte: endOfDay } } } }
       ];
     } else if (!showAll) {
       // Only show issues that have at least one article or editorial
       where.OR = [
-        { articles: { some: {} } },
-        { editorials: { some: {} } }
+        { articles: { some: { status: 'DONE' } } },
+        { editorials: { some: { status: 'DONE' } } }
       ];
     }
 
@@ -57,8 +57,8 @@ export async function GET(req) {
         },
         _count: {
           select: {
-            articles: true,
-            editorials: true,
+            articles: { where: { status: 'DONE' } },
+            editorials: { where: { status: 'DONE' } },
           }
         }
       },

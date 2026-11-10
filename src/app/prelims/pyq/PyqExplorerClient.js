@@ -2570,7 +2570,7 @@ function QuestionCard({
             <><b>Answer: ({q.correctLabel.toUpperCase()})</b>{correctOpt ? ` — ${correctOpt.text}` : ''}</>
           )}
           {explanationText && <div className="pq-verdict-exp">{explanationText}</div>}
-          {analysis && (
+          {(analysis || q.deepDiveLocked) && (
             <PyqDeepDive
               analysis={analysis}
               questionId={q.id}
@@ -2578,6 +2578,8 @@ function QuestionCard({
               topic={q.srcTopic}
               isAdmin={isAdmin}
               compactTabs={isImmersive || isFocusMode}
+              deepDiveLocked={Boolean(q.deepDiveLocked) && !analysis}
+              correctLabel={q.correctLabel}
             />
           )}
         </div>

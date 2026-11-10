@@ -1,12 +1,15 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { isNewPatternQuestion } from '@/lib/pyqPattern';
 import { SUBJECT_ORDER, SUBJECT_SHORT, getTopicSyllabusOrder } from '@/app/prelims/pyq/topicGroups';
 import { sortQuestionsBySyllabus } from '@/lib/syllabusSequence';
+import { getTierStatus, computeUsageState, applyDeepDiveGate } from '@/lib/tier-gate';
 
 const PAGE_SIZE = 10;
+const MAX_IDS = 200;
+const MAX_EXCLUDE_IDS = 500;
+const MAX_ID_LENGTH = 64;
+const MAX_PAGE = 1000;
 
 const SUBJECT_META = {
   'Indian Polity': { icon: '🏛️', color: '#3b82f6' },
@@ -93,8 +96,8 @@ export async function GET(request) {
     }
 
     // 2. Paginated Questions Endpoint (Strictly capped at 10 questions per request)
-    const session = await getServerSession(authOptions);
-    const isAuthenticated = Boolean(session?.user);
+    const tierStatus = await getTierStatus();
+    const isAuthenticated = Boolean(tierStatus.user?.id);
 
     const subject = searchParams.get('subject') || 'ALL';
     const topic = searchParams.get('topic') || 'ALL';
@@ -104,14 +107,17 @@ export async function GET(request) {
     const query = (searchParams.get('q') || '').trim();
     const idsParam = (searchParams.get('ids') || '').trim();
     const excludeIdsParam = (searchParams.get('excludeIds') || '').trim();
-    const requestedPage = Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1);
+    const requestedPage = Math.min(
+      MAX_PAGE,
+      Math.max(1, parseInt(searchParams.get('page') || '1', 10) || 1)
+    );
 
-    const specificIds = idsParam
-      ? idsParam.split(',').map(s => s.trim()).filter(Boolean).slice(0, 200)
-      : [];
-    const excludeIds = excludeIdsParam
-      ? excludeIdsParam.split(',').map(s => s.trim()).filter(Boolean).slice(0, 500)
-      : [];
+    const parseIdList = (raw, max) =>
+      raw
+        ? raw.split(',').map(s => s.trim()).filter(s => s && s.length <= MAX_ID_LENGTH).slice(0, max)
+        : [];
+    const specificIds = parseIdList(idsParam, MAX_IDS);
+    const excludeIds = parseIdList(excludeIdsParam, MAX_EXCLUDE_IDS);
 
     // Tier 2 Login Gate: Anonymous visitors can only preview Page 1 of a Subject/Topic
     // Page 2+, keyword search, New Pattern filter, and personal Mistake/Bookmark IDs require login
@@ -252,7 +258,7 @@ export async function GET(request) {
       ]);
     }
 
-    const questions = drafts.map(q => {
+    const rawQuestions = drafts.map(q => {
       let opts = [];
       if (typeof q.options === 'string') {
         try { opts = JSON.parse(q.options); } catch { opts = []; }
@@ -274,6 +280,21 @@ export async function GET(request) {
       };
     });
 
+    // PRO deep-dive gate: non-entitled users only receive the basic explanation.
+    // Questions already unlocked today (within the free daily quota) keep the full text.
+    let deepDiveAccess = null;
+    if (tierStatus.isPro) {
+      deepDiveAccess = { isPro: true };
+    } else {
+      try {
+        deepDiveAccess = await computeUsageState(request, 'deep_dive', tierStatus);
+      } catch (err) {
+        console.error('[API /api/pyq] usage lookup failed; locking deep-dives:', err?.message);
+        deepDiveAccess = null; // fail closed
+      }
+    }
+    const questions = applyDeepDiveGate(rawQuestions, deepDiveAccess);
+
     const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
     return NextResponse.json({
@@ -288,6 +309,6 @@ export async function GET(request) {
     });
   } catch (error) {
     console.error('API /api/pyq error:', error);
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Failed to load questions' }, { status: 500 });
   }
 }

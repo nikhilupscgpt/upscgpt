@@ -18,7 +18,7 @@ export default function Login() {
     })
     
     if (res?.error) {
-      setError("Invalid credentials")
+      setError(res.error === "TooManyAttempts" ? "Too many attempts — try again in 15 minutes" : "Invalid credentials")
       setLoading(false)
     } else {
       // Check session to route FACULTY straight to lecture studio

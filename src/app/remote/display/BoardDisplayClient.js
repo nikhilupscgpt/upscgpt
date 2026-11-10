@@ -17,7 +17,7 @@ const PyqPresenterClient = dynamic(
 
 const deckKey = (qs) => (Array.isArray(qs) ? qs.map((q) => q?.id).join(',') : '');
 
-export default function BoardDisplayClient({ user }) {
+export default function BoardDisplayClient({ user, canHost = false }) {
   const [pairingCode, setPairingCode] = useState(null);
   const [qrDataUrl, setQrDataUrl] = useState(null);
   const [linkStatus, setLinkStatus] = useState('waiting');
@@ -47,6 +47,7 @@ export default function BoardDisplayClient({ user }) {
 
   // Start Board Display Link (Handles React StrictMode cleanup - Pitfall 3)
   useEffect(() => {
+    if (!canHost) return undefined;
     let active = true;
     const link = new Link('display');
     linkRef.current = link;
@@ -115,12 +116,40 @@ export default function BoardDisplayClient({ user }) {
       active = false;
       link.stop();
     };
-  }, []);
+  }, [canHost]);
 
   // Format 6-digit code with spacing: "482 910"
   const formattedCode = pairingCode
     ? `${pairingCode.slice(0, 3)} ${pairingCode.slice(3, 6)}`
     : '••• •••';
+
+  if (!canHost) {
+    return (
+      <div className="pq-board-display-root">
+        <div className="pq-board-waiting-card" style={{ maxWidth: 460 }}>
+          <div className="pq-board-logo-pill">
+            <Sparkles size={14} />
+            <span>UPSCGPT STUDIO • CLASSROOM DISPLAY</span>
+          </div>
+          <h2 className="pq-board-waiting-title" style={{ fontSize: 28 }}>
+            Sign in to start the board
+          </h2>
+          <p className="pq-board-waiting-sub">
+            {user
+              ? 'This account cannot host a classroom board. Sign in with a classroom display, faculty or admin account.'
+              : 'Sign in with your classroom display, faculty or admin account to show a pairing code.'}
+          </p>
+          <a
+            href="/login?callbackUrl=%2Fremote%2Fdisplay"
+            className="pq-connect-btn-primary"
+            style={{ width: '100%', marginTop: 20, padding: 14, justifyContent: 'center' }}
+          >
+            Sign in
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   // If iPad has connected and loaded slides, render presentation in full display mode
   if (isDisplayActive && deck && deck.length > 0) {

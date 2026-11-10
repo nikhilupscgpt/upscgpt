@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/prisma"
+import { isUserProActive } from "@/lib/monetisation"
 
 const FREE_DAILY_SECONDS = 15 * 60 // 15 mins
 
@@ -21,7 +22,8 @@ export async function POST(req) {
   const user = await prisma.user.findUnique({ where: { id: session.user.id } })
   if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
 
-  if (user.tier === 'PRO') {
+  // Active PRO only (role ADMIN, or tier PRO with an unexpired validUntil)
+  if (isUserProActive(user)) {
     return NextResponse.json({ premium: true, remaining: Infinity })
   }
 

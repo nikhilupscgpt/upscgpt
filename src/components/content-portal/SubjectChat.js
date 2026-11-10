@@ -70,7 +70,10 @@ export default function SubjectChat({ subjectId, displayName, examType, optional
         body: JSON.stringify({ query: currentQuery, subject: subjectId, examType, optionalSlug, history, lang, exam })
       });
 
-      if (!response.ok) throw new Error('Generation Failed');
+      if (!response.ok) {
+        const errData = await response.json().catch(() => null);
+        throw new Error(errData?.error || 'Generation Failed');
+      }
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();

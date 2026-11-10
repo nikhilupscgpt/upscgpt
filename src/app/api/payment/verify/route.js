@@ -9,6 +9,7 @@ import {
   incrementCouponUsage,
 } from '@/lib/monetisation';
 import { sendEmail } from '@/lib/comms';
+import { getRazorpay } from '@/lib/razorpay';
 
 export async function POST(request) {
   try {
@@ -85,12 +86,62 @@ export async function POST(request) {
       }
     }
 
-    if (orderMeta?.userId && orderMeta.userId !== session.user.id) {
+    // The order must have been created by our server for this user — no defaults.
+    if (!orderLog || !orderMeta) {
+      console.warn(`[Payment Verify] No order log for ${razorpay_order_id} (user ${session.user.id})`);
+      return NextResponse.json({ error: 'Unknown payment order.' }, { status: 400 });
+    }
+
+    const orderOwnerId = orderLog.userId || orderMeta.userId;
+    if (!orderOwnerId || orderOwnerId !== session.user.id || (orderMeta.userId && orderMeta.userId !== orderOwnerId)) {
       return NextResponse.json({ error: 'Order does not belong to current user.' }, { status: 403 });
     }
 
+    if (orderMeta.isMock && !isAdminDevSimulator) {
+      return NextResponse.json({ error: 'Invalid payment order.' }, { status: 400 });
+    }
+
+    const amountPaise = Number(orderMeta.amountPaise);
+    if (!Number.isInteger(amountPaise) || amountPaise <= 0) {
+      console.error(`[Payment Verify] Order ${razorpay_order_id} has invalid recorded amount`);
+      return NextResponse.json({ error: 'Invalid payment order.' }, { status: 400 });
+    }
+
+    // Defence in depth: confirm the actual payment with Razorpay (amount, currency, order, status).
+    if (!isAdminDevSimulator) {
+      let payment = null;
+      try {
+        payment = await getRazorpay().payments.fetch(razorpay_payment_id);
+      } catch (fetchErr) {
+        // The signature already binds this payment to our server-created order (whose amount we set),
+        // so a transient Razorpay API error must not strand a paying user.
+        console.warn('[Payment Verify] Could not fetch payment from Razorpay; relying on signature:', fetchErr?.message);
+      }
+      if (payment) {
+        const paidAmount = Number(payment.amount);
+        const currency = String(payment.currency || '').toUpperCase();
+        const statusOk = payment.status === 'captured' || payment.status === 'authorized';
+        if (
+          paidAmount !== amountPaise ||
+          currency !== 'INR' ||
+          payment.order_id !== razorpay_order_id ||
+          !statusOk
+        ) {
+          console.warn('[Payment Verify] Payment mismatch', {
+            orderId: razorpay_order_id,
+            paymentId: razorpay_payment_id,
+            expected: amountPaise,
+            paidAmount,
+            currency,
+            status: payment.status,
+          });
+          return NextResponse.json({ error: 'Payment details do not match the order.' }, { status: 400 });
+        }
+      }
+    }
+
     const config = await getMonetisationConfig();
-    const planCode = orderMeta?.planCode || 'PRELIMS_PASS_2027';
+    const planCode = orderMeta.planCode;
     const plan =
       config.plans.find((p) => p.code === planCode) ||
       config.plans[0] || {
@@ -101,7 +152,6 @@ export async function POST(request) {
         durationDays: 240,
       };
 
-    const amountPaise = Number(orderMeta?.amountPaise) || 99900;
     const couponCode = orderMeta?.couponCode || null;
 
     const currentUser = await prisma.user.findUnique({
@@ -190,6 +240,10 @@ export async function POST(request) {
       user: updatedUser ? { tier: updatedUser.tier, validUntil: updatedUser.validUntil } : null,
     });
   } catch (error) {
+    // P2002 = PaymentLog.razorpayId unique violation: the webhook processed this payment concurrently.
+    if (error?.code === 'P2002') {
+      return NextResponse.json({ success: true, message: 'Payment already verified.' });
+    }
     console.error('[Payment Verify Error]:', error);
     return NextResponse.json(
       { error: error.message || 'Error verifying payment' },

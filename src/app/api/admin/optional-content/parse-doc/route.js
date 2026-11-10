@@ -12,6 +12,9 @@ import os from "os";
 export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 
+const MAX_UPLOAD_BYTES = 25 * 1024 * 1024; // 25 MB
+const MAX_PDF_PAGES = 1000;
+
 async function requireAdmin() {
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== "ADMIN") {
@@ -66,6 +69,9 @@ export async function POST(req) {
     if (!file || !optionalId) {
       return NextResponse.json({ error: "Missing file or optionalId" }, { status: 400 });
     }
+    if (typeof file === "object" && file.size > MAX_UPLOAD_BYTES) {
+      return NextResponse.json({ error: "File too large (max 25 MB)" }, { status: 413 });
+    }
 
     const opt = await prisma.optionalSubject.findUnique({
       where: { id: optionalId }
@@ -108,7 +114,7 @@ export async function POST(req) {
       try {
         const parser = new PDFParse({ data: buffer });
         await parser.load();
-        const parsedResult = await parser.getText();
+        const parsedResult = await parser.getText({ first: MAX_PDF_PAGES });
         rawExtractedText = (parsedResult?.text || "").trim();
         console.log(`[ParseDoc] PDF text extracted via fast PDFParse: ${rawExtractedText.length} characters`);
       } catch (pdfErr) {
@@ -249,7 +255,7 @@ Return ONLY the JSON object.
   } catch (error) {
     console.error("Error parsing document with Gemini:", error);
     return NextResponse.json({
-      error: "Failed to process document: " + (error.message || "Unknown error")
+      error: "Failed to process document"
     }, { status: 500 });
   } finally {
     // Clean up local temp file
