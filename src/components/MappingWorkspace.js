@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { safeHttpUrl } from '@/lib/escapeHtml';
 import RiverStudyPanel, { RiverQuizCard } from '@/components/mapping/RiverStudyPanel';
+import { buildRiverLayers, nodeShapePoints, riverNameKeys } from '@/lib/riverMapLayers';
 
 const MappingCanvas = dynamic(() => import('./MappingCanvas'), {
   ssr: false,
@@ -578,36 +579,6 @@ function isInternalPyqTag(text) {
   );
 }
 
-/** Name keys for matching a tributary name to a river on the map: "Tamsa (Tons) River" → tamsa, tons. */
-function riverNameKeys(name) {
-  if (!name) return [];
-  const s = String(name).toLowerCase();
-  const clean = (x) =>
-    x
-      .replace(/\b(river|nadi|basin|system)\b/g, ' ')
-      .replace(/[^a-z\s-]/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-  const keys = new Set([clean(s.replace(/\(.*?\)/g, ' '))]);
-  for (const m of s.matchAll(/\(([^)]*)\)/g)) keys.add(clean(m[1]));
-  keys.delete('');
-  return [...keys];
-}
-
-/** Flat [lat, lng] list for a river line (shape, falling back to polylinePoints). */
-function nodeShapePoints(node) {
-  const raw =
-    Array.isArray(node?.shape) && node.shape.length > 1
-      ? node.shape
-      : Array.isArray(node?.polylinePoints)
-        ? node.polylinePoints
-        : [];
-  return raw
-    .filter((pt) => Array.isArray(pt) && pt.length >= 2)
-    .map((pt) => [Number(pt[0]), Number(pt[1])])
-    .filter((pt) => Number.isFinite(pt[0]) && Number.isFinite(pt[1]));
-}
-
 function shuffled(list) {
   const a = [...list];
   for (let i = a.length - 1; i > 0; i--) {
@@ -868,6 +839,7 @@ export default function MappingWorkspace({
   const [riverTraceKey, setRiverTraceKey] = useState(0);
   const [riverQuiz, setRiverQuiz] = useState(null);
   const [riverPanelNodeId, setRiverPanelNodeId] = useState(null);
+  const [riverLayersOn, setRiverLayersOn] = useState({});
 
   // Data
   const [allNodes, setAllNodes] = useState([]);
@@ -1256,84 +1228,35 @@ export default function MappingWorkspace({
     setRiverTab('LOCATE');
     setRiverHighlight(null);
     setRiverQuiz(null);
+    setRiverLayersOn({});
   }
 
   // All drawable rivers in this mode, indexed by name, to link panel text to map lines.
   const riverIndex = useMemo(() => {
     const byKey = new Map();
-    const byId = new Map();
     for (const n of modeBaseNodes || []) {
       if (nodeShapePoints(n).length < 2) continue;
-      byId.set(n.id, n);
       for (const k of riverNameKeys(n.place || n.name)) {
         if (!byKey.has(k)) byKey.set(k, n);
       }
     }
-    return { byKey, byId };
+    return byKey;
   }, [modeBaseNodes]);
 
-  const findRiverNode = (name) => {
-    if (!name) return null;
-    const joining = String(name).split('+').pop();
-    for (const k of riverNameKeys(joining)) {
-      const n = riverIndex.byKey.get(k);
-      if (n && n.id !== selectedNode?.id) return n;
-    }
-    return null;
-  };
+  // Tributaries, sangams, dams, parks and cities of the selected river, with map geometry where verified.
+  const riverLayers = useMemo(
+    () => (selectedNode?.riverDetails ? buildRiverLayers(selectedNode, (k) => riverIndex.get(k) || null) : null),
+    [selectedNode, riverIndex]
+  );
 
-  // Where a tributary meets the selected river: its end nearest the main river's line.
-  const getConfluencePoint = (tNode) => {
-    const pts = nodeShapePoints(tNode);
-    if (pts.length === 0) return null;
-    const main = nodeShapePoints(selectedNode);
-    if (main.length === 0) return pts[pts.length - 1];
-    const dist = (p) => Math.min(...main.map((m) => (m[0] - p[0]) ** 2 + (m[1] - p[1]) ** 2));
-    const a = pts[0];
-    const b = pts[pts.length - 1];
-    return dist(a) <= dist(b) ? a : b;
-  };
+  // Layers the student switched on, as { category: true }.
+  const toggleRiverLayer = (cat) => setRiverLayersOn((prev) => ({ ...prev, [cat]: !prev[cat] }));
 
-  const handleRiverHighlight = (h) => {
-    if (!h) {
-      setRiverHighlight(null);
-      return;
-    }
-    if (h.kind === 'river') {
-      const n = riverIndex.byId.get(h.nodeId);
-      setRiverHighlight({ ...h, points: n ? nodeShapePoints(n) : [] });
-      return;
-    }
-    setRiverHighlight(h);
-  };
-
-  const riverTracePoints = useMemo(() => nodeShapePoints(selectedNode), [selectedNode]);
-
-  // Map drill: tributaries of the selected river that are actually drawn on the map now.
-  const quizCandidates = useMemo(() => {
-    const rd = selectedNode?.riverDetails;
-    if (!rd?.tributaries) return [];
-    const onMap = new Set(mapCanvasNodes.map((n) => n.id));
-    const out = [];
-    const seen = new Set();
-    for (const [side, list] of [['left', rd.tributaries.leftBank || []], ['right', rd.tributaries.rightBank || []]]) {
-      for (const t of list) {
-        let match = null;
-        for (const k of riverNameKeys(t.name)) {
-          const n = riverIndex.byKey.get(k);
-          if (n && n.id !== selectedNode.id) {
-            match = n;
-            break;
-          }
-        }
-        if (match && onMap.has(match.id) && !seen.has(match.id)) {
-          seen.add(match.id);
-          out.push({ side, name: t.name.replace(/\s+River$/i, ''), nodeId: match.id });
-        }
-      }
-    }
-    return out;
-  }, [selectedNode, mapCanvasNodes, riverIndex]);
+  // Map drill: tributaries of the selected river that have a line on the map.
+  const quizCandidates = useMemo(
+    () => (riverLayers?.tributaries || []).filter((t) => t.lines.length > 0),
+    [riverLayers]
+  );
 
   const startRiverQuiz = () => {
     const picks = shuffled(quizCandidates).slice(0, 3);
@@ -1344,34 +1267,42 @@ export default function MappingWorkspace({
       index: 0,
       score: 0,
       feedback: null,
-      questions: picks.map((c) => ({
-        prompt: `Tap the ${c.name} — a ${c.side}-bank tributary of the ${formatCleanPlaceHeading(selectedNode)}.`,
-        answerId: c.nodeId,
-        answerName: c.name,
+      questions: picks.map((t) => ({
+        prompt: `Tap the ${t.name} — a ${t.side}-bank tributary of the ${formatCleanPlaceHeading(selectedNode)}.`,
+        answerId: t.id,
+        answerName: t.name,
       })),
     });
     if (isMobile) setMobileTab('map');
   };
 
-  const answerRiverQuiz = (node) => {
+  // `tapped` is { tribId } from a drill line, or an atlas node tapped on the map.
+  const answerRiverQuiz = (tapped) => {
     const q = riverQuiz?.questions?.[riverQuiz.index];
     if (!q || riverQuiz.feedback) return;
-    const correct = node?.id === q.answerId;
-    const tappedName = String(node?.place || node?.name || 'another place').replace(/\s+River$/i, '');
+    const trib = quizCandidates.find((t) =>
+      tapped?.tribId ? t.id === tapped.tribId : t.nodeIds.includes(tapped?.id)
+    );
+    const correct = Boolean(trib && trib.id === q.answerId);
+    const tappedName = trib
+      ? trib.name
+      : String(tapped?.place || tapped?.name || 'another place').replace(/\s+River$/i, '');
     setRiverQuiz((prev) => ({
       ...prev,
       score: prev.score + (correct ? 1 : 0),
       feedback: { correct, tappedName },
     }));
-    const answerNode = riverIndex.byId.get(q.answerId);
-    setRiverHighlight({
-      key: `quiz:${q.answerId}`,
-      kind: 'river',
-      nodeId: q.answerId,
-      points: answerNode ? nodeShapePoints(answerNode) : [],
-      label: q.answerName,
-      color: correct ? '#059669' : '#d97706',
-    });
+    const answer = quizCandidates.find((t) => t.id === q.answerId);
+    setRiverHighlight(
+      answer
+        ? {
+            key: `quiz:${answer.id}`,
+            lines: answer.lines,
+            pins: answer.point ? [{ lat: answer.point[0], lng: answer.point[1], label: answer.name }] : [],
+            color: correct ? '#059669' : '#d97706',
+          }
+        : null
+    );
   };
 
   const nextRiverQuiz = () => {
@@ -1389,6 +1320,8 @@ export default function MappingWorkspace({
     setRiverHighlight(null);
     setRiverQuiz(null);
   };
+
+  const riverTracePoints = useMemo(() => nodeShapePoints(selectedNode), [selectedNode]);
 
   const isRiverStudy = Boolean(selectedNode?.riverDetails);
   const quizActive = Boolean(riverQuiz?.active);
@@ -3717,6 +3650,9 @@ export default function MappingWorkspace({
             basinHighlightColor={activeBasinHighlightColor}
             basinFitKey={basinFitKey}
             studyHighlight={isRiverStudy ? riverHighlight : null}
+            studyLayers={isRiverStudy && riverLayers ? { layers: riverLayers, on: riverLayersOn } : null}
+            onLayerItemTap={(item) => setRiverHighlight(item)}
+            onQuizTap={(tribId) => answerRiverQuiz({ tribId })}
             traceKey={isRiverStudy ? riverTraceKey : 0}
             tracePoints={riverTracePoints}
             quizMode={quizActive}
@@ -4674,10 +4610,11 @@ export default function MappingWorkspace({
                         pyqCount={practiceQuestionsForSelected.length}
                         tab={riverTab}
                         onTabChange={setRiverTab}
-                        findRiverNode={findRiverNode}
-                        getConfluencePoint={getConfluencePoint}
+                        layers={riverLayers}
+                        layersOn={riverLayersOn}
+                        onToggleLayer={toggleRiverLayer}
                         highlight={riverHighlight}
-                        onHighlight={handleRiverHighlight}
+                        onHighlight={setRiverHighlight}
                         onTrace={() => {
                           setRiverHighlight(null);
                           setRiverTraceKey((k) => k + 1);

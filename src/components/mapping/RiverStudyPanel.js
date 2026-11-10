@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
+import { LAYER_META, mappableCount } from '@/lib/riverMapLayers';
 
 /**
  * River study flow for the right-hand panel:
@@ -120,8 +121,9 @@ export default function RiverStudyPanel({
   pyqCount = 0,
   tab,
   onTabChange,
-  findRiverNode,
-  getConfluencePoint,
+  layers,
+  layersOn = {},
+  onToggleLayer,
   highlight,
   onHighlight,
   onTrace,
@@ -135,12 +137,6 @@ export default function RiverStudyPanel({
   const rd = node?.riverDetails || {};
   const flows = rd.states?.flowsThrough || [];
   const basinStates = rd.states?.basinStates || [];
-  const left = rd.tributaries?.leftBank || [];
-  const right = rd.tributaries?.rightBank || [];
-  const confluences = Array.isArray(rd.confluences) ? rd.confluences : [];
-  const towns = Array.isArray(rd.towns) ? rd.towns : [];
-  const dams = Array.isArray(rd.dams) ? rd.dams : [];
-  const parks = Array.isArray(rd.protectedAreas) ? rd.protectedAreas : [];
   const species = Array.isArray(rd.species) ? rd.species : [];
 
   const pyqYears = [
@@ -168,42 +164,58 @@ export default function RiverStudyPanel({
     transition: 'all 0.15s ease',
   });
 
-  const renderTributary = (trib, side) => {
-    const tNode = findRiverNode ? findRiverNode(trib.name) : null;
-    const key = `trib:${side}:${trib.name}`;
-    const active = isActive(key);
+  const tribs = layers?.tributaries || [];
+  const tribsOnMap = (side) => tribs.filter((t) => t.side === side && t.lines.length);
+  const tribsTextOnly = (side) => tribs.filter((t) => t.side === side && !t.lines.length);
+
+  const renderTributary = (t) => {
+    const active = isActive(t.id);
     // Violet / green so a highlighted tributary never looks like the selected (blue) river.
-    const color = side === 'left' ? '#7c3aed' : '#059669';
+    const color = t.side === 'left' ? '#7c3aed' : '#059669';
     return (
-      <div key={key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
+      <div key={t.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
         <button
           type="button"
-          disabled={!tNode}
-          title={tNode ? 'Show on map' : 'Not drawn on the map yet'}
+          title="Show on map"
           onClick={() =>
             onHighlight(
               active
                 ? null
                 : {
-                    key,
-                    kind: 'river',
-                    nodeId: tNode.id,
-                    label: `${trib.name.replace(/\s+River$/i, '')} · ${side}-bank`,
-                    point: getConfluencePoint ? getConfluencePoint(tNode) : null,
+                    key: t.id,
+                    lines: t.lines,
+                    pins: t.point ? [{ lat: t.point[0], lng: t.point[1], label: `${t.name} · ${t.side}-bank` }] : [],
                     color,
                   }
             )
           }
-          style={chipStyle(active, Boolean(tNode), color)}
+          style={chipStyle(active, true, color)}
         >
-          {tNode ? '◉' : '○'} {trib.name.replace(/\s+River$/i, '')}
+          {t.name}
         </button>
-        {active && trib.note && (
-          <div style={{ fontSize: 11.5, color: C.body, lineHeight: 1.45, paddingLeft: 4 }}>{trib.note}</div>
+        {active && t.note && (
+          <div style={{ fontSize: 11.5, color: C.body, lineHeight: 1.45, paddingLeft: 4 }}>{t.note}</div>
         )}
       </div>
     );
   };
+
+  const renderTextOnly = (list) =>
+    list.length > 0 && (
+      <div style={{ marginTop: 6, fontSize: 12, color: C.muted, lineHeight: 1.5 }}>
+        {list.map((t, i) => (
+          <span key={t.id}>
+            <strong style={{ color: C.body, fontWeight: 600 }}>{t.name}</strong>
+            {t.note ? ` — ${t.note}` : ''}
+            {i < list.length - 1 ? ' · ' : ''}
+          </span>
+        ))}
+      </div>
+    );
+
+  const layerCats = ['tributaries', 'sangams', 'dams', 'parks', 'towns'].filter(
+    (cat) => mappableCount(layers, cat) > 0
+  );
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -304,7 +316,11 @@ export default function RiverStudyPanel({
                   type="button"
                   disabled={!can}
                   onClick={() =>
-                    onHighlight(active ? null : { key: p.key, kind: 'point', coords: p.coords, label: p.label, color: p.color })
+                    onHighlight(
+                      active
+                        ? null
+                        : { key: p.key, lines: [], pins: [{ lat: p.coords[0], lng: p.coords[1], label: p.label }], color: p.color }
+                    )
                   }
                   style={{
                     display: 'block',
@@ -365,68 +381,36 @@ export default function RiverStudyPanel({
       {/* 2. CONNECT */}
       {tab === 'CONNECT' && (
         <>
-          {(left.length > 0 || right.length > 0) && (
-            <Card>
-              <SectionTitle hint="tap to see it on the map">Tributaries</SectionTitle>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {left.length > 0 && (
-                  <div>
-                    <div style={{ fontSize: 11.5, fontWeight: 800, color: '#7c3aed', marginBottom: 6 }}>⬅ Left bank ({left.length})</div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>{left.map((t) => renderTributary(t, 'left'))}</div>
-                  </div>
-                )}
-                {right.length > 0 && (
-                  <div>
-                    <div style={{ fontSize: 11.5, fontWeight: 800, color: '#059669', marginBottom: 6 }}>Right bank ({right.length}) ➡</div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>{right.map((t) => renderTributary(t, 'right'))}</div>
-                  </div>
-                )}
-                <div style={{ fontSize: 11, color: C.muted }}>◉ drawn on the map · ○ text only</div>
-              </div>
-            </Card>
-          )}
-
-          {confluences.length > 0 && (
-            <Card>
-              <SectionTitle hint="upstream → downstream">Sangams (confluences)</SectionTitle>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                {confluences.map((c, i) => {
-                  const tNode = findRiverNode ? findRiverNode(c.tributary) : null;
-                  const pt = tNode && getConfluencePoint ? getConfluencePoint(tNode) : null;
-                  const key = `sangam:${i}`;
-                  const active = isActive(key);
+          {layerCats.length > 0 && (
+            <Card tone="soft">
+              <SectionTitle hint="one at a time keeps the map clear">Show on map</SectionTitle>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {layerCats.map((cat) => {
+                  const meta = LAYER_META[cat];
+                  const on = Boolean(layersOn[cat]);
                   return (
                     <button
-                      key={key}
+                      key={cat}
                       type="button"
-                      disabled={!pt}
-                      onClick={() =>
-                        onHighlight(
-                          active
-                            ? null
-                            : { key, kind: 'river', nodeId: tNode.id, point: pt, label: firstClause(c.sangam, 40), color: '#d97706' }
-                        )
-                      }
+                      aria-pressed={on}
+                      onClick={() => onToggleLayer(cat)}
                       style={{
-                        display: 'flex',
-                        gap: 10,
-                        alignItems: 'flex-start',
-                        textAlign: 'left',
-                        width: '100%',
-                        background: active ? C.amberSoft : 'transparent',
-                        border: 'none',
-                        borderTop: i === 0 ? 'none' : `1px dashed ${C.line}`,
-                        padding: '7px 4px',
-                        cursor: pt ? 'pointer' : 'default',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        padding: '6px 10px',
+                        borderRadius: 8,
+                        fontSize: 12,
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        border: `1.5px solid ${on ? meta.color : '#cbd5e1'}`,
+                        background: on ? meta.color : '#ffffff',
+                        color: on ? '#ffffff' : C.ink,
                       }}
                     >
-                      <span style={{ fontSize: 11, fontWeight: 800, color: '#ffffff', background: pt ? '#d97706' : '#cbd5e1', borderRadius: 999, minWidth: 20, height: 20, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        {i + 1}
-                      </span>
-                      <span style={{ fontSize: 12.5, lineHeight: 1.45, color: C.body }}>
-                        <strong style={{ color: C.ink }}>{c.tributary}</strong>
-                        <span style={{ color: C.muted }}> · {c.sangam}{c.state ? ` (${c.state})` : ''}</span>
-                      </span>
+                      <span aria-hidden>{on ? '☑' : '☐'}</span>
+                      {meta.label}
+                      <span style={{ opacity: 0.75, fontWeight: 600 }}>{mappableCount(layers, cat)}</span>
                     </button>
                   );
                 })}
@@ -434,22 +418,47 @@ export default function RiverStudyPanel({
             </Card>
           )}
 
-          <SectionTitle>Reference</SectionTitle>
-          <Reference title="🏛️ Cities & towns on the river" count={towns.length}>
-            {towns.map((tw) => (
-              <RefRow key={tw.name} title={`${tw.name}${tw.type ? ` · ${tw.type}` : ''}`} sub={tw.significance} tag={tw.state} />
-            ))}
-          </Reference>
-          <Reference title="🏗️ Dams & barrages" count={dams.length}>
-            {dams.map((d) => (
-              <RefRow key={d.name} title={d.name} sub={d.type} tag={d.state} />
-            ))}
-          </Reference>
-          <Reference title="🌲 Parks & sanctuaries" count={parks.length}>
-            {parks.map((pa) => (
-              <RefRow key={pa.name} title={pa.name} sub={pa.relation} tag={pa.state} />
-            ))}
-          </Reference>
+          {tribs.length > 0 && (
+            <Card>
+              <SectionTitle hint={tribs.some((t) => t.lines.length) ? 'tap to see it on the map' : null}>
+                Tributaries
+              </SectionTitle>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {['left', 'right'].map((side) => {
+                  const all = tribs.filter((t) => t.side === side);
+                  if (!all.length) return null;
+                  const onMap = tribsOnMap(side);
+                  return (
+                    <div key={side}>
+                      <div style={{ fontSize: 11.5, fontWeight: 800, color: side === 'left' ? '#7c3aed' : '#059669', marginBottom: 6 }}>
+                        {side === 'left' ? `⬅ Left bank (${all.length})` : `Right bank (${all.length}) ➡`}
+                      </div>
+                      {onMap.length > 0 && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>{onMap.map(renderTributary)}</div>
+                      )}
+                      {renderTextOnly(tribsTextOnly(side))}
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+          )}
+
+          <PinList
+            cat="sangams"
+            title="🤝 Sangams (confluences)"
+            hint="upstream → downstream"
+            items={layers?.sangams || []}
+            on={Boolean(layersOn.sangams)}
+            onToggle={() => onToggleLayer('sangams')}
+            highlight={highlight}
+            onHighlight={onHighlight}
+            defaultOpen
+          />
+          <PinList cat="dams" title="🏗️ Dams & barrages" items={layers?.dams || []} on={Boolean(layersOn.dams)} onToggle={() => onToggleLayer('dams')} highlight={highlight} onHighlight={onHighlight} />
+          <PinList cat="parks" title="🌲 Parks & sanctuaries" items={layers?.parks || []} on={Boolean(layersOn.parks)} onToggle={() => onToggleLayer('parks')} highlight={highlight} onHighlight={onHighlight} />
+          <PinList cat="towns" title="🏛️ Cities & towns" items={layers?.towns || []} on={Boolean(layersOn.towns)} onToggle={() => onToggleLayer('towns')} highlight={highlight} onHighlight={onHighlight} />
+
           <Reference title="🐬 Animals & birds" count={species.length}>
             {species.map((sp) => (
               <RefRow key={sp.name} title={sp.name} sub={sp.role} tag={sp.iucn} />
@@ -514,7 +523,7 @@ export default function RiverStudyPanel({
                 <div style={{ fontSize: 12.5, color: C.body, lineHeight: 1.5, marginBottom: 10 }}>
                   {quizAvailable > 0
                     ? `Find ${Math.min(3, quizAvailable)} tributaries of this river by tapping them on the map.`
-                    : 'No tributaries of this river are drawn on the map yet.'}
+                    : 'The map drill is available for rivers whose tributaries are drawn on the map (e.g. Ganga, Godavari, Krishna, Cauvery).'}
                 </div>
                 <button
                   type="button"
@@ -572,6 +581,121 @@ export default function RiverStudyPanel({
             </button>
           </Card>
         </>
+      )}
+    </div>
+  );
+}
+
+/**
+ * A numbered list whose numbers match the pins on the map. The header switch shows the
+ * whole category on the map; tapping a row focuses that one place (its name appears).
+ */
+function PinList({ cat, title, hint, items, on, onToggle, highlight, onHighlight, defaultOpen = false }) {
+  const [open, setOpen] = useState(defaultOpen);
+  if (!items.length) return null;
+  const meta = LAYER_META[cat];
+  const mappable = items.filter((x) => x.pins.length).length;
+  const expanded = open || on;
+  return (
+    <div style={{ border: `1px solid ${C.line}`, borderRadius: 12, background: '#ffffff' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px' }}>
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={expanded}
+          style={{ flex: 1, minWidth: 0, textAlign: 'left', background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 12.5, fontWeight: 700, color: C.ink }}
+        >
+          {title}{' '}
+          <span style={{ fontSize: 11, fontWeight: 600, color: C.muted }}>
+            ({items.length}) {expanded ? '▴' : '▾'}
+          </span>
+        </button>
+        {mappable > 0 && (
+          <button
+            type="button"
+            aria-pressed={on}
+            onClick={onToggle}
+            title={on ? 'Hide from map' : 'Show on map'}
+            style={{
+              flexShrink: 0,
+              fontSize: 11,
+              fontWeight: 700,
+              padding: '3px 8px',
+              borderRadius: 6,
+              cursor: 'pointer',
+              border: `1.5px solid ${on ? meta.color : '#cbd5e1'}`,
+              background: on ? meta.color : '#ffffff',
+              color: on ? '#ffffff' : C.body,
+            }}
+          >
+            {on ? '☑' : '☐'} Map
+          </button>
+        )}
+      </div>
+      {expanded && (
+        <div style={{ padding: '0 12px 10px', display: 'flex', flexDirection: 'column' }}>
+          {hint && <div style={{ fontSize: 11, color: C.muted, marginBottom: 4 }}>{hint}</div>}
+          {items.map((x) => {
+            const can = x.pins.length > 0;
+            const active = highlight && highlight.key === x.id;
+            return (
+              <button
+                key={x.id}
+                type="button"
+                disabled={!can}
+                onClick={() =>
+                  onHighlight(
+                    active
+                      ? null
+                      : {
+                          key: x.id,
+                          lines: x.lines || [],
+                          pins: x.pins.map((p) => ({ lat: p.lat, lng: p.lng, label: p.label || x.title })),
+                          color: meta.color,
+                        }
+                  )
+                }
+                style={{
+                  display: 'flex',
+                  gap: 9,
+                  alignItems: 'flex-start',
+                  textAlign: 'left',
+                  width: '100%',
+                  background: active ? '#f1f5f9' : 'transparent',
+                  border: 'none',
+                  borderTop: `1px dashed ${C.line}`,
+                  borderRadius: active ? 8 : 0,
+                  padding: '7px 4px',
+                  cursor: can ? 'pointer' : 'default',
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 10.5,
+                    fontWeight: 800,
+                    color: '#ffffff',
+                    background: can ? meta.color : '#e2e8f0',
+                    borderRadius: cat === 'parks' || cat === 'sangams' ? 999 : 4,
+                    minWidth: 20,
+                    height: 20,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                  title={can ? 'On the map' : 'Location not added yet'}
+                >
+                  {can ? x.n : '–'}
+                </span>
+                <span style={{ fontSize: 12.5, lineHeight: 1.45, color: C.body, minWidth: 0 }}>
+                  <strong style={{ color: C.ink }}>{x.title}</strong>
+                  {x.tag && <span style={{ color: C.muted }}> · {x.tag}</span>}
+                  {x.sub && <div style={{ fontSize: 11.5, color: C.muted }}>{x.sub}</div>}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       )}
     </div>
   );

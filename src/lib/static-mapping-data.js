@@ -24116,6 +24116,18 @@ export const CURATED_MAPPING_NODES = [
             "note": "Formed by the Wardha (with Penganga) and Wainganga; largest tributary by basin; joins at Kaleshwaram"
           },
           {
+            "name": "Wainganga River",
+            "note": "Via the Pranhita; rises in the Mahadeo/Seoni hills (MP); flows past Pench and Bhandara; the Pench-Kanhan system joins it"
+          },
+          {
+            "name": "Wardha River",
+            "note": "Via the Pranhita; rises in the Satpura range near Betul (MP); meets the Wainganga to form the Pranhita"
+          },
+          {
+            "name": "Penganga (Painganga) River",
+            "note": "Via the Wardha; rises in the Ajanta range (Buldhana); forms part of the Maharashtra-Telangana boundary"
+          },
+          {
             "name": "Indravati River",
             "note": "Rises in Kalahandi (Odisha); flows through Bastar; joins at the Maharashtra-Telangana-Chhattisgarh tri-junction"
           },

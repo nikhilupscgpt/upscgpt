@@ -1039,7 +1039,7 @@ const TILE_LAYERS = {
 };
 
 /**
- * Study-panel highlight: a tributary, sangam or source/mouth pin chosen in the side panel.
+ * Study-panel highlight: { key, lines: [[lat,lng][]], pins: [{lat,lng,label}], color }.
  * Pans only when the highlight is off-screen, so the student keeps their view.
  */
 function StudyHighlightLayer({ highlight }) {
@@ -1047,9 +1047,8 @@ function StudyHighlightLayer({ highlight }) {
   useEffect(() => {
     if (!highlight) return;
     const pts = [
-      ...(Array.isArray(highlight.points) ? highlight.points : []),
-      ...(highlight.point ? [highlight.point] : []),
-      ...(highlight.coords ? [highlight.coords] : []),
+      ...(highlight.lines || []).flat(),
+      ...(highlight.pins || []).map((p) => [p.lat, p.lng]),
     ];
     if (pts.length === 0) return;
     const target = L.latLngBounds(pts);
@@ -1060,23 +1059,127 @@ function StudyHighlightLayer({ highlight }) {
 
   if (!highlight) return null;
   const color = highlight.color || '#2563eb';
-  const pin = highlight.point || highlight.coords || null;
   return (
     <>
-      {Array.isArray(highlight.points) && highlight.points.length > 1 && (
-        <>
-          <Polyline positions={highlight.points} interactive={false} pathOptions={{ color: '#ffffff', weight: 9, opacity: 0.9, lineCap: 'round', lineJoin: 'round' }} />
-          <Polyline positions={highlight.points} interactive={false} pathOptions={{ color, weight: 5, opacity: 1, lineCap: 'round', lineJoin: 'round' }} />
-        </>
+      {(highlight.lines || []).map((line, i) =>
+        line.length > 1 ? (
+          <React.Fragment key={`hl-line-${i}`}>
+            <Polyline positions={line} interactive={false} pathOptions={{ color: '#ffffff', weight: 9, opacity: 0.9, lineCap: 'round', lineJoin: 'round' }} />
+            <Polyline positions={line} interactive={false} pathOptions={{ color, weight: 5, opacity: 1, lineCap: 'round', lineJoin: 'round' }} />
+          </React.Fragment>
+        ) : null
       )}
-      {pin && (
-        <CircleMarker center={pin} radius={8} interactive={false} pathOptions={{ color: '#ffffff', weight: 3, fillColor: color, fillOpacity: 1 }}>
-          {highlight.label && (
-            <Tooltip permanent direction="top" offset={[0, -8]} className="study-highlight-tip">
-              {highlight.label}
+      {(highlight.pins || []).map((p, i) => (
+        <CircleMarker key={`hl-pin-${i}`} center={[p.lat, p.lng]} radius={8} interactive={false} pathOptions={{ color: '#ffffff', weight: 3, fillColor: color, fillOpacity: 1 }}>
+          {p.label && (
+            <Tooltip permanent direction="top" offset={[0, -8]}>
+              {p.label}
             </Tooltip>
           )}
         </CircleMarker>
+      ))}
+    </>
+  );
+}
+
+const LAYER_PIN_STYLE = {
+  sangams: { color: '#d97706', radius: '50%', border: '2px solid #ffffff' },
+  dams: { color: '#b91c1c', radius: '3px', border: '2px solid #ffffff' },
+  parks: { color: '#15803d', radius: '50%', border: '2px solid #ffffff' },
+  towns: { color: '#475569', radius: '2px', border: '2px solid #ffffff' },
+};
+const pinIconCache = new Map();
+function numberedPinIcon(cat, n) {
+  const key = `${cat}:${n}`;
+  if (pinIconCache.has(key)) return pinIconCache.get(key);
+  const st = LAYER_PIN_STYLE[cat];
+  const size = 20;
+  const icon = L.divIcon({
+    className: '',
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+    html: `<div style="width:${size}px;height:${size}px;border-radius:${st.radius};background:${st.color};border:${st.border};box-shadow:0 1px 4px rgba(15,23,42,.35);color:#fff;font:800 10.5px/16px system-ui,sans-serif;text-align:center;box-sizing:border-box">${Number(n) || ''}</div>`,
+  });
+  pinIconCache.set(key, icon);
+  return icon;
+}
+
+/**
+ * On-demand river layers the student switched on in the panel: tributary lines and numbered
+ * pins. Names appear only on hover or when an item is focused, so the map stays readable.
+ * During the map drill all tributary lines are shown (unnamed) and taps answer the question.
+ */
+function StudyLayers({ studyLayers, quizMode, onItemTap, onQuizTap, dimmed = false }) {
+  if (!studyLayers?.layers) return null;
+  const { layers, on } = studyLayers;
+  const tribs = (layers.tributaries || []).filter((t) => t.lines.length);
+  const showTribs = quizMode || on.tributaries;
+  return (
+    <>
+      {showTribs &&
+        tribs.map((t) => {
+          const color = quizMode ? '#0284c7' : t.side === 'left' ? '#7c3aed' : '#059669';
+          const tap = () => {
+            if (quizMode) {
+              onQuizTap && onQuizTap(t.id);
+              return;
+            }
+            onItemTap &&
+              onItemTap({
+                key: t.id,
+                lines: t.lines,
+                pins: t.point ? [{ lat: t.point[0], lng: t.point[1], label: `${t.name} · ${t.side}-bank` }] : [],
+                color,
+              });
+          };
+          return t.lines.map((line, i) => (
+            <React.Fragment key={`sl-${t.id}-${i}`}>
+              <Polyline positions={line} pathOptions={{ color: '#000000', weight: 18, opacity: 0 }} eventHandlers={{ click: tap }} />
+              <Polyline
+                positions={line}
+                // While one item is focused, the rest fade so the focused one stands out.
+                pathOptions={{ color, weight: quizMode ? 2.6 : 3, opacity: dimmed ? 0.3 : 0.85, lineCap: 'round', lineJoin: 'round' }}
+                eventHandlers={{ click: tap }}
+              >
+                {!quizMode && (
+                  <Tooltip direction="top" sticky>
+                    {t.name} ({t.side}-bank)
+                  </Tooltip>
+                )}
+              </Polyline>
+            </React.Fragment>
+          ));
+        })}
+      {['sangams', 'dams', 'parks', 'towns'].map((cat) =>
+        on[cat]
+          ? (layers[cat] || [])
+              .filter((x) => x.pins.length)
+              .flatMap((x) =>
+                x.pins.map((p, i) => (
+                  <Marker
+                    key={`pin-${x.id}-${i}`}
+                    position={[p.lat, p.lng]}
+                    icon={numberedPinIcon(cat, x.n)}
+                    opacity={dimmed ? 0.45 : 1}
+                    zIndexOffset={600}
+                    eventHandlers={{
+                      click: () =>
+                        onItemTap &&
+                        onItemTap({
+                          key: x.id,
+                          lines: x.lines || [],
+                          pins: x.pins.map((q) => ({ lat: q.lat, lng: q.lng, label: q.label || x.title })),
+                          color: LAYER_PIN_STYLE[cat].color,
+                        }),
+                    }}
+                  >
+                    <Tooltip direction="top" offset={[0, -10]}>
+                      {x.n}. {p.label || x.title}
+                    </Tooltip>
+                  </Marker>
+                ))
+              )
+          : null
       )}
     </>
   );
@@ -1169,6 +1272,9 @@ export default function MappingCanvas({
   basinHighlightColor = '#0284c7',
   basinFitKey = 0,
   studyHighlight = null,
+  studyLayers = null,
+  onLayerItemTap,
+  onQuizTap,
   traceKey = 0,
   tracePoints = [],
   quizMode = false,
@@ -1344,7 +1450,12 @@ export default function MappingCanvas({
         <CameraController cameraTarget={cameraTarget} selectedNode={selectedNode} onZoomChange={setCurrentZoom} focusPoints={riverFocusPoints} />
         <RiverLabelCollision riverNodes={riverNodes} selectedNode={selectedNode} onChange={handleLabelVisibility} />
 
-        <TileLayer key={basemap} url={tile.url} attribution={tile.attr} crossOrigin={true} />
+        <TileLayer
+          key={basemap}
+          url={tile.url}
+          attribution={`${tile.attr} | River data &copy; OpenStreetMap contributors`}
+          crossOrigin={true}
+        />
 
         {/* International Country Borders, Official India State Boundaries & Active Host Region Highlight */}
         <WorldAndIndiaGeoBorders
@@ -1470,6 +1581,13 @@ export default function MappingCanvas({
           );
         })}
 
+        <StudyLayers
+          studyLayers={studyLayers}
+          quizMode={quizMode}
+          onItemTap={onLayerItemTap}
+          onQuizTap={onQuizTap}
+          dimmed={Boolean(studyHighlight) && !quizMode}
+        />
         <StudyHighlightLayer highlight={studyHighlight} />
         <CourseTrace traceKey={traceKey} points={tracePoints} color={SELECTED_RIVER_COLOR} />
 
@@ -1477,6 +1595,8 @@ export default function MappingCanvas({
         {riverNodes.map((node) => {
           const isSelected = selectedNode?.id === node.id;
           if (!isSelected && quizMode) return null;
+          // The selected river's name box would cover a focused tributary or pin; the river is obvious anyway.
+          if (isSelected && studyHighlight) return null;
           if (!isSelected && selectedNode && node.focusTier === 'basin') return null;
           if (!isSelected && visibleLabelIds && !visibleLabelIds.has(node.id)) return null;
           const anchor = getLabelAnchor(node);
