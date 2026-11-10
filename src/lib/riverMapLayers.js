@@ -127,6 +127,45 @@ function resolveLines(name, findAtlasNode, excludeId) {
   return { lines, nodeIds };
 }
 
+/** Halfway along a line (by distance): where a river's name reads best. */
+function midpointAlong(line) {
+  if (line.length < 2) return line[0] || null;
+  let total = 0;
+  const seg = [];
+  for (let i = 1; i < line.length; i++) {
+    const d = Math.sqrt(sqDist(line[i], line[i - 1]));
+    seg.push(d);
+    total += d;
+  }
+  let target = total / 2;
+  for (let i = 0; i < seg.length; i++) {
+    if (target <= seg[i] && seg[i] > 0) {
+      const t = target / seg[i];
+      return [line[i][0] + (line[i + 1][0] - line[i][0]) * t, line[i][1] + (line[i + 1][1] - line[i][1]) * t];
+    }
+    target -= seg[i];
+  }
+  return line[line.length - 1];
+}
+
+function lineLength(line) {
+  let total = 0;
+  for (let i = 1; i < line.length; i++) total += Math.sqrt(sqDist(line[i], line[i - 1]));
+  return total;
+}
+
+/** Colours for comparing picked tributaries (colour-blind-safe, distinct from the blue river and bank colours). */
+export const PICK_COLORS = ['#D55E00', '#CC79A7', '#E69F00', '#0F766E'];
+export const MAX_PICKS = 4;
+
+/** One-tap groups for common exam comparisons, by river node id. Names must match the notes. */
+export const TRIBUTARY_GROUPS = {
+  'IND-RIV-05': [{ label: 'Pranhita system', names: ['Pranhita', 'Wainganga', 'Wardha', 'Penganga'] }],
+  'IND-RIV-08': [
+    { label: 'Western Ghats feeders', names: ['Venna', 'Koyna', 'Warna', 'Panchganga', 'Dudhganga', 'Ghataprabha', 'Malaprabha'] },
+  ],
+};
+
 const POINT_CATEGORIES = [
   { id: 'dams', source: 'dams', title: (x) => x.name, sub: (x) => x.type, tag: (x) => x.state },
   { id: 'parks', source: 'protectedAreas', title: (x) => x.name, sub: (x) => x.relation, tag: (x) => x.state },
@@ -196,11 +235,31 @@ export function buildRiverLayers(river, findAtlasNode) {
         lines,
         nodeIds,
         point: joinPoint,
+        // Name position: mid-course of the longest line; for a group (Panjnad) the join point.
+        labelAnchor:
+          lines.length === 1
+            ? midpointAlong(lines[0])
+            : joinPoint || (lines.length ? midpointAlong(lines[0]) : null),
+        lengthDeg: lines.reduce((m, l) => Math.max(m, lineLength(l)), 0),
       });
     }
   }
 
-  const out = { tributaries, sangams };
+  // Quick groups: by bank, plus named systems for this river.
+  const groups = [];
+  for (const side of ['left', 'right']) {
+    const ids = tributaries.filter((t) => t.side === side && t.lines.length).map((t) => t.id);
+    if (ids.length >= 2) groups.push({ id: `bank:${side}`, label: side === 'left' ? 'Left bank' : 'Right bank', ids });
+  }
+  for (const g of TRIBUTARY_GROUPS[river.id] || []) {
+    const wanted = new Set(g.names.flatMap(riverNameKeys));
+    const ids = tributaries
+      .filter((t) => t.lines.length && splitRiverNames(t.name).flatMap(riverNameKeys).some((k) => wanted.has(k)))
+      .map((t) => t.id);
+    if (ids.length >= 2) groups.push({ id: `group:${g.label}`, label: g.label, ids });
+  }
+
+  const out = { tributaries, sangams, groups };
   for (const cat of POINT_CATEGORIES) {
     let n = 0;
     const list = Array.isArray(rd[cat.source]) ? rd[cat.source] : [];

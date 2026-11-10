@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { safeHttpUrl } from '@/lib/escapeHtml';
 import RiverStudyPanel, { RiverQuizCard } from '@/components/mapping/RiverStudyPanel';
-import { buildRiverLayers, nodeShapePoints, riverNameKeys } from '@/lib/riverMapLayers';
+import { buildRiverLayers, nodeShapePoints, riverNameKeys, PICK_COLORS, MAX_PICKS } from '@/lib/riverMapLayers';
 
 const MappingCanvas = dynamic(() => import('./MappingCanvas'), {
   ssr: false,
@@ -840,6 +840,9 @@ export default function MappingWorkspace({
   const [riverQuiz, setRiverQuiz] = useState(null);
   const [riverPanelNodeId, setRiverPanelNodeId] = useState(null);
   const [riverLayersOn, setRiverLayersOn] = useState({});
+  // Tributaries picked for comparison: { list: [{ id, color }], groupId: string|null }.
+  const [riverPicks, setRiverPicks] = useState({ list: [], groupId: null });
+  const [riverHideNames, setRiverHideNames] = useState(false);
 
   // Data
   const [allNodes, setAllNodes] = useState([]);
@@ -1229,6 +1232,7 @@ export default function MappingWorkspace({
     setRiverHighlight(null);
     setRiverQuiz(null);
     setRiverLayersOn({});
+    setRiverPicks({ list: [], groupId: null });
   }
 
   // All drawable rivers in this mode, indexed by name, to link panel text to map lines.
@@ -1252,6 +1256,42 @@ export default function MappingWorkspace({
   // Layers the student switched on, as { category: true }.
   const toggleRiverLayer = (cat) => setRiverLayersOn((prev) => ({ ...prev, [cat]: !prev[cat] }));
 
+  // Compare tributaries: tap adds/removes (max 4, oldest dropped); a group replaces the selection.
+  const toggleRiverPick = (id) => {
+    setRiverHighlight(null);
+    setRiverPicks((prev) => {
+      if (prev.groupId) return { list: [{ id, color: PICK_COLORS[0] }], groupId: null };
+      if (prev.list.some((p) => p.id === id)) {
+        return { list: prev.list.filter((p) => p.id !== id), groupId: null };
+      }
+      const kept = prev.list.length >= MAX_PICKS ? prev.list.slice(1) : prev.list;
+      const used = new Set(kept.map((p) => p.color));
+      const color = PICK_COLORS.find((c) => !used.has(c)) || PICK_COLORS[0];
+      return { list: [...kept, { id, color }], groupId: null };
+    });
+  };
+
+  const applyRiverGroup = (group) => {
+    setRiverHighlight(null);
+    setRiverPicks((prev) => {
+      if (prev.groupId === group.id) return { list: [], groupId: null };
+      const tribs = riverLayers?.tributaries || [];
+      const useBankColors = group.ids.length > MAX_PICKS;
+      return {
+        groupId: group.id,
+        list: group.ids.map((id, i) => {
+          const t = tribs.find((x) => x.id === id);
+          const color = useBankColors
+            ? t?.side === 'right' ? '#059669' : '#7c3aed'
+            : PICK_COLORS[i % PICK_COLORS.length];
+          return { id, color };
+        }),
+      };
+    });
+  };
+
+  const clearRiverPicks = () => setRiverPicks({ list: [], groupId: null });
+
   // Map drill: tributaries of the selected river that have a line on the map.
   const quizCandidates = useMemo(
     () => (riverLayers?.tributaries || []).filter((t) => t.lines.length > 0),
@@ -1262,6 +1302,7 @@ export default function MappingWorkspace({
     const picks = shuffled(quizCandidates).slice(0, 3);
     if (picks.length === 0) return;
     setRiverHighlight(null);
+    setRiverPicks({ list: [], groupId: null });
     setRiverQuiz({
       active: true,
       index: 0,
@@ -3650,7 +3691,12 @@ export default function MappingWorkspace({
             basinHighlightColor={activeBasinHighlightColor}
             basinFitKey={basinFitKey}
             studyHighlight={isRiverStudy ? riverHighlight : null}
-            studyLayers={isRiverStudy && riverLayers ? { layers: riverLayers, on: riverLayersOn } : null}
+            studyLayers={
+              isRiverStudy && riverLayers
+                ? { layers: riverLayers, on: riverLayersOn, picks: riverPicks.list, hideNames: riverHideNames }
+                : null
+            }
+            onTogglePick={toggleRiverPick}
             onLayerItemTap={(item) => setRiverHighlight(item)}
             onQuizTap={(tribId) => answerRiverQuiz({ tribId })}
             traceKey={isRiverStudy ? riverTraceKey : 0}
@@ -4613,6 +4659,12 @@ export default function MappingWorkspace({
                         layers={riverLayers}
                         layersOn={riverLayersOn}
                         onToggleLayer={toggleRiverLayer}
+                        picks={riverPicks}
+                        onTogglePick={toggleRiverPick}
+                        onApplyGroup={applyRiverGroup}
+                        onClearPicks={clearRiverPicks}
+                        hideNames={riverHideNames}
+                        onToggleHideNames={() => setRiverHideNames((v) => !v)}
                         highlight={riverHighlight}
                         onHighlight={setRiverHighlight}
                         onTrace={() => {

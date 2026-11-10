@@ -278,7 +278,7 @@ function riverLabelPriority(node, selectedNode) {
  * Decides which river names fit on screen without overlapping. Higher-priority names
  * (selected river, its system, major rivers) win; the rest stay hidden until you zoom in.
  */
-function RiverLabelCollision({ riverNodes, selectedNode, onChange }) {
+function RiverLabelCollision({ riverNodes, selectedNode, onChange, extraLabels = [], suppressedIds = null, hideNames = false }) {
   const map = useMap();
 
   useEffect(() => {
@@ -289,12 +289,32 @@ function RiverLabelCollision({ riverNodes, selectedNode, onChange }) {
       const size = map.getSize();
       const candidates = riverNodes
         .filter((n) => !(selectedNode && n.focusTier === 'basin'))
-        .map((n) => ({ n, prio: riverLabelPriority(n, selectedNode) }))
-        .sort((a, b) => b.prio - a.prio);
+        .filter((n) => !(suppressedIds && suppressedIds.has(n.id)))
+        .filter((n) => !(hideNames && selectedNode?.id !== n.id))
+        .map((n) => ({ n, prio: riverLabelPriority(n, selectedNode) }));
+      // Tributary names from the study panel compete for the same space.
+      for (const l of extraLabels) candidates.push({ extra: l, prio: l.prio });
+      candidates.sort((a, b) => b.prio - a.prio);
 
       const placed = [];
       const visible = new Set();
-      for (const { n } of candidates) {
+      for (const { n, extra } of candidates) {
+        if (extra) {
+          const pt = map.latLngToContainerPoint(extra.anchor);
+          const w = extra.text.length * fontSize * 0.62 + 10;
+          const h = fontSize + 8;
+          const box = { x1: pt.x - w / 2, y1: pt.y - h / 2, x2: pt.x + w / 2, y2: pt.y + h / 2 };
+          // A river much shorter on screen than its name gets the name only when picked or zoomed in.
+          const east = map.latLngToContainerPoint([extra.anchor[0], extra.anchor[1] + 1]);
+          const lengthPx = extra.lengthDeg * Math.abs(east.x - pt.x);
+          const fits = extra.forced || lengthPx >= w * 1.1;
+          const hits = placed.some((b) => box.x1 < b.x2 && box.x2 > b.x1 && box.y1 < b.y2 && box.y2 > b.y1);
+          if (extra.forced || (fits && !hits)) {
+            placed.push(box);
+            visible.add(extra.id);
+          }
+          continue;
+        }
         const anchor = getLabelAnchor(n);
         if (!Number.isFinite(anchor[0]) || !Number.isFinite(anchor[1])) continue;
         const pt = map.latLngToContainerPoint(anchor);
@@ -327,7 +347,7 @@ function RiverLabelCollision({ riverNodes, selectedNode, onChange }) {
     compute();
     map.on('zoomend moveend resize', compute);
     return () => map.off('zoomend moveend resize', compute);
-  }, [map, riverNodes, selectedNode, onChange]);
+  }, [map, riverNodes, selectedNode, onChange, extraLabels, suppressedIds, hideNames]);
 
   return null;
 }
@@ -1109,47 +1129,57 @@ function numberedPinIcon(cat, n) {
  * pins. Names appear only on hover or when an item is focused, so the map stays readable.
  * During the map drill all tributary lines are shown (unnamed) and taps answer the question.
  */
-function StudyLayers({ studyLayers, quizMode, onItemTap, onQuizTap, dimmed = false }) {
+function StudyLayers({ studyLayers, quizMode, onItemTap, onQuizTap, onTogglePick, dimmed = false }) {
   if (!studyLayers?.layers) return null;
-  const { layers, on } = studyLayers;
+  const { layers, on, picks = [], hideNames = false } = studyLayers;
+  const pickColor = new Map(picks.map((p) => [p.id, p.color]));
   const tribs = (layers.tributaries || []).filter((t) => t.lines.length);
-  const showTribs = quizMode || on.tributaries;
+  // Picked tributaries draw last so they sit on top.
+  const ordered = [...tribs].sort((a, b) => (pickColor.has(a.id) ? 1 : 0) - (pickColor.has(b.id) ? 1 : 0));
   return (
     <>
-      {showTribs &&
-        tribs.map((t) => {
-          const color = quizMode ? '#0284c7' : t.side === 'left' ? '#7c3aed' : '#059669';
-          const tap = () => {
-            if (quizMode) {
-              onQuizTap && onQuizTap(t.id);
-              return;
-            }
+      {ordered.map((t) => {
+        const picked = !quizMode && pickColor.has(t.id);
+        if (!quizMode && !picked && !on.tributaries) return null;
+        const color = quizMode ? '#0284c7' : picked ? pickColor.get(t.id) : t.side === 'left' ? '#7c3aed' : '#059669';
+        const tap = () => {
+          if (quizMode) {
+            onQuizTap && onQuizTap(t.id);
+          } else if (hideNames) {
+            // Self-test: a tap reveals the name instead of selecting.
             onItemTap &&
               onItemTap({
                 key: t.id,
                 lines: t.lines,
-                pins: t.point ? [{ lat: t.point[0], lng: t.point[1], label: `${t.name} · ${t.side}-bank` }] : [],
+                pins: [{ lat: (t.labelAnchor || t.point)[0], lng: (t.labelAnchor || t.point)[1], label: `${t.name} · ${t.side}-bank` }],
                 color,
               });
-          };
-          return t.lines.map((line, i) => (
-            <React.Fragment key={`sl-${t.id}-${i}`}>
-              <Polyline positions={line} pathOptions={{ color: '#000000', weight: 18, opacity: 0 }} eventHandlers={{ click: tap }} />
-              <Polyline
-                positions={line}
-                // While one item is focused, the rest fade so the focused one stands out.
-                pathOptions={{ color, weight: quizMode ? 2.6 : 3, opacity: dimmed ? 0.3 : 0.85, lineCap: 'round', lineJoin: 'round' }}
-                eventHandlers={{ click: tap }}
-              >
-                {!quizMode && (
-                  <Tooltip direction="top" sticky>
-                    {t.name} ({t.side}-bank)
-                  </Tooltip>
-                )}
-              </Polyline>
-            </React.Fragment>
-          ));
-        })}
+          } else if (onTogglePick) {
+            onTogglePick(t.id);
+          }
+        };
+        const opacity = picked ? 1 : dimmed ? 0.3 : 0.85;
+        return t.lines.map((line, i) => (
+          <React.Fragment key={`sl-${t.id}-${i}`}>
+            <Polyline positions={line} pathOptions={{ color: '#000000', weight: 18, opacity: 0 }} eventHandlers={{ click: tap }} />
+            {picked && (
+              <Polyline positions={line} interactive={false} pathOptions={{ color: '#ffffff', weight: 8, opacity: 0.9, lineCap: 'round', lineJoin: 'round' }} />
+            )}
+            <Polyline
+              positions={line}
+              // Picked rivers are bold in their own colour; the rest fade while something is picked or focused.
+              pathOptions={{ color, weight: picked ? 4.5 : quizMode ? 2.6 : 3, opacity, lineCap: 'round', lineJoin: 'round' }}
+              eventHandlers={{ click: tap }}
+            >
+              {!quizMode && !hideNames && (
+                <Tooltip direction="top" sticky>
+                  {t.name} ({t.side}-bank)
+                </Tooltip>
+              )}
+            </Polyline>
+          </React.Fragment>
+        ));
+      })}
       {['sangams', 'dams', 'parks', 'towns'].map((cat) =>
         on[cat]
           ? (layers[cat] || [])
@@ -1275,6 +1305,7 @@ export default function MappingCanvas({
   studyLayers = null,
   onLayerItemTap,
   onQuizTap,
+  onTogglePick,
   traceKey = 0,
   tracePoints = [],
   quizMode = false,
@@ -1294,6 +1325,32 @@ export default function MappingCanvas({
       .filter((n) => n.id === selectedNode.id || n.focusTier === 'system')
       .flatMap((n) => getShapePoints(n));
   }, [nodes, selectedNode]);
+
+  // Tributary names from the study panel: picked ones always, the rest when the layer is on and they fit.
+  const hideStudyNames = Boolean(studyLayers?.hideNames);
+  const studyLabelItems = useMemo(() => {
+    if (!studyLayers?.layers || studyLayers.hideNames || quizMode) return [];
+    const pickColor = new Map((studyLayers.picks || []).map((p) => [p.id, p.color]));
+    const showAll = Boolean(studyLayers.on?.tributaries);
+    return (studyLayers.layers.tributaries || [])
+      .filter((t) => t.lines.length && t.labelAnchor && (showAll || pickColor.has(t.id)))
+      .map((t) => ({
+        id: `tl:${t.id}`,
+        text: t.name,
+        anchor: t.labelAnchor,
+        forced: pickColor.has(t.id),
+        color: pickColor.get(t.id) || (t.side === 'left' ? '#6d28d9' : '#047857'),
+        prio: pickColor.has(t.id) ? 900 : 200 + Math.min(99, Math.round(t.lengthDeg * 25)),
+        lengthDeg: t.lengthDeg,
+        // A group (Panjnad = five rivers) keeps the atlas names of its member rivers.
+        nodeIds: t.lines.length === 1 ? t.nodeIds || [] : [],
+      }));
+  }, [studyLayers, quizMode]);
+  // Atlas rivers that now carry a tributary name from the panel: don't name them twice.
+  const suppressedLabelIds = useMemo(
+    () => new Set(studyLabelItems.flatMap((l) => l.nodeIds)),
+    [studyLabelItems]
+  );
 
   // Which river names fit without overlapping (null = not computed yet, show all).
   const [visibleLabelIds, setVisibleLabelIds] = useState(null);
@@ -1448,7 +1505,14 @@ export default function MappingCanvas({
       >
         <ZoomControl position="bottomright" />
         <CameraController cameraTarget={cameraTarget} selectedNode={selectedNode} onZoomChange={setCurrentZoom} focusPoints={riverFocusPoints} />
-        <RiverLabelCollision riverNodes={riverNodes} selectedNode={selectedNode} onChange={handleLabelVisibility} />
+        <RiverLabelCollision
+          riverNodes={riverNodes}
+          selectedNode={selectedNode}
+          onChange={handleLabelVisibility}
+          extraLabels={studyLabelItems}
+          suppressedIds={suppressedLabelIds}
+          hideNames={hideStudyNames}
+        />
 
         <TileLayer
           key={basemap}
@@ -1586,17 +1650,36 @@ export default function MappingCanvas({
           quizMode={quizMode}
           onItemTap={onLayerItemTap}
           onQuizTap={onQuizTap}
-          dimmed={Boolean(studyHighlight) && !quizMode}
+          onTogglePick={onTogglePick}
+          dimmed={(Boolean(studyHighlight) || Boolean(studyLayers?.picks?.length)) && !quizMode}
         />
+
+        {/* Tributary names (atlas style: coloured italic text, no boxes) */}
+        {studyLabelItems
+          .filter((l) => l.forced || !visibleLabelIds || visibleLabelIds.has(l.id))
+          .map((l) => (
+            <Marker
+              key={l.id}
+              position={l.anchor}
+              interactive={false}
+              zIndexOffset={l.forced ? 900 : 400}
+              icon={L.divIcon({
+                className: '',
+                iconSize: [0, 0],
+                html: `<div style="transform:translate(-50%,-50%);white-space:nowrap;font:italic ${l.forced ? 800 : 700} ${riverLabelFontSize(currentZoom).toFixed(1)}px/1 system-ui,sans-serif;color:${l.color};text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 2px #fff;pointer-events:none">${escapeHtml(l.text)}</div>`,
+              })}
+            />
+          ))}
         <StudyHighlightLayer highlight={studyHighlight} />
         <CourseTrace traceKey={traceKey} points={tracePoints} color={SELECTED_RIVER_COLOR} />
 
         {/* River Labels (Rendered directly and unclustered, so river names are always visible like a real atlas) */}
         {riverNodes.map((node) => {
           const isSelected = selectedNode?.id === node.id;
-          if (!isSelected && quizMode) return null;
+          if (!isSelected && (quizMode || hideStudyNames)) return null;
+          if (!isSelected && suppressedLabelIds.has(node.id)) return null;
           // The selected river's name box would cover a focused tributary or pin; the river is obvious anyway.
-          if (isSelected && studyHighlight) return null;
+          if (isSelected && (studyHighlight || studyLayers?.picks?.length)) return null;
           if (!isSelected && selectedNode && node.focusTier === 'basin') return null;
           if (!isSelected && visibleLabelIds && !visibleLabelIds.has(node.id)) return null;
           const anchor = getLabelAnchor(node);

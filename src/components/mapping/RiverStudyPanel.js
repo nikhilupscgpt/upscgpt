@@ -107,6 +107,12 @@ function shortLength(len) {
   return String(len).replace(/\s*\(.*?\)\s*/g, '').trim();
 }
 
+/** First sentence-part of a note (split at ";"), capped for one-line display. */
+function shortNote(text, max = 110) {
+  const first = String(text || '').split(';')[0].trim();
+  return first.length > max ? `${first.slice(0, max - 1)}…` : first;
+}
+
 function firstClause(text, max = 70) {
   if (!text) return '';
   const first = String(text).split(/[;,(]/)[0].trim();
@@ -124,6 +130,12 @@ export default function RiverStudyPanel({
   layers,
   layersOn = {},
   onToggleLayer,
+  picks = { list: [], groupId: null },
+  onTogglePick,
+  onApplyGroup,
+  onClearPicks,
+  hideNames = false,
+  onToggleHideNames,
   highlight,
   onHighlight,
   onTrace,
@@ -168,37 +180,43 @@ export default function RiverStudyPanel({
   const tribsOnMap = (side) => tribs.filter((t) => t.side === side && t.lines.length);
   const tribsTextOnly = (side) => tribs.filter((t) => t.side === side && !t.lines.length);
 
+  const pickColor = (id) => picks.list.find((p) => p.id === id)?.color || null;
+
+  // Tap adds/removes the tributary from the comparison; its colour matches its line on the map.
   const renderTributary = (t) => {
-    const active = isActive(t.id);
-    // Violet / green so a highlighted tributary never looks like the selected (blue) river.
-    const color = t.side === 'left' ? '#7c3aed' : '#059669';
+    const color = pickColor(t.id);
+    const picked = Boolean(color);
     return (
-      <div key={t.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 4 }}>
-        <button
-          type="button"
-          title="Show on map"
-          onClick={() =>
-            onHighlight(
-              active
-                ? null
-                : {
-                    key: t.id,
-                    lines: t.lines,
-                    pins: t.point ? [{ lat: t.point[0], lng: t.point[1], label: `${t.name} · ${t.side}-bank` }] : [],
-                    color,
-                  }
-            )
-          }
-          style={chipStyle(active, true, color)}
-        >
-          {t.name}
-        </button>
-        {active && t.note && (
-          <div style={{ fontSize: 11.5, color: C.body, lineHeight: 1.45, paddingLeft: 4 }}>{t.note}</div>
-        )}
-      </div>
+      <button
+        key={t.id}
+        type="button"
+        aria-pressed={picked}
+        title={picked ? 'Remove from map' : 'Show on map (pick up to 4 to compare)'}
+        onClick={() => onTogglePick(t.id)}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 6,
+          padding: '5px 10px',
+          borderRadius: 999,
+          fontSize: 12,
+          fontWeight: 700,
+          cursor: 'pointer',
+          border: `1.5px solid ${picked ? color : '#cbd5e1'}`,
+          background: picked ? color : '#ffffff',
+          color: picked ? '#ffffff' : C.ink,
+          transition: 'all 0.15s ease',
+        }}
+      >
+        {picked && <span aria-hidden style={{ width: 8, height: 8, borderRadius: '50%', background: '#ffffff' }} />}
+        {t.name}
+      </button>
     );
   };
+
+  const pickedTribs = picks.list
+    .map((p) => ({ t: tribs.find((x) => x.id === p.id), color: p.color }))
+    .filter((x) => x.t);
 
   const renderTextOnly = (list) =>
     list.length > 0 && (
@@ -415,15 +433,72 @@ export default function RiverStudyPanel({
                   );
                 })}
               </div>
+              {mappableCount(layers, 'tributaries') > 0 && (
+                <label
+                  style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 10, fontSize: 12, color: C.body, cursor: 'pointer' }}
+                >
+                  <input type="checkbox" checked={hideNames} onChange={onToggleHideNames} />
+                  <span>
+                    <strong>Hide names</strong> — test yourself; tap a line on the map to reveal it
+                  </span>
+                </label>
+              )}
             </Card>
           )}
 
           {tribs.length > 0 && (
             <Card>
-              <SectionTitle hint={tribs.some((t) => t.lines.length) ? 'tap to see it on the map' : null}>
+              <SectionTitle hint={tribs.some((t) => t.lines.length) ? 'tap to compare, up to 4' : null}>
                 Tributaries
               </SectionTitle>
+              {(layers?.groups?.length > 0 || picks.list.length > 0) && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                  {layers?.groups?.length > 0 && <span style={{ fontSize: 11.5, color: C.muted, fontWeight: 700 }}>Quick:</span>}
+                  {(layers?.groups || []).map((g) => {
+                    const active = picks.groupId === g.id;
+                    return (
+                      <button
+                        key={g.id}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() => onApplyGroup(g)}
+                        style={{
+                          fontSize: 11.5,
+                          fontWeight: 700,
+                          padding: '3px 9px',
+                          borderRadius: 6,
+                          cursor: 'pointer',
+                          border: `1.5px solid ${active ? C.ink : '#cbd5e1'}`,
+                          background: active ? C.ink : C.soft,
+                          color: active ? '#ffffff' : C.body,
+                        }}
+                      >
+                        {g.label}
+                      </button>
+                    );
+                  })}
+                  {picks.list.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={onClearPicks}
+                      style={{ marginLeft: 'auto', fontSize: 11.5, fontWeight: 700, color: C.blue, background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                    >
+                      Clear ({picks.list.length})
+                    </button>
+                  )}
+                </div>
+              )}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {pickedTribs.length > 0 && pickedTribs.length <= 4 && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 4, background: C.soft, borderRadius: 8, padding: '8px 10px' }}>
+                    {pickedTribs.map(({ t, color }) => (
+                      <div key={t.id} style={{ fontSize: 11.5, color: C.body, lineHeight: 1.45 }}>
+                        <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: color, marginRight: 6 }} />
+                        <strong style={{ color: C.ink }}>{t.name}</strong> ({t.side}-bank){t.note ? ` — ${shortNote(t.note)}` : ''}
+                      </div>
+                    ))}
+                  </div>
+                )}
                 {['left', 'right'].map((side) => {
                   const all = tribs.filter((t) => t.side === side);
                   if (!all.length) return null;
