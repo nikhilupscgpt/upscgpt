@@ -71,6 +71,7 @@ import Footer from '../components/Footer'
 import { TranslationProvider } from '../context/TranslationContext'
 import { ThemeProvider } from '../components/ThemeProvider'
 import { Contentsquare } from './contentsquare'
+import { safeJsonLd } from '@/lib/jsonLd';
 
 export default function RootLayout({ children }) {
   return (
@@ -110,7 +111,7 @@ export default function RootLayout({ children }) {
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
+            __html: safeJsonLd({
               '@context': 'https://schema.org',
               '@type': 'Organization',
               'name': 'UPSCGPT',

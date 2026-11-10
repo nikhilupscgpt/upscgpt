@@ -861,15 +861,18 @@ export async function POST(req) {
   try {
     const body = await req.json()
     const mode = body?.mode
-    const regionKey = body?.regionKey || 'global'
-    const entryId = body?.entryId || null
-    const userPrompt = body?.userPrompt?.trim() || ''
+    const regionKey = REGION_CONFIG[body?.regionKey] ? body.regionKey : 'global'
+    // Every mode except chat saves its answer to a cache that all visitors see.
+    // For those modes, never use text or entry data sent by the browser.
+    const writesSharedCache = mode !== 'chat'
+    const entryId = body?.entryId || (writesSharedCache ? body?.selectedEntrySnapshot?.id : null) || null
+    const userPrompt = writesSharedCache ? '' : String(body?.userPrompt || '').trim().slice(0, 2000)
     const lang = body?.lang || 'en'
-    const chatHistory = Array.isArray(body?.chatHistory) ? body.chatHistory : []
-    const entriesSnapshot = Array.isArray(body?.entriesSnapshot)
-      ? body.entriesSnapshot.map(normalizeEntrySnapshot).filter(Boolean)
+    const chatHistory = !writesSharedCache && Array.isArray(body?.chatHistory) ? body.chatHistory.slice(-6) : []
+    const entriesSnapshot = !writesSharedCache && Array.isArray(body?.entriesSnapshot)
+      ? body.entriesSnapshot.slice(0, 100).map(normalizeEntrySnapshot).filter(Boolean)
       : []
-    const selectedEntrySnapshot = normalizeEntrySnapshot(body?.selectedEntrySnapshot)
+    const selectedEntrySnapshot = writesSharedCache ? null : normalizeEntrySnapshot(body?.selectedEntrySnapshot)
 
     if (!MAPBOT_MODES[mode]) {
       return NextResponse.json({ error: 'Unsupported Nano mode.' }, { status: 400 })
@@ -888,7 +891,7 @@ export async function POST(req) {
           ],
         })
       } catch (error) {
-        console.error('[MapBot] DB fetch failed, falling back to client snapshot:', error)
+        console.error('[MapBot] DB fetch failed:', error)
       }
     }
 

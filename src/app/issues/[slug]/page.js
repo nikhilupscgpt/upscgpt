@@ -7,6 +7,7 @@ import { Lock } from 'lucide-react'
 import FloatingChatWrapper from '@/components/content-portal/FloatingChatWrapper'
 import IssueDetailClient from '@/components/IssueDetailClient'
 import { stripHtml } from '@/lib/seo'
+import { safeJsonLd } from '@/lib/jsonLd';
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
@@ -94,7 +95,7 @@ export default async function IssuePage({ params, searchParams }) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: safeJsonLd({
             '@context': 'https://schema.org',
             '@type': 'WebPage',
             'name': `${issue.title} — UPSCGPT Intelligence Hub`,

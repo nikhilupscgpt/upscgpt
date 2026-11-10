@@ -63,7 +63,7 @@ export async function POST(request) {
         success: true,
         message: 'Payment already verified.',
         validUntil: currentUser?.validUntil ? currentUser.validUntil.toISOString() : null,
-        user: currentUser,
+        user: currentUser ? { tier: currentUser.tier, validUntil: currentUser.validUntil } : null,
       });
     }
 
@@ -187,7 +187,7 @@ export async function POST(request) {
       })}.`,
       planCode: plan.code,
       validUntil: newValidUntil.toISOString(),
-      user: updatedUser,
+      user: updatedUser ? { tier: updatedUser.tier, validUntil: updatedUser.validUntil } : null,
     });
   } catch (error) {
     console.error('[Payment Verify Error]:', error);

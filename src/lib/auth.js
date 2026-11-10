@@ -119,12 +119,25 @@ export const authOptions = {
           : null
       }
       
-      if (trigger === "update" && session) {
-        token.name = session.name || token.name
-        token.role = session.role || token.role
-        token.tier = session.tier || token.tier
-        if (session.validUntil !== undefined) {
-          token.validUntil = session.validUntil
+      if (trigger === "update") {
+        // Data sent by the browser is untrusted: only the display name may come from it.
+        // Role, tier and expiry are always re-read from the database.
+        if (session && typeof session.name === "string" && session.name.trim()) {
+          token.name = session.name.trim().slice(0, 100)
+        }
+        if (token.id) {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.id },
+            select: { role: true, tier: true, validUntil: true, username: true }
+          })
+          if (dbUser) {
+            const isSuperAdmin = dbUser.username?.toLowerCase() === 'admin'
+            token.role = isSuperAdmin ? 'ADMIN' : (dbUser.role || 'USER')
+            token.tier = (isSuperAdmin || token.role === 'ADMIN' || token.role === 'FACULTY')
+              ? 'PRO'
+              : (dbUser.tier || 'FREE')
+            token.validUntil = dbUser.validUntil ? dbUser.validUntil.toISOString() : null
+          }
         }
       }
 

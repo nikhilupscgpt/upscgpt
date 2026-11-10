@@ -40,10 +40,11 @@ export async function getTierStatus() {
       select: { id: true, email: true, name: true, role: true, tier: true, validUntil: true }
     });
   } catch (err) {
-    // Fallback to session if DB read fails transiently
+    console.error("[tier-gate] DB read failed; treating user as FREE", err?.message);
   }
 
-  const effectiveUser = dbUser || session.user;
+  // Fail closed: never trust the session token for paid access when the DB is unavailable.
+  const effectiveUser = dbUser || { ...session.user, tier: "FREE", validUntil: null };
   const role = effectiveUser?.role || "USER";
   const validUntil = effectiveUser?.validUntil
     ? (typeof effectiveUser.validUntil === "string"

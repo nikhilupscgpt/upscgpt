@@ -16,6 +16,10 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user?.role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized: Admin access required' }, { status: 403 });
+    }
     const [dbPins, pyqCount, pyqByExam] = await Promise.all([
       withRetry(() =>
         prisma.placeInNews.findMany({

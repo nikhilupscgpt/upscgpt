@@ -39,7 +39,8 @@ export default function StudentLogin() {
     if (typeof window !== 'undefined') {
       const sp = new URLSearchParams(window.location.search)
       const cb = sp.get('callbackUrl')
-      if (cb && cb.startsWith('/')) return cb
+      // Same-site paths only: blocks //evil.com and /\evil.com
+      if (cb && /^\/(?![\/\\])/.test(cb)) return cb
     }
     return '/prelims/pyq'
   }

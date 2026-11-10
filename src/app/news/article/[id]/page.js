@@ -7,6 +7,7 @@ import { cookies } from 'next/headers';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import NotesTrigger from '@/components/NotesTrigger';
+import { safeJsonLd } from '@/lib/jsonLd';
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
@@ -76,7 +77,7 @@ export default async function ArticlePage({ params }) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: safeJsonLd({
             '@context': 'https://schema.org',
             '@type': 'NewsArticle',
             'headline': title,

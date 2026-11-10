@@ -14,7 +14,7 @@ export async function POST(req) {
     const cleanEmail = email.trim().toLowerCase();
 
     // Generate 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = crypto.randomInt(100000, 1000000).toString();
     const token = crypto.randomBytes(32).toString('hex');
     const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
@@ -52,12 +52,12 @@ export async function POST(req) {
         type: 'OTP',
         channel: 'EMAIL',
         recipient: cleanEmail,
-        content: `OTP verification code dispatched: ${otp}`,
+        content: 'OTP verification code dispatched',
         status: deliveryStatus,
       }
     });
 
-    console.log(`[AUTH] OTP for ${cleanEmail}: ${otp} (Provider: ${emailResult.provider}, Status: ${deliveryStatus})`);
+    console.log(`[AUTH] OTP sent (Provider: ${emailResult.provider}, Status: ${deliveryStatus})`);
 
     return NextResponse.json({ 
       success: true, 

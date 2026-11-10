@@ -10,6 +10,7 @@ import {
   stripBoilerplateFromStem,
 } from '@/lib/seo';
 import { resolveSyllabusNodesForQuestion } from '@/lib/nodeBridge';
+import { safeJsonLd } from '@/lib/jsonLd';
 
 // 24-hour ISR Cache: Ensures search crawlers consume 0 DB/server compute after initial cache
 export const revalidate = 86400;
@@ -295,7 +296,7 @@ export default async function StandaloneQuestionPage({ params }) {
       {/* Google Schema.org JSON-LD Script */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
       />
       <StandaloneQuestionClient question={questionData} />
     </div>

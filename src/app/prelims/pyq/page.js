@@ -4,6 +4,7 @@ import PyqExplorerClient from './PyqExplorerClient';
 import { isNewPatternQuestion } from '@/lib/pyqPattern';
 import { generateQuestionSlug } from '@/lib/pyqSlug';
 import { SUBJECT_ORDER, SUBJECT_SHORT, getTopicSyllabusOrder } from './topicGroups';
+import { safeJsonLd } from '@/lib/jsonLd';
 
 // Incremental Static Regeneration (ISR): Revalidate every 5 minutes
 export const revalidate = 300;
@@ -212,7 +213,7 @@ export default async function PyqExplorerPage() {
     <div style={{ minHeight: '100vh', background: 'transparent', color: 'var(--text-primary)' }}>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLd(jsonLd) }}
       />
       <PyqExplorerClient initialQuestions={initialQuestions} initialMetadata={initialMetadata} />
     </div>

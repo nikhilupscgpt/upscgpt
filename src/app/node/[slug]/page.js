@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { CURATED_MAPPING_NODES } from '@/lib/static-mapping-data';
 import { getNodeBridgeContextBySlug } from '@/lib/nodeBridge';
 import './node-detail.css';
+import { safeJsonLd } from '@/lib/jsonLd';
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
@@ -58,7 +59,7 @@ export default async function NodeDetailPage({ params }) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: safeJsonLd({
             '@context': 'https://schema.org',
             '@type': 'Course',
             'name': `${node.title} — UPSC Atlas Intelligence`,
