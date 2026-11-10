@@ -3,7 +3,12 @@ import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 dotenv.config();
 
-const neonUrl = "postgresql://neondb_owner:npg_9AHQ1IBphyFq@ep-floral-field-am53mgn5.c-5.us-east-1.aws.neon.tech/neondb";
+// Source DB comes from the environment; never hard-code credentials here.
+const neonUrl = process.env.OLD_NEON_URL;
+if (!neonUrl) {
+  console.error("Set OLD_NEON_URL to the source Neon connection string.");
+  process.exit(1);
+}
 const supabaseUrl = process.env.DIRECT_URL.replace(/[?&]sslmode=[^&]+/, "");
 
 const tablesToMigrate = [
