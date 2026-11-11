@@ -257,7 +257,12 @@ export default function EnvironmentAtlasClient() {
                     <h2>{activeItem.title}</h2>
                     {activeItem.subtitle && <span className="env-study-subtitle">{activeItem.subtitle}</span>}
                   </div>
-                  <p className="env-study-oneline">{activeItem.oneline}</p>
+                  {activeItem.habitatType && (
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', padding: '3px 10px', background: 'rgba(16, 185, 129, 0.1)', color: '#34d399', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.25)', marginTop: '4px', marginBottom: '6px' }}>
+                      <span>🌿 Habitat:</span> <strong>{activeItem.habitatType}</strong>
+                    </div>
+                  )}
+                  {activeItem.oneline && <p className="env-study-oneline">{activeItem.oneline}</p>}
                 </div>
 
                 {/* Status Badges & Meter */}
@@ -315,6 +320,33 @@ export default function EnvironmentAtlasClient() {
                       <span>DON’T GET CONFUSED IN PRELIMS</span>
                     </div>
                     <p className="env-confuse-body">{activeItem.confusionTrap}</p>
+                  </div>
+                )}
+
+                {/* Behaviour & Ecology */}
+                {activeItem.behaviour && (
+                  <div className="env-remember-box" style={{ marginTop: '16px' }}>
+                    <div className="env-card-sublabel" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      🐾 Behaviour & Ecology
+                    </div>
+                    <p style={{ margin: '6px 0 0', fontSize: '0.88rem', lineHeight: '1.5', color: '#cbd5e1' }}>
+                      {activeItem.behaviour}
+                    </p>
+                  </div>
+                )}
+
+                {/* UPSC Previous Years Questions (PYQ) */}
+                {activeItem.similarPYQ?.length > 0 && (
+                  <div style={{ marginTop: '16px', padding: '14px 16px', background: 'rgba(99, 102, 241, 0.08)', borderRadius: '12px', border: '1px solid rgba(99, 102, 241, 0.25)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', fontWeight: 800, color: '#818cf8', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                      <BookOpen size={14} />
+                      <span>UPSC PREVIOUS YEARS QUESTIONS (PYQ)</span>
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: '18px', color: '#e2e8f0', fontSize: '0.85rem', lineHeight: '1.5' }}>
+                      {activeItem.similarPYQ.map((q, idx) => (
+                        <li key={idx} style={{ marginBottom: '6px' }}>{q}</li>
+                      ))}
+                    </ul>
                   </div>
                 )}
               </div>

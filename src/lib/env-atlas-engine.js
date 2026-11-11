@@ -102,43 +102,111 @@ export function ingestEnvAtlasJsonl(rawText) {
   let inserted = 0;
   let updated = 0;
 
-  for (const item of records) {
-    if (!item.slug || !item.title) {
-      errors.push(`Missing slug or title for item: ${JSON.stringify(item)}`);
+  for (const raw of records) {
+    // Support 11-point format aliases
+    const title = raw.specie || raw.species || raw.speciesName || raw.title || raw.name || '';
+    const slug = raw.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const subtitle = raw.scientificName || raw.scientific_name || raw.subtitle || '';
+    const habitatType = raw.habitatType || raw.habitat_type || raw.habitat || '';
+    const behaviour = raw.behaviour || raw.behavior || raw.ecology || '';
+
+    // Normalize Places / Found In
+    let places = [];
+    const foundInSource = raw.foundIn || raw.found_in || raw.places;
+    if (Array.isArray(foundInSource)) {
+      places = foundInSource.map((p) => {
+        if (typeof p === 'string') return { name: p, state: '', lat: null, lon: null };
+        return {
+          name: p.name || p.n || p.place || '',
+          state: p.state || p.st || '',
+          lat: typeof p.lat === 'number' ? p.lat : null,
+          lon: typeof p.lon === 'number' ? p.lon : (typeof p.lng === 'number' ? p.lng : null),
+          note: p.note || ''
+        };
+      });
+    } else if (typeof foundInSource === 'string') {
+      places = foundInSource.split(/[,;\n]/).map((s) => s.trim()).filter(Boolean).map((s) => ({
+        name: s, state: '', lat: null, lon: null
+      }));
+    }
+
+    // Normalize Status Badges (IUCN, WPA 1972, CITES)
+    const rawBadges = raw.statusBadges || {};
+    const statusBadges = {
+      ...rawBadges,
+      iucn: (raw.iucn || rawBadges.iucn || 'LC').toUpperCase(),
+      wpa: raw.wpa1972 || raw.wpa || raw.wpa_1972 || rawBadges.wpa || 'Schedule I',
+      cites: raw.cites || rawBadges.cites || 'Appendix I',
+      endemic: raw.endemic !== undefined ? raw.endemic : (rawBadges.endemic || false)
+    };
+
+    // Normalize Unique Features / Remember Bullets
+    let uniqueFeatures = raw.uniqueFeatures || raw.unique_features || raw.rememberBullets || [];
+    if (typeof uniqueFeatures === 'string') {
+      uniqueFeatures = uniqueFeatures.split('\n').map((s) => s.replace(/^[-*•\d.]+\s*/, '').trim()).filter(Boolean);
+    }
+
+    // Normalize In News / News Triggers
+    let newsTriggers = Array.isArray(raw.newsTriggers) ? raw.newsTriggers : [];
+    const inNewsRaw = raw.inNews || raw.in_news;
+    if (inNewsRaw) {
+      if (typeof inNewsRaw === 'string') {
+        newsTriggers = [{ tag: 'Recent News', date: '2024-25', what: inNewsRaw, whyItMatters: '' }, ...newsTriggers];
+      } else if (Array.isArray(inNewsRaw)) {
+        newsTriggers = [...inNewsRaw, ...newsTriggers];
+      }
+    }
+
+    // Normalize PYQ
+    let similarPYQ = normalizeArray(raw.similarPYQ);
+    const pyqRaw = raw.pyq || raw.pyqs;
+    if (pyqRaw) {
+      if (typeof pyqRaw === 'string') {
+        similarPYQ = [pyqRaw, ...similarPYQ];
+      } else if (Array.isArray(pyqRaw)) {
+        similarPYQ = [...pyqRaw, ...similarPYQ];
+      }
+    }
+
+    if (!slug || !title) {
+      errors.push(`Missing slug/species name for item: ${JSON.stringify(raw)}`);
       continue;
     }
 
-    const existingIndex = dynamicItems.findIndex((i) => i.slug === item.slug);
+    const existingIndex = dynamicItems.findIndex((i) => i.slug === slug);
 
     const formatted = {
-      id: item.id || `ENV-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-      envId: item.envId || item.id || `ENV-${Date.now()}`,
-      slug: item.slug,
-      module: item.module || 'SPECIES',
-      category: item.category || 'General',
-      title: item.title,
-      subtitle: item.subtitle || null,
-      aliases: normalizeArray(item.aliases),
-      oneline: item.oneline || '',
-      priority: item.priority || 'High',
-      isStarter: !!item.isStarter,
-      sortOrder: Number(item.sortOrder) || 100,
-      wikiTitle: item.wikiTitle || item.title.replace(/\s+/g, '_'),
-      imageUrl: item.imageUrl || null,
-      imageCredit: item.imageCredit || null,
-      rememberBullets: Array.isArray(item.rememberBullets) ? item.rememberBullets : [],
-      confusionTrap: item.confusionTrap || null,
-      confusedWith: normalizeArray(item.confusedWith),
-      statusBadges: item.statusBadges || {},
-      regionScope: item.regionScope || 'India',
-      states: normalizeArray(item.states),
-      lat: typeof item.lat === 'number' ? item.lat : null,
-      lng: typeof item.lng === 'number' ? item.lng : null,
-      networkKey: item.networkKey || null,
-      places: Array.isArray(item.places) ? item.places : [],
-      relatedSlugs: normalizeArray(item.relatedSlugs),
-      similarPYQ: normalizeArray(item.similarPYQ),
-      newsTriggers: Array.isArray(item.newsTriggers) ? item.newsTriggers : [],
+      id: raw.id || `ENV-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      envId: raw.envId || raw.id || `ENV-${Date.now()}`,
+      slug,
+      module: raw.module || 'SPECIES',
+      category: raw.category || 'Mammals',
+      title,
+      subtitle: subtitle || null,
+      habitatType: habitatType || null,
+      behaviour: behaviour || null,
+      uniqueFeatures,
+      aliases: normalizeArray(raw.aliases),
+      oneline: raw.oneline || habitatType || '',
+      priority: raw.priority || 'High',
+      isStarter: !!raw.isStarter,
+      sortOrder: Number(raw.sortOrder) || 100,
+      wikiTitle: raw.wikiTitle || title.replace(/\s+/g, '_'),
+      imageUrl: raw.imageUrl || null,
+      imageCredit: raw.imageCredit || null,
+      rememberBullets: uniqueFeatures.length > 0 ? uniqueFeatures : (Array.isArray(raw.rememberBullets) ? raw.rememberBullets : []),
+      confusionTrap: raw.confusionTrap || null,
+      confusedWith: normalizeArray(raw.confusedWith),
+      statusBadges,
+      regionScope: raw.regionScope || 'India',
+      states: normalizeArray(raw.states),
+      lat: typeof raw.lat === 'number' ? raw.lat : null,
+      lng: typeof raw.lng === 'number' ? raw.lng : null,
+      networkKey: raw.networkKey || null,
+      places,
+      relatedSlugs: normalizeArray(raw.relatedSlugs),
+      similarPYQ,
+      newsTriggers,
       updatedAt: new Date().toISOString(),
     };
 

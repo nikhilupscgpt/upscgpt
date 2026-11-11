@@ -18,28 +18,52 @@ UPSC Environment questions in Prelims & Mains are divided into distinct thematic
 
 ---
 
-## 2. MODULE 1: SPECIES ATLAS (Active Specification)
+## 2. MODULE 1: SPECIES ATLAS (Active 11-Point Specification)
 
-### Strict 4-Point Generation Rules for Species
-Every `SPECIES` record MUST follow this structure:
-1. **Clean Identity**: Common Name (`title`), Scientific Name (`subtitle`), Category (`Mammals`, `Birds`, `Reptiles`, `Aquatic`, `Flora`), and clean Wikipedia article title (`wikiTitle` for auto-fetching live Creative Commons photo).
-2. **Legal & Threat Status**: Strict mapping in `statusBadges`:
-   - `iucn`: Exactly one of `"CR"`, `"EN"`, `"VU"`, `"NT"`, `"LC"`.
-   - `wpa`: Exactly `"Schedule I"` or `"Schedule II"` (per WPA 2022 Amendment rationalized schedules).
-   - `cites`: Exactly `"Appendix I"`, `"Appendix II"`, or `"Appendix III"`.
-   - `endemic`: `true` or `false`.
-3. **High-Yield UPSC Pedagogy**:
-   - `rememberBullets`: Exactly 3 crisp, exam-tested facts (bullet 1: distinctive identity/spot; bullets 2 & 3: core ecological/conservation facts).
-   - `confusionTrap`: Exactly 1 yellow callout string highlighting standard UPSC distractors (e.g., confusing Great Indian Bustard with Lesser Florican, or Asiatic Lion with Bengal Tiger).
-4. **Spatial Distribution & News**:
-   - `places`: Array of key National Parks, Wildlife Sanctuaries, or geographic ranges with `{ n: "Name", st: "State", lat: number, lon: number, note: "..." }`.
-   - `newsTriggers`: Array with `{ tag: "...", date: "YYYY", what: "...", whyItMatters: "..." }`.
+### Strict 11-Point Ingestion Schema for Species
+Every `SPECIES` record MUST follow this exact 11-point structure:
 
-### Gold-Standard Species JSONL Examples
+1. **Specie** (`species` / `title`): Common name in English (e.g., "Bengal Tiger", "Great Indian Bustard").
+2. **Scientific name** (`scientificName` / `subtitle`): Binomial Latin nomenclature (e.g., "Panthera tigris tigris").
+3. **Habitat TYpe** (`habitatType`): Forest type / biome (e.g., "Tropical moist deciduous, alluvial grasslands, and mangrove swamps").
+4. **Found in** (`foundIn` / `places`): Key Protected Areas, National Parks, Sanctuaries, and States where viable wild populations occur (with lat/lon coordinates for interactive vector map plotting).
+5. **IUCN** (`iucn`): Threat status on Red List — strictly one of `"CR"`, `"EN"`, `"VU"`, `"NT"`, `"LC"`.
+6. **WPA, 1972** (`wpa1972` / `wpa`): Legal protection tier under Wildlife (Protection) Act, 1972 — `"Schedule I"` or `"Schedule II"`.
+7. **CITES** (`cites`): Convention on International Trade in Endangered Species listing — `"Appendix I"`, `"Appendix II"`, or `"Appendix III"`.
+8. **Unique Features** (`uniqueFeatures` / `rememberBullets`): Distinctive morphological, physiological, or indicator traits that UPSC Prelims tests.
+9. **Behaviour** (`behaviour`): Activity cycle (diurnal / nocturnal / crepuscular), locomotion (arboreal / fossorial), social dynamics, and breeding/ecological habits.
+10. **In News** (`inNews` / `newsTriggers`): Recent legal orders, translocations, censuses, conservation declarations, or Supreme Court judgments.
+11. **PYQ** (`pyq` / `similarPYQ`): Relevant UPSC Prelims previous years question mentions and exam themes.
+
+### Gold-Standard 11-Point Species JSON Example
+```json
+{
+  "species": "Great Indian Bustard",
+  "scientificName": "Ardeotis nigriceps",
+  "habitatType": "Arid and Semi-Arid Grasslands",
+  "foundIn": [
+    { "name": "Desert National Park", "state": "Rajasthan", "lat": 26.9, "lon": 70.9, "note": "Primary remaining breeding stronghold" },
+    { "name": "Rollapadu Wildlife Sanctuary", "state": "Andhra Pradesh", "lat": 15.7, "lon": 78.3, "note": "Southern relict population" }
+  ],
+  "iucn": "CR",
+  "wpa1972": "Schedule I",
+  "cites": "Appendix I",
+  "uniqueFeatures": [
+    "Heaviest flying bird native to India (up to 15 kg).",
+    "Flagship grassland indicator species and the State Bird of Rajasthan.",
+    "Black crown on forehead contrasting with pale neck."
+  ],
+  "behaviour": "Diurnal and terrestrial feeder; omnivorous diet of seeds, insects, and small reptiles. Ground-nester laying only a single egg without an elaborate nest, making eggs exceptionally vulnerable to feral predators.",
+  "inNews": "Supreme Court appointed an expert committee in 2024 to evaluate undergrounding overhead powerlines in priority GIB corridors in Rajasthan and Gujarat to prevent fatal collisions.",
+  "pyq": "UPSC Prelims 2012: In which one of the following places can Great Indian Bustard be found in its natural habitat? (Answer: Desert National Park) / Prelims 2020: Priority species conservation under CAMPA."
+}
+```
+
+### Gold-Standard 11-Point JSONL Batch Examples
 ```jsonl
-{"slug":"great-indian-bustard","module":"SPECIES","category":"Birds","title":"Great Indian Bustard","subtitle":"Ardeotis nigriceps","wikiTitle":"Great_Indian_bustard","statusBadges":{"iucn":"CR","wpa":"Schedule I","cites":"Appendix I","endemic":true},"rememberBullets":["Flagship grassland bird of India and state bird of Rajasthan.","Heaviest flying bird in India (up to 15 kg); suffers high mortality from high-voltage power transmission lines.","Desert National Park (Rajasthan) is its last remaining viable breeding stronghold."],"confusionTrap":"Don't confuse: GIB is Critically Endangered (CR) and prefers arid grasslands; Lesser Florican is also Endangered/CR but prefers moist grasslands of western India.","places":[{"n":"Desert National Park","st":"Rajasthan","lat":26.9,"lon":70.9,"note":"Primary remaining breeding stronghold"},{"n":"Rollapadu Wildlife Sanctuary","st":"Andhra Pradesh","lat":15.7,"lon":78.3,"note":"Southern relict population"}],"newsTriggers":[{"tag":"Supreme Court","date":"2024","what":"Supreme Court established expert panel on undergrounding overhead powerlines in GIB priority habitats.","whyItMatters":"Striking a balance between green solar corridors and species extinction."}]}
-{"slug":"dugong","module":"SPECIES","category":"Mammals","title":"Dugong (Sea Cow)","subtitle":"Dugong dugon","wikiTitle":"Dugong","statusBadges":{"iucn":"VU","wpa":"Schedule I","cites":"Appendix I","endemic":false},"rememberBullets":["Only strictly herbivorous marine mammal in the world, feeding exclusively on seagrass beds.","Cannot hold breath indefinitely; surfaces every few minutes to breathe.","Found in Gulf of Mannar, Palk Bay, Gulf of Kutch, and Andaman & Nicobar Islands."],"confusionTrap":"Don't confuse: Dugongs are strictly marine; Manatees inhabit freshwater rivers and coastal waters of Americas and Africa and do not occur naturally in India.","places":[{"n":"Palk Bay Dugong Reserve","st":"Tamil Nadu","lat":9.8,"lon":79.2,"note":"India's first designated Dugong Conservation Reserve"},{"n":"Gulf of Mannar Marine NP","st":"Tamil Nadu","lat":9.1,"lon":79.1,"note":"Prime seagrass habitat"}],"newsTriggers":[{"tag":"Conservation","date":"2023","what":"Tamil Nadu notified India's first Dugong Conservation Reserve in Palk Bay covering 448 sq km.","whyItMatters":"Community-based conservation with local coastal fisherfolk."}]}
-{"slug":"lion-tailed-macaque","module":"SPECIES","category":"Mammals","title":"Lion-tailed Macaque","subtitle":"Macaca silenus","wikiTitle":"Lion-tailed_macaque","statusBadges":{"iucn":"EN","wpa":"Schedule I","cites":"Appendix I","endemic":true},"rememberBullets":["Endemic strictly to the evergreen tropical rainforests of the Western Ghats (Karnataka, Kerala, Tamil Nadu).","Arboreal species with silver-white mane; highly sensitive to canopy fragmentation from roads and tea plantations.","Silent Valley National Park (Kerala) harbors the largest contiguous wild population."],"confusionTrap":"Don't confuse: Lion-tailed Macaque is strictly diurnal and arboreal in Western Ghats; Bonnet Macaque is widespread across peninsular India.","places":[{"n":"Silent Valley National Park","st":"Kerala","lat":11.13,"lon":76.45,"note":"Largest contiguous population; threatened earlier by proposed hydel project"},{"n":"Kalakad Mundanthurai TR","st":"Tamil Nadu","lat":8.66,"lon":77.34,"note":"Southern Western Ghats evergreen canopy"}],"newsTriggers":[{"tag":"Canopy Bridges","date":"2024","what":"Installation of artificial canopy bridges in Anamalai to prevent roadkill of fragmented groups.","whyItMatters":"Mitigating linear infrastructure fragmentation in biodiversity hotspots."}]}
+{"species":"Bengal Tiger","scientificName":"Panthera tigris tigris","habitatType":"Tropical moist deciduous, alluvial grasslands, and mangrove swamps","foundIn":[{"name":"Sundarbans National Park","state":"West Bengal","lat":21.94,"lon":88.89},{"name":"Corbett National Park","state":"Uttarakhand","lat":29.53,"lon":78.77},{"name":"Bandhavgarh National Park","state":"Madhya Pradesh","lat":23.7,"lon":81.02}],"iucn":"EN","wpa1972":"Schedule I","cites":"Appendix I","uniqueFeatures":["Apex predator and flagship keystone species for forest ecosystem integrity.","Only tiger population inhabiting mangrove forests (Sundarbans).","Stripes are unique like human fingerprints; counted using camera-trap stripe pattern matching (M-STrIPES)."],"behaviour":"Solitary, territorial, and predominantly nocturnal or crepuscular hunter. Exceptional swimmer and adept at crossing tidal rivers.","inNews":"50 Years of Project Tiger (1973–2023) celebrated; International Big Cat Alliance (IBCA) launched by India.","pyq":"UPSC Prelims 2020: Which of the following protected areas are situated in the Cauvery basin? / UPSC Prelims 2012: The term 'M-STrIPES' is sometimes seen in the news in the context of..."}
+{"species":"Dugong (Sea Cow)","scientificName":"Dugong dugon","habitatType":"Shallow tropical marine coastal waters and seagrass meadows","foundIn":[{"name":"Palk Bay Dugong Reserve","state":"Tamil Nadu","lat":9.8,"lon":79.2},{"name":"Gulf of Mannar Marine NP","state":"Tamil Nadu","lat":9.1,"lon":79.1},{"name":"Gulf of Kutch Marine NP","state":"Gujarat","lat":22.46,"lon":69.57}],"iucn":"VU","wpa1972":"Schedule I","cites":"Appendix I","uniqueFeatures":["Only strictly herbivorous marine mammal in the world, feeding exclusively on seagrass.","Cannot hold breath indefinitely; surfaces every 2-3 minutes to breathe.","Does not inhabit freshwater rivers (unlike Amazonian/African manatees)."],"behaviour":"Slow-moving grazer; highly sensitive to bottom-trawling and propeller strikes. Produces only one calf after a prolonged gestation of 13-15 months.","inNews":"Tamil Nadu notified India's first Dugong Conservation Reserve in Palk Bay spanning 448 sq km.","pyq":"UPSC Prelims 2015: With reference to 'Dugong', a mammal found in India, which statements are correct? (1. Herbivorous marine mammal, 2. Found along entire coast of India [Incorrect], 3. Given legal protection under Schedule I of WPA 1972)."}
+{"species":"Lion-tailed Macaque","scientificName":"Macaca silenus","habitatType":"Tropical evergreen rainforest canopy of the Western Ghats","foundIn":[{"name":"Silent Valley National Park","state":"Kerala","lat":11.13,"lon":76.45},{"name":"Kalakad Mundanthurai TR","state":"Tamil Nadu","lat":8.66,"lon":77.34},{"name":"Sharavathi Valley WLS","state":"Karnataka","lat":14.15,"lon":74.83}],"iucn":"EN","wpa1972":"Schedule I","cites":"Appendix I","uniqueFeatures":["Strictly endemic to the rainforest canopy of the Western Ghats (Karnataka, Kerala, Tamil Nadu).","Distinctive silver-white mane surrounding black face; lion-like tufted tail tip.","Selective frugivore that avoids monoculture plantations (tea, coffee, teak)."],"behaviour":"Strictly diurnal and arboreal; rarely descends to the forest floor, making it extremely vulnerable to canopy fragmentation from roads and electric power lines.","inNews":"Canopy rope bridges installed in Anamalai to prevent roadkill of fragmented lion-tailed macaque troops.","pyq":"UPSC Prelims 2013: In which of the following states is the lion-tailed macaque found in its natural habitat? (Tamil Nadu, Kerala, Karnataka)."}
 ```
 
 ---
