@@ -3,7 +3,7 @@
     {
       "id": "ENV-SP-001",
       "envId": "ENV-SP-001",
-      "slug": "tiger",
+      "slug": "bengal-tiger",
       "module": "SPECIES",
       "category": "Mammals",
       "title": "Bengal Tiger",
@@ -58,7 +58,7 @@
     {
       "id": "ENV-SP-002",
       "envId": "ENV-SP-002",
-      "slug": "lion",
+      "slug": "asiatic-lion",
       "module": "SPECIES",
       "category": "Mammals",
       "title": "Asiatic Lion",
@@ -99,7 +99,7 @@
     {
       "id": "ENV-SP-003",
       "envId": "ENV-SP-003",
-      "slug": "rhino",
+      "slug": "greater-one-horned-rhinoceros",
       "module": "SPECIES",
       "category": "Mammals",
       "title": "Greater One-horned Rhinoceros",
@@ -168,7 +168,7 @@
     {
       "id": "ENV-SP-004",
       "envId": "ENV-SP-004",
-      "slug": "elephant",
+      "slug": "asian-elephant",
       "module": "SPECIES",
       "category": "Mammals",
       "title": "Asian Elephant",
@@ -223,7 +223,7 @@
     {
       "id": "ENV-SP-005",
       "envId": "ENV-SP-005",
-      "slug": "snowleopard",
+      "slug": "snow-leopard",
       "module": "SPECIES",
       "category": "Mammals",
       "title": "Snow Leopard",
@@ -278,7 +278,7 @@
     {
       "id": "ENV-SP-006",
       "envId": "ENV-SP-006",
-      "slug": "redpanda",
+      "slug": "red-panda",
       "module": "SPECIES",
       "category": "Mammals",
       "title": "Red Panda",
@@ -333,7 +333,7 @@
     {
       "id": "ENV-SP-007",
       "envId": "ENV-SP-007",
-      "slug": "ltm",
+      "slug": "lion-tailed-macaque",
       "module": "SPECIES",
       "category": "Mammals",
       "title": "Lion-tailed Macaque",
@@ -388,7 +388,7 @@
     {
       "id": "ENV-SP-008",
       "envId": "ENV-SP-008",
-      "slug": "tahr",
+      "slug": "nilgiri-tahr",
       "module": "SPECIES",
       "category": "Mammals",
       "title": "Nilgiri Tahr",
@@ -463,7 +463,7 @@
     {
       "id": "ENV-SP-010",
       "envId": "ENV-SP-010",
-      "slug": "pygmyhog",
+      "slug": "pygmy-hog",
       "module": "SPECIES",
       "category": "Mammals",
       "title": "Pygmy Hog",
@@ -504,7 +504,7 @@
     {
       "id": "ENV-SP-011",
       "envId": "ENV-SP-011",
-      "slug": "gibbon",
+      "slug": "western-hoolock-gibbon",
       "module": "SPECIES",
       "category": "Mammals",
       "title": "Western Hoolock Gibbon",
@@ -545,7 +545,7 @@
     {
       "id": "ENV-SP-012",
       "envId": "ENV-SP-012",
-      "slug": "dolphin",
+      "slug": "ganges-river-dolphin",
       "module": "SPECIES",
       "category": "Mammals",
       "title": "Ganges River Dolphin",
@@ -682,7 +682,7 @@
     {
       "id": "ENV-SP-015",
       "envId": "ENV-SP-015",
-      "slug": "gib",
+      "slug": "great-indian-bustard",
       "module": "SPECIES",
       "category": "Birds",
       "title": "Great Indian Bustard",
@@ -723,7 +723,7 @@
     {
       "id": "ENV-SP-016",
       "envId": "ENV-SP-016",
-      "slug": "owlet",
+      "slug": "forest-owlet",
       "module": "SPECIES",
       "category": "Birds",
       "title": "Forest Owlet",
@@ -764,7 +764,7 @@
     {
       "id": "ENV-SP-017",
       "envId": "ENV-SP-017",
-      "slug": "courser",
+      "slug": "jerdons-courser",
       "module": "SPECIES",
       "category": "Birds",
       "title": "Jerdon’s Courser",
@@ -798,7 +798,7 @@
     {
       "id": "ENV-SP-018",
       "envId": "ENV-SP-018",
-      "slug": "hornbill",
+      "slug": "great-hornbill",
       "module": "SPECIES",
       "category": "Birds",
       "title": "Great Hornbill",
@@ -894,7 +894,7 @@
     {
       "id": "ENV-SP-020",
       "envId": "ENV-SP-020",
-      "slug": "olive",
+      "slug": "olive-ridley-turtle",
       "module": "SPECIES",
       "category": "Reptiles",
       "title": "Olive Ridley Turtle",

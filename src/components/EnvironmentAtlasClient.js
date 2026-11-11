@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import WikiHeroImage from '@/components/WikiHeroImage';
 import EnvironmentMap from '@/components/EnvironmentMap';
+import { IucnBadgeSvg, IucnThreatGaugeSvg } from '@/components/IucnBadgeSvg';
 import {
   Search,
   CheckCircle2,
@@ -73,13 +74,22 @@ export default function EnvironmentAtlasClient() {
     fetch(`/api/environment/items?module=${activeModule}&category=${activeCategory}`)
       .then((r) => r.json())
       .then((data) => {
-        setItems(data.items || []);
+        // Strict deduplication by title and slug
+        const rawList = data.items || [];
+        const seen = new Set();
+        const deduped = rawList.filter((it) => {
+          const key = (it.title || it.slug || '').toLowerCase().trim();
+          if (!key || seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        });
+        setItems(deduped);
         setNetworks(data.networks || {});
         setNews(data.news || []);
-        if (data.items?.length > 0) {
+        if (deduped.length > 0) {
           setSelectedSlug((curr) => {
-            const exists = data.items.some((i) => i.slug === curr);
-            return exists ? curr : data.items[0].slug;
+            const exists = deduped.some((i) => i.slug === curr);
+            return exists ? curr : deduped[0].slug;
           });
         }
       })
@@ -252,30 +262,7 @@ export default function EnvironmentAtlasClient() {
                 {/* Official IUCN Red List Threat Gauge */}
                 {activeItem.statusBadges && (
                   <div className="env-protection-card">
-                    <div className="env-protection-header">
-                      <span className="env-card-sublabel">IUCN Red List Conservation Status</span>
-                      <span className="env-iucn-status-name">
-                        {IUCN_METERS.find((m) => m.key === activeItem.statusBadges.iucn)?.label || activeItem.statusBadges.iucn} ({activeItem.statusBadges.iucn})
-                      </span>
-                    </div>
-
-                    <div className="env-iucn-spectrum-bar">
-                      <div className="env-iucn-track" />
-                      {IUCN_METERS.map((m) => {
-                        const isMatch = activeItem.statusBadges.iucn === m.key;
-                        return (
-                          <div
-                            key={m.key}
-                            className={`env-iucn-node ${isMatch ? 'active' : ''}`}
-                            style={{ '--iucn-color': m.color }}
-                            title={`${m.key} — ${m.label}`}
-                          >
-                            <span className="env-iucn-circle">{m.key}</span>
-                            <span className="env-iucn-label">{m.label}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
+                    <IucnThreatGaugeSvg activeStatus={activeItem.statusBadges.iucn} />
 
                     <div className="env-schedule-chips">
                       {activeItem.statusBadges.wpa && (
@@ -327,11 +314,11 @@ export default function EnvironmentAtlasClient() {
 
                 {/* Behaviour & Ecology */}
                 {activeItem.behaviour && (
-                  <div className="env-remember-box" style={{ marginTop: '16px' }}>
-                    <div className="env-card-sublabel" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <div className="env-remember-box env-behaviour-box">
+                    <div className="env-card-sublabel">
                       🐾 Behaviour & Ecology
                     </div>
-                    <p style={{ margin: '6px 0 0', fontSize: '0.88rem', lineHeight: '1.5', color: '#cbd5e1' }}>
+                    <p className="env-behaviour-text">
                       {activeItem.behaviour}
                     </p>
                   </div>
@@ -339,14 +326,14 @@ export default function EnvironmentAtlasClient() {
 
                 {/* UPSC Previous Years Questions (PYQ) */}
                 {activeItem.similarPYQ?.length > 0 && (
-                  <div style={{ marginTop: '16px', padding: '14px 16px', background: 'rgba(99, 102, 241, 0.08)', borderRadius: '12px', border: '1px solid rgba(99, 102, 241, 0.25)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.75rem', fontWeight: 800, color: '#818cf8', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                  <div className="env-pyq-box">
+                    <div className="env-pyq-header">
                       <BookOpen size={14} />
                       <span>UPSC PREVIOUS YEARS QUESTIONS (PYQ)</span>
                     </div>
-                    <ul style={{ margin: 0, paddingLeft: '18px', color: '#e2e8f0', fontSize: '0.85rem', lineHeight: '1.5' }}>
+                    <ul className="env-pyq-list">
                       {activeItem.similarPYQ.map((q, idx) => (
-                        <li key={idx} style={{ marginBottom: '6px' }}>{q}</li>
+                        <li key={idx}>{q}</li>
                       ))}
                     </ul>
                   </div>
@@ -463,9 +450,7 @@ function DeckCard({ item, isSelected, isLearned, onClick }) {
       </div>
       <div className="env-deck-card-badges">
         {item.statusBadges?.iucn && (
-          <span className={`env-iucn-badge ${item.statusBadges.iucn.toLowerCase()}`}>
-            {item.statusBadges.iucn}
-          </span>
+          <IucnBadgeSvg status={item.statusBadges.iucn} size={28} />
         )}
         {isLearned && <span className="env-learned-check">✓</span>}
       </div>

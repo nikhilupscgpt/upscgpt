@@ -13,11 +13,29 @@ export default function EnvironmentMap({
   onSelectPlace,
 }) {
   const svgRef = useRef(null);
+  const [isLight, setIsLight] = React.useState(false);
+
+  useEffect(() => {
+    const checkTheme = () => {
+      const theme = document.documentElement.getAttribute('data-theme');
+      setIsLight(theme === 'light' || theme === 'sepia');
+    };
+    checkTheme();
+
+    const observer = new MutationObserver(checkTheme);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!svgRef.current) return;
     const svg = d3Selection.select(svgRef.current);
     svg.selectAll('*').remove();
+
+    const isThemeLight = isLight;
+    const stateFillDef = isThemeLight ? '#ffffff' : 'rgba(255, 255, 255, 0.04)';
+    const stateStrokeDef = isThemeLight ? '#e2e8f0' : 'rgba(255, 255, 255, 0.12)';
+    const outlineStrokeDef = isThemeLight ? '#94a3b8' : 'rgba(255, 255, 255, 0.35)';
 
     const width = 360;
     const height = 400;
@@ -103,14 +121,14 @@ export default function EnvironmentMap({
         const isHi = Array.from(stateSet).some((s) =>
           stateName.toLowerCase().includes(s.toLowerCase())
         );
-        return isHi ? 'rgba(37, 99, 235, 0.15)' : 'rgba(255, 255, 255, 0.04)';
+        return isHi ? 'rgba(37, 99, 235, 0.15)' : stateFillDef;
       })
       .attr('stroke', (d) => {
         const stateName = d.properties?.NAME_1 || d.properties?.name || '';
         const isHi = Array.from(stateSet).some((s) =>
           stateName.toLowerCase().includes(s.toLowerCase())
         );
-        return isHi ? '#3b82f6' : 'rgba(255, 255, 255, 0.12)';
+        return isHi ? '#3b82f6' : stateStrokeDef;
       })
       .attr('stroke-width', 0.8);
 
@@ -119,7 +137,7 @@ export default function EnvironmentMap({
       .datum(geoData.outline)
       .attr('d', path)
       .attr('fill', 'none')
-      .attr('stroke', 'rgba(255, 255, 255, 0.35)')
+      .attr('stroke', outlineStrokeDef)
       .attr('stroke-width', 1.2);
 
     // 3. Draw Pins
@@ -166,7 +184,7 @@ export default function EnvironmentMap({
         .attr('fill', '#ffffff')
         .text(idx + 1);
     });
-  }, [places, highlightedStates, network, activePlaceIndex, onSelectPlace]);
+  }, [places, highlightedStates, network, activePlaceIndex, onSelectPlace, isLight]);
 
   return (
     <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
@@ -176,9 +194,9 @@ export default function EnvironmentMap({
         style={{
           width: '100%',
           maxHeight: 380,
-          background: '#090d1a',
+          background: isLight ? '#f8fafc' : '#090d1a',
           borderRadius: 12,
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          border: `1px solid ${isLight ? '#e2e8f0' : 'rgba(255, 255, 255, 0.08)'}`,
         }}
       />
     </div>
