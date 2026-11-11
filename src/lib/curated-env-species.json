@@ -10,7 +10,7 @@
       "subtitle": "Panthera tigris tigris",
       "aliases": [],
       "priority": "Medium",
-      "isStarter": false,
+      "isStarter": true,
       "sortOrder": 1,
       "wikiTitle": "Bengal_Tiger",
       "rememberBullets": [],
@@ -28,7 +28,7 @@
           "st": "Uttarakhand",
           "lat": 29.53,
           "lon": 78.77,
-          "note": "India’s first national park (1936); Project Tiger launched here"
+          "note": "India\u2019s first national park (1936); Project Tiger launched here"
         },
         {
           "n": "Sundarbans TR",
@@ -49,11 +49,17 @@
           "st": "Rajasthan",
           "lat": 26.02,
           "lon": 76.5,
-          "note": "Dry deciduous forest in the Aravalli–Vindhya junction"
+          "note": "Dry deciduous forest in the Aravalli\u2013Vindhya junction"
         }
       ],
       "similarPYQ": [],
-      "newsTriggers": []
+      "newsTriggers": [],
+      "imageUrl": "/species/bengal-tiger.webp",
+      "credit": {
+        "artist": "Tisha Mukherjee",
+        "lic": "CC BY-SA 4.0",
+        "page": "https://commons.wikimedia.org/wiki/File:Bengal_tiger_in_Sanjay_Dubri_Tiger_Reserve_December_2024_by_Tisha_Mukherjee_11.jpg"
+      }
     },
     {
       "id": "ENV-SP-002",
@@ -65,7 +71,7 @@
       "subtitle": "Panthera leo persica",
       "aliases": [],
       "priority": "Medium",
-      "isStarter": false,
+      "isStarter": true,
       "sortOrder": 2,
       "wikiTitle": "Asiatic_Lion",
       "rememberBullets": [],
@@ -94,7 +100,13 @@
         }
       ],
       "similarPYQ": [],
-      "newsTriggers": []
+      "newsTriggers": [],
+      "imageUrl": "/species/asiatic-lion.webp",
+      "credit": {
+        "artist": "0720reemagupta",
+        "lic": "CC BY-SA 4.0",
+        "page": "https://commons.wikimedia.org/wiki/File:Lions.Gir5_(cropped).jpg"
+      }
     },
     {
       "id": "ENV-SP-003",
@@ -106,7 +118,7 @@
       "subtitle": "Rhinoceros unicornis",
       "aliases": [],
       "priority": "Medium",
-      "isStarter": false,
+      "isStarter": true,
       "sortOrder": 3,
       "wikiTitle": "Greater_One-horned_Rhinoceros",
       "rememberBullets": [],
@@ -124,7 +136,7 @@
           "st": "Assam",
           "lat": 26.58,
           "lon": 93.17,
-          "note": "UNESCO site (1985); about two-thirds of the world’s population"
+          "note": "UNESCO site (1985); about two-thirds of the world\u2019s population"
         },
         {
           "n": "Pobitora WLS",
@@ -138,7 +150,7 @@
           "st": "Assam",
           "lat": 26.55,
           "lon": 92.33,
-          "note": "North bank of the Brahmaputra; ‘mini Kaziranga’"
+          "note": "North bank of the Brahmaputra; \u2018mini Kaziranga\u2019"
         },
         {
           "n": "Manas NP",
@@ -163,7 +175,13 @@
         }
       ],
       "similarPYQ": [],
-      "newsTriggers": []
+      "newsTriggers": [],
+      "imageUrl": "/species/greater-one-horned-rhinoceros.webp",
+      "credit": {
+        "artist": "Mayank1704",
+        "lic": "CC BY-SA 4.0",
+        "page": "https://commons.wikimedia.org/wiki/File:Great-Indian-one-horned-rhinoceros-at-Kaziranga-national-park-in-Assam-India.jpg"
+      }
     },
     {
       "id": "ENV-SP-004",
@@ -175,7 +193,7 @@
       "subtitle": "Elephas maximus",
       "aliases": [],
       "priority": "Medium",
-      "isStarter": false,
+      "isStarter": true,
       "sortOrder": 4,
       "wikiTitle": "Asian_Elephant",
       "rememberBullets": [],
@@ -207,7 +225,7 @@
           "st": "Uttarakhand",
           "lat": 29.53,
           "lon": 78.77,
-          "note": "Terai–Shivalik elephant range"
+          "note": "Terai\u2013Shivalik elephant range"
         },
         {
           "n": "Kaziranga NP",
@@ -218,7 +236,13 @@
         }
       ],
       "similarPYQ": [],
-      "newsTriggers": []
+      "newsTriggers": [],
+      "imageUrl": "/species/asian-elephant.webp",
+      "credit": {
+        "artist": "Yathin S Krishnappa",
+        "lic": "CC BY-SA 3.0",
+        "page": "https://commons.wikimedia.org/wiki/File:Elephas_maximus_(Bandipur).jpg"
+      }
     },
     {
       "id": "ENV-SP-005",
@@ -269,11 +293,17 @@
           "st": "Sikkim",
           "lat": 27.7,
           "lon": 88.3,
-          "note": "India’s first mixed UNESCO World Heritage Site"
+          "note": "India\u2019s first mixed UNESCO World Heritage Site"
         }
       ],
       "similarPYQ": [],
-      "newsTriggers": []
+      "newsTriggers": [],
+      "imageUrl": "/species/snow-leopard.webp",
+      "credit": {
+        "artist": "Irbis1983",
+        "lic": "Public domain",
+        "page": "https://commons.wikimedia.org/wiki/File:Irbis4.JPG"
+      }
     },
     {
       "id": "ENV-SP-006",
@@ -328,7 +358,13 @@
         }
       ],
       "similarPYQ": [],
-      "newsTriggers": []
+      "newsTriggers": [],
+      "imageUrl": "/species/red-panda.webp",
+      "credit": {
+        "artist": "Sunuwargr",
+        "lic": "CC BY-SA 4.0",
+        "page": "https://commons.wikimedia.org/wiki/File:Red_Panda,_Gentle_Tree-Dweller_of_the_Himalayas.jpg"
+      }
     },
     {
       "id": "ENV-SP-007",
@@ -383,7 +419,13 @@
         }
       ],
       "similarPYQ": [],
-      "newsTriggers": []
+      "newsTriggers": [],
+      "imageUrl": "/species/lion-tailed-macaque.webp",
+      "credit": {
+        "artist": "Chris huh",
+        "lic": "CC BY-SA 3.0",
+        "page": "https://commons.wikimedia.org/wiki/File:Lion-tailed_Macaque_in_Bristol_Zoo.jpg"
+      }
     },
     {
       "id": "ENV-SP-008",
@@ -413,7 +455,7 @@
           "st": "Kerala",
           "lat": 10.17,
           "lon": 77.07,
-          "note": "Largest population; shola–grassland"
+          "note": "Largest population; shola\u2013grassland"
         },
         {
           "n": "Mukurthi NP",
@@ -424,7 +466,13 @@
         }
       ],
       "similarPYQ": [],
-      "newsTriggers": []
+      "newsTriggers": [],
+      "imageUrl": "/species/nilgiri-tahr.webp",
+      "credit": {
+        "artist": "Aveek Bandyopadhyay",
+        "lic": "CC BY-SA 4.0",
+        "page": "https://commons.wikimedia.org/wiki/File:Nilgiri_Tahr_at_Eravikulam_National_Park.jpg"
+      }
     },
     {
       "id": "ENV-SP-009",
@@ -454,11 +502,17 @@
           "st": "Manipur",
           "lat": 24.5,
           "lon": 93.82,
-          "note": "World’s only floating national park, on phumdis of Loktak Lake"
+          "note": "World\u2019s only floating national park, on phumdis of Loktak Lake"
         }
       ],
       "similarPYQ": [],
-      "newsTriggers": []
+      "newsTriggers": [],
+      "imageUrl": "/species/sangai.webp",
+      "credit": {
+        "artist": "",
+        "lic": "CC BY-SA 3.0",
+        "page": "https://commons.wikimedia.org/wiki/File:Cervus_eldii4.jpg"
+      }
     },
     {
       "id": "ENV-SP-010",
@@ -499,7 +553,13 @@
         }
       ],
       "similarPYQ": [],
-      "newsTriggers": []
+      "newsTriggers": [],
+      "imageUrl": "/species/pygmy-hog.webp",
+      "credit": {
+        "artist": "A. J. T. Johnsingh, WWF-India and NCF",
+        "lic": "CC BY-SA 3.0",
+        "page": "https://commons.wikimedia.org/wiki/File:Pygmy_hog_in_Assam_breeding_centre_AJT_Johnsingh.JPG"
+      }
     },
     {
       "id": "ENV-SP-011",
@@ -529,7 +589,7 @@
           "st": "Assam",
           "lat": 26.67,
           "lon": 94.33,
-          "note": "India’s only sanctuary named after the gibbon"
+          "note": "India\u2019s only sanctuary named after the gibbon"
         },
         {
           "n": "Namdapha NP",
@@ -540,7 +600,13 @@
         }
       ],
       "similarPYQ": [],
-      "newsTriggers": []
+      "newsTriggers": [],
+      "imageUrl": "/species/western-hoolock-gibbon.webp",
+      "credit": {
+        "artist": "Vijay Cavale",
+        "lic": "CC BY-SA 1.0",
+        "page": "https://commons.wikimedia.org/wiki/File:Hoolock_hoolock_001.jpg"
+      }
     },
     {
       "id": "ENV-SP-012",
@@ -581,7 +647,13 @@
         }
       ],
       "similarPYQ": [],
-      "newsTriggers": []
+      "newsTriggers": [],
+      "imageUrl": "/species/ganges-river-dolphin.webp",
+      "credit": {
+        "artist": "Kukil Gogoi",
+        "lic": "CC BY-SA 4.0",
+        "page": "https://commons.wikimedia.org/wiki/File:Ganges_River_Dolphin_cropped.jpg"
+      }
     },
     {
       "id": "ENV-SP-013",
@@ -618,18 +690,24 @@
           "st": "Tamil Nadu",
           "lat": 9.9,
           "lon": 79.3,
-          "note": "India’s first dugong conservation reserve"
+          "note": "India\u2019s first dugong conservation reserve"
         },
         {
           "n": "Andaman Islands",
           "st": "Andaman & Nicobar",
           "lat": 12,
           "lon": 92.8,
-          "note": "Ritchie’s archipelago seagrass beds"
+          "note": "Ritchie\u2019s archipelago seagrass beds"
         }
       ],
       "similarPYQ": [],
-      "newsTriggers": []
+      "newsTriggers": [],
+      "imageUrl": "/species/dugong.webp",
+      "credit": {
+        "artist": "Gejuni",
+        "lic": "CC BY-SA 3.0 de",
+        "page": "https://commons.wikimedia.org/wiki/File:Dugong.JPG"
+      }
     },
     {
       "id": "ENV-SP-014",
@@ -677,7 +755,13 @@
         }
       ],
       "similarPYQ": [],
-      "newsTriggers": []
+      "newsTriggers": [],
+      "imageUrl": "/species/blackbuck.webp",
+      "credit": {
+        "artist": "Mr Raja Purohit",
+        "lic": "CC BY-SA 2.5",
+        "page": "https://commons.wikimedia.org/wiki/File:Blackbuck_male_female.jpg"
+      }
     },
     {
       "id": "ENV-SP-015",
@@ -689,7 +773,7 @@
       "subtitle": "Ardeotis nigriceps",
       "aliases": [],
       "priority": "Medium",
-      "isStarter": false,
+      "isStarter": true,
       "sortOrder": 15,
       "wikiTitle": "Great_Indian_Bustard",
       "rememberBullets": [],
@@ -718,7 +802,13 @@
         }
       ],
       "similarPYQ": [],
-      "newsTriggers": []
+      "newsTriggers": [],
+      "imageUrl": "/species/great-indian-bustard.webp",
+      "credit": {
+        "artist": "SVKMBFLY (edit: MPF)",
+        "lic": "CC BY-SA 4.0",
+        "page": "https://commons.wikimedia.org/wiki/File:Ardeotis_nigriceps,_Desert_National_Park,_Rajasthan,_India_1.jpg"
+      }
     },
     {
       "id": "ENV-SP-016",
@@ -759,7 +849,13 @@
         }
       ],
       "similarPYQ": [],
-      "newsTriggers": []
+      "newsTriggers": [],
+      "imageUrl": "/species/forest-owlet.webp",
+      "credit": {
+        "artist": "Ashahar alias Krishna Khan",
+        "lic": "CC BY-SA 3.0",
+        "page": "https://commons.wikimedia.org/wiki/File:Forest_Owlet_Athene_blewitti_by_Ashahar_alias_Krishna_Khan.jpeg"
+      }
     },
     {
       "id": "ENV-SP-017",
@@ -767,13 +863,13 @@
       "slug": "jerdons-courser",
       "module": "SPECIES",
       "category": "Birds",
-      "title": "Jerdon’s Courser",
+      "title": "Jerdon\u2019s Courser",
       "subtitle": "Rhinoptilus bitorquatus",
       "aliases": [],
       "priority": "Medium",
       "isStarter": false,
       "sortOrder": 17,
-      "wikiTitle": "Jerdon’s_Courser",
+      "wikiTitle": "Jerdon\u2019s_Courser",
       "rememberBullets": [],
       "confusionTrap": null,
       "statusBadges": {
@@ -793,7 +889,13 @@
         }
       ],
       "similarPYQ": [],
-      "newsTriggers": []
+      "newsTriggers": [],
+      "imageUrl": "/species/jerdons-courser.webp",
+      "credit": {
+        "artist": "PJeganathan",
+        "lic": "CC BY-SA 3.0",
+        "page": "https://commons.wikimedia.org/wiki/File:JC_PJ.jpg"
+      }
     },
     {
       "id": "ENV-SP-018",
@@ -841,7 +943,13 @@
         }
       ],
       "similarPYQ": [],
-      "newsTriggers": []
+      "newsTriggers": [],
+      "imageUrl": "/species/great-hornbill.webp",
+      "credit": {
+        "artist": "Shantanu Kuveskar",
+        "lic": "CC BY-SA 4.0",
+        "page": "https://commons.wikimedia.org/wiki/File:Great_hornbill_Photograph_by_Shantanu_Kuveskar.jpg"
+      }
     },
     {
       "id": "ENV-SP-019",
@@ -889,7 +997,13 @@
         }
       ],
       "similarPYQ": [],
-      "newsTriggers": []
+      "newsTriggers": [],
+      "imageUrl": "/species/gharial.webp",
+      "credit": {
+        "artist": "Charles J. Sharp",
+        "lic": "CC BY-SA 4.0",
+        "page": "https://commons.wikimedia.org/wiki/File:Gharial_(Gavialis_gangeticus)_male.jpg"
+      }
     },
     {
       "id": "ENV-SP-020",
@@ -919,7 +1033,7 @@
           "st": "Odisha",
           "lat": 20.7,
           "lon": 87,
-          "note": "One of the world’s largest rookeries"
+          "note": "One of the world\u2019s largest rookeries"
         },
         {
           "n": "Rushikulya rookery",
@@ -937,7 +1051,13 @@
         }
       ],
       "similarPYQ": [],
-      "newsTriggers": []
+      "newsTriggers": [],
+      "imageUrl": "/species/olive-ridley-turtle.webp",
+      "credit": {
+        "artist": "Thierry Caro",
+        "lic": "CC BY-SA 3.0",
+        "page": "https://commons.wikimedia.org/wiki/File:Lepidochelys-olivacea-K%C3%A9lonia-1.JPG"
+      }
     }
   ],
   "networks": {
@@ -960,7 +1080,7 @@
           "lon": 78.77
         },
         "nstr": {
-          "n": "Nagarjunsagar–Srisailam Tiger Reserve",
+          "n": "Nagarjunsagar\u2013Srisailam Tiger Reserve",
           "st": "Andhra Pradesh",
           "lat": 16.1,
           "lon": 78.9
@@ -989,12 +1109,12 @@
           "q": "Newest",
           "r": "madhav",
           "a": "58th reserve, notified March 2025",
-          "more": "Just before it: Ratapani (57th, Madhya Pradesh, 2024) and Guru Ghasidas–Tamor Pingla (56th, Chhattisgarh, 2024)."
+          "more": "Just before it: Ratapani (57th, Madhya Pradesh, 2024) and Guru Ghasidas\u2013Tamor Pingla (56th, Chhattisgarh, 2024)."
         },
         {
           "q": "Most important",
           "r": "corbett",
-          "a": "India’s first; Project Tiger was launched here in 1973"
+          "a": "India\u2019s first; Project Tiger was launched here in 1973"
         },
         {
           "q": "Most tigers",
@@ -1005,7 +1125,7 @@
         {
           "q": "Largest by area",
           "r": "nstr",
-          "a": "About 3,296 km²; spreads into Telangana"
+          "a": "About 3,296 km\u00b2; spreads into Telangana"
         }
       ],
       "stateMost": {
@@ -1023,7 +1143,7 @@
         "buxa"
       ],
       "what": "A tigress from Bihar was released into Buxa Tiger Reserve to open Wildlife Week 2026 and start a phased tiger recovery programme there.",
-      "why": "Buxa had no confirmed tiger sightings for decades; it shows how ‘empty’ reserves are being restocked.",
+      "why": "Buxa had no confirmed tiger sightings for decades; it shows how \u2018empty\u2019 reserves are being restocked.",
       "src": "Drishti IAS",
       "url": "https://www.drishtiias.com/pdf/1791023875.pdf"
     },
@@ -1058,7 +1178,7 @@
       "places": [
         "kanha"
       ],
-      "what": "A tiger and a cub died in Kanha Tiger Reserve, taking Madhya Pradesh’s tiger deaths for the year to 27.",
+      "what": "A tiger and a cub died in Kanha Tiger Reserve, taking Madhya Pradesh\u2019s tiger deaths for the year to 27.",
       "why": "Repeated deaths in MP reserves keep the state in the news.",
       "src": "Telangana Today",
       "url": "https://telanganatoday.com/tiger-cub-die-in-kanha-reserve-toll-in-mp-rises-to-27-this-year"
@@ -1096,7 +1216,7 @@
         "gib"
       ],
       "places": [],
-      "what": "The first official assessment in seven years found the population stable at about 110–150 birds, surviving in only about 16% of its Thar habitat.",
+      "what": "The first official assessment in seven years found the population stable at about 110\u2013150 birds, surviving in only about 16% of its Thar habitat.",
       "why": "A fresh, official number for a Critically Endangered bird.",
       "src": "Indian Express, via Vision IAS",
       "url": "https://dce.visionias.in/upsc-daily-news-summary/article/2026-07-11/the-indian-express/environment/great-indian-bustard-numbers-stable-survives-in-only-16-of-thar-habitat-says-report"
@@ -1110,8 +1230,8 @@
       "places": [
         "Kutch Bustard Sanctuary"
       ],
-      "what": "A bustard chick hatched in Kutch, Gujarat, for the first time in a decade, using the ‘jumpstart’ method: eggs laid in captivity are placed in wild nests.",
-      "why": "Learn the term ‘jumpstart’; it is the kind of new method UPSC likes to test.",
+      "what": "A bustard chick hatched in Kutch, Gujarat, for the first time in a decade, using the \u2018jumpstart\u2019 method: eggs laid in captivity are placed in wild nests.",
+      "why": "Learn the term \u2018jumpstart\u2019; it is the kind of new method UPSC likes to test.",
       "src": "News On AIR",
       "url": "https://www.newsonair.gov.in/bhupender-yadav-announces-birth-of-endangered-great-indian-bustard-chick-in-kutch-after-a-decade"
     },
@@ -1137,7 +1257,7 @@
         "Gir NP & WLS"
       ],
       "what": "About 11 lions, mostly cubs, died in the Gir region in May 2026. Early signs pointed to babesiosis, a tick-borne infection.",
-      "why": "Shows the risk of keeping a species’ only wild population in one place.",
+      "why": "Shows the risk of keeping a species\u2019 only wild population in one place.",
       "src": "Dawn",
       "url": "https://www.dawn.com/news/2003818"
     },
@@ -1150,8 +1270,8 @@
         "snowleopard"
       ],
       "places": [],
-      "what": "A ‘Lion’ spotlight event at Sasan Gir was held ahead of India’s first International Big Cat Alliance (IBCA) Summit in New Delhi.",
-      "why": "IBCA is India’s alliance for seven big cats; tiger, lion and snow leopard are among them.",
+      "what": "A \u2018Lion\u2019 spotlight event at Sasan Gir was held ahead of India\u2019s first International Big Cat Alliance (IBCA) Summit in New Delhi.",
+      "why": "IBCA is India\u2019s alliance for seven big cats; tiger, lion and snow leopard are among them.",
       "src": "The Policy Edge",
       "url": "https://www.policyedge.in/p/india-highlights-asiatic-lion-conservation-ahead-of-ibca-summit-2026"
     },
@@ -1198,7 +1318,7 @@
         "dolphin"
       ],
       "places": [],
-      "what": "India’s second nationwide river dolphin survey was launched from Bijnor, Uttar Pradesh, led by the Wildlife Institute of India.",
+      "what": "India\u2019s second nationwide river dolphin survey was launched from Bijnor, Uttar Pradesh, led by the Wildlife Institute of India.",
       "why": "The first survey counted about 6,327 dolphins; the new one will update that figure.",
       "src": "Ujiyari current affairs",
       "url": "https://pub-915abe16736645b698ab4372a6992659.r2.dev/2026-01-20-gangetic-dolphin-survey.pdf"
@@ -1210,8 +1330,8 @@
         "dolphin"
       ],
       "places": [],
-      "what": "India’s first dolphin rescue ambulance was started at the Wildlife Institute of India, Dehradun.",
-      "why": "A ‘first in India’ fact, often turned into a statement question.",
+      "what": "India\u2019s first dolphin rescue ambulance was started at the Wildlife Institute of India, Dehradun.",
+      "why": "A \u2018first in India\u2019 fact, often turned into a statement question.",
       "src": "ThePrint",
       "url": "https://theprint.in/theprint-essential/the-ganges-dolphin-is-a-un-restoration-success-story-how-do-you-save-a-species/3089329/"
     },
