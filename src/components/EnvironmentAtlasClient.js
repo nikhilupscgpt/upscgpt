@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import WikiHeroImage from '@/components/WikiHeroImage';
 import EnvironmentMap from '@/components/EnvironmentMap';
 import {
@@ -8,6 +9,7 @@ import {
   CheckCircle2,
   Sparkles,
   ChevronRight,
+  ChevronLeft,
   BookOpen,
   ArrowRight,
   ExternalLink,
@@ -120,33 +122,15 @@ export default function EnvironmentAtlasClient() {
 
   return (
     <div className="env-atlas-wrapper">
-      {/* 1. Top Sub-Nav Module Switcher */}
+      {/* 1. Top Sub-Nav Bar */}
       <header className="env-topbar">
         <div className="env-topbar-title">
+          <Link href="/environment" className="env-back-link" title="Return to Environment Hub">
+            <ChevronLeft size={15} />
+            <span>Environment Hub</span>
+          </Link>
           <span className="env-brand-pill">PRELIMS 2025–26</span>
-          <h1>Environment Atlas</h1>
-        </div>
-
-        {/* Tablist per modern web guidance */}
-        <div className="env-tablist" role="tablist" aria-label="Environment Atlas Modules">
-          {MODULES.map((m) => {
-            const isSelected = activeModule === m.id;
-            return (
-              <button
-                key={m.id}
-                type="button"
-                role="tab"
-                aria-selected={isSelected}
-                className={`env-tab-btn ${isSelected ? 'active' : ''}`}
-                onClick={() => {
-                  setActiveModule(m.id);
-                  setActiveCategory('ALL');
-                }}
-              >
-                {m.label}
-              </button>
-            );
-          })}
+          <h1>Species Atlas</h1>
         </div>
 
         {/* User Mastery Pill */}
