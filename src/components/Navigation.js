@@ -74,6 +74,7 @@ export default function Navigation({ children }) {
 
   const isPrelimsActive = pathname.startsWith("/prelims");
   const isAtlasActive = pathname.startsWith("/atlas") || pathname.startsWith("/mapping");
+  const isEnvActive = pathname.startsWith("/environment");
 
   const userInitial = session?.user?.name
     ? session.user.name.trim()[0].toUpperCase()
@@ -141,6 +142,21 @@ export default function Navigation({ children }) {
               >
                 <Map size={15} />
                 Mapping
+              </Link>
+
+              <Link
+                href="/environment"
+                className={`app-nav__link ${isEnvActive ? 'active' : ''}`}
+                style={{
+                  color: isEnvActive ? 'var(--color-blue, #3b82f6)' : undefined,
+                  fontWeight: isEnvActive ? 900 : 800,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <span style={{ fontSize: '14px' }}>🌿</span>
+                Environment Atlas
               </Link>
             </div>
           </div>

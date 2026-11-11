@@ -1108,3 +1108,64 @@ model RemoteSession {
   @@map("remote_sessions")
 }
 
+// ---------- Environment Atlas Engine ----------
+model EnvAtlasItem {
+  id              String   @id @default(cuid())
+  envId           String   @unique // e.g., "ENV-SP-001", "ENV-PA-012", "ENV-ACT-001"
+  slug            String   @unique // Upsert key! e.g., "great-indian-bustard", "wpa-1972"
+  module          String   // "SPECIES" | "PROTECTED_AREA" | "CONVENTION" | "ACT_ORG" | "SCHEME" | "NETWORK"
+  category        String   // "Mammal", "Bird", "Flora", "Tiger Reserve", "Ramsar", "Statutory Body", etc.
+
+  // --- Core Card Content ---
+  title           String   // e.g., "Great Indian Bustard", "Kaziranga National Park", "NTCA"
+  subtitle        String?  // Scientific name ("Ardeotis nigriceps") or Year/Parent ("Est. 2005 · WPA 1972")
+  aliases         String[] @default([])
+  oneline         String   // Plain-English 1-line summary at top of study card
+  priority        String   @default("High") // "High" | "Medium" | "Low"
+  isStarter       Boolean  @default(false)  // True = "Start with these 5"
+  sortOrder       Int      @default(100)
+
+  // --- Wikimedia Real-Time Image (No base64 in DB) ---
+  wikiTitle       String?  // e.g., "Great_Indian_bustard" -> auto-fetches live Wiki image & credit
+  imageUrl        String?  // Optional direct Wikimedia Commons URL override
+  imageCredit     Json?    // { author, license, url }
+
+  // --- High-Yield Pedagogy ---
+  rememberBullets String[] @default([]) // 3 crisp bullets (Bullet 1 = identity/spot; 2 & 3 = core facts)
+  confusionTrap   String?  @db.Text     // Yellow "Don't get confused" callout box
+  confusedWith    String[] @default([]) // Array of slugs for 1-click comparison
+
+  // --- Module-Specific Badges / Meter (JSON) ---
+  // SPECIES:        { iucn: "CR", wpa: "Schedule I", cites: "Appendix I", endemicTo: "India", habitat: "Dry grassland" }
+  // PROTECTED_AREA: { designations: ["NP", "TR", "UNESCO"], rivers: ["Brahmaputra"], biome: "Alluvial Grassland" }
+  // CONVENTION:     { binding: true, adoptedYear: 1973, indiaParty: true, secretariat: "Geneva", financialMech: "GEF" }
+  // ACT_ORG:        { bodyType: "Statutory", parentAct: "WPA 1972", year: 2005, ministry: "MoEFCC", chair: "Env Minister" }
+  // SCHEME:         { ministry: "MoEFCC", schemeType: "Centrally Sponsored", launchYear: 2023, target: "Mangroves" }
+  statusBadges    Json     @default("{}")
+
+  // --- Spatial / Habitat Links (Powers D3 India Map & "Lives alongside") ---
+  regionScope     String   @default("India")
+  states          String[] @default([]) // ["Rajasthan", "Gujarat"] -> highlights states on D3 map
+  lat             Float?                // Used when module == PROTECTED_AREA
+  lng             Float?
+  networkKey      String?               // e.g., "tiger" | "elephant" (when species uses a superlative network)
+  places          Json     @default("[]") // [{ name, slug, state, lat, lon, primary: true, note }]
+  relatedSlugs    String[] @default([]) // Cross-links to other EnvAtlasItem slugs (Acts, Conventions, Species)
+
+  // --- Live In-News & PYQ Integration (Merged idempotently on JSONL upload) ---
+  lastNewsDate    String?               // "2026-02" (YYYY-MM or YYYY-MM-DD) for sorting "In News"
+  newsTriggers    Json     @default("[]") // [{ date, tag, what, whyItMatters, source, url }]
+  upscAngle       Json?                 // { preferredFormat, framing, distractorPool }
+  similarPYQ      String[] @default([]) // ["ENV-UPSC-2020-04"] -> resolves live from Question table
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([module, category])
+  @@index([isStarter, sortOrder])
+  @@index([priority])
+  @@index([lastNewsDate])
+  @@map("env_atlas_items")
+}
+
+

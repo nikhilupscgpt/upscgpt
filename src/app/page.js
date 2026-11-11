@@ -24,6 +24,7 @@ import PyqQuestionCard from '@/components/search/PyqQuestionCard';
 const SUGGESTED_SEARCHES = [
   "Preamble",
   "Fundamental Rights",
+  "Species in News",
   "Monetary Policy",
   "Bab-el-Mandeb Strait",
   "Panchayati Raj",

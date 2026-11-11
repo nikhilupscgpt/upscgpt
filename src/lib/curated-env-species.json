@@ -1,0 +1,1231 @@
+{
+  "items": [
+    {
+      "id": "ENV-SP-001",
+      "envId": "ENV-SP-001",
+      "slug": "tiger",
+      "module": "SPECIES",
+      "category": "Mammals",
+      "title": "Bengal Tiger",
+      "subtitle": "Panthera tigris tigris",
+      "aliases": [],
+      "priority": "Medium",
+      "isStarter": false,
+      "sortOrder": 1,
+      "wikiTitle": "Bengal_Tiger",
+      "rememberBullets": [],
+      "confusionTrap": null,
+      "statusBadges": {
+        "iucn": "EN",
+        "wpa": "Schedule I",
+        "cites": "Appendix I",
+        "endemic": false
+      },
+      "networkKey": null,
+      "places": [
+        {
+          "n": "Jim Corbett NP",
+          "st": "Uttarakhand",
+          "lat": 29.53,
+          "lon": 78.77,
+          "note": "India’s first national park (1936); Project Tiger launched here"
+        },
+        {
+          "n": "Sundarbans TR",
+          "st": "West Bengal",
+          "lat": 21.94,
+          "lon": 88.89,
+          "note": "Only mangrove tiger habitat; shared with Bangladesh"
+        },
+        {
+          "n": "Kanha TR",
+          "st": "Madhya Pradesh",
+          "lat": 22.33,
+          "lon": 80.61,
+          "note": "Sal and grassland; also home of hard-ground barasingha"
+        },
+        {
+          "n": "Ranthambore TR",
+          "st": "Rajasthan",
+          "lat": 26.02,
+          "lon": 76.5,
+          "note": "Dry deciduous forest in the Aravalli–Vindhya junction"
+        }
+      ],
+      "similarPYQ": [],
+      "newsTriggers": []
+    },
+    {
+      "id": "ENV-SP-002",
+      "envId": "ENV-SP-002",
+      "slug": "lion",
+      "module": "SPECIES",
+      "category": "Mammals",
+      "title": "Asiatic Lion",
+      "subtitle": "Panthera leo persica",
+      "aliases": [],
+      "priority": "Medium",
+      "isStarter": false,
+      "sortOrder": 2,
+      "wikiTitle": "Asiatic_Lion",
+      "rememberBullets": [],
+      "confusionTrap": null,
+      "statusBadges": {
+        "iucn": "EN",
+        "wpa": "Schedule I",
+        "cites": "Appendix I",
+        "endemic": false
+      },
+      "networkKey": null,
+      "places": [
+        {
+          "n": "Gir NP & WLS",
+          "st": "Gujarat",
+          "lat": 21.12,
+          "lon": 70.82,
+          "note": "The only wild population of the Asiatic lion"
+        },
+        {
+          "n": "Barda WLS",
+          "st": "Gujarat",
+          "lat": 21.83,
+          "lon": 69.75,
+          "note": "Being developed as a second home for lions"
+        }
+      ],
+      "similarPYQ": [],
+      "newsTriggers": []
+    },
+    {
+      "id": "ENV-SP-003",
+      "envId": "ENV-SP-003",
+      "slug": "rhino",
+      "module": "SPECIES",
+      "category": "Mammals",
+      "title": "Greater One-horned Rhinoceros",
+      "subtitle": "Rhinoceros unicornis",
+      "aliases": [],
+      "priority": "Medium",
+      "isStarter": false,
+      "sortOrder": 3,
+      "wikiTitle": "Greater_One-horned_Rhinoceros",
+      "rememberBullets": [],
+      "confusionTrap": null,
+      "statusBadges": {
+        "iucn": "VU",
+        "wpa": "Schedule I",
+        "cites": "Appendix I",
+        "endemic": false
+      },
+      "networkKey": null,
+      "places": [
+        {
+          "n": "Kaziranga NP",
+          "st": "Assam",
+          "lat": 26.58,
+          "lon": 93.17,
+          "note": "UNESCO site (1985); about two-thirds of the world’s population"
+        },
+        {
+          "n": "Pobitora WLS",
+          "st": "Assam",
+          "lat": 26.23,
+          "lon": 92.05,
+          "note": "Highest rhino density in the world"
+        },
+        {
+          "n": "Orang NP",
+          "st": "Assam",
+          "lat": 26.55,
+          "lon": 92.33,
+          "note": "North bank of the Brahmaputra; ‘mini Kaziranga’"
+        },
+        {
+          "n": "Manas NP",
+          "st": "Assam",
+          "lat": 26.72,
+          "lon": 90.95,
+          "note": "Rhinos reintroduced after being wiped out"
+        },
+        {
+          "n": "Jaldapara NP",
+          "st": "West Bengal",
+          "lat": 26.68,
+          "lon": 89.28,
+          "note": "Second-largest population in India"
+        },
+        {
+          "n": "Dudhwa NP",
+          "st": "Uttar Pradesh",
+          "lat": 28.5,
+          "lon": 80.65,
+          "note": "Reintroduced in 1984"
+        }
+      ],
+      "similarPYQ": [],
+      "newsTriggers": []
+    },
+    {
+      "id": "ENV-SP-004",
+      "envId": "ENV-SP-004",
+      "slug": "elephant",
+      "module": "SPECIES",
+      "category": "Mammals",
+      "title": "Asian Elephant",
+      "subtitle": "Elephas maximus",
+      "aliases": [],
+      "priority": "Medium",
+      "isStarter": false,
+      "sortOrder": 4,
+      "wikiTitle": "Asian_Elephant",
+      "rememberBullets": [],
+      "confusionTrap": null,
+      "statusBadges": {
+        "iucn": "EN",
+        "wpa": "Schedule I",
+        "cites": "Appendix I",
+        "endemic": false
+      },
+      "networkKey": null,
+      "places": [
+        {
+          "n": "Periyar TR",
+          "st": "Kerala",
+          "lat": 9.47,
+          "lon": 77.17,
+          "note": "Elephants around the Periyar reservoir"
+        },
+        {
+          "n": "Bandipur NP",
+          "st": "Karnataka",
+          "lat": 11.67,
+          "lon": 76.63,
+          "note": "Part of the Nilgiri Biosphere Reserve elephant landscape"
+        },
+        {
+          "n": "Jim Corbett NP",
+          "st": "Uttarakhand",
+          "lat": 29.53,
+          "lon": 78.77,
+          "note": "Terai–Shivalik elephant range"
+        },
+        {
+          "n": "Kaziranga NP",
+          "st": "Assam",
+          "lat": 26.58,
+          "lon": 93.17,
+          "note": "North-east elephant range"
+        }
+      ],
+      "similarPYQ": [],
+      "newsTriggers": []
+    },
+    {
+      "id": "ENV-SP-005",
+      "envId": "ENV-SP-005",
+      "slug": "snowleopard",
+      "module": "SPECIES",
+      "category": "Mammals",
+      "title": "Snow Leopard",
+      "subtitle": "Panthera uncia",
+      "aliases": [],
+      "priority": "Medium",
+      "isStarter": false,
+      "sortOrder": 5,
+      "wikiTitle": "Snow_Leopard",
+      "rememberBullets": [],
+      "confusionTrap": null,
+      "statusBadges": {
+        "iucn": "VU",
+        "wpa": "Schedule I",
+        "cites": "Appendix I",
+        "endemic": false
+      },
+      "networkKey": null,
+      "places": [
+        {
+          "n": "Hemis NP",
+          "st": "Ladakh",
+          "lat": 33.9,
+          "lon": 77.45,
+          "note": "Densest snow leopard population in India"
+        },
+        {
+          "n": "Kibber WLS",
+          "st": "Himachal Pradesh",
+          "lat": 32.33,
+          "lon": 78,
+          "note": "Cold desert of Spiti"
+        },
+        {
+          "n": "Gangotri NP",
+          "st": "Uttarakhand",
+          "lat": 30.95,
+          "lon": 79,
+          "note": "Upper Bhagirathi catchment"
+        },
+        {
+          "n": "Khangchendzonga NP",
+          "st": "Sikkim",
+          "lat": 27.7,
+          "lon": 88.3,
+          "note": "India’s first mixed UNESCO World Heritage Site"
+        }
+      ],
+      "similarPYQ": [],
+      "newsTriggers": []
+    },
+    {
+      "id": "ENV-SP-006",
+      "envId": "ENV-SP-006",
+      "slug": "redpanda",
+      "module": "SPECIES",
+      "category": "Mammals",
+      "title": "Red Panda",
+      "subtitle": "Ailurus fulgens",
+      "aliases": [],
+      "priority": "Medium",
+      "isStarter": false,
+      "sortOrder": 6,
+      "wikiTitle": "Red_Panda",
+      "rememberBullets": [],
+      "confusionTrap": null,
+      "statusBadges": {
+        "iucn": "EN",
+        "wpa": "Schedule I",
+        "cites": "Appendix I",
+        "endemic": false
+      },
+      "networkKey": null,
+      "places": [
+        {
+          "n": "Singalila NP",
+          "st": "West Bengal",
+          "lat": 27.12,
+          "lon": 88.02,
+          "note": "Highest PA of West Bengal"
+        },
+        {
+          "n": "Neora Valley NP",
+          "st": "West Bengal",
+          "lat": 27.08,
+          "lon": 88.72,
+          "note": "Temperate broadleaf forest"
+        },
+        {
+          "n": "Khangchendzonga NP",
+          "st": "Sikkim",
+          "lat": 27.7,
+          "lon": 88.3,
+          "note": "Bamboo understorey"
+        },
+        {
+          "n": "Namdapha NP",
+          "st": "Arunachal Pradesh",
+          "lat": 27.5,
+          "lon": 96.4,
+          "note": "Easternmost range in India"
+        }
+      ],
+      "similarPYQ": [],
+      "newsTriggers": []
+    },
+    {
+      "id": "ENV-SP-007",
+      "envId": "ENV-SP-007",
+      "slug": "ltm",
+      "module": "SPECIES",
+      "category": "Mammals",
+      "title": "Lion-tailed Macaque",
+      "subtitle": "Macaca silenus",
+      "aliases": [],
+      "priority": "Medium",
+      "isStarter": false,
+      "sortOrder": 7,
+      "wikiTitle": "Lion-tailed_Macaque",
+      "rememberBullets": [],
+      "confusionTrap": null,
+      "statusBadges": {
+        "iucn": "EN",
+        "wpa": "Schedule I",
+        "cites": "Appendix I",
+        "endemic": false
+      },
+      "networkKey": null,
+      "places": [
+        {
+          "n": "Silent Valley NP",
+          "st": "Kerala",
+          "lat": 11.13,
+          "lon": 76.43,
+          "note": "Save Silent Valley movement saved its habitat"
+        },
+        {
+          "n": "Kalakad-Mundanthurai TR",
+          "st": "Tamil Nadu",
+          "lat": 8.6,
+          "lon": 77.35,
+          "note": "Southernmost population"
+        },
+        {
+          "n": "Anamalai TR",
+          "st": "Tamil Nadu",
+          "lat": 10.35,
+          "lon": 77,
+          "note": "Valparai rainforest fragments"
+        },
+        {
+          "n": "Sharavathi Valley LTM Sanctuary",
+          "st": "Karnataka",
+          "lat": 14.07,
+          "lon": 74.8,
+          "note": "Named after the species"
+        }
+      ],
+      "similarPYQ": [],
+      "newsTriggers": []
+    },
+    {
+      "id": "ENV-SP-008",
+      "envId": "ENV-SP-008",
+      "slug": "tahr",
+      "module": "SPECIES",
+      "category": "Mammals",
+      "title": "Nilgiri Tahr",
+      "subtitle": "Nilgiritragus hylocrius",
+      "aliases": [],
+      "priority": "Medium",
+      "isStarter": false,
+      "sortOrder": 8,
+      "wikiTitle": "Nilgiri_Tahr",
+      "rememberBullets": [],
+      "confusionTrap": null,
+      "statusBadges": {
+        "iucn": "EN",
+        "wpa": "Schedule I",
+        "cites": "Not listed",
+        "endemic": false
+      },
+      "networkKey": null,
+      "places": [
+        {
+          "n": "Eravikulam NP",
+          "st": "Kerala",
+          "lat": 10.17,
+          "lon": 77.07,
+          "note": "Largest population; shola–grassland"
+        },
+        {
+          "n": "Mukurthi NP",
+          "st": "Tamil Nadu",
+          "lat": 11.27,
+          "lon": 76.53,
+          "note": "Part of the Nilgiri Biosphere Reserve"
+        }
+      ],
+      "similarPYQ": [],
+      "newsTriggers": []
+    },
+    {
+      "id": "ENV-SP-009",
+      "envId": "ENV-SP-009",
+      "slug": "sangai",
+      "module": "SPECIES",
+      "category": "Mammals",
+      "title": "Sangai (Brow-antlered Deer)",
+      "subtitle": "Rucervus eldii eldii",
+      "aliases": [],
+      "priority": "Medium",
+      "isStarter": false,
+      "sortOrder": 9,
+      "wikiTitle": "Eld%27s_deer",
+      "rememberBullets": [],
+      "confusionTrap": null,
+      "statusBadges": {
+        "iucn": "EN",
+        "wpa": "Schedule I",
+        "cites": "Appendix I",
+        "endemic": false
+      },
+      "networkKey": null,
+      "places": [
+        {
+          "n": "Keibul Lamjao NP",
+          "st": "Manipur",
+          "lat": 24.5,
+          "lon": 93.82,
+          "note": "World’s only floating national park, on phumdis of Loktak Lake"
+        }
+      ],
+      "similarPYQ": [],
+      "newsTriggers": []
+    },
+    {
+      "id": "ENV-SP-010",
+      "envId": "ENV-SP-010",
+      "slug": "pygmyhog",
+      "module": "SPECIES",
+      "category": "Mammals",
+      "title": "Pygmy Hog",
+      "subtitle": "Porcula salvania",
+      "aliases": [],
+      "priority": "Medium",
+      "isStarter": false,
+      "sortOrder": 10,
+      "wikiTitle": "Pygmy_Hog",
+      "rememberBullets": [],
+      "confusionTrap": null,
+      "statusBadges": {
+        "iucn": "EN",
+        "wpa": "Schedule I",
+        "cites": "Appendix I",
+        "endemic": false
+      },
+      "networkKey": null,
+      "places": [
+        {
+          "n": "Manas NP",
+          "st": "Assam",
+          "lat": 26.72,
+          "lon": 90.95,
+          "note": "Last natural population"
+        },
+        {
+          "n": "Orang NP",
+          "st": "Assam",
+          "lat": 26.55,
+          "lon": 92.33,
+          "note": "Captive-bred hogs reintroduced"
+        }
+      ],
+      "similarPYQ": [],
+      "newsTriggers": []
+    },
+    {
+      "id": "ENV-SP-011",
+      "envId": "ENV-SP-011",
+      "slug": "gibbon",
+      "module": "SPECIES",
+      "category": "Mammals",
+      "title": "Western Hoolock Gibbon",
+      "subtitle": "Hoolock hoolock",
+      "aliases": [],
+      "priority": "Medium",
+      "isStarter": false,
+      "sortOrder": 11,
+      "wikiTitle": "Western_Hoolock_Gibbon",
+      "rememberBullets": [],
+      "confusionTrap": null,
+      "statusBadges": {
+        "iucn": "EN",
+        "wpa": "Schedule I",
+        "cites": "Appendix I",
+        "endemic": false
+      },
+      "networkKey": null,
+      "places": [
+        {
+          "n": "Hollongapar Gibbon Sanctuary",
+          "st": "Assam",
+          "lat": 26.67,
+          "lon": 94.33,
+          "note": "India’s only sanctuary named after the gibbon"
+        },
+        {
+          "n": "Namdapha NP",
+          "st": "Arunachal Pradesh",
+          "lat": 27.5,
+          "lon": 96.4,
+          "note": "Also has the eastern range edge"
+        }
+      ],
+      "similarPYQ": [],
+      "newsTriggers": []
+    },
+    {
+      "id": "ENV-SP-012",
+      "envId": "ENV-SP-012",
+      "slug": "dolphin",
+      "module": "SPECIES",
+      "category": "Mammals",
+      "title": "Ganges River Dolphin",
+      "subtitle": "Platanista gangetica",
+      "aliases": [],
+      "priority": "Medium",
+      "isStarter": false,
+      "sortOrder": 12,
+      "wikiTitle": "Ganges_River_Dolphin",
+      "rememberBullets": [],
+      "confusionTrap": null,
+      "statusBadges": {
+        "iucn": "EN",
+        "wpa": "Schedule I",
+        "cites": "Appendix I",
+        "endemic": false
+      },
+      "networkKey": null,
+      "places": [
+        {
+          "n": "Vikramshila Gangetic Dolphin Sanctuary",
+          "st": "Bihar",
+          "lat": 25.27,
+          "lon": 87,
+          "note": "Only sanctuary for this dolphin"
+        },
+        {
+          "n": "National Chambal Sanctuary",
+          "st": "MP / Rajasthan / UP",
+          "lat": 26.65,
+          "lon": 78.4,
+          "note": "Also holds gharials"
+        }
+      ],
+      "similarPYQ": [],
+      "newsTriggers": []
+    },
+    {
+      "id": "ENV-SP-013",
+      "envId": "ENV-SP-013",
+      "slug": "dugong",
+      "module": "SPECIES",
+      "category": "Mammals",
+      "title": "Dugong",
+      "subtitle": "Dugong dugon",
+      "aliases": [],
+      "priority": "Medium",
+      "isStarter": false,
+      "sortOrder": 13,
+      "wikiTitle": "Dugong",
+      "rememberBullets": [],
+      "confusionTrap": null,
+      "statusBadges": {
+        "iucn": "VU",
+        "wpa": "Schedule I",
+        "cites": "Appendix I",
+        "endemic": false
+      },
+      "networkKey": null,
+      "places": [
+        {
+          "n": "Gulf of Mannar MNP",
+          "st": "Tamil Nadu",
+          "lat": 9.1,
+          "lon": 79.1,
+          "note": "Seagrass meadows"
+        },
+        {
+          "n": "Palk Bay Dugong Reserve",
+          "st": "Tamil Nadu",
+          "lat": 9.9,
+          "lon": 79.3,
+          "note": "India’s first dugong conservation reserve"
+        },
+        {
+          "n": "Andaman Islands",
+          "st": "Andaman & Nicobar",
+          "lat": 12,
+          "lon": 92.8,
+          "note": "Ritchie’s archipelago seagrass beds"
+        }
+      ],
+      "similarPYQ": [],
+      "newsTriggers": []
+    },
+    {
+      "id": "ENV-SP-014",
+      "envId": "ENV-SP-014",
+      "slug": "blackbuck",
+      "module": "SPECIES",
+      "category": "Mammals",
+      "title": "Blackbuck",
+      "subtitle": "Antilope cervicapra",
+      "aliases": [],
+      "priority": "Medium",
+      "isStarter": false,
+      "sortOrder": 14,
+      "wikiTitle": "Blackbuck",
+      "rememberBullets": [],
+      "confusionTrap": null,
+      "statusBadges": {
+        "iucn": "LC",
+        "wpa": "Schedule I",
+        "cites": "Appendix III",
+        "endemic": false
+      },
+      "networkKey": null,
+      "places": [
+        {
+          "n": "Velavadar NP",
+          "st": "Gujarat",
+          "lat": 22.05,
+          "lon": 72.03,
+          "note": "Created specifically for blackbuck"
+        },
+        {
+          "n": "Tal Chhapar WLS",
+          "st": "Rajasthan",
+          "lat": 27.8,
+          "lon": 74.43,
+          "note": "Open grassland in the Thar"
+        },
+        {
+          "n": "Point Calimere WLS",
+          "st": "Tamil Nadu",
+          "lat": 10.3,
+          "lon": 79.85,
+          "note": "Coastal grassland; also a Ramsar site"
+        }
+      ],
+      "similarPYQ": [],
+      "newsTriggers": []
+    },
+    {
+      "id": "ENV-SP-015",
+      "envId": "ENV-SP-015",
+      "slug": "gib",
+      "module": "SPECIES",
+      "category": "Birds",
+      "title": "Great Indian Bustard",
+      "subtitle": "Ardeotis nigriceps",
+      "aliases": [],
+      "priority": "Medium",
+      "isStarter": false,
+      "sortOrder": 15,
+      "wikiTitle": "Great_Indian_Bustard",
+      "rememberBullets": [],
+      "confusionTrap": null,
+      "statusBadges": {
+        "iucn": "CR",
+        "wpa": "Schedule I",
+        "cites": "Appendix I",
+        "endemic": false
+      },
+      "networkKey": null,
+      "places": [
+        {
+          "n": "Desert NP",
+          "st": "Rajasthan",
+          "lat": 26.65,
+          "lon": 70.6,
+          "note": "Stronghold of the remaining population"
+        },
+        {
+          "n": "Kutch Bustard Sanctuary",
+          "st": "Gujarat",
+          "lat": 23.27,
+          "lon": 68.83,
+          "note": "Naliya grasslands"
+        }
+      ],
+      "similarPYQ": [],
+      "newsTriggers": []
+    },
+    {
+      "id": "ENV-SP-016",
+      "envId": "ENV-SP-016",
+      "slug": "owlet",
+      "module": "SPECIES",
+      "category": "Birds",
+      "title": "Forest Owlet",
+      "subtitle": "Athene blewitti",
+      "aliases": [],
+      "priority": "Medium",
+      "isStarter": false,
+      "sortOrder": 16,
+      "wikiTitle": "Forest_Owlet",
+      "rememberBullets": [],
+      "confusionTrap": null,
+      "statusBadges": {
+        "iucn": "EN",
+        "wpa": "Schedule I",
+        "cites": "Appendix I",
+        "endemic": false
+      },
+      "networkKey": null,
+      "places": [
+        {
+          "n": "Melghat TR",
+          "st": "Maharashtra",
+          "lat": 21.45,
+          "lon": 77.2,
+          "note": "Key population in teak forest"
+        },
+        {
+          "n": "Taloda forests",
+          "st": "Maharashtra",
+          "lat": 21.56,
+          "lon": 74.2,
+          "note": "Nandurbar district"
+        }
+      ],
+      "similarPYQ": [],
+      "newsTriggers": []
+    },
+    {
+      "id": "ENV-SP-017",
+      "envId": "ENV-SP-017",
+      "slug": "courser",
+      "module": "SPECIES",
+      "category": "Birds",
+      "title": "Jerdon’s Courser",
+      "subtitle": "Rhinoptilus bitorquatus",
+      "aliases": [],
+      "priority": "Medium",
+      "isStarter": false,
+      "sortOrder": 17,
+      "wikiTitle": "Jerdon’s_Courser",
+      "rememberBullets": [],
+      "confusionTrap": null,
+      "statusBadges": {
+        "iucn": "CR",
+        "wpa": "Schedule I",
+        "cites": "Not listed",
+        "endemic": false
+      },
+      "networkKey": null,
+      "places": [
+        {
+          "n": "Sri Lankamalleswara WLS",
+          "st": "Andhra Pradesh",
+          "lat": 14.6,
+          "lon": 78.9,
+          "note": "Scrub jungle of the Eastern Ghats"
+        }
+      ],
+      "similarPYQ": [],
+      "newsTriggers": []
+    },
+    {
+      "id": "ENV-SP-018",
+      "envId": "ENV-SP-018",
+      "slug": "hornbill",
+      "module": "SPECIES",
+      "category": "Birds",
+      "title": "Great Hornbill",
+      "subtitle": "Buceros bicornis",
+      "aliases": [],
+      "priority": "Medium",
+      "isStarter": false,
+      "sortOrder": 18,
+      "wikiTitle": "Great_Hornbill",
+      "rememberBullets": [],
+      "confusionTrap": null,
+      "statusBadges": {
+        "iucn": "VU",
+        "wpa": "Schedule I",
+        "cites": "Appendix I",
+        "endemic": false
+      },
+      "networkKey": null,
+      "places": [
+        {
+          "n": "Pakke TR",
+          "st": "Arunachal Pradesh",
+          "lat": 27.05,
+          "lon": 92.95,
+          "note": "Community nest adoption"
+        },
+        {
+          "n": "Namdapha NP",
+          "st": "Arunachal Pradesh",
+          "lat": 27.5,
+          "lon": 96.4,
+          "note": "Evergreen forest"
+        },
+        {
+          "n": "Silent Valley NP",
+          "st": "Kerala",
+          "lat": 11.13,
+          "lon": 76.43,
+          "note": "Western Ghats population"
+        }
+      ],
+      "similarPYQ": [],
+      "newsTriggers": []
+    },
+    {
+      "id": "ENV-SP-019",
+      "envId": "ENV-SP-019",
+      "slug": "gharial",
+      "module": "SPECIES",
+      "category": "Reptiles",
+      "title": "Gharial",
+      "subtitle": "Gavialis gangeticus",
+      "aliases": [],
+      "priority": "Medium",
+      "isStarter": false,
+      "sortOrder": 19,
+      "wikiTitle": "Gharial",
+      "rememberBullets": [],
+      "confusionTrap": null,
+      "statusBadges": {
+        "iucn": "CR",
+        "wpa": "Schedule I",
+        "cites": "Appendix I",
+        "endemic": false
+      },
+      "networkKey": null,
+      "places": [
+        {
+          "n": "National Chambal Sanctuary",
+          "st": "MP / Rajasthan / UP",
+          "lat": 26.65,
+          "lon": 78.4,
+          "note": "Largest wild population; tri-state sanctuary"
+        },
+        {
+          "n": "Katarniaghat WLS",
+          "st": "Uttar Pradesh",
+          "lat": 28.3,
+          "lon": 81.15,
+          "note": "Girwa river"
+        },
+        {
+          "n": "Son Gharial WLS",
+          "st": "Madhya Pradesh",
+          "lat": 24.35,
+          "lon": 81.95,
+          "note": "Son river"
+        }
+      ],
+      "similarPYQ": [],
+      "newsTriggers": []
+    },
+    {
+      "id": "ENV-SP-020",
+      "envId": "ENV-SP-020",
+      "slug": "olive",
+      "module": "SPECIES",
+      "category": "Reptiles",
+      "title": "Olive Ridley Turtle",
+      "subtitle": "Lepidochelys olivacea",
+      "aliases": [],
+      "priority": "Medium",
+      "isStarter": false,
+      "sortOrder": 20,
+      "wikiTitle": "Olive_Ridley_Turtle",
+      "rememberBullets": [],
+      "confusionTrap": null,
+      "statusBadges": {
+        "iucn": "VU",
+        "wpa": "Schedule I",
+        "cites": "Appendix I",
+        "endemic": false
+      },
+      "networkKey": null,
+      "places": [
+        {
+          "n": "Gahirmatha Marine WLS",
+          "st": "Odisha",
+          "lat": 20.7,
+          "lon": 87,
+          "note": "One of the world’s largest rookeries"
+        },
+        {
+          "n": "Rushikulya rookery",
+          "st": "Odisha",
+          "lat": 19.37,
+          "lon": 85.06,
+          "note": "Mass nesting at the river mouth"
+        },
+        {
+          "n": "Devi river mouth",
+          "st": "Odisha",
+          "lat": 19.95,
+          "lon": 86.37,
+          "note": "Third arribada site of Odisha"
+        }
+      ],
+      "similarPYQ": [],
+      "newsTriggers": []
+    }
+  ],
+  "networks": {
+    "tiger": {
+      "label": "Tiger reserves",
+      "total": 58,
+      "states": 18,
+      "asOf": "Nov 2026",
+      "reserves": {
+        "madhav": {
+          "n": "Madhav Tiger Reserve",
+          "st": "Madhya Pradesh",
+          "lat": 25.47,
+          "lon": 77.72
+        },
+        "corbett": {
+          "n": "Jim Corbett Tiger Reserve",
+          "st": "Uttarakhand",
+          "lat": 29.53,
+          "lon": 78.77
+        },
+        "nstr": {
+          "n": "Nagarjunsagar–Srisailam Tiger Reserve",
+          "st": "Andhra Pradesh",
+          "lat": 16.1,
+          "lon": 78.9
+        },
+        "kanha": {
+          "n": "Kanha Tiger Reserve",
+          "st": "Madhya Pradesh",
+          "lat": 22.33,
+          "lon": 80.61
+        },
+        "panna": {
+          "n": "Panna Tiger Reserve",
+          "st": "Madhya Pradesh",
+          "lat": 24.7,
+          "lon": 80
+        },
+        "buxa": {
+          "n": "Buxa Tiger Reserve",
+          "st": "West Bengal",
+          "lat": 26.65,
+          "lon": 89.55
+        }
+      },
+      "slots": [
+        {
+          "q": "Newest",
+          "r": "madhav",
+          "a": "58th reserve, notified March 2025",
+          "more": "Just before it: Ratapani (57th, Madhya Pradesh, 2024) and Guru Ghasidas–Tamor Pingla (56th, Chhattisgarh, 2024)."
+        },
+        {
+          "q": "Most important",
+          "r": "corbett",
+          "a": "India’s first; Project Tiger was launched here in 1973"
+        },
+        {
+          "q": "Most tigers",
+          "r": "corbett",
+          "a": "About 260 tigers (2022 count)",
+          "more": "Will change when the next tiger census report comes out (expected 2027)."
+        },
+        {
+          "q": "Largest by area",
+          "r": "nstr",
+          "a": "About 3,296 km²; spreads into Telangana"
+        }
+      ],
+      "stateMost": {
+        "st": "Madhya Pradesh",
+        "a": "9 reserves, the most of any state; also the most tigers (785 in 2022)"
+      }
+    }
+  },
+  "news": [
+    {
+      "d": "2026-10-03",
+      "type": "Reintroduction",
+      "species": [],
+      "places": [
+        "buxa"
+      ],
+      "what": "A tigress from Bihar was released into Buxa Tiger Reserve to open Wildlife Week 2026 and start a phased tiger recovery programme there.",
+      "why": "Buxa had no confirmed tiger sightings for decades; it shows how ‘empty’ reserves are being restocked.",
+      "src": "Drishti IAS",
+      "url": "https://www.drishtiias.com/pdf/1791023875.pdf"
+    },
+    {
+      "d": "2026-06-29",
+      "type": "Policy decision",
+      "species": [
+        "tiger"
+      ],
+      "places": [],
+      "what": "A government review flagged 25 of the 58 tiger reserves for priority action because tigers there are few or absent.",
+      "why": "Having more reserves does not mean every reserve has tigers.",
+      "src": "Indian Express, via Vision IAS",
+      "url": "https://dce.visionias.in/upsc-daily-news-summary/article/2026-06-29/the-indian-express/environment/government-flags-priority-intervention-need-in-25-of-58-tiger-reserves-with-low-absent-tigers"
+    },
+    {
+      "d": "2026-05-05",
+      "type": "Threat",
+      "species": [],
+      "places": [
+        "panna"
+      ],
+      "what": "A tiger was found dead in Panna Tiger Reserve, the 28th tiger death in Madhya Pradesh since January 2026.",
+      "why": "High tiger numbers in MP also mean more deaths and conflict.",
+      "src": "ThePrint (PTI)",
+      "url": "https://theprint.in/india/tiger-found-dead-in-mps-panna-reserve-28th-casualty-since-january/2922965/"
+    },
+    {
+      "d": "2026-04-30",
+      "type": "Threat",
+      "species": [],
+      "places": [
+        "kanha"
+      ],
+      "what": "A tiger and a cub died in Kanha Tiger Reserve, taking Madhya Pradesh’s tiger deaths for the year to 27.",
+      "why": "Repeated deaths in MP reserves keep the state in the news.",
+      "src": "Telangana Today",
+      "url": "https://telanganatoday.com/tiger-cub-die-in-kanha-reserve-toll-in-mp-rises-to-27-this-year"
+    },
+    {
+      "d": "2026-10-04",
+      "type": "Reintroduction",
+      "species": [
+        "gib"
+      ],
+      "places": [
+        "Desert NP"
+      ],
+      "what": "The first captive-bred Great Indian Bustards, two males, were released into the wild at Sam in Desert National Park, Jaisalmer.",
+      "why": "Project GIB has moved from captive breeding to rewilding.",
+      "src": "News On AIR",
+      "url": "https://newsonair.gov.in/environment-minister-bhupender-yadav-releases-two-male-great-indian-bustards-into-wild/"
+    },
+    {
+      "d": "2026-08-04",
+      "type": "Policy decision",
+      "species": [
+        "gib"
+      ],
+      "places": [],
+      "what": "The National Board for Wildlife decided to add the Lesser Florican and the Bengal Florican to the bustard conservation programme.",
+      "why": "Floricans are bustards too, so expect them as options in a bustard question.",
+      "src": "Deccan Herald",
+      "url": "https://www.deccanherald.com/amp/story/india/captive-bred-great-indian-bustards-set-to-return-to-wild-plan-to-save-floricans-4099368"
+    },
+    {
+      "d": "2026-07-11",
+      "type": "Population count",
+      "species": [
+        "gib"
+      ],
+      "places": [],
+      "what": "The first official assessment in seven years found the population stable at about 110–150 birds, surviving in only about 16% of its Thar habitat.",
+      "why": "A fresh, official number for a Critically Endangered bird.",
+      "src": "Indian Express, via Vision IAS",
+      "url": "https://dce.visionias.in/upsc-daily-news-summary/article/2026-07-11/the-indian-express/environment/great-indian-bustard-numbers-stable-survives-in-only-16-of-thar-habitat-says-report"
+    },
+    {
+      "d": "2026-03-28",
+      "type": "Breeding success",
+      "species": [
+        "gib"
+      ],
+      "places": [
+        "Kutch Bustard Sanctuary"
+      ],
+      "what": "A bustard chick hatched in Kutch, Gujarat, for the first time in a decade, using the ‘jumpstart’ method: eggs laid in captivity are placed in wild nests.",
+      "why": "Learn the term ‘jumpstart’; it is the kind of new method UPSC likes to test.",
+      "src": "News On AIR",
+      "url": "https://www.newsonair.gov.in/bhupender-yadav-announces-birth-of-endangered-great-indian-bustard-chick-in-kutch-after-a-decade"
+    },
+    {
+      "d": "2026-08-10",
+      "type": "Population count",
+      "species": [
+        "lion"
+      ],
+      "places": [],
+      "what": "On World Lion Day (10 August), the government highlighted growth from 523 lions in 2015 to 891 in 2025.",
+      "why": "Remember 891 (2025 count) and that all of them live in Gujarat.",
+      "src": "News Arena India",
+      "url": "https://newsarenaindia.com/nation/india-s-asiatic-lion-population-jumps-from-523-to-891-in-a-decade/84255"
+    },
+    {
+      "d": "2026-05-29",
+      "type": "Threat",
+      "species": [
+        "lion"
+      ],
+      "places": [
+        "Gir NP & WLS"
+      ],
+      "what": "About 11 lions, mostly cubs, died in the Gir region in May 2026. Early signs pointed to babesiosis, a tick-borne infection.",
+      "why": "Shows the risk of keeping a species’ only wild population in one place.",
+      "src": "Dawn",
+      "url": "https://www.dawn.com/news/2003818"
+    },
+    {
+      "d": "2026-05-14",
+      "type": "International",
+      "species": [
+        "lion",
+        "tiger",
+        "snowleopard"
+      ],
+      "places": [],
+      "what": "A ‘Lion’ spotlight event at Sasan Gir was held ahead of India’s first International Big Cat Alliance (IBCA) Summit in New Delhi.",
+      "why": "IBCA is India’s alliance for seven big cats; tiger, lion and snow leopard are among them.",
+      "src": "The Policy Edge",
+      "url": "https://www.policyedge.in/p/india-highlights-asiatic-lion-conservation-ahead-of-ibca-summit-2026"
+    },
+    {
+      "d": "2026-01-06",
+      "type": "Population count",
+      "species": [
+        "tiger"
+      ],
+      "places": [],
+      "what": "The sixth All India Tiger Estimation is under way across the country. The final report is expected in 2027.",
+      "why": "Until the report is out, 3,682 tigers (2022) stays the official figure.",
+      "src": "ThePrint",
+      "url": "https://theprint.in/environment/indias-tiger-population-jump-new-census-running-out-of-space/2824321"
+    },
+    {
+      "d": "2026-08-12",
+      "type": "Policy decision",
+      "species": [
+        "dolphin"
+      ],
+      "places": [],
+      "what": "CAMPA approved a recovery plan for the Gangetic dolphin while the second nationwide dolphin survey is running.",
+      "why": "Connects dolphins to CAMPA funds, a common Prelims link.",
+      "src": "Karmactive",
+      "url": "https://www.karmactive.com/campa-approves-gangetic-dolphin-recovery-plan-brahmaputra/"
+    },
+    {
+      "d": "2026-04-15",
+      "type": "Habitat",
+      "species": [],
+      "places": [
+        "National Chambal Sanctuary"
+      ],
+      "what": "A Wildlife Institute of India study found that falling water flow in the Chambal is pushing dolphins downstream; sightings inside the sanctuary dropped sharply between 2022 and 2026.",
+      "why": "River flow decides where river animals can survive.",
+      "src": "Ananta IAS (summary of WII study)",
+      "url": "https://anantamias.com/current-affairs/chambal-flow-collapse-ganges-dolphin-shift/?pdf=1"
+    },
+    {
+      "d": "2026-01-20",
+      "type": "Population count",
+      "species": [
+        "dolphin"
+      ],
+      "places": [],
+      "what": "India’s second nationwide river dolphin survey was launched from Bijnor, Uttar Pradesh, led by the Wildlife Institute of India.",
+      "why": "The first survey counted about 6,327 dolphins; the new one will update that figure.",
+      "src": "Ujiyari current affairs",
+      "url": "https://pub-915abe16736645b698ab4372a6992659.r2.dev/2026-01-20-gangetic-dolphin-survey.pdf"
+    },
+    {
+      "d": "2026-01-10",
+      "type": "Rescue",
+      "species": [
+        "dolphin"
+      ],
+      "places": [],
+      "what": "India’s first dolphin rescue ambulance was started at the Wildlife Institute of India, Dehradun.",
+      "why": "A ‘first in India’ fact, often turned into a statement question.",
+      "src": "ThePrint",
+      "url": "https://theprint.in/theprint-essential/the-ganges-dolphin-is-a-un-restoration-success-story-how-do-you-save-a-species/3089329/"
+    },
+    {
+      "d": "2025-03-04",
+      "type": "Population count",
+      "species": [
+        "dolphin"
+      ],
+      "places": [],
+      "what": "The first-ever estimate of river dolphins in India counted about 6,327.",
+      "why": "The baseline figure for the dolphin census.",
+      "src": "Mahabahu",
+      "url": "https://mahabahu.com/first-ever-estimate-of-gangetic-dolphins/"
+    }
+  ]
+}
