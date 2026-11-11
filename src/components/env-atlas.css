@@ -587,265 +587,84 @@
    ENVIRONMENT HUB DASHBOARD (Containers / Modules Overview)
    ========================================================================= */
 
+/* Hub Layout */
 .env-hub-wrapper {
   min-height: calc(100vh - 72px);
   background: #090d16;
   color: #f1f5f9;
-  padding: 40px 24px 80px;
-  max-width: 1360px;
+  padding: 60px 24px 80px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
 .env-hub-header {
   text-align: center;
-  max-width: 820px;
-  margin: 0 auto 48px;
-}
-
-.env-hub-hero-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(59, 130, 246, 0.12);
-  border: 1px solid rgba(59, 130, 246, 0.28);
-  padding: 6px 14px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  color: #93c5fd;
-  margin-bottom: 18px;
+  margin-bottom: 36px;
 }
 
 .env-hub-title {
-  font-size: clamp(30px, 4vw, 44px);
+  font-size: 28px;
   font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.15;
-  margin: 0 0 16px;
   color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.02em;
 }
 
-.env-gradient-text {
-  background: linear-gradient(135deg, #60a5fa 0%, #38bdf8 50%, #34d399 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.env-hub-subtitle {
-  font-size: 15px;
-  line-height: 1.6;
-  color: #94a3b8;
-  margin: 0 0 24px;
-}
-
-.env-hub-ticker {
-  display: inline-flex;
-  align-items: center;
-  gap: 12px;
-  background: rgba(15, 23, 42, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 8px 18px;
-  border-radius: 999px;
-  font-size: 12px;
-  color: #cbd5e1;
-}
-
-.env-ticker-item {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.env-ticker-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-}
-
-.dot-live {
-  background: #10b981;
-  box-shadow: 0 0 8px #10b981;
-}
-
-.dot-dev {
-  background: #f59e0b;
-}
-
-.env-ticker-divider {
-  color: #475569;
-}
-
-/* 6-Card Container Grid */
-.env-hub-grid {
+.env-hub-compact-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
 }
 
-.env-hub-card {
+.env-compact-card {
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
   background: #0d1527;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 18px;
-  padding: 28px;
-  position: relative;
-  overflow: hidden;
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.env-hub-card:hover {
-  transform: translateY(-3px);
-  border-color: var(--card-glow, rgba(59, 130, 246, 0.4));
-  box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.6), 0 0 24px -6px var(--card-glow, rgba(59, 130, 246, 0.2));
-}
-
-.env-hub-card.card-active {
-  border-color: rgba(59, 130, 246, 0.35);
-  background: linear-gradient(180deg, rgba(30, 58, 138, 0.16) 0%, #0d1527 45%);
-}
-
-.env-card-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-.env-card-icon-wrap {
-  width: 48px;
-  height: 48px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.env-card-emoji {
-  font-size: 24px;
-}
-
-.env-card-header-meta {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 5px;
-}
-
-.env-status-badge {
-  display: inline-flex;
-  align-items: center;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 999px;
-  letter-spacing: 0.03em;
-}
-
-.badge-active {
-  background: rgba(16, 185, 129, 0.16);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.35);
-}
-
-.live-ping {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #10b981;
-  margin-right: 6px;
-  box-shadow: 0 0 6px #10b981;
-}
-
-.badge-upcoming {
-  background: rgba(148, 163, 184, 0.1);
-  color: #94a3b8;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-}
-
-.env-hindi-label {
-  font-size: 11px;
-  color: #64748b;
-  font-weight: 500;
-}
-
-.env-card-title {
-  font-size: 19px;
-  font-weight: 700;
-  color: #f8fafc;
-  margin: 0 0 10px;
-}
-
-.env-card-summary {
-  font-size: 13px;
-  line-height: 1.55;
-  color: #94a3b8;
-  margin: 0 0 20px;
-}
-
-.env-card-features {
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-  margin-bottom: 26px;
-}
-
-.env-feature-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 9px;
-  font-size: 12px;
-  color: #cbd5e1;
-  line-height: 1.45;
-}
-
-.env-feature-check {
-  color: var(--accent-color, #3b82f6);
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.env-card-footer {
-  margin-top: auto;
-}
-
-.env-card-cta-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 11px 18px;
-  border-radius: 12px;
-  font-size: 13px;
-  font-weight: 600;
   text-decoration: none;
-  transition: all 0.2s ease;
-}
-
-.cta-active {
-  background: #2563eb;
   color: #ffffff;
-  border: 1px solid #3b82f6;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+  transition: all 0.15s ease;
 }
 
-.cta-active:hover {
-  background: #1d4ed8;
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
-  transform: translateY(-1px);
+.env-compact-card.active {
+  cursor: pointer;
+  border-color: rgba(59, 130, 246, 0.35);
+  background: rgba(30, 58, 138, 0.12);
 }
 
-.cta-disabled {
-  background: rgba(255, 255, 255, 0.03);
-  color: #64748b;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  cursor: not-allowed;
+.env-compact-card.active:hover {
+  transform: translateY(-2px);
+  border-color: #3b82f6;
+  background: rgba(30, 58, 138, 0.22);
+}
+
+.env-compact-card.disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.env-compact-icon {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.env-compact-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #f1f5f9;
+  flex: 1;
+}
+
+.env-compact-arrow {
+  color: #60a5fa;
+  transition: transform 0.15s ease;
+}
+
+.env-compact-card.active:hover .env-compact-arrow {
+  transform: translate(2px, -2px);
 }
 
 /* Species Page Topbar Back Button */

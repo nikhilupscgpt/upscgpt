@@ -130,29 +130,7 @@ export default function EnvironmentAtlasClient() {
             <span>Hub</span>
           </Link>
           <span className="env-brand-pill">PRELIMS 2025–26</span>
-          <h1>Environment Atlas</h1>
-        </div>
-
-        {/* Module Sub-Tabs (Pixel-perfect to mock: Species active, others route to Hub) */}
-        <div className="env-tablist" role="tablist">
-          {MODULES.map((m) => {
-            const isSpecies = m.id === 'SPECIES';
-            return (
-              <Link
-                key={m.id}
-                href={isSpecies ? '/environment/species' : '/environment'}
-                style={{ textDecoration: 'none' }}
-              >
-                <button
-                  type="button"
-                  className={`env-tab-btn ${isSpecies ? 'active' : ''}`}
-                  title={isSpecies ? 'Current: Species Atlas' : `View ${m.label} in Hub`}
-                >
-                  {m.label}
-                </button>
-              </Link>
-            );
-          })}
+          <h1>Species Atlas</h1>
         </div>
 
         {/* User Mastery Pill */}
