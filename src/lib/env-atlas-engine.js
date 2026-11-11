@@ -234,11 +234,14 @@ export function ingestEnvAtlasJsonl(rawText) {
       cites = rawCitesCms.cites || 'Appendix I';
       cms = rawCitesCms.cms || cms;
     } else if (typeof rawCitesCms === 'string') {
-      const citesMatch = rawCitesCms.match(/CITES:?\s*([A-Za-z0-9\s]+)/i);
-      const cmsMatch = rawCitesCms.match(/CMS:?\s*([A-Za-z0-9\s]+)/i);
+      const citesMatch = rawCitesCms.match(/CITES:?\s*([A-Za-z0-9\s]+?)(?=\s*\||\s*$)/i);
+      const cmsMatch = rawCitesCms.match(/CMS:?\s*([A-Za-z0-9\s/]+?)(?=\s*\||\s*$)/i);
       if (citesMatch) cites = citesMatch[1].trim();
       else cites = rawCitesCms;
-      if (cmsMatch) cms = cmsMatch[1].trim();
+      if (cmsMatch) {
+        const val = cmsMatch[1].trim();
+        cms = /^(n\/?a|none|nil|-)$/i.test(val) ? null : val;
+      }
     }
 
     const statusBadges = {
