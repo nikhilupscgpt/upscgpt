@@ -168,3 +168,17 @@ export function ingestEnvAtlasJsonl(rawText) {
     errors,
   };
 }
+
+/**
+ * Deletes an Environment Atlas item by slug
+ */
+export function deleteEnvAtlasItem(slug) {
+  if (!slug) return { success: false, error: 'Slug is required' };
+  const idx = dynamicItems.findIndex((i) => i.slug === slug);
+  if (idx >= 0) {
+    const deleted = dynamicItems.splice(idx, 1);
+    return { success: true, deleted: deleted[0], remaining: dynamicItems.length };
+  }
+  return { success: false, error: `Item with slug "${slug}" not found` };
+}
+

@@ -6,7 +6,7 @@ import PinAdminClient from "./pin/PinAdminClient"
 import CommsAdminClient from "./comms/CommsAdminClient"
 import { 
   Users, Map as MapIcon, ShieldCheck, HelpCircle, LogOut,
-  Globe, Zap, BrainCircuit, Newspaper, BookOpen, Trophy, Layers, Video, Radio, Mail
+  Globe, Zap, BrainCircuit, Newspaper, BookOpen, Trophy, Layers, Video, Radio, Mail, Leaf
 } from "lucide-react"
 
 export default function AdminClient({ session }) {
@@ -377,11 +377,22 @@ export default function AdminClient({ session }) {
           <Link href="/admin/optional-content" style={{ textDecoration: 'none' }}>
             <button style={{
               display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '14px 20px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.95rem',
-              background: 'transparent', color: 'var(--text-secondary)', transition: 'all 0.2s', marginBottom: '12px'
+              background: 'transparent', color: 'var(--text-secondary)', transition: 'all 0.2s', marginBottom: '6px'
             }}
             onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#10b981'; }}
             onMouseOut={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}>
               <BookOpen size={20}/> Optional Ingestion Hub
+            </button>
+          </Link>
+
+          <Link href="/admin/environment" style={{ textDecoration: 'none' }}>
+            <button style={{
+              display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '14px 20px', borderRadius: '16px', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '0.95rem',
+              background: 'transparent', color: 'var(--text-secondary)', transition: 'all 0.2s', marginBottom: '12px'
+            }}
+            onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.color = '#34d399'; }}
+            onMouseOut={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-secondary)'; }}>
+              <Leaf size={20}/> Environment Ingestion Hub
             </button>
           </Link>
 
