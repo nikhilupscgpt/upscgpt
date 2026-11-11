@@ -101,7 +101,8 @@
 /* 2. Main Grid Layout */
 .env-main-grid {
   display: grid;
-  grid-template-columns: 290px 1fr 340px;
+  grid-template-columns: 290px minmax(560px, 780px) 380px;
+  justify-content: center;
   flex: 1;
   overflow: hidden;
 }
@@ -260,6 +261,9 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  max-width: 760px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .env-study-header {
@@ -285,9 +289,39 @@
   color: #94a3b8;
 }
 
+/* Habitat Callout Banner */
+.env-habitat-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 10px;
+  margin: 10px 0 6px;
+}
+
+.env-habitat-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.env-habitat-text {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #cbd5e1;
+}
+
+.env-habitat-label {
+  font-weight: 700;
+  color: #34d399;
+  margin-right: 6px;
+}
+
 .env-study-oneline {
   margin: 6px 0 0;
-  font-size: 14.5px;
+  font-size: 14px;
   line-height: 1.5;
   color: #cbd5e1;
 }
@@ -301,68 +335,124 @@
   margin-bottom: 8px;
 }
 
-/* Protection Card & Meter */
+/* Official IUCN Red List Visual Threat Gauge */
 .env-protection-card {
   background: #0e1628;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
-  padding: 14px 16px;
+  border-radius: 14px;
+  padding: 16px 18px;
 }
 
-.env-meter-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 6px;
+.env-protection-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   margin-bottom: 12px;
 }
 
-.env-meter-cell {
-  background: #151f36;
-  border-radius: 8px;
-  padding: 8px;
+.env-iucn-status-name {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #f8fafc;
+}
+
+.env-iucn-spectrum-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  margin: 10px 0 16px;
+  padding: 0 12px;
+}
+
+.env-iucn-track {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  top: 18px;
+  height: 3px;
+  background: linear-gradient(90deg, #16a34a 0%, #84cc16 25%, #f59e0b 50%, #ea580c 75%, #dc2626 100%);
+  border-radius: 999px;
+  opacity: 0.35;
+  z-index: 0;
+}
+
+.env-iucn-node {
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 1px solid transparent;
-  opacity: 0.4;
-  transition: all 0.2s;
+  gap: 6px;
+  z-index: 1;
+  position: relative;
+  cursor: default;
+  transition: all 0.2s ease;
 }
 
-.env-meter-cell.active {
-  opacity: 1;
-  background: rgba(255, 255, 255, 0.06);
-  border-color: var(--meter-color);
-  box-shadow: 0 0 12px -2px var(--meter-color);
-}
-
-.env-meter-key {
-  font-size: 13px;
+.env-iucn-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #111827;
+  border: 2px solid var(--iucn-color);
+  color: var(--iucn-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
   font-weight: 800;
-  color: var(--meter-color);
+  letter-spacing: 0.04em;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-.env-meter-desc {
+.env-iucn-node.active .env-iucn-circle {
+  background: var(--iucn-color);
+  color: #ffffff;
+  transform: scale(1.15);
+  box-shadow: 0 0 14px var(--iucn-color);
+  border-color: #ffffff;
+}
+
+.env-iucn-label {
   font-size: 9.5px;
-  color: #94a3b8;
+  font-weight: 600;
+  color: #64748b;
   text-align: center;
-  margin-top: 2px;
+}
+
+.env-iucn-node.active .env-iucn-label {
+  color: var(--iucn-color);
+  font-weight: 800;
 }
 
 .env-schedule-chips {
   display: flex;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .env-badge-chip {
   background: #141e33;
-  padding: 5px 10px;
+  padding: 5px 12px;
   border-radius: 6px;
   font-size: 12px;
   color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .env-badge-chip strong {
   color: #93c5fd;
+}
+
+.env-badge-chip.badge-cms {
+  border-color: rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+}
+
+.env-badge-chip.badge-endemic {
+  border-color: rgba(234, 179, 8, 0.35);
+  color: #eab308;
 }
 
 /* Remember Box */
@@ -770,5 +860,182 @@
 .env-back-link:hover {
   background: rgba(255, 255, 255, 0.1);
   color: #ffffff;
+}
+
+/* =========================================================================
+   LIGHT THEME OVERRIDES (Clean Editorial Study Desk)
+   ========================================================================= */
+
+[data-theme='light'] .env-atlas-wrapper,
+[data-theme='light'] .env-hub-page {
+  background: var(--bg-primary, #FAF8F5);
+  color: var(--text-primary, #0b132b);
+}
+
+[data-theme='light'] .env-topbar {
+  background: #ffffff;
+  border-bottom-color: #e2e8f0;
+}
+
+[data-theme='light'] .env-topbar-title h1,
+[data-theme='light'] .env-study-title-row h2,
+[data-theme='light'] .env-hub-headline,
+[data-theme='light'] .env-deck-card-name,
+[data-theme='light'] .env-hub-card-title,
+[data-theme='light'] .env-place-name,
+[data-theme='light'] .env-iucn-status-name {
+  color: #0f172a;
+}
+
+[data-theme='light'] .env-brand-pill {
+  background: rgba(37, 99, 235, 0.08);
+  color: #1d4ed8;
+  border-color: rgba(37, 99, 235, 0.2);
+}
+
+[data-theme='light'] .env-sidebar-deck,
+[data-theme='light'] .env-context-rail {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+[data-theme='light'] .env-search-box input {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+[data-theme='light'] .env-chip {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #475569;
+}
+
+[data-theme='light'] .env-chip.active {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+}
+
+[data-theme='light'] .env-deck-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+[data-theme='light'] .env-deck-card:hover {
+  background: #f8fafc;
+}
+
+[data-theme='light'] .env-deck-card.selected {
+  background: #eff6ff;
+  border-color: #3b82f6;
+}
+
+[data-theme='light'] .env-deck-card-scientific {
+  color: #64748b;
+}
+
+[data-theme='light'] .env-center-card {
+  background: var(--bg-primary, #FAF8F5);
+}
+
+[data-theme='light'] .env-protection-card,
+[data-theme='light'] .env-remember-box,
+[data-theme='light'] .env-hub-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+[data-theme='light'] .env-hub-card.active {
+  background: linear-gradient(145deg, #eff6ff 0%, #ffffff 60%);
+  border-color: #bfdbfe;
+}
+
+[data-theme='light'] .env-hub-card.disabled {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+[data-theme='light'] .env-hub-icon-box {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
+
+[data-theme='light'] .env-study-oneline,
+[data-theme='light'] .env-remember-list,
+[data-theme='light'] .env-habitat-text {
+  color: #334155;
+}
+
+[data-theme='light'] .env-habitat-callout {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+[data-theme='light'] .env-habitat-label {
+  color: #059669;
+}
+
+[data-theme='light'] .env-badge-chip {
+  background: #f8fafc;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+}
+
+[data-theme='light'] .env-badge-chip strong {
+  color: #1d4ed8;
+}
+
+[data-theme='light'] .env-place-row {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+[data-theme='light'] .env-place-num {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+[data-theme='light'] .env-iucn-circle {
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='light'] .env-iucn-node.active .env-iucn-circle {
+  color: #ffffff;
+  border-color: #ffffff;
+}
+
+[data-theme='light'] .env-iucn-track {
+  opacity: 0.5;
+}
+
+[data-theme='light'] .env-confuse-card {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+[data-theme='light'] .env-confuse-body {
+  color: #92400e;
+}
+
+[data-theme='light'] .env-back-link {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #475569;
+}
+
+[data-theme='light'] .env-back-link:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+[data-theme='light'] .env-progress-bar {
+  background: #e2e8f0;
+}
+
+[data-theme='light'] .env-mastery-status {
+  color: #475569;
 }
 

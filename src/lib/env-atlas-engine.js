@@ -21,9 +21,27 @@ export function normalizeArray(val) {
 }
 
 /**
+ * Deduplicates an array of items by lowercased title or slug
+ */
+function dedupeItems(list) {
+  const map = new Map();
+  for (const item of list) {
+    const key = (item.title || item.slug || '').toLowerCase().trim();
+    if (!key) continue;
+    if (!map.has(key)) {
+      map.set(key, item);
+    } else {
+      const existing = map.get(key);
+      map.set(key, { ...existing, ...item });
+    }
+  }
+  return Array.from(map.values());
+}
+
+/**
  * In-memory fallback and store for Environment Atlas items
  */
-let dynamicItems = [...curatedData.items];
+let dynamicItems = dedupeItems(curatedData.items);
 let dynamicNews = [...curatedData.news];
 let dynamicNetworks = { ...curatedData.networks };
 
@@ -320,12 +338,16 @@ export function ingestEnvAtlasJsonl(rawText) {
       continue;
     }
 
-    const existingIndex = dynamicItems.findIndex((i) => i.slug === slug);
+    const existingIndex = dynamicItems.findIndex(
+      (i) => i.slug === slug || (i.title && i.title.toLowerCase().trim() === title.toLowerCase().trim())
+    );
+
+    const finalSlug = existingIndex >= 0 ? dynamicItems[existingIndex].slug : slug;
 
     const formatted = {
-      id: raw.id || `ENV-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-      envId: raw.envId || raw.id || `ENV-${Date.now()}`,
-      slug,
+      id: raw.id || (existingIndex >= 0 ? dynamicItems[existingIndex].id : `ENV-${Date.now()}-${Math.floor(Math.random() * 1000)}`),
+      envId: raw.envId || (existingIndex >= 0 ? dynamicItems[existingIndex].envId : `ENV-${Date.now()}`),
+      slug: finalSlug,
       module: raw.module || 'SPECIES',
       category: raw.category || 'Mammals',
       title,

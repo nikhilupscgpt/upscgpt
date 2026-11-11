@@ -40,13 +40,14 @@ export default function WikiHeroImage({ wikiTitle, fallbackName, title }) {
 
   return (
     <div
+      className="env-hero-banner"
       style={{
         position: 'relative',
-        height: 260,
+        height: 320,
         borderRadius: 16,
         overflow: 'hidden',
-        background: '#0d1527',
-        border: '1px solid rgba(255, 255, 255, 0.08)',
+        background: 'var(--bg-card, #0d1527)',
+        border: '1px solid var(--border-color, rgba(255, 255, 255, 0.08))',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -54,28 +55,26 @@ export default function WikiHeroImage({ wikiTitle, fallbackName, title }) {
     >
       {imgData.src ? (
         <>
-          {/* Blurred backdrop glow */}
-          <div
-            style={{
-              position: 'absolute',
-              inset: 0,
-              backgroundImage: `url(${imgData.src})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              filter: 'blur(20px) brightness(0.4)',
-              transform: 'scale(1.1)',
-            }}
-          />
-          {/* Sharp main image */}
+          {/* Main high-res hero photo filling the banner */}
           <img
             src={imgData.src}
             alt={title || 'Species'}
             style={{
-              position: 'relative',
-              maxHeight: '100%',
-              maxWidth: '100%',
-              objectFit: 'contain',
-              zIndex: 1,
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center 35%',
+            }}
+          />
+          {/* Subtle gradient vignette at bottom */}
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(180deg, rgba(0,0,0,0.05) 50%, rgba(0,0,0,0.7) 100%)',
+              pointerEvents: 'none',
             }}
           />
           {/* Credit pill */}
@@ -83,13 +82,14 @@ export default function WikiHeroImage({ wikiTitle, fallbackName, title }) {
             <div
               style={{
                 position: 'absolute',
-                bottom: 8,
-                right: 12,
-                fontSize: 10,
-                color: 'rgba(255, 255, 255, 0.6)',
+                bottom: 12,
+                right: 14,
+                fontSize: 11,
+                color: 'rgba(255, 255, 255, 0.9)',
                 background: 'rgba(0, 0, 0, 0.65)',
-                padding: '2px 8px',
-                borderRadius: 4,
+                backdropFilter: 'blur(4px)',
+                padding: '3px 10px',
+                borderRadius: 6,
                 zIndex: 2,
               }}
             >

@@ -229,35 +229,49 @@ export default function EnvironmentAtlasClient() {
               />
 
               <div className="env-study-body">
-                {/* Title & One-liner */}
+                {/* Title & Habitat */}
                 <div className="env-study-header">
                   <div className="env-study-title-row">
                     <h2>{activeItem.title}</h2>
                     {activeItem.subtitle && <span className="env-study-subtitle">{activeItem.subtitle}</span>}
                   </div>
                   {activeItem.habitatType && (
-                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', padding: '3px 10px', background: 'rgba(16, 185, 129, 0.1)', color: '#34d399', borderRadius: '6px', border: '1px solid rgba(16, 185, 129, 0.25)', marginTop: '4px', marginBottom: '6px' }}>
-                      <span>🌿 Habitat:</span> <strong>{activeItem.habitatType}</strong>
+                    <div className="env-habitat-callout">
+                      <span className="env-habitat-icon">🌿</span>
+                      <div className="env-habitat-text">
+                        <span className="env-habitat-label">Habitat & Ecological Role:</span>
+                        <span>{activeItem.habitatType}</span>
+                      </div>
                     </div>
                   )}
-                  {activeItem.oneline && <p className="env-study-oneline">{activeItem.oneline}</p>}
+                  {activeItem.oneline && activeItem.oneline.trim() !== (activeItem.habitatType || '').trim() && (
+                    <p className="env-study-oneline">{activeItem.oneline}</p>
+                  )}
                 </div>
 
-                {/* Status Badges & Meter */}
+                {/* Official IUCN Red List Threat Gauge */}
                 {activeItem.statusBadges && (
                   <div className="env-protection-card">
-                    <div className="env-card-sublabel">How protected is it?</div>
-                    <div className="env-meter-grid">
+                    <div className="env-protection-header">
+                      <span className="env-card-sublabel">IUCN Red List Conservation Status</span>
+                      <span className="env-iucn-status-name">
+                        {IUCN_METERS.find((m) => m.key === activeItem.statusBadges.iucn)?.label || activeItem.statusBadges.iucn} ({activeItem.statusBadges.iucn})
+                      </span>
+                    </div>
+
+                    <div className="env-iucn-spectrum-bar">
+                      <div className="env-iucn-track" />
                       {IUCN_METERS.map((m) => {
                         const isMatch = activeItem.statusBadges.iucn === m.key;
                         return (
                           <div
                             key={m.key}
-                            className={`env-meter-cell ${isMatch ? 'active' : ''}`}
-                            style={{ '--meter-color': m.color }}
+                            className={`env-iucn-node ${isMatch ? 'active' : ''}`}
+                            style={{ '--iucn-color': m.color }}
+                            title={`${m.key} — ${m.label}`}
                           >
-                            <span className="env-meter-key">{m.key}</span>
-                            <span className="env-meter-desc">{m.label}</span>
+                            <span className="env-iucn-circle">{m.key}</span>
+                            <span className="env-iucn-label">{m.label}</span>
                           </div>
                         );
                       })}
@@ -275,13 +289,13 @@ export default function EnvironmentAtlasClient() {
                         </div>
                       )}
                       {activeItem.statusBadges.cms && (
-                        <div className="env-badge-chip" style={{ borderColor: 'rgba(56, 189, 248, 0.4)', color: '#38bdf8' }}>
+                        <div className="env-badge-chip badge-cms">
                           <strong>CMS:</strong> {activeItem.statusBadges.cms}
                         </div>
                       )}
                       {activeItem.statusBadges.endemic && (
-                        <div className="env-badge-chip" style={{ borderColor: 'rgba(234, 179, 8, 0.4)', color: '#eab308' }}>
-                          <strong>Endemic:</strong> Yes
+                        <div className="env-badge-chip badge-endemic">
+                          <strong>Endemic</strong>
                         </div>
                       )}
                     </div>
