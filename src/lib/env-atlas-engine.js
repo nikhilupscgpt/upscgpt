@@ -79,14 +79,25 @@ export function ingestEnvAtlasJsonl(rawText) {
   const trimmed = rawText.trim();
   const errors = [];
 
-  if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+  // 1. Try parsing as a standard JSON object or JSON array first (supports multi-line formatted JSON)
+  let parsedJson = false;
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
     try {
-      const arr = JSON.parse(trimmed);
-      if (Array.isArray(arr)) records = arr;
+      const parsed = JSON.parse(trimmed);
+      if (Array.isArray(parsed)) {
+        records = parsed;
+        parsedJson = true;
+      } else if (parsed && typeof parsed === 'object') {
+        records = [parsed];
+        parsedJson = true;
+      }
     } catch (e) {
-      errors.push(`Invalid JSON Array: ${e.message}`);
+      // Not a single valid JSON block (might be JSONL with multiple lines)
     }
-  } else {
+  }
+
+  // 2. If not a single JSON block, parse as JSONL (one JSON object per line)
+  if (!parsedJson) {
     const lines = trimmed.split(/\r?\n/);
     lines.forEach((l, idx) => {
       const c = l.trim();
