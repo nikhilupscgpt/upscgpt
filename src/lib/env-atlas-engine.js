@@ -103,17 +103,79 @@ export function ingestEnvAtlasJsonl(rawText) {
   let updated = 0;
 
   for (const raw of records) {
-    // Support 11-point format aliases
-    const title = raw.specie || raw.species || raw.speciesName || raw.title || raw.name || '';
-    const slug = raw.slug || title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-    const subtitle = raw.scientificName || raw.scientific_name || raw.subtitle || '';
-    const habitatType = raw.habitatType || raw.habitat_type || raw.habitat || '';
-    const behaviour = raw.behaviour || raw.behavior || raw.ecology || '';
+    // Support all naming variations (11-point Prelims format, camelCase, snake_case, or exact header strings)
+    const title =
+      raw.specie ||
+      raw.species ||
+      raw['Specie'] ||
+      raw['Species'] ||
+      raw.speciesName ||
+      raw.title ||
+      raw.name ||
+      '';
 
-    // Normalize Places / Found In
+    const slug =
+      raw.slug ||
+      title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+    const subtitle =
+      raw.scientificName ||
+      raw['Scientific Name'] ||
+      raw.scientific_name ||
+      raw.subtitle ||
+      '';
+
+    // 3. Habitat & Ecological Role
+    const habitatType =
+      raw.habitatAndEcologicalRole ||
+      raw['Habitat & Ecological Role'] ||
+      raw.habitat_and_ecological_role ||
+      raw.habitatRole ||
+      raw.habitatType ||
+      raw['Habitat Type'] ||
+      raw.habitat_type ||
+      raw.habitat ||
+      '';
+
+    // 9. Behaviour & Diet
+    const behaviour =
+      raw.behaviourAndDiet ||
+      raw['Behaviour & Diet'] ||
+      raw.behaviour_and_diet ||
+      raw.behavior_and_diet ||
+      raw.behaviour ||
+      raw.behavior ||
+      raw['Behaviour'] ||
+      raw.ecology ||
+      raw.diet ||
+      '';
+
+    // 4. Distribution & Endemism (Found In)
     let places = [];
-    const foundInSource = raw.foundIn || raw.found_in || raw.places;
-    if (Array.isArray(foundInSource)) {
+    let detectedEndemic = raw.endemic;
+    let distributionText = '';
+
+    const foundInSource =
+      raw.distributionAndEndemism ||
+      raw['Distribution & Endemism'] ||
+      raw.distribution_and_endemism ||
+      raw.distribution ||
+      raw.foundIn ||
+      raw['Found in'] ||
+      raw.found_in ||
+      raw.places;
+
+    if (foundInSource && typeof foundInSource === 'object' && !Array.isArray(foundInSource)) {
+      if (foundInSource.places && Array.isArray(foundInSource.places)) {
+        places = foundInSource.places;
+      }
+      if (foundInSource.endemic !== undefined) {
+        detectedEndemic = Boolean(foundInSource.endemic);
+      }
+      if (foundInSource.rangeLimits || foundInSource.notes) {
+        distributionText = foundInSource.rangeLimits || foundInSource.notes;
+      }
+    } else if (Array.isArray(foundInSource)) {
       places = foundInSource.map((p) => {
         if (typeof p === 'string') return { name: p, state: '', lat: null, lon: null };
         return {
@@ -125,41 +187,112 @@ export function ingestEnvAtlasJsonl(rawText) {
         };
       });
     } else if (typeof foundInSource === 'string') {
+      distributionText = foundInSource;
+      if (/endemic\s*:\s*(yes|true)/i.test(foundInSource)) detectedEndemic = true;
+      if (/endemic\s*:\s*(no|false)/i.test(foundInSource)) detectedEndemic = false;
       places = foundInSource.split(/[,;\n]/).map((s) => s.trim()).filter(Boolean).map((s) => ({
         name: s, state: '', lat: null, lon: null
       }));
     }
 
-    // Normalize Status Badges (IUCN, WPA 1972, CITES)
+    // 5. IUCN Status
     const rawBadges = raw.statusBadges || {};
-    const statusBadges = {
-      ...rawBadges,
-      iucn: (raw.iucn || rawBadges.iucn || 'LC').toUpperCase(),
-      wpa: raw.wpa1972 || raw.wpa || raw.wpa_1972 || rawBadges.wpa || 'Schedule I',
-      cites: raw.cites || rawBadges.cites || 'Appendix I',
-      endemic: raw.endemic !== undefined ? raw.endemic : (rawBadges.endemic || false)
-    };
+    const rawIucn =
+      raw.iucnStatus ||
+      raw['IUCN Status'] ||
+      raw['IUCN'] ||
+      raw.iucn ||
+      rawBadges.iucn ||
+      'LC';
+    const iucn = String(rawIucn).trim().toUpperCase();
 
-    // Normalize Unique Features / Remember Bullets
-    let uniqueFeatures = raw.uniqueFeatures || raw.unique_features || raw.rememberBullets || [];
-    if (typeof uniqueFeatures === 'string') {
-      uniqueFeatures = uniqueFeatures.split('\n').map((s) => s.replace(/^[-*•\d.]+\s*/, '').trim()).filter(Boolean);
+    // 6. WPA, 1972
+    const wpa =
+      raw['WPA, 1972'] ||
+      raw['WPA 1972'] ||
+      raw['WPA'] ||
+      raw.wpa1972 ||
+      raw.wpa_1972 ||
+      raw.wpa ||
+      rawBadges.wpa ||
+      'Schedule I';
+
+    // 7. CITES & CMS
+    const rawCitesCms =
+      raw['CITES & CMS'] ||
+      raw.citesAndCms ||
+      raw.cites_cms ||
+      raw['CITES'] ||
+      raw.cites ||
+      rawBadges.cites ||
+      'Appendix I';
+
+    let cites = 'Appendix I';
+    let cms = raw.cms || raw['CMS'] || rawBadges.cms || null;
+
+    if (typeof rawCitesCms === 'object' && rawCitesCms !== null) {
+      cites = rawCitesCms.cites || 'Appendix I';
+      cms = rawCitesCms.cms || cms;
+    } else if (typeof rawCitesCms === 'string') {
+      const citesMatch = rawCitesCms.match(/CITES:?\s*([A-Za-z0-9\s]+)/i);
+      const cmsMatch = rawCitesCms.match(/CMS:?\s*([A-Za-z0-9\s]+)/i);
+      if (citesMatch) cites = citesMatch[1].trim();
+      else cites = rawCitesCms;
+      if (cmsMatch) cms = cmsMatch[1].trim();
     }
 
-    // Normalize In News / News Triggers
+    const statusBadges = {
+      ...rawBadges,
+      iucn,
+      wpa,
+      cites,
+      cms,
+      endemic: detectedEndemic !== undefined ? detectedEndemic : (rawBadges.endemic || false)
+    };
+
+    // 8. Unique Features
+    let uniqueFeatures =
+      raw['Unique Features'] ||
+      raw.uniqueFeatures ||
+      raw.unique_features ||
+      raw.rememberBullets ||
+      [];
+    if (typeof uniqueFeatures === 'string') {
+      uniqueFeatures = uniqueFeatures
+        .split('\n')
+        .map((s) => s.replace(/^[-*•\d.]+\s*/, '').trim())
+        .filter(Boolean);
+    }
+
+    // 10. In News & Conservation Schemes
     let newsTriggers = Array.isArray(raw.newsTriggers) ? raw.newsTriggers : [];
-    const inNewsRaw = raw.inNews || raw.in_news;
+    const inNewsRaw =
+      raw['In News & Conservation Schemes'] ||
+      raw.inNewsAndConservationSchemes ||
+      raw.in_news_and_conservation_schemes ||
+      raw['In News'] ||
+      raw.inNews ||
+      raw.in_news ||
+      raw.conservationSchemes;
+
     if (inNewsRaw) {
       if (typeof inNewsRaw === 'string') {
-        newsTriggers = [{ tag: 'Recent News', date: '2024-25', what: inNewsRaw, whyItMatters: '' }, ...newsTriggers];
+        newsTriggers = [{ tag: 'News & Schemes', date: '2024-25', what: inNewsRaw, whyItMatters: '' }, ...newsTriggers];
       } else if (Array.isArray(inNewsRaw)) {
         newsTriggers = [...inNewsRaw, ...newsTriggers];
       }
     }
 
-    // Normalize PYQ
+    // 11. PYQ Reference
     let similarPYQ = normalizeArray(raw.similarPYQ);
-    const pyqRaw = raw.pyq || raw.pyqs;
+    const pyqRaw =
+      raw['PYQ Reference'] ||
+      raw.pyqReference ||
+      raw.pyq_reference ||
+      raw['PYQ'] ||
+      raw.pyq ||
+      raw.pyqs;
+
     if (pyqRaw) {
       if (typeof pyqRaw === 'string') {
         similarPYQ = [pyqRaw, ...similarPYQ];
@@ -185,6 +318,7 @@ export function ingestEnvAtlasJsonl(rawText) {
       subtitle: subtitle || null,
       habitatType: habitatType || null,
       behaviour: behaviour || null,
+      distributionText: distributionText || null,
       uniqueFeatures,
       aliases: normalizeArray(raw.aliases),
       oneline: raw.oneline || habitatType || '',

@@ -296,6 +296,16 @@ export default function EnvironmentAtlasClient() {
                           <strong>CITES:</strong> {activeItem.statusBadges.cites}
                         </div>
                       )}
+                      {activeItem.statusBadges.cms && (
+                        <div className="env-badge-chip" style={{ borderColor: 'rgba(56, 189, 248, 0.4)', color: '#38bdf8' }}>
+                          <strong>CMS:</strong> {activeItem.statusBadges.cms}
+                        </div>
+                      )}
+                      {activeItem.statusBadges.endemic && (
+                        <div className="env-badge-chip" style={{ borderColor: 'rgba(234, 179, 8, 0.4)', color: '#eab308' }}>
+                          <strong>Endemic:</strong> Yes
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
