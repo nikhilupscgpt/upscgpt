@@ -97,6 +97,24 @@ export default async function sitemap() {
       priority: 0.95,
     },
     {
+      url: `${baseUrl}/environment`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/environment/species`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.95,
+    },
+    {
+      url: `${baseUrl}/mains`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
+    {
       url: `${baseUrl}/mapping`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
