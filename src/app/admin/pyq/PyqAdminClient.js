@@ -30,6 +30,179 @@ import { isNewPatternQuestion, isPairQuestion, isStatementQuestion } from '@/lib
 import { getStructuredExplanation, formatQuestionForCopy, isDeepDiveReady } from '@/lib/pyqExplanationHelper';
 import { TOPIC_GROUPS, SUBJECT_ORDER } from '@/app/prelims/pyq/topicGroups';
 
+/**
+ * Shared pagination bar with First/Prev/Next/Last, numbered page pills, and direct "Go to page" jump.
+ */
+function PaginationControls({ page, totalPages, loading, onPageChange }) {
+  const [jumpValue, setJumpValue] = useState(String(page));
+
+  useEffect(() => {
+    setJumpValue(String(page));
+  }, [page]);
+
+  const safeTotal = Math.max(1, totalPages || 1);
+
+  const pageItems = useMemo(() => {
+    if (safeTotal <= 7) {
+      return Array.from({ length: safeTotal }, (_, i) => i + 1);
+    }
+    const items = [1];
+    const start = Math.max(2, page - 1);
+    const end = Math.min(safeTotal - 1, page + 1);
+    if (start > 2) items.push('left-ellipsis');
+    for (let p = start; p <= end; p++) items.push(p);
+    if (end < safeTotal - 1) items.push('right-ellipsis');
+    items.push(safeTotal);
+    return items;
+  }, [page, safeTotal]);
+
+  const handleJumpSubmit = (e) => {
+    e.preventDefault();
+    const parsed = parseInt(jumpValue, 10);
+    if (Number.isNaN(parsed)) {
+      setJumpValue(String(page));
+      return;
+    }
+    const target = Math.min(safeTotal, Math.max(1, parsed));
+    setJumpValue(String(target));
+    if (target !== page) onPageChange(target);
+  };
+
+  const navBtnStyle = (disabled) => ({
+    padding: '6px 11px',
+    borderRadius: '8px',
+    background: 'rgba(255, 255, 255, 0.08)',
+    border: '1px solid rgba(255, 255, 255, 0.12)',
+    color: disabled ? '#64748b' : '#ffffff',
+    fontSize: '0.82rem',
+    fontWeight: 700,
+    cursor: disabled ? 'not-allowed' : 'pointer',
+  });
+
+  return (
+    <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+      <button
+        type="button"
+        title="First page"
+        disabled={page <= 1 || loading}
+        onClick={() => onPageChange(1)}
+        style={navBtnStyle(page <= 1 || loading)}
+      >
+        «
+      </button>
+      <button
+        type="button"
+        disabled={page <= 1 || loading}
+        onClick={() => onPageChange(Math.max(1, page - 1))}
+        style={navBtnStyle(page <= 1 || loading)}
+      >
+        ← Prev
+      </button>
+
+      {pageItems.map((item) => {
+        if (typeof item !== 'number') {
+          return (
+            <span key={item} style={{ padding: '0 4px', color: '#64748b', fontSize: '0.82rem', fontWeight: 700 }}>
+              …
+            </span>
+          );
+        }
+        const isActive = item === page;
+        return (
+          <button
+            key={item}
+            type="button"
+            disabled={loading || isActive}
+            onClick={() => onPageChange(item)}
+            style={{
+              minWidth: '32px',
+              padding: '6px 9px',
+              borderRadius: '8px',
+              background: isActive ? '#3b82f6' : 'rgba(255, 255, 255, 0.05)',
+              border: isActive ? '1px solid #60a5fa' : '1px solid rgba(255, 255, 255, 0.1)',
+              color: isActive ? '#ffffff' : '#cbd5e1',
+              fontSize: '0.82rem',
+              fontWeight: 700,
+              cursor: loading || isActive ? 'default' : 'pointer',
+            }}
+          >
+            {item}
+          </button>
+        );
+      })}
+
+      <button
+        type="button"
+        disabled={page >= safeTotal || loading}
+        onClick={() => onPageChange(Math.min(safeTotal, page + 1))}
+        style={navBtnStyle(page >= safeTotal || loading)}
+      >
+        Next →
+      </button>
+      <button
+        type="button"
+        title="Last page"
+        disabled={page >= safeTotal || loading}
+        onClick={() => onPageChange(safeTotal)}
+        style={navBtnStyle(page >= safeTotal || loading)}
+      >
+        »
+      </button>
+
+      <form
+        onSubmit={handleJumpSubmit}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          marginLeft: '6px',
+          paddingLeft: '10px',
+          borderLeft: '1px solid rgba(255, 255, 255, 0.12)',
+        }}
+      >
+        <label style={{ fontSize: '0.78rem', color: '#94a3b8', fontWeight: 600 }}>Go to</label>
+        <input
+          type="number"
+          min={1}
+          max={safeTotal}
+          value={jumpValue}
+          onChange={(e) => setJumpValue(e.target.value)}
+          aria-label="Go to page number"
+          style={{
+            width: '54px',
+            padding: '5px 8px',
+            borderRadius: '8px',
+            background: 'rgba(2, 6, 23, 0.85)',
+            border: '1px solid rgba(255, 255, 255, 0.18)',
+            color: '#ffffff',
+            fontSize: '0.82rem',
+            fontWeight: 700,
+            textAlign: 'center',
+            outline: 'none',
+          }}
+        />
+        <span style={{ fontSize: '0.78rem', color: '#64748b', fontWeight: 600 }}>/ {safeTotal}</span>
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            padding: '5px 10px',
+            borderRadius: '8px',
+            background: '#2563eb',
+            border: '1px solid #3b82f6',
+            color: '#ffffff',
+            fontSize: '0.78rem',
+            fontWeight: 700,
+            cursor: loading ? 'not-allowed' : 'pointer',
+          }}
+        >
+          Go
+        </button>
+      </form>
+    </div>
+  );
+}
+
 export default function PyqAdminClient({ session }) {
   const [activeTab, setActiveTab] = useState('list'); // 'list' | 'bulk' | 'add'
 
@@ -1390,45 +1563,12 @@ export default function PyqAdminClient({ session }) {
                 Showing <strong>{questions.length}</strong> of <strong>{total}</strong> questions (Page {page} of {totalPages})
               </span>
 
-              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <button
-                  disabled={page <= 1 || loading}
-                  onClick={() => setPage(p => Math.max(1, p - 1))}
-                  style={{
-                    padding: '6px 14px',
-                    borderRadius: '8px',
-                    background: 'rgba(255, 255, 255, 0.08)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                    color: page <= 1 ? '#64748b' : '#ffffff',
-                    fontSize: '0.82rem',
-                    fontWeight: 700,
-                    cursor: page <= 1 ? 'not-allowed' : 'pointer'
-                  }}
-                >
-                  ← Prev
-                </button>
-
-                <span style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 700 }}>
-                  Page {page} / {totalPages}
-                </span>
-
-                <button
-                  disabled={page >= totalPages || loading}
-                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                  style={{
-                    padding: '6px 14px',
-                    borderRadius: '8px',
-                    background: 'rgba(255, 255, 255, 0.08)',
-                    border: '1px solid rgba(255, 255, 255, 0.12)',
-                    color: page >= totalPages ? '#64748b' : '#ffffff',
-                    fontSize: '0.82rem',
-                    fontWeight: 700,
-                    cursor: page >= totalPages ? 'not-allowed' : 'pointer'
-                  }}
-                >
-                  Next →
-                </button>
-              </div>
+              <PaginationControls
+                page={page}
+                totalPages={totalPages}
+                loading={loading}
+                onPageChange={(target) => setPage(target)}
+              />
             </div>
 
             {/* LOADING STATE */}
@@ -2019,45 +2159,15 @@ export default function PyqAdminClient({ session }) {
                   Showing <strong>{questions.length}</strong> of <strong>{total}</strong> questions
                 </span>
 
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <button
-                    disabled={page <= 1 || loading}
-                    onClick={() => { setPage(p => Math.max(1, p - 1)); window.scrollTo({ top: 120, behavior: 'smooth' }); }}
-                    style={{
-                      padding: '6px 14px',
-                      borderRadius: '8px',
-                      background: 'rgba(255, 255, 255, 0.08)',
-                      border: '1px solid rgba(255, 255, 255, 0.12)',
-                      color: page <= 1 ? '#64748b' : '#ffffff',
-                      fontSize: '0.82rem',
-                      fontWeight: 700,
-                      cursor: page <= 1 ? 'not-allowed' : 'pointer'
-                    }}
-                  >
-                    ← Prev
-                  </button>
-
-                  <span style={{ fontSize: '0.82rem', color: '#cbd5e1', fontWeight: 700 }}>
-                    Page {page} / {totalPages}
-                  </span>
-
-                  <button
-                    disabled={page >= totalPages || loading}
-                    onClick={() => { setPage(p => Math.min(totalPages, p + 1)); window.scrollTo({ top: 120, behavior: 'smooth' }); }}
-                    style={{
-                      padding: '6px 14px',
-                      borderRadius: '8px',
-                      background: 'rgba(255, 255, 255, 0.08)',
-                      border: '1px solid rgba(255, 255, 255, 0.12)',
-                      color: page >= totalPages ? '#64748b' : '#ffffff',
-                      fontSize: '0.82rem',
-                      fontWeight: 700,
-                      cursor: page >= totalPages ? 'not-allowed' : 'pointer'
-                    }}
-                  >
-                    Next →
-                  </button>
-                </div>
+                <PaginationControls
+                  page={page}
+                  totalPages={totalPages}
+                  loading={loading}
+                  onPageChange={(target) => {
+                    setPage(target);
+                    window.scrollTo({ top: 120, behavior: 'smooth' });
+                  }}
+                />
               </div>
             )}
               </main>
