@@ -20,6 +20,8 @@ import {
 } from 'lucide-react';
 import { usePyqStore } from '@/app/prelims/pyq/pyqStore';
 import PyqQuestionCard from '@/components/search/PyqQuestionCard';
+import OmrSparkLoader from '@/components/loader/OmrSparkLoader';
+import QuestionCardSkeleton from '@/components/loader/QuestionCardSkeleton';
 
 const SUGGESTED_SEARCHES = [
   "Preamble",
@@ -306,6 +308,7 @@ export default function PrelimsGPTCommandCenter() {
               />
               <button 
                 type="submit"
+                disabled={isSearching}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -317,14 +320,15 @@ export default function PrelimsGPTCommandCenter() {
                   padding: '10px clamp(12px, 3vw, 20px)',
                   fontSize: 'clamp(0.82rem, 2.5vw, 0.9rem)',
                   fontWeight: 700,
-                  cursor: 'pointer',
+                  cursor: isSearching ? 'default' : 'pointer',
+                  opacity: isSearching ? 0.85 : 1,
                   transition: 'opacity 0.2s ease',
                   whiteSpace: 'nowrap',
                   flexShrink: 0
                 }}
               >
                 <span>Search</span>
-                <ArrowRight size={15} />
+                {isSearching ? <OmrSparkLoader size="mini" /> : <ArrowRight size={15} />}
               </button>
             </div>
           </form>
@@ -450,22 +454,7 @@ export default function PrelimsGPTCommandCenter() {
 
             {/* Questions Stack (One Below Other) */}
             {isSearching ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {[1, 2].map(i => (
-                  <div key={i} style={{
-                    padding: '32px 24px',
-                    background: 'var(--bg-card, rgba(15, 23, 42, 0.7))',
-                    border: '1px solid var(--border-color, rgba(255, 255, 255, 0.1))',
-                    borderRadius: '20px',
-                    textAlign: 'center',
-                    color: 'var(--text-muted, #64748b)',
-                    fontSize: '0.92rem',
-                    fontWeight: 600
-                  }}>
-                    Loading matching Question Card {i}...
-                  </div>
-                ))}
-              </div>
+              <QuestionCardSkeleton count={2} />
             ) : matchedPyqs.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column' }}>
                 {matchedPyqs.slice(0, 5).map((pyq, idx) => (

@@ -3,13 +3,13 @@
 import React from 'react';
 
 export const IUCN_CATEGORIES = [
-  { key: 'EX', label: 'Extinct', color: '#111827', text: '#ef4444', group: 'extinct' },
-  { key: 'EW', label: 'Extinct in the Wild', color: '#111827', text: '#ffffff', group: 'extinct' },
-  { key: 'CR', label: 'Critically Endangered', color: '#d81e05', text: '#ffffff', group: 'threatened' },
-  { key: 'EN', label: 'Endangered', color: '#fc7f3f', text: '#ffffff', group: 'threatened' },
-  { key: 'VU', label: 'Vulnerable', color: '#e8c800', text: '#ffffff', group: 'threatened' },
-  { key: 'NT', label: 'Near Threatened', color: '#0f766e', text: '#86efac', group: 'least_concern' },
-  { key: 'LC', label: 'Least Concern', color: '#047857', text: '#ffffff', group: 'least_concern' },
+  { key: 'EX', label: 'Extinct', color: '#18181b', stroke: '#27272a', text: '#ea3829', group: 'extinct' },
+  { key: 'EW', label: 'Extinct in the Wild', color: '#18181b', stroke: '#27272a', text: '#ffffff', group: 'extinct' },
+  { key: 'CR', label: 'Critically Endangered', color: '#cc2b1e', stroke: '#991b1b', text: '#ffffff', group: 'threatened' },
+  { key: 'EN', label: 'Endangered', color: '#e05a2b', stroke: '#c2410c', text: '#ffffff', group: 'threatened' },
+  { key: 'VU', label: 'Vulnerable', color: '#c98d00', stroke: '#a16207', text: '#ffffff', group: 'threatened' },
+  { key: 'NT', label: 'Near Threatened', color: '#006766', stroke: '#044e4d', text: '#a7f3d0', group: 'least_concern' },
+  { key: 'LC', label: 'Least Concern', color: '#005952', stroke: '#023e39', text: '#ffffff', group: 'least_concern' },
 ];
 
 /**
@@ -64,13 +64,13 @@ export function IucnThreatGaugeSvg({ activeStatus }) {
   const currentKey = (activeStatus || 'EN').toUpperCase();
 
   const nodes = [
-    { key: 'EX', label: 'Extinct', cx: 40, cy: 74, r: 20, fill: '#18181b', stroke: '#3f3f46', text: '#ef4444' },
+    { key: 'EX', label: 'Extinct', cx: 40, cy: 74, r: 20, fill: '#18181b', stroke: '#3f3f46', text: '#ea3829' },
     { key: 'EW', label: 'Extinct in Wild', cx: 96, cy: 74, r: 20, fill: '#18181b', stroke: '#3f3f46', text: '#ffffff' },
-    { key: 'CR', label: 'Critically Endangered', cx: 194, cy: 74, r: 20, fill: '#d81e05', stroke: '#b91c1c', text: '#ffffff' },
-    { key: 'EN', label: 'Endangered', cx: 250, cy: 74, r: 20, fill: '#fc7f3f', stroke: '#ea580c', text: '#ffffff' },
-    { key: 'VU', label: 'Vulnerable', cx: 306, cy: 74, r: 20, fill: '#e8c800', stroke: '#ca8a04', text: '#ffffff' },
-    { key: 'NT', label: 'Near Threatened', cx: 404, cy: 74, r: 20, fill: '#0f766e', stroke: '#115e59', text: '#86efac' },
-    { key: 'LC', label: 'Least Concern', cx: 460, cy: 74, r: 20, fill: '#047857', stroke: '#065f46', text: '#ffffff' },
+    { key: 'CR', label: 'Critically Endangered', cx: 194, cy: 74, r: 20, fill: '#cc2b1e', stroke: '#991b1b', text: '#ffffff' },
+    { key: 'EN', label: 'Endangered', cx: 250, cy: 74, r: 20, fill: '#e05a2b', stroke: '#c2410c', text: '#ffffff' },
+    { key: 'VU', label: 'Vulnerable', cx: 306, cy: 74, r: 20, fill: '#c98d00', stroke: '#a16207', text: '#ffffff' },
+    { key: 'NT', label: 'Near Threatened', cx: 404, cy: 74, r: 20, fill: '#006766', stroke: '#044e4d', text: '#a7f3d0' },
+    { key: 'LC', label: 'Least Concern', cx: 460, cy: 74, r: 20, fill: '#005952', stroke: '#023e39', text: '#ffffff' },
   ];
 
   const activeNode = nodes.find((n) => n.key === currentKey) || nodes[3];

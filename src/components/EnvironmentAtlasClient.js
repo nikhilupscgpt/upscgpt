@@ -52,6 +52,7 @@ export default function EnvironmentAtlasClient() {
   // UI State
   const [showExplain, setShowExplain] = useState(false);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
+  const [showAllNews, setShowAllNews] = useState(false);
   const [quizMode, setQuizMode] = useState(false);
   const [quizState, setQuizState] = useState(null);
 
@@ -114,11 +115,13 @@ export default function EnvironmentAtlasClient() {
     const directTriggers = activeItem.newsTriggers || [];
     if (directTriggers.length > 0) {
       return directTriggers.map((t) => ({
-        tag: t.tag || 'Current Affairs',
-        date: t.date || '2024-26',
+        tag: t.tag || t.type || 'Current Affairs',
+        date: t.date || t.d || '2024-26',
         what: t.what,
-        why: t.whyItMatters || '',
-        src: t.source || 'UPSC In-News',
+        why: t.why || t.whyItMatters || '',
+        src: t.src || t.source || 'UPSC In-News',
+        url: t.url || '#',
+        via: t.via || '',
       }));
     }
 
@@ -131,11 +134,12 @@ export default function EnvironmentAtlasClient() {
 
     return matched.map((n) => ({
       tag: n.type || 'Policy update',
-      date: n.d,
+      date: n.date || n.d,
       what: n.what,
       why: n.why,
       src: n.src,
       url: n.url,
+      via: n.via,
     }));
   }, [activeItem, news]);
 
@@ -266,21 +270,40 @@ export default function EnvironmentAtlasClient() {
   const activeIucnKey = activeItem?.statusBadges?.iucn?.toUpperCase() || 'EN';
   const activeRiskMeta = RISK_MAP[activeIucnKey] || RISK_MAP.EN;
   const activeRiskIdx = RISK_ORDER.indexOf(activeIucnKey);
+  const activeNetwork = networks[activeItem?.networkKey || activeItem?.slug];
 
   // High-yield remember facts
   const rememberItems = useMemo(() => {
     if (!activeItem) return [];
-    if (activeItem.uniqueFeatures && activeItem.uniqueFeatures.length > 0) {
-      return activeItem.uniqueFeatures.slice(0, 3);
+    const bullets = [];
+    if (activeItem.idmarks && activeItem.idmarks.length > 0) {
+      bullets.push({
+        icon: '👁',
+        text: `Spot it by: ${activeItem.idmarks[0].charAt(0).toLowerCase() + activeItem.idmarks[0].slice(1)}`,
+      });
     }
-    if (activeItem.rememberBullets && activeItem.rememberBullets.length > 0) {
-      return activeItem.rememberBullets.slice(0, 3);
+    if (activeItem.facts && activeItem.facts.length > 0) {
+      activeItem.facts.slice(0, 2).forEach((f) => {
+        bullets.push({ icon: '•', text: f });
+      });
     }
-    return [
-      'Strict legal protection across Indian landscapes under Wildlife (Protection) Act, 1972.',
-      'Specialised ecological niche regulating food web stability in native habitats.',
-      'Priority species in national conservation assessments and state biodiversity strategies.',
-    ];
+    if (bullets.length === 0 && activeItem.uniqueFeatures && activeItem.uniqueFeatures.length > 0) {
+      activeItem.uniqueFeatures.slice(0, 3).forEach((f) => {
+        bullets.push({ icon: '•', text: f });
+      });
+    }
+    if (bullets.length === 0 && activeItem.rememberBullets && activeItem.rememberBullets.length > 0) {
+      activeItem.rememberBullets.slice(0, 3).forEach((b) => {
+        bullets.push({ icon: '•', text: b });
+      });
+    }
+    if (bullets.length === 0) {
+      bullets.push(
+        { icon: '👁', text: 'Strict legal protection across Indian landscapes under Wildlife (Protection) Act, 1972.' },
+        { icon: '•', text: 'Priority species in national conservation assessments and state biodiversity strategies.' }
+      );
+    }
+    return bullets;
   }, [activeItem]);
 
   const currentIndex = items.findIndex((i) => i.slug === selectedSlug);
@@ -664,18 +687,18 @@ export default function EnvironmentAtlasClient() {
                         {rememberItems.map((bullet, idx) => (
                           <li key={idx}>
                             <span className="ic" aria-hidden="true">
-                              {idx === 0 ? '👁' : '•'}
+                              {bullet.icon || (idx === 0 ? '👁' : '•')}
                             </span>
-                            <span>{bullet}</span>
+                            <span>{bullet.text || bullet}</span>
                           </li>
                         ))}
                       </ul>
                     </div>
 
-                    {activeItem.confusionTrap && (
+                    {(activeItem.traps?.[0] || activeItem.confusionTrap) && (
                       <div className="confuse">
                         <b>Don’t get confused</b>
-                        {activeItem.confusionTrap}
+                        {activeItem.traps?.[0] || activeItem.confusionTrap}
                       </div>
                     )}
                   </div>
@@ -723,35 +746,54 @@ export default function EnvironmentAtlasClient() {
                     </div>
 
                     {activeNews.length > 0 ? (
-                      activeNews.slice(0, 3).map((n, idx) => (
-                        <div key={idx} className="nitem">
-                          <div className="nmeta">
-                            <span className="ntype">{n.tag}</span>
-                            <span>{n.date}</span>
-                          </div>
-                          <div className="nwhat">{n.what}</div>
-                          {n.why && (
-                            <div className="nwhy">
-                              <b>Why it matters:</b> {n.why}
-                            </div>
-                          )}
-                          {n.src && (
-                            <div className="nsrc">
-                              Source:{' '}
-                              {n.url ? (
-                                <a href={n.url} target="_blank" rel="noreferrer">
-                                  {n.src}
-                                </a>
-                              ) : (
-                                <span>{n.src}</span>
+                      <>
+                        {(showAllNews ? activeNews : activeNews.slice(0, 2)).map((n, idx) => (
+                          <div key={idx} className="nitem">
+                            <div className="nmeta">
+                              <span className="ntype">{n.tag}</span>
+                              <span>{n.date}</span>
+                              {n.via && (
+                                <span
+                                  className="nvia"
+                                  style={{ marginLeft: 6, fontStyle: 'italic', fontSize: 12, color: 'var(--muted)' }}
+                                >
+                                  About its habitat: {n.via}
+                                </span>
                               )}
                             </div>
-                          )}
-                        </div>
-                      ))
+                            <div className="nwhat">{n.what}</div>
+                            {n.why && (
+                              <div className="nwhy">
+                                <b>Why it matters:</b> {n.why}
+                              </div>
+                            )}
+                            {n.src && (
+                              <div className="nsrc">
+                                Source:{' '}
+                                {n.url ? (
+                                  <a href={n.url} target="_blank" rel="noreferrer">
+                                    {n.src}
+                                  </a>
+                                ) : (
+                                  <span>{n.src}</span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                        {activeNews.length > 2 && (
+                          <button
+                            type="button"
+                            className="nmore"
+                            onClick={() => setShowAllNews(!showAllNews)}
+                          >
+                            {showAllNews ? 'Show fewer' : `See all ${activeNews.length} recent items`}
+                          </button>
+                        )}
+                      </>
                     ) : (
                       <div style={{ padding: '14px 0', fontSize: 13.5, color: 'var(--muted)' }}>
-                        No major news triggers in the last 18 months.
+                        No major news triggers in the last 18 months. Focus on the basics.
                       </div>
                     )}
                     <div className="nfoot">
@@ -762,13 +804,15 @@ export default function EnvironmentAtlasClient() {
                   {/* Habitat Map & Places */}
                   <div className="sec">
                     <h2>
-                      {activeItem.slug.includes('tiger')
+                      {activeNetwork?.label
+                        ? `${activeNetwork.label}: what to remember`
+                        : activeItem.slug.includes('tiger')
                         ? 'Tiger reserves: what to remember'
-                        : 'Where to find it'}
+                        : 'Where does it live?'}
                     </h2>
                     <div className="netsum" style={{ fontSize: 13.5, color: 'var(--muted)', margin: '-4px 0 10px' }}>
-                      {activeItem.slug.includes('tiger')
-                        ? '58 reserves in 18 states. You only need to know these few.'
+                      {activeNetwork
+                        ? `${activeNetwork.total} reserves in ${activeNetwork.states} states. You only need to know these few.`
                         : `${(activeItem.places || []).length} key protected areas across India.`}
                     </div>
 
@@ -776,19 +820,50 @@ export default function EnvironmentAtlasClient() {
                       <EnvironmentMap
                         places={activeItem.places || []}
                         highlightedStates={activeItem.states || []}
-                        network={networks[activeItem.networkKey || activeItem.slug]}
+                        network={activeNetwork}
                       />
 
                       <div className="places">
-                        {(activeItem.places || []).slice(0, 6).map((p, idx) => (
-                          <div key={idx} className="place">
-                            <span className="pn">{idx + 1}</span>
-                            <span>
-                              <b>{p.name}</b>
-                              <small>{p.state}</small>
-                            </span>
-                          </div>
-                        ))}
+                        {activeNetwork?.slots ? (
+                          <>
+                            {activeNetwork.slots.map((x, idx) => {
+                              const r = activeNetwork.reserves?.[x.r];
+                              return (
+                                <div key={idx} className="place slot">
+                                  <span className="pn">{idx + 1}</span>
+                                  <span>
+                                    <span className="sq">{x.q}</span>
+                                    <b>{r?.n || x.r}</b>
+                                    <small>{r?.st || ''}</small>
+                                    <div className="sa">{x.a}</div>
+                                    {x.more && <div className="smore">{x.more}</div>}
+                                  </span>
+                                </div>
+                              );
+                            })}
+                            {activeNetwork.stateMost && (
+                              <div className="place slot">
+                                <span className="pn st">MP</span>
+                                <span>
+                                  <span className="sq">State with the most</span>
+                                  <b>{activeNetwork.stateMost.st}</b>
+                                  <div className="sa">{activeNetwork.stateMost.a}</div>
+                                </span>
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          (activeItem.places || []).slice(0, 6).map((p, idx) => (
+                            <div key={idx} className="place slot">
+                              <span className="pn">{idx + 1}</span>
+                              <span>
+                                <b>{p.name}</b>
+                                <small>{p.state}</small>
+                                {p.note && <div className="sa">{p.note}</div>}
+                              </span>
+                            </div>
+                          ))
+                        )}
                       </div>
                     </div>
                   </div>

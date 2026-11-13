@@ -44,7 +44,11 @@ export default function EnvironmentMap({
 
     // Filter points to map
     let points = [];
-    if (network && Array.isArray(network.stats)) {
+    if (network && network.reserves) {
+      points = Object.values(network.reserves).filter(
+        (r) => typeof r.lat === 'number' && typeof r.lon === 'number'
+      );
+    } else if (network && Array.isArray(network.stats)) {
       points = network.stats.filter((s) => typeof s.lat === 'number' && typeof s.lon === 'number');
     } else if (Array.isArray(places)) {
       points = places.filter((p) => typeof p.lat === 'number' && typeof p.lon === 'number');
@@ -102,11 +106,15 @@ export default function EnvironmentMap({
     const path = d3Geo.geoPath().projection(projection);
 
     // 1. Draw States
+    const networkStates = network?.reserves
+      ? Object.values(network.reserves).map((r) => r.st || r.state)
+      : [];
     const stateSet = new Set(
       [
         ...highlightedStates,
         ...places.map((p) => p.state),
         ...(network?.stats || []).map((s) => s.state),
+        ...networkStates,
       ].filter(Boolean)
     );
 
