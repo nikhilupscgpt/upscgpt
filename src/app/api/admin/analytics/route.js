@@ -54,8 +54,8 @@ async function getLiveTodaySummary(now) {
     openReports,
   ] = await Promise.all([
     prisma.user.count({ where: { createdAt: { gte: startUtc, lt: endUtc } } }),
-    prisma.attemptAnswer.count({ where: { createdAt: { gte: startUtc, lt: endUtc } } }),
-    prisma.attemptAnswer.count({ where: { createdAt: { gte: startUtc, lt: endUtc }, isCorrect: true } }),
+    prisma.attemptAnswer.count({ where: { answeredAt: { gte: startUtc, lt: endUtc } } }),
+    prisma.attemptAnswer.count({ where: { answeredAt: { gte: startUtc, lt: endUtc }, isCorrect: true } }),
     prisma.order.aggregate({
       where: { status: 'paid', paidAt: { gte: startUtc, lt: endUtc } },
       _count: { _all: true },
