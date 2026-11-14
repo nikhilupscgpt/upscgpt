@@ -263,11 +263,66 @@ body.dark,
   min-width: 0;
 }
 
+.chips-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 14px 10px;
+}
+
 .chips {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  padding: 0 14px 8px;
+}
+
+.env-thumb-fallback {
+  width: 40px;
+  height: 40px;
+  border-radius: 9px;
+  background: var(--panel2);
+  border: 1px solid var(--line);
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+
+.iucn-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 6px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1.4;
+}
+
+.iucn-cr { background: rgba(185, 28, 28, 0.14); color: #b91c1c; border: 1px solid rgba(185, 28, 28, 0.3); }
+.iucn-en { background: rgba(194, 65, 12, 0.14); color: #c2410c; border: 1px solid rgba(194, 65, 12, 0.3); }
+.iucn-vu { background: rgba(161, 98, 7, 0.14); color: #a16207; border: 1px solid rgba(161, 98, 7, 0.3); }
+.iucn-nt { background: rgba(15, 118, 110, 0.14); color: #0f766e; border: 1px solid rgba(15, 118, 110, 0.3); }
+.iucn-lc { background: rgba(21, 128, 61, 0.14); color: #15803d; border: 1px solid rgba(21, 128, 61, 0.3); }
+
+[data-theme='dark'] .iucn-cr { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border-color: rgba(239, 68, 68, 0.4); }
+[data-theme='dark'] .iucn-en { background: rgba(249, 115, 22, 0.2); color: #fdba74; border-color: rgba(249, 115, 22, 0.4); }
+[data-theme='dark'] .iucn-vu { background: rgba(234, 179, 8, 0.2); color: #fde047; border-color: rgba(234, 179, 8, 0.4); }
+[data-theme='dark'] .iucn-nt { background: rgba(20, 184, 166, 0.2); color: #5eead4; border-color: rgba(20, 184, 166, 0.4); }
+[data-theme='dark'] .iucn-lc { background: rgba(34, 197, 94, 0.2); color: #86efac; border-color: rgba(34, 197, 94, 0.4); }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .chip {

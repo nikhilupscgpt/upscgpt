@@ -5,6 +5,7 @@ import Link from 'next/link';
 import EnvironmentMap from '@/components/EnvironmentMap';
 import PageBar from '@/components/environment-atlas/PageBar';
 import PrevNextRow from '@/components/environment-atlas/PrevNextRow';
+import SpeciesList from '@/components/environment-atlas/SpeciesList';
 import { IucnBadgeSvg, IucnThreatGaugeSvg } from '@/components/IucnBadgeSvg';
 import { track, createActiveViewTracker } from '@/lib/analytics/client';
 import {
@@ -60,6 +61,32 @@ export default function EnvironmentAtlasClient() {
   const [studyTab, setStudyTab] = useState('notes'); // 'notes' | 'pyqs'
   const [quizMode, setQuizMode] = useState(false);
   const [quizState, setQuizState] = useState(null);
+
+  // Hydrate initial filter, search, and #slug from URL so state survives reload
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const f = params.get('filter');
+    const q = params.get('q');
+    const hashSlug = window.location.hash ? window.location.hash.slice(1) : '';
+    if (f) setActiveFilter(f);
+    if (q) setSearch(q);
+    if (hashSlug) setSelectedSlug(hashSlug);
+  }, []);
+
+  // Keep URL query & hash synced with active filter, search, and selected species
+  useEffect(() => {
+    if (typeof window === 'undefined' || loading) return;
+    const params = new URLSearchParams(window.location.search);
+    if (activeFilter && activeFilter !== 'All') params.set('filter', activeFilter);
+    else params.delete('filter');
+    if (search.trim()) params.set('q', search.trim());
+    else params.delete('q');
+    const qs = params.toString();
+    const hash = selectedSlug ? `#${selectedSlug}` : '';
+    const nextUrl = `${window.location.pathname}${qs ? `?${qs}` : ''}${hash}`;
+    window.history.replaceState(null, '', nextUrl);
+  }, [activeFilter, search, selectedSlug, loading]);
 
   // Fetch Items
   useEffect(() => {
@@ -381,126 +408,24 @@ export default function EnvironmentAtlasClient() {
           />
         )}
         {/* LEFT LIST / MOBILE DRAWER (280px) */}
-        <aside className={`left-drawer ${isDrawerOpen ? 'is-open' : ''}`}>
-          <div className="env-drawer-head">
-            <span>Species ({items.length})</span>
-            <button
-              type="button"
-              onClick={() => setIsDrawerOpen(false)}
-              aria-label="Close species list"
-              style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', padding: 4 }}
-            >
-              <X size={16} />
-            </button>
-          </div>
-          <div className="search-wrap">
-            <Search size={14} color="var(--muted)" />
-            <input
-              type="text"
-              placeholder="Find a species, state, or park..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-            {search && (
-              <button
-                type="button"
-                onClick={() => setSearch('')}
-                style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', padding: 0 }}
-              >
-                <X size={13} />
-              </button>
-            )}
-          </div>
-
-          <div className="chips">
-            {['All', 'CR', 'EN', 'VU', 'LC', 'Mammals', 'Birds', 'Reptiles', 'In news'].map((chip) => (
-              <button
-                key={chip}
-                type="button"
-                className={`chip ${activeFilter === chip ? 'on' : ''}`}
-                onClick={() => setActiveFilter(chip)}
-              >
-                {chip}
-              </button>
-            ))}
-          </div>
-
-          <div className="scroll-panel">
-            <div className="deck-list">
-              {/* Starters Section */}
-              {starters.length > 0 && (
-                <>
-                  <div className="lhd">Start with these {starters.length}</div>
-                  {starters.map((s) => (
-                    <button
-                      key={s.slug}
-                      type="button"
-                      className={`item ${s.slug === selectedSlug ? 'on' : ''}`}
-                      onClick={() => {
-                        setSelectedSlug(s.slug);
-                        setIsDrawerOpen(false);
-                        if (quizMode) setQuizMode(false);
-                      }}
-                    >
-                      <img
-                        src={s.imageUrl || `/species/${s.slug}.webp`}
-                        alt={s.title}
-                        loading="lazy"
-                        onError={(e) => {
-                          e.currentTarget.src = '/species/bengal-tiger.webp';
-                        }}
-                      />
-                      <span className="item-meta">
-                        <span className="t">{s.title}</span>
-                        <span className="item-sub">
-                          <IucnBadgeSvg status={s.statusBadges?.iucn || 'EN'} size={16} />
-                          <span>{s.category || 'Species'}</span>
-                        </span>
-                      </span>
-                      {itemHasNews(s) && <span className="news-pulse" title="Recently in news" />}
-                    </button>
-                  ))}
-                </>
-              )}
-
-              {/* Remaining Section */}
-              {remaining.length > 0 && (
-                <>
-                  <div className="lhd">Then the rest ({remaining.length})</div>
-                  {remaining.map((s) => (
-                    <button
-                      key={s.slug}
-                      type="button"
-                      className={`item ${s.slug === selectedSlug ? 'on' : ''}`}
-                      onClick={() => {
-                        setSelectedSlug(s.slug);
-                        setIsDrawerOpen(false);
-                        if (quizMode) setQuizMode(false);
-                      }}
-                    >
-                      <img
-                        src={s.imageUrl || `/species/${s.slug}.webp`}
-                        alt={s.title}
-                        loading="lazy"
-                        onError={(e) => {
-                          e.currentTarget.src = '/species/bengal-tiger.webp';
-                        }}
-                      />
-                      <span className="item-meta">
-                        <span className="t">{s.title}</span>
-                        <span className="item-sub">
-                          <IucnBadgeSvg status={s.statusBadges?.iucn || 'EN'} size={16} />
-                          <span>{s.category || 'Species'}</span>
-                        </span>
-                      </span>
-                      {itemHasNews(s) && <span className="news-pulse" title="Recently in news" />}
-                    </button>
-                  ))}
-                </>
-              )}
-            </div>
-          </div>
-        </aside>
+        <SpeciesList
+          items={items}
+          starters={starters}
+          remaining={remaining}
+          selectedSlug={selectedSlug}
+          search={search}
+          onSearchChange={setSearch}
+          activeFilter={activeFilter}
+          onFilterChange={setActiveFilter}
+          onSelectSpecies={(slug) => {
+            setSelectedSlug(slug);
+            setIsDrawerOpen(false);
+            if (quizMode) setQuizMode(false);
+          }}
+          itemHasNews={itemHasNews}
+          isDrawerOpen={isDrawerOpen}
+          onCloseDrawer={() => setIsDrawerOpen(false)}
+        />
 
         {/* CENTER STUDY STAGE & RIGHT RAIL */}
         <main className="center-scroll" id="center-scroll">
