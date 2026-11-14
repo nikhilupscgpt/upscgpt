@@ -5,6 +5,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback, useSyncExtern
 // False during server render and hydration, true after: lets saved settings (theme, size) apply before the first paint.
 const subscribeNever = () => () => {};
 import Link from 'next/link';
+import { Toolbar } from '@/components/pyq-studio';
 import {
   ChevronLeft,
   ChevronRight,
@@ -1460,105 +1461,13 @@ function PyqPresenterClientInner({
           <span>Tools</span>
         </button>
       ) : (
-        <footer className="pq-present-dock">
-          {/* Deck Navigator */}
-          <button
-            type="button"
-            onClick={handlePrev}
-            className="pq-dock-btn"
-            title="Previous Step [Left Arrow]"
-          >
-            <ChevronLeft size={18} />
-          </button>
+        <footer className="pq-present-dock" aria-label="Presenter controls">
+          <span className="pq-step-count" title={steps[stepIndex]?.title || ''}>
+            {stepIndex + 1} / {steps.length}
+          </span>
 
-          {/* Step Indicator Dots */}
-          <div className="pq-dock-steps">
-            {steps.length > 7 ? (
-              <span className="pq-step-count" title={steps[stepIndex]?.title || ""}>{stepIndex + 1} / {steps.length}</span>
-            ) : steps.map((st, idx) => (
-              <button
-                key={st.id || idx}
-                type="button"
-                onClick={() => setStepIndex(idx)}
-                className={`pq-step-dot ${idx === stepIndex ? 'is-active' : idx < stepIndex ? 'is-past' : ''}`}
-                title={`Jump to ${st.title}`}
-              />
-            ))}
-          </div>
-
-          <button
-            type="button"
-            onClick={handleNext}
-            className="pq-dock-btn"
-            title="Next Step [Space / Right Arrow]"
-          >
-            <ChevronRight size={18} />
-          </button>
-
-          <div className="pq-dock-sep" />
-
-          {/* Pan / Interact Map or Cursor */}
-          <button
-            type="button"
-            onClick={() => setActiveTool('none')}
-            className={`pq-dock-btn ${activeTool === 'none' ? 'is-active' : ''}`}
-            title="Pan / Interact with Map [V]"
-          >
-            <Move size={16} />
-          </button>
-
-          {/* Drawing Tools */}
-          <button
-            type="button"
-            onClick={() => setActiveTool(t => (t === 'pen' ? 'none' : 'pen'))}
-            className={`pq-dock-btn ${activeTool === 'pen' ? 'is-active' : ''}`}
-            title="Pen Tool [P] (XP-Pen uniform line)"
-          >
-            <PenTool size={16} />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTool(t => (t === 'highlighter' ? 'none' : 'highlighter'))}
-            className={`pq-dock-btn ${activeTool === 'highlighter' ? 'is-active' : ''}`}
-            title="Highlighter [H]"
-          >
-            <Highlighter size={16} />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTool(t => (t === 'laser' ? 'none' : 'laser'))}
-            className={`pq-dock-btn ${activeTool === 'laser' ? 'is-active' : ''}`}
-            title="Laser Pointer [L]"
-          >
-            <Zap size={16} />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setActiveTool(t => (t === 'eraser' ? 'none' : 'eraser'))}
-            className={`pq-dock-btn ${activeTool === 'eraser' ? 'is-active' : ''}`}
-            title="Eraser [E]"
-          >
-            <Eraser size={16} />
-          </button>
-
-          {/* Dynamic Blank Scratchpad Slide */}
-          <button
-            type="button"
-            onClick={() => handleAddScratchpad(false)}
-            className="pq-dock-btn pq-dock-scratchpad-btn"
-            title="Insert Blank Scratchpad Slide [S]"
-          >
-            <FilePlus2 size={16} />
-          </button>
-
-          <div className="pq-dock-sep" />
-
-          {/* Color Palette */}
-          <div className="pq-dock-colors">
-            {palette.map(c => (
+          <div className="pq-dock-colors" role="group" aria-label="Ink colours">
+            {palette.slice(0, 3).map((c) => (
               <button
                 key={c}
                 type="button"
@@ -1568,233 +1477,185 @@ function PyqPresenterClientInner({
                 }}
                 className={`pq-color-dot ${activeColor === c ? 'is-selected' : ''}`}
                 style={{ background: c, color: c }}
-                title={`Color: ${c}`}
+                aria-label={`Ink colour ${c}`}
+                title={`Colour: ${c}`}
               />
             ))}
           </div>
 
-          <div className="pq-dock-sep" />
-
-          {/* Pen Thickness Selector */}
-          <div className="pq-dock-sizes" title="Pen Thickness: 3px, 5px, 8px, 12px ([ and ] keys)">
-            {[
-              { size: 3, label: 'Fine (3px)', dot: 4 },
-              { size: 5, label: 'Regular (5px)', dot: 7 },
-              { size: 8, label: 'Bold (8px)', dot: 10 },
-              { size: 12, label: 'Heavy (12px)', dot: 14 },
-            ].map((s) => (
-              <button
-                key={s.size}
-                type="button"
-                onClick={() => {
-                  updatePenSize(s.size);
-                  if (activeTool === 'none' || activeTool === 'eraser') setActiveTool('pen');
-                }}
-                className={`pq-size-btn ${penSize === s.size ? 'is-selected' : ''}`}
-                title={s.label}
-              >
-                <span
-                  style={{
-                    width: s.dot,
-                    height: s.dot,
-                    borderRadius: '50%',
-                    background: 'currentColor',
-                    display: 'inline-block',
-                  }}
-                />
-              </button>
-            ))}
-          </div>
-
-          <div className="pq-dock-sep" />
-
-          {/* Undo & Clear */}
-          <button
-            type="button"
-            onClick={handleUndo}
-            className="pq-dock-btn"
-            title="Undo Stroke [Cmd+Z]"
-          >
-            <Undo2 size={16} />
-          </button>
-
-          <button
-            type="button"
-            onClick={handleClearStepInk}
-            className="pq-dock-btn"
-            title="Clear Step Ink [C]"
-          >
-            <Trash2 size={16} />
-          </button>
-
-          <div className="pq-dock-sep" />
-
-          {/* Zoom Image (active when on image slide) */}
-          {currentStep?.type === 'image' && (
-            <button
-              type="button"
-              onClick={() => setIsZoomedImage(z => !z)}
-              className={`pq-dock-btn ${isZoomedImage ? 'is-active' : ''}`}
-              title="Zoom Image [Z]"
-            >
-              {isZoomedImage ? <ZoomOut size={16} /> : <ZoomIn size={16} />}
-            </button>
-          )}
-
-          {/* In-Studio Playlist Tray */}
-          <button
-            type="button"
-            onClick={() => setIsQueueOpen(o => !o)}
-            className={`pq-dock-btn ${isQueueOpen ? 'is-active' : ''}`}
-            title="Toggle Lecture Deck Queue [Q]"
-          >
-            <ListOrdered size={16} />
-          </button>
-
-          {/* Light / Dark Mode Toggle */}
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="pq-dock-btn"
-            title={`Switch to ${theme === 'dark' ? 'Light / Whiteboard Mode' : 'Dark Mode'} [M]`}
-          >
-            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-          </button>
-
-          {/* Content Font Zoom (100% / 112% / 124%) for OBS Readability */}
-          <button
-            type="button"
-            onClick={handleCycleFontScale}
-            className={`pq-dock-btn ${contentFontScale > 1 ? 'is-active' : ''}`}
-            style={{ width: 'auto', padding: '0 9px', fontSize: 11.5, fontWeight: 800, gap: 4 }}
-            title="Cycle Content Text Size for OBS (100% → 112% → 124% — keeps slide title fixed)"
-          >
-            <span>A+</span>
-            <span style={{ fontSize: 10, opacity: 0.85 }}>{Math.round(contentFontScale * 100)}%</span>
-          </button>
-
-          {/* Utility Toggles */}
-          <button
-            type="button"
-            onClick={() => setShowWebcamBox(w => !w)}
-            className={`pq-dock-btn ${showWebcamBox ? 'is-active' : ''}`}
-            title="Toggle OBS Webcam Box Guide [W]"
-          >
-            <Camera size={16} />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setTimerSeconds(s => (s ? null : 30))}
-            className={`pq-dock-btn ${timerSeconds !== null ? 'is-active' : ''}`}
-            title="30s Think Countdown Timer [T]"
-          >
-            <Timer size={16} />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setIsBlackboard(b => !b)}
-            className={`pq-dock-btn ${isBlackboard ? 'is-active' : ''}`}
-            title={theme === 'light' ? "Whiteboard Mode [B]" : "Blackboard Mode [B]"}
-          >
-            <Layers size={16} />
-          </button>
-
-          <button
-            type="button"
-            onClick={toggleFullscreen}
-            className="pq-dock-btn"
-            title="Toggle Fullscreen [F]"
-          >
-            {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-          </button>
-
-          {/* Smart Board Connect (iPad / Controller) */}
-          {!isDisplayMode && (
-            <button
-              type="button"
-              onClick={() => setIsConnectDialogOpen(true)}
-              className={`pq-dock-btn ${linkStatus === 'connected' ? 'is-active' : ''}`}
-              title={
-                linkStatus === 'connected'
-                  ? `Connected to Smart Board (${pairedCode})`
-                  : linkStatus === 'connecting'
-                  ? 'Connecting to Smart Board...'
-                  : 'Connect to Smart Board'
-              }
-              style={{ position: 'relative' }}
-            >
-              <Cast size={16} />
-              <span
-                style={{
-                  position: 'absolute',
-                  top: 5,
-                  right: 5,
-                  width: 7,
-                  height: 7,
-                  borderRadius: '50%',
-                  backgroundColor:
-                    linkStatus === 'connected'
-                      ? '#22c55e'
-                      : linkStatus === 'connecting'
-                      ? '#f59e0b'
-                      : '#64748b',
-                  boxShadow:
-                    linkStatus === 'connected'
-                      ? '0 0 6px #22c55e'
-                      : linkStatus === 'connecting'
-                      ? '0 0 6px #f59e0b'
-                      : 'none',
-                }}
-              />
-            </button>
-          )}
-
-          {isDisplayMode && onExitDisplay && (
-            <button
-              type="button"
-              onClick={onExitDisplay}
-              className="pq-dock-btn"
-              title="Exit Display Mode / Re-pair"
-            >
-              <X size={16} />
-            </button>
-          )}
-
-          {/* Presentation Mode Switcher: Fluid Screen Fit (Mac Native) vs 16:9 Broadcast */}
-          <button
-            type="button"
-            onClick={handleToggleMode}
-            className={`pq-dock-btn pq-dock-btn-mode ${presentationMode === 'screen' ? 'is-active' : ''}`}
-            title={`Switch Presentation Canvas [R]: Currently in ${presentationMode === 'screen' ? 'Fluid Screen Fit (Mac / Native)' : '16:9 Broadcast Standard (1080p)'}`}
-          >
-            {presentationMode === 'screen' ? <Laptop size={15} /> : <Tv size={15} />}
-            <span className="pq-mode-pill-label">
-              {presentationMode === 'screen' ? 'Screen Fit' : '16:9'}
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setShowHelp(h => !h)}
-            className={`pq-dock-btn ${showHelp ? 'is-active' : ''}`}
-            title="Keyboard Shortcuts [?]"
-          >
-            <HelpCircle size={16} />
-          </button>
-
-          <div className="pq-dock-sep" />
-
-          {/* Minimize / Collapse Dock */}
-          <button
-            type="button"
-            onClick={() => setIsDockCollapsed(true)}
-            className="pq-dock-btn"
-            title="Collapse Dock for Recording [D]"
-          >
-            <ChevronDown size={16} />
-          </button>
+          <Toolbar
+            label="Presenter toolbar"
+            primaryTools={[
+              {
+                id: 'prev',
+                label: 'Previous step',
+                shortcut: 'Left',
+                icon: <ChevronLeft size={16} />,
+                onClick: handlePrev,
+              },
+              {
+                id: 'next',
+                label: 'Next step',
+                shortcut: 'Space / Right',
+                icon: <ChevronRight size={16} />,
+                onClick: handleNext,
+              },
+              {
+                id: 'pen',
+                label: 'Pen',
+                shortcut: 'P',
+                icon: <PenTool size={16} />,
+                active: activeTool === 'pen',
+                onClick: () => setActiveTool((t) => (t === 'pen' ? 'none' : 'pen')),
+              },
+              {
+                id: 'highlighter',
+                label: 'Highlighter',
+                shortcut: 'H',
+                icon: <Highlighter size={16} />,
+                active: activeTool === 'highlighter',
+                onClick: () => setActiveTool((t) => (t === 'highlighter' ? 'none' : 'highlighter')),
+              },
+              {
+                id: 'undo',
+                label: 'Undo stroke',
+                shortcut: 'Cmd+Z',
+                icon: <Undo2 size={16} />,
+                onClick: handleUndo,
+              },
+            ]}
+            overflowTools={[
+              {
+                id: 'pan',
+                label: 'Pan / Cursor',
+                shortcut: 'V',
+                onClick: () => setActiveTool('none'),
+              },
+              {
+                id: 'laser',
+                label: activeTool === 'laser' ? 'Disable Laser' : 'Laser Pointer',
+                shortcut: 'L',
+                onClick: () => setActiveTool((t) => (t === 'laser' ? 'none' : 'laser')),
+              },
+              {
+                id: 'eraser',
+                label: activeTool === 'eraser' ? 'Disable Eraser' : 'Eraser',
+                shortcut: 'E',
+                onClick: () => setActiveTool((t) => (t === 'eraser' ? 'none' : 'eraser')),
+              },
+              {
+                id: 'scratchpad',
+                label: 'Insert Blank Scratchpad',
+                shortcut: 'S',
+                onClick: () => handleAddScratchpad(false),
+              },
+              {
+                id: 'clear-ink',
+                label: 'Clear Step Ink',
+                shortcut: 'C',
+                onClick: handleClearStepInk,
+              },
+              ...(currentStep?.type === 'image'
+                ? [
+                    {
+                      id: 'zoom-image',
+                      label: isZoomedImage ? 'Reset Image Zoom' : 'Zoom Image',
+                      shortcut: 'Z',
+                      onClick: () => setIsZoomedImage((z) => !z),
+                    },
+                  ]
+                : []),
+              {
+                id: 'queue',
+                label: isQueueOpen ? 'Hide Deck Queue' : 'Show Deck Queue',
+                shortcut: 'Q',
+                onClick: () => setIsQueueOpen((o) => !o),
+              },
+              {
+                id: 'theme',
+                label: theme === 'dark' ? 'Switch to Light / Whiteboard' : 'Switch to Dark Mode',
+                shortcut: 'M',
+                onClick: toggleTheme,
+              },
+              {
+                id: 'font-scale',
+                label: `Text Size (${Math.round(contentFontScale * 100)}%)`,
+                onClick: handleCycleFontScale,
+              },
+              {
+                id: 'webcam',
+                label: showWebcamBox ? 'Hide Webcam Box' : 'Show Webcam Box',
+                shortcut: 'W',
+                onClick: () => setShowWebcamBox((w) => !w),
+              },
+              {
+                id: 'timer',
+                label: timerSeconds !== null ? 'Stop 30s Timer' : 'Start 30s Timer',
+                shortcut: 'T',
+                onClick: () => setTimerSeconds((s) => (s ? null : 30)),
+              },
+              {
+                id: 'blackboard',
+                label: isBlackboard ? 'Exit Blackboard' : 'Blackboard Mode',
+                shortcut: 'B',
+                onClick: () => setIsBlackboard((b) => !b),
+              },
+              {
+                id: 'fullscreen',
+                label: isFullscreen ? 'Exit Fullscreen' : 'Fullscreen',
+                shortcut: 'F',
+                onClick: toggleFullscreen,
+              },
+              ...(!isDisplayMode
+                ? [
+                    {
+                      id: 'connect-board',
+                      label:
+                        linkStatus === 'connected'
+                          ? `Smart Board (${pairedCode})`
+                          : 'Connect Smart Board',
+                      onClick: () => setIsConnectDialogOpen(true),
+                    },
+                  ]
+                : [
+                    {
+                      id: 'exit-display',
+                      label: 'Exit Display Mode',
+                      onClick: () => onExitDisplay?.(),
+                    },
+                  ]),
+              {
+                id: 'mode-toggle',
+                label:
+                  presentationMode === 'screen'
+                    ? 'Switch to 16:9 Broadcast'
+                    : 'Switch to Screen Fit',
+                shortcut: 'R',
+                onClick: handleToggleMode,
+              },
+              {
+                id: 'collapse-dock',
+                label: 'Collapse Dock',
+                shortcut: 'D',
+                onClick: () => setIsDockCollapsed(true),
+              },
+            ]}
+            shortcuts={[
+              { key: 'Space / Right', description: 'Next slide step' },
+              { key: 'Left', description: 'Previous slide step' },
+              { key: 'P', description: 'Pen tool' },
+              { key: 'H', description: 'Highlighter tool' },
+              { key: 'L', description: 'Laser pointer' },
+              { key: 'E', description: 'Eraser' },
+              { key: 'Cmd+Z', description: 'Undo stroke' },
+              { key: 'C', description: 'Clear step ink' },
+              { key: 'S', description: 'Insert blank scratchpad' },
+              { key: 'Q', description: 'Toggle deck queue' },
+              { key: 'M', description: 'Toggle dark / light mode' },
+              { key: 'F', description: 'Toggle fullscreen' },
+              { key: '?', description: 'Toggle shortcuts sheet' },
+            ]}
+          />
         </footer>
       )}
 

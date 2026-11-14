@@ -3,25 +3,21 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import {
-  GraduationCap,
-  Search,
-  CheckSquare,
-  Square,
   Play,
-  RotateCcw,
   Image as ImageIcon,
-  ChevronRight,
   ExternalLink,
-  Layers,
   X,
-  Sparkles,
-  CheckCircle2,
-  HelpCircle,
-  ArrowLeft,
-  Calendar,
-  BookOpen,
-  Filter,
+  Edit3,
 } from 'lucide-react';
+import StemView from '@/app/prelims/pyq/StemView';
+import {
+  PageHeader,
+  CollapsibleRail,
+  FilterBar,
+  MetaLine,
+  StatusBadge,
+  RowActions,
+} from '@/components/pyq-studio';
 import './pyq-studio.css';
 
 export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACULTY' }) {
@@ -45,21 +41,49 @@ export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACU
   const [answerStatus, setAnswerStatus] = useState('ALL'); // 'ALL' | 'HAS_ANSWER' | 'MISSING_ANSWER' | 'HAS_EXPL' | 'MISSING_EXPL'
   const [limit, setLimit] = useState(25);
   const [page, setPage] = useState(1);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [railCollapsed, setRailCollapsed] = useState(true);
+  const [urlHydrated, setUrlHydrated] = useState(false);
 
-  const activeFilterCount = useMemo(() => {
-    let count = 0;
-    if (subject !== 'ALL') count++;
-    if (topic !== 'ALL') count++;
-    if (exam !== 'ALL') count++;
-    if (year !== 'ALL') count++;
-    if (pattern !== 'ALL') count++;
-    if (answerStatus !== 'ALL') count++;
-    if (sortOrder !== 'syllabus') count++;
-    return count;
-  }, [subject, topic, exam, year, pattern, answerStatus, sortOrder]);
+  // Hydrate filter state from URL query params on mount
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const sp = new URLSearchParams(window.location.search);
+    if (sp.get('search')) setSearch(sp.get('search'));
+    if (sp.get('subject')) setSubject(sp.get('subject'));
+    if (sp.get('topic')) setTopic(sp.get('topic'));
+    if (sp.get('sort')) setSortOrder(sp.get('sort'));
+    if (sp.get('exam')) setExam(sp.get('exam'));
+    if (sp.get('year')) setYear(sp.get('year'));
+    if (sp.get('pattern')) setPattern(sp.get('pattern'));
+    if (sp.get('status')) setAnswerStatus(sp.get('status'));
+    const lim = Number(sp.get('limit'));
+    if ([25, 50, 100].includes(lim)) setLimit(lim);
+    const pg = Number(sp.get('page'));
+    if (pg >= 1) setPage(pg);
+    setUrlHydrated(true);
+  }, []);
+
+  // Sync filter state to URL query params
+  useEffect(() => {
+    if (!urlHydrated || typeof window === 'undefined') return;
+    const sp = new URLSearchParams();
+    if (search.trim()) sp.set('search', search.trim());
+    if (subject !== 'ALL') sp.set('subject', subject);
+    if (topic !== 'ALL') sp.set('topic', topic);
+    if (sortOrder !== 'syllabus') sp.set('sort', sortOrder);
+    if (exam !== 'ALL') sp.set('exam', exam);
+    if (year !== 'ALL') sp.set('year', year);
+    if (pattern !== 'ALL') sp.set('pattern', pattern);
+    if (answerStatus !== 'ALL') sp.set('status', answerStatus);
+    if (limit !== 25) sp.set('limit', String(limit));
+    if (page > 1) sp.set('page', String(page));
+    const qs = sp.toString();
+    const nextUrl = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
+    window.history.replaceState(null, '', nextUrl);
+  }, [urlHydrated, search, subject, topic, sortOrder, exam, year, pattern, answerStatus, limit, page]);
 
   const resetAllFilters = useCallback(() => {
+    setSearch('');
     setSubject('ALL');
     setTopic('ALL');
     setExam('ALL');
@@ -253,311 +277,202 @@ export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACU
 
   const estRecordingTime = Math.round(selectedIds.length * 3.5);
 
+  const flatTopics = useMemo(() => {
+    const out = [];
+    for (const g of currentTopicGroups) {
+      for (const t of g.topics || []) {
+        if (!out.includes(t)) out.push(t);
+      }
+    }
+    return out;
+  }, [currentTopicGroups]);
+
+  const primaryFilters = [
+    {
+      id: 'pyq-filter-subject',
+      label: 'Subject',
+      value: subject,
+      onChange: (val) => { setSubject(val); setTopic('ALL'); setPage(1); },
+      options: [
+        { value: 'ALL', label: 'All Subjects' },
+        ...filterOptions.subjects.map((s) => ({ value: s, label: s })),
+      ],
+    },
+    {
+      id: 'pyq-filter-topic',
+      label: 'Topic',
+      value: topic,
+      disabled: subject === 'ALL',
+      onChange: (val) => { setTopic(val); setPage(1); },
+      options: [
+        { value: 'ALL', label: subject === 'ALL' ? 'Select subject first' : `All Topics in ${subject}` },
+        ...flatTopics.map((t) => ({ value: t, label: t })),
+      ],
+    },
+    {
+      id: 'pyq-filter-search',
+      type: 'search',
+      label: 'Search',
+      value: search,
+      placeholder: 'Keywords, stem, Q no...',
+      onChange: (val) => { setSearch(val); setPage(1); },
+    },
+  ];
+
+  const moreFilters = [
+    {
+      id: 'pyq-filter-exam',
+      label: 'Exam',
+      value: exam,
+      onChange: (val) => { setExam(val); setPage(1); },
+      options: [
+        { value: 'ALL', label: 'All Exams' },
+        { value: 'UPSC CSE', label: 'UPSC CSE' },
+        { value: 'CDS', label: 'CDS' },
+      ],
+    },
+    {
+      id: 'pyq-filter-year',
+      label: 'Year',
+      value: year,
+      onChange: (val) => { setYear(val); setPage(1); },
+      options: [
+        { value: 'ALL', label: 'All Years' },
+        ...filterOptions.years.map((y) => ({ value: String(y), label: String(y) })),
+      ],
+    },
+    {
+      id: 'pyq-filter-pattern',
+      label: 'Format',
+      value: pattern,
+      onChange: (val) => { setPattern(val); setPage(1); },
+      options: [
+        { value: 'ALL', label: 'All Formats' },
+        { value: 'NEW', label: 'New Pattern (Pairs & Statements)' },
+        { value: 'PAIR', label: 'Pair-Based Only' },
+        { value: 'STATEMENT', label: 'Statement I & II Only' },
+      ],
+    },
+    {
+      id: 'pyq-filter-status',
+      label: 'Content Quality',
+      value: answerStatus,
+      onChange: (val) => { setAnswerStatus(val); setPage(1); },
+      options: [
+        { value: 'ALL', label: 'All Status' },
+        { value: 'HAS_ANSWER', label: 'Has Correct Answer' },
+        { value: 'MISSING_ANSWER', label: 'Missing Answer' },
+        { value: 'HAS_EXPL', label: 'Has Explanation' },
+        { value: 'MISSING_EXPL', label: 'Missing Explanation' },
+      ],
+    },
+    {
+      id: 'pyq-filter-sort',
+      label: 'Sequence',
+      value: sortOrder,
+      onChange: (val) => { setSortOrder(val); setPage(1); },
+      options: [
+        { value: 'syllabus', label: 'Syllabus Sequence' },
+        { value: 'exam', label: 'Exam Year (Recent First)' },
+      ],
+    },
+    {
+      id: 'pyq-filter-limit',
+      label: 'Per Page',
+      value: String(limit),
+      onChange: (val) => { setLimit(Number(val)); setPage(1); },
+      options: [
+        { value: '25', label: '25 per page' },
+        { value: '50', label: '50 per page' },
+        { value: '100', label: '100 per page' },
+      ],
+    },
+  ];
+
+  const activeChips = [];
+  if (subject !== 'ALL') activeChips.push({ id: 'subject', label: `Subject: ${subject}`, onRemove: () => { setSubject('ALL'); setTopic('ALL'); setPage(1); } });
+  if (topic !== 'ALL') activeChips.push({ id: 'topic', label: `Topic: ${topic}`, onRemove: () => { setTopic('ALL'); setPage(1); } });
+  if (search.trim()) activeChips.push({ id: 'search', label: `Search: ${search.trim()}`, onRemove: () => { setSearch(''); setPage(1); } });
+  if (exam !== 'ALL') activeChips.push({ id: 'exam', label: `Exam: ${exam}`, onRemove: () => { setExam('ALL'); setPage(1); } });
+  if (year !== 'ALL') activeChips.push({ id: 'year', label: `Year: ${year}`, onRemove: () => { setYear('ALL'); setPage(1); } });
+  if (pattern !== 'ALL') activeChips.push({ id: 'pattern', label: `Format: ${pattern}`, onRemove: () => { setPattern('ALL'); setPage(1); } });
+  if (answerStatus !== 'ALL') activeChips.push({ id: 'status', label: `Status: ${answerStatus}`, onRemove: () => { setAnswerStatus('ALL'); setPage(1); } });
+  if (sortOrder !== 'syllabus') activeChips.push({ id: 'sort', label: `Sort: ${sortOrder}`, onRemove: () => { setSortOrder('syllabus'); setPage(1); } });
+
   return (
     <div className="pq-pyq-studio-root">
-      {/* Top Header */}
-      <header className="pq-pyq-studio-head">
-        <div className="pq-pyq-head-left">
-          <Link
-            href="/admin/studio"
-            style={{
-              padding: '8px 14px',
-              borderRadius: 10,
-              background: 'rgba(255, 255, 255, 0.08)',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
-              color: '#cbd5e1',
-              textDecoration: 'none',
-              fontSize: 13,
-              fontWeight: 700,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-            }}
-          >
-            <ArrowLeft size={14} />
-            <span>Studio Hub</span>
-          </Link>
+      <PageHeader
+        breadcrumbs={[
+          { label: 'Studio', href: '/admin/studio' },
+          { label: 'PYQ Studio' },
+        ]}
+        secondaryActions={
+          userRole === 'ADMIN' ? (
+            <Link href="/admin/pyq" target="_blank" className="pyq-ui-secondary-btn">
+              <span>PYQ Editor</span>
+              <ExternalLink size={13} />
+            </Link>
+          ) : null
+        }
+        primaryAction={
+          selectedIds.length > 0 ? (
+            <button
+              type="button"
+              onClick={() => handleLaunchBroadcast()}
+              className="pyq-ui-primary-btn"
+            >
+              <Play size={14} fill="currentColor" />
+              <span>Present ({selectedIds.length})</span>
+            </button>
+          ) : null
+        }
+      />
 
-          <div className="pq-pyq-badge-icon">
-            <GraduationCap size={26} />
-          </div>
+      <FilterBar
+        primaryFilters={primaryFilters}
+        moreFilters={moreFilters}
+        activeChips={activeChips}
+        onClearAll={resetAllFilters}
+      />
 
-          <div>
-            <h1 className="pq-pyq-studio-title">PYQ Lecture Studio Workstation</h1>
-            <p className="pq-pyq-studio-sub">
-              Syllabus-aligned Prelims question decks with dual-layer vector pen, map attachments, and 1080p recording stage
-            </p>
-          </div>
-        </div>
+      <CollapsibleRail
+        title="Queue"
+        collapsed={railCollapsed}
+        onToggle={() => setRailCollapsed((v) => !v)}
+        main={
+          <main className="pq-pyq-main">
+            <section className="pq-pyq-action-bar" aria-label="Selection controls">
+              <div className="pq-pyq-action-left">
+                <button
+                  type="button"
+                  onClick={handleSelectAllOnPage}
+                  className="pq-pyq-btn-outline"
+                >
+                  {questions.length > 0 && questions.every((q) => selectedIds.includes(q.id))
+                    ? 'Deselect Page'
+                    : `Select Page (${questions.length})`}
+                </button>
 
-        {userRole === 'ADMIN' && (
-          <Link
-            href="/admin/pyq"
-            target="_blank"
-            style={{
-              padding: '8px 14px',
-              borderRadius: 10,
-              background: 'transparent',
-              border: '1px solid rgba(56, 189, 248, 0.3)',
-              color: '#38bdf8',
-              fontSize: 13,
-              fontWeight: 700,
-              textDecoration: 'none',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-            }}
-          >
-            <span>Open PYQ Central Editor</span>
-            <ExternalLink size={13} />
-          </Link>
-        )}
-      </header>
-
-      {/* ========================================================= */}
-      {/* 2-COLUMN VIEW: LEFT FILTER SIDEBAR + RIGHT MAIN CONTENT   */}
-      {/* ========================================================= */}
-      <div className="pq-pyq-workspace-layout">
-        {sidebarOpen && (
-          <aside className="pq-pyq-sidebar">
-            <div className="pq-pyq-sidebar-header">
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Filter size={18} color="#38bdf8" />
-                <span style={{ fontSize: 15, fontWeight: 800, color: '#f8fafc' }}>Filters</span>
-                {activeFilterCount > 0 && (
-                  <span style={{ background: '#38bdf8', color: '#0f172a', fontSize: 11.5, fontWeight: 900, padding: '2px 7px', borderRadius: 999 }}>
-                    {activeFilterCount}
-                  </span>
+                {selectedIds.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={handleClearSelection}
+                    className="pq-pyq-btn-clear"
+                  >
+                    Clear ({selectedIds.length})
+                  </button>
                 )}
+
+                <span style={{ fontSize: 13, color: '#94a3b8', fontWeight: 400 }}>
+                  {questions.length > 0 ? (page - 1) * limit + 1 : 0}–{Math.min(page * limit, total)} of {total} questions
+                  {selectedIds.length > 0 && (
+                    <strong style={{ color: '#38bdf8', marginLeft: 8 }}>
+                      · {selectedIds.length} queued (~{estRecordingTime} min)
+                    </strong>
+                  )}
+                </span>
               </div>
-              {activeFilterCount > 0 && (
-                <button
-                  type="button"
-                  onClick={resetAllFilters}
-                  style={{
-                    background: 'rgba(239, 68, 68, 0.12)',
-                    color: '#f87171',
-                    border: '1px solid rgba(239, 68, 68, 0.3)',
-                    borderRadius: 8,
-                    padding: '4px 10px',
-                    fontSize: 12,
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                  }}
-                >
-                  Reset All
-                </button>
-              )}
-            </div>
-
-            <div className="pq-pyq-filter-grid">
-              {/* 1. Subject */}
-              <div className="pq-pyq-filter-group">
-                <label className="pq-pyq-filter-label">Subject</label>
-                <select
-                  value={subject}
-                  onChange={e => { setSubject(e.target.value); setTopic('ALL'); setPage(1); }}
-                  className="pq-pyq-select"
-                >
-                  <option value="ALL">All Subjects</option>
-                  {filterOptions.subjects.map(s => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* 2. Theme / Topic */}
-              <div className="pq-pyq-filter-group">
-                <label className="pq-pyq-filter-label">Theme / Topic</label>
-                <select
-                  value={topic}
-                  onChange={e => { setTopic(e.target.value); setPage(1); }}
-                  disabled={subject === 'ALL'}
-                  className="pq-pyq-select"
-                >
-                  <option value="ALL">All Themes in {subject === 'ALL' ? 'Subject' : subject}</option>
-                  {currentTopicGroups.length > 0 ? (
-                    currentTopicGroups.map((group, gIdx) => (
-                      <optgroup key={group.label || gIdx} label={group.label}>
-                        {Array.isArray(group.topics) && group.topics.map(t => (
-                          <option key={t} value={t}>{t}</option>
-                        ))}
-                      </optgroup>
-                    ))
-                  ) : null}
-                </select>
-              </div>
-
-              {/* 3. Sequence Order */}
-              <div className="pq-pyq-filter-group">
-                <label className="pq-pyq-filter-label">Sequence Order</label>
-                <select
-                  value={sortOrder}
-                  onChange={e => { setSortOrder(e.target.value); setPage(1); }}
-                  className="pq-pyq-select"
-                >
-                  <option value="syllabus">📖 Syllabus Sequence (NCERT)</option>
-                  <option value="exam">📅 Exam Year (Recent First)</option>
-                </select>
-              </div>
-
-              {/* 4. Exam */}
-              <div className="pq-pyq-filter-group">
-                <label className="pq-pyq-filter-label">Exam</label>
-                <select
-                  value={exam}
-                  onChange={e => { setExam(e.target.value); setPage(1); }}
-                  className="pq-pyq-select"
-                >
-                  <option value="ALL">All Exams</option>
-                  <option value="UPSC CSE">UPSC CSE</option>
-                  <option value="CDS">CDS</option>
-                </select>
-              </div>
-
-              {/* 5. Year */}
-              <div className="pq-pyq-filter-group">
-                <label className="pq-pyq-filter-label">Year</label>
-                <select
-                  value={year}
-                  onChange={e => { setYear(e.target.value); setPage(1); }}
-                  className="pq-pyq-select"
-                >
-                  <option value="ALL">All Years</option>
-                  {filterOptions.years.map(y => (
-                    <option key={y} value={y}>{y}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* 6. Pattern / Format */}
-              <div className="pq-pyq-filter-group">
-                <label className="pq-pyq-filter-label">Format / Pattern</label>
-                <select
-                  value={pattern}
-                  onChange={e => { setPattern(e.target.value); setPage(1); }}
-                  className="pq-pyq-select"
-                >
-                  <option value="ALL">All Formats</option>
-                  <option value="NEW">🔥 New Pattern (Pairs &amp; Statements)</option>
-                  <option value="PAIR">Pair-Based Only</option>
-                  <option value="STATEMENT">Statement I &amp; II Only</option>
-                </select>
-              </div>
-
-              {/* 7. Content Quality */}
-              <div className="pq-pyq-filter-group">
-                <label className="pq-pyq-filter-label">Content Quality</label>
-                <select
-                  value={answerStatus}
-                  onChange={e => { setAnswerStatus(e.target.value); setPage(1); }}
-                  className="pq-pyq-select"
-                >
-                  <option value="ALL">All Status</option>
-                  <option value="HAS_ANSWER">Has Correct Answer</option>
-                  <option value="MISSING_ANSWER">⚠️ Missing Answer</option>
-                  <option value="HAS_EXPL">Has Explanation</option>
-                  <option value="MISSING_EXPL">⚠️ Missing Explanation</option>
-                </select>
-              </div>
-
-              {/* 8. Per Page */}
-              <div className="pq-pyq-filter-group">
-                <label className="pq-pyq-filter-label">Per Page</label>
-                <select
-                  value={limit}
-                  onChange={e => { setLimit(parseInt(e.target.value, 10)); setPage(1); }}
-                  className="pq-pyq-select"
-                >
-                  <option value={25}>25</option>
-                  <option value={50}>50</option>
-                  <option value={100}>100</option>
-                </select>
-              </div>
-            </div>
-          </aside>
-        )}
-
-        <main className="pq-pyq-main">
-          {/* Top Search Row */}
-          <div className="pq-pyq-top-search-bar">
-            <button
-              type="button"
-              onClick={() => setSidebarOpen(prev => !prev)}
-              className="pq-pyq-btn-outline"
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '11px 14px' }}
-              title="Toggle Filter Sidebar"
-            >
-              <Filter size={16} color="#38bdf8" />
-              <span>{sidebarOpen ? 'Hide Filters' : 'Filters'}</span>
-            </button>
-
-            <div className="pq-pyq-search-box">
-              <Search size={18} color="#94a3b8" />
-              <input
-                type="text"
-                placeholder="Search by keywords, question stem text, articles, case laws, or question number..."
-                value={search}
-                onChange={e => { setSearch(e.target.value); setPage(1); }}
-                className="pq-pyq-search-input"
-              />
-              {search && (
-                <button
-                  type="button"
-                  onClick={() => { setSearch(''); setPage(1); }}
-                  style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
-                >
-                  <X size={16} />
-                </button>
-              )}
-            </div>
-          </div>
-
-      {/* ========================================================= */}
-      {/* BULK ACTION BAR & RECORDING QUEUE CONTROLLER             */}
-      {/* ========================================================= */}
-      <section className="pq-pyq-action-bar">
-        <div className="pq-pyq-action-left">
-          <button
-            type="button"
-            onClick={handleSelectAllOnPage}
-            className="pq-pyq-btn-outline"
-          >
-            {questions.length > 0 && questions.every(q => selectedIds.includes(q.id))
-              ? 'Deselect Page'
-              : `Select Page (${questions.length})`}
-          </button>
-
-          {selectedIds.length > 0 && (
-            <button
-              type="button"
-              onClick={handleClearSelection}
-              className="pq-pyq-btn-clear"
-            >
-              Clear Selection ({selectedIds.length})
-            </button>
-          )}
-
-          <span style={{ fontSize: 13.5, color: '#94a3b8', fontWeight: 600 }}>
-            Showing {questions.length > 0 ? (page - 1) * limit + 1 : 0}–{Math.min(page * limit, total)} of {total} questions
-            {selectedIds.length > 0 && (
-              <strong style={{ color: '#38bdf8', marginLeft: 8 }}>
-                · {selectedIds.length} queued (~{estRecordingTime} min lecture)
-              </strong>
-            )}
-          </span>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => handleLaunchBroadcast()}
-          disabled={selectedIds.length === 0}
-          className="pq-pyq-launch-btn"
-        >
-          <Play size={16} fill="currentColor" />
-          <span>Launch PYQ Broadcast Studio ({selectedIds.length})</span>
-        </button>
-      </section>
+            </section>
 
       {/* ========================================================= */}
       {/* QUESTION CARDS LIST                                       */}
@@ -578,57 +493,86 @@ export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACU
             const options = Array.isArray(q.options) ? q.options : [];
             const correctLabel = q.correctLabel ? String(q.correctLabel).toUpperCase() : null;
 
+            const cardStatus =
+              q.contentStatus ||
+              (!correctLabel ? 'broken' : q.hasExplanation ? 'ready' : 'incomplete');
+            const topicMeta = [q.srcSubject, q.srcTopic].filter(Boolean).join(' › ');
+            const rowMenuItems = [
+              {
+                id: 'present-solo',
+                label: 'Present solo',
+                onClick: () => handleLaunchBroadcast([q.id]),
+              },
+              {
+                id: 'attach-map',
+                label: hasAttachment ? 'Edit attached map' : 'Attach map / diagram',
+                onClick: () => openAttachModal(q),
+              },
+            ];
+            if (userRole === 'ADMIN') {
+              rowMenuItems.push({
+                id: 'edit-central',
+                label: 'Edit in PYQ Editor',
+                href: `/admin/pyq?search=${encodeURIComponent(q.id)}`,
+              });
+            }
+
             return (
               <div
                 key={q.id}
-                className={`pq-pyq-card ${isSelected ? 'is-selected' : ''}`}
+                className={`pq-pyq-card pyq-ui-card ${isSelected ? 'is-selected' : ''}`}
                 onClick={() => toggleSelect(q.id)}
               >
-                {/* Card Header */}
                 <div className="pq-pyq-card-head">
                   <div className="pq-pyq-card-meta">
                     <input
                       type="checkbox"
                       checked={isSelected}
+                      aria-label={`Select question ${q.questionNo || q.id}`}
                       onChange={() => {}}
-                      style={{ width: 18, height: 18, accentColor: '#38bdf8', cursor: 'pointer' }}
+                      style={{ width: 17, height: 17, accentColor: '#0284c7', cursor: 'pointer' }}
                     />
-                    <span className="pq-badge pq-badge-exam">
-                      {q.examName || 'UPSC CSE'} {q.examYear || ''}
-                    </span>
-                    {q.questionNo && (
-                      <span className="pq-badge pq-badge-qno">
-                        Q{q.questionNo}
-                      </span>
-                    )}
-                    <span className="pq-badge pq-badge-topic">
-                      {q.srcSubject || 'General Studies'}
-                    </span>
-                    {q.srcTopic && (
-                      <span style={{ fontSize: 12.5, fontWeight: 700, color: '#38bdf8' }}>
-                        {q.srcTopic}
-                      </span>
-                    )}
+                    <MetaLine
+                      parts={[
+                        `${q.examName || 'UPSC CSE'} ${q.examYear || ''}`.trim(),
+                        q.questionNo ? `Q${q.questionNo}` : null,
+                        topicMeta || null,
+                      ]}
+                    />
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    {hasAttachment && (
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 6, background: 'rgba(245, 158, 11, 0.2)', color: '#fbbf24', fontSize: 11.5, fontWeight: 800 }}>
-                        <ImageIcon size={12} /> Map / Diagram Attached
-                      </span>
-                    )}
-                    {q.difficulty && (
-                      <span style={{ fontSize: 11, fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase' }}>
-                        {q.difficulty}
-                      </span>
-                    )}
+                  <div
+                    style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <StatusBadge status={cardStatus} />
+                    <RowActions
+                      label={`Actions for Q${q.questionNo || q.id}`}
+                      inlineActions={[
+                        {
+                          id: 'inline-map',
+                          label: hasAttachment ? 'Edit Map' : 'Map',
+                          icon: <ImageIcon size={14} />,
+                          active: hasAttachment,
+                          onClick: () => openAttachModal(q),
+                        },
+                        {
+                          id: 'inline-present',
+                          label: 'Present',
+                          icon: <Play size={13} fill="currentColor" />,
+                          showLabel: true,
+                          onClick: () => handleLaunchBroadcast([q.id]),
+                        },
+                      ]}
+                      menuItems={rowMenuItems}
+                    />
                   </div>
                 </div>
 
-                {/* Question Stem Text */}
-                <p className="pq-pyq-stem-text">
-                  {q.stem}
-                </p>
+                {/* Question Stem Text (regular weight, same formatter as present mode) */}
+                <div className="pq-pyq-stem-text" style={{ fontWeight: 400 }}>
+                  <StemView stem={q.stem} size="sm" interactiveElimination={false} />
+                </div>
 
                 {/* Options Preview */}
                 {options.length > 0 && (
@@ -648,34 +592,6 @@ export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACU
                     })}
                   </div>
                 )}
-
-                {/* Card Footer Actions */}
-                <div className="pq-pyq-card-footer" onClick={e => e.stopPropagation()}>
-                  <div className="pq-pyq-action-btns">
-                    {/* Attach Map / Diagram Button */}
-                    <button
-                      type="button"
-                      onClick={() => openAttachModal(q)}
-                      className={`pq-pyq-attach-btn ${hasAttachment ? 'has-attachment' : ''}`}
-                      title="Attach high-res map or diagram slide to this question"
-                    >
-                      <ImageIcon size={14} />
-                      <span>{hasAttachment ? 'Edit Attached Map' : '+ Attach Map / Diagram'}</span>
-                    </button>
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <button
-                      type="button"
-                      onClick={() => handleLaunchBroadcast([q.id])}
-                      className="pq-pyq-present-solo-link"
-                      title="Open this question in 1080p Broadcast Studio"
-                    >
-                      <Play size={13} fill="currentColor" />
-                      <span>Present Solo</span>
-                    </button>
-                  </div>
-                </div>
               </div>
             );
           })}
@@ -693,11 +609,11 @@ export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACU
                 disabled={page <= 1}
                 className="pq-pyq-page-btn"
               >
-                ← Previous Page
+                Previous
               </button>
 
-              <span style={{ fontSize: 13.5, color: '#94a3b8', fontWeight: 600 }}>
-                Page <strong style={{ color: '#ffffff' }}>{page}</strong> of <strong>{totalPages}</strong> ({total} total questions)
+              <span style={{ fontSize: 13.5, color: '#94a3b8', fontWeight: 400 }}>
+                Page <strong style={{ color: '#ffffff' }}>{page}</strong> of <strong>{totalPages}</strong> ({total} total)
               </span>
 
               <button
@@ -706,12 +622,44 @@ export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACU
                 disabled={page >= totalPages}
                 className="pq-pyq-page-btn"
               >
-                Next Page →
+                Next
               </button>
             </footer>
           )}
         </main>
-      </div>
+        }
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 13, color: '#cbd5e1' }}>
+          <div>
+            <strong>{selectedIds.length}</strong> selected (~{estRecordingTime} min)
+          </div>
+          {selectedIds.length > 0 ? (
+            <>
+              <button
+                type="button"
+                onClick={() => handleLaunchBroadcast()}
+                className="pyq-ui-primary-btn"
+                style={{ justifyContent: 'center' }}
+              >
+                <Play size={14} fill="currentColor" />
+                <span>Present ({selectedIds.length})</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleClearSelection}
+                className="pyq-ui-secondary-btn"
+                style={{ justifyContent: 'center' }}
+              >
+                Clear Queue
+              </button>
+            </>
+          ) : (
+            <span style={{ color: '#94a3b8', fontSize: 12.5 }}>
+              Select questions from the list to queue them for recording.
+            </span>
+          )}
+        </div>
+      </CollapsibleRail>
 
       {/* ========================================================= */}
       {/* ATTACH MAP / DIAGRAM MODAL                                */}
@@ -727,6 +675,7 @@ export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACU
               <button
                 type="button"
                 onClick={() => setActiveAttachQ(null)}
+                aria-label="Close modal"
                 style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer' }}
               >
                 <X size={18} />
@@ -738,10 +687,11 @@ export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACU
             </p>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#38bdf8' }}>
+              <label htmlFor="attach-url-input" style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', color: '#94a3b8' }}>
                 Image / Diagram URL
               </label>
               <input
+                id="attach-url-input"
                 type="url"
                 placeholder="https://... (e.g. Google Cloud Storage or public image URL)"
                 value={attachUrl}
@@ -751,10 +701,11 @@ export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACU
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <label style={{ fontSize: 12, fontWeight: 800, textTransform: 'uppercase', color: '#38bdf8' }}>
+              <label htmlFor="attach-caption-input" style={{ fontSize: 12, fontWeight: 700, textTransform: 'uppercase', color: '#94a3b8' }}>
                 Slide Caption / Figure Note
               </label>
               <input
+                id="attach-caption-input"
                 type="text"
                 placeholder="e.g. Figure 1: Major River Basins of Peninsular India"
                 value={attachCaption}

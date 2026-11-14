@@ -1,0 +1,471 @@
+/* Shared PYQ Studio UI Kit — PRD §2 Cleanup Rules */
+
+.pyq-ui-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+  flex-wrap: wrap;
+}
+
+.pyq-ui-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #94a3b8;
+  min-width: 0;
+}
+
+.pyq-ui-breadcrumb a {
+  color: #94a3b8;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.pyq-ui-breadcrumb a:hover,
+.pyq-ui-breadcrumb a:focus-visible {
+  color: #f1f5f9;
+}
+
+.pyq-ui-breadcrumb-current {
+  color: #f8fafc;
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+}
+
+.pyq-ui-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pyq-ui-primary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 10px;
+  border: 1px solid #0284c7;
+  background: #0284c7;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.pyq-ui-primary-btn:hover {
+  background: #0369a1;
+  border-color: #0369a1;
+}
+
+.pyq-ui-secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 13px;
+  border-radius: 9px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(15, 23, 42, 0.72);
+  color: #e2e8f0;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.pyq-ui-secondary-btn:hover {
+  border-color: rgba(148, 163, 184, 0.42);
+  background: rgba(30, 41, 59, 0.85);
+}
+
+/* Focus-visible ring for every interactive control */
+.pyq-ui-primary-btn:focus-visible,
+.pyq-ui-secondary-btn:focus-visible,
+.pyq-ui-icon-btn:focus-visible,
+.pyq-ui-chip-remove:focus-visible,
+.pyq-ui-rail-toggle:focus-visible,
+.pyq-ui-filter-select:focus-visible,
+.pyq-ui-filter-input:focus-visible,
+.pyq-ui-menu-item:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 2px;
+}
+
+/* MetaLine: one quiet line */
+.pyq-ui-metaline {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 400;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+.pyq-ui-metaline-sep {
+  color: #475569;
+  user-select: none;
+}
+
+/* StatusBadge: semantic status only */
+.pyq-ui-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.pyq-ui-status-ready,
+.pyq-ui-status-recorded {
+  background: rgba(16, 185, 129, 0.14);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.pyq-ui-status-incomplete,
+.pyq-ui-status-needs_explanation {
+  background: rgba(245, 158, 11, 0.14);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.pyq-ui-status-broken {
+  background: rgba(239, 68, 68, 0.14);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.32);
+}
+
+.pyq-ui-status-neutral {
+  background: rgba(148, 163, 184, 0.12);
+  color: #cbd5e1;
+  border-color: rgba(148, 163, 184, 0.22);
+}
+
+/* RowActions: revealed on hover/focus or selected, plus "..." overflow */
+.pyq-ui-row-actions {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pyq-ui-row-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.pyq-ui-card:hover .pyq-ui-row-inline,
+.pyq-ui-card:focus-within .pyq-ui-row-inline,
+.pyq-ui-card.is-selected .pyq-ui-row-inline,
+.pyq-ui-row-actions.always-visible .pyq-ui-row-inline {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.pyq-ui-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 9px;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(15, 23, 42, 0.78);
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.pyq-ui-icon-btn:hover {
+  border-color: rgba(148, 163, 184, 0.42);
+  color: #ffffff;
+}
+
+.pyq-ui-icon-btn.is-active {
+  background: rgba(2, 132, 199, 0.2);
+  border-color: #0284c7;
+  color: #38bdf8;
+}
+
+.pyq-ui-menu-wrap {
+  position: relative;
+}
+
+.pyq-ui-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 60;
+  min-width: 185px;
+  padding: 6px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: #0f172a;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.pyq-ui-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: #e2e8f0;
+  font-size: 12.5px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.pyq-ui-menu-item:hover {
+  background: rgba(148, 163, 184, 0.14);
+}
+
+.pyq-ui-kbd {
+  font-size: 11px;
+  font-family: ui-monospace, SFMono-Regular, monospace;
+  color: #94a3b8;
+  background: rgba(148, 163, 184, 0.12);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+/* FilterBar: 3 visible + More + removable chips */
+.pyq-ui-filterbar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.pyq-ui-filter-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pyq-ui-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 165px;
+  flex: 1 1 180px;
+}
+
+.pyq-ui-filter-label {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.pyq-ui-filter-select,
+.pyq-ui-filter-input {
+  height: 36px;
+  padding: 0 11px;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: #0f172a;
+  color: #f1f5f9;
+  font-size: 13px;
+}
+
+.pyq-ui-more-popover {
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: #0f172a;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+  gap: 12px;
+}
+
+.pyq-ui-chips {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pyq-ui-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: rgba(30, 41, 59, 0.7);
+  color: #e2e8f0;
+  font-size: 12px;
+}
+
+.pyq-ui-chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0 2px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.pyq-ui-chip-remove:hover {
+  color: #f8fafc;
+}
+
+/* CollapsibleRail */
+.pyq-ui-layout {
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.pyq-ui-layout.is-collapsed {
+  grid-template-columns: 44px minmax(0, 1fr);
+}
+
+.pyq-ui-rail {
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: #0f172a;
+  padding: 12px;
+}
+
+.pyq-ui-layout.is-collapsed .pyq-ui-rail {
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.pyq-ui-rail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.pyq-ui-layout.is-collapsed .pyq-ui-rail-head {
+  margin-bottom: 0;
+}
+
+.pyq-ui-rail-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.pyq-ui-rail-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(15, 23, 42, 0.8);
+  color: #cbd5e1;
+  cursor: pointer;
+}
+
+/* Toolbar: <= 6 visible + Tools + "?" shortcut sheet */
+.pyq-ui-toolbar {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: rgba(15, 23, 42, 0.92);
+  backdrop-filter: blur(10px);
+}
+
+.pyq-ui-shortcut-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(2, 6, 23, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.pyq-ui-shortcut-sheet {
+  width: 100%;
+  max-width: 460px;
+  border-radius: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: #0f172a;
+  color: #f1f5f9;
+  padding: 20px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65);
+}
+
+.pyq-ui-shortcut-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.pyq-ui-shortcut-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+@media (max-width: 900px) {
+  .pyq-ui-layout,
+  .pyq-ui-layout.is-collapsed {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .pyq-ui-row-inline {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
