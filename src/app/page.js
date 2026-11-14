@@ -215,27 +215,6 @@ export default function PrelimsGPTCommandCenter() {
         
         {/* HERO SECTION */}
         <div style={{ textAlign: 'center', marginBottom: 'clamp(36px, 6vw, 56px)', maxWidth: '860px', margin: '0 auto clamp(36px, 6vw, 56px)' }}>
-          {/* Top Pill */}
-          <div style={{ 
-            display: 'inline-flex', 
-            alignItems: 'center', 
-            gap: '8px', 
-            padding: '6px 14px', 
-            maxWidth: '100%',
-            background: 'var(--bg-card, rgba(15, 23, 42, 0.6))', 
-            border: '1px solid var(--border-color, rgba(255, 255, 255, 0.1))',
-            borderRadius: '999px', 
-            color: 'var(--color-amber, #f59e0b)', 
-            fontSize: 'clamp(0.68rem, 2.2vw, 0.8rem)', 
-            fontWeight: 800, 
-            marginBottom: '20px', 
-            letterSpacing: '0.04em',
-            boxShadow: '0 4px 14px rgba(0,0,0,0.06)'
-          }}>
-            <Target size={15} style={{ color: 'var(--color-amber, #f59e0b)', flexShrink: 0 }} />
-            <span>UPSC CSE 2025–2026 · PRELIMS COMMAND CENTER</span>
-          </div>
-
           {/* Headline */}
           <h1 style={{ 
             fontSize: 'clamp(2rem, 6vw, 3.8rem)', 
