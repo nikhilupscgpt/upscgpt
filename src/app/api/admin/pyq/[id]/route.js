@@ -7,6 +7,7 @@ import { normalizeKeywordsList } from '@/lib/pyqKeywords';
 import { requireApiRole } from '@/lib/security/requireRole';
 import { enforcePyqScrapeLimits, normalizeOptions } from '@/lib/pyq/pyqAccess';
 import { invalidatePyqTreeCache } from '@/lib/pyq/tree-service';
+import { validatePyqSavePayload } from '@/lib/pyq/editor-validation';
 
 export async function GET(req, { params }) {
   try {
@@ -153,12 +154,67 @@ export async function PATCH(req, { params }) {
         .digest('hex');
     }
 
+    if (body.examCode !== undefined) {
+      updateData.examCode = body.examCode || null;
+    }
+
+    const mergedForValidation = {
+      stem: updateData.stem ?? existing.stem,
+      options: updateData.options ?? existing.options,
+      correctLabel: updateData.correctLabel ?? existing.correctLabel,
+      explanation: updateData.explanation !== undefined ? updateData.explanation : existing.explanation,
+      examCode: updateData.examCode !== undefined ? updateData.examCode : existing.examCode,
+      examName: updateData.examName ?? existing.examName,
+      srcTheme: updateData.srcTheme !== undefined ? updateData.srcTheme : existing.srcTheme,
+      difficulty: updateData.difficulty !== undefined ? updateData.difficulty : existing.difficulty,
+    };
+
+    const validation = validatePyqSavePayload(mergedForValidation);
+    if (!validation.ok) {
+      return NextResponse.json(
+        { error: validation.errors.join(' '), errors: validation.errors },
+        { status: 400 },
+      );
+    }
+
+    updateData.examCode = validation.computed.examCode;
+    updateData.explanationJson = validation.computed.explanationJson;
+    updateData.contentStatus = validation.computed.contentStatus;
+    updateData.missingFlags = validation.computed.missingFlags;
+    updateData.stemFormat = validation.computed.stemFormat;
+    updateData.updatedById = session.user?.id || null;
+
     updateData.reviewedBy = session.user?.name || 'admin';
     updateData.reviewedAt = new Date();
 
     const updated = await prisma.questionDraft.update({
       where: { id },
       data: updateData
+    });
+
+    await prisma.auditLog.create({
+      data: {
+        actorId: session.user?.id || 'admin',
+        action: 'QUESTION_EDITED',
+        entity: 'QuestionDraft',
+        entityId: id,
+        before: {
+          correctLabel: existing.correctLabel,
+          srcTopic: existing.srcTopic,
+          srcTheme: existing.srcTheme,
+          difficulty: existing.difficulty,
+          examCode: existing.examCode,
+          contentStatus: existing.contentStatus,
+        },
+        after: {
+          correctLabel: updated.correctLabel,
+          srcTopic: updated.srcTopic,
+          srcTheme: updated.srcTheme,
+          difficulty: updated.difficulty,
+          examCode: updated.examCode,
+          contentStatus: updated.contentStatus,
+        },
+      },
     });
     invalidatePyqTreeCache();
 

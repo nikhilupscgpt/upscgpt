@@ -29,6 +29,7 @@ import {
 import { isNewPatternQuestion, isPairQuestion, isStatementQuestion } from '@/lib/pyqPattern';
 import { getStructuredExplanation, formatQuestionForCopy, isDeepDiveReady } from '@/lib/pyqExplanationHelper';
 import { TOPIC_GROUPS, SUBJECT_ORDER } from '@/app/prelims/pyq/topicGroups';
+import { EditorBacklogBar } from '@/components/pyq-studio';
 
 /**
  * Shared pagination bar with First/Prev/Next/Last, numbered page pills, and direct "Go to page" jump.
@@ -899,6 +900,8 @@ export default function PyqAdminClient({ session }) {
       padding: '30px 24px 80px',
     }}>
       <div style={{ maxWidth: '1560px', margin: '0 auto' }}>
+
+        <EditorBacklogBar onBulkTagged={() => fetchQuestions?.()} />
 
         {/* TOP ADMIN BAR */}
         <div style={{
