@@ -2600,10 +2600,11 @@ function PyqPresenterClientInner({
             opacity: isToolbarVisible ? 1 : 0,
             pointerEvents: isToolbarVisible ? 'auto' : 'none',
             transition: 'opacity 0.2s ease',
+            overflow: 'visible',
             ...(prefs.toolbarPosition === 'left'
-              ? { left: 18, right: 'auto', bottom: '50%', transform: 'translateY(50%)', flexDirection: 'column', maxHeight: '88vh', overflowY: 'auto' }
+              ? { left: 18, right: 'auto', bottom: '50%', transform: 'translateY(50%)', flexDirection: 'column' }
               : prefs.toolbarPosition === 'right'
-              ? { right: 18, left: 'auto', bottom: '50%', transform: 'translateY(50%)', flexDirection: 'column', maxHeight: '88vh', overflowY: 'auto' }
+              ? { right: 18, left: 'auto', bottom: '50%', transform: 'translateY(50%)', flexDirection: 'column' }
               : {}),
           }}
         >
@@ -2723,9 +2724,6 @@ function PyqPresenterClientInner({
             <div
               style={{
                 position: 'absolute',
-                bottom: 'calc(100% + 10px)',
-                left: '50%',
-                transform: 'translateX(-50%)',
                 display: 'flex',
                 flexWrap: 'wrap',
                 alignItems: 'center',
@@ -2735,8 +2733,12 @@ function PyqPresenterClientInner({
                 background: theme === 'light' ? 'rgba(255,255,255,0.98)' : 'rgba(15,23,42,0.98)',
                 border: '1px solid rgba(148,163,184,0.3)',
                 boxShadow: '0 16px 40px rgba(0,0,0,0.45)',
-                width: 'min(760px, 92vw)',
                 zIndex: 10000,
+                ...(prefs.toolbarPosition === 'left'
+                  ? { left: 'calc(100% + 12px)', top: '50%', transform: 'translateY(-50%)', width: 'min(420px, 72vw)' }
+                  : prefs.toolbarPosition === 'right'
+                  ? { right: 'calc(100% + 12px)', top: '50%', transform: 'translateY(-50%)', width: 'min(420px, 72vw)' }
+                  : { bottom: 'calc(100% + 12px)', left: '50%', transform: 'translateX(-50%)', width: 'min(760px, 92vw)' }),
               }}
             >
 
