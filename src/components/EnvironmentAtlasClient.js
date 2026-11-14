@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
-import EnvironmentMap from '@/components/EnvironmentMap';
 import PageBar from '@/components/environment-atlas/PageBar';
 import PrevNextRow from '@/components/environment-atlas/PrevNextRow';
 import SpeciesList from '@/components/environment-atlas/SpeciesList';
 import SpeciesBody from '@/components/environment-atlas/SpeciesBody';
+import RightPanel from '@/components/environment-atlas/RightPanel';
 import { track, createActiveViewTracker } from '@/lib/analytics/client';
 import {
   Search,
@@ -32,7 +32,6 @@ export default function EnvironmentAtlasClient() {
   // UI State
   const [showHowItWorks, setShowHowItWorks] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [showAllNews, setShowAllNews] = useState(false);
   const [studyTab, setStudyTab] = useState('notes'); // 'notes' | 'pyqs'
   const [quizMode, setQuizMode] = useState(false);
   const [quizState, setQuizState] = useState(null);
@@ -103,15 +102,17 @@ export default function EnvironmentAtlasClient() {
     if (!activeItem) return [];
     const directTriggers = activeItem.newsTriggers || [];
     if (directTriggers.length > 0) {
-      return directTriggers.map((t) => ({
-        tag: t.tag || t.type || 'Current Affairs',
-        date: t.date || t.d || '2024-26',
-        what: t.what,
-        why: t.why || t.whyItMatters || '',
-        src: t.src || t.source || 'UPSC In-News',
-        url: t.url || '#',
-        via: t.via || '',
-      }));
+      return directTriggers
+        .map((t) => ({
+          tag: t.tag || t.type || 'Current Affairs',
+          date: t.date || t.d || '2024-26',
+          what: t.what,
+          why: t.why || t.whyItMatters || '',
+          src: String(t.src || t.source || '').trim(),
+          url: t.url && t.url !== '#' ? t.url : null,
+          via: t.via || '',
+        }))
+        .filter((n) => Boolean(n.src));
     }
 
     const placeNames = (activeItem.places || []).map((p) => (p.name || '').toLowerCase());
@@ -121,15 +122,17 @@ export default function EnvironmentAtlasClient() {
       return hit;
     });
 
-    return matched.map((n) => ({
-      tag: n.type || 'Policy update',
-      date: n.date || n.d,
-      what: n.what,
-      why: n.why,
-      src: n.src,
-      url: n.url,
-      via: n.via,
-    }));
+    return matched
+      .map((n) => ({
+        tag: n.type || 'Policy update',
+        date: n.date || n.d,
+        what: n.what,
+        why: n.why,
+        src: String(n.src || n.source || '').trim(),
+        url: n.url && n.url !== '#' ? n.url : null,
+        via: n.via,
+      }))
+      .filter((n) => Boolean(n.src));
   }, [activeItem, news]);
 
   // Check if an item has news
@@ -503,176 +506,17 @@ export default function EnvironmentAtlasClient() {
                 </div>
 
                 {/* Right Rail */}
-                <aside className="rail">
-                  {/* In News */}
-                  <div className="newsbox">
-                    <div
-                      className="lhd"
-                      style={{
-                        padding: '10px 0 6px',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)' }}>In news</span>
-                      {activeNews.length > 0 && <span className="ndot">{activeNews.length} recent</span>}
-                    </div>
-
-                    {activeNews.length > 0 ? (
-                      <>
-                        {(showAllNews ? activeNews : activeNews.slice(0, 2)).map((n, idx) => (
-                          <div key={idx} className="nitem">
-                            <div className="nmeta">
-                              <span className="ntype">{n.tag}</span>
-                              <span>{n.date}</span>
-                              {n.via && (
-                                <span
-                                  className="nvia"
-                                  style={{ marginLeft: 6, fontStyle: 'italic', fontSize: 12, color: 'var(--muted)' }}
-                                >
-                                  About its habitat: {n.via}
-                                </span>
-                              )}
-                            </div>
-                            <div className="nwhat">{n.what}</div>
-                            {n.why && (
-                              <div className="nwhy">
-                                <b>Why it matters:</b> {n.why}
-                              </div>
-                            )}
-                            {n.src && (
-                              <div className="nsrc">
-                                Source:{' '}
-                                {n.url ? (
-                                  <a href={n.url} target="_blank" rel="noreferrer">
-                                    {n.src}
-                                  </a>
-                                ) : (
-                                  <span>{n.src}</span>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                        {activeNews.length > 2 && (
-                          <button
-                            type="button"
-                            className="nmore"
-                            onClick={() => setShowAllNews(!showAllNews)}
-                          >
-                            {showAllNews ? 'Show fewer' : `See all ${activeNews.length} recent items`}
-                          </button>
-                        )}
-                      </>
-                    ) : (
-                      <div style={{ padding: '14px 0', fontSize: 13.5, color: 'var(--muted)' }}>
-                        No major news triggers in the last 18 months. Focus on the basics.
-                      </div>
-                    )}
-                    <div className="nfoot">
-                      Last 18 months. Items reviewed against their sources for Prelims 2025–26.
-                    </div>
-                  </div>
-
-                  {/* Habitat Map & Places */}
-                  <div className="sec">
-                    <h2>
-                      {activeNetwork?.label
-                        ? `${activeNetwork.label}: what to remember`
-                        : activeItem.slug.includes('tiger')
-                        ? 'Tiger reserves: what to remember'
-                        : 'Where does it live?'}
-                    </h2>
-                    <div className="netsum" style={{ fontSize: 13.5, color: 'var(--muted)', margin: '-4px 0 10px' }}>
-                      {activeNetwork
-                        ? `${activeNetwork.total} reserves in ${activeNetwork.states} states. You only need to know these few.`
-                        : `${(activeItem.places || []).length} key protected areas across India.`}
-                    </div>
-
-                    <div className="where-rail">
-                      <EnvironmentMap
-                        places={activeItem.places || []}
-                        highlightedStates={activeItem.states || []}
-                        network={activeNetwork}
-                      />
-
-                      <div className="places">
-                        {activeNetwork?.slots ? (
-                          <>
-                            {activeNetwork.slots.map((x, idx) => {
-                              const r = activeNetwork.reserves?.[x.r];
-                              return (
-                                <div key={idx} className="place slot">
-                                  <span className="pn">{idx + 1}</span>
-                                  <span>
-                                    <span className="sq">{x.q}</span>
-                                    <b>{r?.n || x.r}</b>
-                                    <small>{r?.st || ''}</small>
-                                    <div className="sa">{x.a}</div>
-                                    {x.more && <div className="smore">{x.more}</div>}
-                                  </span>
-                                </div>
-                              );
-                            })}
-                            {activeNetwork.stateMost && (
-                              <div className="place slot">
-                                <span className="pn st">MP</span>
-                                <span>
-                                  <span className="sq">State with the most</span>
-                                  <b>{activeNetwork.stateMost.st}</b>
-                                  <div className="sa">{activeNetwork.stateMost.a}</div>
-                                </span>
-                              </div>
-                            )}
-                          </>
-                        ) : (
-                          (activeItem.places || []).slice(0, 6).map((p, idx) => (
-                            <div key={idx} className="place slot">
-                              <span className="pn">{idx + 1}</span>
-                              <span>
-                                <b>{p.name}</b>
-                                <small>{p.state}</small>
-                                {p.note && <div className="sa">{p.note}</div>}
-                              </span>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Lives Alongside */}
-                  {mates.length > 0 && (
-                    <div className="sec">
-                      <h2>Lives alongside</h2>
-                      <div className="mates-note">Other species in the same parks. Learn them together.</div>
-                      <div className="mates">
-                        {mates.slice(0, 6).map((m) => (
-                          <button
-                            key={m.slug}
-                            type="button"
-                            className="mate"
-                            onClick={() => {
-                              setSelectedSlug(m.slug);
-                              const el = document.getElementById('center-scroll');
-                              if (el) el.scrollTop = 0;
-                            }}
-                          >
-                            <img
-                              src={m.imageUrl || `/species/${m.slug}.webp`}
-                              alt={m.title}
-                              onError={(e) => {
-                                e.currentTarget.src = '/species/bengal-tiger.webp';
-                              }}
-                            />
-                            <span>{m.title}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </aside>
+                <RightPanel
+                  activeItem={activeItem}
+                  activeNetwork={activeNetwork}
+                  newsItems={activeNews}
+                  mates={mates}
+                  onSelectSpecies={(slug) => {
+                    setSelectedSlug(slug);
+                    const el = document.getElementById('center-scroll');
+                    if (el) el.scrollTop = 0;
+                  }}
+                />
               </div>
             </>
           ) : (

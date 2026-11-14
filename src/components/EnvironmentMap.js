@@ -9,8 +9,10 @@ export default function EnvironmentMap({
   places = [],
   highlightedStates = [],
   network = null,
-  activePlaceIndex = 0,
-  onSelectPlace,
+  activePlaceIndex = null,
+  hoveredPlaceIndex = null,
+  onSelectPlace = null,
+  onHoverPlace = null,
 }) {
   const svgRef = useRef(null);
   const [isLight, setIsLight] = React.useState(false);
@@ -42,16 +44,22 @@ export default function EnvironmentMap({
 
     const g = svg.append('g');
 
-    // Filter points to map
+    // Filter & order points to match numbered list rows 1:1
     let points = [];
-    if (network && network.reserves) {
+    if (network && Array.isArray(network.slots) && network.reserves) {
+      points = network.slots
+        .map((slot) => network.reserves[slot.r])
+        .filter((r) => r && typeof r.lat === 'number' && typeof r.lon === 'number');
+    } else if (network && network.reserves) {
       points = Object.values(network.reserves).filter(
         (r) => typeof r.lat === 'number' && typeof r.lon === 'number'
       );
     } else if (network && Array.isArray(network.stats)) {
       points = network.stats.filter((s) => typeof s.lat === 'number' && typeof s.lon === 'number');
     } else if (Array.isArray(places)) {
-      points = places.filter((p) => typeof p.lat === 'number' && typeof p.lon === 'number');
+      points = places
+        .slice(0, 6)
+        .filter((p) => typeof p.lat === 'number' && typeof p.lon === 'number');
     }
 
     // Default projection for whole India
@@ -149,36 +157,46 @@ export default function EnvironmentMap({
       .attr('stroke-width', 1.2);
 
     // 3. Draw Pins
+    const projectedPoints = [];
     points.forEach((pt, idx) => {
       const coords = projection([pt.lon, pt.lat]);
       if (!coords) return;
       const [x, y] = coords;
       const isSelected = idx === activePlaceIndex;
+      const isHovered = idx === hoveredPlaceIndex;
+      const isEmphasized = isSelected || isHovered;
+      projectedPoints.push({ pt, idx, x, y, isSelected, isHovered, isEmphasized });
 
       const pinGroup = g
         .append('g')
         .attr('transform', `translate(${x}, ${y})`)
         .attr('cursor', 'pointer')
+        .on('mouseenter', () => {
+          if (onHoverPlace) onHoverPlace(idx);
+        })
+        .on('mouseleave', () => {
+          if (onHoverPlace) onHoverPlace(null);
+        })
         .on('click', () => {
           if (onSelectPlace) onSelectPlace(idx);
         });
 
-      // Pulse ring for primary or selected
-      if (pt.primary || isSelected) {
+      // Pulse/highlight ring for primary, hovered, or selected
+      if (pt.primary || isEmphasized) {
         pinGroup
           .append('circle')
-          .attr('r', isSelected ? 14 : 10)
+          .attr('r', isEmphasized ? 14 : 11)
           .attr('fill', 'none')
           .attr('stroke', isSelected ? '#10b981' : '#3b82f6')
-          .attr('stroke-width', 1.5)
-          .attr('opacity', 0.7);
+          .attr('stroke-width', isEmphasized ? 2 : 1.5)
+          .attr('opacity', isEmphasized ? 0.9 : 0.65);
       }
 
       // Main pin circle
       pinGroup
         .append('circle')
-        .attr('r', isSelected ? 8 : 6)
-        .attr('fill', isSelected ? '#10b981' : '#2563eb')
+        .attr('r', isEmphasized ? 9 : 7.5)
+        .attr('fill', isSelected ? '#10b981' : isHovered ? '#1d4ed8' : '#2563eb')
         .attr('stroke', '#ffffff')
         .attr('stroke-width', 1.5);
 
@@ -187,12 +205,48 @@ export default function EnvironmentMap({
         .append('text')
         .attr('text-anchor', 'middle')
         .attr('dy', 3.5)
-        .attr('font-size', 9)
+        .attr('font-size', 10)
         .attr('font-weight', 800)
         .attr('fill', '#ffffff')
         .text(idx + 1);
     });
-  }, [places, highlightedStates, network, activePlaceIndex, onSelectPlace, isLight]);
+
+    // 4. Draw hover / selected label pill (>= 11px) on top of all pins
+    projectedPoints
+      .filter((item) => item.isEmphasized)
+      .forEach(({ pt, x, y, isSelected }) => {
+        const rawLabel = pt.n || pt.name || '';
+        if (!rawLabel) return;
+        const labelText = rawLabel.length > 26 ? `${rawLabel.slice(0, 24)}…` : rawLabel;
+        const estWidth = Math.max(64, labelText.length * 6.5 + 16);
+        const boxHeight = 22;
+        const placeLeft = x > width * 0.55;
+        const rawBx = placeLeft ? x - estWidth - 12 : x + 12;
+        const bx = Math.max(8, Math.min(width - estWidth - 8, rawBx));
+        const by = Math.max(8, Math.min(height - boxHeight - 8, y - boxHeight / 2));
+
+        const labelGroup = g.append('g').attr('pointer-events', 'none');
+        labelGroup
+          .append('rect')
+          .attr('x', bx)
+          .attr('y', by)
+          .attr('width', estWidth)
+          .attr('height', boxHeight)
+          .attr('rx', 6)
+          .attr('fill', isThemeLight ? '#0f172a' : '#f8fafc')
+          .attr('stroke', isSelected ? '#10b981' : '#3b82f6')
+          .attr('stroke-width', 1.2);
+
+        labelGroup
+          .append('text')
+          .attr('x', bx + 8)
+          .attr('y', by + 14.5)
+          .attr('font-size', 11.5)
+          .attr('font-weight', 600)
+          .attr('fill', isThemeLight ? '#ffffff' : '#0f172a')
+          .text(labelText);
+      });
+  }, [places, highlightedStates, network, activePlaceIndex, hoveredPlaceIndex, onSelectPlace, onHoverPlace, isLight]);
 
   return (
     <div style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
