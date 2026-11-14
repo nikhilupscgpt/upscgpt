@@ -1103,10 +1103,10 @@ function StudyHighlightLayer({ highlight }) {
 }
 
 const LAYER_PIN_STYLE = {
-  sangams: { color: '#d97706', radius: '50%', border: '2px solid #ffffff' },
-  dams: { color: '#b91c1c', radius: '3px', border: '2px solid #ffffff' },
-  parks: { color: '#15803d', radius: '50%', border: '2px solid #ffffff' },
-  towns: { color: '#475569', radius: '2px', border: '2px solid #ffffff' },
+  sangams: { color: '#334155', radius: '50%', border: '2px solid #ffffff' },
+  dams: { color: '#334155', radius: '3px', border: '2px solid #ffffff' },
+  parks: { color: '#334155', radius: '50%', border: '2px solid #ffffff' },
+  towns: { color: '#334155', radius: '2px', border: '2px solid #ffffff' },
 };
 const pinIconCache = new Map();
 function numberedPinIcon(cat, n) {
@@ -1141,7 +1141,7 @@ function StudyLayers({ studyLayers, quizMode, onItemTap, onQuizTap, onTogglePick
       {ordered.map((t) => {
         const picked = !quizMode && pickColor.has(t.id);
         if (!quizMode && !picked && !on.tributaries) return null;
-        const color = quizMode ? '#0284c7' : picked ? pickColor.get(t.id) : t.side === 'left' ? '#7c3aed' : '#059669';
+        const color = quizMode ? '#0284c7' : picked ? pickColor.get(t.id) : '#3b82f6';
         const tap = () => {
           if (quizMode) {
             onQuizTap && onQuizTap(t.id);
@@ -1560,7 +1560,7 @@ export default function MappingCanvas({
           const hasSelection = Boolean(selectedNode);
           const isSelected = selectedNode?.id === node.id;
           const vis = getCategoryVisual(node);
-          const strokeColor = node.strokeColor || node.customColor || (vis.isRiver ? '#0284c7' : '#7c3aed');
+          const strokeColor = vis.isRiver ? '#0284c7' : (node.strokeColor || node.customColor || '#7c3aed');
           const selectedIsRiverLine = isSelected && vis.isRiver;
           const glowColor = isSelected
             ? (selectedIsRiverLine ? SELECTED_RIVER_GLOW : '#ef4444')

@@ -399,51 +399,15 @@ export default function RiverStudyPanel({
       {/* 2. CONNECT */}
       {tab === 'CONNECT' && (
         <>
-          {layerCats.length > 0 && (
-            <Card tone="soft">
-              <SectionTitle hint="one at a time keeps the map clear">Show on map</SectionTitle>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                {layerCats.map((cat) => {
-                  const meta = LAYER_META[cat];
-                  const on = Boolean(layersOn[cat]);
-                  return (
-                    <button
-                      key={cat}
-                      type="button"
-                      aria-pressed={on}
-                      onClick={() => onToggleLayer(cat)}
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 6,
-                        padding: '6px 10px',
-                        borderRadius: 8,
-                        fontSize: 12,
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        border: `1.5px solid ${on ? meta.color : '#cbd5e1'}`,
-                        background: on ? meta.color : '#ffffff',
-                        color: on ? '#ffffff' : C.ink,
-                      }}
-                    >
-                      <span aria-hidden>{on ? '☑' : '☐'}</span>
-                      {meta.label}
-                      <span style={{ opacity: 0.75, fontWeight: 600 }}>{mappableCount(layers, cat)}</span>
-                    </button>
-                  );
-                })}
-              </div>
-              {mappableCount(layers, 'tributaries') > 0 && (
-                <label
-                  style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 10, fontSize: 12, color: C.body, cursor: 'pointer' }}
-                >
-                  <input type="checkbox" checked={hideNames} onChange={onToggleHideNames} />
-                  <span>
-                    <strong>Hide names</strong> — test yourself; tap a line on the map to reveal it
-                  </span>
-                </label>
-              )}
-            </Card>
+          {mappableCount(layers, 'tributaries') > 0 && (
+            <label
+              style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '2px 2px', fontSize: 12, color: C.body, cursor: 'pointer' }}
+            >
+              <input type="checkbox" checked={hideNames} onChange={onToggleHideNames} />
+              <span>
+                <strong>Hide names</strong> — test yourself; tap a line on the map to reveal it
+              </span>
+            </label>
           )}
 
           {tribs.length > 0 && (
@@ -665,12 +629,11 @@ export default function RiverStudyPanel({
  * A numbered list whose numbers match the pins on the map. The header switch shows the
  * whole category on the map; tapping a row focuses that one place (its name appears).
  */
-function PinList({ cat, title, hint, items, on, onToggle, highlight, onHighlight, defaultOpen = false }) {
+function PinList({ cat, title, hint, items, highlight, onHighlight, defaultOpen = false }) {
   const [open, setOpen] = useState(defaultOpen);
   if (!items.length) return null;
   const meta = LAYER_META[cat];
-  const mappable = items.filter((x) => x.pins.length).length;
-  const expanded = open || on;
+  const expanded = open;
   return (
     <div style={{ border: `1px solid ${C.line}`, borderRadius: 12, background: '#ffffff' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px' }}>
@@ -685,27 +648,6 @@ function PinList({ cat, title, hint, items, on, onToggle, highlight, onHighlight
             ({items.length}) {expanded ? '▴' : '▾'}
           </span>
         </button>
-        {mappable > 0 && (
-          <button
-            type="button"
-            aria-pressed={on}
-            onClick={onToggle}
-            title={on ? 'Hide from map' : 'Show on map'}
-            style={{
-              flexShrink: 0,
-              fontSize: 11,
-              fontWeight: 700,
-              padding: '3px 8px',
-              borderRadius: 6,
-              cursor: 'pointer',
-              border: `1.5px solid ${on ? meta.color : '#cbd5e1'}`,
-              background: on ? meta.color : '#ffffff',
-              color: on ? '#ffffff' : C.body,
-            }}
-          >
-            {on ? '☑' : '☐'} Map
-          </button>
-        )}
       </div>
       {expanded && (
         <div style={{ padding: '0 12px 10px', display: 'flex', flexDirection: 'column' }}>
@@ -749,7 +691,7 @@ function PinList({ cat, title, hint, items, on, onToggle, highlight, onHighlight
                     fontSize: 10.5,
                     fontWeight: 800,
                     color: '#ffffff',
-                    background: can ? meta.color : '#e2e8f0',
+                    background: can ? '#334155' : '#e2e8f0',
                     borderRadius: cat === 'parks' || cat === 'sangams' ? 999 : 4,
                     minWidth: 20,
                     height: 20,
