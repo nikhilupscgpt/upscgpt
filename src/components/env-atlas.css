@@ -108,6 +108,10 @@ body:has(.env-atlas-wrapper) .upsc-global-footer {
   display: none;
 }
 
+body:has(.env-hub-page) .upsc-global-footer {
+  margin-top: 0;
+}
+
 /* ==========================================================================
    Top Sub-bar (Progress & Navigation)
    ========================================================================== */
