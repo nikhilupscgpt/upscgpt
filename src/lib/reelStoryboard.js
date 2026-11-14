@@ -305,7 +305,13 @@ export function parseStemForReels(rawStem, analysis) {
 export function buildPyqReelStoryboard(q) {
   if (!q) return null;
 
-  const { explanationText, analysis } = getStructuredExplanation(q);
+  const { explanationText: rawExplanationText, analysis } = getStructuredExplanation(q);
+  const explanationText =
+    typeof rawExplanationText === 'string'
+      ? rawExplanationText
+      : rawExplanationText && typeof rawExplanationText === 'object'
+        ? (rawExplanationText.text || rawExplanationText.summary || JSON.stringify(rawExplanationText))
+        : String(rawExplanationText || '');
   const correctLabel = q.correctLabel ? String(q.correctLabel).toUpperCase() : 'A';
   const options = Array.isArray(q.options) ? q.options : [];
   const correctOpt = options.find((o) => String(o.label).toUpperCase() === correctLabel);
@@ -401,11 +407,12 @@ export function buildPyqReelStoryboard(q) {
 
     if (b) {
       isCorrect = Boolean(b.isCorrect);
-      sourceText = b.text || b.explanation || '';
+      const rawSource = b.text ?? b.explanation ?? '';
+      sourceText = typeof rawSource === 'string' ? rawSource : JSON.stringify(rawSource);
     } else {
       // Fallback regex search in explanationText
       const regex = new RegExp(`statement\\s*${num}[^.]*?(correct|incorrect|true|false)`, 'i');
-      const m = (explanationText || '').match(regex);
+      const m = explanationText.match(regex);
       if (m) {
         const word = m[1].toLowerCase();
         isCorrect = word === 'correct' || word === 'true';
