@@ -1458,4 +1458,39 @@ model Snapshot {
   @@index([facultyId, questionId])
 }
 
+model PresenterPrefs {
+  facultyId        String  @id
+  defaultTool      String  @default("select")
+  rememberLastTool Boolean @default(false)
+  recordTheme      String  @default("light")
+  countdown        Boolean @default(true)
+  pauseCue         Boolean @default(true)
+  toolbarPosition  String  @default("bottom")
+  webcamCorner     String  @default("bottom-right")
+  webcamSize       String  @default("m")
+  fontScale        Float   @default(1)
+  toolSettings     Json?
+  updatedAt        DateTime @updatedAt
+}
+
+model BrandingSettings {
+  id                    String   @id @default("default")
+  logoLightRef          String   @default("/logo-light.png")
+  logoDarkRef           String   @default("/logo-dark.png")
+  showUrl               Boolean  @default(true)
+  opacity               Float    @default(0.6)
+  heightPct             Float    @default(3.5)
+  corner                String   @default("top-right")
+  facultyLabel          Boolean  @default(true)
+  facultyLabelSec       Int      @default(5)
+  openingCard           Boolean  @default(true)
+  openingSec            Int      @default(3)
+  closingCard           Boolean  @default(true)
+  closingText           String   @default("Practise all PYQs free at upscgpt.in")
+  closingSec            Int      @default(10)
+  facultyMayToggleCards Boolean  @default(false)
+  updatedById           String?
+  updatedAt             DateTime @updatedAt
+}
+
 

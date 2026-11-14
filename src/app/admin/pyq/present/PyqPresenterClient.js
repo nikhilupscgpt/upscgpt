@@ -53,6 +53,12 @@ import {
   Grid,
   AlignJustify,
   Cast,
+  Monitor,
+  Video,
+  SlidersHorizontal,
+  Wrench,
+  Pause,
+  Play,
 } from 'lucide-react';
 import { buildQuestionSteps, buildTopicSteps, buildMappingSteps } from '@/lib/pyqSlideDeck';
 import SlideBody, { SlideHead, Prose, useAutoFit } from './SlideBody';
@@ -63,7 +69,7 @@ import { Link as RemoteLink } from '@/lib/remote/link';
 import BoardConnectDialog from '@/components/remote/BoardConnectDialog';
 import CornerLogo from '@/components/present/CornerLogo';
 import { computeQuestionScale, buildQuestionMetaLine, buildStageCounter } from '@/lib/present/transition-math';
-import { matchShortcut } from '@/lib/present/shortcuts';
+import { matchShortcut, PRESENT_SHORTCUTS } from '@/lib/present/shortcuts';
 import '@/app/remote/remote.css';
 import './present.css';
 
@@ -203,6 +209,40 @@ function PyqPresenterClientInner({
 
   // Think timer (30s)
   const [timerSeconds, setTimerSeconds] = useState(null);
+
+  // Phase 4: PresenterPrefs, BrandingSettings, Timers, Recording, Toolbar Auto-Hide & Webcam Bubble
+  const [prefs, setPrefs] = useState({
+    defaultTool: 'select',
+    rememberLastTool: false,
+    recordTheme: 'light',
+    countdown: true,
+    pauseCue: true,
+    toolbarPosition: 'bottom',
+    webcamCorner: 'bottom-right',
+    webcamSize: 'm',
+    fontScale: 1,
+  });
+  const [branding, setBranding] = useState(null);
+  const [facultyName, setFacultyName] = useState('Faculty');
+  const [isPrefsOpen, setIsPrefsOpen] = useState(false);
+  const [isToolsOpen, setIsToolsOpen] = useState(false);
+  const [isToolbarVisible, setIsToolbarVisible] = useState(true);
+  const [isCursorHidden, setIsCursorHidden] = useState(false);
+  const [recStatus, setRecStatus] = useState('idle'); // 'idle' | 'countdown' | 'opening' | 'recording' | 'paused' | 'closing' | 'rehearsal'
+  const [recCountdownLeft, setRecCountdownLeft] = useState(null);
+  const [recElapsedSec, setRecElapsedSec] = useState(0);
+  const [qElapsedSec, setQElapsedSec] = useState(0);
+  const [totalElapsedSec, setTotalElapsedSec] = useState(0);
+  const [stopAfterQuestion, setStopAfterQuestion] = useState(false);
+  const [chapters, setChapters] = useState([]);
+  const [webcamVisible, setWebcamVisible] = useState(true);
+  const [showFacultyBanner, setShowFacultyBanner] = useState(false);
+  const webcamVideoRef = useRef(null);
+  const webcamStreamRef = useRef(null);
+  const mediaRecorderRef = useRef(null);
+  const recordedChunksRef = useRef([]);
+  const originalTitleRef = useRef(typeof document !== 'undefined' ? document.title : 'Lecture Studio');
+  const autoHideTimerRef = useRef(null);
 
   // Ink stroke maps:
   // 1. Question / Topic Panel persistent anchor ink: { [qId]: strokes[] }
@@ -523,12 +563,14 @@ function PyqPresenterClientInner({
     setIsZoomedImage(false);
     if (stepIndex < steps.length - 1) {
       setStepIndex(s => s + 1);
+    } else if (stopAfterQuestion && (recStatus === 'recording' || recStatus === 'paused')) {
+      handleStopRecording();
     } else if (qIndex < questions.length - 1) {
       setQIndex(q => q + 1);
       setStepIndex(0);
       setTimerSeconds(null);
     }
-  }, [stepIndex, steps.length, qIndex, questions.length]);
+  }, [stepIndex, steps.length, stopAfterQuestion, recStatus, handleStopRecording, qIndex, questions.length]);
 
   const handlePrev = useCallback(() => {
     setIsZoomedImage(false);
@@ -987,6 +1029,11 @@ function PyqPresenterClientInner({
           mergePages(msg.pages);
           break;
         }
+
+        case 'cmd': {
+          cmdHandlerRef.current?.(msg);
+          break;
+        }
       }
     } finally {
       setTimeout(() => {
@@ -995,11 +1042,352 @@ function PyqPresenterClientInner({
     }
   }, [isDisplayMode, getPagesSnapshot, mergePages]);
 
+  const cmdHandlerRef = useRef(null);
+
   // Always call the latest handler, but subscribe to the link only once.
   const incomingRef = useRef(handleIncomingMessage);
   incomingRef.current = handleIncomingMessage;
   const questionsRef = useRef(questions);
   questionsRef.current = questions;
+
+  // Phase 4: Load PresenterPrefs & BrandingSettings on mount
+  useEffect(() => {
+    if (isDisplayMode) return;
+    fetch('/api/admin/studio/prefs')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!data?.prefs) return;
+        setPrefs((prev) => ({ ...prev, ...data.prefs }));
+        if (typeof data.prefs.pauseCue === 'boolean') setPauseCueEnabled(data.prefs.pauseCue);
+        if (data.prefs.fontScale) setContentFontScale(data.prefs.fontScale);
+        if (data.facultyName) setFacultyName(data.facultyName);
+      })
+      .catch(() => {});
+
+    fetch('/api/admin/studio/branding')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.branding) setBranding(data.branding);
+      })
+      .catch(() => {});
+  }, [isDisplayMode]);
+
+  // Phase 4: Timers (per-question + total + recording elapsed) & Tab title indicator
+  useEffect(() => {
+    setQElapsedSec(0);
+  }, [qIndex]);
+
+  useEffect(() => {
+    if (isDisplayMode) return;
+    const iv = setInterval(() => {
+      setQElapsedSec((s) => s + 1);
+      setTotalElapsedSec((s) => s + 1);
+      if (recStatus === 'recording') {
+        setRecElapsedSec((s) => s + 1);
+      }
+    }, 1000);
+    return () => clearInterval(iv);
+  }, [isDisplayMode, recStatus]);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (recStatus === 'recording') {
+      const m = String(Math.floor(recElapsedSec / 60)).padStart(2, '0');
+      const s = String(recElapsedSec % 60).padStart(2, '0');
+      document.title = `🔴 REC ${m}:${s} | UPSCgpt Studio`;
+    } else if (recStatus === 'paused') {
+      const m = String(Math.floor(recElapsedSec / 60)).padStart(2, '0');
+      const s = String(recElapsedSec % 60).padStart(2, '0');
+      document.title = `⏸ PAUSED ${m}:${s} | UPSCgpt Studio`;
+    } else {
+      document.title = originalTitleRef.current || 'Lecture Studio Broadcast Mode | Admin';
+    }
+  }, [recStatus, recElapsedSec]);
+
+  // Record chapter timestamp on step/question change during active recording (after opening card)
+  useEffect(() => {
+    if (recStatus !== 'recording' || !currentQ) return;
+    const label = `Q${qIndex + 1} · ${currentStep?.title || currentQ?.title || 'Step'}`;
+    setChapters((prev) => {
+      const last = prev[prev.length - 1];
+      if (last && last.title === label && Math.abs(last.sec - recElapsedSec) < 2) return prev;
+      return [...prev, { sec: recElapsedSec, title: label }];
+    });
+  }, [recStatus, qIndex, stepIndex, currentQ, currentStep?.title]);
+
+  // Phase 4: 2s Toolbar & Cursor auto-hide (always hidden while recording unless bottom hover or '/')
+  useEffect(() => {
+    const isRec = recStatus === 'recording' || recStatus === 'paused' || recStatus === 'opening' || recStatus === 'closing';
+    const resetTimers = (e) => {
+      setIsCursorHidden(false);
+      const nearBottom = e && typeof e.clientY === 'number' && typeof window !== 'undefined' && e.clientY >= window.innerHeight - 32;
+      if (!isRec || nearBottom) {
+        setIsToolbarVisible(true);
+      } else {
+        setIsToolbarVisible(false);
+      }
+      if (autoHideTimerRef.current) clearTimeout(autoHideTimerRef.current);
+      autoHideTimerRef.current = setTimeout(() => {
+        setIsToolbarVisible(false);
+        if (activeTool !== 'laser') {
+          setIsCursorHidden(true);
+        }
+      }, 2000);
+    };
+
+    if (isRec) {
+      setIsToolbarVisible(false);
+    } else {
+      setIsToolbarVisible(true);
+    }
+
+    window.addEventListener('pointermove', resetTimers, { passive: true });
+    return () => {
+      window.removeEventListener('pointermove', resetTimers);
+      if (autoHideTimerRef.current) clearTimeout(autoHideTimerRef.current);
+    };
+  }, [recStatus, activeTool]);
+
+  // Phase 4: Webcam live stream when showWebcamBox is enabled
+  useEffect(() => {
+    if (!showWebcamBox || isDisplayMode) {
+      if (webcamStreamRef.current) {
+        webcamStreamRef.current.getTracks().forEach((t) => t.stop());
+        webcamStreamRef.current = null;
+      }
+      return;
+    }
+    let cancelled = false;
+    if (typeof navigator !== 'undefined' && navigator.mediaDevices?.getUserMedia) {
+      navigator.mediaDevices
+        .getUserMedia({ video: { width: 320, height: 320, facingMode: 'user' }, audio: false })
+        .then((stream) => {
+          if (cancelled) {
+            stream.getTracks().forEach((t) => t.stop());
+            return;
+          }
+          webcamStreamRef.current = stream;
+          if (webcamVideoRef.current) {
+            webcamVideoRef.current.srcObject = stream;
+          }
+        })
+        .catch(() => {});
+    }
+    return () => {
+      cancelled = true;
+    };
+  }, [showWebcamBox, isDisplayMode]);
+
+  const handleSavePrefs = useCallback(async (nextPrefs) => {
+    setPrefs(nextPrefs);
+    setPauseCueEnabled(nextPrefs.pauseCue);
+    setContentFontScale(nextPrefs.fontScale || 1);
+    try {
+      await fetch('/api/admin/studio/prefs', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(nextPrefs),
+      });
+    } catch {}
+  }, []);
+
+  const handleStopRecording = useCallback(() => {
+    const finishStop = () => {
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        try { mediaRecorderRef.current.stop(); } catch {}
+      }
+      setRecStatus('idle');
+      setStopAfterQuestion(false);
+      setActiveToolState('none'); // §3.1: finishing recording always returns to Select
+    };
+
+    if ((recStatus === 'recording' || recStatus === 'paused') && (branding?.closingCard !== false)) {
+      const closingSec = Math.min(20, Math.max(3, branding?.closingSec || 10));
+      setRecStatus('closing');
+      setTimeout(finishStop, closingSec * 1000);
+    } else {
+      finishStop();
+    }
+  }, [recStatus, branding]);
+
+  const handleTogglePauseRecording = useCallback(() => {
+    setRecStatus((prev) => {
+      if (prev === 'recording') {
+        try { mediaRecorderRef.current?.pause(); } catch {}
+        return 'paused';
+      }
+      if (prev === 'paused') {
+        try { mediaRecorderRef.current?.resume(); } catch {}
+        return 'recording';
+      }
+      return prev;
+    });
+  }, []);
+
+  const beginLiveRecording = useCallback(() => {
+    setRecElapsedSec(0);
+    setChapters([]);
+    setShowWebcamBox(true);
+    setWebcamVisible(true);
+    if (prefs.recordTheme === 'light' || prefs.recordTheme === 'dark') {
+      setTheme(prefs.recordTheme);
+    }
+
+    const startActual = () => {
+      setRecStatus('recording');
+      if (branding?.facultyLabel !== false) {
+        setShowFacultyBanner(true);
+        const labelMs = Math.max(1, branding?.facultyLabelSec || 5) * 1000;
+        setTimeout(() => setShowFacultyBanner(false), labelMs);
+      }
+      // Capture stage canvas stream when available
+      try {
+        const inkCanvas = stageRef.current?.querySelector('canvas[data-pq-ink-canvas="true"]');
+        if (inkCanvas && typeof inkCanvas.captureStream === 'function' && typeof MediaRecorder !== 'undefined') {
+          const stream = inkCanvas.captureStream(30);
+          recordedChunksRef.current = [];
+          const mr = new MediaRecorder(stream, { mimeType: 'video/webm' });
+          mr.ondataavailable = (ev) => {
+            if (ev.data && ev.data.size > 0) recordedChunksRef.current.push(ev.data);
+          };
+          mr.onstop = () => {
+            if (recordedChunksRef.current.length > 0) {
+              const blob = new Blob(recordedChunksRef.current, { type: 'video/webm' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `lecture-${Date.now()}.webm`;
+              a.click();
+              setTimeout(() => URL.revokeObjectURL(url), 5000);
+            }
+          };
+          mr.start(1000);
+          mediaRecorderRef.current = mr;
+        }
+      } catch {}
+    };
+
+    if (branding?.openingCard !== false) {
+      const openSec = Math.max(1, branding?.openingSec || 3);
+      setRecStatus('opening');
+      setTimeout(startActual, openSec * 1000);
+    } else {
+      startActual();
+    }
+  }, [prefs.recordTheme, branding, setTheme]);
+
+  const handleStartRecording = useCallback(() => {
+    if (recStatus !== 'idle' && recStatus !== 'rehearsal') return;
+    if (prefs.countdown) {
+      setRecStatus('countdown');
+      setRecCountdownLeft(3);
+      let left = 3;
+      const iv = setInterval(() => {
+        left -= 1;
+        if (left > 0) {
+          setRecCountdownLeft(left);
+        } else {
+          clearInterval(iv);
+          setRecCountdownLeft(null);
+          beginLiveRecording();
+        }
+      }, 1000);
+    } else {
+      beginLiveRecording();
+    }
+  }, [recStatus, prefs.countdown, beginLiveRecording]);
+
+  const handleStartRehearsal = useCallback(() => {
+    setQElapsedSec(0);
+    setTotalElapsedSec(0);
+    setRecStatus((prev) => (prev === 'rehearsal' ? 'idle' : 'rehearsal'));
+  }, []);
+
+  // Open Presenter View second window synced via RemoteLink (no BroadcastChannel)
+  const handleOpenPresenterView = useCallback(async () => {
+    if (isDisplayMode) return;
+    let link = linkRef.current;
+    if (!link || link.stopped || link.status === 'failed') {
+      link = new RemoteLink('display');
+      linkRef.current = link;
+      link.watch((s, info) => {
+        setLinkStatus(s);
+        setStatusInfo(info || '');
+      });
+      link.on((msg) => incomingRef.current?.(msg));
+    }
+    try {
+      const code = link.code || (await link.host());
+      setPairedCode(code);
+      if (typeof window !== 'undefined') {
+        window.open(
+          `/admin/studio/present/presenter-view?code=${encodeURIComponent(code)}`,
+          'pq_presenter_view',
+          'width=1260,height=800'
+        );
+      }
+    } catch {}
+  }, [isDisplayMode]);
+
+  // Broadcast Presenter View metadata whenever slide/timer/recording changes
+  useEffect(() => {
+    if (isDisplayMode || linkStatus !== 'connected' || !linkRef.current) return;
+    const nextStepObj = steps[stepIndex + 1] || null;
+    linkRef.current.send({
+      t: 'presenter_meta',
+      payload: {
+        qIndex,
+        stepIndex,
+        totalSteps: steps.length,
+        currentStepTitle: currentStep?.title || '',
+        currentStepSummary: currentStep?.summary || currentStep?.explanation || '',
+        nextStepTitle: nextStepObj?.title || null,
+        nextStepSummary: nextStepObj?.summary || '',
+        currentQ: currentQ
+          ? {
+              id: currentQ.id,
+              correctOption: currentQ.correctOption || currentQ.answer || '',
+              explanation: currentQ.explanation || currentQ.cumulativeSummary || '',
+            }
+          : null,
+        questions: questions.map((q, idx) => ({
+          id: q.id || idx,
+          label: q.title || q.place || (q.stem ? q.stem.slice(0, 56) : `Question ${idx + 1}`),
+        })),
+        qElapsedSec,
+        totalElapsedSec,
+        targetSecPerQuestion: 120,
+        recStatus,
+        recElapsedSec,
+        stopAfterQuestion,
+        chapters,
+      },
+    });
+  }, [
+    isDisplayMode,
+    linkStatus,
+    qIndex,
+    stepIndex,
+    steps,
+    currentStep,
+    currentQ,
+    questions,
+    qElapsedSec,
+    totalElapsedSec,
+    recStatus,
+    recElapsedSec,
+    stopAfterQuestion,
+    chapters,
+  ]);
+
+  cmdHandlerRef.current = (msg) => {
+    if (msg.action === 'next') handleNext();
+    else if (msg.action === 'prev') handlePrev();
+    else if (msg.action === 'jump' && typeof msg.qIndex === 'number') jumpToItem(msg.qIndex);
+    else if (msg.action === 'toggle_pause') handleTogglePauseRecording();
+    else if (msg.action === 'stop_after_q') setStopAfterQuestion((v) => !v);
+    else if (msg.action === 'stop_rec') handleStopRecording();
+  };
 
   // Connect to Board (iPad side)
   const handleConnectToBoard = useCallback((code) => {
@@ -1420,11 +1808,27 @@ function PyqPresenterClientInner({
           setBoardMode(m => (m === 'black' ? null : 'black'));
           break;
         case 'view.theme':
-          toggleTheme();
+          if (recStatus === 'recording' || recStatus === 'paused') {
+            setWebcamVisible((v) => !v);
+          } else {
+            toggleTheme();
+          }
           break;
         case 'view.fullscreen':
           e.preventDefault();
           toggleFullscreen();
+          break;
+        case 'view.presenterView':
+          e.preventDefault();
+          handleOpenPresenterView();
+          break;
+        case 'view.toolbarReveal':
+          e.preventDefault();
+          setIsToolbarVisible(true);
+          break;
+        case 'rec.togglePause':
+          e.preventDefault();
+          handleTogglePauseRecording();
           break;
         case 'view.help':
           setShowHelp(h => !h);
@@ -1469,6 +1873,9 @@ function PyqPresenterClientInner({
     handleRedo,
     handleCaptureSnapshot,
     handleConfirmClear,
+    handleOpenPresenterView,
+    handleTogglePauseRecording,
+    recStatus,
     toggleTheme,
     setActiveTool,
   ]);
@@ -1510,10 +1917,13 @@ function PyqPresenterClientInner({
         <div
           ref={stageRef}
           className={`pq-present-stage ${presentationMode === 'screen' ? 'is-mode-screen' : 'is-mode-16-9'} ${isMappingMode ? 'is-mapping-layout' : ''} ${isMappingMode && mapWidthMode === 'wide' ? 'is-map-wide' : ''} ${isMappingMode && mapWidthMode === 'full' ? 'is-map-full' : ''} ${isFullStageScratchpad ? 'is-full-stage-scratchpad' : ''} ${isStep1FullWidth ? 'is-step1-full' : ''} ${isTakeawayFullWidth ? 'is-takeaway-full' : ''} ${isPyqSplit ? 'is-pyq-split' : ''}`}
-          style={presentationMode === '16:9' ? {
-            transform: `scale(${scale})`,
-            transformOrigin: 'center center',
-          } : undefined}
+          style={{
+            ...(presentationMode === '16:9' ? {
+              transform: `scale(${scale})`,
+              transformOrigin: 'center center',
+            } : {}),
+            ...(isCursorHidden && activeTool !== 'laser' ? { cursor: 'none' } : {}),
+          }}
         >
           {/* Zoomable View Container (Section 6, Rule 7) */}
           <div
@@ -1535,8 +1945,8 @@ function PyqPresenterClientInner({
                 : { width: '100%', height: '100%', display: 'grid', gridTemplateColumns: 'inherit', gridTemplateRows: 'minmax(0, 100%)', gridColumn: '1 / -1', minHeight: 0 }
             }
           >
-          {/* Corner Logo (§2.7, top-right, every step, reserved corner) */}
-          <CornerLogo theme={theme} />
+          {/* Corner Logo (§2.7, top-right, every step, reserved corner; never removable by Faculty) */}
+          <CornerLogo theme={theme} branding={branding} />
 
           {/* 30s Countdown Timer Overlay */}
           {timerSeconds !== null && (
@@ -2036,6 +2446,112 @@ function PyqPresenterClientInner({
               {snapshotToast}
             </div>
           )}
+
+          {/* Round Webcam Bubble rendered inside the stage (clickable corner cycle, 3 sizes, M to hide) */}
+          {showWebcamBox && webcamVisible && (
+            <div
+              onClick={() => {
+                const order = ['bottom-right', 'bottom-left', 'top-left', 'top-right'];
+                const nextCorner = order[(order.indexOf(prefs.webcamCorner) + 1) % order.length];
+                handleSavePrefs({ ...prefs, webcamCorner: nextCorner });
+              }}
+              title="Click to move corner · Press M while recording to hide"
+              style={{
+                position: 'absolute',
+                zIndex: 55,
+                width: prefs.webcamSize === 's' ? 112 : prefs.webcamSize === 'l' ? 196 : 148,
+                height: prefs.webcamSize === 's' ? 112 : prefs.webcamSize === 'l' ? 196 : 148,
+                borderRadius: '50%',
+                overflow: 'hidden',
+                border: '3px solid rgba(56, 189, 248, 0.75)',
+                boxShadow: '0 10px 30px rgba(0,0,0,0.45)',
+                background: '#0f172a',
+                cursor: 'pointer',
+                ...(prefs.webcamCorner === 'top-left' ? { top: 28, left: 28 } :
+                   prefs.webcamCorner === 'top-right' ? { top: 88, right: 28 } :
+                   prefs.webcamCorner === 'bottom-left' ? { bottom: 36, left: 28 } :
+                   { bottom: 36, right: 28 }),
+              }}
+            >
+              <video
+                ref={webcamVideoRef}
+                autoPlay
+                muted
+                playsInline
+                style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }}
+              />
+            </div>
+          )}
+
+          {/* Faculty name label for first 5s of recording */}
+          {showFacultyBanner && (
+            <div
+              style={{
+                position: 'absolute',
+                bottom: 42,
+                left: 36,
+                zIndex: 54,
+                padding: '6px 14px',
+                borderRadius: 999,
+                background: 'rgba(15, 23, 42, 0.78)',
+                color: '#f8fafc',
+                fontSize: 13,
+                fontWeight: 700,
+                transition: 'opacity 0.5s ease',
+              }}
+            >
+              Prof. {facultyName} · upscgpt+
+            </div>
+          )}
+
+          {/* 3-2-1 Countdown Overlay */}
+          {recStatus === 'countdown' && recCountdownLeft !== null && (
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                zIndex: 75,
+                background: 'rgba(2, 6, 23, 0.72)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 120,
+                fontWeight: 900,
+                color: '#f8fafc',
+              }}
+            >
+              {recCountdownLeft}
+            </div>
+          )}
+
+          {/* Opening & Closing Cards (rendered into recording; excluded from chapters) */}
+          {(recStatus === 'opening' || recStatus === 'closing') && (
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                zIndex: 72,
+                background: theme === 'light' ? '#ffffff' : '#090d16',
+                color: theme === 'light' ? '#0f172a' : '#f8fafc',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 16,
+                textAlign: 'center',
+                padding: 48,
+              }}
+            >
+              <div style={{ fontSize: 38, fontWeight: 900, letterSpacing: '-0.02em' }}>
+                upscgpt<span style={{ color: '#38bdf8' }}>+</span>
+              </div>
+              <div style={{ fontSize: 28, fontWeight: 700, maxWidth: 820 }}>
+                {recStatus === 'opening'
+                  ? (currentQ?.topic || currentQ?.examName || 'UPSC Prelims PYQ Discussion')
+                  : (branding?.closingText || 'Practise all PYQs free at upscgpt.in')}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -2053,7 +2569,20 @@ function PyqPresenterClientInner({
           <span>Tools</span>
         </button>
       ) : (
-        <footer className="pq-present-dock">
+        <footer
+          className="pq-present-dock"
+          data-dock-pos={prefs.toolbarPosition}
+          style={{
+            opacity: isToolbarVisible ? 1 : 0,
+            pointerEvents: isToolbarVisible ? 'auto' : 'none',
+            transition: 'opacity 0.2s ease',
+            ...(prefs.toolbarPosition === 'left'
+              ? { left: 18, right: 'auto', bottom: '50%', transform: 'translateY(50%)', flexDirection: 'column', maxHeight: '88vh', overflowY: 'auto' }
+              : prefs.toolbarPosition === 'right'
+              ? { right: 18, left: 'auto', bottom: '50%', transform: 'translateY(50%)', flexDirection: 'column', maxHeight: '88vh', overflowY: 'auto' }
+              : {}),
+          }}
+        >
           {/* Deck Navigator */}
           <button
             type="button"
@@ -2081,24 +2610,23 @@ function PyqPresenterClientInner({
             type="button"
             onClick={handleNext}
             className="pq-dock-btn"
-            title="Next Step [Space / Right Arrow]"
+            title="Next Step [Right Arrow / Enter]"
           >
             <ChevronRight size={18} />
           </button>
 
           <div className="pq-dock-sep" />
 
-          {/* Pan / Interact Map or Cursor */}
+          {/* Max 6 visible controls (§5.2): Select, Pen, Brush, Highlighter, Laser, Colours + Tools */}
           <button
             type="button"
             onClick={() => setActiveTool('none')}
             className={`pq-dock-btn ${activeTool === 'none' ? 'is-active' : ''}`}
-            title="Pan / Interact with Map [V]"
+            title="Select / Pointer [V]"
           >
             <Move size={16} />
           </button>
 
-          {/* Drawing Tools */}
           <button
             type="button"
             onClick={() => setActiveTool(t => (t === 'pen' ? 'none' : 'pen'))}
@@ -2134,6 +2662,59 @@ function PyqPresenterClientInner({
           >
             <Zap size={16} />
           </button>
+
+          {/* Color Palette */}
+          <div className="pq-dock-colors">
+            {palette.map(c => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => {
+                  setActiveColor(c);
+                  if (activeTool === 'none' || activeTool === 'eraser') setActiveTool('pen');
+                }}
+                className={`pq-color-dot ${activeColor === c ? 'is-selected' : ''}`}
+                style={{ background: c, color: c }}
+                title={`Color: ${c}`}
+              />
+            ))}
+          </div>
+
+          <div className="pq-dock-sep" />
+
+          {/* Tools Drawer Toggle */}
+          <button
+            type="button"
+            onClick={() => setIsToolsOpen(o => !o)}
+            className={`pq-dock-btn ${isToolsOpen ? 'is-active' : ''}`}
+            style={{ width: 'auto', padding: '0 10px', gap: 5, fontSize: 12, fontWeight: 700 }}
+            title="More Tools, Presenter View & Recording"
+          >
+            <Wrench size={14} />
+            <span>Tools</span>
+          </button>
+
+          {/* Secondary Tools Popover */}
+          {isToolsOpen && (
+            <div
+              style={{
+                position: 'absolute',
+                bottom: 'calc(100% + 10px)',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                gap: 6,
+                padding: '10px 12px',
+                borderRadius: 14,
+                background: theme === 'light' ? 'rgba(255,255,255,0.98)' : 'rgba(15,23,42,0.98)',
+                border: '1px solid rgba(148,163,184,0.3)',
+                boxShadow: '0 16px 40px rgba(0,0,0,0.45)',
+                width: 'min(760px, 92vw)',
+                zIndex: 10000,
+              }}
+            >
 
           <button
             type="button"
@@ -2190,7 +2771,6 @@ function PyqPresenterClientInner({
             <Crosshair size={16} />
           </button>
 
-          {/* Dynamic Blank Scratchpad Slide */}
           <button
             type="button"
             onClick={() => handleAddScratchpad(false)}
@@ -2199,25 +2779,6 @@ function PyqPresenterClientInner({
           >
             <FilePlus2 size={16} />
           </button>
-
-          <div className="pq-dock-sep" />
-
-          {/* Color Palette */}
-          <div className="pq-dock-colors">
-            {palette.map(c => (
-              <button
-                key={c}
-                type="button"
-                onClick={() => {
-                  setActiveColor(c);
-                  if (activeTool === 'none' || activeTool === 'eraser') setActiveTool('pen');
-                }}
-                className={`pq-color-dot ${activeColor === c ? 'is-selected' : ''}`}
-                style={{ background: c, color: c }}
-                title={`Color: ${c}`}
-              />
-            ))}
-          </div>
 
           <div className="pq-dock-sep" />
 
@@ -2458,6 +3019,81 @@ function PyqPresenterClientInner({
           >
             <ChevronDown size={16} />
           </button>
+
+          <div className="pq-dock-sep" />
+
+          {/* Presenter View (Shift+P), Record, Rehearse, Dock Position & Preferences */}
+          {!isDisplayMode && (
+            <>
+              <button
+                type="button"
+                onClick={handleOpenPresenterView}
+                className="pq-dock-btn"
+                style={{ width: 'auto', padding: '0 9px', gap: 5, fontSize: 11.5, fontWeight: 700 }}
+                title="Open Presenter View Window [Shift+P]"
+              >
+                <Monitor size={14} />
+                <span>Presenter View</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => (recStatus === 'recording' || recStatus === 'paused' ? handleStopRecording() : handleStartRecording())}
+                className={`pq-dock-btn ${recStatus === 'recording' || recStatus === 'paused' ? 'is-active' : ''}`}
+                style={{ width: 'auto', padding: '0 9px', gap: 5, fontSize: 11.5, fontWeight: 700, color: recStatus === 'recording' ? '#f87171' : undefined }}
+                title={recStatus === 'recording' || recStatus === 'paused' ? 'Stop Recording' : 'Start Recording (3-2-1 Countdown)'}
+              >
+                <Video size={14} />
+                <span>{recStatus === 'recording' || recStatus === 'paused' ? 'Stop Rec' : 'Record'}</span>
+              </button>
+
+              {(recStatus === 'recording' || recStatus === 'paused') && (
+                <button
+                  type="button"
+                  onClick={handleTogglePauseRecording}
+                  className="pq-dock-btn"
+                  title="Pause / Resume Recording [Cmd+Shift+R]"
+                >
+                  {recStatus === 'paused' ? <Play size={14} /> : <Pause size={14} />}
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={handleStartRehearsal}
+                className={`pq-dock-btn ${recStatus === 'rehearsal' ? 'is-active' : ''}`}
+                style={{ width: 'auto', padding: '0 9px', fontSize: 11.5, fontWeight: 700 }}
+                title="Rehearse (Timers + Presenter View, no recording)"
+              >
+                {recStatus === 'rehearsal' ? 'End Rehearse' : 'Rehearse'}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const order = ['bottom', 'left', 'right'];
+                  const nextPos = order[(order.indexOf(prefs.toolbarPosition) + 1) % order.length];
+                  handleSavePrefs({ ...prefs, toolbarPosition: nextPos });
+                }}
+                className="pq-dock-btn"
+                style={{ width: 'auto', padding: '0 8px', fontSize: 11, fontWeight: 700 }}
+                title="Move Toolbar Position (bottom / left / right)"
+              >
+                Dock: {prefs.toolbarPosition}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsPrefsOpen(true)}
+                className="pq-dock-btn"
+                title="Presenter Preferences"
+              >
+                <SlidersHorizontal size={15} />
+              </button>
+            </>
+          )}
+            </div>
+          )}
         </footer>
       )}
 
@@ -2488,7 +3124,7 @@ function PyqPresenterClientInner({
         >
           <div
             style={{
-              width: 460,
+              width: 'min(680px, 92vw)',
               padding: '24px 28px',
               borderRadius: 16,
               background: theme === 'light' ? '#ffffff' : '#0f172a',
@@ -2503,27 +3139,15 @@ function PyqPresenterClientInner({
               <span>Studio Keyboard Shortcuts</span>
             </h3>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: '10px 16px', fontSize: 13.5, lineHeight: 1.6 }}>
-              <strong>Space / →</strong> <span>Next Step / Next Question</span>
-              <strong>←</strong> <span>Previous Step / Previous Question</span>
-              <strong>P</strong> <span>Pen Tool (XP-Pen pressure sensitive)</span>
-              <strong>H</strong> <span>Highlighter Tool</span>
-              <strong>L</strong> <span>Laser Pointer (fading dot)</span>
-              <strong>E</strong> <span>Eraser Tool</span>
-              <strong>[ / ]</strong> <span>Decrease / Increase Pen Thickness</span>
-              <strong>S</strong> <span>Insert Blank Scratchpad Slide</span>
-              <strong>Z</strong> <span>Zoom / Full-Bleed Image Diagram</span>
-              <strong>Q</strong> <span>Toggle In-Studio Playlist Tray</span>
-              <strong>M</strong> <span>Toggle Dark / Light Whiteboard Mode</span>
-              <strong>D</strong> <span>Collapse / Expand Presenter Dock</span>
-              <strong>Cmd + Z</strong> <span>Undo Last Stroke</span>
-              <strong>C</strong> <span>Clear Current Step Ink</span>
-              <strong>R</strong> <span>Toggle Mode (Screen Fit vs 16:9 Broadcast)</span>
-              <strong>F</strong> <span>Fullscreen (for TV / OBS recording)</span>
-              <strong>W</strong> <span>Toggle OBS Webcam Safe Zone</span>
-              <strong>T</strong> <span>30s Think Timer</span>
-              <strong>B</strong> <span>Blackboard / Whiteboard Mode</span>
-              <strong>?</strong> <span>Toggle this help menu</span>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 18px', fontSize: 12.5, lineHeight: 1.5, maxHeight: '60vh', overflowY: 'auto' }}>
+              {PRESENT_SHORTCUTS.map((s) => (
+                <div key={s.id} style={{ display: 'flex', gap: 10, alignItems: 'baseline' }}>
+                  <strong style={{ minWidth: 96, color: '#38bdf8' }}>
+                    {[s.metaOrCtrl ? 'Cmd/Ctrl' : '', s.shift ? 'Shift' : '', s.alt ? 'Alt' : '', s.key === ' ' ? 'Space' : s.key.toUpperCase()].filter(Boolean).join('+')}
+                  </strong>
+                  <span>{s.label}</span>
+                </div>
+              ))}
             </div>
 
             <button
@@ -2542,6 +3166,111 @@ function PyqPresenterClientInner({
               }}
             >
               Got it
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Presenter Preferences Modal (PresenterPrefs) */}
+      {isPrefsOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.72)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100001,
+          }}
+          onClick={() => setIsPrefsOpen(false)}
+        >
+          <div
+            style={{
+              width: 'min(480px, 92vw)',
+              padding: '22px 24px',
+              borderRadius: 16,
+              background: theme === 'light' ? '#ffffff' : '#0f172a',
+              border: '1px solid rgba(148,163,184,0.28)',
+              color: theme === 'light' ? '#0f172a' : '#f8fafc',
+              display: 'grid',
+              gap: 14,
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800 }}>Presenter Preferences</h3>
+
+            <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13 }}>
+              <span>Recording theme</span>
+              <select
+                value={prefs.recordTheme}
+                onChange={(e) => handleSavePrefs({ ...prefs, recordTheme: e.target.value })}
+                style={{ padding: '5px 8px', borderRadius: 6, background: '#1e293b', color: '#f8fafc', border: '1px solid rgba(148,163,184,0.3)' }}
+              >
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+              </select>
+            </label>
+
+            <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13 }}>
+              <span>Webcam bubble size</span>
+              <select
+                value={prefs.webcamSize}
+                onChange={(e) => handleSavePrefs({ ...prefs, webcamSize: e.target.value })}
+                style={{ padding: '5px 8px', borderRadius: 6, background: '#1e293b', color: '#f8fafc', border: '1px solid rgba(148,163,184,0.3)' }}
+              >
+                <option value="s">Small</option>
+                <option value="m">Medium</option>
+                <option value="l">Large</option>
+              </select>
+            </label>
+
+            <label style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 13 }}>
+              <span>Toolbar position</span>
+              <select
+                value={prefs.toolbarPosition}
+                onChange={(e) => handleSavePrefs({ ...prefs, toolbarPosition: e.target.value })}
+                style={{ padding: '5px 8px', borderRadius: 6, background: '#1e293b', color: '#f8fafc', border: '1px solid rgba(148,163,184,0.3)' }}
+              >
+                <option value="bottom">Bottom</option>
+                <option value="left">Left</option>
+                <option value="right">Right</option>
+              </select>
+            </label>
+
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+              <input
+                type="checkbox"
+                checked={prefs.countdown}
+                onChange={(e) => handleSavePrefs({ ...prefs, countdown: e.target.checked })}
+              />
+              <span>3-2-1 countdown before recording</span>
+            </label>
+
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+              <input
+                type="checkbox"
+                checked={prefs.pauseCue}
+                onChange={(e) => handleSavePrefs({ ...prefs, pauseCue: e.target.checked })}
+              />
+              <span>Show &ldquo;Pause and try&rdquo; cue on Step 1</span>
+            </label>
+
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13 }}>
+              <input
+                type="checkbox"
+                checked={prefs.rememberLastTool}
+                onChange={(e) => handleSavePrefs({ ...prefs, rememberLastTool: e.target.checked })}
+              />
+              <span>Remember last tool</span>
+            </label>
+
+            <button
+              type="button"
+              onClick={() => setIsPrefsOpen(false)}
+              style={{ padding: '9px 14px', borderRadius: 8, border: 'none', background: '#3b82f6', color: '#fff', fontWeight: 700, cursor: 'pointer' }}
+            >
+              Done
             </button>
           </div>
         </div>

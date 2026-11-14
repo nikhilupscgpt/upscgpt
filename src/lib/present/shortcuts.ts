@@ -58,8 +58,11 @@ export const PRESENT_SHORTCUTS: ShortcutDef[] = [
   // Boards & View
   { id: 'board.white', key: 'w', label: 'White board', category: 'Boards & View' },
   { id: 'board.black', key: 'k', label: 'Black board', category: 'Boards & View' },
-  { id: 'view.theme', key: 'm', label: 'Toggle Light / Dark theme', category: 'Boards & View' },
+  { id: 'view.theme', key: 'm', label: 'Toggle Light / Dark theme (or hide webcam while recording)', category: 'Boards & View' },
   { id: 'view.fullscreen', key: 'f', label: 'Fullscreen', category: 'Boards & View' },
+  { id: 'view.presenterView', key: 'p', shift: true, label: 'Open presenter view (second window)', category: 'Boards & View' },
+  { id: 'view.toolbarReveal', key: '/', label: 'Reveal toolbar while recording', category: 'Boards & View' },
+  { id: 'rec.togglePause', key: 'r', metaOrCtrl: true, shift: true, label: 'Pause / resume recording', category: 'Boards & View' },
   { id: 'view.help', key: '?', label: 'Shortcut sheet', category: 'Boards & View' },
 ];
 
