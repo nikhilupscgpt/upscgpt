@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Flag, CheckCircle2, XCircle, BookOpen, RotateCcw, Award, Clock, Target, HelpCircle, Flame } from 'lucide-react';
+import { ArrowLeft, Flag, CheckCircle2, XCircle, BookOpen, RotateCcw, Award, Clock, Target, HelpCircle, Flame, AlertTriangle } from 'lucide-react';
 import StemView from '../StemView';
 import { usePyqStore } from '../pyqStore';
 import { isPairQuestion, isStatementQuestion } from '@/lib/pyqPattern';
@@ -30,14 +30,98 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState({});       // id -> label
   const [checked, setChecked] = useState({});       // id -> boolean (for practice mode)
+  const [graded, setGraded] = useState({});         // id -> { isCorrect, correctLabel, explanation }
+  const [attemptId, setAttemptId] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [reportOpenFor, setReportOpenFor] = useState(null);
+  const [reportSent, setReportSent] = useState({});
   const [marked, setMarked] = useState({});         // id -> boolean
   const [visited, setVisited] = useState({ 0: true });
   const [elapsed, setElapsed] = useState(0);
   const [phase, setPhase] = useState('test');       // 'test' | 'result'
   const [confirm, setConfirm] = useState(false);
   const [reviewFilter, setReviewFilter] = useState('ALL');
+  const qStartRef = useRef(Date.now());
+  const attemptPromiseRef = useRef(null);
 
   const { recordAttempt, recordMany, streak, completeDailyStreak } = usePyqStore();
+
+  const ensureAttempt = useCallback(async () => {
+    if (attemptId) return attemptId;
+    if (attemptPromiseRef.current) return attemptPromiseRef.current;
+    const p = fetch('/api/attempts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        module: isDailyDrill ? 'daily_drill' : activeMode === 'exam' ? 'mock' : 'pyq_practice',
+        total,
+      }),
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.attemptId) {
+          setAttemptId(data.attemptId);
+          return data.attemptId;
+        }
+        return null;
+      })
+      .catch(() => null);
+    attemptPromiseRef.current = p;
+    return p;
+  }, [attemptId, isDailyDrill, activeMode, total]);
+
+  useEffect(() => {
+    if (total > 0) {
+      ensureAttempt();
+    }
+  }, [total, ensureAttempt]);
+
+  const gradeOneOnServer = useCallback(
+    async (questionId, selectedLabel, complete = false) => {
+      const id = await ensureAttempt();
+      if (!id) return null;
+      const timeSpentSec = Math.max(0, Math.min(600, Math.round((Date.now() - qStartRef.current) / 1000)));
+      try {
+        const res = await fetch(`/api/attempts/${id}/answer`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sourceType: isDailyDrill ? 'drill' : 'pyq',
+            sourceId: questionId,
+            selectedLabel,
+            timeSpentSec,
+            flagged: Boolean(marked[questionId]),
+            complete,
+          }),
+        });
+        if (!res.ok) return null;
+        return await res.json();
+      } catch {
+        return null;
+      }
+    },
+    [ensureAttempt, isDailyDrill, marked]
+  );
+
+  const submitQuestionReport = async (sourceId, reason) => {
+    try {
+      const res = await fetch('/api/question-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sourceType: isDailyDrill ? 'drill' : 'pyq',
+          sourceId,
+          reason,
+        }),
+      });
+      if (res.ok) {
+        setReportSent((prev) => ({ ...prev, [sourceId]: true }));
+        setReportOpenFor(null);
+      }
+    } catch {
+      // ignore transient errors
+    }
+  };
 
   const q = questions[idx];
   const answeredCount = Object.keys(answers).length;
@@ -60,6 +144,7 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
 
   const goTo = useCallback((i) => {
     if (i < 0 || i >= total) return;
+    qStartRef.current = Date.now();
     setIdx(i);
     setVisited(v => ({ ...v, [i]: true }));
   }, [total]);
@@ -78,13 +163,24 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
     setAnswers(a => { const n = { ...a }; delete n[q.id]; return n; });
   };
 
-  /* In practice mode: verify answer immediately */
-  const checkPracticeAnswer = () => {
-    if (!q || !answers[q.id] || checked[q.id]) return;
-    const isOk = answers[q.id] === q.correctLabel;
-    triggerNativeHaptic(isOk ? 'success' : 'error');
+  /* In practice mode: verify answer on the server */
+  const checkPracticeAnswer = async () => {
+    if (!q || !answers[q.id] || checked[q.id] || submitting) return;
+    setSubmitting(true);
+    const res = await gradeOneOnServer(q.id, answers[q.id], false);
+    setSubmitting(false);
+    if (!res) return;
+    setGraded(prev => ({
+      ...prev,
+      [q.id]: {
+        isCorrect: res.isCorrect,
+        correctLabel: res.correctLabel,
+        explanation: res.explanation || null,
+      },
+    }));
+    triggerNativeHaptic(res.isCorrect ? 'success' : 'error');
     setChecked(prev => ({ ...prev, [q.id]: true }));
-    recordAttempt(q.id, answers[q.id], isOk);
+    recordAttempt(q.id, answers[q.id], res.isCorrect);
   };
 
   const saveNext = () => {
@@ -117,11 +213,36 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
     return () => window.removeEventListener('keydown', onKey);
   }, [phase, confirm, idx, choose, goTo, activeMode, checked, answers, q]);
 
-  const submitExam = () => {
+  const gradeRemainingOnServer = async () => {
+    const pending = questions.filter((qq) => answers[qq.id] && !graded[qq.id]);
+    const nextGraded = { ...graded };
+    for (let i = 0; i < pending.length; i++) {
+      const qq = pending[i];
+      const isLast = i === pending.length - 1;
+      const res = await gradeOneOnServer(qq.id, answers[qq.id], isLast);
+      if (res) {
+        nextGraded[qq.id] = {
+          isCorrect: res.isCorrect,
+          correctLabel: res.correctLabel,
+          explanation: res.explanation || null,
+        };
+      }
+    }
+    setGraded(nextGraded);
+    return nextGraded;
+  };
+
+  const submitExam = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+    const nextGraded = await gradeRemainingOnServer();
+    setSubmitting(false);
     const entries = {};
     for (const qq of questions) {
       const sel = answers[qq.id];
-      if (sel) entries[qq.id] = { sel, ok: sel === qq.correctLabel };
+      if (sel && nextGraded[qq.id]) {
+        entries[qq.id] = { sel, ok: nextGraded[qq.id].isCorrect };
+      }
     }
     recordMany(entries);
     if (isDailyDrill) {
@@ -132,13 +253,17 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const finishPractice = () => {
+  const finishPractice = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+    const nextGraded = await gradeRemainingOnServer();
+    setSubmitting(false);
     // Record any unchecked but selected answers
     const entries = {};
     for (const qq of questions) {
       const sel = answers[qq.id];
-      if (sel && !checked[qq.id]) {
-        entries[qq.id] = { sel, ok: sel === qq.correctLabel };
+      if (sel && !checked[qq.id] && nextGraded[qq.id]) {
+        entries[qq.id] = { sel, ok: nextGraded[qq.id].isCorrect };
       }
     }
     if (Object.keys(entries).length > 0) {
@@ -156,8 +281,9 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
     let right = 0, wrong = 0, skipped = 0;
     for (const qq of questions) {
       const sel = answers[qq.id];
+      const g = graded[qq.id];
       if (!sel) skipped++;
-      else if (sel === qq.correctLabel) right++;
+      else if (g?.isCorrect) right++;
       else wrong++;
     }
     const score = right * MARKS_RIGHT - wrong * MARKS_WRONG;
@@ -168,7 +294,7 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
       max: total * MARKS_RIGHT,
       accuracy: attempted ? Math.round((right / attempted) * 100) : 0,
     };
-  }, [answers, questions, total]);
+  }, [answers, graded, questions, total]);
 
   /* ---------- empty ---------- */
   if (total === 0) {
@@ -189,14 +315,14 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
   if (phase === 'result') {
     const list = questions.filter(qq => {
       const sel = answers[qq.id];
-      const ok = sel === qq.correctLabel;
+      const ok = Boolean(graded[qq.id]?.isCorrect);
       if (reviewFilter === 'WRONG') return sel && !ok;
       if (reviewFilter === 'CORRECT') return sel && ok;
       if (reviewFilter === 'SKIPPED') return !sel;
       return true;
     });
 
-    const wrongQuestions = questions.filter(qq => answers[qq.id] && answers[qq.id] !== qq.correctLabel);
+    const wrongQuestions = questions.filter(qq => answers[qq.id] && !graded[qq.id]?.isCorrect);
     const wrongIds = wrongQuestions.map(qq => qq.id);
 
     return (
@@ -295,9 +421,12 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
           {/* Question List Review */}
           {list.map((qq) => {
             const sel = answers[qq.id];
-            const ok = sel === qq.correctLabel;
+            const g = graded[qq.id];
+            const ok = Boolean(g?.isCorrect);
+            const cLabel = g?.correctLabel || '';
             const num = questions.indexOf(qq) + 1;
-            const correctOpt = qq.options.find(o => o.label === qq.correctLabel);
+            const correctOpt = cLabel ? qq.options.find(o => o.label === cLabel) : null;
+            const expText = g?.explanation ? explanationTextOf({ explanation: g.explanation, correctLabel: cLabel }) : '';
             const isPair = isPairQuestion(qq);
             const isStmt = isStatementQuestion(qq);
 
@@ -319,7 +448,7 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
                 <div className="pq-opts">
                   {qq.options.map(o => {
                     let cls = 'pq-opt';
-                    if (o.label === qq.correctLabel) cls += ' is-correct';
+                    if (cLabel && o.label === cLabel) cls += ' is-correct';
                     else if (o.label === sel) cls += ' is-wrong';
                     else cls += ' is-faded';
                     return (
@@ -333,10 +462,10 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
                 <div className={`pq-verdict ${sel ? (ok ? 'is-ok' : 'is-bad') : ''}`}>
                   {sel
                     ? ok
-                      ? <b>✓ You got it right — ({qq.correctLabel.toUpperCase()})</b>
-                      : <><b>✗ You chose ({sel.toUpperCase()}).</b> Correct answer: <b>({qq.correctLabel.toUpperCase()})</b>{correctOpt ? ` — ${correctOpt.text}` : ''}</>
-                    : <><b>Skipped.</b> Correct answer: <b>({qq.correctLabel.toUpperCase()})</b>{correctOpt ? ` — ${correctOpt.text}` : ''}</>}
-                  {explanationTextOf(qq) && <div className="pq-verdict-exp">{explanationTextOf(qq)}</div>}
+                      ? <b>✓ You got it right — ({cLabel.toUpperCase()})</b>
+                      : <><b>✗ You chose ({sel.toUpperCase()}).</b>{cLabel ? <> Correct answer: <b>({cLabel.toUpperCase()})</b>{correctOpt ? ` — ${correctOpt.text}` : ''}</> : ''}</>
+                    : <><b>Skipped.</b>{cLabel ? <> Correct answer: <b>({cLabel.toUpperCase()})</b>{correctOpt ? ` — ${correctOpt.text}` : ''}</> : ''}</>}
+                  {expText && <div className="pq-verdict-exp">{expText}</div>}
                 </div>
               </article>
             );
@@ -349,8 +478,13 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
   /* ---------- test / practice screen ---------- */
   const isPractice = activeMode === 'practice';
   const isCurrentChecked = isPractice && !!checked[q?.id];
-  const isCurrentOk = isCurrentChecked && answers[q?.id] === q?.correctLabel;
-  const correctOpt = q?.options.find(o => o.label === q?.correctLabel);
+  const currentGraded = q ? graded[q.id] : null;
+  const currentCorrectLabel = currentGraded?.correctLabel || '';
+  const isCurrentOk = isCurrentChecked && Boolean(currentGraded?.isCorrect);
+  const correctOpt = currentCorrectLabel ? q?.options.find(o => o.label === currentCorrectLabel) : null;
+  const currentExpText = currentGraded?.explanation
+    ? explanationTextOf({ explanation: currentGraded.explanation, correctLabel: currentCorrectLabel })
+    : '';
   const isCurrentPair = q ? isPairQuestion(q) : false;
   const isCurrentStmt = q ? isStatementQuestion(q) : false;
 
@@ -358,7 +492,7 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
     const item = questions[i];
     if (isPractice) {
       if (checked[item.id]) {
-        return answers[item.id] === item.correctLabel ? 'is-practice-correct' : 'is-practice-wrong';
+        return graded[item.id]?.isCorrect ? 'is-practice-correct' : 'is-practice-wrong';
       }
       if (answers[item.id]) return 'is-answered';
       if (visited[i] && i !== idx) return 'is-skipped';
@@ -424,7 +558,7 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
                 const isSelected = answers[q.id] === o.label;
 
                 if (isPractice && isCurrentChecked) {
-                  if (o.label === q.correctLabel) {
+                  if (currentCorrectLabel && o.label === currentCorrectLabel) {
                     cls += ' is-correct';
                   } else if (isSelected) {
                     cls += ' is-wrong';
@@ -455,17 +589,54 @@ export default function PracticeClient({ questions, mode: initialMode = 'exam', 
             {isPractice && isCurrentChecked && (
               <div className={`pq-verdict ${isCurrentOk ? 'is-ok' : 'is-bad'}`} style={{ marginTop: 16 }}>
                 {isCurrentOk ? (
-                  <b>✓ Correct! Answer: ({q.correctLabel.toUpperCase()}){correctOpt ? ` — ${correctOpt.text}` : ''}</b>
+                  <b>✓ Correct! Answer: ({currentCorrectLabel.toUpperCase()}){correctOpt ? ` — ${correctOpt.text}` : ''}</b>
                 ) : (
-                  <><b>✗ Incorrect.</b> You selected ({answers[q.id]?.toUpperCase()}). Correct answer: <b>({q.correctLabel.toUpperCase()})</b>{correctOpt ? ` — ${correctOpt.text}` : ''}</>
+                  <><b>✗ Incorrect.</b> You selected ({answers[q.id]?.toUpperCase()}). Correct answer: <b>({currentCorrectLabel.toUpperCase()})</b>{correctOpt ? ` — ${correctOpt.text}` : ''}</>
                 )}
-                {explanationTextOf(q) && (
+                {currentExpText && (
                   <div className="pq-verdict-exp" style={{ marginTop: 8 }}>
-                    {explanationTextOf(q)}
+                    {currentExpText}
                   </div>
                 )}
               </div>
             )}
+
+            {/* Report error control */}
+            <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              {reportSent[q.id] ? (
+                <span style={{ fontSize: 12, color: '#10b981', fontWeight: 600 }}>✓ Issue reported — thank you</span>
+              ) : (
+                <button
+                  type="button"
+                  className="pq-btn"
+                  style={{ fontSize: 12, padding: '4px 10px', opacity: 0.85 }}
+                  onClick={() => setReportOpenFor(reportOpenFor === q.id ? null : q.id)}
+                >
+                  <AlertTriangle size={12} style={{ verticalAlign: -1, marginRight: 4 }} />
+                  Report error
+                </button>
+              )}
+              {reportOpenFor === q.id && (
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                  {[
+                    ['wrong_key', 'Wrong key'],
+                    ['typo', 'Typo'],
+                    ['outdated', 'Outdated'],
+                    ['explanation_wrong', 'Bad explanation'],
+                  ].map(([code, label]) => (
+                    <button
+                      key={code}
+                      type="button"
+                      className="pq-btn"
+                      style={{ fontSize: 11, padding: '3px 8px' }}
+                      onClick={() => submitQuestionReport(q.id, code)}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
 
             <div className="pp-actions">
               <div className="pp-actions-l">

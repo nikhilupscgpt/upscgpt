@@ -244,6 +244,8 @@ export async function GET(req) {
       
       // Fetch from primary region query
       const primary = await fetchFromGNews(regionConfig.keywords, regionConfig.sourceGroup, gnewsKey, 10)
+      const { recordUsage } = await import('@/lib/cost/recordUsage');
+      recordUsage({ provider: 'gnews', category: 'search_api', feature: 'news', unit: 'request', quantity: 1 }).catch(() => {});
       
       // For global region, also fetch India-focused news
       let indiaNews = []

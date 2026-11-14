@@ -38,6 +38,11 @@ export async function PATCH(req, { params }) {
       delete updateData.password
     }
     
+    const existingUser = await prisma.user.findUnique({
+      where: { id },
+      select: { id: true, email: true, role: true, tier: true, validUntil: true },
+    })
+
     const user = await prisma.user.update({
       where: { id },
       data: updateData
@@ -46,6 +51,16 @@ export async function PATCH(req, { params }) {
     // Audit the action (non-blocking)
     try {
       if (session?.user?.id) {
+        const { writeAuditLog } = await import('@/lib/security/guards');
+        await writeAuditLog({
+          actorId: session.user.id,
+          action: updateData.tier === 'PRO' ? 'ADMIN_PASS_GRANTED' : 'USER_UPDATED',
+          entity: 'User',
+          entityId: user.id,
+          before: existingUser,
+          after: { id: user.id, email: user.email, role: user.role, tier: user.tier, validUntil: user.validUntil },
+          ip: req.headers.get('x-real-ip') || req.headers.get('x-forwarded-for') || null,
+        });
         await prisma.actionLog.create({
           data: {
             action: 'USER_MOD',

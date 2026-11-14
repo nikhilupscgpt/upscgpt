@@ -1,5 +1,7 @@
 import { Resend } from 'resend';
 import nodemailer from 'nodemailer';
+import { recordUsage, recordMessageLog } from '@/lib/cost/recordUsage';
+import { estimateCostPaise } from '@/lib/cost/price-table';
 
 function isPlaceholder(val) {
   if (!val) return true;
@@ -88,8 +90,9 @@ function createSmtpTransporter() {
 /**
  * Universal Communication Service for UPSCGPT
  */
-export async function sendEmail({ to, subject, html, text }) {
+export async function sendEmail({ to, subject, html, text, purpose = 'transactional', template = 'default', userId = null, campaignId = null }) {
   const providerInfo = getEmailProviderInfo();
+  const recipient = Array.isArray(to) ? to[0] : to;
 
   // 1. Try Resend if configured
   if (providerInfo.provider === 'RESEND') {
@@ -103,6 +106,11 @@ export async function sendEmail({ to, subject, html, text }) {
         text: text || '',
       });
       if (error) throw error;
+      const costPaise = estimateCostPaise({ provider: 'resend', unit: 'email', quantity: 1 });
+      await Promise.all([
+        recordUsage({ provider: 'resend', category: 'email', feature: purpose, unit: 'email', quantity: 1, costPaise, userId }),
+        recordMessageLog({ channel: 'email', purpose, template, provider: 'RESEND', providerMsgId: data?.id || null, userId, to: String(recipient || ''), campaignId, status: 'sent', costPaise }),
+      ]);
       return { success: true, provider: 'RESEND', messageId: data?.id };
     } catch (err) {
       console.error('[Comms] Resend failed:', err.message);
@@ -121,6 +129,10 @@ export async function sendEmail({ to, subject, html, text }) {
         text: text || '',
         html: html || (text ? `<p style="font-family: sans-serif; font-size: 15px; line-height: 1.6; color: #1e293b;">${text.replace(/\n/g, '<br/>')}</p>` : ''),
       });
+      await Promise.all([
+        recordUsage({ provider: 'smtp', category: 'email', feature: purpose, unit: 'email', quantity: 1, costPaise: 0, userId }),
+        recordMessageLog({ channel: 'email', purpose, template, provider: smtpConfig.provider, providerMsgId: info?.messageId || null, userId, to: String(recipient || ''), campaignId, status: 'sent', costPaise: 0 }),
+      ]);
       return { success: true, provider: smtpConfig.provider, messageId: info?.messageId };
     } catch (err) {
       console.error(`[Comms] ${smtpConfig.provider} failed:`, err.message);
@@ -134,6 +146,11 @@ export async function sendEmail({ to, subject, html, text }) {
   console.log(`Subject: ${subject}`);
   console.log(`Body:    ${text || '(HTML message content)'}`);
   console.log('────────────────────────────────────────────────────────────────────');
+
+  await Promise.all([
+    recordUsage({ provider: 'simulation', category: 'email', feature: purpose, unit: 'email', quantity: 1, costPaise: 0, userId }),
+    recordMessageLog({ channel: 'email', purpose, template, provider: 'SIMULATION', userId, to: String(recipient || ''), campaignId, status: 'queued', costPaise: 0 }),
+  ]);
 
   return {
     success: true,
@@ -307,10 +324,14 @@ export function getAnnouncementEmailHtml({ subject, content, recipientName }) {
 /**
  * Msg91 SMS Integration (India)
  */
-export async function sendSMS({ to, message, templateId }) {
+export async function sendSMS({ to, message, templateId, purpose = 'otp', userId = null, campaignId = null }) {
   const authKey = process.env.MSG91_AUTH_KEY;
   if (!authKey) {
     console.warn('[Comms] Msg91 Auth Key missing. SMS simulated to:', to);
+    await Promise.all([
+      recordUsage({ provider: 'simulation', category: 'sms', feature: purpose, unit: 'sms', quantity: 1, costPaise: 0, userId }),
+      recordMessageLog({ channel: 'sms', purpose, template: templateId || 'default', provider: 'SIMULATION', userId, to: String(to || ''), campaignId, status: 'queued', costPaise: 0 }),
+    ]);
     return { success: true, simulated: true };
   }
 
@@ -329,9 +350,16 @@ export async function sendSMS({ to, message, templateId }) {
     });
 
     const data = await response.json();
-    return { success: data.type === 'success', data };
+    const ok = data.type === 'success';
+    const costPaise = ok ? estimateCostPaise({ provider: 'msg91', unit: 'sms', quantity: 1 }) : 0;
+    await Promise.all([
+      recordUsage({ provider: 'msg91', category: 'sms', feature: purpose, unit: 'sms', quantity: 1, costPaise, userId }),
+      recordMessageLog({ channel: 'sms', purpose, template: templateId || 'default', provider: 'MSG91', providerMsgId: data?.request_id || null, userId, to: String(to || ''), campaignId, status: ok ? 'sent' : 'failed', costPaise }),
+    ]);
+    return { success: ok, data };
   } catch (err) {
     console.error('[Comms] SMS failed:', err.message);
+    await recordMessageLog({ channel: 'sms', purpose, template: templateId || 'default', provider: 'MSG91', userId, to: String(to || ''), campaignId, status: 'failed', costPaise: 0 });
     return { success: false, error: err.message };
   }
 }
@@ -339,10 +367,14 @@ export async function sendSMS({ to, message, templateId }) {
 /**
  * WhatsApp Integration via Msg91
  */
-export async function sendWhatsApp({ to, templateName, params }) {
+export async function sendWhatsApp({ to, templateName, params, purpose = 'transactional', userId = null, campaignId = null }) {
   const authKey = process.env.MSG91_AUTH_KEY;
   if (!authKey) {
     console.warn('[Comms] Msg91 Auth Key missing. WhatsApp simulated to:', to);
+    await Promise.all([
+      recordUsage({ provider: 'simulation', category: 'whatsapp', feature: purpose, unit: 'whatsapp', quantity: 1, costPaise: 0, userId }),
+      recordMessageLog({ channel: 'whatsapp', purpose, template: templateName || 'default', provider: 'SIMULATION', userId, to: String(to || ''), campaignId, status: 'queued', costPaise: 0 }),
+    ]);
     return { success: true, simulated: true };
   }
 
@@ -369,9 +401,16 @@ export async function sendWhatsApp({ to, templateName, params }) {
     });
 
     const data = await response.json();
-    return { success: data.status === 'success', data };
+    const ok = data.status === 'success';
+    const costPaise = ok ? estimateCostPaise({ provider: 'msg91', unit: 'whatsapp', quantity: 1 }) : 0;
+    await Promise.all([
+      recordUsage({ provider: 'msg91', category: 'whatsapp', feature: purpose, unit: 'whatsapp', quantity: 1, costPaise, userId }),
+      recordMessageLog({ channel: 'whatsapp', purpose, template: templateName || 'default', provider: 'MSG91', providerMsgId: data?.request_id || null, userId, to: String(to || ''), campaignId, status: ok ? 'sent' : 'failed', costPaise }),
+    ]);
+    return { success: ok, data };
   } catch (err) {
     console.error('[Comms] WhatsApp failed:', err.message);
+    await recordMessageLog({ channel: 'whatsapp', purpose, template: templateName || 'default', provider: 'MSG91', userId, to: String(to || ''), campaignId, status: 'failed', costPaise: 0 });
     return { success: false, error: err.message };
   }
 }

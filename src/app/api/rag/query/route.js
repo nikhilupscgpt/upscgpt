@@ -4,6 +4,7 @@ import { getTierStatus } from '@/lib/tier-gate';
 import { getPromptValue, getRenderedPrompt } from '@/lib/aiPromptRegistry';
 import prisma from '@/lib/prisma';
 import { rateLimit } from '@/lib/rateLimit';
+import { recordUsage } from '@/lib/cost/recordUsage';
 
 const MAX_QUERY_CHARS = 2000;
 const MAX_HISTORY_ITEMS = 10;
@@ -207,17 +208,27 @@ export async function POST(req) {
           console.warn(`[RAG] Ollama generation failed, falling back to Gemini:`, ollamaErr.message);
           
           try {
+            const startedAt = Date.now();
             const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
             const model = genAI.getGenerativeModel({ 
               model: "gemma-4-31b-it",
               systemInstruction: systemPrompt
             });
             const result = await model.generateContentStream(userPrompt);
+            let outChars = 0;
 
             for await (const chunk of result.stream) {
               const chunkText = chunk.text();
-              if (chunkText) controller.enqueue(encoder.encode(chunkText));
+              if (chunkText) {
+                outChars += chunkText.length;
+                controller.enqueue(encoder.encode(chunkText));
+              }
             }
+            const latencyMs = Date.now() - startedAt;
+            Promise.all([
+              recordUsage({ provider: 'gemini', category: 'ai', feature: 'rag', unit: 'tokens_in', quantity: Math.ceil((systemPrompt.length + userPrompt.length) / 4), userId: user.id, tier: user.tier, meta: { model: 'gemma-4-31b-it', cacheHit: false, latencyMs } }),
+              recordUsage({ provider: 'gemini', category: 'ai', feature: 'rag', unit: 'tokens_out', quantity: Math.ceil(outChars / 4), userId: user.id, tier: user.tier, meta: { model: 'gemma-4-31b-it', cacheHit: false, latencyMs } }),
+            ]).catch(() => {});
           } catch (geminiErr) {
             console.error(`[RAG] Gemini fallback also failed:`, geminiErr);
             controller.enqueue(encoder.encode("\n\n**Error:** AI service unavailable. Please check Ollama and Gemini API status."));

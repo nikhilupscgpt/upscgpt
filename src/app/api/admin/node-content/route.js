@@ -4,6 +4,7 @@ import prisma from '@/lib/prisma';
 import { authOptions } from "@/lib/auth";
 import { getRenderedPrompt, getPromptValue } from '@/lib/aiPromptRegistry';
 import { OpenAI } from 'openai';
+import { recordUsage } from '@/lib/cost/recordUsage';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || 'dummy-key-for-build',
@@ -100,8 +101,10 @@ export async function POST(req) {
       });
 
       const systemPrompt = await getPromptValue('cms.node.openai.system');
+      const modelName = process.env.AI_REASONING_MODEL || 'gpt-4';
+      const startedAt = Date.now();
       const response = await openai.chat.completions.create({
-        model: process.env.AI_REASONING_MODEL || 'gpt-4',
+        model: modelName,
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: prompt }
@@ -110,6 +113,13 @@ export async function POST(req) {
       });
 
       const aiText = response.choices[0].message.content;
+      const tokensIn = Number(response.usage?.prompt_tokens) || Math.ceil((systemPrompt.length + prompt.length) / 4);
+      const tokensOut = Number(response.usage?.completion_tokens) || Math.ceil(String(aiText || '').length / 4);
+      const isOllama = Boolean(process.env.OPENAI_API_BASE);
+      await Promise.all([
+        recordUsage({ provider: isOllama ? 'ollama' : 'openai', category: 'ai', feature: 'cms', unit: 'tokens_in', quantity: tokensIn, meta: { model: modelName, cacheHit: false, latencyMs: Date.now() - startedAt } }),
+        recordUsage({ provider: isOllama ? 'ollama' : 'openai', category: 'ai', feature: 'cms', unit: 'tokens_out', quantity: tokensOut, meta: { model: modelName, cacheHit: false, latencyMs: Date.now() - startedAt } }),
+      ]);
       return NextResponse.json({ aiText });
     }
 

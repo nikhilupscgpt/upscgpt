@@ -15,7 +15,12 @@ export async function GET(req) {
     const [totalNodes, coveredNodes, attempts, aiLogs, nodesLastWeek] = await Promise.all([
       prisma.issue.count().catch(() => 559),
       prisma.issueProgress.count({ where: { userId, status: 'MASTERED' } }).catch(() => 0),
-      prisma.quizAttempt.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, take: 10 }).catch(() => []),
+      prisma.attempt.findMany({
+        where: { userId, score: { not: null } },
+        orderBy: { startedAt: 'desc' },
+        take: 10,
+        select: { score: true, startedAt: true },
+      }).catch(() => []),
       prisma.actionLog.count({ where: { userId, action: 'RAG_QUERY' } }).catch(() => 0),
       prisma.issueProgress.count({ 
         where: { 

@@ -30,6 +30,14 @@ model User {
   createdAt          DateTime           @default(now())
   preferences        Json?              @default("{}")
   examYear           Int?
+  firstTouchSource   String?
+  firstTouchMedium   String?
+  firstTouchCampaign String?
+  firstTouchContent  String?
+  firstTouchReferrer String?
+  firstTouchLanding  String?
+  firstTouchPartner  String?
+  lastTouchSource    String?
   accounts           Account[]
   logs               ActionLog[]
   bookmarks          Bookmark[]
@@ -980,34 +988,88 @@ model TestPaperQuestion {
 }
 
 model Attempt {
-  id          String          @id @default(cuid())
-  userId      String
-  mode        AttemptMode
-  testPaperId String?
-  filterSpec  Json? // snapshot of practice filters
-  startedAt   DateTime        @default(now())
-  submittedAt DateTime?
-  score       Float?
-  testPaper   TestPaper?      @relation(fields: [testPaperId], references: [id])
-  answers     AttemptAnswer[]
-  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                 String          @id @default(cuid())
+  userId             String?
+  anonId             String?
+  mode               AttemptMode     @default(PRACTICE)
+  module             String          @default("pyq_practice") // pyq_practice | daily_drill | mock | env_atlas | map_quiz | test_pack
+  testPaperId        String?
+  filterSpec         Json? // snapshot of practice filters
+  filters            Json?
+  ephemeralQuestions Json? // server-only answer keys for dynamically generated quizzes (e.g. map_quiz)
+  startedAt          DateTime        @default(now())
+  submittedAt        DateTime?
+  completedAt        DateTime?
+  total              Int             @default(0)
+  correct            Int             @default(0) // server-computed
+  score              Float?
+  testPaper          TestPaper?      @relation(fields: [testPaperId], references: [id])
+  answers            AttemptAnswer[]
+  user               User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, startedAt])
+  @@index([module, startedAt])
 }
 
 model AttemptAnswer {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid())
   attemptId     String
-  questionId    String
+  questionId    String?
+  sourceType    String    @default("pyq") // pyq | env_atlas | map_quiz | drill | test_pack
+  sourceId      String // stable id, e.g. QuestionDraft.id, "bengal-tiger:q1", or "map_quiz:0"
+  subject       String?
+  topic         String?
+  examYear      Int?
   selectedLabel String?
-  isCorrect     Boolean?
-  timeSpentSec  Int?
-  flagged       Boolean  @default(false)
-  attempt       Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
-  question      Question @relation(fields: [questionId], references: [id])
+  isCorrect     Boolean   @default(false) // server-computed ONLY
+  timeSpentSec  Int       @default(0) // clamped 0..600
+  flagged       Boolean   @default(false)
+  answeredAt    DateTime  @default(now())
+  attempt       Attempt   @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question      Question? @relation(fields: [questionId], references: [id])
 
-  @@unique([attemptId, questionId])
+  @@unique([attemptId, sourceType, sourceId])
+  @@index([sourceType, sourceId])
   @@index([questionId])
+  @@index([answeredAt])
+}
+
+model QuestionReport {
+  id         String   @id @default(cuid())
+  sourceType String
+  sourceId   String
+  userId     String?
+  reason     String // wrong_key | typo | outdated | explanation_wrong | other
+  note       String?  @db.VarChar(500)
+  status     String   @default("open") // open | fixed | rejected
+  createdAt  DateTime @default(now())
+
+  @@index([status, createdAt])
+}
+
+model QuestionStats {
+  sourceType     String
+  sourceId       String
+  attempts       Int
+  pCorrect       Float // difficulty
+  discrimination Float? // top27% correct - bottom27% correct; null if attempts < 30
+  medianSec      Int
+  updatedAt      DateTime @updatedAt
+
+  @@id([sourceType, sourceId])
+}
+
+model SecurityEvent {
+  id       String   @id @default(cuid())
+  type     String // login_failed | otp_abuse | scrape_suspect | quota_tamper | bad_signature | device_evicted | forged_answer
+  userId   String?
+  anonId   String?
+  deviceId String?
+  ipFull   String?
+  detail   Json
+  at       DateTime @default(now())
+
+  @@index([type, at])
 }
 
 model QuestionBookmark {
@@ -1166,6 +1228,160 @@ model EnvAtlasItem {
   @@index([priority])
   @@index([lastNewsDate])
   @@map("env_atlas_items")
+}
+
+// ---------- Phase 2: Cost, Messaging & OTP Telemetry ----------
+model UsageLedger {
+  id        String   @id @default(cuid())
+  at        DateTime @default(now())
+  provider  String // openai | gemini | ollama | msg91 | resend | smtp | razorpay | gnews | maptiles
+  category  String // ai | sms | email | whatsapp | push | payment_fee | storage | maps | search_api
+  feature   String // mapbot | rag | deep_dive | otp_login | receipt | campaign | ingest | quiz | notes | cms
+  unit      String // tokens_in | tokens_out | sms | email | request | gb
+  quantity  Float
+  costPaise Int // integer paise estimate from PRICE_TABLE
+  userId    String?
+  tier      String?
+  meta      Json? // model name, cacheHit, latencyMs
+
+  @@index([at, category])
+  @@index([userId, at])
+}
+
+model MessageLog {
+  id            String   @id @default(cuid())
+  channel       String // email | sms | whatsapp | push
+  purpose       String // otp | transactional | marketing | alert
+  template      String
+  provider      String
+  providerMsgId String?  @unique
+  userId        String?
+  toHash        String // sha256 of phone/email — never the raw value
+  campaignId    String?
+  status        String // queued | sent | delivered | opened | clicked | bounced | failed | complained | unsubscribed
+  costPaise     Int?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([channel, purpose, createdAt])
+}
+
+model OtpRequest {
+  id         String    @id @default(cuid())
+  phoneHash  String // sha256 of normalized +91 phone or email identifier
+  deviceId   String?
+  ip24       String?
+  channel    String // sms | whatsapp | email
+  verified   Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  verifiedAt DateTime?
+
+  @@index([phoneHash, createdAt])
+  @@index([deviceId, createdAt])
+}
+
+model FixedCost {
+  id          String   @id @default(cuid())
+  month       DateTime
+  item        String
+  amountPaise Int
+}
+
+model MarketingSpend {
+  id          String   @id @default(cuid())
+  date        DateTime
+  channel     String
+  campaign    String
+  amountPaise Int
+}
+
+model Campaign {
+  id      String    @id @default(cuid())
+  channel String
+  name    String
+  sentAt  DateTime?
+}
+
+model BudgetLimit {
+  category     String @id
+  monthlyPaise Int
+  alertAt      Json // e.g. [50, 80, 100]
+}
+
+// ---------- Phase 3: Attribution ----------
+model AnonProfile {
+  anonId      String   @id
+  firstSeenAt DateTime @default(now())
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  utmContent  String?
+  referrer    String?
+  landingPath String?
+  partnerCode String?
+  userId      String? // set at signup
+}
+
+// ---------- Phase 4: Money, Audit & Security ----------
+model Order {
+  id              String    @id @default(cuid())
+  userId          String
+  plan            String
+  amountPaise     Int // after coupon
+  listPricePaise  Int
+  couponCode      String?
+  partnerCode     String?
+  razorpayOrderId String    @unique
+  status          String // created | paid | failed | abandoned | refunded
+  createdAt       DateTime  @default(now())
+  paidAt          DateTime?
+
+  @@index([status, createdAt])
+  @@index([userId, status])
+}
+
+model PaymentEvent {
+  id              String   @id @default(cuid())
+  razorpayEventId String   @unique // idempotency
+  type            String // payment.captured | payment.failed | refund.processed | order.paid
+  orderId         String?
+  userId          String?
+  amountPaise     Int?
+  feePaise        Int?
+  taxOnFeePaise   Int?
+  signatureValid  Boolean
+  isRenewal       Boolean  @default(false)
+  payload         Json
+  receivedAt      DateTime @default(now())
+
+  @@index([type, receivedAt])
+}
+
+model AuditLog {
+  id       String   @id @default(cuid())
+  actorId  String
+  action   String // ADMIN_PASS_GRANTED | TIER_CHANGED | QUESTION_EDITED | PRICE_CHANGED
+  entity   String
+  entityId String
+  before   Json?
+  after    Json?
+  ip       String?
+  at       DateTime @default(now())
+
+  @@index([entity, entityId])
+}
+
+model UserDevice {
+  id        String    @id @default(cuid())
+  userId    String
+  deviceId  String
+  uaFamily  String?
+  firstSeen DateTime  @default(now())
+  lastSeen  DateTime  @default(now())
+  revokedAt DateTime?
+
+  @@unique([userId, deviceId])
+  @@index([userId, revokedAt])
 }
 
 

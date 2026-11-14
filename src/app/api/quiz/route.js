@@ -4,6 +4,35 @@ import { generateJSON } from '@/lib/ai'
 import { getRenderedPrompt } from '@/lib/aiPromptRegistry'
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
+import { stripAnswerFields } from '@/lib/analytics/grading'
+
+async function createServerQuizAttempt({ userId, scopeType, scope, questions }) {
+  const ephemeralQuestions = {}
+  const publicQuestions = questions.map((q, idx) => {
+    const sourceId = `map_quiz:${scopeType}:${idx}`
+    ephemeralQuestions[sourceId] = {
+      correctLabel: q.correctLabel,
+      explanation: q.explanation || null,
+      subject: scopeType === 'ISSUE' ? 'Current Affairs' : 'Geography',
+      topic: scopeType,
+    }
+    return stripAnswerFields({ ...q, sourceId })
+  })
+
+  const attempt = await prisma.attempt.create({
+    data: {
+      userId,
+      mode: 'PRACTICE',
+      module: 'map_quiz',
+      filters: { scopeType, scope },
+      ephemeralQuestions,
+      total: publicQuestions.length,
+    },
+    select: { id: true },
+  })
+
+  return { attemptId: attempt.id, publicQuestions }
+}
 
 function shuffle(arr) {
   return [...arr].sort(() => Math.random() - 0.5)
@@ -160,7 +189,17 @@ Focus on membership (who is NOT a member), mandates, or recent strategic relevan
       try {
         const result = await generateJSON(prompt, systemInstruction)
         if (result?.question && result?.options) {
-          return NextResponse.json({ question: { ...result, type: 'ORGANIZATION' }, org: { name: org.name, shortName: org.shortName } })
+          const saved = await createServerQuizAttempt({
+            userId: session.user.id,
+            scopeType,
+            scope,
+            questions: [{ ...result, type: 'ORGANIZATION' }],
+          })
+          return NextResponse.json({
+            attemptId: saved.attemptId,
+            question: saved.publicQuestions[0],
+            org: { name: org.name, shortName: org.shortName },
+          })
         }
       } catch (e) {
         console.warn('[Quiz] AI generation for Org failed, falling back to local logic:', e.message)
@@ -176,7 +215,17 @@ Focus on membership (who is NOT a member), mandates, or recent strategic relevan
       const question = buildMembershipQuestion(org, allNames)
       if (!question) return NextResponse.json({ error: 'Not enough data for quiz' }, { status: 400 })
 
-      return NextResponse.json({ question, org: { name: org.name, shortName: org.shortName } })
+      const saved = await createServerQuizAttempt({
+        userId: session.user.id,
+        scopeType,
+        scope,
+        questions: [question],
+      })
+      return NextResponse.json({
+        attemptId: saved.attemptId,
+        question: saved.publicQuestions[0],
+        org: { name: org.name, shortName: org.shortName },
+      })
     }
 
     if (scopeType === 'INTELLIGENCE_ZONE') {
@@ -186,13 +235,32 @@ Focus on membership (who is NOT a member), mandates, or recent strategic relevan
       const question = await buildIntelligenceQuiz(zone)
       if (!question) return NextResponse.json({ error: 'Quiz generation failed' }, { status: 500 })
 
-      return NextResponse.json({ question, zone: { name: zone.name, parentCountry: zone.parentCountry } })
+      const saved = await createServerQuizAttempt({
+        userId: session.user.id,
+        scopeType,
+        scope,
+        questions: [question],
+      })
+      return NextResponse.json({
+        attemptId: saved.attemptId,
+        question: saved.publicQuestions[0],
+        zone: { name: zone.name, parentCountry: zone.parentCountry },
+      })
     }
 
     if (scopeType === 'SEA_BORDERS') {
       const question = await buildMatchedPairsQuestion(scope)
       if (!question) return NextResponse.json({ error: 'Not enough sea border data' }, { status: 400 })
-      return NextResponse.json({ question })
+      const saved = await createServerQuizAttempt({
+        userId: session.user.id,
+        scopeType,
+        scope,
+        questions: [question],
+      })
+      return NextResponse.json({
+        attemptId: saved.attemptId,
+        question: saved.publicQuestions[0],
+      })
     }
 
     if (scopeType === 'ISSUE') {
@@ -214,7 +282,16 @@ Key Facts: ${JSON.stringify(issue.nodeContent?.facts || [])}`
       try {
         const result = await generateJSON(prompt, systemInstruction)
         if (result?.questions && Array.isArray(result.questions)) {
-          return NextResponse.json({ questions: result.questions })
+          const saved = await createServerQuizAttempt({
+            userId: session.user.id,
+            scopeType,
+            scope,
+            questions: result.questions,
+          })
+          return NextResponse.json({
+            attemptId: saved.attemptId,
+            questions: saved.publicQuestions,
+          })
         } else {
           throw new Error('AI response structure invalid or empty questions')
         }

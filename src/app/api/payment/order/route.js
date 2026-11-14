@@ -67,6 +67,36 @@ export async function POST(request) {
     }
 
     // 2. Record server-side order quote in ActionLog so verify & webhook use exact server metadata
+    const lastTouch = req.cookies?.get('upsc_last_touch_source_v1')?.value || null;
+    if (lastTouch) {
+      await prisma.user.update({
+        where: { id: session.user.id },
+        data: { lastTouchSource: String(lastTouch).slice(0, 100) },
+      }).catch(() => {});
+    }
+    const { emitServerEvent } = await import('@/lib/analytics/server');
+    emitServerEvent({
+      name: 'checkout_start',
+      props: { plan: plan.code, amountPaise: Number(amountPaise), orderId: order.id },
+      userId: session.user.id,
+      anonId: req.cookies?.get('upsc_anon_id')?.value || null,
+      tier: session.user.tier || null,
+      userAgent: req.headers.get('user-agent'),
+    }).catch(() => {});
+
+    await prisma.order.create({
+      data: {
+        userId: session.user.id,
+        plan: plan.code,
+        amountPaise: Number(amountPaise),
+        listPricePaise: Math.round(Number(scheduledPriceInr || 0) * 100),
+        couponCode: appliedCoupon?.code || null,
+        partnerCode: req.cookies?.get('upsc_partner_code')?.value || null,
+        razorpayOrderId: order.id,
+        status: 'created',
+      },
+    }).catch(() => {});
+
     await prisma.actionLog.create({
       data: {
         userId: session.user.id,

@@ -16,41 +16,58 @@ export function getClientIp(req) {
   );
 }
 
+/**
+ * PRD §6.4: Rate-limit key hierarchy: userId -> deviceId -> ip24.
+ */
+export function chooseRateLimitKey({ userId = null, deviceId = null, ip = 'unknown' } = {}) {
+  if (userId) return `u:${userId}`;
+  if (deviceId) return `d:${deviceId}`;
+  const parts = String(ip || '').trim().split('.');
+  if (parts.length === 4 && parts.every((p) => /^\d+$/.test(p))) {
+    return `ip24:${parts[0]}.${parts[1]}.${parts[2]}.0/24`;
+  }
+  return `ip:${ip || 'unknown'}`;
+}
+
 function hashKey(key) {
   return crypto.createHash('sha256').update(String(key)).digest('hex').slice(0, 40);
 }
 
+function maybePruneOldHits() {
+  if (Math.random() > 0.02) return;
+  prisma
+    .$executeRawUnsafe(`DELETE FROM rate_limit_hit WHERE created_at < now() - interval '24 hours'`)
+    .catch(() => {});
+}
+
 /**
- * Database-backed fixed-window rate limit (no Redis needed).
- * Stores one ActionLog row per hit: action = `RL:<bucket>`, entityId = hashed key.
- *
- * @param {object} opts
- * @param {string} opts.bucket   e.g. 'nano', 'otp-send-email'
- * @param {string} opts.key      e.g. user id, email or IP (hashed before storing)
- * @param {number} opts.limit    max hits allowed in the window
- * @param {number} opts.windowMs window length in ms
- * @param {boolean} [opts.record=true] record this hit when allowed
- * @returns {Promise<{ allowed: boolean, remaining: number, retryAfterSec: number }>}
+ * Database-backed fixed-window rate limit using UNLOGGED `rate_limit_hit` table
+ * (never writes RL:* rows to ActionLog).
  */
 export async function rateLimit({ bucket, key, limit, windowMs, record = true }) {
-  const action = `RL:${bucket}`;
-  const entityId = hashKey(key);
+  const keyHash = hashKey(key);
   const since = new Date(Date.now() - windowMs);
   try {
-    const count = await prisma.actionLog.count({
-      where: { action, entityId, createdAt: { gte: since } },
-    });
+    const rows = await prisma.$queryRawUnsafe(
+      `SELECT COUNT(*)::int AS cnt FROM rate_limit_hit WHERE bucket = $1 AND key_hash = $2 AND created_at >= $3`,
+      bucket,
+      keyHash,
+      since
+    );
+    const count = Number(rows?.[0]?.cnt || 0);
     if (count >= limit) {
       return { allowed: false, remaining: 0, retryAfterSec: Math.ceil(windowMs / 1000) };
     }
     if (record) {
-      await prisma.actionLog.create({
-        data: { action, entityId, entityType: 'RATE_LIMIT', status: 'SUCCESS' },
-      });
+      await prisma.$executeRawUnsafe(
+        `INSERT INTO rate_limit_hit (bucket, key_hash) VALUES ($1, $2)`,
+        bucket,
+        keyHash
+      );
+      maybePruneOldHits();
     }
     return { allowed: true, remaining: Math.max(0, limit - count - 1), retryAfterSec: 0 };
   } catch (err) {
-    // If the DB is unavailable, allow the request rather than take the site down.
     console.error(`[rateLimit] ${bucket} check failed:`, err?.message);
     return { allowed: true, remaining: 0, retryAfterSec: 0 };
   }
@@ -59,13 +76,13 @@ export async function rateLimit({ bucket, key, limit, windowMs, record = true })
 /** Count hits in a bucket without recording a new one. */
 export async function countHits({ bucket, key, windowMs }) {
   try {
-    return await prisma.actionLog.count({
-      where: {
-        action: `RL:${bucket}`,
-        entityId: hashKey(key),
-        createdAt: { gte: new Date(Date.now() - windowMs) },
-      },
-    });
+    const rows = await prisma.$queryRawUnsafe(
+      `SELECT COUNT(*)::int AS cnt FROM rate_limit_hit WHERE bucket = $1 AND key_hash = $2 AND created_at >= $3`,
+      bucket,
+      hashKey(key),
+      new Date(Date.now() - windowMs)
+    );
+    return Number(rows?.[0]?.cnt || 0);
   } catch {
     return 0;
   }
@@ -74,9 +91,12 @@ export async function countHits({ bucket, key, windowMs }) {
 /** Record a hit without checking (e.g. a failed OTP attempt). */
 export async function recordHit({ bucket, key }) {
   try {
-    await prisma.actionLog.create({
-      data: { action: `RL:${bucket}`, entityId: hashKey(key), entityType: 'RATE_LIMIT', status: 'SUCCESS' },
-    });
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO rate_limit_hit (bucket, key_hash) VALUES ($1, $2)`,
+      bucket,
+      hashKey(key)
+    );
+    maybePruneOldHits();
   } catch (err) {
     console.error(`[rateLimit] record ${bucket} failed:`, err?.message);
   }
@@ -85,7 +105,11 @@ export async function recordHit({ bucket, key }) {
 /** Remove all hits for a key (e.g. after a successful OTP login). */
 export async function clearHits({ bucket, key }) {
   try {
-    await prisma.actionLog.deleteMany({ where: { action: `RL:${bucket}`, entityId: hashKey(key) } });
+    await prisma.$executeRawUnsafe(
+      `DELETE FROM rate_limit_hit WHERE bucket = $1 AND key_hash = $2`,
+      bucket,
+      hashKey(key)
+    );
   } catch {}
 }
 
@@ -93,6 +117,9 @@ export async function clearHits({ bucket, key }) {
 export function tooManyRequests(NextResponse, retryAfterSec, message = 'Too many requests. Please try again later.') {
   return NextResponse.json(
     { error: message },
-    { status: 429, headers: { 'Retry-After': String(retryAfterSec || 60) } }
+    {
+      status: 429,
+      headers: { 'Retry-After': String(Math.max(1, retryAfterSec || 60)) },
+    }
   );
 }

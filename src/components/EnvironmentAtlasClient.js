@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import EnvironmentMap from '@/components/EnvironmentMap';
 import { IucnBadgeSvg, IucnThreatGaugeSvg } from '@/components/IucnBadgeSvg';
+import { track, createActiveViewTracker } from '@/lib/analytics/client';
 import {
   Search,
   ChevronLeft,
@@ -53,26 +54,9 @@ export default function EnvironmentAtlasClient() {
   const [showExplain, setShowExplain] = useState(false);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
   const [showAllNews, setShowAllNews] = useState(false);
+  const [studyTab, setStudyTab] = useState('notes'); // 'notes' | 'pyqs'
   const [quizMode, setQuizMode] = useState(false);
   const [quizState, setQuizState] = useState(null);
-
-  // Mastery state in LocalStorage
-  const [learnedMap, setLearnedMap] = useState({});
-
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('env_atlas_learned');
-      if (saved) setLearnedMap(JSON.parse(saved));
-    } catch (_) {}
-  }, []);
-
-  const toggleLearned = (slug) => {
-    const updated = { ...learnedMap, [slug]: !learnedMap[slug] };
-    setLearnedMap(updated);
-    try {
-      localStorage.setItem('env_atlas_learned', JSON.stringify(updated));
-    } catch (_) {}
-  };
 
   // Fetch Items
   useEffect(() => {
@@ -170,6 +154,9 @@ export default function EnvironmentAtlasClient() {
       // 2. Chip Filter
       if (activeFilter === 'All') return true;
       if (activeFilter === 'In news') return itemHasNews(i);
+      if (['CR', 'EN', 'VU', 'LC'].includes(activeFilter)) {
+        return (i.statusBadges?.iucn || '').toUpperCase() === activeFilter;
+      }
       return (i.category || '').toLowerCase() === activeFilter.toLowerCase();
     });
 
@@ -178,10 +165,6 @@ export default function EnvironmentAtlasClient() {
       remaining: filtered.filter((i) => !i.isStarter),
     };
   }, [items, search, activeFilter, news]);
-
-  const learnedCount = useMemo(() => {
-    return items.filter((i) => learnedMap[i.slug]).length;
-  }, [items, learnedMap]);
 
   // Lives Alongside (species that share at least one protected area)
   const mates = useMemo(() => {
@@ -195,65 +178,97 @@ export default function EnvironmentAtlasClient() {
   }, [items, activeItem]);
 
   // Navigation handlers
-  const goToNextSpecies = () => {
+  const navigateSpecies = (delta) => {
     const list = [...starters, ...remaining];
-    if (list.length === 0) return;
-    const currentIndex = list.findIndex((i) => i.slug === selectedSlug);
-    const nextIndex = (currentIndex + 1) % list.length;
-    setSelectedSlug(list[nextIndex].slug);
+    const pool = list.length > 0 ? list : items;
+    if (pool.length === 0) return;
+    const idx = pool.findIndex((i) => i.slug === selectedSlug);
+    const baseIdx = idx >= 0 ? idx : 0;
+    const nextIndex = (baseIdx + delta + pool.length) % pool.length;
+    setSelectedSlug(pool[nextIndex].slug);
+    if (quizMode) setQuizMode(false);
     const centerEl = document.getElementById('center-scroll');
     if (centerEl) centerEl.scrollTop = 0;
   };
 
-  // Start Quick Quiz
-  const startQuiz = () => {
-    const pool = items.length > 0 ? items : [];
-    if (pool.length < 3) return;
-    const shuffled = [...pool].sort(() => 0.5 - Math.random());
-    const questions = shuffled.slice(0, 5).map((s, idx) => {
-      const isRiskQ = idx % 2 === 1;
-      if (isRiskQ) {
-        const correct = RISK_MAP[s.statusBadges?.iucn]?.label || 'Endangered';
-        const options = ['Least Concern', 'Vulnerable', 'Endangered', 'Critically Endangered'].sort(
-          () => 0.5 - Math.random()
-        );
-        return {
-          species: s,
-          text: `How much risk does the ${s.title} face on the IUCN Red List?`,
-          answer: correct,
-          options,
-        };
-      }
-      const others = pool.filter((p) => p.slug !== s.slug).sort(() => 0.5 - Math.random()).slice(0, 3);
-      const options = [s.title, ...others.map((o) => o.title)].sort(() => 0.5 - Math.random());
-      return {
-        species: s,
-        text: 'Which animal is shown here?',
-        answer: s.title,
-        options,
-      };
-    });
+  // Start Quick Quiz (server-generated & server-graded; no answers sent to browser)
+  const startQuiz = async () => {
+    try {
+      const res = await fetch('/api/attempts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          module: 'env_atlas',
+          buildQuiz: true,
+          count: 5,
+          atlasModule: 'SPECIES',
+        }),
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!Array.isArray(data?.questions) || data.questions.length === 0) return;
 
-    setQuizState({
-      questions,
-      index: 0,
-      score: 0,
-      selectedAnswer: null,
-      isAnswered: false,
-    });
-    setQuizMode(true);
+      setQuizState({
+        attemptId: data.attemptId,
+        questions: data.questions,
+        index: 0,
+        score: 0,
+        selectedLabel: null,
+        correctLabel: null,
+        explanation: null,
+        isAnswered: false,
+        submitting: false,
+        questionStartedAt: Date.now(),
+      });
+      setQuizMode(true);
+    } catch {
+      // ignore transient network errors
+    }
   };
 
-  const handleAnswer = (option) => {
-    if (!quizState || quizState.isAnswered) return;
+  const handleAnswer = async (opt) => {
+    if (!quizState || quizState.isAnswered || quizState.submitting) return;
     const currentQ = quizState.questions[quizState.index];
-    const isCorrect = option === currentQ.answer;
-    setQuizState((prev) => ({
-      ...prev,
-      selectedAnswer: option,
-      isAnswered: true,
-      score: isCorrect ? prev.score + 1 : prev.score,
-    }));
+    const timeSpentSec = Math.max(
+      0,
+      Math.min(600, Math.round((Date.now() - (quizState.questionStartedAt || Date.now())) / 1000))
+    );
+    const isLast = quizState.index + 1 >= quizState.questions.length;
+
+    setQuizState((prev) => (prev ? { ...prev, submitting: true } : prev));
+    try {
+      const res = await fetch(`/api/attempts/${quizState.attemptId}/answer`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sourceType: 'env_atlas',
+          sourceId: currentQ.sourceId,
+          selectedLabel: opt.label,
+          timeSpentSec,
+          complete: isLast,
+        }),
+      });
+      if (!res.ok) {
+        setQuizState((prev) => (prev ? { ...prev, submitting: false } : prev));
+        return;
+      }
+      const data = await res.json();
+      setQuizState((prev) =>
+        prev
+          ? {
+              ...prev,
+              selectedLabel: opt.label,
+              correctLabel: data.correctLabel,
+              explanation: data.explanation || null,
+              isAnswered: true,
+              submitting: false,
+              score: data.isCorrect ? prev.score + 1 : prev.score,
+            }
+          : prev
+      );
+    } catch {
+      setQuizState((prev) => (prev ? { ...prev, submitting: false } : prev));
+    }
   };
 
   const nextQuizQuestion = () => {
@@ -261,8 +276,11 @@ export default function EnvironmentAtlasClient() {
     setQuizState((prev) => ({
       ...prev,
       index: prev.index + 1,
-      selectedAnswer: null,
+      selectedLabel: null,
+      correctLabel: null,
+      explanation: null,
       isAnswered: false,
+      questionStartedAt: Date.now(),
     }));
   };
 
@@ -271,6 +289,16 @@ export default function EnvironmentAtlasClient() {
   const activeRiskMeta = RISK_MAP[activeIucnKey] || RISK_MAP.EN;
   const activeRiskIdx = RISK_ORDER.indexOf(activeIucnKey);
   const activeNetwork = networks[activeItem?.networkKey || activeItem?.slug];
+
+  // Track module_open on mount and active dwell time per species
+  useEffect(() => {
+    track('module_open', { module: 'env_atlas' }, { module: 'env_atlas' });
+  }, []);
+
+  useEffect(() => {
+    if (!activeItem?.slug) return;
+    return createActiveViewTracker('species', activeItem.slug, 'env_atlas');
+  }, [activeItem?.slug]);
 
   // High-yield remember facts
   const rememberItems = useMemo(() => {
@@ -307,6 +335,27 @@ export default function EnvironmentAtlasClient() {
   }, [activeItem]);
 
   const currentIndex = items.findIndex((i) => i.slug === selectedSlug);
+  const displayIndex = currentIndex >= 0 ? currentIndex + 1 : 1;
+
+  // Keyboard navigation shortcuts (ArrowLeft / ArrowRight / Q / Escape)
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      const tag = document.activeElement?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+      if (e.key === 'ArrowRight') {
+        navigateSpecies(1);
+      } else if (e.key === 'ArrowLeft') {
+        navigateSpecies(-1);
+      } else if (e.key.toLowerCase() === 'q' && !quizMode && !showHowItWorks) {
+        startQuiz();
+      } else if (e.key === 'Escape') {
+        if (showHowItWorks) setShowHowItWorks(false);
+        if (quizMode) setQuizMode(false);
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  });
 
   return (
     <div className="env-atlas-wrapper">
@@ -318,32 +367,27 @@ export default function EnvironmentAtlasClient() {
         </Link>
 
         <span className="lbl">
-          {learnedCount === 0 ? (
-            <>
-              <b>{items.length}</b> species to learn. Start with the first one.
-            </>
-          ) : (
-            <>
-              <b>{learnedCount}</b> learnt · {items.length - learnedCount} to go
-            </>
-          )}
+          Reading <b>{displayIndex}</b> of {items.length || 20}
         </span>
 
         <div className="ptrack">
           <i
             style={{
-              width: `${items.length > 0 ? (learnedCount / items.length) * 100 : 0}%`,
+              width: `${items.length > 0 ? (displayIndex / items.length) * 100 : 0}%`,
             }}
           />
         </div>
 
         <div className="env-top-actions">
+          <span className="kbd-hint">
+            Use <kbd>←</kbd> <kbd>→</kbd> to flip species
+          </span>
           <button
             type="button"
             className="navbtn ghost"
             onClick={() => setShowHowItWorks(true)}
           >
-            How it works
+            Study guide
           </button>
           <button
             type="button"
@@ -363,7 +407,7 @@ export default function EnvironmentAtlasClient() {
             <Search size={14} color="var(--muted)" />
             <input
               type="text"
-              placeholder="Search an animal or a state"
+              placeholder="Find a species, state, or park..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -379,7 +423,7 @@ export default function EnvironmentAtlasClient() {
           </div>
 
           <div className="chips">
-            {['All', 'Mammals', 'Birds', 'Reptiles', 'In news'].map((chip) => (
+            {['All', 'CR', 'EN', 'VU', 'LC', 'Mammals', 'Birds', 'Reptiles', 'In news'].map((chip) => (
               <button
                 key={chip}
                 type="button"
@@ -415,9 +459,14 @@ export default function EnvironmentAtlasClient() {
                           e.currentTarget.src = '/species/bengal-tiger.webp';
                         }}
                       />
-                      <span className="t">{s.title}</span>
-                      {itemHasNews(s) && <span className="ndot">In news</span>}
-                      {learnedMap[s.slug] && <span className="ok">✓</span>}
+                      <span className="item-meta">
+                        <span className="t">{s.title}</span>
+                        <span className="item-sub">
+                          <IucnBadgeSvg status={s.statusBadges?.iucn || 'EN'} size={16} />
+                          <span>{s.category || 'Species'}</span>
+                        </span>
+                      </span>
+                      {itemHasNews(s) && <span className="news-pulse" title="Recently in news" />}
                     </button>
                   ))}
                 </>
@@ -445,9 +494,14 @@ export default function EnvironmentAtlasClient() {
                           e.currentTarget.src = '/species/bengal-tiger.webp';
                         }}
                       />
-                      <span className="t">{s.title}</span>
-                      {itemHasNews(s) && <span className="ndot">In news</span>}
-                      {learnedMap[s.slug] && <span className="ok">✓</span>}
+                      <span className="item-meta">
+                        <span className="t">{s.title}</span>
+                        <span className="item-sub">
+                          <IucnBadgeSvg status={s.statusBadges?.iucn || 'EN'} size={16} />
+                          <span>{s.category || 'Species'}</span>
+                        </span>
+                      </span>
+                      {itemHasNews(s) && <span className="news-pulse" title="Recently in news" />}
                     </button>
                   ))}
                 </>
@@ -468,13 +522,13 @@ export default function EnvironmentAtlasClient() {
                       <div
                         className="blur"
                         style={{
-                          backgroundImage: `url(${quizState.questions[quizState.index].species.imageUrl || `/species/${quizState.questions[quizState.index].species.slug}.webp`})`,
+                          backgroundImage: `url(${quizState.questions[quizState.index].imageUrl || `/species/${quizState.questions[quizState.index].speciesSlug}.webp`})`,
                         }}
                       />
                       <img
                         src={
-                          quizState.questions[quizState.index].species.imageUrl ||
-                          `/species/${quizState.questions[quizState.index].species.slug}.webp`
+                          quizState.questions[quizState.index].imageUrl ||
+                          `/species/${quizState.questions[quizState.index].speciesSlug}.webp`
                         }
                         alt="Quiz question"
                       />
@@ -491,8 +545,8 @@ export default function EnvironmentAtlasClient() {
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                       {quizState.questions[quizState.index].options.map((opt) => {
-                        const isCorrect = opt === quizState.questions[quizState.index].answer;
-                        const isSelected = opt === quizState.selectedAnswer;
+                        const isCorrect = quizState.isAnswered && opt.label === quizState.correctLabel;
+                        const isSelected = opt.label === quizState.selectedLabel;
                         let btnStyle = {
                           textAlign: 'left',
                           border: '1px solid var(--line)',
@@ -520,13 +574,13 @@ export default function EnvironmentAtlasClient() {
 
                         return (
                           <button
-                            key={opt}
+                            key={opt.label}
                             type="button"
                             style={btnStyle}
                             onClick={() => handleAnswer(opt)}
-                            disabled={quizState.isAnswered}
+                            disabled={quizState.isAnswered || quizState.submitting}
                           >
-                            {opt}
+                            {opt.text}
                           </button>
                         );
                       })}
@@ -603,8 +657,20 @@ export default function EnvironmentAtlasClient() {
                   </div>
 
                   {/* Titles */}
-                  <h1>{activeItem.title}</h1>
-                  <div className="sci">{activeItem.subtitle}</div>
+                  <div className="species-header">
+                    <div>
+                      <h1>{activeItem.title}</h1>
+                      <div className="sci-row">
+                        <span className="sci">{activeItem.subtitle}</span>
+                        {activeItem.category && (
+                          <>
+                            <span className="sci-dot">•</span>
+                            <span className="cat-tag">{activeItem.category}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                   <p className="oneline">{activeItem.oneline || activeItem.habitatType}</p>
 
                   {/* How protected is it? */}
@@ -634,7 +700,10 @@ export default function EnvironmentAtlasClient() {
                       {/* Box 1: IUCN */}
                       <div className="pbox">
                         <div className="q">Risk level (IUCN)</div>
-                        <div className="a">{activeRiskMeta.label}</div>
+                        <div className="a" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <IucnBadgeSvg status={activeIucnKey} size={22} />
+                          <span>{activeRiskMeta.label}</span>
+                        </div>
                         <div className="meter">
                           {RISK_ORDER.map((rk, idx) => (
                             <i
@@ -679,53 +748,67 @@ export default function EnvironmentAtlasClient() {
                     <IucnThreatGaugeSvg activeStatus={activeItem.statusBadges?.iucn} />
                   </div>
 
-                  {/* Remember These */}
+                  {/* Study Tabs: Notes & Common Traps | Past UPSC Questions */}
                   <div className="sec">
-                    <h2>Remember these</h2>
-                    <div className="remember">
-                      <ul>
-                        {rememberItems.map((bullet, idx) => (
-                          <li key={idx}>
-                            <span className="ic" aria-hidden="true">
-                              {bullet.icon || (idx === 0 ? '👁' : '•')}
-                            </span>
-                            <span>{bullet.text || bullet}</span>
-                          </li>
-                        ))}
-                      </ul>
+                    <div className="study-tabs">
+                      <button
+                        type="button"
+                        className={`study-tab ${studyTab === 'notes' ? 'on' : ''}`}
+                        onClick={() => setStudyTab('notes')}
+                      >
+                        What Prelims asks &amp; common traps
+                      </button>
+                      <button
+                        type="button"
+                        className={`study-tab ${studyTab === 'pyqs' ? 'on' : ''}`}
+                        onClick={() => setStudyTab('pyqs')}
+                      >
+                        Past UPSC Questions
+                        {activeItem.similarPYQ?.length > 0 && (
+                          <span className="tab-count">{activeItem.similarPYQ.length}</span>
+                        )}
+                      </button>
                     </div>
 
-                    {(activeItem.traps?.[0] || activeItem.confusionTrap) && (
-                      <div className="confuse">
-                        <b>Don’t get confused</b>
-                        {activeItem.traps?.[0] || activeItem.confusionTrap}
+                    {studyTab === 'notes' ? (
+                      <div className="editorial-notes">
+                        {rememberItems.map((bullet, idx) => (
+                          <div key={idx} className="note-callout">
+                            <div className="note-tag">{idx === 0 ? 'Field ID' : 'Key Fact'}</div>
+                            <p>{bullet.text || bullet}</p>
+                          </div>
+                        ))}
+
+                        {activeItem.behaviour && (
+                          <div className="note-callout">
+                            <div className="note-tag">Ecology &amp; Behaviour</div>
+                            <p>{activeItem.behaviour}</p>
+                          </div>
+                        )}
+
+                        {(activeItem.traps?.length > 0 ? activeItem.traps : activeItem.confusionTrap ? [activeItem.confusionTrap] : []).map((trap, idx) => (
+                          <div key={`trap-${idx}`} className="note-callout trap">
+                            <div className="note-tag">Common Prelims Trap</div>
+                            <p>{trap}</p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="pyqbox">
+                        {activeItem.similarPYQ?.length > 0 ? (
+                          <ul>
+                            {activeItem.similarPYQ.map((q, idx) => (
+                              <li key={idx}>{q}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p style={{ margin: 0, color: 'var(--muted)', fontSize: 13.5 }}>
+                            No direct UPSC CSE PYQ logged for this species yet — focus on its IUCN status, WPA schedule, and protected areas.
+                          </p>
+                        )}
                       </div>
                     )}
                   </div>
-
-                  {/* Behaviour & Ecology */}
-                  {activeItem.behaviour && (
-                    <div className="sec">
-                      <h2>Behaviour & Ecology</h2>
-                      <div className="remember" style={{ padding: '12px 16px' }}>
-                        <span>{activeItem.behaviour}</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* PYQs */}
-                  {activeItem.similarPYQ?.length > 0 && (
-                    <div className="sec">
-                      <h2>Asked in UPSC</h2>
-                      <div className="pyqbox">
-                        <ul>
-                          {activeItem.similarPYQ.map((q, idx) => (
-                            <li key={idx}>{q}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  )}
                 </div>
 
                 {/* Right Rail */}
@@ -905,17 +988,20 @@ export default function EnvironmentAtlasClient() {
               <div className="foot">
                 <button
                   type="button"
-                  className={`btn learn ${learnedMap[activeItem.slug] ? 'done' : ''}`}
-                  onClick={() => toggleLearned(activeItem.slug)}
+                  className="btn"
+                  onClick={() => navigateSpecies(-1)}
                 >
-                  {learnedMap[activeItem.slug] ? '✓ Learnt' : 'I’ve learnt this'}
+                  &larr; Previous
                 </button>
+                <span className="foot-counter">
+                  {displayIndex} of {items.length || 20}
+                </span>
                 <button
                   type="button"
                   className="btn dark"
-                  onClick={goToNextSpecies}
+                  onClick={() => navigateSpecies(1)}
                 >
-                  Next species
+                  Next species &rarr;
                 </button>
               </div>
             </>
@@ -980,7 +1066,7 @@ export default function EnvironmentAtlasClient() {
                 </li>
               </ul>
               <p style={{ margin: '0 0 18px', color: 'var(--muted)', fontSize: 13 }}>
-                Use <b>I’ve learnt this</b> to track your progress and <b>Quiz me</b> to test rapid recall under exam pressure.
+                Use <b>←</b> / <b>→</b> to flip between species and press <b>Q</b> anytime for a quick <b>Quiz me</b> recall check.
               </p>
               <button
                 type="button"

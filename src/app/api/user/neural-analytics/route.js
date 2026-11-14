@@ -10,11 +10,17 @@ export async function GET(req) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // 1. Fetch all quiz attempts for the user
-    const attempts = await prisma.quizAttempt.findMany({
+    // 1. Fetch recent attempts + wrong answers for the user
+    const attempts = await prisma.attempt.findMany({
       where: { userId: session.user.id },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { startedAt: 'desc' },
       take: 20, // Analyze recent performance
+      include: {
+        answers: {
+          where: { isCorrect: false },
+          select: { questionId: true, subject: true },
+        },
+      },
     });
 
     if (attempts.length === 0) {
@@ -30,14 +36,13 @@ export async function GET(req) {
     const questionIds = new Set();
 
     attempts.forEach(attempt => {
-      const breakdown = attempt.breakdown;
-      if (Array.isArray(breakdown)) {
-        breakdown.forEach(item => {
-          if (!item.correct && item.questionId) {
-            questionIds.add(item.questionId);
-          }
-        });
-      }
+      (attempt.answers || []).forEach(ans => {
+        if (ans.questionId) {
+          questionIds.add(ans.questionId);
+        } else if (ans.subject) {
+          domainMistakes[ans.subject] = (domainMistakes[ans.subject] || 0) + 1;
+        }
+      });
     });
 
     // Fetch question details to get domains

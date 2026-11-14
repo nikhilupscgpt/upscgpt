@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import crypto from 'crypto';
 import { sendEmail, getOtpEmailHtml } from '@/lib/comms';
 import { getClientIp, rateLimit, clearHits, tooManyRequests } from '@/lib/rateLimit';
+import { checkOtpGuards, hashRecipient, toIp24 } from '@/lib/cost/recordUsage';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MINUTE = 60 * 1000;
@@ -18,8 +19,29 @@ export async function POST(req) {
       return NextResponse.json({ error: 'Please enter a valid email address.' }, { status: 400 });
     }
 
-    // Flood protection: per IP 20/hour, per email 1/minute and 5/hour.
+    // Flood protection + PRD §6.7 OTP guards (+91 for phone, <=3/hr, <=5/day, <=5/device/day, CAPTCHA hook after 2/device)
     const ip = getClientIp(req);
+    const deviceId = req.cookies?.get('upsc_device_id')?.value || req.headers.get('x-device-id') || null;
+    const channel = body?.channel === 'sms' || body?.channel === 'whatsapp' ? body.channel : 'email';
+
+    const otpGuard = await checkOtpGuards({
+      channel,
+      identifier: channel === 'email' ? cleanEmail : String(body?.phone || ''),
+      deviceId,
+    });
+    if (!otpGuard.allowed) {
+      const msgMap = {
+        INVALID_INDIAN_PHONE: 'Only Indian +91 mobile numbers are supported for SMS/WhatsApp OTP.',
+        PHONE_HOURLY_LIMIT: 'Too many OTP requests in the last hour. Please try again later.',
+        PHONE_DAILY_LIMIT: 'Daily OTP limit reached for this account. Please try again tomorrow.',
+        DEVICE_DAILY_LIMIT: 'Daily OTP limit reached on this device. Please try again tomorrow.',
+      };
+      return NextResponse.json(
+        { error: msgMap[otpGuard.reason] || 'OTP limit reached.', captchaRequired: otpGuard.captchaRequired },
+        { status: otpGuard.reason === 'INVALID_INDIAN_PHONE' ? 400 : 429 }
+      );
+    }
+
     const ipLimit = await rateLimit({ bucket: 'otp-send-ip', key: ip, limit: 20, windowMs: HOUR, record: false });
     if (!ipLimit.allowed) {
       return tooManyRequests(NextResponse, ipLimit.retryAfterSec, 'Too many code requests from your network. Please try again later.');
@@ -71,7 +93,18 @@ export async function POST(req) {
       subject: `Your UPSCGPT Verification Code: ${otp}`,
       html: getOtpEmailHtml({ otp, email: cleanEmail }),
       text: `Your UPSCGPT one-time login verification code is: ${otp}\n\nThis code will expire in 10 minutes. Please do not share this code with anyone.`,
+      purpose: 'otp',
+      template: 'login_otp',
     });
+
+    await prisma.otpRequest.create({
+      data: {
+        phoneHash: hashRecipient(cleanEmail),
+        deviceId,
+        ip24: toIp24(ip),
+        channel,
+      },
+    }).catch(() => {});
 
     const deliveryStatus = emailResult.simulated ? 'SIMULATED' : (emailResult.success ? 'SENT' : 'FAILED');
 
@@ -94,6 +127,7 @@ export async function POST(req) {
         ? 'Verification code generated (Simulation mode: check terminal logs until mail credentials are configured)'
         : 'Verification code sent to your email inbox.',
       simulated: Boolean(emailResult.simulated),
+      captchaRequired: otpGuard.captchaRequired,
     });
 
   } catch (error) {

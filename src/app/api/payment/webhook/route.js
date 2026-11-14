@@ -33,11 +33,77 @@ export async function POST(request) {
     const expBuf = Buffer.from(String(expectedSignature), 'utf8');
     if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
       console.warn('[Razorpay Webhook] Invalid signature rejected');
+      await prisma.securityEvent.create({
+        data: {
+          type: 'bad_signature',
+          ipFull: request.headers.get('x-real-ip') || request.headers.get('x-forwarded-for') || null,
+          detail: { source: 'razorpay_webhook', sigLen: sigBuf.length },
+        },
+      }).catch(() => {});
       return NextResponse.json({ error: 'Invalid webhook signature' }, { status: 400 });
     }
 
     const event = JSON.parse(rawBody);
     const eventType = event?.event;
+    const razorpayEventId =
+      request.headers.get('x-razorpay-event-id') ||
+      event?.id ||
+      `${eventType}:${event?.payload?.payment?.entity?.id || event?.payload?.refund?.entity?.id || Date.now()}`;
+
+    // Idempotency on PaymentEvent.razorpayEventId
+    const seenEvent = await prisma.paymentEvent.findUnique({
+      where: { razorpayEventId: String(razorpayEventId) },
+      select: { id: true },
+    }).catch(() => null);
+    if (seenEvent) {
+      return NextResponse.json({ received: true, alreadyProcessed: true });
+    }
+
+    if (eventType === 'payment.failed') {
+      const failedPay = event?.payload?.payment?.entity;
+      const failedOrderId = failedPay?.order_id || null;
+      if (failedOrderId) {
+        await prisma.order.updateMany({
+          where: { razorpayOrderId: failedOrderId, status: 'created' },
+          data: { status: 'failed' },
+        }).catch(() => {});
+      }
+      await prisma.paymentEvent.create({
+        data: {
+          razorpayEventId: String(razorpayEventId),
+          type: 'payment.failed',
+          orderId: failedOrderId,
+          amountPaise: Number(failedPay?.amount) || null,
+          signatureValid: true,
+          payload: event,
+        },
+      }).catch(() => {});
+      return NextResponse.json({ received: true, recorded: 'payment.failed' });
+    }
+
+    if (eventType === 'refund.processed') {
+      const refundEntity = event?.payload?.refund?.entity;
+      const refundOrderId = refundEntity?.payment_id || null;
+      const payEntity = event?.payload?.payment?.entity;
+      const ordId = payEntity?.order_id || null;
+      if (ordId) {
+        await prisma.order.updateMany({
+          where: { razorpayOrderId: ordId },
+          data: { status: 'refunded' },
+        }).catch(() => {});
+      }
+      await prisma.paymentEvent.create({
+        data: {
+          razorpayEventId: String(razorpayEventId),
+          type: 'refund.processed',
+          orderId: ordId || refundOrderId,
+          amountPaise: Number(refundEntity?.amount) || null,
+          signatureValid: true,
+          payload: event,
+        },
+      }).catch(() => {});
+      return NextResponse.json({ received: true, recorded: 'refund.processed' });
+    }
 
     if (eventType !== 'payment.captured' && eventType !== 'order.paid') {
       return NextResponse.json({ received: true, ignored: eventType });
@@ -140,6 +206,12 @@ export async function POST(request) {
     }
 
     const newValidUntil = computeValidUntilForPlan(plan, currentUser.validUntil);
+    const priorPaidCount = await prisma.order.count({
+      where: { userId, status: 'paid' },
+    }).catch(() => 0);
+    const isRenewal = priorPaidCount > 0;
+    const feePaise = Number(paymentEntity?.fee) || null;
+    const taxOnFeePaise = Number(paymentEntity?.tax) || null;
 
     await prisma.$transaction([
       prisma.user.update({
@@ -147,6 +219,24 @@ export async function POST(request) {
         data: {
           tier: 'PRO',
           validUntil: newValidUntil,
+        },
+      }),
+      prisma.order.updateMany({
+        where: { razorpayOrderId: orderId },
+        data: { status: 'paid', paidAt: new Date() },
+      }),
+      prisma.paymentEvent.create({
+        data: {
+          razorpayEventId: String(razorpayEventId),
+          type: eventType,
+          orderId,
+          userId,
+          amountPaise,
+          feePaise,
+          taxOnFeePaise,
+          signatureValid: true,
+          isRenewal,
+          payload: event,
         },
       }),
       prisma.paymentLog.create({

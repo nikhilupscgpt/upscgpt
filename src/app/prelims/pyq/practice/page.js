@@ -6,9 +6,9 @@ import prisma from '@/lib/prisma';
 import {
   getTierStatus,
   computeUsageState,
-  applyDeepDiveGate,
   USAGE_ACTION_MAP,
 } from '@/lib/tier-gate';
+import { stripAnswerFields } from '@/lib/analytics/grading';
 import PracticeClient from './PracticeClient';
 import { isNewPatternQuestion } from '@/lib/pyqPattern';
 
@@ -155,29 +155,19 @@ export default async function PracticePage({ searchParams }) {
     picked = shuffle(rows).slice(0, n);
   }
 
-  const formattedQuestionsRaw = picked.map(q => ({
-    id: q.id,
-    questionNo: q.questionNo,
-    examName: q.examName || 'UPSC CSE Pre',
-    examYear: q.examYear,
-    srcSubject: q.srcSubject,
-    srcTopic: q.srcTopic,
-    stem: q.stem,
-    options: Array.isArray(q.options) ? q.options : [],
-    correctLabel: q.correctLabel,
-    explanation: q.explanation || null,
-  }));
-
-  // PRO deep-dive gate (practice view shows explanation text only)
-  let deepDiveAccess = tierStatus.isPro ? { isPro: true } : null;
-  if (!deepDiveAccess) {
-    try {
-      deepDiveAccess = await computeUsageState(reqLike, 'deep_dive', tierStatus);
-    } catch {
-      deepDiveAccess = null; // fail closed
-    }
-  }
-  const formattedQuestions = applyDeepDiveGate(formattedQuestionsRaw, deepDiveAccess);
+  // Strip correctLabel and explanation so answers are never leaked before submission.
+  const formattedQuestions = picked.map(q =>
+    stripAnswerFields({
+      id: q.id,
+      questionNo: q.questionNo,
+      examName: q.examName || 'UPSC CSE Pre',
+      examYear: q.examYear,
+      srcSubject: q.srcSubject,
+      srcTopic: q.srcTopic,
+      stem: q.stem,
+      options: Array.isArray(q.options) ? q.options : [],
+    })
+  );
 
   let title = 'Custom set';
   if (isDailyDrill) {

@@ -57,15 +57,33 @@ export async function POST(req) {
     const finalScore = Math.max(0, Math.round(marksObtained)); 
     const passed = percentage >= testPack.passingScore;
 
-    // Save Attempt
-    const attempt = await prisma.quizAttempt.create({
+    // Save Attempt + AttemptAnswers
+    const breakdownArr = Array.isArray(breakdown) ? breakdown : [];
+    const correctCount = breakdownArr.filter((item) => item?.correct).length;
+    const attempt = await prisma.attempt.create({
       data: {
         userId: session.user.id,
-        testPackId,
+        mode: testPack.type === 'MOCK' ? 'TEST' : 'PRACTICE',
+        module: 'test_pack',
+        filters: { testPackId, timeTakenSecs },
+        total: breakdownArr.length,
+        correct: correctCount,
         score: finalScore,
-        timeTakenSecs,
-        breakdown
-      }
+        submittedAt: new Date(),
+        completedAt: new Date(),
+        answers: {
+          create: breakdownArr
+            .filter((item) => item?.questionId)
+            .map((item) => ({
+              questionId: item.questionId,
+              sourceType: 'test_pack',
+              sourceId: String(item.questionId),
+              selectedLabel: item.selectedOption ? String(item.selectedOption).toLowerCase() : null,
+              isCorrect: Boolean(item.correct),
+              timeSpentSec: 0,
+            })),
+        },
+      },
     });
 
     // If it's a PRACTICE test linked to an Issue, update IssueProgress

@@ -130,6 +130,22 @@ export const authOptions = {
           where: { token: verificationToken.token }
         });
 
+        // Mark latest OtpRequest as verified (non-blocking)
+        try {
+          const { hashRecipient } = await import('@/lib/cost/recordUsage');
+          const latestOtp = await prisma.otpRequest.findFirst({
+            where: { phoneHash: hashRecipient(email), verified: false },
+            orderBy: { createdAt: 'desc' },
+            select: { id: true },
+          });
+          if (latestOtp) {
+            await prisma.otpRequest.update({
+              where: { id: latestOtp.id },
+              data: { verified: true, verifiedAt: new Date() },
+            });
+          }
+        } catch {}
+
         return { 
           id: user.id, 
           email: user.email, 

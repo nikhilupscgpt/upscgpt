@@ -1,6 +1,6 @@
 import './globals.css'
 import './legal.css'
-import Script from 'next/script'
+import AnalyticsConsent from '@/components/AnalyticsConsent'
 
 export const metadata = {
   title: {
@@ -90,22 +90,8 @@ export default function RootLayout({ children }) {
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'radial-gradient(circle at 10% 10%, rgba(139, 92, 246, 0.08), transparent 50%), radial-gradient(circle at 90% 90%, rgba(59, 130, 246, 0.08), transparent 50%)' }} />
         </div>
 
-        {/* Google Analytics */}
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=G-XV8ZY1XKLC`}
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-XV8ZY1XKLC');
-          `}
-        </Script>
-
-        {/* Contentsquare (Hotjar) Tracking Tag */}
-        <Contentsquare />
+        {/* Consent-gated Analytics (GA4 & Clarity load only after consent) */}
+        <AnalyticsConsent />
 
         {/* Global SEO Schema */}
         <script

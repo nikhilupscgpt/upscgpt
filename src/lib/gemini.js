@@ -1,4 +1,12 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { recordUsage } from '@/lib/cost/recordUsage';
+
+function extractTokens(response, fallbackInChars = 0, fallbackOutChars = 0) {
+  const usage = response?.usageMetadata || {};
+  const tokensIn = Number(usage.promptTokenCount) || Math.ceil(fallbackInChars / 4);
+  const tokensOut = Number(usage.candidatesTokenCount) || Math.ceil(fallbackOutChars / 4);
+  return { tokensIn, tokensOut };
+}
 
 /**
  * Gemini / Gemma AI Model Utility
@@ -133,16 +141,27 @@ export const getGeminiModel = (taskType = 'extraction') => {
 
       for (const modelName of modelCandidates) {
         try {
+          const startedAt = Date.now();
           const model = client.getGenerativeModel({ model: modelName });
           const result = await callWithRetry(model, contents);
           const response = await result.response;
-          
+          const latencyMs = Date.now() - startedAt;
+          const outText = response.text();
+          const inChars = typeof contents === 'string' ? contents.length : JSON.stringify(contents || '').length;
+          const { tokensIn, tokensOut } = extractTokens(response, inChars, outText.length);
+          const feature = taskType === 'mapbot' ? 'mapbot' : taskType === 'rag' ? 'rag' : taskType;
+
+          Promise.all([
+            recordUsage({ provider: 'gemini', category: 'ai', feature, unit: 'tokens_in', quantity: tokensIn, meta: { model: modelName, cacheHit: false, latencyMs } }),
+            recordUsage({ provider: 'gemini', category: 'ai', feature, unit: 'tokens_out', quantity: tokensOut, meta: { model: modelName, cacheHit: false, latencyMs } }),
+          ]).catch(() => {});
+
           if (process.env.NODE_ENV !== 'production') {
             console.log(`[AI] Task="${taskType}" model="${modelName}" ✓`);
           }
-          
+
           return {
-            text: () => response.text(),
+            text: () => outText,
             response: response
           };
         } catch (error) {
@@ -170,6 +189,7 @@ export const getGeminiModel = (taskType = 'extraction') => {
           if (schema) {
             generationConfig.responseSchema = schema;
           }
+          const startedAt = Date.now();
           const model = client.getGenerativeModel({
             model: modelName,
             generationConfig,
@@ -177,6 +197,15 @@ export const getGeminiModel = (taskType = 'extraction') => {
           const result = await callWithRetry(model, contents);
           const response = await result.response;
           const rawText = response.text();
+          const latencyMs = Date.now() - startedAt;
+          const inChars = typeof contents === 'string' ? contents.length : JSON.stringify(contents || '').length;
+          const { tokensIn, tokensOut } = extractTokens(response, inChars, rawText.length);
+          const feature = taskType === 'mapbot' ? 'mapbot' : taskType === 'rag' ? 'rag' : taskType;
+
+          Promise.all([
+            recordUsage({ provider: 'gemini', category: 'ai', feature, unit: 'tokens_in', quantity: tokensIn, meta: { model: modelName, cacheHit: false, latencyMs } }),
+            recordUsage({ provider: 'gemini', category: 'ai', feature, unit: 'tokens_out', quantity: tokensOut, meta: { model: modelName, cacheHit: false, latencyMs } }),
+          ]).catch(() => {});
 
           if (process.env.NODE_ENV !== 'production') {
             console.log(`[AI JSON] Task="${taskType}" model="${modelName}" ✓`);
@@ -217,10 +246,20 @@ export const generateEmbedding = async (text) => {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error('GEMINI_API_KEY not configured');
 
+  const startedAt = Date.now();
   const client = new GoogleGenerativeAI(apiKey);
   const model = client.getGenerativeModel({ model: 'gemini-embedding-2' });
 
   const result = await model.embedContent(text);
+  const tokensIn = Math.ceil(String(text || '').length / 4);
+  recordUsage({
+    provider: 'gemini',
+    category: 'ai',
+    feature: 'embeddings',
+    unit: 'tokens_in',
+    quantity: tokensIn,
+    meta: { model: 'gemini-embedding-2', cacheHit: false, latencyMs: Date.now() - startedAt },
+  }).catch(() => {});
   return result.embedding.values;
 };
 

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { computeUsageState, USAGE_ACTION_MAP } from '@/lib/tier-gate';
+import { emitServerEvent } from '@/lib/analytics/server';
 
 export const dynamic = 'force-dynamic';
 
@@ -70,6 +71,13 @@ export async function POST(req) {
     }
 
     if (!state.allowed) {
+      emitServerEvent({
+        name: 'paywall_hit',
+        props: { feature, module: feature === 'practice_set' ? 'pyq_practice' : 'pyq_explorer' },
+        userId: state.userId,
+        anonId: req.cookies?.get('upsc_anon_id')?.value || state.anonHash || null,
+        userAgent: req.headers.get('user-agent'),
+      }).catch(() => {});
       return NextResponse.json(
         {
           ...publicState(state),
