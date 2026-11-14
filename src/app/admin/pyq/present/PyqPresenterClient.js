@@ -59,6 +59,8 @@ import {
   Wrench,
   Pause,
   Play,
+  Mic,
+  MicOff,
 } from 'lucide-react';
 import { buildQuestionSteps, buildTopicSteps, buildMappingSteps } from '@/lib/pyqSlideDeck';
 import SlideBody, { SlideHead, Prose, useAutoFit } from './SlideBody';
@@ -236,9 +238,12 @@ function PyqPresenterClientInner({
   const [stopAfterQuestion, setStopAfterQuestion] = useState(false);
   const [chapters, setChapters] = useState([]);
   const [webcamVisible, setWebcamVisible] = useState(true);
+  const [micMuted, setMicMuted] = useState(false);
+  const [micAvailable, setMicAvailable] = useState('unknown'); // 'unknown' | 'active' | 'unavailable'
   const [showFacultyBanner, setShowFacultyBanner] = useState(false);
   const webcamVideoRef = useRef(null);
   const webcamStreamRef = useRef(null);
+  const micStreamRef = useRef(null);
   const mediaRecorderRef = useRef(null);
   const recordedChunksRef = useRef([]);
   const originalTitleRef = useRef(typeof document !== 'undefined' ? document.title : 'Lecture Studio');
@@ -1163,35 +1168,59 @@ function PyqPresenterClientInner({
     };
   }, [recStatus, activeTool, isToolsOpen, isPrefsOpen, showHelp, isQueueOpen]);
 
-  // Phase 4: Webcam live stream when showWebcamBox is enabled
+  // Phase 4: Webcam + microphone live stream when showWebcamBox is enabled
   useEffect(() => {
     if (!showWebcamBox || isDisplayMode) {
       if (webcamStreamRef.current) {
         webcamStreamRef.current.getTracks().forEach((t) => t.stop());
         webcamStreamRef.current = null;
       }
+      setMicAvailable('unknown');
       return;
     }
     let cancelled = false;
+    const attachStream = (stream) => {
+      if (cancelled) {
+        stream.getTracks().forEach((t) => t.stop());
+        return;
+      }
+      webcamStreamRef.current = stream;
+      const audioTracks = stream.getAudioTracks();
+      audioTracks.forEach((t) => { t.enabled = !micMuted; });
+      setMicAvailable(audioTracks.length > 0 ? 'active' : 'unavailable');
+      if (webcamVideoRef.current) {
+        webcamVideoRef.current.srcObject = stream;
+      }
+    };
     if (typeof navigator !== 'undefined' && navigator.mediaDevices?.getUserMedia) {
+      const videoConstraint = { width: { ideal: 640 }, height: { ideal: 640 }, facingMode: 'user' };
       navigator.mediaDevices
-        .getUserMedia({ video: { width: 320, height: 320, facingMode: 'user' }, audio: false })
-        .then((stream) => {
-          if (cancelled) {
-            stream.getTracks().forEach((t) => t.stop());
-            return;
-          }
-          webcamStreamRef.current = stream;
-          if (webcamVideoRef.current) {
-            webcamVideoRef.current.srcObject = stream;
-          }
+        .getUserMedia({
+          video: videoConstraint,
+          audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
         })
-        .catch(() => {});
+        .then(attachStream)
+        .catch(() =>
+          navigator.mediaDevices
+            .getUserMedia({ video: videoConstraint, audio: false })
+            .then(attachStream)
+            .catch(() => {})
+        );
     }
     return () => {
       cancelled = true;
     };
   }, [showWebcamBox, isDisplayMode]);
+
+  const handleToggleMic = useCallback((e) => {
+    e?.stopPropagation?.();
+    setMicMuted((prev) => {
+      const next = !prev;
+      webcamStreamRef.current?.getAudioTracks().forEach((t) => { t.enabled = !next; });
+      micStreamRef.current?.getAudioTracks().forEach((t) => { t.enabled = !next; });
+      return next;
+    });
+  }, []);
 
   const handleSavePrefs = useCallback(async (nextPrefs) => {
     setPrefs(nextPrefs);
@@ -1210,6 +1239,10 @@ function PyqPresenterClientInner({
     const finishStop = () => {
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
         try { mediaRecorderRef.current.stop(); } catch {}
+      }
+      if (micStreamRef.current) {
+        micStreamRef.current.getTracks().forEach((t) => t.stop());
+        micStreamRef.current = null;
       }
       setRecStatus('idle');
       setStopAfterQuestion(false);
@@ -1256,19 +1289,47 @@ function PyqPresenterClientInner({
         const labelMs = Math.max(1, branding?.facultyLabelSec || 5) * 1000;
         setTimeout(() => setShowFacultyBanner(false), labelMs);
       }
-      // Capture stage canvas stream when available
-      try {
-        const inkCanvas = stageRef.current?.querySelector('canvas[data-pq-ink-canvas="true"]');
-        if (inkCanvas && typeof inkCanvas.captureStream === 'function' && typeof MediaRecorder !== 'undefined') {
-          const stream = inkCanvas.captureStream(30);
+      // Capture stage canvas stream + microphone audio when available
+      (async () => {
+        try {
+          const inkCanvas = stageRef.current?.querySelector('canvas[data-pq-ink-canvas="true"]');
+          if (!inkCanvas || typeof inkCanvas.captureStream !== 'function' || typeof MediaRecorder === 'undefined') return;
+
+          const videoStream = inkCanvas.captureStream(30);
+          let audioTracks = webcamStreamRef.current?.getAudioTracks?.() || [];
+          if (audioTracks.length === 0 && typeof navigator !== 'undefined' && navigator.mediaDevices?.getUserMedia) {
+            try {
+              const micStream = await navigator.mediaDevices.getUserMedia({
+                audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+              });
+              micStreamRef.current = micStream;
+              audioTracks = micStream.getAudioTracks();
+              setMicAvailable(audioTracks.length > 0 ? 'active' : 'unavailable');
+            } catch {
+              setMicAvailable('unavailable');
+            }
+          }
+          audioTracks.forEach((t) => { t.enabled = !micMuted; });
+
+          const combinedStream = new MediaStream([
+            ...videoStream.getVideoTracks(),
+            ...audioTracks,
+          ]);
+          const mimeCandidates = [
+            'video/webm;codecs=vp9,opus',
+            'video/webm;codecs=vp8,opus',
+            'video/webm',
+          ];
+          const mimeType = mimeCandidates.find((m) => MediaRecorder.isTypeSupported?.(m)) || 'video/webm';
+
           recordedChunksRef.current = [];
-          const mr = new MediaRecorder(stream, { mimeType: 'video/webm' });
+          const mr = new MediaRecorder(combinedStream, { mimeType });
           mr.ondataavailable = (ev) => {
             if (ev.data && ev.data.size > 0) recordedChunksRef.current.push(ev.data);
           };
           mr.onstop = () => {
             if (recordedChunksRef.current.length > 0) {
-              const blob = new Blob(recordedChunksRef.current, { type: 'video/webm' });
+              const blob = new Blob(recordedChunksRef.current, { type: mimeType });
               const url = URL.createObjectURL(blob);
               const a = document.createElement('a');
               a.href = url;
@@ -1279,8 +1340,8 @@ function PyqPresenterClientInner({
           };
           mr.start(1000);
           mediaRecorderRef.current = mr;
-        }
-      } catch {}
+        } catch {}
+      })();
     };
 
     if (branding?.openingCard !== false) {
@@ -1290,7 +1351,7 @@ function PyqPresenterClientInner({
     } else {
       startActual();
     }
-  }, [prefs.recordTheme, branding, setTheme]);
+  }, [prefs.recordTheme, branding, setTheme, micMuted]);
 
   const handleStartRecording = useCallback(() => {
     if (recStatus !== 'idle' && recStatus !== 'rehearsal') return;
@@ -1964,6 +2025,35 @@ function PyqPresenterClientInner({
           {/* Corner Logo (§2.7, top-right, every step, reserved corner; never removable by Faculty) */}
           <CornerLogo theme={theme} branding={branding} />
 
+          {/* Subtle stage background watermark (theme-aware, non-interactive) */}
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              inset: 0,
+              zIndex: 1,
+              pointerEvents: 'none',
+              userSelect: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              overflow: 'hidden',
+            }}
+          >
+            <div
+              style={{
+                transform: 'rotate(-18deg)',
+                fontSize: 'clamp(42px, 6vw, 84px)',
+                fontWeight: 900,
+                letterSpacing: '0.08em',
+                color: theme === 'dark' ? 'rgba(248, 250, 252, 0.045)' : 'rgba(15, 23, 42, 0.045)',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              upscgpt+ · upscgpt.in
+            </div>
+          </div>
+
           {/* 30s Countdown Timer Overlay */}
           {timerSeconds !== null && (
             <div className="pq-present-timer-overlay">
@@ -2463,41 +2553,85 @@ function PyqPresenterClientInner({
             </div>
           )}
 
-          {/* Round Webcam Bubble rendered inside the stage (clickable corner cycle, 3 sizes, M to hide) */}
-          {showWebcamBox && webcamVisible && (
-            <div
-              onClick={() => {
-                const order = ['bottom-right', 'bottom-left', 'top-left', 'top-right'];
-                const nextCorner = order[(order.indexOf(prefs.webcamCorner) + 1) % order.length];
-                handleSavePrefs({ ...prefs, webcamCorner: nextCorner });
-              }}
-              title="Click to move corner · Press M while recording to hide"
-              style={{
-                position: 'absolute',
-                zIndex: 55,
-                width: prefs.webcamSize === 's' ? 112 : prefs.webcamSize === 'l' ? 196 : 148,
-                height: prefs.webcamSize === 's' ? 112 : prefs.webcamSize === 'l' ? 196 : 148,
-                borderRadius: '50%',
-                overflow: 'hidden',
-                border: '3px solid rgba(56, 189, 248, 0.75)',
-                boxShadow: '0 10px 30px rgba(0,0,0,0.45)',
-                background: '#0f172a',
-                cursor: 'pointer',
-                ...(prefs.webcamCorner === 'top-left' ? { top: 28, left: 28 } :
-                   prefs.webcamCorner === 'top-right' ? { top: 88, right: 28 } :
-                   prefs.webcamCorner === 'bottom-left' ? { bottom: 36, left: 28 } :
-                   { bottom: 36, right: 28 }),
-              }}
-            >
-              <video
-                ref={webcamVideoRef}
-                autoPlay
-                muted
-                playsInline
-                style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }}
-              />
-            </div>
-          )}
+          {/* Round Webcam Bubble rendered inside the stage (clickable corner cycle, 3 sizes, M to hide, mic toggle) */}
+          {showWebcamBox && webcamVisible && (() => {
+            const bubblePx = prefs.webcamSize === 's' ? 168 : prefs.webcamSize === 'l' ? 300 : 230;
+            return (
+              <div
+                onClick={() => {
+                  const order = ['bottom-right', 'bottom-left', 'top-left', 'top-right'];
+                  const nextCorner = order[(order.indexOf(prefs.webcamCorner) + 1) % order.length];
+                  handleSavePrefs({ ...prefs, webcamCorner: nextCorner });
+                }}
+                title="Click to move corner · Press M while recording to hide"
+                style={{
+                  position: 'absolute',
+                  zIndex: 55,
+                  width: bubblePx,
+                  height: bubblePx,
+                  ...(prefs.webcamCorner === 'top-left' ? { top: 28, left: 28 } :
+                     prefs.webcamCorner === 'top-right' ? { top: 88, right: 28 } :
+                     prefs.webcamCorner === 'bottom-left' ? { bottom: 36, left: 28 } :
+                     { bottom: 36, right: 28 }),
+                  cursor: 'pointer',
+                }}
+              >
+                <div
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: '50%',
+                    overflow: 'hidden',
+                    border: '3px solid rgba(56, 189, 248, 0.8)',
+                    boxShadow: '0 12px 32px rgba(0,0,0,0.45)',
+                    background: '#0f172a',
+                  }}
+                >
+                  <video
+                    ref={webcamVideoRef}
+                    autoPlay
+                    muted
+                    playsInline
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scaleX(-1)' }}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleToggleMic}
+                  title={
+                    micAvailable === 'unavailable'
+                      ? 'Microphone unavailable or blocked'
+                      : micMuted
+                        ? 'Microphone muted (click to unmute)'
+                        : 'Microphone live (click to mute)'
+                  }
+                  style={{
+                    position: 'absolute',
+                    bottom: 6,
+                    right: 6,
+                    width: 34,
+                    height: 34,
+                    borderRadius: '50%',
+                    border: '2px solid rgba(255,255,255,0.85)',
+                    background:
+                      micAvailable === 'unavailable'
+                        ? '#64748b'
+                        : micMuted
+                          ? '#dc2626'
+                          : '#059669',
+                    color: '#ffffff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.35)',
+                  }}
+                >
+                  {micMuted || micAvailable === 'unavailable' ? <MicOff size={15} /> : <Mic size={15} />}
+                </button>
+              </div>
+            );
+          })()}
 
           {/* Faculty name label for first 5s of recording */}
           {showFacultyBanner && (
