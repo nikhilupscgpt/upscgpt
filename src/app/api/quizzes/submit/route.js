@@ -59,7 +59,6 @@ export async function POST(req) {
 
     // Save Attempt + AttemptAnswers
     const breakdownArr = Array.isArray(breakdown) ? breakdown : [];
-    const correctCount = breakdownArr.filter((item) => item?.correct).length;
     const attempt = await prisma.attempt.create({
       data: {
         userId: session.user.id,
