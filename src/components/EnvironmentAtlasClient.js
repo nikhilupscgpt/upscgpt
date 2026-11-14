@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import PageBar from '@/components/environment-atlas/PageBar';
 import PrevNextRow from '@/components/environment-atlas/PrevNextRow';
@@ -17,6 +17,11 @@ import {
   Sparkles,
 } from 'lucide-react';
 import './env-atlas.css';
+
+function computeTimeSpentSec(startedAt) {
+  const now = Date.now();
+  return Math.max(0, Math.min(600, Math.round((now - (startedAt || now)) / 1000)));
+}
 
 export default function EnvironmentAtlasClient() {
   const [items, setItems] = useState([]);
@@ -37,17 +42,6 @@ export default function EnvironmentAtlasClient() {
   const [quizState, setQuizState] = useState(null);
 
   // Hydrate initial filter, search, and #slug from URL so state survives reload
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const params = new URLSearchParams(window.location.search);
-    const f = params.get('filter');
-    const q = params.get('q');
-    const hashSlug = window.location.hash ? window.location.hash.slice(1) : '';
-    if (f) setActiveFilter(f);
-    if (q) setSearch(q);
-    if (hashSlug) setSelectedSlug(hashSlug);
-  }, []);
-
   // Keep URL query & hash synced with active filter, search, and selected species
   useEffect(() => {
     if (typeof window === 'undefined' || loading) return;
@@ -62,12 +56,20 @@ export default function EnvironmentAtlasClient() {
     window.history.replaceState(null, '', nextUrl);
   }, [activeFilter, search, selectedSlug, loading]);
 
-  // Fetch Items
+  // Fetch Items & hydrate initial URL filter/search/#slug post-fetch
   useEffect(() => {
-    setLoading(true);
     fetch('/api/environment/items?module=SPECIES&category=ALL')
       .then((r) => r.json())
       .then((data) => {
+        if (typeof window !== 'undefined') {
+          const params = new URLSearchParams(window.location.search);
+          const f = params.get('filter');
+          const q = params.get('q');
+          const hashSlug = window.location.hash ? window.location.hash.slice(1) : '';
+          if (f) setActiveFilter(f);
+          if (q) setSearch(q);
+          if (hashSlug) setSelectedSlug(hashSlug);
+        }
         const rawList = data.items || [];
         // Strict deduplication by slug and lowercase title
         const seen = new Set();
@@ -136,14 +138,14 @@ export default function EnvironmentAtlasClient() {
   }, [activeItem, news]);
 
   // Check if an item has news
-  const itemHasNews = (item) => {
+  const itemHasNews = useCallback((item) => {
     if (item.newsTriggers && item.newsTriggers.length > 0) return true;
     const places = (item.places || []).map((p) => (p.name || '').toLowerCase());
     return news.some((n) => {
       if (n.species && (n.species.includes(item.slug) || n.species.includes(item.title))) return true;
       return (n.places || []).some((p) => places.some((pn) => pn.includes(p.toLowerCase())));
     });
-  };
+  }, [news]);
 
   // Filtered Deck
   const { starters, remaining } = useMemo(() => {
@@ -172,7 +174,7 @@ export default function EnvironmentAtlasClient() {
       starters: filtered.filter((i) => i.isStarter),
       remaining: filtered.filter((i) => !i.isStarter),
     };
-  }, [items, search, activeFilter, news]);
+  }, [items, search, activeFilter, itemHasNews]);
 
   // Lives Alongside (species that share at least one protected area)
   const mates = useMemo(() => {
@@ -201,6 +203,7 @@ export default function EnvironmentAtlasClient() {
 
   // Start Quick Quiz (server-generated & server-graded; no answers sent to browser)
   const startQuiz = async () => {
+    track('quiz_start', { slug: activeItem?.slug }, { module: 'env_atlas' });
     try {
       const res = await fetch('/api/attempts', {
         method: 'POST',
@@ -237,10 +240,7 @@ export default function EnvironmentAtlasClient() {
   const handleAnswer = async (opt) => {
     if (!quizState || quizState.isAnswered || quizState.submitting) return;
     const currentQ = quizState.questions[quizState.index];
-    const timeSpentSec = Math.max(
-      0,
-      Math.min(600, Math.round((Date.now() - (quizState.questionStartedAt || Date.now())) / 1000))
-    );
+    const timeSpentSec = computeTimeSpentSec(quizState.questionStartedAt);
     const isLast = quizState.index + 1 >= quizState.questions.length;
 
     setQuizState((prev) => (prev ? { ...prev, submitting: true } : prev));
@@ -308,6 +308,15 @@ export default function EnvironmentAtlasClient() {
     return createActiveViewTracker('species', activeItem.slug, 'env_atlas');
   }, [activeItem?.slug]);
 
+  useEffect(() => {
+    const q = search.trim();
+    if (!q) return;
+    const timer = setTimeout(() => {
+      track('search', { queryLength: q.length }, { module: 'env_atlas' });
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [search]);
+
   const currentIndex = items.findIndex((i) => i.slug === selectedSlug);
   const displayIndex = currentIndex >= 0 ? currentIndex + 1 : 1;
 
@@ -360,7 +369,10 @@ export default function EnvironmentAtlasClient() {
           search={search}
           onSearchChange={setSearch}
           activeFilter={activeFilter}
-          onFilterChange={setActiveFilter}
+          onFilterChange={(nextFilter) => {
+            setActiveFilter(nextFilter);
+            track('filter_change', { filter: nextFilter }, { module: 'env_atlas' });
+          }}
           onSelectSpecies={(slug) => {
             setSelectedSlug(slug);
             setIsDrawerOpen(false);
@@ -490,12 +502,16 @@ export default function EnvironmentAtlasClient() {
                 {/* Main Column */}
                 <div className="maincol">
                   <SpeciesBody
+                    key={activeItem.slug}
                     activeItem={activeItem}
                     displayIndex={displayIndex}
                     totalCount={items.length}
                     startWithCount={startWithCount}
                     studyTab={studyTab}
-                    onTabChange={setStudyTab}
+                    onTabChange={(tab) => {
+                      setStudyTab(tab);
+                      track('tab_switch', { tab, slug: activeItem?.slug }, { module: 'env_atlas' });
+                    }}
                   />
                   {/* In-flow Previous / Next Row (PRD §3.7) */}
                   <PrevNextRow
@@ -507,6 +523,7 @@ export default function EnvironmentAtlasClient() {
 
                 {/* Right Rail */}
                 <RightPanel
+                  key={activeItem.slug}
                   activeItem={activeItem}
                   activeNetwork={activeNetwork}
                   newsItems={activeNews}
@@ -588,7 +605,7 @@ export default function EnvironmentAtlasClient() {
                 style={{ width: '100%' }}
                 onClick={() => setShowHowItWorks(false)}
               >
-                Got it, let's learn
+                Got it, let&apos;s learn
               </button>
             </div>
           </div>

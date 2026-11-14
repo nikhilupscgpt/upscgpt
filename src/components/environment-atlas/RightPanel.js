@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import EnvironmentMap from '@/components/EnvironmentMap';
 import { adaptSpecies } from '@/lib/environment/species-adapter';
 
@@ -14,12 +14,6 @@ export default function RightPanel({
   const [showAllNews, setShowAllNews] = useState(false);
   const [activePlaceIndex, setActivePlaceIndex] = useState(null);
   const [hoveredPlaceIndex, setHoveredPlaceIndex] = useState(null);
-
-  useEffect(() => {
-    setShowAllNews(false);
-    setActivePlaceIndex(null);
-    setHoveredPlaceIndex(null);
-  }, [activeItem?.slug]);
 
   const sourcedNews = useMemo(() => {
     const fallback = adaptSpecies(activeItem)?.news || [];

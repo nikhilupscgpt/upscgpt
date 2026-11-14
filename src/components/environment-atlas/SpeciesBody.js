@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import GroupSilhouette from '@/components/environment-atlas/GroupSilhouette';
 import {
   adaptSpecies,
@@ -23,13 +23,6 @@ export default function SpeciesBody({
   const [showExplain, setShowExplain] = useState(false);
   const [showAllPoints, setShowAllPoints] = useState(false);
   const [revealedPyqs, setRevealedPyqs] = useState({});
-
-  useEffect(() => {
-    setImgFailed(false);
-    setDescExpanded(false);
-    setShowAllPoints(false);
-    setRevealedPyqs({});
-  }, [adapted?.slug]);
 
   if (!adapted) return null;
 
