@@ -11,7 +11,7 @@
     },
     {
       "path": "/api/cron/analytics-15m",
-      "schedule": "*/15 * * * *"
+      "schedule": "15 19 * * *"
     },
     {
       "path": "/api/cron/analytics-daily",
@@ -23,7 +23,7 @@
     },
     {
       "path": "/api/cron/lifecycle",
-      "schedule": "0 * * * *"
+      "schedule": "0 4 * * *"
     }
   ]
 }
