@@ -7,3 +7,4 @@ export { default as FilterBar } from './FilterBar';
 export { default as PageHeader } from './PageHeader';
 export { default as CollapsibleRail } from './CollapsibleRail';
 export { default as Toolbar } from './Toolbar';
+export { default as SyllabusTreeHome } from './SyllabusTreeHome';

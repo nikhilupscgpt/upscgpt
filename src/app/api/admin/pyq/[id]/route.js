@@ -6,6 +6,7 @@ import { normalizeCanonicalSubject } from '@/lib/syllabusTaxonomy';
 import { normalizeKeywordsList } from '@/lib/pyqKeywords';
 import { requireApiRole } from '@/lib/security/requireRole';
 import { enforcePyqScrapeLimits, normalizeOptions } from '@/lib/pyq/pyqAccess';
+import { invalidatePyqTreeCache } from '@/lib/pyq/tree-service';
 
 export async function GET(req, { params }) {
   try {
@@ -159,6 +160,7 @@ export async function PATCH(req, { params }) {
       where: { id },
       data: updateData
     });
+    invalidatePyqTreeCache();
 
     if (normalizedKeywordsToSync.length > 0) {
       try {
@@ -220,6 +222,7 @@ export async function DELETE(req, { params }) {
     await prisma.questionDraft.delete({
       where: { id }
     });
+    invalidatePyqTreeCache();
 
     try {
       revalidatePath('/prelims/pyq');
