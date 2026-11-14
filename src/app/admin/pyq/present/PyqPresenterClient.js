@@ -9,10 +9,16 @@ import {
   ChevronLeft,
   ChevronRight,
   PenTool,
+  Paintbrush,
   Highlighter,
   Zap,
+  ArrowUpRight,
+  Square,
+  Type,
+  Crosshair,
   Eraser,
   Undo2,
+  Redo2,
   Trash2,
   Maximize2,
   Minimize2,
@@ -57,6 +63,7 @@ import { Link as RemoteLink } from '@/lib/remote/link';
 import BoardConnectDialog from '@/components/remote/BoardConnectDialog';
 import CornerLogo from '@/components/present/CornerLogo';
 import { computeQuestionScale, buildQuestionMetaLine, buildStageCounter } from '@/lib/present/transition-math';
+import { matchShortcut } from '@/lib/present/shortcuts';
 import '@/app/remote/remote.css';
 import './present.css';
 
@@ -117,8 +124,13 @@ function PyqPresenterClientInner({
   });
   const [isDockCollapsed, setIsDockCollapsed] = useState(false);
 
-  // Annotation state
-  const [activeTool, setActiveTool] = useState('pen'); // 'pen' | 'highlighter' | 'laser' | 'eraser' | 'none'
+  // Annotation state — Select/Pointer ('none') is ALWAYS the default on open & next question (§3.1)
+  const [activeTool, setActiveToolState] = useState('none');
+  const [shapeTool, setShapeTool] = useState('line'); // 'line' | 'rect' | 'ellipse'
+  const [clearConfirm, setClearConfirm] = useState(null); // null | 'step' | 'question'
+  const toolMemoryRef = useRef({});
+  const tempPrevToolRef = useRef(null);
+  const redoStackRef = useRef({}); // { [qId]: { q: stroke[], step: { [key]: stroke[] } } }
   const [activeColor, setActiveColor] = useState(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -153,6 +165,28 @@ function PyqPresenterClientInner({
       // ignore
     }
   }, []);
+
+  // Per-tool colour & size memory (§3.3)
+  const setActiveTool = useCallback((updater) => {
+    setActiveToolState((prev) => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      if (prev && prev !== 'none' && prev !== 'eraser' && prev !== 'laser' && prev !== 'spotlight') {
+        toolMemoryRef.current[prev] = { color: activeColor, size: penSize };
+      }
+      const saved = toolMemoryRef.current[next];
+      if (saved) {
+        if (saved.color) setActiveColor(saved.color);
+        if (saved.size) setPenSize(saved.size);
+      }
+      return next;
+    });
+  }, [activeColor, penSize]);
+
+  // Always return to Select/Pointer on next/previous question (§3.1)
+  useEffect(() => {
+    setActiveToolState('none');
+    setClearConfirm(null);
+  }, [qIndex]);
 
   // Think timer (30s)
   const [timerSeconds, setTimerSeconds] = useState(null);
@@ -479,9 +513,14 @@ function PyqPresenterClientInner({
   }, [currentStepKey]);
 
   const handleUndo = useCallback(() => {
+    const pushRedo = (entry) => {
+      if (!redoStackRef.current[currentQId]) redoStackRef.current[currentQId] = [];
+      redoStackRef.current[currentQId].push(entry);
+    };
     const stepStrokes = stepInkMap[currentStepKey] || [];
     if (stepStrokes.length > 0) {
       const last = stepStrokes[stepStrokes.length - 1];
+      pushRedo({ layer: 'step', key: currentStepKey, stroke: last });
       handleUpdateStepStrokes(stepStrokes.slice(0, -1));
       if (!applyingRef.current && linkRef.current?.status === 'connected') {
         linkRef.current.send({ t: 'del', k: `step_${currentStepKey}`, ids: [last.id] });
@@ -491,6 +530,7 @@ function PyqPresenterClientInner({
     const qStrokes = questionInkMap[currentQId] || [];
     if (qStrokes.length > 0) {
       const last = qStrokes[qStrokes.length - 1];
+      pushRedo({ layer: 'question', key: currentQId, stroke: last });
       handleUpdateQStrokes(qStrokes.slice(0, -1));
       if (!applyingRef.current && linkRef.current?.status === 'connected') {
         linkRef.current.send({ t: 'del', k: `q_${currentQId}`, ids: [last.id] });
@@ -498,12 +538,60 @@ function PyqPresenterClientInner({
     }
   }, [stepInkMap, currentStepKey, questionInkMap, currentQId, handleUpdateStepStrokes, handleUpdateQStrokes]);
 
+  const handleRedo = useCallback(() => {
+    const stack = redoStackRef.current[currentQId];
+    if (!stack || stack.length === 0) return;
+    const entry = stack.pop();
+    if (!entry) return;
+    if (entry.layer === 'step') {
+      setStepInkMap(prev => ({
+        ...prev,
+        [entry.key]: [...(prev[entry.key] || []), entry.stroke],
+      }));
+      if (!applyingRef.current && linkRef.current?.status === 'connected') {
+        linkRef.current.send({ t: 'adds', k: `step_${entry.key}`, ss: [entry.stroke] });
+      }
+    } else {
+      setQuestionInkMap(prev => ({
+        ...prev,
+        [entry.key]: [...(prev[entry.key] || []), entry.stroke],
+      }));
+      if (!applyingRef.current && linkRef.current?.status === 'connected') {
+        linkRef.current.send({ t: 'adds', k: `q_${entry.key}`, ss: [entry.stroke] });
+      }
+    }
+  }, [currentQId]);
+
   const handleClearStepInk = useCallback(() => {
     handleUpdateStepStrokes([]);
     if (!applyingRef.current && linkRef.current?.status === 'connected') {
       linkRef.current.send({ t: 'clear', k: `step_${currentStepKey}` });
     }
   }, [handleUpdateStepStrokes, currentStepKey]);
+
+  const handleConfirmClear = useCallback(() => {
+    if (clearConfirm === 'step') {
+      handleClearStepInk();
+    } else if (clearConfirm === 'question') {
+      handleUpdateQStrokes([]);
+      setStepInkMap(prev => {
+        const next = { ...prev };
+        for (const k of Object.keys(next)) {
+          if (k.startsWith(`${currentQId}_`)) {
+            delete next[k];
+            if (!applyingRef.current && linkRef.current?.status === 'connected') {
+              linkRef.current.send({ t: 'clear', k: `step_${k}` });
+            }
+          }
+        }
+        return next;
+      });
+      if (!applyingRef.current && linkRef.current?.status === 'connected') {
+        linkRef.current.send({ t: 'clear', k: `q_${currentQId}` });
+      }
+    }
+    setClearConfirm(null);
+  }, [clearConfirm, handleClearStepInk, handleUpdateQStrokes, currentQId]);
 
   // -------------------------------------------------------------
   // Remote Presenting Data Channel Sync (Section 5 & 6)
@@ -809,6 +897,7 @@ function PyqPresenterClientInner({
 
   // Remote ink action broadcasts
   const handleRemoteAddStroke = useCallback(({ targetLayer, stroke }) => {
+    redoStackRef.current[currentQId] = [];
     if (applyingRef.current) return;
     const pageKey = targetLayer === 'question' ? `q_${currentQId}` : `step_${currentStepKey}`;
     linkRef.current?.send({
@@ -923,7 +1012,7 @@ function PyqPresenterClientInner({
   }, [currentQ, currentStep]);
 
   // -------------------------------------------------------------
-  // Keyboard Shortcuts (Space, Arrows, Pen, Laser, Zoom, Queue, etc.)
+  // Keyboard Shortcuts (Single source of truth: PRESENT_SHORTCUTS)
   // -------------------------------------------------------------
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -935,130 +1024,221 @@ function PyqPresenterClientInner({
         return;
       }
 
-      // Undo: Cmd+Z or Ctrl+Z
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
+      if (clearConfirm) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          handleConfirmClear();
+          return;
+        }
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          setClearConfirm(null);
+          return;
+        }
+      }
+
+      // Space hold = temporary Select (pan/interact); released on keyup
+      if (e.key === ' ' && !e.metaKey && !e.ctrlKey && !e.altKey) {
         e.preventDefault();
-        handleUndo();
+        if (!e.repeat && tempPrevToolRef.current === null && activeTool !== 'none') {
+          tempPrevToolRef.current = activeTool;
+          setActiveTool('none');
+        }
         return;
       }
 
-      switch (e.key) {
-        case 'ArrowRight':
-        case ' ':
-          e.preventDefault();
-          handleNext();
-          break;
-        case 'ArrowLeft':
-          e.preventDefault();
-          handlePrev();
-          break;
-        case 's':
-        case 'S':
-          e.preventDefault();
-          handleAddScratchpad(false);
-          break;
-        case 'p':
-        case 'P':
-          setActiveTool(t => (t === 'pen' ? 'none' : 'pen'));
-          break;
-        case 'h':
-        case 'H':
-          setActiveTool(t => (t === 'highlighter' ? 'none' : 'highlighter'));
-          break;
-        case 'l':
-        case 'L':
-          setActiveTool(t => (t === 'laser' ? 'none' : 'laser'));
-          break;
-        case 'e':
-        case 'E':
-          setActiveTool(t => (t === 'eraser' ? 'none' : 'eraser'));
-          break;
-        case 'v':
-        case 'V':
+      // Shift hold while in Select = temporary Pen; released on keyup
+      if (e.key === 'Shift' && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        if (!e.repeat && tempPrevToolRef.current === null && activeTool === 'none') {
+          tempPrevToolRef.current = 'none';
+          setActiveTool('pen');
+        }
+        return;
+      }
+
+      const matched = matchShortcut(e);
+      if (!matched) return;
+
+      const SIZES = [3, 5, 9];
+      const activePalette = theme === 'light' ? LIGHT_PALETTE : DARK_PALETTE;
+
+      switch (matched.id) {
+        case 'tool.select':
           setActiveTool('none');
           break;
-        case '[':
+        case 'tool.pen':
+          setActiveTool(t => (t === 'pen' ? 'none' : 'pen'));
+          break;
+        case 'tool.brush':
+          setActiveTool(t => (t === 'brush' ? 'none' : 'brush'));
+          break;
+        case 'tool.highlighter':
+          setActiveTool(t => (t === 'highlighter' ? 'none' : 'highlighter'));
+          break;
+        case 'tool.laser':
+          setActiveTool(t => (t === 'laser' ? 'none' : 'laser'));
+          break;
+        case 'tool.arrow':
+          setActiveTool(t => (t === 'arrow' ? 'none' : 'arrow'));
+          break;
+        case 'tool.shape':
+          setActiveTool(curr => {
+            if (curr === 'line' || curr === 'rect' || curr === 'ellipse') {
+              const order = ['line', 'rect', 'ellipse'];
+              const nextShape = order[(order.indexOf(curr) + 1) % order.length];
+              setShapeTool(nextShape);
+              return nextShape;
+            }
+            return shapeTool;
+          });
+          break;
+        case 'tool.text':
+          setActiveTool(t => (t === 'text' ? 'none' : 'text'));
+          break;
+        case 'tool.eraser':
+          setActiveTool(t => (t === 'eraser' ? 'none' : 'eraser'));
+          break;
+        case 'tool.spotlight':
+          setActiveTool(t => (t === 'spotlight' ? 'none' : 'spotlight'));
+          break;
+        case 'tool.zoomHold':
+          if (!e.repeat) {
+            setZoom(prev => (prev.z === 2 ? prev : { z: 2, x: 480, y: 270 }));
+          }
+          break;
+        case 'color.1':
+        case 'color.2':
+        case 'color.3':
+        case 'color.4':
+        case 'color.5': {
+          const idx = Number(matched.id.split('.')[1]) - 1;
+          const color = activePalette[idx];
+          if (color) {
+            setActiveColor(color);
+            if (activeTool === 'none' || activeTool === 'eraser') {
+              setActiveTool('pen');
+            }
+          }
+          break;
+        }
+        case 'size.down':
           setPenSize(curr => {
-            const SIZES = [3, 5, 8, 12];
             const idx = SIZES.indexOf(curr);
             const prev = idx > 0 ? SIZES[idx - 1] : SIZES[0];
             try { localStorage.setItem('pq_present_pen_size', String(prev)); } catch {}
             return prev;
           });
           break;
-        case ']':
+        case 'size.up':
           setPenSize(curr => {
-            const SIZES = [3, 5, 8, 12];
             const idx = SIZES.indexOf(curr);
             const next = idx !== -1 && idx < SIZES.length - 1 ? SIZES[idx + 1] : SIZES[SIZES.length - 1];
             try { localStorage.setItem('pq_present_pen_size', String(next)); } catch {}
             return next;
           });
           break;
-        case 'z':
-        case 'Z':
-          setIsZoomedImage(z => !z);
+        case 'edit.undo':
+          e.preventDefault();
+          handleUndo();
           break;
-        case 'q':
-        case 'Q':
+        case 'edit.redo':
+          e.preventDefault();
+          handleRedo();
+          break;
+        case 'edit.clearStep':
+          setClearConfirm('step');
+          break;
+        case 'edit.clearQuestion':
+          setClearConfirm('question');
+          break;
+        case 'nav.nextStep':
+        case 'nav.nextStepEnter':
+        case 'nav.nextStepPgDn':
+          e.preventDefault();
+          handleNext();
+          break;
+        case 'nav.prevStep':
+        case 'nav.prevStepPgUp':
+          e.preventDefault();
+          handlePrev();
+          break;
+        case 'nav.nextQuestion':
+          e.preventDefault();
+          jumpToItem(Math.min(questions.length - 1, qIndex + 1));
+          break;
+        case 'nav.prevQuestion':
+          e.preventDefault();
+          jumpToItem(Math.max(0, qIndex - 1));
+          break;
+        case 'nav.firstStep':
+          e.preventDefault();
+          setStepIndex(0);
+          break;
+        case 'nav.lastStep':
+          e.preventDefault();
+          setStepIndex(Math.max(0, steps.length - 1));
+          break;
+        case 'nav.grid':
           setIsQueueOpen(o => !o);
           break;
-        case 'm':
-        case 'M':
+        case 'board.white':
+          setIsBlackboard(false);
+          setTheme('light');
+          break;
+        case 'board.black':
+          setIsBlackboard(b => !b);
+          break;
+        case 'view.theme':
           toggleTheme();
           break;
-        case 'd':
-        case 'D':
-          setIsDockCollapsed(c => !c);
-          break;
-        case 'f':
-        case 'F':
+        case 'view.fullscreen':
           e.preventDefault();
           toggleFullscreen();
           break;
-        case 'b':
-        case 'B':
-          setIsBlackboard(b => !b);
-          break;
-        case 'w':
-        case 'W':
-          setShowWebcamBox(w => !w);
-          break;
-        case 't':
-        case 'T':
-          setTimerSeconds(s => (s ? null : 30));
-          break;
-        case 'c':
-        case 'C':
-          handleClearStepInk();
-          break;
-        case 'r':
-        case 'R':
-          handleToggleMode();
-          break;
-        case '?':
+        case 'view.help':
           setShowHelp(h => !h);
           break;
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8': {
-          const num = Number(e.key);
-          setSpotlightIndex(prev => (prev === num ? null : num));
-          break;
-        }
         default:
           break;
       }
     };
 
+    const handleKeyUp = (e) => {
+      if (e.key === ' ' && tempPrevToolRef.current !== null) {
+        setActiveTool(tempPrevToolRef.current);
+        tempPrevToolRef.current = null;
+      } else if (e.key === 'Shift' && tempPrevToolRef.current === 'none') {
+        setActiveTool('none');
+        tempPrevToolRef.current = null;
+      } else if (e.key.toLowerCase() === 'z' && !e.metaKey && !e.ctrlKey) {
+        setZoom(prev => (prev.z === 1 ? prev : { z: 1, x: 0, y: 0 }));
+      }
+    };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleNext, handlePrev, handleUndo, handleClearStepInk, toggleTheme, handleToggleMode, handleAddScratchpad]);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [
+    activeTool,
+    shapeTool,
+    theme,
+    clearConfirm,
+    qIndex,
+    questions.length,
+    steps.length,
+    handleNext,
+    handlePrev,
+    jumpToItem,
+    handleUndo,
+    handleRedo,
+    handleConfirmClear,
+    toggleTheme,
+    setTheme,
+    setActiveTool,
+  ]);
 
   if (!currentQ) {
     return (
@@ -1503,6 +1683,68 @@ function PyqPresenterClientInner({
             onAddStroke={handleRemoteAddStroke}
             onDeleteStroke={handleRemoteDeleteStroke}
           />
+
+          {/* On-stage clear ink confirmation (never browser confirm()) */}
+          {clearConfirm && (
+            <div
+              role="alertdialog"
+              aria-label="Confirm clear ink"
+              style={{
+                position: 'absolute',
+                top: 24,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 60,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
+                padding: '10px 16px',
+                borderRadius: 12,
+                background: theme === 'light' ? 'rgba(255,255,255,0.96)' : 'rgba(15,23,42,0.96)',
+                border: '1px solid rgba(239,68,68,0.45)',
+                boxShadow: '0 12px 32px rgba(0,0,0,0.35)',
+                color: theme === 'light' ? '#0f172a' : '#f8fafc',
+                fontSize: 14,
+                fontWeight: 600,
+              }}
+            >
+              <span>
+                {clearConfirm === 'question'
+                  ? 'Clear all ink on this question?'
+                  : 'Clear ink on this step?'}
+              </span>
+              <button
+                type="button"
+                onClick={handleConfirmClear}
+                style={{
+                  padding: '5px 12px',
+                  borderRadius: 8,
+                  border: 'none',
+                  background: '#ef4444',
+                  color: '#ffffff',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                }}
+              >
+                Clear [Enter]
+              </button>
+              <button
+                type="button"
+                onClick={() => setClearConfirm(null)}
+                style={{
+                  padding: '5px 12px',
+                  borderRadius: 8,
+                  border: '1px solid rgba(148,163,184,0.35)',
+                  background: 'transparent',
+                  color: 'inherit',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                Cancel [Esc]
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -1570,9 +1812,18 @@ function PyqPresenterClientInner({
             type="button"
             onClick={() => setActiveTool(t => (t === 'pen' ? 'none' : 'pen'))}
             className={`pq-dock-btn ${activeTool === 'pen' ? 'is-active' : ''}`}
-            title="Pen Tool [P] (XP-Pen uniform line)"
+            title="Pen Tool [P] (smooth fine line)"
           >
             <PenTool size={16} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTool(t => (t === 'brush' ? 'none' : 'brush'))}
+            className={`pq-dock-btn ${activeTool === 'brush' ? 'is-active' : ''}`}
+            title="Brush Pen [B] (variable width)"
+          >
+            <Paintbrush size={16} />
           </button>
 
           <button
@@ -1595,11 +1846,57 @@ function PyqPresenterClientInner({
 
           <button
             type="button"
+            onClick={() => setActiveTool(t => (t === 'arrow' ? 'none' : 'arrow'))}
+            className={`pq-dock-btn ${activeTool === 'arrow' ? 'is-active' : ''}`}
+            title="Arrow [A] (Shift = 15° snap)"
+          >
+            <ArrowUpRight size={16} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTool(curr => {
+                if (curr === 'line' || curr === 'rect' || curr === 'ellipse') {
+                  const order = ['line', 'rect', 'ellipse'];
+                  const nextShape = order[(order.indexOf(curr) + 1) % order.length];
+                  setShapeTool(nextShape);
+                  return nextShape;
+                }
+                return shapeTool;
+              });
+            }}
+            className={`pq-dock-btn ${['line', 'rect', 'ellipse'].includes(activeTool) ? 'is-active' : ''}`}
+            title={`Shape (${shapeTool}) [G to cycle]`}
+          >
+            <Square size={16} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTool(t => (t === 'text' ? 'none' : 'text'))}
+            className={`pq-dock-btn ${activeTool === 'text' ? 'is-active' : ''}`}
+            title="Text Label [T]"
+          >
+            <Type size={16} />
+          </button>
+
+          <button
+            type="button"
             onClick={() => setActiveTool(t => (t === 'eraser' ? 'none' : 'eraser'))}
             className={`pq-dock-btn ${activeTool === 'eraser' ? 'is-active' : ''}`}
-            title="Eraser [E]"
+            title="Eraser [E] (Alt = area erase)"
           >
             <Eraser size={16} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTool(t => (t === 'spotlight' ? 'none' : 'spotlight'))}
+            className={`pq-dock-btn ${activeTool === 'spotlight' ? 'is-active' : ''}`}
+            title="Spotlight [S]"
+          >
+            <Crosshair size={16} />
           </button>
 
           {/* Dynamic Blank Scratchpad Slide */}
@@ -1607,7 +1904,7 @@ function PyqPresenterClientInner({
             type="button"
             onClick={() => handleAddScratchpad(false)}
             className="pq-dock-btn pq-dock-scratchpad-btn"
-            title="Insert Blank Scratchpad Slide [S]"
+            title="Insert Blank Scratchpad Slide"
           >
             <FilePlus2 size={16} />
           </button>
@@ -1633,13 +1930,12 @@ function PyqPresenterClientInner({
 
           <div className="pq-dock-sep" />
 
-          {/* Pen Thickness Selector */}
-          <div className="pq-dock-sizes" title="Pen Thickness: 3px, 5px, 8px, 12px ([ and ] keys)">
+          {/* Pen Thickness Selector (3 sizes) */}
+          <div className="pq-dock-sizes" title="Pen Thickness: 3px, 5px, 9px ([ and ] keys)">
             {[
               { size: 3, label: 'Fine (3px)', dot: 4 },
               { size: 5, label: 'Regular (5px)', dot: 7 },
-              { size: 8, label: 'Bold (8px)', dot: 10 },
-              { size: 12, label: 'Heavy (12px)', dot: 14 },
+              { size: 9, label: 'Bold (9px)', dot: 11 },
             ].map((s) => (
               <button
                 key={s.size}
@@ -1666,7 +1962,7 @@ function PyqPresenterClientInner({
 
           <div className="pq-dock-sep" />
 
-          {/* Undo & Clear */}
+          {/* Undo, Redo & Clear */}
           <button
             type="button"
             onClick={handleUndo}
@@ -1678,9 +1974,18 @@ function PyqPresenterClientInner({
 
           <button
             type="button"
-            onClick={handleClearStepInk}
+            onClick={handleRedo}
             className="pq-dock-btn"
-            title="Clear Step Ink [C]"
+            title="Redo Stroke [Cmd+Shift+Z]"
+          >
+            <Redo2 size={16} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setClearConfirm('step')}
+            className="pq-dock-btn"
+            title="Clear Step Ink [C] / Question [Shift+C]"
           >
             <Trash2 size={16} />
           </button>

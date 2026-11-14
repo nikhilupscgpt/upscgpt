@@ -35,10 +35,28 @@ function getSvgPathFromStroke(points) {
  * Computes (or retrieves cached) Path2D for a stroke and renders it with
  * Quadratic Bézier smoothing, single-tap dot support, and smart end-taper.
  */
+function snapShapeEnd(tool, x0, y0, x1, y1, shiftKey) {
+  if (!shiftKey) return [x1, y1];
+  const dx = x1 - x0;
+  const dy = y1 - y0;
+  if (tool === 'arrow' || tool === 'line') {
+    const angle = Math.atan2(dy, dx);
+    const snapAngle = Math.round(angle / (Math.PI / 12)) * (Math.PI / 12); // 15° snap
+    const dist = Math.hypot(dx, dy);
+    return [x0 + Math.cos(snapAngle) * dist, y0 + Math.sin(snapAngle) * dist];
+  }
+  if (tool === 'rect' || tool === 'ellipse') {
+    const side = Math.max(Math.abs(dx), Math.abs(dy));
+    return [x0 + Math.sign(dx || 1) * side, y0 + Math.sign(dy || 1) * side];
+  }
+  return [x1, y1];
+}
+
 function renderStroke(ctx, stroke, defaultPenSize, defaultHighlighterSize, isLiveStroke = false, predictedPoints = []) {
   if (!stroke || !stroke.points || stroke.points.length === 0) return;
 
   const isHighlighter = stroke.tool === 'highlighter';
+  const isBrush = stroke.tool === 'brush';
   let size = isHighlighter ? stroke.size || defaultHighlighterSize : stroke.size || defaultPenSize;
   // Section 6 Rule 7: Strokes drawn while zoomed store zs and divide their width by it
   if (stroke.zs && stroke.zs > 0 && stroke.zs !== 1) {
@@ -49,10 +67,61 @@ function renderStroke(ctx, stroke, defaultPenSize, defaultHighlighterSize, isLiv
   if (isHighlighter) {
     ctx.fillStyle = stroke.color;
     ctx.globalAlpha = 0.35;
-    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalCompositeOperation = 'multiply';
   } else {
     ctx.fillStyle = stroke.color;
+    ctx.strokeStyle = stroke.color;
     ctx.globalAlpha = 1.0;
+  }
+
+  // Text label stroke
+  if (stroke.tool === 'text') {
+    const [tx, ty] = stroke.points[0];
+    const fontSize = Math.max(22, size * 4.5);
+    ctx.font = `600 ${fontSize}px Inter, system-ui, sans-serif`;
+    ctx.textBaseline = 'top';
+    ctx.fillText(String(stroke.text || ''), tx, ty);
+    ctx.restore();
+    return;
+  }
+
+  // Geometric shape tools (arrow, line, rect, ellipse)
+  if (stroke.tool === 'arrow' || stroke.tool === 'line' || stroke.tool === 'rect' || stroke.tool === 'ellipse') {
+    const p0 = stroke.points[0];
+    const p1 = stroke.points[stroke.points.length - 1];
+    const [x0, y0] = p0;
+    const [x1, y1] = p1;
+    ctx.lineWidth = Math.max(2, size);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+
+    if (stroke.tool === 'line' || stroke.tool === 'arrow') {
+      ctx.moveTo(x0, y0);
+      ctx.lineTo(x1, y1);
+      ctx.stroke();
+      if (stroke.tool === 'arrow') {
+        const angle = Math.atan2(y1 - y0, x1 - x0);
+        const headLen = Math.max(14, size * 3.2);
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x1 - headLen * Math.cos(angle - Math.PI / 6), y1 - headLen * Math.sin(angle - Math.PI / 6));
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x1 - headLen * Math.cos(angle + Math.PI / 6), y1 - headLen * Math.sin(angle + Math.PI / 6));
+        ctx.stroke();
+      }
+    } else if (stroke.tool === 'rect') {
+      ctx.strokeRect(x0, y0, x1 - x0, y1 - y0);
+    } else if (stroke.tool === 'ellipse') {
+      const cx = (x0 + x1) / 2;
+      const cy = (y0 + y1) / 2;
+      const rx = Math.abs(x1 - x0) / 2;
+      const ry = Math.abs(y1 - y0) / 2;
+      ctx.ellipse(cx, cy, Math.max(1, rx), Math.max(1, ry), 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+    return;
   }
 
   // Single-tap dot handling (dotting 'i', periods, colons, decimal points, bullet points)
@@ -84,18 +153,18 @@ function renderStroke(ctx, stroke, defaultPenSize, defaultHighlighterSize, isLiv
       : stroke.points;
 
   const outline = getStroke(pointsToRender, {
-    size,
-    thinning: isHighlighter ? 0 : 0.2,
+    size: isBrush ? size * 1.35 : size,
+    thinning: isHighlighter ? 0 : (isBrush ? 0.58 : 0),
     smoothing: 0.68,
     streamline: 0.54,
-    simulatePressure: !stroke.hasHardwarePressure && !isHighlighter,
+    simulatePressure: !stroke.hasHardwarePressure && isBrush,
     start: {
       cap: true,
-      taper: 0,
+      taper: isBrush ? Math.min(size * 1.2, 10) : 0,
     },
     end: {
       cap: true,
-      taper: isHighlighter ? 0 : Math.min(size * 1.6, 12),
+      taper: isHighlighter ? 0 : (isBrush ? Math.min(size * 2.2, 18) : Math.min(size * 1.4, 10)),
     },
   });
 
@@ -252,6 +321,9 @@ export default function PyqAnnotationCanvas({
   const lastLiveBroadcastRef = useRef(0);
   const lastLaserBroadcastRef = useRef(0);
   const pinchStartRef = useRef(null);
+  const penActiveUntilRef = useRef(0); // Palm rejection: ignore touch while stylus is active
+  const spotlightPosRef = useRef({ x: canvasWidth / 2, y: canvasHeight / 2, r: 190 });
+  const [textDraft, setTextDraft] = useState(null); // { x, y, value }
 
   const [dpr, setDpr] = useState(1);
 
@@ -323,6 +395,23 @@ export default function PyqAnnotationCanvas({
       renderLaser(ctx, laserTrailRef.current, getCurrentTimestamp());
     }
 
+    // 5b. Spotlight dim overlay when spotlight tool is active
+    if (activeTool === 'spotlight') {
+      const sp = spotlightPosRef.current;
+      ctx.save();
+      ctx.fillStyle = 'rgba(2, 6, 23, 0.62)';
+      ctx.beginPath();
+      ctx.rect(0, 0, canvasWidth, canvasHeight);
+      ctx.arc(sp.x, sp.y, sp.r, 0, Math.PI * 2, true);
+      ctx.fill('evenodd');
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.45)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(sp.x, sp.y, sp.r, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+
     ctx.restore();
 
     // 6. Draw live hover nib or eraser hit-circle
@@ -362,7 +451,7 @@ export default function PyqAnnotationCanvas({
     function loop() {
       if (laserTrailRef.current.length > 0) {
         const now = getCurrentTimestamp();
-        laserTrailRef.current = laserTrailRef.current.filter(p => now - p.time <= 450);
+        laserTrailRef.current = laserTrailRef.current.filter(p => now - p.time <= 1000);
         redraw();
       }
       if (active) {
@@ -417,11 +506,12 @@ export default function PyqAnnotationCanvas({
   };
 
   // -------------------------------------------------------------
-  // Eraser Helper: Erases stroke if touched within 22px radius
-  // -------------------------------------------------------------
-  const eraseAtPoint = (ex, ey) => {
+  const SHAPE_TOOLS = new Set(['arrow', 'line', 'rect', 'ellipse']);
+
+  // Eraser Helper: Stroke erase by default; Alt = area erase (removes points near cursor)
+  const eraseAtPoint = (ex, ey, isAreaErase = false) => {
     const isQuestionPanel = ex < leftBoundaryX;
-    const threshold = 22;
+    const threshold = isAreaErase ? 28 : 22;
 
     const hitStroke = (stroke) => {
       for (const [px, py] of stroke.points) {
@@ -430,27 +520,45 @@ export default function PyqAnnotationCanvas({
       return false;
     };
 
+    const applyErase = (list, targetLayer, updater) => {
+      if (!isAreaErase) {
+        const removed = list.filter(hitStroke);
+        if (removed.length > 0) {
+          updater?.(list.filter(s => !hitStroke(s)));
+          onDeleteStroke?.({ targetLayer, ids: removed.map(s => s.id) });
+        }
+        return;
+      }
+      let changed = false;
+      const next = [];
+      for (const s of list) {
+        if (s.tool === 'text' || SHAPE_TOOLS.has(s.tool)) {
+          if (hitStroke(s)) {
+            changed = true;
+          } else {
+            next.push(s);
+          }
+          continue;
+        }
+        const keptPts = s.points.filter(([px, py]) => Math.hypot(px - ex, py - ey) >= threshold);
+        if (keptPts.length !== s.points.length) {
+          changed = true;
+          if (keptPts.length >= 2) {
+            next.push({ ...s, points: keptPts, _cachedPath: undefined });
+          }
+        } else {
+          next.push(s);
+        }
+      }
+      if (changed) updater?.(next);
+    };
+
     if (isFullStage) {
-      const removed = stepStrokes.filter(hitStroke);
-      if (removed.length > 0) {
-        const filtered = stepStrokes.filter(s => !hitStroke(s));
-        onUpdateStepStrokes?.(filtered);
-        onDeleteStroke?.({ targetLayer: 'step', ids: removed.map(s => s.id) });
-      }
+      applyErase(stepStrokes, 'step', onUpdateStepStrokes);
     } else if (isQuestionPanel) {
-      const removed = questionStrokes.filter(hitStroke);
-      if (removed.length > 0) {
-        const filtered = questionStrokes.filter(s => !hitStroke(s));
-        onUpdateQuestionStrokes?.(filtered);
-        onDeleteStroke?.({ targetLayer: 'question', ids: removed.map(s => s.id) });
-      }
+      applyErase(questionStrokes, 'question', onUpdateQuestionStrokes);
     } else {
-      const removed = stepStrokes.filter(hitStroke);
-      if (removed.length > 0) {
-        const filtered = stepStrokes.filter(s => !hitStroke(s));
-        onUpdateStepStrokes?.(filtered);
-        onDeleteStroke?.({ targetLayer: 'step', ids: removed.map(s => s.id) });
-      }
+      applyErase(stepStrokes, 'step', onUpdateStepStrokes);
     }
   };
 
@@ -459,11 +567,24 @@ export default function PyqAnnotationCanvas({
     return e.button === 2 || e.button === 5 || (e.buttons & 2) === 2 || (e.buttons & 32) === 32;
   };
 
+  // Palm rejection: when stylus is active, ignore touch events on the stage
+  const shouldRejectPalm = (e) => {
+    if (e.pointerType === 'pen') {
+      penActiveUntilRef.current = Date.now() + 900;
+      return false;
+    }
+    if (e.pointerType === 'touch' && Date.now() < penActiveUntilRef.current) {
+      return true;
+    }
+    return false;
+  };
+
   // -------------------------------------------------------------
   // Pointer Down (Stroke Start)
   // -------------------------------------------------------------
   const handlePointerDown = (e) => {
     if (activeTool === 'none') return;
+    if (shouldRejectPalm(e)) return;
     e.preventDefault();
     canvasRef.current?.setPointerCapture?.(e.pointerId);
 
@@ -478,10 +599,21 @@ export default function PyqAnnotationCanvas({
       isPenDown: true,
     };
 
+    if (activeTool === 'spotlight') {
+      spotlightPosRef.current = { ...spotlightPosRef.current, x, y };
+      redraw();
+      return;
+    }
+
+    if (activeTool === 'text') {
+      setTextDraft({ x, y, value: '' });
+      return;
+    }
+
     // Eraser Tool Action OR Stylus Barrel Button Instant Erase
     if (activeTool === 'eraser' || barrelEraser) {
       currentStrokeRef.current = null;
-      eraseAtPoint(x, y);
+      eraseAtPoint(x, y, Boolean(e.altKey));
       redraw();
       return;
     }
@@ -493,7 +625,7 @@ export default function PyqAnnotationCanvas({
       return;
     }
 
-    // Pen or Highlighter Tool: Start Stroke
+    // Pen, Brush, Highlighter, or Shape Tool: Start Stroke
     const targetLayer = isFullStage ? 'step' : (x < leftBoundaryX ? 'question' : 'step');
     predictedPointsRef.current = [];
     currentStrokeRef.current = {
@@ -514,6 +646,7 @@ export default function PyqAnnotationCanvas({
   // -------------------------------------------------------------
   const handlePointerMove = (e) => {
     if (activeTool === 'none') return;
+    if (shouldRejectPalm(e)) return;
 
     const nativeEv = e.nativeEvent || e;
     const coalesced =
@@ -533,12 +666,20 @@ export default function PyqAnnotationCanvas({
       isPenDown: e.buttons > 0,
     };
 
+    if (activeTool === 'spotlight') {
+      if (e.buttons > 0) {
+        spotlightPosRef.current = { ...spotlightPosRef.current, x: latestCoords.x, y: latestCoords.y };
+        redraw();
+      }
+      return;
+    }
+
     // Eraser or Stylus Barrel Button Erase while dragging
     if (activeTool === 'eraser' || barrelEraser) {
       if (e.buttons > 0) {
         for (const ev of eventsToProcess) {
           const pt = getCanvasCoords(ev, false);
-          eraseAtPoint(pt.x, pt.y);
+          eraseAtPoint(pt.x, pt.y, Boolean(e.altKey));
         }
       }
       redraw();
@@ -567,6 +708,14 @@ export default function PyqAnnotationCanvas({
 
     const stroke = currentStrokeRef.current;
     const pts = stroke.points;
+
+    if (SHAPE_TOOLS.has(stroke.tool)) {
+      const [sx, sy] = snapShapeEnd(stroke.tool, pts[0][0], pts[0][1], latestCoords.x, latestCoords.y, Boolean(e.shiftKey));
+      stroke.points = [pts[0], [sx, sy, 0.55]];
+      stroke.maxTravel = Math.hypot(sx - pts[0][0], sy - pts[0][1]);
+      redraw();
+      return;
+    }
 
     for (const ev of eventsToProcess) {
       const { x: rawX, y: rawY, pressure, hasHardwarePressure } = getCanvasCoords(ev, false);
@@ -656,8 +805,22 @@ export default function PyqAnnotationCanvas({
       stroke.zs = zoom?.z || 1;
 
       // Preserve quick taps (dotting 'i', periods, colons, decimal points)
-      if (stroke.points.length === 1 || (stroke.maxTravel || 0) < 1.8) {
+      if (!SHAPE_TOOLS.has(stroke.tool) && (stroke.points.length === 1 || (stroke.maxTravel || 0) < 1.8)) {
         stroke.isDot = true;
+      }
+
+      // Highlighter: snap to straight horizontal when nearly level
+      if (stroke.tool === 'highlighter' && stroke.points.length >= 2) {
+        const p0 = stroke.points[0];
+        const pLast = stroke.points[stroke.points.length - 1];
+        const dx = pLast[0] - p0[0];
+        const dy = pLast[1] - p0[1];
+        if (Math.abs(dx) > 30 && Math.abs(dy) <= Math.max(14, Math.abs(dx) * 0.08)) {
+          stroke.points = [
+            [p0[0], p0[1], p0[2]],
+            [pLast[0], p0[1], pLast[2]],
+          ];
+        }
       }
 
       if (onLiveStroke) onLiveStroke(null);
@@ -737,27 +900,93 @@ export default function PyqAnnotationCanvas({
     }
   };
 
+  const commitTextDraft = () => {
+    if (!textDraft) return;
+    const text = textDraft.value.trim();
+    if (text) {
+      const targetLayer = isFullStage ? 'step' : (textDraft.x < leftBoundaryX ? 'question' : 'step');
+      const stroke = {
+        id:
+          typeof crypto !== 'undefined' && crypto.randomUUID
+            ? crypto.randomUUID()
+            : 't_' + Math.random().toString(36).slice(2) + Date.now(),
+        tool: 'text',
+        color: activeColor,
+        size: penSize,
+        text,
+        targetLayer,
+        zs: zoom?.z || 1,
+        points: [[textDraft.x, textDraft.y, 0.55]],
+      };
+      if (targetLayer === 'question' && !isFullStage) {
+        onUpdateQuestionStrokes?.([...questionStrokes, stroke]);
+        onAddStroke?.({ targetLayer: 'question', stroke });
+      } else {
+        onUpdateStepStrokes?.([...stepStrokes, stroke]);
+        onAddStroke?.({ targetLayer: 'step', stroke });
+      }
+    }
+    setTextDraft(null);
+  };
+
   return (
-    <canvas
-      ref={canvasRef}
-      width={Math.round(canvasWidth * dpr)}
-      height={Math.round(canvasHeight * dpr)}
-      style={{
-        width: `${canvasWidth}px`,
-        height: `${canvasHeight}px`,
-        touchAction: 'none',
-      }}
-      className={`pq-annotation-canvas ${activeTool === 'none' ? 'is-tool-none' : ''} ${activeTool === 'eraser' ? 'is-eraser' : ''} ${activeTool === 'laser' ? 'is-laser' : ''}`}
-      onContextMenu={(e) => e.preventDefault()}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerCancel={handlePointerUp}
-      onPointerLeave={handlePointerLeave}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-      onTouchCancel={handleTouchEnd}
-    />
+    <div style={{ position: 'relative', width: `${canvasWidth}px`, height: `${canvasHeight}px`, pointerEvents: activeTool === 'none' ? 'none' : 'auto' }}>
+      <canvas
+        ref={canvasRef}
+        width={Math.round(canvasWidth * dpr)}
+        height={Math.round(canvasHeight * dpr)}
+        style={{
+          width: `${canvasWidth}px`,
+          height: `${canvasHeight}px`,
+          touchAction: 'none',
+        }}
+        className={`pq-annotation-canvas ${activeTool === 'none' ? 'is-tool-none' : ''} ${activeTool === 'eraser' ? 'is-eraser' : ''} ${activeTool === 'laser' ? 'is-laser' : ''}`}
+        onContextMenu={(e) => e.preventDefault()}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        onPointerLeave={handlePointerLeave}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onTouchCancel={handleTouchEnd}
+      />
+      {textDraft && (
+        <input
+          type="text"
+          autoFocus
+          value={textDraft.value}
+          onChange={(e) => setTextDraft({ ...textDraft, value: e.target.value })}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              commitTextDraft();
+            } else if (e.key === 'Escape') {
+              e.preventDefault();
+              setTextDraft(null);
+            }
+          }}
+          onBlur={commitTextDraft}
+          placeholder="Type label…"
+          style={{
+            position: 'absolute',
+            left: `${textDraft.x}px`,
+            top: `${textDraft.y}px`,
+            minWidth: 160,
+            padding: '4px 8px',
+            borderRadius: 6,
+            border: `2px solid ${activeColor}`,
+            background: 'rgba(15, 23, 42, 0.88)',
+            color: '#ffffff',
+            fontSize: `${Math.max(22, penSize * 4.5)}px`,
+            fontWeight: 600,
+            fontFamily: 'Inter, system-ui, sans-serif',
+            outline: 'none',
+            zIndex: 80,
+          }}
+        />
+      )}
+    </div>
   );
 }
