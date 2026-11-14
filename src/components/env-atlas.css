@@ -141,7 +141,7 @@ body.dark,
   font-weight: 700;
 }
 
-.env-drawer-btn {
+.navbtn.env-drawer-btn {
   display: none;
 }
 
@@ -392,7 +392,7 @@ body.dark,
 }
 
 @media (max-width: 1023px) {
-  .env-drawer-btn {
+  .navbtn.env-drawer-btn {
     display: inline-flex;
   }
 
