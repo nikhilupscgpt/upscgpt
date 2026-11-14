@@ -1,0 +1,124 @@
+srcSubject,srcTopic,count,computedTopicOrder,themeCount
+Indian Polity,Historical Background,3,1,0
+Indian Polity,Constituent Assembly,5,2,0
+Indian Polity,Salient Features of the Constitution,4,3,0
+Indian Polity,Schedules of the Constitution,12,4,0
+Indian Polity,Political Theory & Concepts,12,5,0
+Indian Polity,Preamble,7,6,0
+Indian Polity,Citizenship,6,7,1
+Indian Polity,Fundamental Rights,42,8,18
+Indian Polity,Directive Principles of State Policy,10,9,8
+Indian Polity,Fundamental Duties,4,10,2
+Indian Polity,Basic Structure,2,11,0
+Indian Polity,Constitutional Amendments,12,12,6
+Indian Polity,Federal System,3,13,2
+Indian Polity,Centre-State Relations,6,14,4
+Indian Polity,Inter-State Relations,3,15,1
+Indian Polity,Panchayati Raj,13,16,6
+Indian Polity,Municipalities,1,17,0
+Indian Polity,Scheduled & Tribal Areas,9,18,7
+Indian Polity,President,9,19,6
+Indian Polity,Vice-President,1,20,0
+Indian Polity,Prime Minister & Council of Ministers,11,21,7
+Indian Polity,Union Executive & Ministries,5,22,4
+Indian Polity,Attorney General & Solicitor General,4,23,2
+Indian Polity,Governor,11,24,6
+Indian Polity,Emergency Provisions,5,25,1
+Indian Polity,Parliamentary System,6,26,5
+Indian Polity,Parliament,31,27,19
+Indian Polity,Parliamentary Committees,13,28,1
+Indian Polity,Budget & Financial Procedure,14,29,6
+Indian Polity,State Legislature,5,30,2
+Indian Polity,Supreme Court,16,31,12
+Indian Polity,High Courts,6,32,4
+Indian Polity,Subordinate Courts,1,33,1
+Indian Polity,Tribunals,1,34,0
+Indian Polity,Judicial Review & Landmark Judgements,12,35,6
+Indian Polity,Comptroller and Auditor General,2,36,2
+Indian Polity,Finance Commission,1,37,1
+Indian Polity,National Commissions (SC/ST/BC/Women/Minorities),4,38,1
+Indian Polity,Statutory & Non-Constitutional Bodies,17,39,13
+Indian Polity,Elections & Representation,12,40,5
+Indian Polity,Elections & Political Parties,6,41,3
+Indian Polity,National Symbols & Awards,3,42,3
+Indian Polity,Miscellaneous,17,43,4
+Indian Polity,International Organisations & Relations,41,44,0
+Indian Polity,International Organisations & Groupings,7,45,1
+Indian Polity,Country Profiles,1,46,0
+Geography,Universe & Solar System,37,1001,0
+Geography,Geomorphology,48,1002,0
+Geography,Climatology,68,1003,0
+Geography,Oceanography,27,1004,0
+Geography,Indian Physiography & Drainage,72,1005,0
+Geography,Soils & Natural Vegetation,23,1006,0
+Geography,Agriculture & Resources,25,1007,0
+Geography,"Industry, Transport & Trade",12,1008,0
+Geography,Population & Human Geography,6,1009,0
+Geography,World Geography & Places,45,1010,0
+Geography,Miscellaneous Geography,28,1011,0
+Economy,Basic Economic Concepts,49,2001,14
+Economy,National Income & Growth,11,2002,6
+Economy,Inflation,22,2003,13
+Economy,Planning,6,2004,4
+Economy,"Poverty, Unemployment & Human Development",26,2005,8
+Economy,Banking & RBI,80,2006,44
+Economy,Monetary Policy,4,2007,3
+Economy,Capital Markets & Financial Instruments,33,2008,26
+Economy,Fiscal Policy & Budget,30,2009,23
+Economy,Taxation & GST,15,2010,10
+Economy,Balance of Payments & Exchange Rate,20,2011,14
+Economy,International Economic Organisations & Trade,42,2012,10
+Economy,Foreign Investment,4,2013,0
+Economy,Industry & Infrastructure,26,2014,0
+Economy,Social Sector Schemes,33,2015,0
+Environment,Ecology & Ecosystems,46,3001,0
+Environment,Biodiversity & Conservation,103,3002,0
+Environment,Environmental Pollution,42,3003,0
+Environment,Climate Change,48,3004,0
+Environment,"Environmental Laws, Policies & Institutions",18,3005,0
+Science & Technology,General Science,23,4001,0
+Science & Technology,Physics,94,4002,0
+Science & Technology,Chemistry,70,4003,0
+Science & Technology,Biology,47,4004,0
+Science & Technology,Biotechnology & Genetics,60,4005,0
+Science & Technology,"Health, Diseases & Medicine",53,4006,0
+Science & Technology,Nanotechnology & Materials,12,4007,0
+Science & Technology,"IT, Communication & Computing",41,4008,0
+Science & Technology,Space Technology,49,4009,0
+Science & Technology,Nuclear & Energy Technology,41,4010,0
+Science & Technology,Defence Technology,10,4011,0
+Modern History,Advent of Europeans & British Expansion,17,5001,0
+Modern History,"Revolt of 1857, Tribal & Peasant Movements",20,5002,0
+Modern History,Socio-Religious Reform Movements,22,5003,0
+Modern History,Early Nationalism & Congress (1885-1919),30,5004,0
+Modern History,Gandhian Era & Mass Movements (1915-1947),39,5005,0
+Modern History,Constitutional & Administrative Developments,40,5006,0
+Modern History,"Personalities, Press & Culture",29,5007,0
+Modern History,Miscellaneous,13,5008,0
+Ancient History,Prehistory & Indus Valley Civilisation,13,6001,0
+Ancient History,Vedic Age,6,6002,0
+Ancient History,Mahajanapadas & Mauryas,5,6003,0
+Ancient History,Buddhism & Jainism,10,6004,0
+Ancient History,Post-Mauryan & Sangam Age,7,6005,0
+Ancient History,Guptas & Post-Guptas,7,6006,0
+Ancient History,Ancient History – General,8,6007,0
+Medieval History,Early Medieval Kingdoms,6,7001,0
+Medieval History,Delhi Sultanate,6,7002,0
+Medieval History,Vijayanagara & Bahmani,8,7003,0
+Medieval History,Marathas & Regional States,3,7004,0
+Medieval History,Mughal Empire,10,7005,0
+Medieval History,Medieval History – General,15,7006,0
+Art & Culture,Architecture & Sculpture,40,8001,0
+Art & Culture,Painting & Handicrafts,12,8002,0
+Art & Culture,Philosophy & Religion,29,8003,0
+Art & Culture,Literature & Languages,33,8004,0
+Art & Culture,"Dance, Music, Theatre & Puppetry",20,8005,0
+Art & Culture,"Festivals, Martial Arts & Miscellaneous Culture",30,8006,0
+Agriculture,"Soil, Fertilizers & Farming Practices",10,9001,0
+Agriculture,Major Crops,19,9002,0
+Agriculture,Cropping Patterns & Systems,11,9003,0
+Agriculture,Irrigation & Water Management,9,9004,0
+Agriculture,Agriculture & Economy,7,9005,0
+Agriculture,Agricultural Pricing & Procurement (MSP),8,9006,0
+Agriculture,Agricultural Credit & Schemes,4,9007,0
+Agriculture,Agricultural Marketing & Trade,17,9008,0
