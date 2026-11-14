@@ -559,18 +559,19 @@ function PyqPresenterClientInner({
   // -------------------------------------------------------------
   // Navigation: Steps & Items
   // -------------------------------------------------------------
+  const stopRecordingRef = useRef(null);
   const handleNext = useCallback(() => {
     setIsZoomedImage(false);
     if (stepIndex < steps.length - 1) {
       setStepIndex(s => s + 1);
     } else if (stopAfterQuestion && (recStatus === 'recording' || recStatus === 'paused')) {
-      handleStopRecording();
+      stopRecordingRef.current?.();
     } else if (qIndex < questions.length - 1) {
       setQIndex(q => q + 1);
       setStepIndex(0);
       setTimerSeconds(null);
     }
-  }, [stepIndex, steps.length, stopAfterQuestion, recStatus, handleStopRecording, qIndex, questions.length]);
+  }, [stepIndex, steps.length, stopAfterQuestion, recStatus, qIndex, questions.length]);
 
   const handlePrev = useCallback(() => {
     setIsZoomedImage(false);
@@ -1209,6 +1210,7 @@ function PyqPresenterClientInner({
       finishStop();
     }
   }, [recStatus, branding]);
+  stopRecordingRef.current = handleStopRecording;
 
   const handleTogglePauseRecording = useCallback(() => {
     setRecStatus((prev) => {
