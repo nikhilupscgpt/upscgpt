@@ -243,6 +243,7 @@ function PyqPresenterClientInner({
   const recordedChunksRef = useRef([]);
   const originalTitleRef = useRef(typeof document !== 'undefined' ? document.title : 'Lecture Studio');
   const autoHideTimerRef = useRef(null);
+  const isDockHoveredRef = useRef(false);
 
   // Ink stroke maps:
   // 1. Question / Topic Panel persistent anchor ink: { [qId]: strokes[] }
@@ -1119,16 +1120,13 @@ function PyqPresenterClientInner({
   // Phase 4: 2s Toolbar & Cursor auto-hide (always hidden while recording unless bottom hover or '/')
   useEffect(() => {
     const isRec = recStatus === 'recording' || recStatus === 'paused' || recStatus === 'opening' || recStatus === 'closing';
-    const resetTimers = (e) => {
-      setIsCursorHidden(false);
-      const nearBottom = e && typeof e.clientY === 'number' && typeof window !== 'undefined' && e.clientY >= window.innerHeight - 32;
-      if (!isRec || nearBottom) {
-        setIsToolbarVisible(true);
-      } else {
-        setIsToolbarVisible(false);
-      }
+    const hasOpenPanel = isToolsOpen || isPrefsOpen || showHelp || isQueueOpen;
+
+    const scheduleHide = () => {
       if (autoHideTimerRef.current) clearTimeout(autoHideTimerRef.current);
+      if (hasOpenPanel || isDockHoveredRef.current) return;
       autoHideTimerRef.current = setTimeout(() => {
+        if (isDockHoveredRef.current || isToolsOpen || isPrefsOpen || showHelp || isQueueOpen) return;
         setIsToolbarVisible(false);
         if (activeTool !== 'laser') {
           setIsCursorHidden(true);
@@ -1136,18 +1134,34 @@ function PyqPresenterClientInner({
       }, 2000);
     };
 
-    if (isRec) {
+    const resetTimers = (e) => {
+      setIsCursorHidden(false);
+      const nearBottom = e && typeof e.clientY === 'number' && typeof window !== 'undefined' && e.clientY >= window.innerHeight - 56;
+      if (!isRec || nearBottom || isDockHoveredRef.current || hasOpenPanel) {
+        setIsToolbarVisible(true);
+      } else {
+        setIsToolbarVisible(false);
+      }
+      scheduleHide();
+    };
+
+    if (hasOpenPanel || isDockHoveredRef.current) {
+      setIsToolbarVisible(true);
+    } else if (isRec) {
       setIsToolbarVisible(false);
     } else {
       setIsToolbarVisible(true);
+      scheduleHide();
     }
 
     window.addEventListener('pointermove', resetTimers, { passive: true });
+    window.addEventListener('pointerdown', resetTimers, { passive: true });
     return () => {
       window.removeEventListener('pointermove', resetTimers);
+      window.removeEventListener('pointerdown', resetTimers);
       if (autoHideTimerRef.current) clearTimeout(autoHideTimerRef.current);
     };
-  }, [recStatus, activeTool]);
+  }, [recStatus, activeTool, isToolsOpen, isPrefsOpen, showHelp, isQueueOpen]);
 
   // Phase 4: Webcam live stream when showWebcamBox is enabled
   useEffect(() => {
@@ -2574,6 +2588,14 @@ function PyqPresenterClientInner({
         <footer
           className="pq-present-dock"
           data-dock-pos={prefs.toolbarPosition}
+          onPointerEnter={() => {
+            isDockHoveredRef.current = true;
+            setIsToolbarVisible(true);
+            if (autoHideTimerRef.current) clearTimeout(autoHideTimerRef.current);
+          }}
+          onPointerLeave={() => {
+            isDockHoveredRef.current = false;
+          }}
           style={{
             opacity: isToolbarVisible ? 1 : 0,
             pointerEvents: isToolbarVisible ? 'auto' : 'none',
