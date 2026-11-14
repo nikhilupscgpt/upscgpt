@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import EnvironmentMap from '@/components/EnvironmentMap';
+import PageBar from '@/components/environment-atlas/PageBar';
+import PrevNextRow from '@/components/environment-atlas/PrevNextRow';
 import { IucnBadgeSvg, IucnThreatGaugeSvg } from '@/components/IucnBadgeSvg';
 import { track, createActiveViewTracker } from '@/lib/analytics/client';
 import {
@@ -53,6 +55,7 @@ export default function EnvironmentAtlasClient() {
   // UI State
   const [showExplain, setShowExplain] = useState(false);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [showAllNews, setShowAllNews] = useState(false);
   const [studyTab, setStudyTab] = useState('notes'); // 'notes' | 'pyqs'
   const [quizMode, setQuizMode] = useState(false);
@@ -359,50 +362,37 @@ export default function EnvironmentAtlasClient() {
 
   return (
     <div className="env-atlas-wrapper">
-      {/* 1. Top Sub-Bar (Progress & Actions) */}
-      <div className="env-top-progress">
-        <Link href="/environment" className="navbtn ghost" style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <ChevronLeft size={14} />
-          <span>Hub</span>
-        </Link>
+      {/* 1. Page Bar (PRD §3.1) */}
+      <PageBar
+        displayIndex={displayIndex}
+        totalCount={items.length}
+        onOpenStudyGuide={() => setShowHowItWorks(true)}
+        onStartQuiz={startQuiz}
+        onOpenDrawer={() => setIsDrawerOpen(true)}
+      />
 
-        <span className="lbl">
-          Reading <b>{displayIndex}</b> of {items.length || 20}
-        </span>
-
-        <div className="ptrack">
-          <i
-            style={{
-              width: `${items.length > 0 ? (displayIndex / items.length) * 100 : 0}%`,
-            }}
-          />
-        </div>
-
-        <div className="env-top-actions">
-          <span className="kbd-hint">
-            Use <kbd>←</kbd> <kbd>→</kbd> to flip species
-          </span>
-          <button
-            type="button"
-            className="navbtn ghost"
-            onClick={() => setShowHowItWorks(true)}
-          >
-            Study guide
-          </button>
-          <button
-            type="button"
-            className="navbtn"
-            onClick={startQuiz}
-          >
-            Quiz me
-          </button>
-        </div>
-      </div>
-
-      {/* 2. Main Two-Column View */}
+      {/* 2. Responsive Three-Column Stage (PRD §2) */}
       <div className="main-stage">
-        {/* LEFT DRAWER (280px) */}
-        <aside className="left-drawer">
+        {isDrawerOpen && (
+          <div
+            className="env-drawer-backdrop"
+            onClick={() => setIsDrawerOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+        {/* LEFT LIST / MOBILE DRAWER (280px) */}
+        <aside className={`left-drawer ${isDrawerOpen ? 'is-open' : ''}`}>
+          <div className="env-drawer-head">
+            <span>Species ({items.length})</span>
+            <button
+              type="button"
+              onClick={() => setIsDrawerOpen(false)}
+              aria-label="Close species list"
+              style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', padding: 4 }}
+            >
+              <X size={16} />
+            </button>
+          </div>
           <div className="search-wrap">
             <Search size={14} color="var(--muted)" />
             <input
@@ -448,6 +438,7 @@ export default function EnvironmentAtlasClient() {
                       className={`item ${s.slug === selectedSlug ? 'on' : ''}`}
                       onClick={() => {
                         setSelectedSlug(s.slug);
+                        setIsDrawerOpen(false);
                         if (quizMode) setQuizMode(false);
                       }}
                     >
@@ -483,6 +474,7 @@ export default function EnvironmentAtlasClient() {
                       className={`item ${s.slug === selectedSlug ? 'on' : ''}`}
                       onClick={() => {
                         setSelectedSlug(s.slug);
+                        setIsDrawerOpen(false);
                         if (quizMode) setQuizMode(false);
                       }}
                     >
@@ -809,6 +801,12 @@ export default function EnvironmentAtlasClient() {
                       </div>
                     )}
                   </div>
+                  {/* In-flow Previous / Next Row (PRD §3.7) */}
+                  <PrevNextRow
+                    displayIndex={displayIndex}
+                    totalCount={items.length}
+                    onNavigate={navigateSpecies}
+                  />
                 </div>
 
                 {/* Right Rail */}
@@ -982,27 +980,6 @@ export default function EnvironmentAtlasClient() {
                     </div>
                   )}
                 </aside>
-              </div>
-
-              {/* Sticky Foot */}
-              <div className="foot">
-                <button
-                  type="button"
-                  className="btn"
-                  onClick={() => navigateSpecies(-1)}
-                >
-                  &larr; Previous
-                </button>
-                <span className="foot-counter">
-                  {displayIndex} of {items.length || 20}
-                </span>
-                <button
-                  type="button"
-                  className="btn dark"
-                  onClick={() => navigateSpecies(1)}
-                >
-                  Next species &rarr;
-                </button>
               </div>
             </>
           ) : (

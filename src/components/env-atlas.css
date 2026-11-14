@@ -107,34 +107,60 @@ body.dark,
 /* ==========================================================================
    Top Sub-bar (Progress & Navigation)
    ========================================================================== */
-.env-top-progress {
+.env-top-bar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
   flex: none;
   background: var(--panel);
   border-bottom: 1px solid var(--line);
   padding: 10px 22px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
-.env-top-progress .lbl {
+.env-top-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.env-reading-label {
   font-size: 13.5px;
   color: var(--muted);
   white-space: nowrap;
 }
 
-.env-top-progress .lbl b {
+.env-reading-label b {
   color: var(--text);
   font-weight: 700;
 }
 
+.env-drawer-btn {
+  display: none;
+}
+
+.env-drawer-head {
+  display: none;
+}
+
+.env-drawer-backdrop {
+  display: none;
+}
+
 .ptrack {
   flex: 1;
+  min-width: 60px;
   height: 8px;
   border-radius: 4px;
   background: var(--line);
   overflow: hidden;
-  max-width: 520px;
+  max-width: 420px;
 }
 
 .ptrack i {
@@ -148,10 +174,14 @@ body.dark,
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  flex-shrink: 0;
 }
 
 .navbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   white-space: nowrap;
   background: var(--panel2);
   border: 1px solid var(--line);
@@ -174,8 +204,19 @@ body.dark,
   color: var(--muted);
 }
 
+.navbtn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+.navbtn.primary:hover {
+  opacity: 0.92;
+  color: #ffffff;
+}
+
 /* ==========================================================================
-   Main Grid: 280px Drawer + Center/Right Study Stage
+   Main Grid: 280px List + Content (max 880px) + 380px Right Panel
    ========================================================================== */
 .main-stage {
   flex: 1;
@@ -185,7 +226,7 @@ body.dark,
   overflow: hidden;
 }
 
-/* Left Sidebar */
+/* Left Sidebar / Mobile Drawer */
 .left-drawer {
   background: var(--panel);
   border-right: 1px solid var(--line);
@@ -337,16 +378,88 @@ body.dark,
   margin: 0 auto;
   padding: 20px 24px 32px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(340px, 28vw, 420px);
+  grid-template-columns: minmax(0, 880px) 380px;
   gap: 24px;
   align-items: start;
   width: 100%;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1279px) {
   .card {
     grid-template-columns: minmax(0, 1fr);
-    max-width: 860px;
+    max-width: 880px;
+  }
+}
+
+@media (max-width: 1023px) {
+  .env-drawer-btn {
+    display: inline-flex;
+  }
+
+  .kbd-hint {
+    display: none;
+  }
+
+  .main-stage {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .left-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(320px, 86vw);
+    z-index: 60;
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  }
+
+  .left-drawer.is-open {
+    transform: translateX(0);
+  }
+
+  .env-drawer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 14px 6px;
+    border-bottom: 1px solid var(--line);
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .env-drawer-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    z-index: 55;
+  }
+}
+
+@media (max-width: 639px) {
+  .env-top-bar {
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  .ptrack {
+    display: none;
+  }
+
+  .env-top-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .left-drawer,
+  .ptrack i {
+    transition: none;
   }
 }
 
@@ -876,18 +989,16 @@ h1 {
   margin-bottom: 6px;
 }
 
-/* Sticky Foot */
+/* In-flow Previous / Next Row (PRD §3.7 — never floats over content) */
 .foot {
-  position: sticky;
-  bottom: 0;
+  position: static;
   display: flex;
   gap: 12px;
-  justify-content: center;
-  padding: 12px 24px;
-  background: color-mix(in srgb, var(--bg) 88%, transparent);
-  backdrop-filter: blur(8px);
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 28px;
+  padding: 18px 0 8px;
   border-top: 1px solid var(--line);
-  z-index: 20;
 }
 
 .btn {
@@ -919,12 +1030,14 @@ h1 {
   color: #fff;
 }
 
+.btn.primary,
 .btn.dark {
-  background: var(--btn);
+  background: var(--accent);
   color: #fff;
-  border-color: var(--btn);
+  border-color: var(--accent);
 }
 
+.btn.primary:hover,
 .btn.dark:hover {
   opacity: 0.92;
 }
