@@ -20,7 +20,10 @@ import {
   ShieldCheck,
   Compass,
   ArrowRight,
+  Pencil,
+  Plus,
 } from 'lucide-react';
+import SpeciesEditorModal from './SpeciesEditorModal';
 import './env-admin.css';
 
 const MODULE_TABS = [
@@ -167,6 +170,7 @@ export default function EnvironmentAdminClient({ session }) {
   const [kpis, setKpis] = useState({});
   const [search, setSearch] = useState('');
   const [statusMsg, setStatusMsg] = useState(null);
+  const [editorState, setEditorState] = useState(null); // null | { mode: 'new' } | { mode: 'edit', item }
 
   // Fetch Items
   const loadData = useCallback(async () => {
@@ -439,14 +443,24 @@ export default function EnvironmentAdminClient({ session }) {
             <span className="table-badge">Store: {items.length} total across all modules</span>
           </div>
 
-          <div className="table-search-box">
-            <Search size={14} className="text-slate-400" />
-            <input
-              type="text"
-              placeholder={`Search ${activeTabMeta?.label || 'items'} by name, category, or slug...`}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <button
+              type="button"
+              className="btn-new-species"
+              onClick={() => setEditorState({ mode: 'new' })}
+            >
+              <Plus size={15} />
+              <span>New Species</span>
+            </button>
+            <div className="table-search-box">
+              <Search size={14} className="text-slate-400" />
+              <input
+                type="text"
+                placeholder={`Search ${activeTabMeta?.label || 'items'} by name, category, or slug...`}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
           </div>
         </div>
 
@@ -508,9 +522,18 @@ export default function EnvironmentAdminClient({ session }) {
                     </td>
                     <td>
                       <div className="action-cell">
+                        <button
+                          type="button"
+                          className="btn-edit"
+                          onClick={() => setEditorState({ mode: 'edit', item })}
+                          title={`Edit ${item.title}`}
+                        >
+                          <Pencil size={13} />
+                          <span>Edit</span>
+                        </button>
                         {activeTab === 'SPECIES' && (
                           <Link
-                            href={`/environment/species`}
+                            href={`/environment/species#${item.slug}`}
                             className="btn-view"
                             target="_blank"
                             title="Preview in Species Atlas"
@@ -536,6 +559,21 @@ export default function EnvironmentAdminClient({ session }) {
           </div>
         )}
       </div>
+
+      {editorState && (
+        <SpeciesEditorModal
+          initialItem={editorState.mode === 'edit' ? editorState.item : null}
+          onClose={() => setEditorState(null)}
+          onSaved={(savedItem, isNew) => {
+            setEditorState(null);
+            setStatusMsg({
+              type: 'success',
+              text: `${isNew ? 'Created' : 'Updated'} "${savedItem.title}" in PostgreSQL.`,
+            });
+            loadData();
+          }}
+        />
+      )}
     </div>
   );
 }

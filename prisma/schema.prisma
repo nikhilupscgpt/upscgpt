@@ -1232,6 +1232,7 @@ model EnvAtlasItem {
   lastNewsDate    String?               // "2026-02" (YYYY-MM or YYYY-MM-DD) for sorting "In News"
   newsTriggers    Json     @default("[]") // [{ date, tag, what, whyItMatters, source, url }]
   upscAngle       Json?                 // { preferredFormat, framing, distractorPool }
+  details         Json?                 // { traps, facts, idmarks, programmes, behaviour, habitatType, headlineStat, pastQuestions, credit }
   similarPYQ      String[] @default([]) // ["ENV-UPSC-2020-04"] -> resolves live from Question table
 
   createdAt       DateTime @default(now())

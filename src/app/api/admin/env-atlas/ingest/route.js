@@ -64,7 +64,7 @@ export async function POST(req) {
     const body = await req.json();
     const rawText = body.content || body.jsonl || (typeof body === 'string' ? body : JSON.stringify(body));
 
-    const result = ingestEnvAtlasJsonl(rawText);
+    const result = await ingestEnvAtlasJsonl(rawText);
     return NextResponse.json(result);
   } catch (err) {
     console.error('[POST /api/admin/env-atlas/ingest] Error:', err);
@@ -89,7 +89,7 @@ export async function DELETE(req) {
       return NextResponse.json({ error: 'Slug parameter is required' }, { status: 400 });
     }
 
-    const result = deleteEnvAtlasItem(slug);
+    const result = await deleteEnvAtlasItem(slug);
     return NextResponse.json(result);
   } catch (err) {
     console.error('[DELETE /api/admin/env-atlas/ingest] Error:', err);
