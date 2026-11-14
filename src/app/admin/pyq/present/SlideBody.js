@@ -327,14 +327,27 @@ export default function SlideBody({ step, q, steps = [], spotlightIndex, onSpotl
     case 'answer':
       return (
         <article className="sb-card sb-answer">
-          <div className="sb-answer-head">
-            <span className="sb-answer-tick">
-              <CheckCircle2 size={22} />
-            </span>
-            <span className="sb-label">Correct answer · as per the UPSC key</span>
-          </div>
           <Prose text={step.explanationText} />
         </article>
+      );
+
+    case 'takeaway':
+      return (
+        <div className="pq-takeaway-card">
+          <div className="pq-takeaway-eyebrow">Core takeaway</div>
+          {step.takeawayRule && (
+            <p className="pq-takeaway-rule">{step.takeawayRule}</p>
+          )}
+          {Array.isArray(step.keywords) && step.keywords.length > 0 && (
+            <div className="pq-takeaway-keywords">
+              {step.keywords.map((kw, i) => (
+                <span key={i} className="pq-takeaway-kw">
+                  {typeof kw === 'string' ? kw : (kw?.term || kw?.keyword || kw?.title || '')}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
       );
 
     case 'keywords':

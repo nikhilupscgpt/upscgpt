@@ -1628,7 +1628,7 @@ export default function PyqAdminClient({ session }) {
                           type="button"
                           onClick={() => {
                             const ids = Array.from(selectedQIds).join(',');
-                            window.open(`/admin/pyq/present?ids=${ids}`, '_blank');
+                            window.open(`/admin/studio/present?mode=pyq&ids=${ids}`, '_blank');
                           }}
                           style={{
                             display: 'inline-flex',
@@ -1965,7 +1965,7 @@ export default function PyqAdminClient({ session }) {
                           </button>
 
                           <a
-                            href={`/admin/pyq/present?id=${q.id}`}
+                            href={`/admin/studio/present?mode=pyq&id=${q.id}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             style={{

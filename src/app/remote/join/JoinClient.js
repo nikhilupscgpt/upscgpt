@@ -13,7 +13,7 @@ export default function JoinClient({ code: initialCode = '' }) {
     e.preventDefault();
     const clean = code.replace(/\D/g, '').slice(0, 6);
     if (clean.length === 6) {
-      router.push(`/admin/pyq/present?board=${clean}`);
+      router.push(`/admin/studio/present?board=${clean}`);
     }
   };
 
@@ -43,7 +43,7 @@ export default function JoinClient({ code: initialCode = '' }) {
               const val = e.target.value.replace(/\D/g, '').slice(0, 6);
               setCode(val);
               if (val.length === 6) {
-                router.push(`/admin/pyq/present?board=${val}`);
+                router.push(`/admin/studio/present?board=${val}`);
               }
             }}
             placeholder="••••••"

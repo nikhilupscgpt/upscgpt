@@ -1,6 +1,6 @@
-import { getStructuredExplanation } from './pyqExplanationHelper';
-import { normalizeKeywordsList } from './pyqKeywords';
-import { CURATED_MAPPING_NODES } from './static-mapping-data';
+import { getStructuredExplanation } from './pyqExplanationHelper.js';
+import { normalizeKeywordsList } from './pyqKeywords.js';
+import { CURATED_MAPPING_NODES } from './static-mapping-data.js';
 
 /**
  * Builds structured presentation slide steps for a given PYQ.
@@ -39,9 +39,11 @@ export function buildQuestionSteps(q, customAssets = {}) {
     type: 'intro',
     label: 'The question',
     title: 'Read the question',
-    subtitle: [q.srcSubject, q.srcTopic, /\n\s*(?:[1-6]|I{1,3}|IV)\s*[.:)]/.test(String(q.stem || '')) ? 'Statement-based' : null].filter(Boolean).join(' · '),
+    subtitle: null,
+    isFullWidth: true,
     showAnswer: false,
     highlightedOption: null,
+    activeStatements: [],
     verdicts: {},
   });
 
@@ -53,15 +55,19 @@ export function buildQuestionSteps(q, customAssets = {}) {
   // direct single-choice questions evaluate options a, b, c, d)
   // -------------------------------------------------------------
   if (hasStatementBreakdown) {
+    const activeStatements = analysis.statementBreakdown
+      .map(s => String(s.statementNo || s.label || '').trim().toUpperCase())
+      .filter(Boolean);
     steps.push({
       id: 'statement_breakdown',
       type: 'statement_breakdown',
       label: 'Each statement',
       title: 'Checking each statement',
-      subtitle: 'True or false, and where the trap is',
+      subtitle: null,
       items: analysis.statementBreakdown,
       showAnswer: false,
       highlightedOption: null,
+      activeStatements,
       verdicts,
     });
   } else if (analysis?.optionBreakdown && Array.isArray(analysis.optionBreakdown) && analysis.optionBreakdown.length > 0) {
@@ -81,15 +87,20 @@ export function buildQuestionSteps(q, customAssets = {}) {
         }
       }
 
+      const activeOptions = chunk
+        .map(item => String(item.label || '').trim().toUpperCase())
+        .filter(Boolean);
+
       steps.push({
         id: `breakdown_${partNum}`,
         type: 'breakdown',
         label: 'Option by option',
         title: totalParts > 1 ? `Option by option (${partNum} of ${totalParts})` : 'Option by option',
-        subtitle: 'Why each one is right or wrong',
+        subtitle: null,
         items: chunk,
         showAnswer: false,
         highlightedOption: null,
+        activeOptions,
         verdicts: activeChunkVerdicts,
       });
     }
@@ -131,18 +142,14 @@ export function buildQuestionSteps(q, customAssets = {}) {
   }
 
   // -------------------------------------------------------------
-  // STEP 2: Official Answer & Logic Summary
+  // STEP 2: Official Answer & Logic Summary (marked on the left, not repeated on right)
   // -------------------------------------------------------------
   steps.push({
     id: 'answer',
     type: 'answer',
     label: 'The answer',
-    title: !correctLabel
-      ? 'The answer'
-      : correctOpt && String(correctOpt.text).length <= 40
-        ? `Answer: (${correctLabel}) ${correctOpt.text}`
-        : `Answer: (${correctLabel})`,
-    subtitle: correctOpt && String(correctOpt.text).length > 40 ? correctOpt.text : null,
+    title: 'Why this is the answer',
+    subtitle: null,
     correctLabel,
     explanationText: explanationText || (correctOpt ? correctOpt.text : 'As per the official UPSC answer key.'),
     showAnswer: true,
@@ -295,6 +302,34 @@ export function buildQuestionSteps(q, customAssets = {}) {
       subtitle: analysis.visualSuggestion.caption || null,
       tableData: analysis.visualSuggestion.tableData || null,
       caption: analysis.visualSuggestion.caption || '',
+      showAnswer: true,
+      highlightedOption: correctLabel,
+      verdicts,
+    });
+  }
+
+  // -------------------------------------------------------------
+  // FINAL STEP: Core Takeaway (Full width, screenshot-friendly)
+  // -------------------------------------------------------------
+  const allKeywords = Array.isArray(analysis?.keywords)
+    ? normalizeKeywordsList(analysis.keywords).slice(0, 5)
+    : [];
+  const rawTakeaway =
+    analysis?.coreTakeaway ||
+    analysis?.takeaway ||
+    analysis?.oneLineRule ||
+    (explanationText ? String(explanationText).split(/(?<=[.!?])\s+/)[0] : '') ||
+    (correctOpt ? correctOpt.text : '');
+  if (rawTakeaway || allKeywords.length > 0) {
+    steps.push({
+      id: 'takeaway',
+      type: 'takeaway',
+      label: 'Core takeaway',
+      title: 'Core takeaway',
+      subtitle: null,
+      isFullWidth: true,
+      takeawayRule: String(rawTakeaway || '').trim(),
+      keywords: allKeywords,
       showAnswer: true,
       highlightedOption: correctLabel,
       verdicts,

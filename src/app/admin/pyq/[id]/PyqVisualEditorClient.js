@@ -1258,7 +1258,7 @@ export default function PyqVisualEditorClient({ initialQuestion }) {
           )}
 
           <a
-            href={`/admin/pyq/present?id=${initialQuestion.id}`}
+            href={`/admin/studio/present?mode=pyq&id=${initialQuestion.id}`}
             target="_blank"
             rel="noopener noreferrer"
             style={{

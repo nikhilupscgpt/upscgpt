@@ -55,6 +55,8 @@ import PyqAnnotationCanvas from './PyqAnnotationCanvas';
 import StudioPresenterMap from './StudioPresenterMap';
 import { Link as RemoteLink } from '@/lib/remote/link';
 import BoardConnectDialog from '@/components/remote/BoardConnectDialog';
+import CornerLogo from '@/components/present/CornerLogo';
+import { computeQuestionScale, buildQuestionMetaLine, buildStageCounter } from '@/lib/present/transition-math';
 import '@/app/remote/remote.css';
 import './present.css';
 
@@ -162,6 +164,11 @@ function PyqPresenterClientInner({
   const [stepInkMap, setStepInkMap] = useState({});
 
   const stageRef = useRef(null);
+  const questionBlockRef = useRef(null);
+  const [questionScaleState, setQuestionScaleState] = useState({ scale: 1, shouldReflow: false, fullWidth: 0 });
+  const [pauseCueEnabled, setPauseCueEnabled] = useState(true);
+  const [pauseCountdownOn, setPauseCountdownOn] = useState(false);
+  const [pauseCountdownLeft, setPauseCountdownLeft] = useState(null);
 
   const currentQ = questions[qIndex] || null;
 
@@ -371,7 +378,7 @@ function PyqPresenterClientInner({
   };
 
   // -------------------------------------------------------------
-  // 30-Second Think Timer
+  // 30-Second Think Timer & Optional 3s Step-1 Pause Countdown
   // -------------------------------------------------------------
   useEffect(() => {
     if (timerSeconds === null || timerSeconds <= 0) return;
@@ -380,6 +387,41 @@ function PyqPresenterClientInner({
     }, 1000);
     return () => clearInterval(interval);
   }, [timerSeconds]);
+
+  useEffect(() => {
+    const isStep1 = currentQ && currentQ.type !== 'topic' && currentQ.type !== 'mapping' && currentStep?.type === 'intro';
+    if (!isStep1 || !pauseCountdownOn) {
+      setPauseCountdownLeft(null);
+      return;
+    }
+    setPauseCountdownLeft(3);
+    const iv = setInterval(() => {
+      setPauseCountdownLeft(prev => (prev !== null && prev > 1 ? prev - 1 : null));
+    }, 1000);
+    return () => clearInterval(iv);
+  }, [currentQ?.id, currentStep?.type, pauseCountdownOn]);
+
+  // Measure full-width question block on Step 1 to compute CSS scale for Step 2+ (45% left)
+  useEffect(() => {
+    if (!currentQ || currentQ.type === 'topic' || currentQ.type === 'mapping') return;
+    if (currentStep?.type !== 'intro') return;
+    const el = questionBlockRef.current;
+    const stageEl = stageRef.current;
+    if (!el || !stageEl) return;
+
+    const measure = () => {
+      const fullWidth = el.offsetWidth || el.getBoundingClientRect().width;
+      const stageWidth = stageEl.clientWidth || 1920;
+      const targetLeftWidth = stageWidth * 0.45 - 88;
+      const computedStyle = window.getComputedStyle(el);
+      const baseFontPx = parseFloat(computedStyle.fontSize) || 34;
+      const res = computeQuestionScale({ fullWidth, targetLeftWidth, baseFontPx, minFontPx: 28 });
+      setQuestionScaleState({ scale: res.scale, shouldReflow: res.shouldReflow, fullWidth });
+    };
+
+    const raf = requestAnimationFrame(measure);
+    return () => cancelAnimationFrame(raf);
+  }, [currentQ?.id, currentStep?.type, presentationMode, screenStageSize.width]);
 
   // -------------------------------------------------------------
   // Navigation: Steps & Items
@@ -1033,9 +1075,15 @@ function PyqPresenterClientInner({
   }
 
   const isTopicMode = currentQ.type === 'topic';
+  const isPyqMode = !isMappingMode && !isTopicMode;
+  const isStep1FullWidth = isPyqMode && currentStep?.type === 'intro';
+  const isTakeawayFullWidth = isPyqMode && currentStep?.type === 'takeaway';
+  const isPyqSplit = isPyqMode && !isStep1FullWidth && !isTakeawayFullWidth && !isFullStageScratchpad;
   const stemBlocks = (isTopicMode || (isMappingMode && !currentQ.stem)) ? [] : parseStem(currentQ.stem);
   const options = Array.isArray(currentQ.options) ? currentQ.options : [];
   const palette = theme === 'light' ? LIGHT_PALETTE : DARK_PALETTE;
+  const metaLineText = buildQuestionMetaLine(currentQ, isTopicMode);
+  const stageCounterText = buildStageCounter(qIndex, questions.length, stepIndex, steps.length);
 
   return (
     <div className="pq-present-root" data-present-theme={theme} style={{ "--content-scale": contentFontScale }}>
@@ -1048,7 +1096,7 @@ function PyqPresenterClientInner({
       >
         <div
           ref={stageRef}
-          className={`pq-present-stage ${presentationMode === 'screen' ? 'is-mode-screen' : 'is-mode-16-9'} ${isMappingMode ? 'is-mapping-layout' : ''} ${isMappingMode && mapWidthMode === 'wide' ? 'is-map-wide' : ''} ${isMappingMode && mapWidthMode === 'full' ? 'is-map-full' : ''} ${isFullStageScratchpad ? 'is-full-stage-scratchpad' : ''}`}
+          className={`pq-present-stage ${presentationMode === 'screen' ? 'is-mode-screen' : 'is-mode-16-9'} ${isMappingMode ? 'is-mapping-layout' : ''} ${isMappingMode && mapWidthMode === 'wide' ? 'is-map-wide' : ''} ${isMappingMode && mapWidthMode === 'full' ? 'is-map-full' : ''} ${isFullStageScratchpad ? 'is-full-stage-scratchpad' : ''} ${isStep1FullWidth ? 'is-step1-full' : ''} ${isTakeawayFullWidth ? 'is-takeaway-full' : ''} ${isPyqSplit ? 'is-pyq-split' : ''}`}
           style={presentationMode === '16:9' ? {
             transform: `scale(${scale})`,
             transformOrigin: 'center center',
@@ -1074,11 +1122,8 @@ function PyqPresenterClientInner({
                 : { width: '100%', height: '100%', display: 'grid', gridTemplateColumns: 'inherit', gridTemplateRows: 'minmax(0, 100%)', gridColumn: '1 / -1', minHeight: 0 }
             }
           >
-          {/* Brand Watermark (Top Right) */}
-          <div className="pq-present-brand-watermark">
-            <span className="pq-present-brand-dot" />
-            <span>UPSCGPT STUDIO</span>
-          </div>
+          {/* Corner Logo (§2.7, top-right, every step, reserved corner) */}
+          <CornerLogo theme={theme} />
 
           {/* 30s Countdown Timer Overlay */}
           {timerSeconds !== null && (
@@ -1092,7 +1137,8 @@ function PyqPresenterClientInner({
           {/* LEFT PANEL: MAP CONTAINER (IN MAPPING MODE)               */}
           {/* OR PINNED QUESTION (IN PYQ/TOPIC MODE)                    */}
           {/* ========================================================= */}
-          <aside className={`pq-present-left-panel ${isMappingMode ? 'is-map-panel' : ''}`}>
+          {!isTakeawayFullWidth && (
+          <aside className={`pq-present-left-panel ${isMappingMode ? 'is-map-panel' : ''} ${isStep1FullWidth ? 'is-full-width-question' : ''}`}>
             {isMappingMode ? (
               <div className="pq-present-map-stage-wrap">
                 <StudioPresenterMap
@@ -1109,28 +1155,13 @@ function PyqPresenterClientInner({
             ) : (
               <>
                 <div className="pq-present-left-content">
-                  {/* Meta Tags */}
-                  <div className="pq-present-q-meta">
-                    <span className="pq-present-tag pq-present-tag-exam">
-                      {isTopicMode
-                        ? (Array.isArray(currentQ.gsPapers) ? currentQ.gsPapers.join(', ') : (currentQ.gsPapers || 'GS Paper'))
-                        : (`${currentQ.examName || 'UPSC CSE Pre'} ${currentQ.examYear || ''}`)
-                      }
-                    </span>
-                    {currentQ.questionNo && !isTopicMode && (
-                      <span className="pq-present-tag pq-present-tag-qno">
-                        Q{currentQ.questionNo}
-                      </span>
-                    )}
-                    {(currentQ.srcTopic || currentQ.topic) && (
-                      <span className="pq-present-tag pq-present-tag-topic">
-                        {currentQ.srcTopic || currentQ.topic}
-                      </span>
-                    )}
-                  </div>
+                  {/* Single quiet metadata line (§2.4) */}
+                  {metaLineText && (
+                    <div className="pq-present-q-meta-line">{metaLineText}</div>
+                  )}
 
-                  {/* Scrollable Anchor Content */}
-                  <div className="pq-present-q-scrollable">
+                  {/* Scrollable / Scaled Anchor Content */}
+                  <div className={`pq-present-q-scrollable ${isPyqSplit && !questionScaleState.shouldReflow ? 'is-scaled-block' : ''} ${isPyqSplit && questionScaleState.shouldReflow ? 'is-reflowed-min' : ''}`}>
                     {isTopicMode ? (
                       /* TOPIC MODE ANCHOR */
                       <div className="pq-present-anchor-topic">
@@ -1138,19 +1169,33 @@ function PyqPresenterClientInner({
                         <Prose className="pq-topic-anchor-summary" title={currentQ.title} text={currentQ.cumulativeSummary || currentQ.overview || currentQ.backgroundNote || ''} />
                       </div>
                     ) : (
-                      /* PYQ MODE ANCHOR */
-                      <>
+                      /* PYQ MODE ANCHOR (Measured on Step 1, CSS-scaled on Step 2+ for identical line breaks) */
+                      <div
+                        ref={questionBlockRef}
+                        className="pq-question-scale-inner"
+                        style={
+                          isPyqSplit && !questionScaleState.shouldReflow && questionScaleState.fullWidth > 0
+                            ? {
+                                width: `${questionScaleState.fullWidth}px`,
+                                transform: `scale(${questionScaleState.scale})`,
+                                transformOrigin: 'top left',
+                              }
+                            : undefined
+                        }
+                      >
                         {stemBlocks.map((b, idx) => {
                           if (b.type === 'stmts') {
                             return (
                               <div className="pq-present-statements" key={idx}>
                                 {b.items.map((s, k) => {
-                                  const verdict = currentStep?.verdicts?.[String(s.key).toUpperCase()];
+                                  const keyUpper = String(s.key).trim().toUpperCase();
+                                  const isDiscussing = Array.isArray(currentStep?.activeStatements) && currentStep.activeStatements.includes(keyUpper);
+                                  const verdict = currentStep?.verdicts?.[keyUpper];
                                   const isCorrect = verdict && verdict.toLowerCase().includes('correct') && !verdict.toLowerCase().includes('incorrect');
                                   const isIncorrect = verdict && verdict.toLowerCase().includes('incorrect');
 
                                   return (
-                                    <div className={`pq-present-statement-item ${verdict ? 'has-verdict' : ''}`} key={k}>
+                                    <div className={`pq-present-statement-item ${verdict ? 'has-verdict' : ''} ${isDiscussing ? 'is-discussing' : ''}`} key={k}>
                                       <span className="pq-present-statement-key">{s.key}</span>
                                       <div style={{ flex: 1, minWidth: 0 }}>{s.text}</div>
 
@@ -1178,39 +1223,60 @@ function PyqPresenterClientInner({
                           {options.map((opt) => {
                             const optLabel = String(opt.label).toUpperCase();
                             const isTarget = currentStep?.showAnswer && currentStep?.highlightedOption === optLabel;
+                            const isDiscussing = Array.isArray(currentStep?.activeOptions) && currentStep.activeOptions.includes(optLabel);
 
                             return (
                               <div
                                 key={opt.label}
-                                className={`pq-present-option-row ${isTarget ? 'is-highlighted' : ''}`}
+                                className={`pq-present-option-row ${isTarget ? 'is-highlighted is-answer-revealed' : ''} ${isDiscussing ? 'is-discussing' : ''}`}
                               >
                                 <span className="pq-present-opt-label">{optLabel}</span>
                                 <span className="pq-present-opt-text">{opt.text}</span>
+                                {isTarget && (
+                                  <span className="pq-present-opt-tick" aria-label="Correct option">
+                                    <CheckCircle2 size={20} />
+                                  </span>
+                                )}
                               </div>
                             );
                           })}
                         </div>
-                      </>
+                      </div>
                     )}
                   </div>
+
+                  {/* Step 1 Quiet "Pause and try" cue + optional 3s countdown */}
+                  {isStep1FullWidth && pauseCueEnabled && (
+                    <div className="pq-pause-try-cue">
+                      <span>Pause and try</span>
+                      <button
+                        type="button"
+                        onClick={() => setPauseCountdownOn(v => !v)}
+                        className={`pq-pause-countdown-btn ${pauseCountdownOn ? 'is-active' : ''}`}
+                        title="Toggle 3-second countdown"
+                      >
+                        {pauseCountdownLeft !== null ? `${pauseCountdownLeft}s` : (pauseCountdownOn ? '3s on' : '3s timer')}
+                      </button>
+                    </div>
+                  )}
                 </div>
 
-                {/* Left Bottom Tracker */}
+                {/* Single Stage Counter (§2.4) */}
                 <div className="pq-present-left-footer">
-                  <span>ITEM {qIndex + 1} OF {questions.length}</span>
-                  <span style={{ color: theme === 'light' ? '#0284c7' : '#38bdf8' }}>
-                    {isTopicMode ? (currentQ.domain || 'Thematic Lecture') : (currentQ.srcSubject || 'General Studies')}
-                  </span>
+                  <span>{stageCounterText}</span>
                 </div>
               </>
             )}
           </aside>
+          )}
 
           {/* ========================================================= */}
-          {/* RIGHT PANEL: DYNAMIC EXPLANATION / TOPIC SLIDES (52%-56%) */}
+          {/* RIGHT PANEL: DYNAMIC EXPLANATION / TOPIC SLIDES (55%)     */}
+          {/* Hidden on Step 1 full-width; Full width on Takeaway step  */}
           {/* ========================================================= */}
+          {!isStep1FullWidth && (
           <main
-            className={`pq-present-right-panel ${isMappingMode ? "is-map-right-panel" : ""} ${showWebcamBox ? "has-webcam" : ""}`}
+            className={`pq-present-right-panel ${isMappingMode ? "is-map-right-panel" : ""} ${isTakeawayFullWidth ? "is-takeaway-panel" : ""} ${showWebcamBox ? "has-webcam" : ""}`}
             style={{ "--cam-h": "180px" }}
           >
             {/* IN MAPPING MODE: Only render stem box if this mapping item is a question with a question stem */}
@@ -1336,6 +1402,7 @@ function PyqPresenterClientInner({
               </div>
             )}
           </main>
+          )}
 
           {/* Blackboard / Whiteboard Freehand Mode Overlay */}
           {isBlackboard && (
@@ -1464,11 +1531,9 @@ function PyqPresenterClientInner({
             <ChevronLeft size={18} />
           </button>
 
-          {/* Step Indicator Dots */}
+          {/* Step Indicator Dots (no duplicate X / Y counter) */}
           <div className="pq-dock-steps">
-            {steps.length > 7 ? (
-              <span className="pq-step-count" title={steps[stepIndex]?.title || ""}>{stepIndex + 1} / {steps.length}</span>
-            ) : steps.map((st, idx) => (
+            {steps.map((st, idx) => (
               <button
                 key={st.id || idx}
                 type="button"

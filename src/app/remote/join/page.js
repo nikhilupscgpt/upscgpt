@@ -13,9 +13,9 @@ export default async function RemoteJoinPage({ searchParams }) {
   const sp = await searchParams;
   const code = sp?.code || '';
 
-  // If code is valid, redirect directly to presenter studio with ?board=code
+  // If code is valid, redirect directly to canonical presenter studio with ?board=code
   if (/^\d{6}$/.test(code)) {
-    redirect(`/admin/pyq/present?board=${code}`);
+    redirect(`/admin/studio/present?board=${code}`);
   }
 
   return <JoinClient code={code} />;

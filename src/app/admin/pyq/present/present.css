@@ -2817,3 +2817,251 @@
 .sb-fact dd {
   font-weight: 500;
 }
+
+/* ========================================================================= */
+/* PRESENT MODE v1 — PHASE 1: LAYOUT, TYPOGRAPHY, TRANSITION & CORNER LOGO   */
+/* ========================================================================= */
+
+/* 1. Stage Grids: Step 1 full width, Step 2+ 45/55, Takeaway full width */
+.pq-present-stage.is-step1-full,
+.pq-present-stage.is-takeaway-full {
+  grid-template-columns: 1fr !important;
+}
+
+.pq-present-stage.is-pyq-split {
+  grid-template-columns: 45% 55% !important;
+}
+
+/* 2. Corner Logo (§2.7) — top-right, ~3.5% height, ~60% opacity, above boards */
+.pq-corner-logo {
+  position: absolute;
+  top: 22px;
+  right: 32px;
+  z-index: 60;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  height: var(--logo-h, 3.5%);
+  min-height: 30px;
+  user-select: none;
+}
+
+.pq-corner-logo-mark {
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.pq-corner-logo-url {
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1.1;
+}
+
+/* Reserve top-right corner clearance so text/cards/tools never sit under the logo */
+.pq-present-left-panel.is-full-width-question {
+  border-right: none !important;
+  padding-top: 64px;
+  padding-right: 168px;
+  padding-left: 72px;
+  align-items: center;
+}
+
+.pq-present-left-panel.is-full-width-question .pq-present-left-content {
+  width: 100%;
+  max-width: 1460px;
+  margin: 0 auto;
+}
+
+.pq-present-right-panel {
+  padding-top: 64px;
+}
+
+.pq-present-right-panel.is-takeaway-panel {
+  grid-column: 1 / -1;
+  padding: 72px 168px 88px 96px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* 3. Single quiet metadata line & counter (§2.4) */
+.pq-present-q-meta-line {
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: #64748b;
+  letter-spacing: 0.01em;
+  margin-bottom: 18px;
+}
+
+.pq-present-root[data-present-theme="dark"] .pq-present-q-meta-line {
+  color: #94a3b8;
+}
+
+/* 4. Typography for video (§2.5) */
+.pq-present-stage.is-mode-16-9 .pq-present-stem-lead,
+.pq-present-stage.is-mode-16-9 .pq-present-stem-ask,
+.pq-present-stage.is-mode-16-9 .pq-present-statement-item,
+.pq-present-stage.is-mode-16-9 .pq-present-opt-text {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: max(28px, calc(33px * var(--content-scale, 1)));
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+.pq-present-stem-ask {
+  font-style: italic;
+  font-weight: 400 !important;
+}
+
+.pq-present-opt-label {
+  font-weight: 700 !important;
+}
+
+.pq-present-opt-text {
+  font-weight: 400 !important;
+}
+
+.pq-present-option-row.is-answer-revealed .pq-present-opt-text,
+.pq-present-option-row.is-answer-revealed .pq-present-opt-label {
+  font-weight: 700 !important;
+}
+
+.pq-present-opt-tick {
+  margin-left: auto;
+  color: #10b981;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* 5. CSS transform scale transition (§2.2) & sync highlight (§2.3) */
+.pq-question-scale-inner {
+  transition: transform 0.4s ease-out;
+  will-change: transform;
+}
+
+.pq-present-q-scrollable.is-scaled-block {
+  overflow: hidden;
+}
+
+.pq-present-q-scrollable.is-reflowed-min {
+  overflow-y: auto;
+  animation: pqFadeIn 0.25s ease-out;
+}
+
+@keyframes pqFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pq-question-scale-inner {
+    transition: opacity 0.2s ease !important;
+  }
+}
+
+.pq-present-statement-item.is-discussing,
+.pq-present-option-row.is-discussing {
+  background: rgba(59, 130, 246, 0.12);
+  border-radius: 10px;
+}
+
+.pq-present-root[data-present-theme="dark"] .pq-present-statement-item.is-discussing,
+.pq-present-root[data-present-theme="dark"] .pq-present-option-row.is-discussing {
+  background: rgba(56, 189, 248, 0.14);
+}
+
+/* 6. Step 1 "Pause and try" cue + optional 3s countdown */
+.pq-pause-try-cue {
+  margin-top: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+.pq-pause-countdown-btn {
+  border: 1px solid rgba(100, 116, 139, 0.35);
+  background: transparent;
+  color: inherit;
+  border-radius: 999px;
+  padding: 3px 11px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pq-pause-countdown-btn.is-active {
+  border-color: #0284c7;
+  color: #0284c7;
+}
+
+/* 7. Final Takeaway full-width card (§2.1) */
+.pq-takeaway-card {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 44px 52px;
+  border-radius: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  background: rgba(248, 250, 252, 0.9);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.pq-present-root[data-present-theme="dark"] .pq-takeaway-card {
+  background: rgba(15, 23, 42, 0.72);
+  border-color: rgba(148, 163, 184, 0.22);
+}
+
+.pq-takeaway-eyebrow {
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0284c7;
+}
+
+.pq-takeaway-rule {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 36px;
+  line-height: 1.4;
+  font-weight: 400;
+  color: inherit;
+}
+
+.pq-takeaway-keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pq-takeaway-kw {
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(2, 132, 199, 0.12);
+  color: #0369a1;
+}
+
+.pq-present-root[data-present-theme="dark"] .pq-takeaway-kw {
+  background: rgba(56, 189, 248, 0.16);
+  color: #7dd3fc;
+}
