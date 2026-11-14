@@ -99,7 +99,7 @@ export async function GET(req) {
     // 5. Retention cleanup (30d SecurityEvent & OtpRequest, 90d event_raw partitions)
     const cutoff30d = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
     const [secDeleted, otpDeleted, droppedPartitions] = await Promise.all([
-      prisma.securityEvent.deleteMany({ where: { createdAt: { lt: cutoff30d } } }),
+      prisma.securityEvent.deleteMany({ where: { at: { lt: cutoff30d } } }),
       prisma.otpRequest.deleteMany({ where: { createdAt: { lt: cutoff30d } } }),
       dropExpiredEventPartitions(now),
     ]);

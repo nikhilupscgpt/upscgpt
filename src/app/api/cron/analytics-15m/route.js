@@ -36,59 +36,53 @@ export async function GET(req) {
     const sevenDaysAgo = new Date(dayStart.getTime() - 7 * 24 * 60 * 60 * 1000);
 
     const [budgetLimits, monthSpendAgg, todaySpendAgg, weekSpendAgg] = await Promise.all([
-      prisma.budgetLimit.findMany({ where: { enabled: true } }),
+      prisma.budgetLimit.findMany(),
       prisma.usageLedger.aggregate({
-        where: { occurredAt: { gte: monthStart, lt: monthEnd } },
-        _sum: { costUsd: true },
+        where: { at: { gte: monthStart, lt: monthEnd } },
+        _sum: { costPaise: true },
       }),
       prisma.usageLedger.aggregate({
-        where: { occurredAt: { gte: dayStart, lt: dayEnd } },
-        _sum: { costUsd: true },
+        where: { at: { gte: dayStart, lt: dayEnd } },
+        _sum: { costPaise: true },
       }),
       prisma.usageLedger.aggregate({
-        where: { occurredAt: { gte: sevenDaysAgo, lt: dayStart } },
-        _sum: { costUsd: true },
+        where: { at: { gte: sevenDaysAgo, lt: dayStart } },
+        _sum: { costPaise: true },
       }),
     ]);
 
-    const monthSpendUsd = Number(monthSpendAgg._sum.costUsd || 0);
-    const todaySpendUsd = Number(todaySpendAgg._sum.costUsd || 0);
-    const avg7dDailyUsd = Number(weekSpendAgg._sum.costUsd || 0) / 7;
+    const monthSpendPaise = Number(monthSpendAgg._sum.costPaise || 0);
+    const todaySpendPaise = Number(todaySpendAgg._sum.costPaise || 0);
+    const avg7dDailyPaise = Number(weekSpendAgg._sum.costPaise || 0) / 7;
 
     for (const limit of budgetLimits) {
-      const cap = Number(limit.monthlyUsd || 0);
+      const cap = Number(limit.monthlyPaise || 0);
       if (cap <= 0) continue;
 
-      let scopedSpend = monthSpendUsd;
-      if (limit.scope !== 'total') {
+      let scopedSpend = monthSpendPaise;
+      if (limit.category !== 'total') {
         const scopedAgg = await prisma.usageLedger.aggregate({
           where: {
-            occurredAt: { gte: monthStart, lt: monthEnd },
-            provider: limit.scope,
+            at: { gte: monthStart, lt: monthEnd },
+            category: limit.category,
           },
-          _sum: { costUsd: true },
+          _sum: { costPaise: true },
         });
-        scopedSpend = Number(scopedAgg._sum.costUsd || 0);
+        scopedSpend = Number(scopedAgg._sum.costPaise || 0);
       }
 
-      const ratio = scopedSpend / cap;
-      if (ratio >= 1.0) {
-        const msg = `Budget "${limit.scope}" reached 100% ($${scopedSpend.toFixed(2)} / $${cap.toFixed(2)})`;
+      const pct = Math.round((scopedSpend / cap) * 100);
+      const thresholds = Array.isArray(limit.alertAt) ? limit.alertAt : [50, 80, 100];
+      const hitThreshold = [...thresholds].sort((a, b) => b - a).find((t) => pct >= t);
+      if (hitThreshold) {
+        const msg = `Budget "${limit.category}" reached ${pct}% (Rs ${(scopedSpend / 100).toFixed(2)} / Rs ${(cap / 100).toFixed(2)})`;
         alerts.push(msg);
-        await sendOpsAlert({ subject: `100% Budget Exceeded (${limit.scope})`, message: msg });
-      } else if (ratio >= 0.8) {
-        const msg = `Budget "${limit.scope}" reached 80% ($${scopedSpend.toFixed(2)} / $${cap.toFixed(2)})`;
-        alerts.push(msg);
-        await sendOpsAlert({ subject: `80% Budget Warning (${limit.scope})`, message: msg });
-      } else if (ratio >= 0.5) {
-        const msg = `Budget "${limit.scope}" reached 50% ($${scopedSpend.toFixed(2)} / $${cap.toFixed(2)})`;
-        alerts.push(msg);
-        await sendOpsAlert({ subject: `50% Budget Notice (${limit.scope})`, message: msg });
+        await sendOpsAlert({ subject: `${hitThreshold}% Budget Alert (${limit.category})`, message: msg });
       }
     }
 
-    if (avg7dDailyUsd > 0 && todaySpendUsd >= avg7dDailyUsd * 3) {
-      const msg = `Today's cost ($${todaySpendUsd.toFixed(2)}) is >= 3x 7-day daily avg ($${avg7dDailyUsd.toFixed(2)})`;
+    if (avg7dDailyPaise > 0 && todaySpendPaise >= avg7dDailyPaise * 3) {
+      const msg = `Today's cost (Rs ${(todaySpendPaise / 100).toFixed(2)}) is >= 3x 7-day daily avg (Rs ${(avg7dDailyPaise / 100).toFixed(2)})`;
       alerts.push(msg);
       await sendOpsAlert({ subject: '3x Daily Cost Spike Detected', message: msg });
     }
@@ -110,9 +104,9 @@ export async function GET(req) {
     return NextResponse.json({
       success: true,
       abandonedOrders: abandonedRes.count,
-      monthSpendUsd,
-      todaySpendUsd,
-      avg7dDailyUsd,
+      monthSpendPaise,
+      todaySpendPaise,
+      avg7dDailyPaise,
       otpTotal,
       otpVerifyRate,
       alerts,

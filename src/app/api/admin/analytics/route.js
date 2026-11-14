@@ -65,14 +65,14 @@ async function getLiveTodaySummary(now) {
       where: { status: 'abandoned', createdAt: { gte: startUtc, lt: endUtc } },
     }),
     prisma.usageLedger.aggregate({
-      where: { occurredAt: { gte: startUtc, lt: endUtc } },
-      _sum: { costInrPaise: true },
+      where: { at: { gte: startUtc, lt: endUtc } },
+      _sum: { costPaise: true },
     }),
     prisma.messageLog.aggregate({
       where: { createdAt: { gte: startUtc, lt: endUtc } },
       _sum: { costPaise: true },
     }),
-    prisma.securityEvent.count({ where: { createdAt: { gte: startUtc, lt: endUtc } } }),
+    prisma.securityEvent.count({ where: { at: { gte: startUtc, lt: endUtc } } }),
     prisma.questionReport.count({ where: { status: 'open' } }),
   ]);
 
@@ -96,7 +96,7 @@ async function getLiveTodaySummary(now) {
     revenuePaise: Number(paidOrdersToday._sum.amountPaise || 0),
     abandonedOrders: abandonedOrdersToday,
     costPaise:
-      Number(usageToday._sum.costInrPaise || 0) +
+      Number(usageToday._sum.costPaise || 0) +
       Number(msgCostToday._sum.costPaise || 0),
     securityEvents: securityEventsToday,
     openQuestionReports: openReports,
@@ -141,6 +141,8 @@ export async function GET(req) {
       auditLogs,
       otpStats,
       questionReports,
+      gscMetrics,
+      lifecycleDispatches,
     ] = await Promise.all([
       getLiveTodaySummary(now),
       safeQueryRaw(() =>
@@ -165,7 +167,7 @@ export async function GET(req) {
         `
       ),
       prisma.questionStats.findMany({
-        orderBy: [{ flagCount: 'desc' }, { accuracyPct: 'asc' }],
+        orderBy: [{ discrimination: 'asc' }, { pCorrect: 'asc' }],
         take: 20,
       }),
       safeQueryRaw(() =>
@@ -218,7 +220,7 @@ export async function GET(req) {
           LIMIT 20
         `
       ),
-      prisma.budgetLimit.findMany({ orderBy: { scope: 'asc' } }),
+      prisma.budgetLimit.findMany({ orderBy: { category: 'asc' } }),
       prisma.fixedCost.findMany({ orderBy: { month: 'desc' }, take: 12 }),
       safeQueryRaw(() =>
         prisma.$queryRaw`
@@ -236,10 +238,10 @@ export async function GET(req) {
           LIMIT 25
         `
       ),
-      prisma.campaign.findMany({ orderBy: { createdAt: 'desc' }, take: 20 }),
+      prisma.campaign.findMany({ orderBy: { sentAt: 'desc' }, take: 20 }),
       prisma.marketingSpend.findMany({ orderBy: { date: 'desc' }, take: 20 }),
-      prisma.securityEvent.findMany({ orderBy: { createdAt: 'desc' }, take: 30 }),
-      prisma.auditLog.findMany({ orderBy: { createdAt: 'desc' }, take: 30 }),
+      prisma.securityEvent.findMany({ orderBy: { at: 'desc' }, take: 30 }),
+      prisma.auditLog.findMany({ orderBy: { at: 'desc' }, take: 30 }),
       prisma.otpRequest.groupBy({
         by: ['verified'],
         where: { createdAt: { gte: sinceDate } },
@@ -250,6 +252,16 @@ export async function GET(req) {
         orderBy: { createdAt: 'desc' },
         take: 20,
       }),
+      prisma.gscDailyMetric.findMany({
+        where: { date: { gte: sinceDate } },
+        orderBy: [{ clicks: 'desc' }, { impressions: 'desc' }],
+        take: 30,
+      }).catch(() => []),
+      prisma.lifecycleDispatch.groupBy({
+        by: ['flow', 'status'],
+        where: { sentAt: { gte: sinceDate } },
+        _count: { _all: true },
+      }).catch(() => []),
     ]);
 
     const currentPeriod = kpiRows[0] || null;
@@ -283,6 +295,12 @@ export async function GET(req) {
         attribution: marketingRows,
         campaigns,
         spend: marketingSpend,
+        gscMetrics,
+        lifecycleSummary: lifecycleDispatches.map((r) => ({
+          flow: r.flow,
+          status: r.status,
+          count: r._count?._all || 0,
+        })),
       },
       security: {
         events: securityEvents,

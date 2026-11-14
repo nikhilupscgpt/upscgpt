@@ -66,20 +66,36 @@ export default function AnalyticsDashboardClient({ adminEmail }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [flags, setFlags] = useState([]);
+  const [partners, setPartners] = useState([]);
+  const [partnerForm, setPartnerForm] = useState({ code: '', partnerName: '', commissionPct: '10', discountPct: '10' });
+  const [csvType, setCsvType] = useState('marketing_spend');
+  const [csvText, setCsvText] = useState('');
+  const [opsStatus, setOpsStatus] = useState(null);
 
   const loadAnalytics = useCallback(async (selectedPeriod) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`/api/admin/analytics?period=${selectedPeriod}`, {
-        cache: 'no-store',
-      });
-      if (!res.ok) {
-        const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson.error || `HTTP ${res.status}`);
+      const [mainRes, flagsRes, partnersRes] = await Promise.all([
+        fetch(`/api/admin/analytics?period=${selectedPeriod}`, { cache: 'no-store' }),
+        fetch('/api/admin/analytics/flags', { cache: 'no-store' }),
+        fetch('/api/admin/analytics/partners', { cache: 'no-store' }),
+      ]);
+      if (!mainRes.ok) {
+        const errJson = await mainRes.json().catch(() => ({}));
+        throw new Error(errJson.error || `HTTP ${mainRes.status}`);
       }
-      const json = await res.json();
+      const json = await mainRes.json();
       setData(json);
+      if (flagsRes.ok) {
+        const fj = await flagsRes.json();
+        setFlags(fj.flags || []);
+      }
+      if (partnersRes.ok) {
+        const pj = await partnersRes.json();
+        setPartners(pj.partners || []);
+      }
     } catch (err) {
       setError(err.message || 'Failed to load analytics');
     } finally {
@@ -90,6 +106,78 @@ export default function AnalyticsDashboardClient({ adminEmail }) {
   useEffect(() => {
     loadAnalytics(period);
   }, [period, loadAnalytics]);
+
+  async function toggleFlag(key, enabled) {
+    setOpsStatus(null);
+    const res = await fetch('/api/admin/analytics/flags', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key, enabled }),
+    });
+    if (res.ok) {
+      const { flag } = await res.json();
+      setFlags((prevFlags) => prevFlags.map((f) => (f.key === key ? flag : f)));
+      setOpsStatus(`Updated ${key} = ${enabled}`);
+    }
+  }
+
+  async function savePartner(e) {
+    e.preventDefault();
+    setOpsStatus(null);
+    const res = await fetch('/api/admin/analytics/partners', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(partnerForm),
+    });
+    const json = await res.json().catch(() => ({}));
+    if (res.ok) {
+      setPartnerForm({ code: '', partnerName: '', commissionPct: '10', discountPct: '10' });
+      setOpsStatus(`Saved partner code ${json.partner?.code}`);
+      loadAnalytics(period);
+    } else {
+      setOpsStatus(json.error || 'Failed to save partner');
+    }
+  }
+
+  async function togglePartnerActive(id, isActive) {
+    const res = await fetch('/api/admin/analytics/partners', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, isActive }),
+    });
+    if (res.ok) loadAnalytics(period);
+  }
+
+  async function submitCsvImport(e) {
+    e.preventDefault();
+    setOpsStatus(null);
+    const res = await fetch('/api/admin/analytics/import-csv', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: csvType, csv: csvText }),
+    });
+    const json = await res.json().catch(() => ({}));
+    if (res.ok) {
+      setCsvText('');
+      setOpsStatus(`Imported ${json.imported} ${csvType} row(s).`);
+      loadAnalytics(period);
+    } else {
+      setOpsStatus(json.error || 'CSV import failed');
+    }
+  }
+
+  async function resolveQuestionReport(reportId, status) {
+    setOpsStatus(null);
+    const res = await fetch('/api/admin/analytics/question-review', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ reportId, status }),
+    });
+    if (res.ok) {
+      setOpsStatus(`Marked report ${reportId} as ${status}`);
+      loadAnalytics(period);
+    }
+  }
 
   const today = data?.todayLive || {};
   const curr = data?.overview?.current || {};
@@ -331,37 +419,89 @@ export default function AnalyticsDashboardClient({ adminEmail }) {
 
             <section className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
               <div className="px-4 py-3 border-b border-slate-200 font-semibold text-sm">
-                Flagged &amp; Hardest Questions (`QuestionStats`)
+                Check These Answer Keys (`QuestionStats` — negative discrimination / low accuracy)
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full text-sm">
                   <thead className="bg-slate-50 text-slate-600 text-xs uppercase">
                     <tr>
+                      <th className="px-4 py-2 text-left">Source Type</th>
                       <th className="px-4 py-2 text-left">Question ID</th>
-                      <th className="px-4 py-2 text-left">Source</th>
                       <th className="px-4 py-2 text-right">Attempts</th>
-                      <th className="px-4 py-2 text-right">Accuracy %</th>
-                      <th className="px-4 py-2 text-right">Median (ms)</th>
-                      <th className="px-4 py-2 text-right">Flags</th>
+                      <th className="px-4 py-2 text-right">pCorrect</th>
+                      <th className="px-4 py-2 text-right">Discrimination</th>
+                      <th className="px-4 py-2 text-right">Median (s)</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {(data.learning?.questionStats || []).map((q) => (
-                      <tr key={q.questionId}>
-                        <td className="px-4 py-2 font-mono text-xs">{q.questionId}</td>
-                        <td className="px-4 py-2">{q.source || '-'}</td>
+                      <tr key={`${q.sourceType}-${q.sourceId}`}>
+                        <td className="px-4 py-2">{q.sourceType}</td>
+                        <td className="px-4 py-2 font-mono text-xs">{q.sourceId}</td>
                         <td className="px-4 py-2 text-right">{formatNum(q.attempts)}</td>
-                        <td className="px-4 py-2 text-right">{Number(q.accuracyPct || 0).toFixed(1)}%</td>
-                        <td className="px-4 py-2 text-right">{formatNum(q.medianTimeMs)}</td>
-                        <td className="px-4 py-2 text-right font-semibold text-rose-600">
-                          {formatNum(q.flagCount)}
+                        <td className="px-4 py-2 text-right">{(Number(q.pCorrect || 0) * 100).toFixed(1)}%</td>
+                        <td className={`px-4 py-2 text-right font-semibold ${Number(q.discrimination) < 0 ? 'text-rose-600' : 'text-slate-700'}`}>
+                          {q.discrimination !== null && q.discrimination !== undefined ? Number(q.discrimination).toFixed(3) : '-'}
                         </td>
+                        <td className="px-4 py-2 text-right">{formatNum(q.medianSec)}</td>
                       </tr>
                     ))}
                     {(!data.learning?.questionStats || data.learning.questionStats.length === 0) && (
                       <tr>
                         <td colSpan={6} className="px-4 py-6 text-center text-slate-400">
                           No question stats yet.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+              <div className="px-4 py-3 border-b border-slate-200 font-semibold text-sm">
+                Open Question Reports (`QuestionReport`)
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-sm">
+                  <thead className="bg-slate-50 text-slate-600 text-xs uppercase">
+                    <tr>
+                      <th className="px-4 py-2 text-left">Source</th>
+                      <th className="px-4 py-2 text-left">Question ID</th>
+                      <th className="px-4 py-2 text-left">Reason</th>
+                      <th className="px-4 py-2 text-left">Note</th>
+                      <th className="px-4 py-2 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {(data.learning?.openReports || []).map((rep) => (
+                      <tr key={rep.id}>
+                        <td className="px-4 py-2">{rep.sourceType}</td>
+                        <td className="px-4 py-2 font-mono text-xs">{rep.sourceId}</td>
+                        <td className="px-4 py-2 font-medium">{rep.reason}</td>
+                        <td className="px-4 py-2 text-xs text-slate-600">{rep.note || '-'}</td>
+                        <td className="px-4 py-2 text-right space-x-2">
+                          <button
+                            type="button"
+                            onClick={() => resolveQuestionReport(rep.id, 'fixed')}
+                            className="px-2 py-1 text-xs rounded bg-emerald-600 text-white hover:bg-emerald-700"
+                          >
+                            Mark Fixed
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => resolveQuestionReport(rep.id, 'rejected')}
+                            className="px-2 py-1 text-xs rounded bg-slate-200 text-slate-700 hover:bg-slate-300"
+                          >
+                            Reject
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {(!data.learning?.openReports || data.learning.openReports.length === 0) && (
+                      <tr>
+                        <td colSpan={5} className="px-4 py-6 text-center text-slate-400">
+                          No open question reports.
                         </td>
                       </tr>
                     )}
@@ -513,50 +653,208 @@ export default function AnalyticsDashboardClient({ adminEmail }) {
                 </tbody>
               </table>
             </section>
+            <section className="bg-white border border-slate-200 rounded-xl shadow-sm p-4 space-y-3">
+              <div className="font-semibold text-sm">Emergency Kill Switches (`FeatureFlag`)</div>
+              {opsStatus && <div className="text-xs text-indigo-700 bg-indigo-50 px-3 py-1.5 rounded">{opsStatus}</div>}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {flags.map((f) => (
+                  <div key={f.key} className="border border-slate-200 rounded-lg p-3 flex items-start justify-between gap-3">
+                    <div>
+                      <div className="font-mono text-xs font-semibold">{f.key}</div>
+                      <div className="text-xs text-slate-500 mt-1">{f.description}</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => toggleFlag(f.key, !f.enabled)}
+                      className={`px-3 py-1 rounded text-xs font-semibold shrink-0 ${
+                        f.enabled ? 'bg-rose-600 text-white' : 'bg-slate-200 text-slate-700'
+                      }`}
+                    >
+                      {f.enabled ? 'ENABLED' : 'OFF'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </section>
           </div>
         )}
 
         {data && activeTab === 'marketing' && (
-          <section className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-            <div className="px-4 py-3 border-b border-slate-200 font-semibold text-sm">
-              Channel Attribution (`marketing_daily`)
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-sm">
-                <thead className="bg-slate-50 text-slate-600 text-xs uppercase">
-                  <tr>
-                    <th className="px-4 py-2 text-left">Source</th>
-                    <th className="px-4 py-2 text-left">Campaign</th>
-                    <th className="px-4 py-2 text-right">Visitors</th>
-                    <th className="px-4 py-2 text-right">Signups</th>
-                    <th className="px-4 py-2 text-right">Subs</th>
-                    <th className="px-4 py-2 text-right">Revenue</th>
-                    <th className="px-4 py-2 text-right">Spend</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {(data.marketing?.attribution || []).map((row, i) => (
-                    <tr key={`${row.source}-${row.campaign}-${i}`}>
-                      <td className="px-4 py-2">{row.source}</td>
-                      <td className="px-4 py-2">{row.campaign}</td>
-                      <td className="px-4 py-2 text-right">{formatNum(row.visitors)}</td>
-                      <td className="px-4 py-2 text-right">{formatNum(row.signups)}</td>
-                      <td className="px-4 py-2 text-right">{formatNum(row.subs)}</td>
-                      <td className="px-4 py-2 text-right font-medium">{formatInr(row.revenue_paise)}</td>
-                      <td className="px-4 py-2 text-right">{formatInr(row.spend_paise)}</td>
-                    </tr>
-                  ))}
-                  {(!data.marketing?.attribution || data.marketing.attribution.length === 0) && (
+          <div className="space-y-6">
+            <section className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+              <div className="px-4 py-3 border-b border-slate-200 font-semibold text-sm">
+                Channel Attribution (`marketing_daily`)
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-sm">
+                  <thead className="bg-slate-50 text-slate-600 text-xs uppercase">
                     <tr>
-                      <td colSpan={7} className="px-4 py-6 text-center text-slate-400">
-                        No marketing attribution rows yet.
-                      </td>
+                      <th className="px-4 py-2 text-left">Source</th>
+                      <th className="px-4 py-2 text-left">Campaign</th>
+                      <th className="px-4 py-2 text-right">Visitors</th>
+                      <th className="px-4 py-2 text-right">Signups</th>
+                      <th className="px-4 py-2 text-right">Subs</th>
+                      <th className="px-4 py-2 text-right">Revenue</th>
+                      <th className="px-4 py-2 text-right">Spend</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {(data.marketing?.attribution || []).map((row, i) => (
+                      <tr key={`${row.source}-${row.campaign}-${i}`}>
+                        <td className="px-4 py-2">{row.source}</td>
+                        <td className="px-4 py-2">{row.campaign}</td>
+                        <td className="px-4 py-2 text-right">{formatNum(row.visitors)}</td>
+                        <td className="px-4 py-2 text-right">{formatNum(row.signups)}</td>
+                        <td className="px-4 py-2 text-right">{formatNum(row.subs)}</td>
+                        <td className="px-4 py-2 text-right font-medium">{formatInr(row.revenue_paise)}</td>
+                        <td className="px-4 py-2 text-right">{formatInr(row.spend_paise)}</td>
+                      </tr>
+                    ))}
+                    {(!data.marketing?.attribution || data.marketing.attribution.length === 0) && (
+                      <tr>
+                        <td colSpan={7} className="px-4 py-6 text-center text-slate-400">
+                          No marketing attribution rows yet.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section className="bg-white border border-slate-200 rounded-xl shadow-sm p-4 space-y-4">
+              <div className="font-semibold text-sm">Partner Codes (`PartnerCode`)</div>
+              <form onSubmit={savePartner} className="grid grid-cols-1 sm:grid-cols-5 gap-2">
+                <input
+                  type="text"
+                  placeholder="CODE (e.g. TOPPER10)"
+                  value={partnerForm.code}
+                  onChange={(e) => setPartnerForm({ ...partnerForm, code: e.target.value })}
+                  className="border border-slate-300 rounded px-2.5 py-1.5 text-sm"
+                  required
+                />
+                <input
+                  type="text"
+                  placeholder="Partner Name"
+                  value={partnerForm.partnerName}
+                  onChange={(e) => setPartnerForm({ ...partnerForm, partnerName: e.target.value })}
+                  className="border border-slate-300 rounded px-2.5 py-1.5 text-sm"
+                  required
+                />
+                <input
+                  type="number"
+                  placeholder="Comm %"
+                  value={partnerForm.commissionPct}
+                  onChange={(e) => setPartnerForm({ ...partnerForm, commissionPct: e.target.value })}
+                  className="border border-slate-300 rounded px-2.5 py-1.5 text-sm"
+                />
+                <input
+                  type="number"
+                  placeholder="Discount %"
+                  value={partnerForm.discountPct}
+                  onChange={(e) => setPartnerForm({ ...partnerForm, discountPct: e.target.value })}
+                  className="border border-slate-300 rounded px-2.5 py-1.5 text-sm"
+                />
+                <button type="submit" className="bg-indigo-600 text-white rounded px-3 py-1.5 text-sm font-medium hover:bg-indigo-700">
+                  Save Partner
+                </button>
+              </form>
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-sm">
+                  <thead className="bg-slate-50 text-slate-600 text-xs uppercase">
+                    <tr>
+                      <th className="px-3 py-2 text-left">Code</th>
+                      <th className="px-3 py-2 text-left">Partner</th>
+                      <th className="px-3 py-2 text-right">Signups</th>
+                      <th className="px-3 py-2 text-right">PRO</th>
+                      <th className="px-3 py-2 text-right">Revenue</th>
+                      <th className="px-3 py-2 text-right">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {partners.map((p) => (
+                      <tr key={p.id}>
+                        <td className="px-3 py-2 font-mono text-xs font-semibold">{p.code}</td>
+                        <td className="px-3 py-2">{p.partnerName}</td>
+                        <td className="px-3 py-2 text-right">{formatNum(p.signups)}</td>
+                        <td className="px-3 py-2 text-right">{formatNum(p.proUsers)}</td>
+                        <td className="px-3 py-2 text-right">{formatInr(p.revenuePaise)}</td>
+                        <td className="px-3 py-2 text-right">
+                          <button
+                            type="button"
+                            onClick={() => togglePartnerActive(p.id, !p.isActive)}
+                            className={`px-2 py-0.5 rounded text-xs ${p.isActive ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'}`}
+                          >
+                            {p.isActive ? 'Active' : 'Paused'}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <section className="bg-white border border-slate-200 rounded-xl shadow-sm p-4 space-y-3">
+                <div className="font-semibold text-sm">CSV Import (`MarketingSpend` &amp; `FixedCost`)</div>
+                <form onSubmit={submitCsvImport} className="space-y-3">
+                  <select
+                    value={csvType}
+                    onChange={(e) => setCsvType(e.target.value)}
+                    className="border border-slate-300 rounded px-2.5 py-1.5 text-sm"
+                  >
+                    <option value="marketing_spend">MarketingSpend (date,channel,campaign,amount_inr)</option>
+                    <option value="fixed_cost">FixedCost (month,item,amount_inr)</option>
+                  </select>
+                  <textarea
+                    rows={4}
+                    value={csvText}
+                    onChange={(e) => setCsvText(e.target.value)}
+                    placeholder={csvType === 'marketing_spend' ? 'date,channel,campaign,amount_inr\n2026-11-10,google_ads,Prelims_2027,1500' : 'month,item,amount_inr\n2026-11,Vercel Pro,1700'}
+                    className="w-full border border-slate-300 rounded p-2 font-mono text-xs"
+                    required
+                  />
+                  <button type="submit" className="bg-slate-900 text-white rounded px-3 py-1.5 text-sm font-medium hover:bg-slate-800">
+                    Import CSV
+                  </button>
+                </form>
+              </section>
+
+              <section className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+                <div className="px-4 py-3 border-b border-slate-200 font-semibold text-sm">
+                  Google Search Console (`GscDailyMetric`)
+                </div>
+                <table className="min-w-full text-sm">
+                  <thead className="bg-slate-50 text-slate-600 text-xs uppercase">
+                    <tr>
+                      <th className="px-3 py-2 text-left">Query</th>
+                      <th className="px-3 py-2 text-left">Page</th>
+                      <th className="px-3 py-2 text-right">Clicks</th>
+                      <th className="px-3 py-2 text-right">Pos</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {(data.marketing?.gscMetrics || []).map((g) => (
+                      <tr key={g.id}>
+                        <td className="px-3 py-2 text-xs">{g.query}</td>
+                        <td className="px-3 py-2 text-xs font-mono truncate max-w-[180px]">{g.page}</td>
+                        <td className="px-3 py-2 text-right">{formatNum(g.clicks)}</td>
+                        <td className="px-3 py-2 text-right">{Number(g.position || 0).toFixed(1)}</td>
+                      </tr>
+                    ))}
+                    {(!data.marketing?.gscMetrics || data.marketing.gscMetrics.length === 0) && (
+                      <tr>
+                        <td colSpan={4} className="px-3 py-6 text-center text-slate-400">
+                          No GSC metrics imported yet.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </section>
             </div>
-          </section>
+          </div>
         )}
 
         {data && activeTab === 'security' && (
@@ -597,11 +895,11 @@ export default function AnalyticsDashboardClient({ adminEmail }) {
                     {(data.security?.events || []).map((ev) => (
                       <tr key={ev.id}>
                         <td className="px-4 py-2 text-xs text-slate-500">
-                          {new Date(ev.createdAt).toLocaleString()}
+                          {new Date(ev.at).toLocaleString()}
                         </td>
-                        <td className="px-4 py-2 font-mono text-xs">{ev.kind}</td>
+                        <td className="px-4 py-2 font-mono text-xs">{ev.type}</td>
                         <td className="px-4 py-2 font-mono text-xs">{ev.userId || '-'}</td>
-                        <td className="px-4 py-2 font-mono text-xs">{ev.ip || '-'}</td>
+                        <td className="px-4 py-2 font-mono text-xs">{ev.ipFull || '-'}</td>
                       </tr>
                     ))}
                     {(!data.security?.events || data.security.events.length === 0) && (

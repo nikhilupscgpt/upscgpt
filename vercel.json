@@ -16,6 +16,14 @@
     {
       "path": "/api/cron/analytics-daily",
       "schedule": "0 19 * * *"
+    },
+    {
+      "path": "/api/cron/gsc-daily",
+      "schedule": "30 20 * * *"
+    },
+    {
+      "path": "/api/cron/lifecycle",
+      "schedule": "0 * * * *"
     }
   ]
 }

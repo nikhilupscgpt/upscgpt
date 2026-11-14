@@ -38,6 +38,8 @@ model User {
   firstTouchLanding  String?
   firstTouchPartner  String?
   lastTouchSource    String?
+  marketingOptOut    Boolean            @default(false)
+  marketingOptOutAt  DateTime?
   accounts           Account[]
   logs               ActionLog[]
   bookmarks          Bookmark[]
@@ -1382,6 +1384,55 @@ model UserDevice {
 
   @@unique([userId, deviceId])
   @@index([userId, revokedAt])
+}
+
+// ---------- Phase 6: Marketing, Growth & Ops Controls ----------
+model PartnerCode {
+  id            String   @id @default(cuid())
+  code          String   @unique
+  partnerName   String
+  commissionPct Float    @default(0)
+  discountPct   Float    @default(0)
+  isActive      Boolean  @default(true)
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model GscDailyMetric {
+  id          String   @id @default(cuid())
+  date        DateTime
+  page        String
+  query       String
+  clicks      Int      @default(0)
+  impressions Int      @default(0)
+  ctr         Float    @default(0)
+  position    Float    @default(0)
+  createdAt   DateTime @default(now())
+
+  @@unique([date, page, query])
+  @@index([date])
+}
+
+model FeatureFlag {
+  key         String   @id
+  enabled     Boolean  @default(false)
+  description String?
+  updatedBy   String?
+  updatedAt   DateTime @updatedAt
+}
+
+model LifecycleDispatch {
+  id       String   @id @default(cuid())
+  userId   String
+  flow     String // welcome | abandoned_cart_1h | abandoned_cart_24h | pro_expiry_7d | pro_expiry_1d | win_back_14d | prelims_countdown
+  cycleKey String
+  channel  String // email | whatsapp | push
+  status   String   @default("sent") // sent | skipped_optout | failed
+  sentAt   DateTime @default(now())
+
+  @@unique([userId, flow, cycleKey])
+  @@index([flow, sentAt])
 }
 
 
