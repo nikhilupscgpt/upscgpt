@@ -107,21 +107,15 @@ function PyqPresenterClientInner({
   });
   const [stepIndex, setStepIndex] = useState(0);
 
-  // Recording session tracking (Phase 6)
+  // Recording session tracking (unified Phase 6 + Present Mode v1)
   const [recStatus, setRecStatus] = useState(
-    initialRecordingSession ? (initialRecordingSession.status === 'paused' ? 'paused' : 'recording') : null,
+    initialRecordingSession ? (initialRecordingSession.status === 'paused' ? 'paused' : 'recording') : 'idle',
   );
   const [recElapsedSec, setRecElapsedSec] = useState(initialRecordingSession?.durationSec || 0);
   const [stopAfterThis, setStopAfterThis] = useState(false);
   const [recTimestamps, setRecTimestamps] = useState(() =>
     Array.isArray(initialRecordingSession?.timestamps) ? initialRecordingSession.timestamps : [],
   );
-
-  useEffect(() => {
-    if (!initialRecordingSession || recStatus !== 'recording') return undefined;
-    const timer = setInterval(() => setRecElapsedSec((s) => s + 1), 1000);
-    return () => clearInterval(timer);
-  }, [initialRecordingSession, recStatus]);
 
   // Auto-save timestamp + lastIndex whenever moving between questions
   const prevQIndexRef = useRef(qIndex);
@@ -336,9 +330,7 @@ function PyqPresenterClientInner({
   const [isToolsOpen, setIsToolsOpen] = useState(false);
   const [isToolbarVisible, setIsToolbarVisible] = useState(true);
   const [isCursorHidden, setIsCursorHidden] = useState(false);
-  const [recStatus, setRecStatus] = useState('idle'); // 'idle' | 'countdown' | 'opening' | 'recording' | 'paused' | 'closing' | 'rehearsal'
   const [recCountdownLeft, setRecCountdownLeft] = useState(null);
-  const [recElapsedSec, setRecElapsedSec] = useState(0);
   const [qElapsedSec, setQElapsedSec] = useState(0);
   const [totalElapsedSec, setTotalElapsedSec] = useState(0);
   const [stopAfterQuestion, setStopAfterQuestion] = useState(false);
