@@ -6,7 +6,7 @@ import EnvironmentMap from '@/components/EnvironmentMap';
 import PageBar from '@/components/environment-atlas/PageBar';
 import PrevNextRow from '@/components/environment-atlas/PrevNextRow';
 import SpeciesList from '@/components/environment-atlas/SpeciesList';
-import { IucnBadgeSvg, IucnThreatGaugeSvg } from '@/components/IucnBadgeSvg';
+import SpeciesBody from '@/components/environment-atlas/SpeciesBody';
 import { track, createActiveViewTracker } from '@/lib/analytics/client';
 import {
   Search,
@@ -17,30 +17,6 @@ import {
   Sparkles,
 } from 'lucide-react';
 import './env-atlas.css';
-
-const RISK_MAP = {
-  CR: { label: 'Critically Endangered', why: 'Extremely high risk of dying out in the wild soon.', color: 'var(--cr)' },
-  EN: { label: 'Endangered', why: 'High risk of dying out in the wild.', color: 'var(--en)' },
-  VU: { label: 'Vulnerable', why: 'High risk of endangerment in the medium-term.', color: 'var(--vu)' },
-  NT: { label: 'Near Threatened', why: 'Close to qualifying for a threatened category.', color: 'var(--nt)' },
-  LC: { label: 'Least Concern', why: 'Widespread and abundant in its natural range.', color: 'var(--lc)' },
-};
-
-const RISK_ORDER = ['LC', 'NT', 'VU', 'EN', 'CR'];
-
-const LAW_EXPLANATIONS = {
-  'Schedule I': 'Highest protection in India. Hunting or trading it is a serious crime.',
-  'Schedule II': 'Protected species. Offences carry stringent penalties.',
-  'Schedule III': 'Protected species under rationalised WPA Amendment schedules.',
-  'Schedule IV': 'Regulated species under CITES Appendix enforcement.',
-};
-
-const TRADE_EXPLANATIONS = {
-  'Appendix I': 'International trade is banned.',
-  'Appendix II': 'Trade is tightly regulated with strict export permits.',
-  'Appendix III': 'Protected in at least one country asking CITES for assistance.',
-  'Not listed': 'Commercial trade is not regulated under CITES.',
-};
 
 export default function EnvironmentAtlasClient() {
   const [items, setItems] = useState([]);
@@ -54,7 +30,6 @@ export default function EnvironmentAtlasClient() {
   const [activeFilter, setActiveFilter] = useState('All');
 
   // UI State
-  const [showExplain, setShowExplain] = useState(false);
   const [showHowItWorks, setShowHowItWorks] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [showAllNews, setShowAllNews] = useState(false);
@@ -314,11 +289,11 @@ export default function EnvironmentAtlasClient() {
     }));
   };
 
-  // Derived IUCN metadata
-  const activeIucnKey = activeItem?.statusBadges?.iucn?.toUpperCase() || 'EN';
-  const activeRiskMeta = RISK_MAP[activeIucnKey] || RISK_MAP.EN;
-  const activeRiskIdx = RISK_ORDER.indexOf(activeIucnKey);
   const activeNetwork = networks[activeItem?.networkKey || activeItem?.slug];
+  const startWithCount = useMemo(
+    () => items.filter((item) => item.startWith).length,
+    [items]
+  );
 
   // Track module_open on mount and active dwell time per species
   useEffect(() => {
@@ -329,40 +304,6 @@ export default function EnvironmentAtlasClient() {
     if (!activeItem?.slug) return;
     return createActiveViewTracker('species', activeItem.slug, 'env_atlas');
   }, [activeItem?.slug]);
-
-  // High-yield remember facts
-  const rememberItems = useMemo(() => {
-    if (!activeItem) return [];
-    const bullets = [];
-    if (activeItem.idmarks && activeItem.idmarks.length > 0) {
-      bullets.push({
-        icon: '👁',
-        text: `Spot it by: ${activeItem.idmarks[0].charAt(0).toLowerCase() + activeItem.idmarks[0].slice(1)}`,
-      });
-    }
-    if (activeItem.facts && activeItem.facts.length > 0) {
-      activeItem.facts.slice(0, 2).forEach((f) => {
-        bullets.push({ icon: '•', text: f });
-      });
-    }
-    if (bullets.length === 0 && activeItem.uniqueFeatures && activeItem.uniqueFeatures.length > 0) {
-      activeItem.uniqueFeatures.slice(0, 3).forEach((f) => {
-        bullets.push({ icon: '•', text: f });
-      });
-    }
-    if (bullets.length === 0 && activeItem.rememberBullets && activeItem.rememberBullets.length > 0) {
-      activeItem.rememberBullets.slice(0, 3).forEach((b) => {
-        bullets.push({ icon: '•', text: b });
-      });
-    }
-    if (bullets.length === 0) {
-      bullets.push(
-        { icon: '👁', text: 'Strict legal protection across Indian landscapes under Wildlife (Protection) Act, 1972.' },
-        { icon: '•', text: 'Priority species in national conservation assessments and state biodiversity strategies.' }
-      );
-    }
-    return bullets;
-  }, [activeItem]);
 
   const currentIndex = items.findIndex((i) => i.slug === selectedSlug);
   const displayIndex = currentIndex >= 0 ? currentIndex + 1 : 1;
@@ -545,187 +486,14 @@ export default function EnvironmentAtlasClient() {
               <div className="card">
                 {/* Main Column */}
                 <div className="maincol">
-                  {/* Photo Banner with Counter & Credit */}
-                  <div className="photo">
-                    <div
-                      className="blur"
-                      style={{
-                        backgroundImage: `url(${activeItem.imageUrl || `/species/${activeItem.slug}.webp`})`,
-                      }}
-                    />
-                    <img
-                      src={activeItem.imageUrl || `/species/${activeItem.slug}.webp`}
-                      alt={activeItem.title}
-                      onError={(e) => {
-                        e.currentTarget.src = '/species/bengal-tiger.webp';
-                      }}
-                    />
-                    <div className="counter">
-                      {currentIndex >= 0 ? currentIndex + 1 : 1} of {items.length}
-                    </div>
-                    {activeItem.credit && (
-                      <div className="credit">
-                        Photo: {activeItem.credit.artist || 'Wikimedia'} · {activeItem.credit.lic || 'CC BY-SA'} ·{' '}
-                        <a href={activeItem.credit.page || '#'} target="_blank" rel="noreferrer">
-                          Source
-                        </a>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Titles */}
-                  <div className="species-header">
-                    <div>
-                      <h1>{activeItem.title}</h1>
-                      <div className="sci-row">
-                        <span className="sci">{activeItem.subtitle}</span>
-                        {activeItem.category && (
-                          <>
-                            <span className="sci-dot">•</span>
-                            <span className="cat-tag">{activeItem.category}</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <p className="oneline">{activeItem.oneline || activeItem.habitatType}</p>
-
-                  {/* How protected is it? */}
-                  <div className="sec">
-                    <h2>
-                      <span>How protected is it?</span>
-                      <button type="button" onClick={() => setShowExplain(!showExplain)}>
-                        {showExplain ? 'Hide' : 'What do these mean?'}
-                      </button>
-                    </h2>
-
-                    {showExplain && (
-                      <div className="explain">
-                        <p>
-                          <b>Risk level</b> comes from the IUCN Red List, a global list that rates how close a species is to dying out.
-                        </p>
-                        <p>
-                          <b>Indian law</b> is the Wildlife (Protection) Act, 1972. Schedule I gives the strongest protection.
-                        </p>
-                        <p>
-                          <b>Trade rules</b> come from CITES, a treaty on buying and selling wildlife between countries.
-                        </p>
-                      </div>
-                    )}
-
-                    <div className="prot">
-                      {/* Box 1: IUCN */}
-                      <div className="pbox">
-                        <div className="q">Risk level (IUCN)</div>
-                        <div className="a" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <IucnBadgeSvg status={activeIucnKey} size={22} />
-                          <span>{activeRiskMeta.label}</span>
-                        </div>
-                        <div className="meter">
-                          {RISK_ORDER.map((rk, idx) => (
-                            <i
-                              key={rk}
-                              style={{
-                                background: idx <= activeRiskIdx ? activeRiskMeta.color : undefined,
-                              }}
-                            />
-                          ))}
-                        </div>
-                        <div className="meterlbl">
-                          <span>Low</span>
-                          <span>Very high</span>
-                        </div>
-                        <div className="why" style={{ marginTop: 6 }}>
-                          {activeRiskMeta.why}
-                        </div>
-                      </div>
-
-                      {/* Box 2: Indian Law (WPA 1972) */}
-                      <div className="pbox">
-                        <div className="q">Indian law (WPA 1972)</div>
-                        <div className="a">{activeItem.statusBadges?.wpa || 'Schedule I'}</div>
-                        <div className="why">
-                          {LAW_EXPLANATIONS[activeItem.statusBadges?.wpa] ||
-                            'Highest protection in India. Hunting or trading it is a serious crime.'}
-                        </div>
-                      </div>
-
-                      {/* Box 3: Trade Rules (CITES) */}
-                      <div className="pbox">
-                        <div className="q">Trade rules (CITES)</div>
-                        <div className="a">{activeItem.statusBadges?.cites || 'Appendix I'}</div>
-                        <div className="why">
-                          {TRADE_EXPLANATIONS[activeItem.statusBadges?.cites] ||
-                            'International trade is banned.'}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Official Authentic IUCN Category SVG Diagram (Image 6) */}
-                    <IucnThreatGaugeSvg activeStatus={activeItem.statusBadges?.iucn} />
-                  </div>
-
-                  {/* Study Tabs: Notes & Common Traps | Past UPSC Questions */}
-                  <div className="sec">
-                    <div className="study-tabs">
-                      <button
-                        type="button"
-                        className={`study-tab ${studyTab === 'notes' ? 'on' : ''}`}
-                        onClick={() => setStudyTab('notes')}
-                      >
-                        What Prelims asks &amp; common traps
-                      </button>
-                      <button
-                        type="button"
-                        className={`study-tab ${studyTab === 'pyqs' ? 'on' : ''}`}
-                        onClick={() => setStudyTab('pyqs')}
-                      >
-                        Past UPSC Questions
-                        {activeItem.similarPYQ?.length > 0 && (
-                          <span className="tab-count">{activeItem.similarPYQ.length}</span>
-                        )}
-                      </button>
-                    </div>
-
-                    {studyTab === 'notes' ? (
-                      <div className="editorial-notes">
-                        {rememberItems.map((bullet, idx) => (
-                          <div key={idx} className="note-callout">
-                            <div className="note-tag">{idx === 0 ? 'Field ID' : 'Key Fact'}</div>
-                            <p>{bullet.text || bullet}</p>
-                          </div>
-                        ))}
-
-                        {activeItem.behaviour && (
-                          <div className="note-callout">
-                            <div className="note-tag">Ecology &amp; Behaviour</div>
-                            <p>{activeItem.behaviour}</p>
-                          </div>
-                        )}
-
-                        {(activeItem.traps?.length > 0 ? activeItem.traps : activeItem.confusionTrap ? [activeItem.confusionTrap] : []).map((trap, idx) => (
-                          <div key={`trap-${idx}`} className="note-callout trap">
-                            <div className="note-tag">Common Prelims Trap</div>
-                            <p>{trap}</p>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="pyqbox">
-                        {activeItem.similarPYQ?.length > 0 ? (
-                          <ul>
-                            {activeItem.similarPYQ.map((q, idx) => (
-                              <li key={idx}>{q}</li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p style={{ margin: 0, color: 'var(--muted)', fontSize: 13.5 }}>
-                            No direct UPSC CSE PYQ logged for this species yet — focus on its IUCN status, WPA schedule, and protected areas.
-                          </p>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                  <SpeciesBody
+                    activeItem={activeItem}
+                    displayIndex={displayIndex}
+                    totalCount={items.length}
+                    startWithCount={startWithCount}
+                    studyTab={studyTab}
+                    onTabChange={setStudyTab}
+                  />
                   {/* In-flow Previous / Next Row (PRD §3.7) */}
                   <PrevNextRow
                     displayIndex={displayIndex}
