@@ -108,6 +108,7 @@ export async function sendOpsAlert(params: { subject: string; message: string })
       await sendEmail({
         to: adminEmail,
         subject: `[upscgpt+ Alert] ${params.subject}`,
+        html: `<pre>${params.message}</pre>`,
         text: params.message,
         purpose: 'alert',
         template: 'ops_alert',
