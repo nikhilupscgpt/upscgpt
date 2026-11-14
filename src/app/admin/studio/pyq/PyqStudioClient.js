@@ -8,6 +8,11 @@ import {
   ExternalLink,
   X,
   Edit3,
+  Video,
+  ArrowUp,
+  ArrowDown,
+  Save,
+  FolderOpen,
 } from 'lucide-react';
 import StemView from '@/app/prelims/pyq/StemView';
 import {
@@ -18,7 +23,10 @@ import {
   StatusBadge,
   RowActions,
 } from '@/components/pyq-studio';
+import { moveArrayItem, computeSectionSummary } from '@/lib/pyq/deck-helpers';
 import './pyq-studio.css';
+
+const TRAY_STORAGE_KEY = 'pyq_studio_deck_tray_v1';
 
 export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACULTY' }) {
   const filterOptions = initialFilterOptions || {
@@ -67,6 +75,7 @@ export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACU
   useEffect(() => {
     if (!urlHydrated || typeof window === 'undefined') return;
     const sp = new URLSearchParams();
+    sp.set('view', 'list');
     if (search.trim()) sp.set('search', search.trim());
     if (subject !== 'ALL') sp.set('subject', subject);
     if (topic !== 'ALL') sp.set('topic', topic);
@@ -100,9 +109,52 @@ export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACU
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [apiFilterOptions, setApiFilterOptions] = useState(null);
+  const [cdsExtraCount, setCdsExtraCount] = useState(0);
+  const [focusedIndex, setFocusedIndex] = useState(-1);
 
-  // Selection & Custom Attachment state
+  // Persistent Deck Tray state (survives pages, filters, reload)
   const [selectedIds, setSelectedIds] = useState([]);
+  const [trayMeta, setTrayMeta] = useState({});
+  const [trayHydrated, setTrayHydrated] = useState(false);
+
+  // Deck Save & Browse Modal state
+  const [saveDeckOpen, setSaveDeckOpen] = useState(false);
+  const [deckTitle, setDeckTitle] = useState('');
+  const [deckShared, setDeckShared] = useState(false);
+  const [deckSaving, setDeckSaving] = useState(false);
+  const [decksModalScope, setDecksModalScope] = useState(null); // null | 'mine' | 'shared'
+  const [savedDecks, setSavedDecks] = useState({ myDecks: [], sharedDecks: [] });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = localStorage.getItem(TRAY_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed.ids)) setSelectedIds(parsed.ids);
+        if (parsed.meta && typeof parsed.meta === 'object') setTrayMeta(parsed.meta);
+        if (Array.isArray(parsed.ids) && parsed.ids.length > 0) {
+          setRailCollapsed(false);
+        }
+      }
+    } catch {
+      // ignore
+    }
+    setTrayHydrated(true);
+  }, []);
+
+  useEffect(() => {
+    if (!trayHydrated || typeof window === 'undefined') return;
+    try {
+      localStorage.setItem(
+        TRAY_STORAGE_KEY,
+        JSON.stringify({ ids: selectedIds, meta: trayMeta }),
+      );
+    } catch {
+      // ignore
+    }
+  }, [trayHydrated, selectedIds, trayMeta]);
+
   // customAttachments: { [questionId]: { imageUrl: string, caption: string } }
   const [customAttachments, setCustomAttachments] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -199,28 +251,191 @@ export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACU
     return () => clearTimeout(timer);
   }, [fetchQuestions]);
 
+  // Fetch live CDS extra count for current section
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      try {
+        const res = await fetch('/api/admin/pyq/tree?exam=CDS');
+        if (!res.ok || !active) return;
+        const data = await res.json();
+        if (!active) return;
+        if (subject === 'ALL') {
+          setCdsExtraCount(data?.totals?.total || 0);
+        } else {
+          const sNode = (data?.subjects || []).find((s) => s.name === subject);
+          if (!sNode) {
+            setCdsExtraCount(0);
+          } else if (topic === 'ALL') {
+            setCdsExtraCount(sNode.total || 0);
+          } else {
+            const tNode = (sNode.topics || []).find((t) => t.name === topic);
+            setCdsExtraCount(tNode?.total || 0);
+          }
+        }
+      } catch {
+        // ignore
+      }
+    })();
+    return () => { active = false; };
+  }, [subject, topic]);
+
+  const recordSectionHref = useMemo(() => {
+    const sp = new URLSearchParams();
+    if (subject !== 'ALL') sp.set('subject', subject);
+    if (topic !== 'ALL') sp.set('topic', topic);
+    if (exam === 'ALL' || exam === 'CDS') sp.set('includeCds', '1');
+    const qs = sp.toString();
+    return qs ? `/admin/studio/pyq/record?${qs}` : '/admin/studio/pyq/record';
+  }, [subject, topic, exam]);
+
   // -------------------------------------------------------------
-  // Selection Handlers
+  // Selection & Deck Tray Handlers
   // -------------------------------------------------------------
-  const toggleSelect = (id) => {
-    setSelectedIds(prev =>
-      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+  const captureTrayMeta = useCallback((qList) => {
+    setTrayMeta((prev) => {
+      const next = { ...prev };
+      for (const q of qList) {
+        if (!q?.id) continue;
+        next[q.id] = {
+          id: q.id,
+          label: `${q.examName || 'UPSC CSE'} ${q.examYear || ''} ${q.questionNo ? `Q${q.questionNo}` : ''}`.trim(),
+          topic: q.srcTopic || q.srcSubject || '',
+          stemPreview: String(q.stem || '').replace(/\s+/g, ' ').slice(0, 72),
+        };
+      }
+      return next;
+    });
+  }, []);
+
+  const toggleSelect = useCallback((id) => {
+    const found = questions.find((q) => q.id === id);
+    if (found) captureTrayMeta([found]);
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
-  };
+  }, [questions, captureTrayMeta]);
 
   const handleSelectAllOnPage = () => {
-    const pageIds = questions.map(q => q.id);
-    const allSelected = pageIds.every(id => selectedIds.includes(id));
+    captureTrayMeta(questions);
+    const pageIds = questions.map((q) => q.id);
+    const allSelected = pageIds.every((id) => selectedIds.includes(id));
     if (allSelected) {
-      setSelectedIds(prev => prev.filter(id => !pageIds.includes(id)));
+      setSelectedIds((prev) => prev.filter((id) => !pageIds.includes(id)));
     } else {
-      setSelectedIds(prev => Array.from(new Set([...prev, ...pageIds])));
+      setSelectedIds((prev) => Array.from(new Set([...prev, ...pageIds])));
     }
   };
 
   const handleClearSelection = () => {
     setSelectedIds([]);
   };
+
+  const handleMoveTrayItem = (idx, dir) => {
+    setSelectedIds((prev) => moveArrayItem(prev, idx, idx + dir));
+  };
+
+  const handleSaveDeck = async (e) => {
+    e.preventDefault();
+    if (!deckTitle.trim() || selectedIds.length === 0) return;
+    setDeckSaving(true);
+    try {
+      const sectionPath =
+        subject !== 'ALL' && topic !== 'ALL'
+          ? `${subject} › ${topic}`
+          : subject !== 'ALL'
+          ? subject
+          : null;
+      const res = await fetch('/api/admin/pyq/decks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: deckTitle.trim(),
+          questionIds: selectedIds,
+          isShared: deckShared,
+          sectionPath,
+        }),
+      });
+      if (res.ok) {
+        setDeckTitle('');
+        setDeckShared(false);
+        setSaveDeckOpen(false);
+      }
+    } finally {
+      setDeckSaving(false);
+    }
+  };
+
+  const openDecksModal = async (scope) => {
+    setDecksModalScope(scope);
+    try {
+      const res = await fetch('/api/admin/pyq/decks');
+      if (res.ok) {
+        const data = await res.json();
+        setSavedDecks({
+          myDecks: data.myDecks || [],
+          sharedDecks: data.sharedDecks || [],
+        });
+      }
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleLoadDeck = (deck) => {
+    const ids = (deck.items || []).map((it) => it.questionId);
+    setSelectedIds(ids);
+    setRailCollapsed(false);
+    setDecksModalScope(null);
+  };
+
+  const handleDeleteDeck = async (deckId) => {
+    const res = await fetch(`/api/admin/pyq/decks/${encodeURIComponent(deckId)}`, {
+      method: 'DELETE',
+    });
+    if (res.ok) {
+      setSavedDecks((prev) => ({
+        myDecks: prev.myDecks.filter((d) => d.id !== deckId),
+        sharedDecks: prev.sharedDecks.filter((d) => d.id !== deckId),
+      }));
+    }
+  };
+
+  // Keyboard shortcuts: j (next), k (prev), x (select), p (present), r (record section)
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.target?.matches?.('input, textarea, select')) return;
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const key = e.key.toLowerCase();
+      if (key === 'j') {
+        if (questions.length === 0) return;
+        e.preventDefault();
+        setFocusedIndex((idx) => Math.min(questions.length - 1, idx + 1));
+      } else if (key === 'k') {
+        if (questions.length === 0) return;
+        e.preventDefault();
+        setFocusedIndex((idx) => Math.max(0, idx <= 0 ? 0 : idx - 1));
+      } else if (key === 'x') {
+        const q = questions[focusedIndex];
+        if (q) {
+          e.preventDefault();
+          toggleSelect(q.id);
+        }
+      } else if (key === 'p') {
+        e.preventDefault();
+        if (selectedIds.length > 0) {
+          window.open(`/admin/studio/present?mode=pyq&ids=${selectedIds.join(',')}`, '_blank');
+        } else if (questions[focusedIndex]) {
+          window.open(`/admin/studio/present?mode=pyq&ids=${questions[focusedIndex].id}`, '_blank');
+        }
+      } else if (key === 'r') {
+        e.preventDefault();
+        window.location.href = recordSectionHref;
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [questions, focusedIndex, selectedIds, toggleSelect, recordSectionHref]);
 
   // -------------------------------------------------------------
   // Map / Diagram Attachment Handlers
@@ -289,6 +504,44 @@ export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACU
 
   const primaryFilters = [
     {
+      id: 'pyq-filter-year',
+      label: 'Year',
+      value: year,
+      onChange: (val) => { setYear(val); setPage(1); },
+      options: [
+        { value: 'ALL', label: 'All Years' },
+        ...filterOptions.years.map((y) => ({ value: String(y), label: String(y) })),
+      ],
+    },
+    {
+      id: 'pyq-filter-pattern',
+      label: 'Format',
+      value: pattern,
+      onChange: (val) => { setPattern(val); setPage(1); },
+      options: [
+        { value: 'ALL', label: 'All Formats' },
+        { value: 'NEW', label: 'New Pattern (Pairs & Statements)' },
+        { value: 'PAIR', label: 'Pair-Based Only' },
+        { value: 'STATEMENT', label: 'Statement I & II Only' },
+      ],
+    },
+    {
+      id: 'pyq-filter-status',
+      label: 'Status',
+      value: answerStatus,
+      onChange: (val) => { setAnswerStatus(val); setPage(1); },
+      options: [
+        { value: 'ALL', label: 'All Status' },
+        { value: 'HAS_ANSWER', label: 'Has Correct Answer' },
+        { value: 'MISSING_ANSWER', label: 'Missing Answer' },
+        { value: 'HAS_EXPL', label: 'Has Explanation' },
+        { value: 'MISSING_EXPL', label: 'Missing Explanation' },
+      ],
+    },
+  ];
+
+  const moreFilters = [
+    {
       id: 'pyq-filter-subject',
       label: 'Subject',
       value: subject,
@@ -317,9 +570,6 @@ export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACU
       placeholder: 'Keywords, stem, Q no...',
       onChange: (val) => { setSearch(val); setPage(1); },
     },
-  ];
-
-  const moreFilters = [
     {
       id: 'pyq-filter-exam',
       label: 'Exam',
@@ -329,41 +579,6 @@ export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACU
         { value: 'ALL', label: 'All Exams' },
         { value: 'UPSC CSE', label: 'UPSC CSE' },
         { value: 'CDS', label: 'CDS' },
-      ],
-    },
-    {
-      id: 'pyq-filter-year',
-      label: 'Year',
-      value: year,
-      onChange: (val) => { setYear(val); setPage(1); },
-      options: [
-        { value: 'ALL', label: 'All Years' },
-        ...filterOptions.years.map((y) => ({ value: String(y), label: String(y) })),
-      ],
-    },
-    {
-      id: 'pyq-filter-pattern',
-      label: 'Format',
-      value: pattern,
-      onChange: (val) => { setPattern(val); setPage(1); },
-      options: [
-        { value: 'ALL', label: 'All Formats' },
-        { value: 'NEW', label: 'New Pattern (Pairs & Statements)' },
-        { value: 'PAIR', label: 'Pair-Based Only' },
-        { value: 'STATEMENT', label: 'Statement I & II Only' },
-      ],
-    },
-    {
-      id: 'pyq-filter-status',
-      label: 'Content Quality',
-      value: answerStatus,
-      onChange: (val) => { setAnswerStatus(val); setPage(1); },
-      options: [
-        { value: 'ALL', label: 'All Status' },
-        { value: 'HAS_ANSWER', label: 'Has Correct Answer' },
-        { value: 'MISSING_ANSWER', label: 'Missing Answer' },
-        { value: 'HAS_EXPL', label: 'Has Explanation' },
-        { value: 'MISSING_EXPL', label: 'Missing Explanation' },
       ],
     },
     {
@@ -399,20 +614,48 @@ export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACU
   if (answerStatus !== 'ALL') activeChips.push({ id: 'status', label: `Status: ${answerStatus}`, onRemove: () => { setAnswerStatus('ALL'); setPage(1); } });
   if (sortOrder !== 'syllabus') activeChips.push({ id: 'sort', label: `Sort: ${sortOrder}`, onRemove: () => { setSortOrder('syllabus'); setPage(1); } });
 
+  const sectionSummary = useMemo(
+    () => computeSectionSummary(total, questions),
+    [total, questions],
+  );
+
+  const sectionBreadcrumbs = [{ label: 'Studio', href: '/admin/studio' }, { label: 'PYQ Studio', href: '/admin/studio/pyq' }];
+  if (subject !== 'ALL' && topic !== 'ALL') {
+    sectionBreadcrumbs.push({ label: subject, href: `/admin/studio/pyq?subject=${encodeURIComponent(subject)}` });
+    sectionBreadcrumbs.push({ label: topic });
+  } else if (subject !== 'ALL') {
+    sectionBreadcrumbs.push({ label: subject });
+  } else {
+    sectionBreadcrumbs.push({ label: 'All Questions' });
+  }
+
+  const cdsIncluded = exam === 'ALL' || exam === 'CDS';
+
+  const headerMenu = [
+    {
+      id: 'toggle-sort',
+      label: sortOrder === 'syllabus' ? 'Order by Exam Year' : 'Order by Syllabus',
+      onClick: () => { setSortOrder((s) => (s === 'syllabus' ? 'exam' : 'syllabus')); setPage(1); },
+    },
+    { id: 'my-decks', label: 'My decks', onClick: () => openDecksModal('mine') },
+    { id: 'shared-decks', label: 'Shared decks', onClick: () => openDecksModal('shared') },
+  ];
+  if (userRole === 'ADMIN') {
+    headerMenu.push({ id: 'open-editor', label: 'Open PYQ Editor', href: '/admin/pyq' });
+  }
+
   return (
     <div className="pq-pyq-studio-root">
       <PageHeader
-        breadcrumbs={[
-          { label: 'Studio', href: '/admin/studio' },
-          { label: 'PYQ Studio' },
-        ]}
+        breadcrumbs={sectionBreadcrumbs}
         secondaryActions={
-          userRole === 'ADMIN' ? (
-            <Link href="/admin/pyq" target="_blank" className="pyq-ui-secondary-btn">
-              <span>PYQ Editor</span>
-              <ExternalLink size={13} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Link href={recordSectionHref} className="pyq-ui-secondary-btn">
+              <Video size={14} />
+              <span>Record section</span>
             </Link>
-          ) : null
+            <RowActions alwaysVisible label="Section options" menuItems={headerMenu} />
+          </div>
         }
         primaryAction={
           selectedIds.length > 0 ? (
@@ -424,9 +667,37 @@ export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACU
               <Play size={14} fill="currentColor" />
               <span>Present ({selectedIds.length})</span>
             </button>
+          ) : questions.length > 0 ? (
+            <button
+              type="button"
+              onClick={() => handleLaunchBroadcast(questions.map((q) => q.id))}
+              className="pyq-ui-primary-btn"
+            >
+              <Play size={14} fill="currentColor" />
+              <span>Present</span>
+            </button>
           ) : null
         }
       />
+
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10, marginBottom: 14, fontSize: 13, color: '#94a3b8' }}>
+        <span>
+          <strong style={{ color: '#e2e8f0' }}>{sectionSummary.total}</strong> questions · ~{sectionSummary.estMinutes} min · {sectionSummary.needsExplanation} need explanation · {sectionSummary.broken} broken
+        </span>
+        {cdsExtraCount > 0 && (
+          <button
+            type="button"
+            className={`pyq-ui-secondary-btn ${cdsIncluded ? 'is-active' : ''}`}
+            style={cdsIncluded ? { borderColor: '#0284c7', color: '#38bdf8' } : undefined}
+            onClick={() => {
+              setExam(cdsIncluded ? 'UPSC CSE' : 'ALL');
+              setPage(1);
+            }}
+          >
+            {cdsIncluded ? `CDS included (${cdsExtraCount})` : `+ Include CDS (${cdsExtraCount} more)`}
+          </button>
+        )}
+      </div>
 
       <FilterBar
         primaryFilters={primaryFilters}
@@ -436,7 +707,7 @@ export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACU
       />
 
       <CollapsibleRail
-        title="Queue"
+        title={`Deck Tray (${selectedIds.length})`}
         collapsed={railCollapsed}
         onToggle={() => setRailCollapsed((v) => !v)}
         main={
@@ -487,8 +758,9 @@ export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACU
         </div>
       ) : (
         <div className="pq-pyq-cards-list">
-          {questions.map((q) => {
+          {questions.map((q, qIdx) => {
             const isSelected = selectedIds.includes(q.id);
+            const isFocused = focusedIndex === qIdx;
             const hasAttachment = Boolean(customAttachments[q.id]?.imageUrl || q.imageUrl);
             const options = Array.isArray(q.options) ? q.options : [];
             const correctLabel = q.correctLabel ? String(q.correctLabel).toUpperCase() : null;
@@ -520,13 +792,18 @@ export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACU
             return (
               <div
                 key={q.id}
-                className={`pq-pyq-card pyq-ui-card ${isSelected ? 'is-selected' : ''}`}
-                onClick={() => toggleSelect(q.id)}
+                className={`pq-pyq-card pyq-ui-card ${isSelected ? 'is-selected' : ''} ${selectedIds.length > 0 ? 'has-selection' : ''}`}
+                style={isFocused ? { outline: '2px solid #38bdf8', outlineOffset: 2 } : undefined}
+                onClick={() => {
+                  setFocusedIndex(qIdx);
+                  toggleSelect(q.id);
+                }}
               >
                 <div className="pq-pyq-card-head">
                   <div className="pq-pyq-card-meta">
                     <input
                       type="checkbox"
+                      className="pyq-select-checkbox"
                       checked={isSelected}
                       aria-label={`Select question ${q.questionNo || q.id}`}
                       onChange={() => {}}
@@ -630,11 +907,83 @@ export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACU
         }
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 13, color: '#cbd5e1' }}>
-          <div>
-            <strong>{selectedIds.length}</strong> selected (~{estRecordingTime} min)
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span>
+              <strong>{selectedIds.length}</strong> selected (~{estRecordingTime} min)
+            </span>
+            <button
+              type="button"
+              onClick={() => openDecksModal('mine')}
+              className="pyq-ui-icon-btn"
+              title="Browse saved decks"
+              aria-label="Browse saved decks"
+            >
+              <FolderOpen size={14} />
+            </button>
           </div>
+
           {selectedIds.length > 0 ? (
             <>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 300, overflowY: 'auto' }}>
+                {selectedIds.map((id, idx) => {
+                  const meta = trayMeta[id];
+                  return (
+                    <div
+                      key={id}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 6,
+                        padding: '6px 8px',
+                        borderRadius: 8,
+                        border: '1px solid rgba(148,163,184,0.16)',
+                        background: 'rgba(15,23,42,0.7)',
+                      }}
+                    >
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: '#f1f5f9', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {idx + 1}. {meta?.label || id.slice(0, 10)}
+                        </div>
+                        {meta?.topic && (
+                          <div style={{ fontSize: 11, color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {meta.topic}
+                          </div>
+                        )}
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <button
+                          type="button"
+                          onClick={() => handleMoveTrayItem(idx, -1)}
+                          disabled={idx === 0}
+                          className="pyq-ui-chip-remove"
+                          aria-label={`Move item ${idx + 1} up`}
+                        >
+                          <ArrowUp size={12} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleMoveTrayItem(idx, 1)}
+                          disabled={idx === selectedIds.length - 1}
+                          className="pyq-ui-chip-remove"
+                          aria-label={`Move item ${idx + 1} down`}
+                        >
+                          <ArrowDown size={12} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => toggleSelect(id)}
+                          className="pyq-ui-chip-remove"
+                          aria-label={`Remove item ${idx + 1}`}
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
               <button
                 type="button"
                 onClick={() => handleLaunchBroadcast()}
@@ -644,6 +993,51 @@ export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACU
                 <Play size={14} fill="currentColor" />
                 <span>Present ({selectedIds.length})</span>
               </button>
+
+              {!saveDeckOpen ? (
+                <button
+                  type="button"
+                  onClick={() => setSaveDeckOpen(true)}
+                  className="pyq-ui-secondary-btn"
+                  style={{ justifyContent: 'center' }}
+                >
+                  <Save size={13} />
+                  <span>Save as deck</span>
+                </button>
+              ) : (
+                <form onSubmit={handleSaveDeck} style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: 8, borderRadius: 8, border: '1px solid rgba(148,163,184,0.2)' }}>
+                  <label htmlFor="save-deck-title" className="pyq-ui-filter-label">
+                    Deck title
+                  </label>
+                  <input
+                    id="save-deck-title"
+                    type="text"
+                    className="pyq-ui-filter-input"
+                    value={deckTitle}
+                    onChange={(e) => setDeckTitle(e.target.value)}
+                    placeholder="e.g. Polity FR Revision"
+                    required
+                  />
+                  <label htmlFor="save-deck-shared" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#cbd5e1', cursor: 'pointer' }}>
+                    <input
+                      id="save-deck-shared"
+                      type="checkbox"
+                      checked={deckShared}
+                      onChange={(e) => setDeckShared(e.target.checked)}
+                    />
+                    <span>Share with faculty</span>
+                  </label>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <button type="submit" disabled={deckSaving} className="pyq-ui-primary-btn" style={{ flex: 1, justifyContent: 'center' }}>
+                      {deckSaving ? 'Saving...' : 'Save'}
+                    </button>
+                    <button type="button" onClick={() => setSaveDeckOpen(false)} className="pyq-ui-secondary-btn">
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              )}
+
               <button
                 type="button"
                 onClick={handleClearSelection}
@@ -655,11 +1049,103 @@ export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACU
             </>
           ) : (
             <span style={{ color: '#94a3b8', fontSize: 12.5 }}>
-              Select questions from the list to queue them for recording.
+              Select questions (or press x) to add to the deck tray.
             </span>
           )}
         </div>
       </CollapsibleRail>
+
+      {decksModalScope !== null && (
+        <div className="pq-modal-overlay" onClick={() => setDecksModalScope(null)}>
+          <div className="pq-modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 520 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <div className="pyq-tree-tabs" role="tablist" aria-label="Deck scope">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={decksModalScope === 'mine'}
+                  className={`pyq-tree-tab ${decksModalScope === 'mine' ? 'is-active' : ''}`}
+                  onClick={() => setDecksModalScope('mine')}
+                >
+                  My decks ({savedDecks.myDecks.length})
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={decksModalScope === 'shared'}
+                  className={`pyq-tree-tab ${decksModalScope === 'shared' ? 'is-active' : ''}`}
+                  onClick={() => setDecksModalScope('shared')}
+                >
+                  Shared decks ({savedDecks.sharedDecks.length})
+                </button>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDecksModalScope(null)}
+                aria-label="Close decks modal"
+                className="pyq-ui-icon-btn"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 360, overflowY: 'auto' }}>
+              {(decksModalScope === 'mine' ? savedDecks.myDecks : savedDecks.sharedDecks).length === 0 ? (
+                <p style={{ color: '#94a3b8', fontSize: 13 }}>No decks saved here yet.</p>
+              ) : (
+                (decksModalScope === 'mine' ? savedDecks.myDecks : savedDecks.sharedDecks).map((d) => (
+                  <div
+                    key={d.id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: 10,
+                      padding: 10,
+                      borderRadius: 10,
+                      border: '1px solid rgba(148,163,184,0.18)',
+                      background: 'rgba(15,23,42,0.75)',
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#f8fafc' }}>{d.title}</div>
+                      <div style={{ fontSize: 12, color: '#94a3b8' }}>
+                        {(d.items || []).length} questions {d.sectionPath ? `· ${d.sectionPath}` : ''}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <button
+                        type="button"
+                        onClick={() => handleLoadDeck(d)}
+                        className="pyq-ui-secondary-btn"
+                      >
+                        Load
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleLaunchBroadcast((d.items || []).map((it) => it.questionId))}
+                        className="pyq-ui-primary-btn"
+                      >
+                        Present
+                      </button>
+                      {decksModalScope === 'mine' && (
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteDeck(d.id)}
+                          className="pyq-ui-icon-btn"
+                          aria-label={`Delete ${d.title}`}
+                        >
+                          <X size={14} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ========================================================= */}
       {/* ATTACH MAP / DIAGRAM MODAL                                */}

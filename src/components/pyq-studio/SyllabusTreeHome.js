@@ -214,6 +214,34 @@ export default function SyllabusTreeHome({
         }
       />
 
+      {userRole === 'ADMIN' && !selectedSubject && tree?.totals && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 14,
+            flexWrap: 'wrap',
+            fontSize: 12.5,
+            color: '#94a3b8',
+            marginBottom: 14,
+          }}
+          aria-label="Content health summary"
+        >
+          <span style={{ fontWeight: 600, color: '#cbd5e1' }}>Content health:</span>
+          <Link href="/admin/studio/pyq?view=list&status=HAS_EXPL" style={{ color: '#34d399', textDecoration: 'none' }}>
+            {tree.totals.readyCount} Ready
+          </Link>
+          <span aria-hidden="true">·</span>
+          <Link href="/admin/studio/pyq?view=list&status=MISSING_EXPL" style={{ color: '#fbbf24', textDecoration: 'none' }}>
+            {tree.totals.needsExplanationCount} Needs explanation
+          </Link>
+          <span aria-hidden="true">·</span>
+          <Link href="/admin/studio/pyq?view=list&status=MISSING_ANSWER" style={{ color: '#f87171', textDecoration: 'none' }}>
+            {tree.totals.brokenCount} Broken
+          </Link>
+        </div>
+      )}
+
       {initialPrefs?.lastSectionPath && !selectedSubject && (
         <Link href={initialPrefs.lastSectionPath} className="pyq-tree-continue">
           <div>

@@ -612,3 +612,16 @@
   font-size: 12px;
   color: #94a3b8;
 }
+
+/* Selection checkbox: shown on hover/focus or after first pick (Phase 5) */
+.pyq-select-checkbox {
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.pyq-ui-card:hover .pyq-select-checkbox,
+.pyq-ui-card:focus-within .pyq-select-checkbox,
+.pyq-ui-card.is-selected .pyq-select-checkbox,
+.pyq-ui-card.has-selection .pyq-select-checkbox {
+  opacity: 1;
+}
