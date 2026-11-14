@@ -52,6 +52,7 @@ export default async function PyqStudioPage() {
 
   return (
     <PyqStudioClient
+      userRole={session.user.role}
       initialFilterOptions={{
         subjects,
         years,

@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import './pyq-studio.css';
 
-export default function PyqStudioClient({ initialFilterOptions }) {
+export default function PyqStudioClient({ initialFilterOptions, userRole = 'FACULTY' }) {
   const filterOptions = initialFilterOptions || {
     subjects: [],
     years: [],
@@ -290,26 +290,28 @@ export default function PyqStudioClient({ initialFilterOptions }) {
           </div>
         </div>
 
-        <Link
-          href="/admin/pyq"
-          target="_blank"
-          style={{
-            padding: '8px 14px',
-            borderRadius: 10,
-            background: 'transparent',
-            border: '1px solid rgba(56, 189, 248, 0.3)',
-            color: '#38bdf8',
-            fontSize: 13,
-            fontWeight: 700,
-            textDecoration: 'none',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-          }}
-        >
-          <span>Open PYQ Central Editor</span>
-          <ExternalLink size={13} />
-        </Link>
+        {userRole === 'ADMIN' && (
+          <Link
+            href="/admin/pyq"
+            target="_blank"
+            style={{
+              padding: '8px 14px',
+              borderRadius: 10,
+              background: 'transparent',
+              border: '1px solid rgba(56, 189, 248, 0.3)',
+              color: '#38bdf8',
+              fontSize: 13,
+              fontWeight: 700,
+              textDecoration: 'none',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+            }}
+          >
+            <span>Open PYQ Central Editor</span>
+            <ExternalLink size={13} />
+          </Link>
+        )}
       </header>
 
       {/* ========================================================= */}

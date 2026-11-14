@@ -165,6 +165,13 @@ function PyqPresenterClientInner({
 
   const currentQ = questions[qIndex] || null;
 
+  // Prefetch next question detail via /api/admin/pyq/:id
+  useEffect(() => {
+    const nextQ = questions[qIndex + 1];
+    if (!nextQ || !nextQ.id || nextQ.type === 'topic' || nextQ.type === 'mapping') return;
+    fetch(`/api/admin/pyq/${encodeURIComponent(nextQ.id)}`).catch(() => {});
+  }, [qIndex, questions]);
+
   const [customAttachmentsMap] = useState(() => {
     if (typeof window !== 'undefined') {
       try {

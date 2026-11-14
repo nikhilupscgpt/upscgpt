@@ -1,35 +1,29 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { PrismaClient } from '@prisma/client';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import prisma from '@/lib/prisma';
 import crypto from 'crypto';
 import { normalizeCanonicalSubject } from '@/lib/syllabusTaxonomy';
 import { normalizeKeywordsList } from '@/lib/pyqKeywords';
-
-const prisma = new PrismaClient();
-
-function normalizeOptions(opts) {
-  if (Array.isArray(opts)) return opts;
-  if (typeof opts === 'string') {
-    try {
-      const parsed = JSON.parse(opts);
-      if (Array.isArray(parsed)) return parsed;
-    } catch {
-      return [];
-    }
-  }
-  return [];
-}
+import { requireApiRole } from '@/lib/security/requireRole';
+import { enforcePyqScrapeLimits, normalizeOptions } from '@/lib/pyq/pyqAccess';
 
 export async function GET(req, { params }) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || session.user?.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-    }
+    const auth = await requireApiRole(['ADMIN', 'FACULTY']);
+    if (auth.response) return auth.response;
+    const session = auth.session;
 
     const { id } = await params;
+    const rateCheck = await enforcePyqScrapeLimits({
+      userId: session.user.id,
+      isListRequest: false,
+      questionIds: [id],
+      ip: req.headers.get('x-real-ip') || req.headers.get('x-forwarded-for') || null,
+    });
+    if (!rateCheck.allowed) {
+      return NextResponse.json({ error: rateCheck.error }, { status: 429 });
+    }
+
     const question = await prisma.questionDraft.findUnique({
       where: { id }
     });
@@ -53,10 +47,9 @@ export async function GET(req, { params }) {
 
 export async function PATCH(req, { params }) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || session.user?.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-    }
+    const auth = await requireApiRole(['ADMIN']);
+    if (auth.response) return auth.response;
+    const session = auth.session;
 
     const { id } = await params;
     const body = await req.json();
@@ -220,10 +213,8 @@ export async function PATCH(req, { params }) {
 
 export async function DELETE(req, { params }) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || session.user?.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-    }
+    const auth = await requireApiRole(['ADMIN']);
+    if (auth.response) return auth.response;
 
     const { id } = await params;
     await prisma.questionDraft.delete({

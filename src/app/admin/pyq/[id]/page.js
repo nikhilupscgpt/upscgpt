@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import PyqVisualEditorClient from "./PyqVisualEditorClient";
+import AdminOnlyNotice from "@/components/AdminOnlyNotice";
 
 export const metadata = {
   title: 'Visual Question & Slide Editor | UPSCGPT Admin',
@@ -12,7 +13,13 @@ export const metadata = {
 export default async function AdminPyqDetailPage({ params }) {
   const session = await getServerSession(authOptions);
 
-  if (!session || session.user?.role !== 'ADMIN') {
+  if (!session?.user) {
+    redirect("/admin-login");
+  }
+  if (session.user.role === 'FACULTY') {
+    return <AdminOnlyNotice backHref="/admin/studio/pyq" backLabel="Back to PYQ Studio" />;
+  }
+  if (session.user.role !== 'ADMIN') {
     redirect("/admin-login");
   }
 
