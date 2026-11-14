@@ -110,7 +110,8 @@ export const authOptions = {
         // OTP is valid, now find or create the user
         // Case-insensitive so accounts created with mixed-case emails (e.g. via Google) still match.
         let user = await prisma.user.findFirst({
-          where: { email: { equals: email, mode: 'insensitive' } }
+          where: { email: { equals: email, mode: 'insensitive' } },
+          select: { id: true, email: true, username: true, role: true, tier: true, validUntil: true }
         });
 
         if (!user) {
@@ -121,7 +122,8 @@ export const authOptions = {
               username: email.split('@')[0] + Math.floor(Math.random() * 1000),
               role: 'USER',
               tier: 'FREE'
-            }
+            },
+            select: { id: true, email: true, username: true, role: true, tier: true, validUntil: true }
           });
         }
 
@@ -187,6 +189,16 @@ export const authOptions = {
               { username: { equals: identifier, mode: 'insensitive' } },
               { email: { equals: identifier, mode: 'insensitive' } }
             ]
+          },
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            email: true,
+            password: true,
+            role: true,
+            tier: true,
+            validUntil: true
           }
         });
 
