@@ -960,7 +960,7 @@ export default function PyqAnnotationCanvas({
   };
 
   return (
-    <div style={{ position: 'relative', width: `${canvasWidth}px`, height: `${canvasHeight}px`, pointerEvents: activeTool === 'none' ? 'none' : 'auto' }}>
+    <div style={{ position: 'absolute', top: 0, left: 0, zIndex: 50, width: `${canvasWidth}px`, height: `${canvasHeight}px`, pointerEvents: activeTool === 'none' ? 'none' : 'auto' }}>
       <canvas
         ref={canvasRef}
         data-pq-ink-canvas="true"
