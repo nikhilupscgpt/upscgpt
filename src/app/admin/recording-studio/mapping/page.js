@@ -1,22 +1,19 @@
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import MappingRecordingStudioClient from "./MappingRecordingStudioClient";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "Mapping In-Browser Recording Studio | Admin",
-  description:
-    "UPSC Mapping & Spatial Geography In-Browser Recording Workstation with Live Webcam PiP, Mic Audio Mixer, and Stage-Only Region Capture.",
-};
-
-export default async function MappingRecordingStudioPage() {
-  const session = await getServerSession(authOptions);
-
-  if (!session || (session.user?.role !== "ADMIN" && session.user?.role !== "FACULTY")) {
-    redirect("/admin-login");
+function buildQuery(sp) {
+  if (!sp) return "";
+  const qs = new URLSearchParams();
+  for (const [k, v] of Object.entries(sp)) {
+    if (Array.isArray(v)) v.forEach((item) => qs.append(k, item));
+    else if (v !== undefined && v !== null) qs.set(k, String(v));
   }
+  const str = qs.toString();
+  return str ? `?${str}` : "";
+}
 
-  return <MappingRecordingStudioClient />;
+export default async function RecordingStudioMappingRedirect({ searchParams }) {
+  const sp = await searchParams;
+  redirect(`/admin/studio/mapping${buildQuery(sp)}`);
 }

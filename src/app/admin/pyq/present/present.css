@@ -2835,22 +2835,22 @@
 /* 2. Corner Logo (§2.7) — top-right, ~3.5% height, ~60% opacity, above boards */
 .pq-corner-logo {
   position: absolute;
-  top: 22px;
-  right: 32px;
+  top: 20px;
+  right: 30px;
   z-index: 60;
   pointer-events: none;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   justify-content: center;
-  height: var(--logo-h, 3.5%);
-  min-height: 30px;
+  height: var(--logo-h, 4.5%);
+  min-height: 44px;
   user-select: none;
 }
 
 .pq-corner-logo-mark {
   font-family: Inter, system-ui, -apple-system, sans-serif;
-  font-size: 20px;
+  font-size: 30px;
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.05;
@@ -2860,10 +2860,10 @@
 
 .pq-corner-logo-url {
   font-family: Inter, system-ui, -apple-system, sans-serif;
-  font-size: 11px;
+  font-size: 15px;
   font-weight: 600;
   letter-spacing: 0.04em;
-  line-height: 1.1;
+  line-height: 1.15;
 }
 
 /* Reserve top-right corner clearance so text/cards/tools never sit under the logo */

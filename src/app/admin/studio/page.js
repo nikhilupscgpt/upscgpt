@@ -14,8 +14,10 @@ import {
   CheckCircle2,
   MapPin,
   Compass,
+  Smartphone,
 } from "lucide-react";
 import "./studio.css";
+import RecordingsVaultBanner from "../recording-studio/RecordingsVaultBanner";
 
 export const dynamic = "force-dynamic";
 
@@ -49,7 +51,7 @@ export default async function StudioHubPage() {
 
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <Link
-            href="/admin/recording-studio"
+            href="/admin/recording-studio/reels"
             style={{
               padding: "10px 16px",
               borderRadius: 12,
@@ -59,10 +61,32 @@ export default async function StudioHubPage() {
               textDecoration: "none",
               fontSize: 13.5,
               fontWeight: 800,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
             }}
           >
-            🎬 In-Browser Recording Studio (16:9 &amp; 9:16 Reels)
+            <Smartphone size={16} />
+            <span>9:16 Reels Studio</span>
           </Link>
+
+          {session.user?.role === "ADMIN" && (
+            <Link
+              href="/admin/studio/branding"
+              style={{
+                padding: "10px 14px",
+                borderRadius: 12,
+                background: "rgba(56, 189, 248, 0.14)",
+                border: "1px solid rgba(56, 189, 248, 0.35)",
+                color: "#38bdf8",
+                textDecoration: "none",
+                fontSize: 13.5,
+                fontWeight: 700,
+              }}
+            >
+              Branding
+            </Link>
+          )}
 
           {session.user?.role === "ADMIN" ? (
             <Link
@@ -97,6 +121,11 @@ export default async function StudioHubPage() {
           )}
         </div>
       </header>
+
+      {/* IndexedDB Crash-Recovery Recordings Vault */}
+      <div style={{ maxWidth: 1340, margin: "0 auto 24px", padding: "0 24px" }}>
+        <RecordingsVaultBanner />
+      </div>
 
       {/* Main Studio Gateway Options */}
       <div style={{ maxWidth: 1240, margin: "40px auto 0" }}>

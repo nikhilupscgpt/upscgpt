@@ -20,6 +20,7 @@ const DEFAULT_PREFS = {
   toolbarPosition: 'bottom',
   webcamCorner: 'bottom-right',
   webcamSize: 'm',
+  webcamShape: 'circle',
   fontScale: 1,
   toolSettings: null,
 };
@@ -36,8 +37,17 @@ export async function GET() {
     }
 
     const prefs = await prisma.presenterPrefs.findUnique({ where: { facultyId } });
+    const toolSettingsObj =
+      prefs?.toolSettings && typeof prefs.toolSettings === 'object' ? prefs.toolSettings : null;
     return NextResponse.json({
-      prefs: prefs || { facultyId, ...DEFAULT_PREFS },
+      prefs: prefs
+        ? {
+            ...prefs,
+            webcamShape: ['circle', 'rect'].includes(toolSettingsObj?.webcamShape)
+              ? toolSettingsObj.webcamShape
+              : 'circle',
+          }
+        : { facultyId, ...DEFAULT_PREFS },
       facultyName: session?.user?.name || 'Faculty',
     });
   } catch (error) {
@@ -58,6 +68,11 @@ export async function PUT(req) {
     }
 
     const body = await req.json();
+    const webcamShape = ['circle', 'rect'].includes(body?.webcamShape) ? body.webcamShape : 'circle';
+    const nextToolSettings =
+      body?.toolSettings && typeof body.toolSettings === 'object'
+        ? { ...body.toolSettings, webcamShape }
+        : { webcamShape };
     const data = {
       defaultTool: typeof body?.defaultTool === 'string' ? body.defaultTool : 'select',
       rememberLastTool: Boolean(body?.rememberLastTool),
@@ -70,7 +85,7 @@ export async function PUT(req) {
         : 'bottom-right',
       webcamSize: ['s', 'm', 'l'].includes(body?.webcamSize) ? body.webcamSize : 'm',
       fontScale: [1, 1.12, 1.24].includes(Number(body?.fontScale)) ? Number(body.fontScale) : 1,
-      toolSettings: body?.toolSettings ?? undefined,
+      toolSettings: nextToolSettings,
     };
 
     const prefs = await prisma.presenterPrefs.upsert({
@@ -78,6 +93,7 @@ export async function PUT(req) {
       update: data,
       create: { facultyId, ...data },
     });
+    return NextResponse.json({ prefs: { ...prefs, webcamShape } });
 
     return NextResponse.json({ prefs });
   } catch (error) {

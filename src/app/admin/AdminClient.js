@@ -295,24 +295,12 @@ export default function AdminClient({ session }) {
           <Link href="/admin/studio" style={{ textDecoration: 'none' }}>
             <button style={{
               display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '14px 20px', borderRadius: '16px', border: '1.5px solid rgba(16, 185, 129, 0.4)', cursor: 'pointer', fontWeight: 800, fontSize: '0.95rem',
-              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(6, 78, 59, 0.25) 100%)', color: '#34d399', transition: 'all 0.2s', marginBottom: '10px',
+              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(6, 78, 59, 0.25) 100%)', color: '#34d399', transition: 'all 0.2s', marginBottom: '14px',
               boxShadow: '0 4px 16px rgba(16, 185, 129, 0.2)'
             }}
             onMouseOver={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(6, 78, 59, 0.4) 100%)'; }}
             onMouseOut={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(6, 78, 59, 0.25) 100%)'; }}>
-              <Video size={20}/> Lecture Studio
-            </button>
-          </Link>
-
-          <Link href="/admin/recording-studio" style={{ textDecoration: 'none' }}>
-            <button style={{
-              display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '14px 20px', borderRadius: '16px', border: '1.5px solid rgba(244, 63, 94, 0.45)', cursor: 'pointer', fontWeight: 800, fontSize: '0.95rem',
-              background: 'linear-gradient(135deg, rgba(244, 63, 94, 0.15) 0%, rgba(136, 19, 55, 0.28) 100%)', color: '#fb7185', transition: 'all 0.2s', marginBottom: '14px',
-              boxShadow: '0 4px 16px rgba(244, 63, 94, 0.2)'
-            }}
-            onMouseOver={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(244, 63, 94, 0.28) 0%, rgba(136, 19, 55, 0.42) 100%)'; }}
-            onMouseOut={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, rgba(244, 63, 94, 0.15) 0%, rgba(136, 19, 55, 0.28) 100%)'; }}>
-              <Radio size={20}/> Recording Studio
+              <Video size={20}/> Lecture &amp; Recording Studio
             </button>
           </Link>
 
