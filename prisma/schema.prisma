@@ -847,11 +847,23 @@ model QuestionDraft {
   reviewedAt    DateTime?
   createdAt     DateTime  @default(now())
 
+  // PYQ Studio v2 fields (Phase 2)
+  examCode        ExamCode?
+  explanationJson Json?
+  contentStatus   String    @default("incomplete") // ready | incomplete | broken
+  missingFlags    String[]  @default([])
+  stemFormat      String?   // statements | pairs | assertion | plain
+  syllabusOrder   Int?
+  updatedAt       DateTime  @default(now()) @updatedAt
+  updatedById     String?
+
   run      IngestionRun   @relation(fields: [runId], references: [id])
   document SourceDocument @relation(fields: [documentId], references: [id])
 
   @@index([runId, status])
   @@index([dedupHash])
+  @@index([contentStatus])
+  @@index([srcSubject, srcTopic, srcTheme])
 }
 
 // ---------- Published question bank ----------
@@ -1491,6 +1503,87 @@ model BrandingSettings {
   facultyMayToggleCards Boolean  @default(false)
   updatedById           String?
   updatedAt             DateTime @updatedAt
+}
+
+// ---------- PYQ Studio v2 (Phase 2) ----------
+enum ExamCode {
+  UPSC_CSE_PRE
+  CDS_I
+  CDS_II
+  CDS
+}
+
+model Deck {
+  id          String     @id @default(cuid())
+  ownerId     String
+  title       String
+  sectionPath String?
+  notes       String?
+  isShared    Boolean    @default(false)
+  items       DeckItem[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model DeckItem {
+  deckId     String
+  questionId String
+  position   Int
+  deck       Deck   @relation(fields: [deckId], references: [id], onDelete: Cascade)
+
+  @@id([deckId, questionId])
+}
+
+model RecordingSession {
+  id          String    @id @default(cuid())
+  facultyId   String
+  sectionPath String
+  deckId      String?
+  part        Int
+  totalParts  Int
+  questionIds String[]
+  includeCds  Boolean   @default(false)
+  status      String // draft | recording | paused | done | discarded
+  startedAt   DateTime?
+  endedAt     DateTime?
+  durationSec Int?
+  timestamps  Json // [{questionId, startSec, replacedBy?}]
+  lastIndex   Int       @default(0)
+  videoRef    String?
+  title       String?
+  description String?
+
+  @@index([facultyId, sectionPath])
+  @@index([sectionPath, status])
+}
+
+model LectureUsage {
+  id          String   @id @default(cuid())
+  questionId  String
+  facultyId   String
+  sessionId   String?
+  presentedAt DateTime @default(now())
+
+  @@index([questionId])
+}
+
+model TeacherNote {
+  facultyId  String
+  questionId String
+  body       String   @db.Text
+  updatedAt  DateTime @updatedAt
+
+  @@id([facultyId, questionId])
+}
+
+model FacultyPrefs {
+  facultyId          String  @id
+  defaultExam        String  @default("UPSC_CSE_PRE")
+  includeCds         Boolean @default(false)
+  sortOrder          String  @default("syllabus")
+  partSize           Int     @default(20)
+  secondsPerQuestion Int     @default(75)
+  lastSectionPath    String?
 }
 
 

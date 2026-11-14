@@ -5,6 +5,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback, useSyncExtern
 // False during server render and hydration, true after: lets saved settings (theme, size) apply before the first paint.
 const subscribeNever = () => () => {};
 import Link from 'next/link';
+import { Toolbar } from '@/components/pyq-studio';
 import {
   ChevronLeft,
   ChevronRight,
@@ -98,9 +99,111 @@ function PyqPresenterClientInner({
   isDisplayMode = false,
   externalLink = null,
   onExitDisplay = null,
+  initialRecordingSession = null,
 }) {
-  const [qIndex, setQIndex] = useState(0);
+  const [qIndex, setQIndex] = useState(() => {
+    const start = Number(initialRecordingSession?.lastIndex) || 0;
+    return Math.max(0, Math.min(start, Math.max(0, questions.length - 1)));
+  });
   const [stepIndex, setStepIndex] = useState(0);
+
+  // Recording session tracking (Phase 6)
+  const [recStatus, setRecStatus] = useState(
+    initialRecordingSession ? (initialRecordingSession.status === 'paused' ? 'paused' : 'recording') : null,
+  );
+  const [recElapsedSec, setRecElapsedSec] = useState(initialRecordingSession?.durationSec || 0);
+  const [stopAfterThis, setStopAfterThis] = useState(false);
+  const [recTimestamps, setRecTimestamps] = useState(() =>
+    Array.isArray(initialRecordingSession?.timestamps) ? initialRecordingSession.timestamps : [],
+  );
+
+  useEffect(() => {
+    if (!initialRecordingSession || recStatus !== 'recording') return undefined;
+    const timer = setInterval(() => setRecElapsedSec((s) => s + 1), 1000);
+    return () => clearInterval(timer);
+  }, [initialRecordingSession, recStatus]);
+
+  // Auto-save timestamp + lastIndex whenever moving between questions
+  const prevQIndexRef = useRef(qIndex);
+  useEffect(() => {
+    if (!initialRecordingSession) return;
+    const currentItem = questions[qIndex];
+    if (!currentItem) return;
+    if (prevQIndexRef.current !== qIndex) {
+      if (stopAfterThis) {
+        setRecStatus('paused');
+        setStopAfterThis(false);
+      }
+      prevQIndexRef.current = qIndex;
+      setRecTimestamps((prev) => {
+        const idx = prev.findIndex((t) => t.questionId === currentItem.id);
+        const next =
+          idx >= 0
+            ? prev.map((t, i) => (i === idx ? { ...t, startSec: recElapsedSec } : t))
+            : [...prev, { questionId: currentItem.id, startSec: recElapsedSec }];
+        fetch(`/api/admin/recordings/${encodeURIComponent(initialRecordingSession.id)}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            lastIndex: qIndex,
+            durationSec: recElapsedSec,
+            timestamps: next,
+          }),
+        }).catch(() => {});
+        return next;
+      });
+    }
+  }, [qIndex, questions, initialRecordingSession, recElapsedSec, stopAfterThis]);
+
+  // Crash-safe pause on tab close
+  useEffect(() => {
+    if (!initialRecordingSession) return undefined;
+    const onUnload = () => {
+      if (recStatus === 'done' || recStatus === 'discarded') return;
+      fetch(`/api/admin/recordings/${encodeURIComponent(initialRecordingSession.id)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        keepalive: true,
+        body: JSON.stringify({
+          status: 'paused',
+          lastIndex: qIndex,
+          durationSec: recElapsedSec,
+          timestamps: recTimestamps,
+        }),
+      }).catch(() => {});
+    };
+    window.addEventListener('beforeunload', onUnload);
+    return () => window.removeEventListener('beforeunload', onUnload);
+  }, [initialRecordingSession, recStatus, qIndex, recElapsedSec, recTimestamps]);
+
+  const handleFinishRecordingPart = async () => {
+    if (!initialRecordingSession) return;
+    setRecStatus('done');
+    const videoRef = `rec_${initialRecordingSession.id}_part${initialRecordingSession.part}.webm`;
+    await fetch(`/api/admin/recordings/${encodeURIComponent(initialRecordingSession.id)}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        status: 'done',
+        lastIndex: qIndex,
+        durationSec: recElapsedSec,
+        timestamps: recTimestamps,
+        videoRef,
+      }),
+    });
+    window.location.href = `/admin/studio/pyq/record?sessionId=${encodeURIComponent(initialRecordingSession.id)}`;
+  };
+
+  const handleDiscardRecordingPart = async () => {
+    if (!initialRecordingSession) return;
+    setRecStatus('discarded');
+    await fetch(`/api/admin/recordings/${encodeURIComponent(initialRecordingSession.id)}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'discarded' }),
+    });
+    window.location.href = '/admin/studio/pyq';
+  };
   const [scale, setScale] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showWebcamBox, setShowWebcamBox] = useState(false); // OBS camera guide: off by default
@@ -272,6 +375,13 @@ function PyqPresenterClientInner({
   const [pauseCountdownLeft, setPauseCountdownLeft] = useState(null);
 
   const currentQ = questions[qIndex] || null;
+
+  // Prefetch next question detail via /api/admin/pyq/:id
+  useEffect(() => {
+    const nextQ = questions[qIndex + 1];
+    if (!nextQ || !nextQ.id || nextQ.type === 'topic' || nextQ.type === 'mapping') return;
+    fetch(`/api/admin/pyq/${encodeURIComponent(nextQ.id)}`).catch(() => {});
+  }, [qIndex, questions]);
 
   const [customAttachmentsMap] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -2897,6 +3007,77 @@ function PyqPresenterClientInner({
       </div>
 
       {/* ============================================================= */}
+      {/* RECORDING SESSION BAR (Phase 6)                               */}
+      {/* ============================================================= */}
+      {initialRecordingSession && (
+        <div
+          role="region"
+          aria-label="Recording controls"
+          style={{
+            position: 'fixed',
+            top: 12,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 70,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 10,
+            padding: '6px 12px',
+            borderRadius: 999,
+            border: '1px solid rgba(239, 68, 68, 0.45)',
+            background: 'rgba(15, 23, 42, 0.92)',
+            color: '#f8fafc',
+            fontSize: 12.5,
+          }}
+        >
+          <span
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              background: recStatus === 'recording' ? '#ef4444' : '#f59e0b',
+            }}
+            aria-hidden="true"
+          />
+          <span style={{ fontWeight: 600 }}>
+            {recStatus === 'recording' ? 'REC' : 'PAUSED'} · Part {initialRecordingSession.part} of {initialRecordingSession.totalParts} · Q {qIndex + 1} of {questions.length} · {String(Math.floor(recElapsedSec / 60)).padStart(2, '0')}:{String(recElapsedSec % 60).padStart(2, '0')}
+          </span>
+          <button
+            type="button"
+            className="pyq-ui-secondary-btn"
+            style={{ padding: '3px 9px', fontSize: 12 }}
+            onClick={() => setRecStatus((s) => (s === 'recording' ? 'paused' : 'recording'))}
+          >
+            {recStatus === 'recording' ? 'Pause' : 'Resume'}
+          </button>
+          <button
+            type="button"
+            className="pyq-ui-secondary-btn"
+            style={{ padding: '3px 9px', fontSize: 12, borderColor: stopAfterThis ? '#f59e0b' : undefined }}
+            onClick={() => setStopAfterThis((v) => !v)}
+          >
+            {stopAfterThis ? 'Will pause next Q' : 'Stop after Q'}
+          </button>
+          <button
+            type="button"
+            className="pyq-ui-primary-btn"
+            style={{ padding: '3px 10px', fontSize: 12 }}
+            onClick={handleFinishRecordingPart}
+          >
+            Finish part
+          </button>
+          <button
+            type="button"
+            className="pyq-ui-secondary-btn"
+            style={{ padding: '3px 9px', fontSize: 12, color: '#f87171' }}
+            onClick={handleDiscardRecordingPart}
+          >
+            Discard
+          </button>
+        </div>
+      )}
+
+      {/* ============================================================= */}
       {/* FLOATING PRESENTER DOCK / CONTROL BAR                         */}
       {/* ============================================================= */}
       {isDockCollapsed ? (
@@ -3025,7 +3206,8 @@ function PyqPresenterClientInner({
                 }}
                 className={`pq-color-dot ${activeColor === c ? 'is-selected' : ''}`}
                 style={{ background: c, color: c }}
-                title={`Color: ${c}`}
+                aria-label={`Ink colour ${c}`}
+                title={`Colour: ${c}`}
               />
             ))}
           </div>

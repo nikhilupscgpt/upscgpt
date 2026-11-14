@@ -1,35 +1,31 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { PrismaClient } from '@prisma/client';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import prisma from '@/lib/prisma';
 import crypto from 'crypto';
 import { normalizeCanonicalSubject } from '@/lib/syllabusTaxonomy';
 import { normalizeKeywordsList } from '@/lib/pyqKeywords';
-
-const prisma = new PrismaClient();
-
-function normalizeOptions(opts) {
-  if (Array.isArray(opts)) return opts;
-  if (typeof opts === 'string') {
-    try {
-      const parsed = JSON.parse(opts);
-      if (Array.isArray(parsed)) return parsed;
-    } catch {
-      return [];
-    }
-  }
-  return [];
-}
+import { requireApiRole } from '@/lib/security/requireRole';
+import { enforcePyqScrapeLimits, normalizeOptions } from '@/lib/pyq/pyqAccess';
+import { invalidatePyqTreeCache } from '@/lib/pyq/tree-service';
+import { validatePyqSavePayload } from '@/lib/pyq/editor-validation';
 
 export async function GET(req, { params }) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || session.user?.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-    }
+    const auth = await requireApiRole(['ADMIN', 'FACULTY']);
+    if (auth.response) return auth.response;
+    const session = auth.session;
 
     const { id } = await params;
+    const rateCheck = await enforcePyqScrapeLimits({
+      userId: session.user.id,
+      isListRequest: false,
+      questionIds: [id],
+      ip: req.headers.get('x-real-ip') || req.headers.get('x-forwarded-for') || null,
+    });
+    if (!rateCheck.allowed) {
+      return NextResponse.json({ error: rateCheck.error }, { status: 429 });
+    }
+
     const question = await prisma.questionDraft.findUnique({
       where: { id }
     });
@@ -53,10 +49,9 @@ export async function GET(req, { params }) {
 
 export async function PATCH(req, { params }) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || session.user?.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-    }
+    const auth = await requireApiRole(['ADMIN']);
+    if (auth.response) return auth.response;
+    const session = auth.session;
 
     const { id } = await params;
     const body = await req.json();
@@ -159,6 +154,36 @@ export async function PATCH(req, { params }) {
         .digest('hex');
     }
 
+    if (body.examCode !== undefined) {
+      updateData.examCode = body.examCode || null;
+    }
+
+    const mergedForValidation = {
+      stem: updateData.stem ?? existing.stem,
+      options: updateData.options ?? existing.options,
+      correctLabel: updateData.correctLabel ?? existing.correctLabel,
+      explanation: updateData.explanation !== undefined ? updateData.explanation : existing.explanation,
+      examCode: updateData.examCode !== undefined ? updateData.examCode : existing.examCode,
+      examName: updateData.examName ?? existing.examName,
+      srcTheme: updateData.srcTheme !== undefined ? updateData.srcTheme : existing.srcTheme,
+      difficulty: updateData.difficulty !== undefined ? updateData.difficulty : existing.difficulty,
+    };
+
+    const validation = validatePyqSavePayload(mergedForValidation);
+    if (!validation.ok) {
+      return NextResponse.json(
+        { error: validation.errors.join(' '), errors: validation.errors },
+        { status: 400 },
+      );
+    }
+
+    updateData.examCode = validation.computed.examCode;
+    updateData.explanationJson = validation.computed.explanationJson;
+    updateData.contentStatus = validation.computed.contentStatus;
+    updateData.missingFlags = validation.computed.missingFlags;
+    updateData.stemFormat = validation.computed.stemFormat;
+    updateData.updatedById = session.user?.id || null;
+
     updateData.reviewedBy = session.user?.name || 'admin';
     updateData.reviewedAt = new Date();
 
@@ -166,6 +191,32 @@ export async function PATCH(req, { params }) {
       where: { id },
       data: updateData
     });
+
+    await prisma.auditLog.create({
+      data: {
+        actorId: session.user?.id || 'admin',
+        action: 'QUESTION_EDITED',
+        entity: 'QuestionDraft',
+        entityId: id,
+        before: {
+          correctLabel: existing.correctLabel,
+          srcTopic: existing.srcTopic,
+          srcTheme: existing.srcTheme,
+          difficulty: existing.difficulty,
+          examCode: existing.examCode,
+          contentStatus: existing.contentStatus,
+        },
+        after: {
+          correctLabel: updated.correctLabel,
+          srcTopic: updated.srcTopic,
+          srcTheme: updated.srcTheme,
+          difficulty: updated.difficulty,
+          examCode: updated.examCode,
+          contentStatus: updated.contentStatus,
+        },
+      },
+    });
+    invalidatePyqTreeCache();
 
     if (normalizedKeywordsToSync.length > 0) {
       try {
@@ -220,15 +271,14 @@ export async function PATCH(req, { params }) {
 
 export async function DELETE(req, { params }) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || session.user?.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-    }
+    const auth = await requireApiRole(['ADMIN']);
+    if (auth.response) return auth.response;
 
     const { id } = await params;
     await prisma.questionDraft.delete({
       where: { id }
     });
+    invalidatePyqTreeCache();
 
     try {
       revalidatePath('/prelims/pyq');

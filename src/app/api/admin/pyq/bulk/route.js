@@ -1,12 +1,9 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { PrismaClient } from '@prisma/client';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import { requireApiRole } from '@/lib/security/requireRole';
+import prisma from '@/lib/prisma';
 import crypto from 'crypto';
 import { normalizeCanonicalSubject } from '@/lib/syllabusTaxonomy';
-
-const prisma = new PrismaClient();
 
 function normalizeOptions(opts) {
   if (Array.isArray(opts)) {
@@ -34,10 +31,9 @@ function normalizeOptions(opts) {
 
 export async function POST(req) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || session.user?.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-    }
+    const auth = await requireApiRole(['ADMIN']);
+    if (auth.response) return auth.response;
+    const session = auth.session;
 
     const body = await req.json();
     let questionsInput = body.questions;

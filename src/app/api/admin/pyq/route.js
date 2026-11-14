@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
+import prisma from '@/lib/prisma';
 import crypto from 'crypto';
 import { isNewPatternQuestion, isPairQuestion, isStatementQuestion } from '@/lib/pyqPattern';
 import {
@@ -10,36 +8,35 @@ import {
   getTopicSyllabusOrder,
   sortQuestionsBySyllabus
 } from '@/lib/syllabusTaxonomy';
-
-const prisma = new PrismaClient();
-
-function normalizeOptions(opts) {
-  if (Array.isArray(opts)) return opts;
-  if (typeof opts === 'string') {
-    try {
-      const parsed = JSON.parse(opts);
-      if (Array.isArray(parsed)) return parsed;
-    } catch {
-      return [];
-    }
-  }
-  return [];
-}
+import { requireApiRole } from '@/lib/security/requireRole';
+import {
+  parsePyqPageSize,
+  toLightPyqRow,
+  enforcePyqScrapeLimits,
+  normalizeOptions,
+} from '@/lib/pyq/pyqAccess';
 
 export async function GET(req) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || (session.user?.role !== 'ADMIN' && session.user?.role !== 'FACULTY')) {
-      return NextResponse.json({ error: 'Unauthorized. Admin or Faculty access required.' }, { status: 401 });
-    }
+    const auth = await requireApiRole(['ADMIN', 'FACULTY']);
+    if (auth.response) return auth.response;
+    const session = auth.session;
 
     const { searchParams } = new URL(req.url);
+    const limit = parsePyqPageSize(searchParams.get('limit'));
+    if (!limit) {
+      return NextResponse.json(
+        { error: 'Invalid page size `limit`. Allowed values: 25, 50, 100.' },
+        { status: 400 }
+      );
+    }
+
     const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
-    const limit = Math.min(100, Math.max(10, parseInt(searchParams.get('limit') || '25', 10)));
     const search = (searchParams.get('q') || searchParams.get('search') || '').trim();
     const subject = searchParams.get('subject') || 'ALL';
     const topic = searchParams.get('topic') || 'ALL';
-    const exam = searchParams.get('exam') || 'ALL';
+    const exam = searchParams.get('exam') || 'UPSC_CSE_PRE';
+    const includeCds = searchParams.get('includeCds') === 'true';
     const year = searchParams.get('year') || 'ALL';
     const pattern = searchParams.get('pattern') || 'ALL'; // ALL | NEW | PAIR | STATEMENT
     const answerStatus = searchParams.get('answerStatus') || 'ALL'; // ALL | HAS_ANSWER | MISSING_ANSWER | HAS_EXPL | MISSING_EXPL
@@ -56,8 +53,12 @@ export async function GET(req) {
       where.srcTopic = topic;
     }
 
-    if (exam !== 'ALL') {
-      where.examName = { contains: exam === 'UPSC CSE' ? 'CSE' : exam, mode: 'insensitive' };
+    if (exam === 'UPSC_CSE_PRE' || exam === 'UPSC CSE') {
+      if (!includeCds) {
+        where.NOT = { examName: { contains: 'CDS', mode: 'insensitive' } };
+      }
+    } else if (exam !== 'ALL') {
+      where.examName = { contains: exam, mode: 'insensitive' };
     }
 
     if (year !== 'ALL') {
@@ -143,10 +144,7 @@ export async function GET(req) {
       }
 
       total = candidateList.length;
-      questions = candidateList.slice((page - 1) * limit, page * limit).map(q => ({
-        ...q,
-        options: normalizeOptions(q.options)
-      }));
+      questions = candidateList.slice((page - 1) * limit, page * limit).map(toLightPyqRow);
     } else {
       total = await prisma.questionDraft.count({ where });
       const rawQuestions = await prisma.questionDraft.findMany({
@@ -159,6 +157,7 @@ export async function GET(req) {
           questionNo: true,
           examName: true,
           examYear: true,
+          paper: true,
           srcSubject: true,
           srcTopic: true,
           srcTheme: true,
@@ -167,15 +166,21 @@ export async function GET(req) {
           correctLabel: true,
           explanation: true,
           difficulty: true,
-          dedupHash: true,
           createdAt: true,
         }
       });
 
-      questions = rawQuestions.map(q => ({
-        ...q,
-        options: normalizeOptions(q.options)
-      }));
+      questions = rawQuestions.map(toLightPyqRow);
+    }
+
+    const rateCheck = await enforcePyqScrapeLimits({
+      userId: session.user.id,
+      isListRequest: true,
+      questionIds: questions.map((q) => q.id),
+      ip: req.headers.get('x-real-ip') || req.headers.get('x-forwarded-for') || null,
+    });
+    if (!rateCheck.allowed) {
+      return NextResponse.json({ error: rateCheck.error }, { status: 429 });
     }
 
     // Fetch filter options for dropdowns
@@ -269,10 +274,9 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || session.user?.role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized. Admin access required.' }, { status: 401 });
-    }
+    const auth = await requireApiRole(['ADMIN']);
+    if (auth.response) return auth.response;
+    const session = auth.session;
 
     const body = await req.json();
     const {
