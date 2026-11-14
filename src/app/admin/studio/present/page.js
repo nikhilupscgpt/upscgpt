@@ -21,7 +21,13 @@ export default async function StudioPresentPage({ searchParams }) {
 
   const sp = await searchParams;
   const mode = sp?.mode || 'pyq'; // 'pyq' | 'topic' | 'hybrid' | 'mapping'
-  const questionIds = sp?.ids ? sp.ids.split(',').map(s => s.trim()).filter(Boolean) : (sp?.id ? [sp.id] : []);
+  const sessionId = typeof sp?.sessionId === 'string' ? sp.sessionId.trim() : '';
+  const initialRecordingSession = sessionId
+    ? await prisma.recordingSession.findUnique({ where: { id: sessionId } })
+    : null;
+  const questionIds = sp?.ids
+    ? sp.ids.split(',').map(s => s.trim()).filter(Boolean)
+    : (sp?.id ? [sp.id] : (initialRecordingSession?.questionIds || []));
   const topicIds = sp?.topicIds ? sp.topicIds.split(',').map(s => s.trim()).filter(Boolean) : (sp?.topicId ? [sp.topicId] : []);
   const mappingIds = sp?.mappingIds
     ? sp.mappingIds.split(',').map(s => s.trim()).filter(Boolean)
@@ -370,5 +376,5 @@ export default async function StudioPresentPage({ searchParams }) {
     }
   }
 
-  return <PyqPresenterClient questions={deckItems} />;
+  return <PyqPresenterClient questions={deckItems} initialRecordingSession={initialRecordingSession} />;
 }
