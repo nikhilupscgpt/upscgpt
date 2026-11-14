@@ -93,8 +93,21 @@ function PyqPresenterClientInner({
   const [stepIndex, setStepIndex] = useState(0);
   const [scale, setScale] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showWebcamBox, setShowWebcamBox] = useState(false); // OBS camera guide: off by default, W shows it
-  const [isBlackboard, setIsBlackboard] = useState(false);
+  const [showWebcamBox, setShowWebcamBox] = useState(false); // OBS camera guide: off by default
+  const [boardMode, setBoardMode] = useState(null); // null | 'white' | 'black'
+  const isBlackboard = boardMode !== null;
+  const setIsBlackboard = useCallback((valOrFn) => {
+    setBoardMode((prev) => {
+      const nextBool = typeof valOrFn === 'function' ? valOrFn(prev !== null) : Boolean(valOrFn);
+      return nextBool ? (prev || 'black') : null;
+    });
+  }, []);
+  const [boardInkMap, setBoardInkMap] = useState({});
+  const [keptBoardsMap, setKeptBoardsMap] = useState({});
+  const [questionTransform, setQuestionTransform] = useState({ offsetX: 0, offsetY: 0, scale: 1 });
+  const [snapshotToast, setSnapshotToast] = useState(null);
+  const [gridJumpQuery, setGridJumpQuery] = useState('');
+  const inkSaveTimersRef = useRef({});
   const [isZoomedImage, setIsZoomedImage] = useState(false);
   const [isQueueOpen, setIsQueueOpen] = useState(false);
 
@@ -235,7 +248,8 @@ function PyqPresenterClientInner({
     }
 
     const currentScratchpads = scratchpadsMap[currentQ.id] || [];
-    if (currentScratchpads.length === 0) return baseSteps;
+    const currentKeptBoards = keptBoardsMap[currentQ.id] || [];
+    if (currentScratchpads.length === 0 && currentKeptBoards.length === 0) return baseSteps;
 
     const merged = [...baseSteps];
     const sorted = [...currentScratchpads].sort((a, b) => a.insertIndex - b.insertIndex);
@@ -243,14 +257,18 @@ function PyqPresenterClientInner({
       const idx = Math.min(Math.max(0, sp.insertIndex), merged.length);
       merged.splice(idx, 0, sp);
     }
+    for (const kb of currentKeptBoards) {
+      merged.push(kb);
+    }
     return merged;
-  }, [currentQ, customAttachmentsMap, scratchpadsMap]);
+  }, [currentQ, customAttachmentsMap, scratchpadsMap, keptBoardsMap]);
 
   const currentStep = steps[stepIndex] || steps[0] || null;
 
   // Active strokes for the canvas (isolated per step ID so dynamic scratchpads persist ink independently)
   const currentQId = currentQ?.id || `item_${qIndex}`;
   const currentStepKey = `${currentQId}_${currentStep?.id || stepIndex}`;
+  const currentBoardKey = boardMode ? `${currentQId}_${boardMode}` : null;
 
   const currentQStrokes = useMemo(() => {
     return questionInkMap[currentQId] || [];
@@ -259,6 +277,10 @@ function PyqPresenterClientInner({
   const currentStepStrokes = useMemo(() => {
     return stepInkMap[currentStepKey] || [];
   }, [stepInkMap, currentStepKey]);
+
+  const currentBoardStrokes = useMemo(() => {
+    return currentBoardKey ? (boardInkMap[currentBoardKey] || []) : [];
+  }, [boardInkMap, currentBoardKey]);
 
   // Presentation Canvas Mode: 'screen' (Fluid Responsive Native - fits Mac & all screens) vs '16:9' (1920x1080 Broadcast Standard)
   const [presentationMode, setPresentationMode] = useState(() => {
@@ -323,14 +345,19 @@ function PyqPresenterClientInner({
   useAutoFit(".pq-present-slide-body", [currentQ, stepIndex, contentFontScale, theme, presentationMode]);
 
   const isMappingMode = currentQ?.type === 'mapping';
-  const isFullStageScratchpad = currentStep?.type === 'scratchpad' && currentStep?.isFullStage;
+  const isFullStageScratchpad = (currentStep?.type === 'scratchpad' && currentStep?.isFullStage) || currentStep?.type === 'board';
+  const isFullStageBoardOrCanvas = Boolean(isFullStageScratchpad || boardMode !== null || currentStep?.type === 'takeaway');
   const canvasWidth = presentationMode === 'screen' ? screenStageSize.width : 1920;
   const canvasHeight = presentationMode === 'screen' ? screenStageSize.height : 1080;
   const mapSplitRatio = mapWidthMode === 'full' ? 1.0 : mapWidthMode === 'wide' ? 0.70 : 0.58;
   const mapSplitPx169 = mapWidthMode === 'full' ? 1920 : mapWidthMode === 'wide' ? 1344 : 1114;
-  const leftBoundaryX = presentationMode === 'screen'
-    ? Math.round(screenStageSize.width * (isMappingMode ? mapSplitRatio : 0.48))
-    : (isMappingMode ? mapSplitPx169 : 922);
+  const leftBoundaryX = (!isMappingMode && currentQ?.type !== 'topic' && currentStep?.type === 'intro')
+    ? canvasWidth
+    : (!isMappingMode && currentQ?.type !== 'topic' && currentStep?.type === 'takeaway')
+    ? 0
+    : presentationMode === 'screen'
+    ? Math.round(screenStageSize.width * (isMappingMode ? mapSplitRatio : 0.45))
+    : (isMappingMode ? mapSplitPx169 : 864);
 
   const toggleTheme = useCallback(() => {
     setTheme(prev => {
@@ -457,6 +484,38 @@ function PyqPresenterClientInner({
     return () => cancelAnimationFrame(raf);
   }, [currentQ?.id, currentStep?.type, presentationMode, screenStageSize.width]);
 
+  // Measure questionBlockRef origin + scale relative to stageRef so question-block ink stays aligned (§3.7)
+  useEffect(() => {
+    if (!currentQ || currentQ.type === 'topic' || currentQ.type === 'mapping') return;
+    if (currentStep?.type === 'takeaway' || currentStep?.type === 'board' || boardMode) return;
+    const el = questionBlockRef.current;
+    const stageEl = stageRef.current;
+    if (!el || !stageEl) return;
+
+    const updateTransform = () => {
+      const sr = stageEl.getBoundingClientRect();
+      const qr = el.getBoundingClientRect();
+      const stageScale = presentationMode === '16:9' ? (scale || 1) : 1;
+      const offsetX = (qr.left - sr.left) / stageScale;
+      const offsetY = (qr.top - sr.top) / stageScale;
+      const isStep1 = currentStep?.type === 'intro';
+      const qScale = (isStep1 || questionScaleState.shouldReflow) ? 1 : (questionScaleState.scale || 1);
+      setQuestionTransform({ offsetX, offsetY, scale: qScale });
+    };
+
+    const raf = requestAnimationFrame(updateTransform);
+    return () => cancelAnimationFrame(raf);
+  }, [
+    currentQ?.id,
+    stepIndex,
+    currentStep?.type,
+    boardMode,
+    questionScaleState,
+    presentationMode,
+    screenStageSize,
+    scale,
+  ]);
+
   // -------------------------------------------------------------
   // Navigation: Steps & Items
   // -------------------------------------------------------------
@@ -496,21 +555,161 @@ function PyqPresenterClientInner({
   }, [questions.length]);
 
   // -------------------------------------------------------------
-  // Ink management callbacks
+  // Ink management & debounced InkLayer persistence (§3.7, §6)
   // -------------------------------------------------------------
+  const scheduleInkSave = useCallback((questionId, step, board, strokes) => {
+    if (isDisplayMode || !questionId) return;
+    const timerKey = `${questionId}_${step}_${board}`;
+    if (inkSaveTimersRef.current[timerKey]) {
+      clearTimeout(inkSaveTimersRef.current[timerKey]);
+    }
+    inkSaveTimersRef.current[timerKey] = setTimeout(() => {
+      fetch('/api/admin/studio/ink', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ questionId, step, board, strokes }),
+      }).catch(() => {});
+    }, 600);
+  }, [isDisplayMode]);
+
+  // Restore persisted InkLayer strokes on load
+  useEffect(() => {
+    if (isDisplayMode || !questions.length) return;
+    const ids = questions.map(q => q?.id).filter(Boolean);
+    if (ids.length === 0) return;
+    let cancelled = false;
+    fetch(`/api/admin/studio/ink?questionIds=${encodeURIComponent(ids.join(','))}`)
+      .then(r => (r.ok ? r.json() : null))
+      .then(data => {
+        if (cancelled || !data?.layers) return;
+        const qNext = {};
+        const stepNext = {};
+        const boardNext = {};
+        for (const layer of data.layers) {
+          const strokes = Array.isArray(layer.strokes) ? layer.strokes : [];
+          if (layer.board === 'white' || layer.board === 'black') {
+            boardNext[`${layer.questionId}_${layer.board}`] = strokes;
+          } else if (layer.step === 0) {
+            qNext[layer.questionId] = strokes;
+          } else if (layer.step > 0) {
+            const qObj = questions.find(q => q.id === layer.questionId);
+            const qSteps = qObj
+              ? (qObj.type === 'topic' ? buildTopicSteps(qObj) : qObj.type === 'mapping' ? buildMappingSteps(qObj) : buildQuestionSteps(qObj))
+              : [];
+            const st = qSteps[layer.step - 1];
+            const stepKey = `${layer.questionId}_${st?.id || (layer.step - 1)}`;
+            stepNext[stepKey] = strokes;
+          }
+        }
+        if (Object.keys(qNext).length) setQuestionInkMap(prev => ({ ...qNext, ...prev }));
+        if (Object.keys(stepNext).length) setStepInkMap(prev => ({ ...stepNext, ...prev }));
+        if (Object.keys(boardNext).length) setBoardInkMap(prev => ({ ...boardNext, ...prev }));
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [isDisplayMode, questions]);
+
   const handleUpdateQStrokes = useCallback((strokes) => {
     setQuestionInkMap(prev => ({
       ...prev,
       [currentQId]: strokes,
     }));
-  }, [currentQId]);
+    scheduleInkSave(currentQId, 0, 'none', strokes);
+  }, [currentQId, scheduleInkSave]);
 
   const handleUpdateStepStrokes = useCallback((strokes) => {
     setStepInkMap(prev => ({
       ...prev,
       [currentStepKey]: strokes,
     }));
-  }, [currentStepKey]);
+    scheduleInkSave(currentQId, stepIndex + 1, 'none', strokes);
+  }, [currentStepKey, currentQId, stepIndex, scheduleInkSave]);
+
+  const handleUpdateBoardStrokes = useCallback((strokes) => {
+    if (!currentBoardKey || !boardMode) return;
+    setBoardInkMap(prev => ({
+      ...prev,
+      [currentBoardKey]: strokes,
+    }));
+    scheduleInkSave(currentQId, -1, boardMode, strokes);
+  }, [currentBoardKey, boardMode, currentQId, scheduleInkSave]);
+
+  const handleKeepBoard = useCallback(() => {
+    if (!currentQ || !boardMode) return;
+    const strokes = currentBoardStrokes;
+    const newId = `board_${boardMode}_${Date.now()}`;
+    const keptStep = {
+      id: newId,
+      type: 'board',
+      board: boardMode,
+      badge: boardMode === 'white' ? 'WHITE BOARD' : 'BLACK BOARD',
+      title: boardMode === 'white' ? 'Kept White Board' : 'Kept Black Board',
+    };
+    const nextStepIdx = steps.length;
+    const newStepKey = `${currentQId}_${newId}`;
+    setKeptBoardsMap(prev => ({
+      ...prev,
+      [currentQ.id]: [...(prev[currentQ.id] || []), keptStep],
+    }));
+    setStepInkMap(prev => ({
+      ...prev,
+      [newStepKey]: strokes,
+    }));
+    scheduleInkSave(currentQId, nextStepIdx + 1, 'none', strokes);
+    if (currentBoardKey) {
+      setBoardInkMap(prev => ({ ...prev, [currentBoardKey]: [] }));
+      scheduleInkSave(currentQId, -1, boardMode, []);
+    }
+    setBoardMode(null);
+    setStepIndex(nextStepIdx);
+  }, [currentQ, boardMode, currentBoardStrokes, steps.length, currentQId, currentBoardKey, scheduleInkSave]);
+
+  const handleCaptureSnapshot = useCallback(async () => {
+    if (!currentQ || typeof document === 'undefined') return;
+    try {
+      const off = document.createElement('canvas');
+      off.width = canvasWidth;
+      off.height = canvasHeight;
+      const ctx = off.getContext('2d');
+      if (!ctx) return;
+
+      // Background matching active board or theme
+      const bg = boardMode === 'white'
+        ? '#ffffff'
+        : boardMode === 'black'
+        ? '#040711'
+        : theme === 'light'
+        ? '#ffffff'
+        : '#0f172a';
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+      // Subtle header + question text context so snapshot stands alone with ink
+      ctx.fillStyle = (boardMode === 'white' || (!boardMode && theme === 'light')) ? '#0f172a' : '#f8fafc';
+      ctx.font = 'bold 28px system-ui, -apple-system, sans-serif';
+      const titleText = currentStep?.title || currentQ?.title || `Question ${qIndex + 1}`;
+      ctx.fillText(titleText.slice(0, 90), 48, 64);
+
+      // Composite live ink canvas on top
+      const inkCanvas = stageRef.current?.querySelector('canvas[data-pq-ink-canvas="true"]');
+      if (inkCanvas) {
+        ctx.drawImage(inkCanvas, 0, 0, canvasWidth, canvasHeight);
+      }
+
+      const imageDataUrl = off.toDataURL('image/png');
+      const res = await fetch('/api/admin/studio/snapshots', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ questionId: currentQId, imageDataUrl }),
+      });
+      if (res.ok) {
+        setSnapshotToast('Snapshot saved');
+        setTimeout(() => setSnapshotToast(null), 2200);
+      }
+    } catch {
+      // non-blocking
+    }
+  }, [currentQ, currentQId, currentStep?.title, qIndex, canvasWidth, canvasHeight, boardMode, theme]);
 
   const handleUndo = useCallback(() => {
     const pushRedo = (entry) => {
@@ -1024,6 +1223,34 @@ function PyqPresenterClientInner({
         return;
       }
 
+      if (isQueueOpen) {
+        if (/^[0-9]$/.test(e.key) && !e.metaKey && !e.ctrlKey && !e.altKey) {
+          e.preventDefault();
+          setGridJumpQuery(prev => (prev + e.key).slice(0, 3));
+          return;
+        }
+        if (e.key === 'Backspace') {
+          e.preventDefault();
+          setGridJumpQuery(prev => prev.slice(0, -1));
+          return;
+        }
+        if (e.key === 'Enter' && gridJumpQuery) {
+          e.preventDefault();
+          const targetIdx = Number(gridJumpQuery) - 1;
+          setGridJumpQuery('');
+          if (targetIdx >= 0 && targetIdx < questions.length) {
+            jumpToItem(targetIdx);
+          }
+          return;
+        }
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          setGridJumpQuery('');
+          setIsQueueOpen(false);
+          return;
+        }
+      }
+
       if (clearConfirm) {
         if (e.key === 'Enter') {
           e.preventDefault();
@@ -1145,6 +1372,10 @@ function PyqPresenterClientInner({
           e.preventDefault();
           handleRedo();
           break;
+        case 'edit.snapshot':
+          e.preventDefault();
+          handleCaptureSnapshot();
+          break;
         case 'edit.clearStep':
           setClearConfirm('step');
           break;
@@ -1179,14 +1410,14 @@ function PyqPresenterClientInner({
           setStepIndex(Math.max(0, steps.length - 1));
           break;
         case 'nav.grid':
+          setGridJumpQuery('');
           setIsQueueOpen(o => !o);
           break;
         case 'board.white':
-          setIsBlackboard(false);
-          setTheme('light');
+          setBoardMode(m => (m === 'white' ? null : 'white'));
           break;
         case 'board.black':
-          setIsBlackboard(b => !b);
+          setBoardMode(m => (m === 'black' ? null : 'black'));
           break;
         case 'view.theme':
           toggleTheme();
@@ -1226,6 +1457,8 @@ function PyqPresenterClientInner({
     shapeTool,
     theme,
     clearConfirm,
+    isQueueOpen,
+    gridJumpQuery,
     qIndex,
     questions.length,
     steps.length,
@@ -1234,9 +1467,9 @@ function PyqPresenterClientInner({
     jumpToItem,
     handleUndo,
     handleRedo,
+    handleCaptureSnapshot,
     handleConfirmClear,
     toggleTheme,
-    setTheme,
     setActiveTool,
   ]);
 
@@ -1584,56 +1817,88 @@ function PyqPresenterClientInner({
           </main>
           )}
 
-          {/* Blackboard / Whiteboard Freehand Mode Overlay */}
-          {isBlackboard && (
+          {/* White / Black Board Mode Overlay (W / K) or Kept Board Step */}
+          {(boardMode || currentStep?.type === 'board') && (
             <div
               className="pq-present-board-overlay"
               style={{
                 position: 'absolute',
                 inset: 0,
-                background: theme === 'light' ? '#ffffff' : '#040711',
+                background: (boardMode || currentStep?.board) === 'white' ? '#ffffff' : '#040711',
                 zIndex: 45,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
               }}
             >
-              <div style={{ fontSize: 14, color: theme === 'light' ? 'rgba(0, 0, 0, 0.35)' : 'rgba(255, 255, 255, 0.25)', fontWeight: 800, letterSpacing: '0.1em' }}>
-                {theme === 'light' ? 'WHITEBOARD MODE · DRAW FREELY · PRESS B TO EXIT' : 'BLACKBOARD MODE · DRAW FREELY · PRESS B TO EXIT'}
+              <div style={{ fontSize: 13, color: (boardMode || currentStep?.board) === 'white' ? 'rgba(0, 0, 0, 0.32)' : 'rgba(255, 255, 255, 0.25)', fontWeight: 800, letterSpacing: '0.1em' }}>
+                {(boardMode || currentStep?.board) === 'white'
+                  ? 'WHITE BOARD · DRAW FREELY · PRESS W TO RETURN'
+                  : 'BLACK BOARD · DRAW FREELY · PRESS K TO RETURN'}
               </div>
+              {boardMode && currentBoardStrokes.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleKeepBoard}
+                  style={{
+                    position: 'absolute',
+                    top: 24,
+                    left: 24,
+                    zIndex: 55,
+                    padding: '8px 14px',
+                    borderRadius: 10,
+                    border: '1px solid rgba(56, 189, 248, 0.5)',
+                    background: boardMode === 'white' ? 'rgba(15, 23, 42, 0.9)' : 'rgba(30, 41, 59, 0.92)',
+                    color: '#f8fafc',
+                    fontSize: 13,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
+                >
+                  Keep board
+                </button>
+              )}
             </div>
           )}
 
-          {/* In-Studio Playlist Tray / Queue Drawer */}
+          {/* Question Grid Overlay (Q) — click or type number + Enter to jump */}
           {isQueueOpen && (
-            <div className="pq-present-queue-drawer">
+            <div className="pq-present-queue-drawer" style={{ width: 'min(920px, 92%)', left: '50%', right: 'auto', transform: 'translateX(-50%)' }}>
               <div className="pq-queue-header">
                 <div className="pq-queue-title">
                   <ListOrdered size={20} color="#38bdf8" />
-                  <span>Lecture Deck Queue ({questions.length})</span>
+                  <span>Question Grid ({questions.length})</span>
+                  {gridJumpQuery && (
+                    <span style={{ marginLeft: 10, padding: '2px 10px', borderRadius: 999, background: 'rgba(56,189,248,0.18)', color: '#38bdf8', fontSize: 12, fontWeight: 800 }}>
+                      Jump to #{gridJumpQuery} [Enter]
+                    </span>
+                  )}
                 </div>
                 <button
                   type="button"
-                  onClick={() => setIsQueueOpen(false)}
+                  onClick={() => { setGridJumpQuery(''); setIsQueueOpen(false); }}
                   className="pq-queue-close-btn"
                 >
                   <X size={18} />
                 </button>
               </div>
 
-              <div className="pq-queue-list">
+              <div className="pq-queue-list" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 10 }}>
                 {questions.map((item, idx) => {
                   const isActive = idx === qIndex;
+                  const hasInk = (questionInkMap[item.id]?.length || 0) > 0;
+                  const isMatchedJump = gridJumpQuery && String(idx + 1).startsWith(gridJumpQuery);
                   const itemTitle = item.type === 'topic'
                     ? item.title
                     : item.type === 'mapping'
                     ? (item.place || item.title)
-                    : (item.stem ? item.stem.substring(0, 110) + '...' : `Question ${idx + 1}`);
+                    : (item.stem ? item.stem.substring(0, 90) + '...' : `Question ${idx + 1}`);
 
                   return (
                     <div
                       key={item.id || idx}
                       className={`pq-queue-item ${isActive ? 'is-active-item' : ''}`}
+                      style={isMatchedJump ? { outline: '2px solid #38bdf8' } : undefined}
                       onClick={() => jumpToItem(idx)}
                     >
                       <span className="pq-queue-item-num">{idx + 1}</span>
@@ -1642,6 +1907,9 @@ function PyqPresenterClientInner({
                           <span style={{ fontSize: 10.5, fontWeight: 800, textTransform: 'uppercase', color: item.type === 'mapping' ? '#34d399' : '#38bdf8' }}>
                             {item.type === 'topic' ? (item.domain || 'Topic') : item.type === 'mapping' ? (item.regionScope || 'Mapping') : `${item.examName || 'CSE'} ${item.examYear || ''}`}
                           </span>
+                          {hasInk && (
+                            <span style={{ fontSize: 10, color: '#a78bfa', fontWeight: 800 }}>• Ink</span>
+                          )}
                           {item.imageUrl && (
                             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, fontSize: 10, color: '#f59e0b', fontWeight: 800 }}>
                               <ImageIcon size={10} /> Image
@@ -1669,11 +1937,13 @@ function PyqPresenterClientInner({
             activeColor={activeColor}
             penSize={penSize}
             leftBoundaryX={leftBoundaryX}
-            isFullStage={Boolean(isFullStageScratchpad)}
+            isFullStage={isFullStageBoardOrCanvas}
+            questionTransform={questionTransform}
+            showQuestionInk={Boolean(!boardMode && currentQ?.type !== 'topic' && currentQ?.type !== 'mapping' && currentStep?.type !== 'takeaway' && currentStep?.type !== 'board' && !isFullStageScratchpad)}
             questionStrokes={currentQStrokes}
-            stepStrokes={currentStepStrokes}
+            stepStrokes={boardMode ? currentBoardStrokes : currentStepStrokes}
             onUpdateQuestionStrokes={handleUpdateQStrokes}
-            onUpdateStepStrokes={handleUpdateStepStrokes}
+            onUpdateStepStrokes={boardMode ? handleUpdateBoardStrokes : handleUpdateStepStrokes}
             zoom={zoom}
             onZoomChange={setZoom}
             onLiveStroke={handleRemoteLiveStroke}
@@ -1743,6 +2013,27 @@ function PyqPresenterClientInner({
               >
                 Cancel [Esc]
               </button>
+            </div>
+          )}
+
+          {snapshotToast && (
+            <div
+              role="status"
+              style={{
+                position: 'absolute',
+                top: 24,
+                right: 24,
+                zIndex: 60,
+                padding: '8px 14px',
+                borderRadius: 10,
+                background: 'rgba(16, 185, 129, 0.92)',
+                color: '#ffffff',
+                fontSize: 13,
+                fontWeight: 700,
+                boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+              }}
+            >
+              {snapshotToast}
             </div>
           )}
         </div>
@@ -1990,6 +2281,15 @@ function PyqPresenterClientInner({
             <Trash2 size={16} />
           </button>
 
+          <button
+            type="button"
+            onClick={handleCaptureSnapshot}
+            className="pq-dock-btn"
+            title={snapshotToast || 'Save Stage Snapshot [Cmd+S]'}
+          >
+            <ImageIcon size={16} />
+          </button>
+
           <div className="pq-dock-sep" />
 
           {/* Zoom Image (active when on image slide) */}
@@ -2057,9 +2357,9 @@ function PyqPresenterClientInner({
 
           <button
             type="button"
-            onClick={() => setIsBlackboard(b => !b)}
+            onClick={() => setBoardMode(m => (m === 'black' ? null : 'black'))}
             className={`pq-dock-btn ${isBlackboard ? 'is-active' : ''}`}
-            title={theme === 'light' ? "Whiteboard Mode [B]" : "Blackboard Mode [B]"}
+            title="White Board [W] / Black Board [K]"
           >
             <Layers size={16} />
           </button>

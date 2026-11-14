@@ -1435,4 +1435,27 @@ model LifecycleDispatch {
   @@index([flow, sentAt])
 }
 
+model InkLayer {
+  facultyId  String
+  questionId String
+  step       Int      // 0 = question block; 1..N = step; negative = kept/temp boards
+  board      String   @default("none") // "none" | "white" | "black"
+  strokes    Json
+  updatedAt  DateTime @updatedAt
+
+  @@id([facultyId, questionId, step, board])
+  @@index([facultyId, questionId])
+}
+
+model Snapshot {
+  id         String   @id @default(cuid())
+  facultyId  String
+  questionId String
+  sessionId  String?
+  imageRef   String
+  createdAt  DateTime @default(now())
+
+  @@index([facultyId, questionId])
+}
+
 

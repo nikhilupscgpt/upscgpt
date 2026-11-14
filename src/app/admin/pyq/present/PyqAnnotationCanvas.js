@@ -2,6 +2,7 @@
 
 import React, { useRef, useEffect, useCallback, useState } from 'react';
 import { getStroke } from 'perfect-freehand';
+import { stageToBlockPoint } from '@/lib/present/ink-coords';
 
 function getCurrentTimestamp() {
   return typeof performance !== 'undefined' ? performance.now() : 0;
@@ -297,6 +298,8 @@ export default function PyqAnnotationCanvas({
   highlighterSize = 26,
   leftBoundaryX = 830, // boundary separating Left Question Panel from Right Explanation Panel
   isFullStage = false, // When true, the entire stage is a full blank scratchpad
+  questionTransform = { offsetX: 0, offsetY: 0, scale: 1 },
+  showQuestionInk = true,
   questionStrokes = [],
   stepStrokes = [],
   onUpdateQuestionStrokes,
@@ -361,11 +364,18 @@ export default function PyqAnnotationCanvas({
       ctx.translate(-zx, -zy);
     }
 
-    // 1. Draw persistent Question Panel strokes (hidden during full-stage scratchpad)
-    if (!isFullStage) {
+    // 1. Draw persistent Question Panel strokes (scaled with question block during Step 1 -> Step 2)
+    if (!isFullStage && showQuestionInk) {
+      const qScale = questionTransform?.scale > 0 ? questionTransform.scale : 1;
+      const qOffX = questionTransform?.offsetX || 0;
+      const qOffY = questionTransform?.offsetY || 0;
+      ctx.save();
+      ctx.translate(qOffX, qOffY);
+      ctx.scale(qScale, qScale);
       for (const stroke of questionStrokes) {
         renderStroke(ctx, stroke, penSize, highlighterSize, false);
       }
+      ctx.restore();
     }
 
     // 2. Draw active Step Explanation Panel strokes
@@ -428,6 +438,8 @@ export default function PyqAnnotationCanvas({
     canvasWidth,
     canvasHeight,
     isFullStage,
+    questionTransform,
+    showQuestionInk,
     dpr,
     zoom,
     remoteLiveStroke,
@@ -510,12 +522,14 @@ export default function PyqAnnotationCanvas({
 
   // Eraser Helper: Stroke erase by default; Alt = area erase (removes points near cursor)
   const eraseAtPoint = (ex, ey, isAreaErase = false) => {
-    const isQuestionPanel = ex < leftBoundaryX;
-    const threshold = isAreaErase ? 28 : 22;
+    const isQuestionPanel = !isFullStage && showQuestionInk && ex < leftBoundaryX;
+    const qScale = isQuestionPanel && questionTransform?.scale > 0 ? questionTransform.scale : 1;
+    const [tx, ty] = isQuestionPanel ? stageToBlockPoint(ex, ey, questionTransform) : [ex, ey];
+    const threshold = (isAreaErase ? 28 : 22) / qScale;
 
     const hitStroke = (stroke) => {
       for (const [px, py] of stroke.points) {
-        if (Math.hypot(px - ex, py - ey) < threshold) return true;
+        if (Math.hypot(px - tx, py - ty) < threshold) return true;
       }
       return false;
     };
@@ -540,7 +554,7 @@ export default function PyqAnnotationCanvas({
           }
           continue;
         }
-        const keptPts = s.points.filter(([px, py]) => Math.hypot(px - ex, py - ey) >= threshold);
+        const keptPts = s.points.filter(([px, py]) => Math.hypot(px - tx, py - ty) >= threshold);
         if (keptPts.length !== s.points.length) {
           changed = true;
           if (keptPts.length >= 2) {
@@ -826,8 +840,17 @@ export default function PyqAnnotationCanvas({
       if (onLiveStroke) onLiveStroke(null);
 
       if (stroke.targetLayer === 'question' && !isFullStage) {
-        onUpdateQuestionStrokes?.([...questionStrokes, stroke]);
-        onAddStroke?.({ targetLayer: 'question', stroke });
+        const qScale = questionTransform?.scale > 0 ? questionTransform.scale : 1;
+        const blockStroke = {
+          ...stroke,
+          size: stroke.size / qScale,
+          points: stroke.points.map(([px, py, pp]) => {
+            const [bx, by] = stageToBlockPoint(px, py, questionTransform);
+            return [bx, by, pp];
+          }),
+        };
+        onUpdateQuestionStrokes?.([...questionStrokes, blockStroke]);
+        onAddStroke?.({ targetLayer: 'question', stroke: blockStroke });
       } else {
         onUpdateStepStrokes?.([...stepStrokes, stroke]);
         onAddStroke?.({ targetLayer: 'step', stroke });
@@ -919,8 +942,15 @@ export default function PyqAnnotationCanvas({
         points: [[textDraft.x, textDraft.y, 0.55]],
       };
       if (targetLayer === 'question' && !isFullStage) {
-        onUpdateQuestionStrokes?.([...questionStrokes, stroke]);
-        onAddStroke?.({ targetLayer: 'question', stroke });
+        const qScale = questionTransform?.scale > 0 ? questionTransform.scale : 1;
+        const [bx, by] = stageToBlockPoint(textDraft.x, textDraft.y, questionTransform);
+        const blockStroke = {
+          ...stroke,
+          size: stroke.size / qScale,
+          points: [[bx, by, 0.55]],
+        };
+        onUpdateQuestionStrokes?.([...questionStrokes, blockStroke]);
+        onAddStroke?.({ targetLayer: 'question', stroke: blockStroke });
       } else {
         onUpdateStepStrokes?.([...stepStrokes, stroke]);
         onAddStroke?.({ targetLayer: 'step', stroke });
@@ -933,6 +963,7 @@ export default function PyqAnnotationCanvas({
     <div style={{ position: 'relative', width: `${canvasWidth}px`, height: `${canvasHeight}px`, pointerEvents: activeTool === 'none' ? 'none' : 'auto' }}>
       <canvas
         ref={canvasRef}
+        data-pq-ink-canvas="true"
         width={Math.round(canvasWidth * dpr)}
         height={Math.round(canvasHeight * dpr)}
         style={{

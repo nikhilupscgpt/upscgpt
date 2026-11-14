@@ -39,6 +39,7 @@ export const PRESENT_SHORTCUTS: ShortcutDef[] = [
   // Edit
   { id: 'edit.undo', key: 'z', metaOrCtrl: true, label: 'Undo', category: 'Edit' },
   { id: 'edit.redo', key: 'z', metaOrCtrl: true, shift: true, label: 'Redo', category: 'Edit' },
+  { id: 'edit.snapshot', key: 's', metaOrCtrl: true, label: 'Save stage snapshot', category: 'Edit' },
   { id: 'edit.clearStep', key: 'c', label: 'Clear current step ink', category: 'Edit' },
   { id: 'edit.clearQuestion', key: 'c', shift: true, label: 'Clear all ink on question', category: 'Edit' },
 
