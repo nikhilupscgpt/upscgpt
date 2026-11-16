@@ -522,14 +522,33 @@ export default function PyqAdminClient({ session }) {
     window.open(`/api/admin/pyq/print-pdf?ids=${ids}`, '_blank');
   };
 
-  // Open Edit Modal
-  const handleOpenEdit = (q) => {
-    setEditingQuestion(q);
+  // Open Edit Modal (fetch full detail when list row is light)
+  const handleOpenEdit = async (q) => {
     setEditMode('form');
     setJsonError(null);
 
+    let fullQ = q;
+    if (q.explanation === undefined && q.hasExplanation !== false) {
+      try {
+        const res = await fetch(`/api/admin/pyq/${q.id}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.question) {
+            fullQ = { ...q, ...data.question };
+            setQuestions((prev) =>
+              prev.map((item) => (item.id === q.id ? { ...item, ...data.question } : item))
+            );
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load full question detail for edit:', err);
+      }
+    }
+
+    setEditingQuestion(fullQ);
+
     // Ensure 4 options format
-    let opts = q.options || [];
+    let opts = fullQ.options || [];
     if (!Array.isArray(opts) || opts.length === 0) {
       opts = [
         { label: 'A', text: '' },
@@ -543,39 +562,39 @@ export default function PyqAdminClient({ session }) {
       text: o.text || ''
     }));
 
-    const structured = getStructuredExplanation(q);
+    const structured = getStructuredExplanation(fullQ);
 
     setEditForm({
-      stem: q.stem || '',
+      stem: fullQ.stem || '',
       options: normalizedOptions,
-      correctLabel: (q.correctLabel || '').toLowerCase(),
-      explanation: structured.explanationText || (typeof q.explanation === 'string' ? q.explanation : ''),
-      srcSubject: q.srcSubject || '',
-      srcTopic: q.srcTopic || '',
-      examName: q.examName || '',
-      examYear: q.examYear || 2024,
-      questionNo: q.questionNo || '',
-      difficulty: q.difficulty || 'MEDIUM',
+      correctLabel: (fullQ.correctLabel || '').toLowerCase(),
+      explanation: structured.explanationText || (typeof fullQ.explanation === 'string' ? fullQ.explanation : ''),
+      srcSubject: fullQ.srcSubject || '',
+      srcTopic: fullQ.srcTopic || '',
+      examName: fullQ.examName || '',
+      examYear: fullQ.examYear || 2024,
+      questionNo: fullQ.questionNo || '',
+      difficulty: fullQ.difficulty || 'MEDIUM',
     });
 
     // Prepare JSON object for the JSON / JSONL editor mode
     const jsonObj = {
-      examName: q.examName || 'UPSC CSE Pre',
-      examYear: q.examYear || 2024,
-      questionNo: q.questionNo ?? null,
-      srcSubject: q.srcSubject || '',
-      srcTopic: q.srcTopic || '',
-      stem: q.stem || '',
+      examName: fullQ.examName || 'UPSC CSE Pre',
+      examYear: fullQ.examYear || 2024,
+      questionNo: fullQ.questionNo ?? null,
+      srcSubject: fullQ.srcSubject || '',
+      srcTopic: fullQ.srcTopic || '',
+      stem: fullQ.stem || '',
       options: normalizedOptions.map(o => ({
         label: o.label.toLowerCase(),
         text: o.text
       })),
-      correctLabel: (q.correctLabel || '').toLowerCase(),
+      correctLabel: (fullQ.correctLabel || '').toLowerCase(),
       ...(structured.explanationText ? { explanation: structured.explanationText } : {}),
       ...(structured.analysis ? { analysis: structured.analysis } : {})
     };
-    if (!structured.analysis && !structured.explanationText && q.explanation) {
-      jsonObj.explanation = q.explanation;
+    if (!structured.analysis && !structured.explanationText && fullQ.explanation) {
+      jsonObj.explanation = fullQ.explanation;
     }
     setEditJsonRaw(JSON.stringify(jsonObj, null, 2));
   };
@@ -1741,8 +1760,8 @@ export default function PyqAdminClient({ session }) {
                   const isPair = isPairQuestion(q);
                   const isStmt = isStatementQuestion(q);
                   const hasAnswer = !!q.correctLabel;
-                  const hasExpl = !!q.explanation;
-                  const isDeepDive = isDeepDiveReady(q);
+                  const hasExpl = q.hasExplanation !== undefined ? Boolean(q.hasExplanation) : !!q.explanation;
+                  const isDeepDive = q.isDeepDiveReady !== undefined ? Boolean(q.isDeepDiveReady) : isDeepDiveReady(q);
                   const isSelected = selectedQIds.has(q.id);
 
                   return (
@@ -2124,7 +2143,7 @@ export default function PyqAdminClient({ session }) {
                       </div>
 
                       {/* Explanation Snippet */}
-                      {q.explanation && (
+                      {(q.explanation || hasExpl) && (
                         <div style={{
                           background: 'rgba(2, 6, 23, 0.6)',
                           borderLeft: '3px solid #3b82f6',
@@ -2137,7 +2156,9 @@ export default function PyqAdminClient({ session }) {
                           <strong style={{ color: '#60a5fa', display: 'block', marginBottom: '4px' }}>
                             Explanation:
                           </strong>
-                          {q.explanation.length > 300 ? `${q.explanation.slice(0, 300)}...` : q.explanation}
+                          {q.explanation
+                            ? (q.explanation.length > 300 ? `${q.explanation.slice(0, 300)}...` : q.explanation)
+                            : 'Detailed solution present in DB — click Edit to view or modify.'}
                         </div>
                       )}
                     </div>

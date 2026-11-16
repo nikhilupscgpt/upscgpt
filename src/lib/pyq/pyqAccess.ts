@@ -1,3 +1,5 @@
+import { isDeepDiveReady } from '../pyqExplanationHelper.js';
+
 export type ScrapeLogEvent = (ev: {
   type: 'scrape_suspect';
   userId: string;
@@ -62,6 +64,7 @@ export function toLightPyqRow(q: any) {
     options: normalizeOptions(q.options),
     correctLabel: q.correctLabel ?? null,
     hasExplanation: expl.length > 0,
+    isDeepDiveReady: expl.length > 0 && isDeepDiveReady(q),
     difficulty: q.difficulty ?? null,
     createdAt: q.createdAt ?? null,
   };
