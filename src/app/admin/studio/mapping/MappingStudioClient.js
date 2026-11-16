@@ -37,21 +37,49 @@ const MAPPING_CATEGORIES = [
   { value: 'places in news', label: 'Places in News (Geopolitical)' },
 ];
 
+const PILLAR_TABS = [
+  { id: 'ALL', label: 'All Mapping', countKey: 'allCount' },
+  { id: 'INDIA_STATIC', label: 'India Static', countKey: 'indiaStaticCount' },
+  { id: 'WORLD_STATIC', label: 'World Static', countKey: 'worldStaticCount' },
+  { id: 'PIN', label: 'Places in News (PIN)', countKey: 'pinCount' },
+  { id: 'IR', label: 'IR & Organizations', countKey: 'irCount' },
+  { id: 'PYQ', label: 'Mapping PYQs', countKey: 'pyqCount' },
+];
+
 export default function MappingStudioClient() {
-  // Filters
+  // 4-Pillar + PYQ Filters (aligned with /mapping user flow)
   const [search, setSearch] = useState('');
-  const [scope, setScope] = useState('ALL'); // 'ALL' | 'India' | 'World'
-  const [type, setType] = useState('ALL'); // 'ALL' | 'STATIC' | 'PIN' | 'PYQ'
+  const [pillar, setPillar] = useState('ALL'); // ALL | INDIA_STATIC | WORLD_STATIC | PIN | IR | PYQ
+  const [tier, setTier] = useState('ALL'); // ALL | master | daily
   const [category, setCategory] = useState('ALL');
+  const [subject, setSubject] = useState('ALL');
+  const [year, setYear] = useState('ALL');
   const [limit, setLimit] = useState(50);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [taxonomy, setTaxonomy] = useState({ subjects: [], mapCategories: [] });
 
-  const activeFilterCount = (scope !== 'ALL' ? 1 : 0) + (type !== 'ALL' ? 1 : 0) + (category !== 'ALL' ? 1 : 0);
+  const activeFilterCount =
+    (pillar !== 'ALL' ? 1 : 0) +
+    (tier !== 'ALL' ? 1 : 0) +
+    (category !== 'ALL' ? 1 : 0) +
+    (subject !== 'ALL' ? 1 : 0) +
+    (year !== 'ALL' ? 1 : 0);
 
   // Data
   const [items, setItems] = useState([]);
   const [total, setTotal] = useState(0);
-  const [stats, setStats] = useState({ staticCount: 0, pinCount: 0, pyqCount: 0 });
+  const [stats, setStats] = useState({
+    allCount: 0,
+    indiaStaticCount: 0,
+    worldStaticCount: 0,
+    staticCount: 0,
+    pinCount: 0,
+    masterPinCount: 0,
+    dailyPinCount: 0,
+    irCount: 0,
+    orgCount: 0,
+    pyqCount: 0,
+  });
   const [loading, setLoading] = useState(true);
 
   // Selection & Custom Attachment state
@@ -80,9 +108,11 @@ export default function MappingStudioClient() {
     setLoading(true);
     try {
       const params = new URLSearchParams();
-      if (scope !== 'ALL') params.set('scope', scope);
-      if (type !== 'ALL') params.set('type', type);
+      if (pillar !== 'ALL') params.set('pillar', pillar);
+      if (tier !== 'ALL') params.set('tier', tier);
       if (category !== 'ALL') params.set('category', category);
+      if (subject !== 'ALL') params.set('subject', subject);
+      if (year !== 'ALL') params.set('year', year);
       if (search.trim()) params.set('search', search.trim());
       params.set('limit', String(limit));
 
@@ -93,12 +123,13 @@ export default function MappingStudioClient() {
       setItems(data.items || []);
       setTotal(data.total || 0);
       if (data.stats) setStats(data.stats);
+      if (data.taxonomy) setTaxonomy(data.taxonomy);
     } catch (err) {
       console.error('[Mapping Studio] Fetch error:', err);
     } finally {
       setLoading(false);
     }
-  }, [scope, type, category, search, limit]);
+  }, [pillar, tier, category, subject, year, search, limit]);
 
   useEffect(() => {
     fetchData();
@@ -228,9 +259,11 @@ export default function MappingStudioClient() {
                 <button
                   type="button"
                   onClick={() => {
-                    setScope('ALL');
-                    setType('ALL');
+                    setPillar('ALL');
+                    setTier('ALL');
                     setCategory('ALL');
+                    setSubject('ALL');
+                    setYear('ALL');
                   }}
                   style={{
                     background: 'rgba(239, 68, 68, 0.12)',
@@ -249,32 +282,33 @@ export default function MappingStudioClient() {
             </div>
 
             <div className="pq-map-filter-grid">
-              {/* Scope Filter */}
+              {/* 4-Pillar User Flow Filter */}
               <div className="pq-map-filter-group">
-                <label className="pq-map-filter-label">Regional Scope</label>
+                <label className="pq-map-filter-label">Mapping Pillar</label>
                 <select
-                  value={scope}
-                  onChange={(e) => setScope(e.target.value)}
+                  value={pillar}
+                  onChange={(e) => setPillar(e.target.value)}
                   className="pq-map-select"
                 >
-                  <option value="ALL">All Regions (India &amp; World)</option>
-                  <option value="India">India Only</option>
-                  <option value="World">World Only</option>
+                  {PILLAR_TABS.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.label} ({stats[t.countKey] ?? 0})
+                    </option>
+                  ))}
                 </select>
               </div>
 
-              {/* Source Type Filter */}
+              {/* PIN Tier Filter */}
               <div className="pq-map-filter-group">
-                <label className="pq-map-filter-label">Data Source</label>
+                <label className="pq-map-filter-label">PIN Tier</label>
                 <select
-                  value={type}
-                  onChange={(e) => setType(e.target.value)}
+                  value={tier}
+                  onChange={(e) => setTier(e.target.value)}
                   className="pq-map-select"
                 >
-                  <option value="ALL">All Sources ({stats.staticCount + stats.pinCount + stats.pyqCount})</option>
-                  <option value="STATIC">Curated Static Atlas ({stats.staticCount})</option>
-                  <option value="PIN">Places in News / PIN ({stats.pinCount})</option>
-                  <option value="PYQ">Official Mapping PYQs ({stats.pyqCount})</option>
+                  <option value="ALL">All Tiers</option>
+                  <option value="master">Master Atlas ({stats.masterPinCount ?? 0})</option>
+                  <option value="daily">Daily PIN ({stats.dailyPinCount ?? 0})</option>
                 </select>
               </div>
 
@@ -286,9 +320,49 @@ export default function MappingStudioClient() {
                   onChange={(e) => setCategory(e.target.value)}
                   className="pq-map-select"
                 >
-                  {MAPPING_CATEGORIES.map((cat) => (
+                  {(taxonomy.mapCategories?.length > 0
+                    ? [{ value: 'ALL', label: 'All Mapping Categories' }, ...taxonomy.mapCategories.map((c) => ({ value: c, label: c }))]
+                    : MAPPING_CATEGORIES
+                  ).map((cat) => (
                     <option key={cat.value} value={cat.value}>
                       {cat.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Subject Filter (for Question PYQs) */}
+              <div className="pq-map-filter-group">
+                <label className="pq-map-filter-label">PYQ Subject</label>
+                <select
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  className="pq-map-select"
+                >
+                  <option value="ALL">All Subjects</option>
+                  {(taxonomy.subjects?.length > 0
+                    ? taxonomy.subjects
+                    : ['Geography', 'Environment', 'Art & Culture', 'Ancient History', 'Medieval History', 'Modern History', 'Agriculture']
+                  ).map((sub) => (
+                    <option key={sub} value={sub}>
+                      {sub}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Year Filter */}
+              <div className="pq-map-filter-group">
+                <label className="pq-map-filter-label">Exam / Target Year</label>
+                <select
+                  value={year}
+                  onChange={(e) => setYear(e.target.value)}
+                  className="pq-map-select"
+                >
+                  <option value="ALL">All Years</option>
+                  {[2026, 2025, 2024, 2023, 2022, 2021, 2020, 2019, 2018].map((y) => (
+                    <option key={y} value={String(y)}>
+                      {y}
                     </option>
                   ))}
                 </select>
@@ -312,6 +386,31 @@ export default function MappingStudioClient() {
         )}
 
         <main className="pq-map-main">
+          {/* 4-Pillar Quick Switcher Bar */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
+            {PILLAR_TABS.map((tab) => {
+              const isActive = pillar === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setPillar(tab.id)}
+                  style={{
+                    padding: '7px 13px',
+                    borderRadius: 999,
+                    border: isActive ? '1px solid #34d399' : '1px solid rgba(148, 163, 184, 0.25)',
+                    background: isActive ? 'rgba(16, 185, 129, 0.16)' : 'rgba(15, 23, 42, 0.6)',
+                    color: isActive ? '#34d399' : '#cbd5e1',
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                  }}
+                >
+                  {tab.label} ({stats[tab.countKey] ?? 0})
+                </button>
+              );
+            })}
+          </div>
           <div className="pq-map-top-search-bar">
             <button
               type="button"
@@ -432,9 +531,27 @@ export default function MappingStudioClient() {
                       {item.regionScope || 'India'}
                     </span>
 
-                    <span className={`pq-badge pq-badge-source-${item.sourceType.toLowerCase()}`}>
-                      {item.sourceType === 'STATIC' ? 'Static Atlas' : item.sourceType === 'PIN' ? 'Places in News' : 'Mapping PYQ'}
+                    <span className={`pq-badge pq-badge-source-${(item.sourceType || 'static').toLowerCase()}`}>
+                      {item.pillar === 'INDIA_STATIC'
+                        ? 'India Static'
+                        : item.pillar === 'WORLD_STATIC'
+                        ? 'World Static'
+                        : item.pillar === 'PIN'
+                        ? item.isMaster
+                          ? 'PIN · Master'
+                          : 'PIN · Daily'
+                        : item.sourceType === 'ORG'
+                        ? 'IR Organisation'
+                        : item.pillar === 'IR'
+                        ? 'IR Mapping'
+                        : 'Mapping PYQ'}
                     </span>
+
+                    {Array.isArray(item.resolvedPYQs) && item.resolvedPYQs.length > 0 && (
+                      <span className="pq-badge pq-badge-category">
+                        {item.resolvedPYQs.length} Linked PYQ{item.resolvedPYQs.length > 1 ? 's' : ''}
+                      </span>
+                    )}
 
                     {Array.isArray(item.category) && item.category[0] && (
                       <span className="pq-badge pq-badge-category">

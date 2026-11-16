@@ -2,7 +2,10 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
-import { CURATED_MAPPING_NODES } from "@/lib/static-mapping-data";
+import {
+  getMappingWorkspaceData,
+  resolveMappingDeckItems,
+} from "@/lib/mapping/workspace-service";
 import PyqPresenterClient from "../../pyq/present/PyqPresenterClient";
 
 export const dynamic = 'force-dynamic';
@@ -107,196 +110,48 @@ export default async function StudioPresentPage({ searchParams }) {
     }
   }
 
-  // 3. Process Mapping items if mode === 'mapping' or mappingIds are present
+  // 3. Process Mapping items using unified Mapping Workspace service
   if (mode === 'mapping' || mappingIds.length > 0) {
-    const requestedIds = mappingIds;
-    const staticMap = new Map();
-    for (const node of CURATED_MAPPING_NODES) {
-      staticMap.set(node.id, node);
-      if (node.slug) staticMap.set(node.slug, node);
-    }
-
-    // Match from static nodes
-    const matchedStatic = [];
-    if (requestedIds.length > 0) {
-      for (const id of requestedIds) {
-        if (staticMap.has(id)) {
-          matchedStatic.push(staticMap.get(id));
-        }
-      }
-    } else {
-      matchedStatic.push(...CURATED_MAPPING_NODES.slice(0, 25));
-    }
-
-    // Match from database PlaceInNews
-    let matchedPins = [];
-    if (requestedIds.length > 0) {
-      try {
-        matchedPins = await prisma.placeInNews.findMany({
-          where: {
-            OR: [
-              { id: { in: requestedIds } },
-              { pinId: { in: requestedIds } },
-              { slug: { in: requestedIds } },
-            ],
-          },
-        });
-      } catch (e) {
-        console.error('[Studio Present] Error fetching PIN records from DB:', e);
-      }
-    }
-
-    const pinMap = new Map();
-    for (const pin of matchedPins) {
-      pinMap.set(pin.id, pin);
-      if (pin.pinId) pinMap.set(pin.pinId, pin);
-      if (pin.slug) pinMap.set(pin.slug, pin);
-    }
-
-    // Collect all linked PYQ IDs from requested IDs, static nodes, and matched PINs
-    const allLinkedPyqIds = new Set(requestedIds);
-    for (const node of matchedStatic) {
-      if (Array.isArray(node.similarPYQ)) {
-        node.similarPYQ.forEach(id => {
-          if (id) allLinkedPyqIds.add(id);
-        });
-      }
-    }
-    for (const pin of matchedPins) {
-      if (Array.isArray(pin.similarPYQ)) {
-        pin.similarPYQ.forEach(id => {
-          if (id) allLinkedPyqIds.add(id);
-        });
-      }
-    }
-
-    // Query all referenced Mapping PYQs from the database
-    let matchedPyqs = [];
-    if (allLinkedPyqIds.size > 0) {
-      try {
-        matchedPyqs = await prisma.mappingPyq.findMany({
-          where: { id: { in: Array.from(allLinkedPyqIds) } },
-        });
-      } catch (e) {
-        console.error('[Studio Present] Error fetching mapping PYQs from DB:', e);
-      }
-    }
-
-    const pyqMap = new Map();
-    for (const q of matchedPyqs) {
-      pyqMap.set(q.id, q);
-    }
-
-    const idOrder = requestedIds.length > 0 ? requestedIds : matchedStatic.map(n => n.id);
-    const addedKeys = new Set();
-
-    for (const id of idOrder) {
-      if (addedKeys.has(id)) continue;
-
-      if (staticMap.has(id)) {
-        const node = staticMap.get(id);
-        addedKeys.add(id);
-        const locText = node.locatedIn?.stateOrProvince || node.locatedIn?.country || (node.regionScope === 'World' ? 'Global' : 'India');
-        const resolvedPyqs = (node.similarPYQ || [])
-          .map(qId => pyqMap.get(qId))
-          .filter(Boolean);
-        const primaryPyq = resolvedPyqs[0] || null;
-
+    try {
+      const workspace = await getMappingWorkspaceData();
+      const resolved = resolveMappingDeckItems(mappingIds, workspace);
+      for (const item of resolved) {
+        const primaryPyq = item.resolvedPYQs?.[0] || null;
         deckItems.push({
-          id: node.id,
+          id: item.id,
           type: 'mapping',
-          title: node.place,
-          place: node.place,
-          regionScope: node.regionScope || 'India',
-          mapCategory: Array.isArray(node.mapCategory) ? node.mapCategory.join(', ') : (node.mapCategory || 'Physical Geography'),
-          category: Array.isArray(node.mapCategory) ? node.mapCategory[0] : (node.mapCategory || 'Physical Geography'),
-          placeType: node.placeType || 'Geographical Feature',
-          locationText: locText,
-          locatedIn: node.locatedIn,
-          lat: node.lat,
-          lng: node.lng,
-          shape: Array.isArray(node.shape) ? node.shape : null,
-          aliases: node.aliases || [],
-          staticFacts: node.staticFacts || [],
-          upscAngle: node.upscAngle || null,
-          newsHook: node.newsHook || null,
-          similarPYQs: resolvedPyqs.length > 0 ? resolvedPyqs : (node.similarPYQ || []),
+          sourceType: item.sourceType,
+          pillar: item.pillar,
+          title: item.sourceType === 'PYQ' ? `Mapping PYQ: ${item.exam} ${item.examYear}` : item.place,
+          place: item.place,
+          regionScope: item.regionScope || 'India',
+          mapCategory: Array.isArray(item.category) ? item.category.join(', ') : (item.category || 'Physical Geography'),
+          category: Array.isArray(item.category) ? item.category[0] : (item.category || 'Physical Geography'),
+          placeType: item.placeType || 'Geographic Feature',
+          locationText: item.locationText,
+          lat: item.coordinates?.lat ?? null,
+          lng: item.coordinates?.lng ?? null,
+          shape: Array.isArray(item.shape) ? item.shape : null,
+          staticFacts: item.staticFacts || [],
+          upscAngle: item.upscAngle || null,
+          newsHook: item.newsHook || null,
+          newsTriggers: item.newsTriggers || [],
+          similarPYQs: item.resolvedPYQs?.length > 0 ? item.resolvedPYQs : (item.similarPYQs || []),
           resolvedPyq: primaryPyq,
           pyq: primaryPyq,
-          imageUrl: node.imageUrl || null,
-          imageCaption: `${node.place} Physical Map`,
-          priority: node.priority || 'High',
-          riverDetails: node.riverDetails || null,
-        });
-      } else if (pinMap.has(id)) {
-        const pin = pinMap.get(id);
-        addedKeys.add(id);
-        const loc = pin.locatedIn && typeof pin.locatedIn === 'object'
-          ? Object.values(pin.locatedIn).filter(Boolean).join(', ')
-          : (pin.regionScope === 'World' ? 'World' : 'India');
-        const resolvedPyqs = (pin.similarPYQ || [])
-          .map(qId => pyqMap.get(qId))
-          .filter(Boolean);
-        const primaryPyq = resolvedPyqs[0] || null;
-
-        deckItems.push({
-          id: pin.id || pin.pinId,
-          type: 'mapping',
-          title: pin.place,
-          place: pin.place,
-          regionScope: pin.regionScope || 'India',
-          mapCategory: Array.isArray(pin.mapCategory) && pin.mapCategory.length > 0 ? pin.mapCategory.join(', ') : 'Places in News',
-          category: Array.isArray(pin.mapCategory) && pin.mapCategory.length > 0 ? pin.mapCategory[0] : 'Places in News',
-          placeType: pin.placeType || 'Place in News',
-          locationText: loc,
-          locatedIn: pin.locatedIn,
-          lat: pin.lat || pin.coordinates?.lat,
-          lng: pin.lng || pin.coordinates?.lng,
-          shape: Array.isArray(pin.shape) ? pin.shape : null,
-          aliases: pin.aliases || [],
-          staticFacts: Array.isArray(pin.staticFacts) ? pin.staticFacts : [],
-          upscAngle: pin.upscAngle || null,
-          newsHook: Array.isArray(pin.newsTriggers) && pin.newsTriggers.length > 0 ? pin.newsTriggers[0]?.newsHook : null,
-          similarPYQs: resolvedPyqs.length > 0 ? resolvedPyqs : (pin.similarPYQ || []),
-          resolvedPyq: primaryPyq,
-          pyq: primaryPyq,
-          imageUrl: null,
-          imageCaption: `${pin.place} Satellite & Map Context`,
-          priority: pin.priority || 'High',
-        });
-      } else if (pyqMap.has(id)) {
-        const q = pyqMap.get(id);
-        addedKeys.add(id);
-        const catList = Array.isArray(q.mapCategory) && q.mapCategory.length > 0 ? q.mapCategory : ['India – rivers, lakes & reservoirs'];
-        const isIndia = catList.some(c => c.toLowerCase().includes('india'));
-
-        deckItems.push({
-          id: q.id,
-          type: 'mapping',
-          title: `Mapping PYQ: ${q.exam} ${q.examYear}`,
-          place: catList[0] || 'Mapping Question',
-          regionScope: isIndia ? 'India' : 'World',
-          mapCategory: catList.join(', '),
-          category: catList[0],
-          placeType: 'Official UPSC PYQ',
-          locationText: `${q.exam} ${q.examYear}`,
-          stem: q.stem,
-          options: q.options || [],
-          correctLabel: q.correctLabel || '',
-          staticFacts: q.answerText ? [q.answerText] : [],
-          pyq: {
-            stem: q.stem,
-            options: q.options,
-            correctLabel: q.correctLabel,
-            answerText: q.answerText,
-            exam: q.exam,
-            examYear: q.examYear,
-          },
-          imageUrl: null,
-          imageCaption: `${q.exam} ${q.examYear} Map Slide`,
-          priority: 'High',
+          stem: item.stem || primaryPyq?.stem || null,
+          options: item.options || primaryPyq?.options || [],
+          correctLabel: item.correctLabel || primaryPyq?.correctLabel || '',
+          explanation: item.explanation || primaryPyq?.explanation || null,
+          analysis: item.analysis || primaryPyq?.analysis || null,
+          imageUrl: item.imageUrl || null,
+          imageCaption: item.sourceType === 'PYQ' ? `${item.exam} ${item.examYear} Map Slide` : `${item.place} Map`,
+          priority: item.priority || 'High',
+          riverDetails: item.riverDetails || null,
         });
       }
+    } catch (e) {
+      console.error('[Studio Present] Error resolving mapping deck from workspace service:', e);
     }
   }
 
