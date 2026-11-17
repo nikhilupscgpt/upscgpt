@@ -27,6 +27,7 @@ import StemView from './StemView';
 import QuizSetupModal from './QuizSetupModal';
 import PyqDeepDive from './PyqDeepDive';
 import ConceptStudyModal from './ConceptStudyModal';
+import PyqAnalysisPanel from './PyqAnalysisPanel';
 import { getStructuredExplanation } from '@/lib/pyqExplanationHelper';
 import { usePyqStore } from './pyqStore';
 import { SUBJECT_ORDER, SUBJECT_SHORT, groupTopics, getTopicSyllabusOrder } from './topicGroups';
@@ -1358,6 +1359,16 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
               >
                 🎯 Focus
               </button>
+              <button
+                type="button"
+                className={`pq-vmt-btn ${viewMode === 'analysis' ? 'is-active' : ''}`}
+                onClick={() => {
+                  setViewMode('analysis');
+                  setIsImmersive(false);
+                }}
+              >
+                📊 Analysis
+              </button>
             </div>
           </div>
 
@@ -1574,6 +1585,18 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                   <span>🎯</span>
                   <span>1-by-1 Focus</span>
                 </button>
+                <button
+                  type="button"
+                  className={`pq-vmt-btn ${viewMode === 'analysis' ? 'is-active' : ''}`}
+                  onClick={() => {
+                    setViewMode('analysis');
+                    setIsImmersive(false);
+                  }}
+                  title="15-Year Subject & Theme PYQ Analysis (2011–2025)"
+                >
+                  <span>📊</span>
+                  <span>15Y Analysis</span>
+                </button>
               </div>
               {viewMode === 'focus' && (
                 <button
@@ -1591,7 +1614,18 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
 
           {/* Question Stage Content */}
           <main ref={feedTopRef}>
-            {loadingQuestions ? (
+            {viewMode === 'analysis' ? (
+              <PyqAnalysisPanel
+                subject={subject}
+                activeTopic={topic}
+                subjectColor={SUBJECT_META[subject]?.color || '#3b82f6'}
+                onSelectTopicToPractice={(nextTopic) => {
+                  setTopic(nextTopic);
+                  setPage(1);
+                  setViewMode('list');
+                }}
+              />
+            ) : loadingQuestions ? (
               <div className="pq-skeleton-list">
                 {[1, 2, 3].map(i => (
                   <div key={i} className="pq-card pq-qcard pq-skeleton-card">

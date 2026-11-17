@@ -1,0 +1,5735 @@
+{
+  "generatedAt": "2026-11-17T13:42:01.816Z",
+  "yearSpan": "2011–2025",
+  "totalQuestions": 1434,
+  "years": [
+    2011,
+    2012,
+    2013,
+    2014,
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "subjects": {
+    "Indian Polity": {
+      "subject": "Indian Polity",
+      "yearSpan": "2011–2025",
+      "totalQuestions": 231,
+      "avgPerYear": 15.4,
+      "early10YrAvg": 14,
+      "recent5YrAvg": 18.2,
+      "trendDirection": "Rising Weightage",
+      "peakYear": {
+        "year": 2017,
+        "count": 29
+      },
+      "yearCounts": {
+        "2011": 4,
+        "2012": 14,
+        "2013": 7,
+        "2014": 11,
+        "2015": 7,
+        "2016": 15,
+        "2017": 29,
+        "2018": 17,
+        "2019": 15,
+        "2020": 21,
+        "2021": 19,
+        "2022": 18,
+        "2023": 17,
+        "2024": 20,
+        "2025": 17
+      },
+      "patternBreakdown": {
+        "counts": {
+          "singleMcq": 84,
+          "multiStatement": 126,
+          "howManyOnly": 10,
+          "statementI_II": 5,
+          "pairMatching": 6
+        },
+        "percentages": {
+          "singleMcq": 36,
+          "multiStatement": 55,
+          "howManyOnly": 4,
+          "statementI_II": 2,
+          "pairMatching": 3
+        },
+        "recent2022_2025": {
+          "total": 72,
+          "counts": {
+            "singleMcq": 10,
+            "multiStatement": 42,
+            "howManyOnly": 10,
+            "statementI_II": 5,
+            "pairMatching": 5
+          },
+          "newPatternSharePct": 28
+        }
+      },
+      "overview": "Indian Polity is one of the highest-ROI pillars in UPSC CSE Prelims, averaging ~15 questions per year with high conceptual repeatability around constitutional text, parliamentary procedure, and fundamental rights.",
+      "recurringConcepts": [
+        "Scope and enforceability of Fundamental Rights (Articles 14, 19, 21) vs DPSP and Fundamental Duties",
+        "Parliamentary devices, money bills vs financial bills, joint sitting exceptions, and committee mandates",
+        "Discretionary powers of President and Governor, ordinance-making limits, and pardoning powers",
+        "Supreme Court original vs appellate jurisdiction, judicial review, Basic Structure doctrine, and writ contours",
+        "Fifth & Sixth Schedules, 73rd/74th Amendments, and asymmetric federalism provisions"
+      ],
+      "traps": [
+        "Swapping \"Constitution explicitly defines/mentions\" with \"regulated by Parliamentary statute or convention\" (e.g., office of profit, judicial review grounds, no-confidence motion).",
+        "Confusing \"all members of Parliament\" with \"elected members only\" in electoral colleges vs impeachment/removal processes.",
+        "Assuming DPSPs or Fundamental Duties are enforceable by writs, or that Constitutional Amendment Bills can go to a Joint Sitting.",
+        "Over-generalising exclusive Rajya Sabha powers (Article 249, 312) vs Lok Sabha dominance in financial matters."
+      ],
+      "predictions2026": [
+        "Delimitation & Women Reservation implementation mechanics (106th Amendment) and census-linked seat freezes.",
+        "Governor reservation of bills (Articles 200/201), Pocket Veto vs Supreme Court timelines, and Speaker disqualification jurisdiction (10th Schedule).",
+        "Sixth Schedule autonomous councils, PESA operational rules, and sub-categorisation within Scheduled Castes.",
+        "Parliamentary privileges, Ethics Committee vs Privileges Committee, and Sovereign Green Bonds / Public Account custody."
+      ],
+      "themeRoiRanking": [
+        {
+          "rank": 1,
+          "themeName": "Foundations",
+          "roiTier": "Tier 1 · Core Pillar",
+          "totalQuestions": 58,
+          "shareOfSubjectPct": 25.1,
+          "recent5YrQuestions": 23,
+          "recent5YrSharePct": 25.3,
+          "yearsActiveOutOf15": 13,
+          "topSubTopic": "Fundamental Rights"
+        },
+        {
+          "rank": 2,
+          "themeName": "Other & Applied",
+          "roiTier": "Tier 2 · High-ROI",
+          "totalQuestions": 46,
+          "shareOfSubjectPct": 19.9,
+          "recent5YrQuestions": 13,
+          "recent5YrSharePct": 14.3,
+          "yearsActiveOutOf15": 11,
+          "topSubTopic": "International Organisations & Relations"
+        },
+        {
+          "rank": 3,
+          "themeName": "The Legislature",
+          "roiTier": "Tier 2 · High-ROI",
+          "totalQuestions": 34,
+          "shareOfSubjectPct": 14.7,
+          "recent5YrQuestions": 14,
+          "recent5YrSharePct": 15.4,
+          "yearsActiveOutOf15": 15,
+          "topSubTopic": "Parliament"
+        },
+        {
+          "rank": 4,
+          "themeName": "The Judiciary",
+          "roiTier": "Tier 3 · Tactical",
+          "totalQuestions": 24,
+          "shareOfSubjectPct": 10.4,
+          "recent5YrQuestions": 8,
+          "recent5YrSharePct": 8.8,
+          "yearsActiveOutOf15": 12,
+          "topSubTopic": "Supreme Court"
+        },
+        {
+          "rank": 5,
+          "themeName": "The Executive",
+          "roiTier": "Tier 3 · Tactical",
+          "totalQuestions": 23,
+          "shareOfSubjectPct": 10,
+          "recent5YrQuestions": 11,
+          "recent5YrSharePct": 12.1,
+          "yearsActiveOutOf15": 13,
+          "topSubTopic": "Prime Minister & Council of Ministers"
+        },
+        {
+          "rank": 6,
+          "themeName": "Constitutional & Statutory Bodies",
+          "roiTier": "Tier 3 · Tactical",
+          "totalQuestions": 21,
+          "shareOfSubjectPct": 9.1,
+          "recent5YrQuestions": 15,
+          "recent5YrSharePct": 16.5,
+          "yearsActiveOutOf15": 9,
+          "topSubTopic": "Statutory & Non-Constitutional Bodies"
+        },
+        {
+          "rank": 7,
+          "themeName": "Federalism & Local Govt",
+          "roiTier": "Tier 3 · Tactical",
+          "totalQuestions": 17,
+          "shareOfSubjectPct": 7.4,
+          "recent5YrQuestions": 5,
+          "recent5YrSharePct": 5.5,
+          "yearsActiveOutOf15": 11,
+          "topSubTopic": "Scheduled & Tribal Areas"
+        },
+        {
+          "rank": 8,
+          "themeName": "Elections & Representation",
+          "roiTier": "Tier 3 · Tactical",
+          "totalQuestions": 8,
+          "shareOfSubjectPct": 3.5,
+          "recent5YrQuestions": 2,
+          "recent5YrSharePct": 2.2,
+          "yearsActiveOutOf15": 5,
+          "topSubTopic": "Elections & Representation"
+        }
+      ],
+      "themes": [
+        {
+          "themeName": "Foundations",
+          "totalQuestions": 58,
+          "shareOfSubjectPct": 25.1,
+          "recent5YrQuestions": 23,
+          "recent5YrSharePct": 25.3,
+          "yearsActiveOutOf15": 13,
+          "lastAskedYear": 2025,
+          "yearCounts": {
+            "2011": 0,
+            "2012": 3,
+            "2013": 3,
+            "2014": 1,
+            "2015": 2,
+            "2016": 0,
+            "2017": 11,
+            "2018": 4,
+            "2019": 3,
+            "2020": 8,
+            "2021": 9,
+            "2022": 1,
+            "2023": 5,
+            "2024": 5,
+            "2025": 3
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 37,
+              "multiStatement": 17,
+              "howManyOnly": 0,
+              "statementI_II": 2,
+              "pairMatching": 2
+            },
+            "percentages": {
+              "singleMcq": 64,
+              "multiStatement": 29,
+              "howManyOnly": 0,
+              "statementI_II": 3,
+              "pairMatching": 3
+            },
+            "recent2022_2025": {
+              "total": 14,
+              "counts": {
+                "singleMcq": 5,
+                "multiStatement": 5,
+                "howManyOnly": 0,
+                "statementI_II": 2,
+                "pairMatching": 2
+              },
+              "newPatternSharePct": 29
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Fundamental Rights",
+              "total": 16,
+              "shareOfSubjectPct": 6.9,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 9,
+                "y2021_2025": 7
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Article 21",
+                "Right to Privacy",
+                "Due Process of Law",
+                "efficiency of administration"
+              ]
+            },
+            {
+              "topic": "Salient Features of the Constitution",
+              "total": 11,
+              "shareOfSubjectPct": 4.8,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 5,
+                "y2021_2025": 5
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Constitution",
+                "Rule of Law",
+                "It defines and limits the powers of government",
+                "Separation of powers"
+              ]
+            },
+            {
+              "topic": "Directive Principles of State Policy",
+              "total": 7,
+              "shareOfSubjectPct": 3,
+              "split5Yr": {
+                "y2011_2015": 2,
+                "y2016_2020": 4,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2021,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "Directive Principles of State Policy",
+                "Welfare State",
+                "The Directive principles of state policy",
+                "Participation of workers in the management of industries"
+              ]
+            },
+            {
+              "topic": "Schedules of the Constitution",
+              "total": 6,
+              "shareOfSubjectPct": 2.6,
+              "split5Yr": {
+                "y2011_2015": 4,
+                "y2016_2020": 2,
+                "y2021_2025": 0
+              },
+              "lastAskedYear": 2019,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "Jawaharlal Nehru",
+                "Protect the interests of Scheduled Tribes",
+                "Tenth Schedule",
+                "To create autonomous regions in tribal areas"
+              ]
+            },
+            {
+              "topic": "Preamble",
+              "total": 5,
+              "shareOfSubjectPct": 2.2,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 4,
+                "y2021_2025": 0
+              },
+              "lastAskedYear": 2020,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "Economic Justice",
+                "The Preamble",
+                "Economic liberty",
+                "the Preamble and the Directive Principles of State Policy"
+              ]
+            },
+            {
+              "topic": "Constitutional Framework & Amendment",
+              "total": 4,
+              "shareOfSubjectPct": 1.7,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 0,
+                "y2021_2025": 4
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": []
+            },
+            {
+              "topic": "Political Theory & Concepts",
+              "total": 2,
+              "shareOfSubjectPct": 0.9,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 1,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2021,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": [
+                "State",
+                "the final goal of a stateless society"
+              ]
+            },
+            {
+              "topic": "Fundamental Duties",
+              "total": 2,
+              "shareOfSubjectPct": 0.9,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 1,
+                "y2021_2025": 0
+              },
+              "lastAskedYear": 2017,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": []
+            },
+            {
+              "topic": "Constitutional Amendments",
+              "total": 2,
+              "shareOfSubjectPct": 0.9,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 0,
+                "y2021_2025": 2
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "1st Amendment"
+              ]
+            },
+            {
+              "topic": "Citizenship",
+              "total": 1,
+              "shareOfSubjectPct": 0.4,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 0,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2021,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": []
+            },
+            {
+              "topic": "Constitutional Framework & Assembly",
+              "total": 1,
+              "shareOfSubjectPct": 0.4,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 0,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2024,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": [
+                "Dr. Sachchidananda Sinha"
+              ]
+            },
+            {
+              "topic": "Constitutional Framework",
+              "total": 1,
+              "shareOfSubjectPct": 0.4,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 0,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2024,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": []
+            }
+          ],
+          "testedAnchors": [
+            "Article 21",
+            "Directive Principles of State Policy",
+            "Constitution",
+            "Rule of Law",
+            "Economic Justice",
+            "Right to Privacy"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Fundamental Rights (7 Qs in 2021–25) & Salient Features of the Constitution (5 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Salient Features of the Constitution (last tested 2023, 11 total Qs) & Directive Principles of State Policy (last tested 2021, 7 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: Article 21, Directive Principles of State Policy, Constitution, Rule of Law."
+          ],
+          "roiTier": "Tier 1 · Core Pillar"
+        },
+        {
+          "themeName": "Federalism & Local Govt",
+          "totalQuestions": 17,
+          "shareOfSubjectPct": 7.4,
+          "recent5YrQuestions": 5,
+          "recent5YrSharePct": 5.5,
+          "yearsActiveOutOf15": 11,
+          "lastAskedYear": 2024,
+          "yearCounts": {
+            "2011": 0,
+            "2012": 2,
+            "2013": 1,
+            "2014": 0,
+            "2015": 1,
+            "2016": 2,
+            "2017": 2,
+            "2018": 1,
+            "2019": 3,
+            "2020": 0,
+            "2021": 2,
+            "2022": 1,
+            "2023": 1,
+            "2024": 1,
+            "2025": 0
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 12,
+              "multiStatement": 4,
+              "howManyOnly": 1,
+              "statementI_II": 0,
+              "pairMatching": 0
+            },
+            "percentages": {
+              "singleMcq": 71,
+              "multiStatement": 24,
+              "howManyOnly": 6,
+              "statementI_II": 0,
+              "pairMatching": 0
+            },
+            "recent2022_2025": {
+              "total": 3,
+              "counts": {
+                "singleMcq": 2,
+                "multiStatement": 0,
+                "howManyOnly": 1,
+                "statementI_II": 0,
+                "pairMatching": 0
+              },
+              "newPatternSharePct": 33
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Scheduled & Tribal Areas",
+              "total": 7,
+              "shareOfSubjectPct": 3,
+              "split5Yr": {
+                "y2011_2015": 2,
+                "y2016_2020": 2,
+                "y2021_2025": 3
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "Scheduled Areas",
+                "Ministry of Tribal Affairs",
+                "Fifth Schedule",
+                "Gram Sabha"
+              ]
+            },
+            {
+              "topic": "Panchayati Raj",
+              "total": 4,
+              "shareOfSubjectPct": 1.7,
+              "split5Yr": {
+                "y2011_2015": 2,
+                "y2016_2020": 2,
+                "y2021_2025": 0
+              },
+              "lastAskedYear": 2017,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "Democratic decentralization",
+                "State Finance Commission"
+              ]
+            },
+            {
+              "topic": "Centre-State Relations",
+              "total": 3,
+              "shareOfSubjectPct": 1.3,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 3,
+                "y2021_2025": 0
+              },
+              "lastAskedYear": 2019,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": [
+                "Sarkaria Commission (1983)"
+              ]
+            },
+            {
+              "topic": "Federal System",
+              "total": 2,
+              "shareOfSubjectPct": 0.9,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 1,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2021,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": [
+                "The independence of judiciary is safeguarded",
+                "It is the result of an agreement among the federating units"
+              ]
+            },
+            {
+              "topic": "Federal Relations & Seventh Schedule",
+              "total": 1,
+              "shareOfSubjectPct": 0.4,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 0,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2024,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": []
+            }
+          ],
+          "testedAnchors": [
+            "Scheduled Areas",
+            "The independence of judiciary is safeguarded",
+            "Sarkaria Commission (1983)",
+            "Ministry of Tribal Affairs",
+            "Fifth Schedule",
+            "Democratic decentralization"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Scheduled & Tribal Areas (3 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Scheduled & Tribal Areas (last tested 2023, 7 total Qs) & Panchayati Raj (last tested 2017, 4 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: Scheduled Areas, The independence of judiciary is safeguarded, Sarkaria Commission (1983), Ministry of Tribal Affairs."
+          ],
+          "roiTier": "Tier 3 · Tactical"
+        },
+        {
+          "themeName": "The Executive",
+          "totalQuestions": 23,
+          "shareOfSubjectPct": 10,
+          "recent5YrQuestions": 11,
+          "recent5YrSharePct": 12.1,
+          "yearsActiveOutOf15": 13,
+          "lastAskedYear": 2025,
+          "yearCounts": {
+            "2011": 0,
+            "2012": 0,
+            "2013": 2,
+            "2014": 3,
+            "2015": 1,
+            "2016": 1,
+            "2017": 1,
+            "2018": 2,
+            "2019": 1,
+            "2020": 1,
+            "2021": 1,
+            "2022": 2,
+            "2023": 3,
+            "2024": 2,
+            "2025": 3
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 1,
+              "multiStatement": 19,
+              "howManyOnly": 3,
+              "statementI_II": 0,
+              "pairMatching": 0
+            },
+            "percentages": {
+              "singleMcq": 4,
+              "multiStatement": 83,
+              "howManyOnly": 13,
+              "statementI_II": 0,
+              "pairMatching": 0
+            },
+            "recent2022_2025": {
+              "total": 10,
+              "counts": {
+                "singleMcq": 1,
+                "multiStatement": 6,
+                "howManyOnly": 3,
+                "statementI_II": 0,
+                "pairMatching": 0
+              },
+              "newPatternSharePct": 30
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Prime Minister & Council of Ministers",
+              "total": 6,
+              "shareOfSubjectPct": 2.6,
+              "split5Yr": {
+                "y2011_2015": 4,
+                "y2016_2020": 0,
+                "y2021_2025": 2
+              },
+              "lastAskedYear": 2022,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": []
+            },
+            {
+              "topic": "President",
+              "total": 5,
+              "shareOfSubjectPct": 2.2,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 2,
+                "y2021_2025": 3
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": []
+            },
+            {
+              "topic": "Governor",
+              "total": 4,
+              "shareOfSubjectPct": 1.7,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 3,
+                "y2021_2025": 0
+              },
+              "lastAskedYear": 2019,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": []
+            },
+            {
+              "topic": "Executive & Governance",
+              "total": 4,
+              "shareOfSubjectPct": 1.7,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 0,
+                "y2021_2025": 4
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Operation Sadbhavana"
+              ]
+            },
+            {
+              "topic": "Attorney General & Solicitor General",
+              "total": 2,
+              "shareOfSubjectPct": 0.9,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 0,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2022,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": []
+            },
+            {
+              "topic": "Emergency Provisions",
+              "total": 1,
+              "shareOfSubjectPct": 0.4,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 1,
+                "y2021_2025": 0
+              },
+              "lastAskedYear": 2017,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": []
+            },
+            {
+              "topic": "Executive & Defense Administration",
+              "total": 1,
+              "shareOfSubjectPct": 0.4,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 0,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2024,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": []
+            }
+          ],
+          "testedAnchors": [
+            "Operation Sadbhavana"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Prime Minister & Council of Ministers (2 Qs in 2021–25) & President (3 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Prime Minister & Council of Ministers (last tested 2022, 6 total Qs) & President (last tested 2023, 5 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: Operation Sadbhavana."
+          ],
+          "roiTier": "Tier 3 · Tactical"
+        },
+        {
+          "themeName": "The Legislature",
+          "totalQuestions": 34,
+          "shareOfSubjectPct": 14.7,
+          "recent5YrQuestions": 14,
+          "recent5YrSharePct": 15.4,
+          "yearsActiveOutOf15": 15,
+          "lastAskedYear": 2025,
+          "yearCounts": {
+            "2011": 1,
+            "2012": 1,
+            "2013": 1,
+            "2014": 3,
+            "2015": 2,
+            "2016": 1,
+            "2017": 3,
+            "2018": 4,
+            "2019": 1,
+            "2020": 3,
+            "2021": 1,
+            "2022": 2,
+            "2023": 1,
+            "2024": 7,
+            "2025": 3
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 9,
+              "multiStatement": 24,
+              "howManyOnly": 1,
+              "statementI_II": 0,
+              "pairMatching": 0
+            },
+            "percentages": {
+              "singleMcq": 26,
+              "multiStatement": 71,
+              "howManyOnly": 3,
+              "statementI_II": 0,
+              "pairMatching": 0
+            },
+            "recent2022_2025": {
+              "total": 13,
+              "counts": {
+                "singleMcq": 0,
+                "multiStatement": 12,
+                "howManyOnly": 1,
+                "statementI_II": 0,
+                "pairMatching": 0
+              },
+              "newPatternSharePct": 8
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Parliament",
+              "total": 18,
+              "shareOfSubjectPct": 7.8,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 5,
+                "y2021_2025": 12
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Leader of the Opposition",
+                "Nari Shakti Vandan Adhiniyam",
+                "political party",
+                "amending the Constitution"
+              ]
+            },
+            {
+              "topic": "Parliamentary System",
+              "total": 6,
+              "shareOfSubjectPct": 2.6,
+              "split5Yr": {
+                "y2011_2015": 2,
+                "y2016_2020": 3,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2021,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "the executive remains responsible to the legislature",
+                "without the consent of any state"
+              ]
+            },
+            {
+              "topic": "Budget & Financial Procedure",
+              "total": 6,
+              "shareOfSubjectPct": 2.6,
+              "split5Yr": {
+                "y2011_2015": 3,
+                "y2016_2020": 2,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": []
+            },
+            {
+              "topic": "Parliamentary Committees",
+              "total": 2,
+              "shareOfSubjectPct": 0.9,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 1,
+                "y2021_2025": 0
+              },
+              "lastAskedYear": 2018,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": [
+                "Committee on Subordinate Legislation",
+                "The committee on Estimates"
+              ]
+            },
+            {
+              "topic": "State Legislature",
+              "total": 2,
+              "shareOfSubjectPct": 0.9,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 1,
+                "y2021_2025": 0
+              },
+              "lastAskedYear": 2018,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": []
+            }
+          ],
+          "testedAnchors": [
+            "Leader of the Opposition",
+            "Nari Shakti Vandan Adhiniyam",
+            "political party",
+            "the executive remains responsible to the legislature",
+            "without the consent of any state",
+            "amending the Constitution"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Parliament (12 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Parliamentary System (last tested 2021, 6 total Qs) & Budget & Financial Procedure (last tested 2023, 6 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: Leader of the Opposition, Nari Shakti Vandan Adhiniyam, political party, the executive remains responsible to the legislature."
+          ],
+          "roiTier": "Tier 2 · High-ROI"
+        },
+        {
+          "themeName": "The Judiciary",
+          "totalQuestions": 24,
+          "shareOfSubjectPct": 10.4,
+          "recent5YrQuestions": 8,
+          "recent5YrSharePct": 8.8,
+          "yearsActiveOutOf15": 12,
+          "lastAskedYear": 2024,
+          "yearCounts": {
+            "2011": 1,
+            "2012": 3,
+            "2013": 0,
+            "2014": 2,
+            "2015": 1,
+            "2016": 1,
+            "2017": 1,
+            "2018": 0,
+            "2019": 3,
+            "2020": 4,
+            "2021": 3,
+            "2022": 3,
+            "2023": 1,
+            "2024": 1,
+            "2025": 0
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 8,
+              "multiStatement": 15,
+              "howManyOnly": 0,
+              "statementI_II": 1,
+              "pairMatching": 0
+            },
+            "percentages": {
+              "singleMcq": 33,
+              "multiStatement": 63,
+              "howManyOnly": 0,
+              "statementI_II": 4,
+              "pairMatching": 0
+            },
+            "recent2022_2025": {
+              "total": 5,
+              "counts": {
+                "singleMcq": 1,
+                "multiStatement": 3,
+                "howManyOnly": 0,
+                "statementI_II": 1,
+                "pairMatching": 0
+              },
+              "newPatternSharePct": 20
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Supreme Court",
+              "total": 12,
+              "shareOfSubjectPct": 5.2,
+              "split5Yr": {
+                "y2011_2015": 5,
+                "y2016_2020": 4,
+                "y2021_2025": 3
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "incapacity and proved misbehaviour",
+                "a Directive Principle of State Policy",
+                "The Supreme Court of India",
+                "original jurisdiction"
+              ]
+            },
+            {
+              "topic": "Judicial Review & Landmark Judgements",
+              "total": 6,
+              "shareOfSubjectPct": 2.6,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 3,
+                "y2021_2025": 2
+              },
+              "lastAskedYear": 2021,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "Basic Structure",
+                "Judicial review"
+              ]
+            },
+            {
+              "topic": "High Courts",
+              "total": 4,
+              "shareOfSubjectPct": 1.7,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 1,
+                "y2021_2025": 2
+              },
+              "lastAskedYear": 2022,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": []
+            },
+            {
+              "topic": "Subordinate Courts",
+              "total": 1,
+              "shareOfSubjectPct": 0.4,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 1,
+                "y2021_2025": 0
+              },
+              "lastAskedYear": 2016,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": []
+            },
+            {
+              "topic": "Judiciary",
+              "total": 1,
+              "shareOfSubjectPct": 0.4,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 0,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2024,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": []
+            }
+          ],
+          "testedAnchors": [
+            "incapacity and proved misbehaviour",
+            "Basic Structure",
+            "Judicial review",
+            "a Directive Principle of State Policy",
+            "The Supreme Court of India",
+            "original jurisdiction"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Supreme Court (3 Qs in 2021–25) & Judicial Review & Landmark Judgements (2 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Supreme Court (last tested 2023, 12 total Qs) & Judicial Review & Landmark Judgements (last tested 2021, 6 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: incapacity and proved misbehaviour, Basic Structure, Judicial review, a Directive Principle of State Policy."
+          ],
+          "roiTier": "Tier 3 · Tactical"
+        },
+        {
+          "themeName": "Constitutional & Statutory Bodies",
+          "totalQuestions": 21,
+          "shareOfSubjectPct": 9.1,
+          "recent5YrQuestions": 15,
+          "recent5YrSharePct": 16.5,
+          "yearsActiveOutOf15": 9,
+          "lastAskedYear": 2025,
+          "yearCounts": {
+            "2011": 1,
+            "2012": 2,
+            "2013": 0,
+            "2014": 0,
+            "2015": 0,
+            "2016": 1,
+            "2017": 1,
+            "2018": 1,
+            "2019": 0,
+            "2020": 0,
+            "2021": 0,
+            "2022": 2,
+            "2023": 1,
+            "2024": 4,
+            "2025": 8
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 2,
+              "multiStatement": 14,
+              "howManyOnly": 3,
+              "statementI_II": 0,
+              "pairMatching": 2
+            },
+            "percentages": {
+              "singleMcq": 10,
+              "multiStatement": 67,
+              "howManyOnly": 14,
+              "statementI_II": 0,
+              "pairMatching": 10
+            },
+            "recent2022_2025": {
+              "total": 15,
+              "counts": {
+                "singleMcq": 1,
+                "multiStatement": 9,
+                "howManyOnly": 3,
+                "statementI_II": 0,
+                "pairMatching": 2
+              },
+              "newPatternSharePct": 33
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Statutory & Non-Constitutional Bodies",
+              "total": 5,
+              "shareOfSubjectPct": 2.2,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 3,
+                "y2021_2025": 2
+              },
+              "lastAskedYear": 2022,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "Tea Board"
+              ]
+            },
+            {
+              "topic": "Constitutional Bodies",
+              "total": 5,
+              "shareOfSubjectPct": 2.2,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 0,
+                "y2021_2025": 5
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": []
+            },
+            {
+              "topic": "Constitutional & Executive Bodies",
+              "total": 4,
+              "shareOfSubjectPct": 1.7,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 0,
+                "y2021_2025": 4
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "tourism",
+                "Gandhi Peace Prize"
+              ]
+            },
+            {
+              "topic": "Comptroller and Auditor General",
+              "total": 2,
+              "shareOfSubjectPct": 0.9,
+              "split5Yr": {
+                "y2011_2015": 2,
+                "y2016_2020": 0,
+                "y2021_2025": 0
+              },
+              "lastAskedYear": 2012,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": []
+            },
+            {
+              "topic": "Local Bodies",
+              "total": 2,
+              "shareOfSubjectPct": 0.9,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 0,
+                "y2021_2025": 2
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": []
+            },
+            {
+              "topic": "Finance Commission",
+              "total": 1,
+              "shareOfSubjectPct": 0.4,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 0,
+                "y2021_2025": 0
+              },
+              "lastAskedYear": 2011,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": []
+            },
+            {
+              "topic": "National Commissions (SC/ST/BC/Women/Minorities)",
+              "total": 1,
+              "shareOfSubjectPct": 0.4,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 0,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": []
+            },
+            {
+              "topic": "Constitutional & Statutory Bodies",
+              "total": 1,
+              "shareOfSubjectPct": 0.4,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 0,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": []
+            }
+          ],
+          "testedAnchors": [
+            "Tea Board",
+            "tourism",
+            "Gandhi Peace Prize"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Statutory & Non-Constitutional Bodies (2 Qs in 2021–25) & Constitutional Bodies (5 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Statutory & Non-Constitutional Bodies (last tested 2022, 5 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: Tea Board, tourism, Gandhi Peace Prize."
+          ],
+          "roiTier": "Tier 3 · Tactical"
+        },
+        {
+          "themeName": "Elections & Representation",
+          "totalQuestions": 8,
+          "shareOfSubjectPct": 3.5,
+          "recent5YrQuestions": 2,
+          "recent5YrSharePct": 2.2,
+          "yearsActiveOutOf15": 5,
+          "lastAskedYear": 2022,
+          "yearCounts": {
+            "2011": 0,
+            "2012": 1,
+            "2013": 0,
+            "2014": 0,
+            "2015": 0,
+            "2016": 0,
+            "2017": 4,
+            "2018": 0,
+            "2019": 0,
+            "2020": 1,
+            "2021": 1,
+            "2022": 1,
+            "2023": 0,
+            "2024": 0,
+            "2025": 0
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 1,
+              "multiStatement": 7,
+              "howManyOnly": 0,
+              "statementI_II": 0,
+              "pairMatching": 0
+            },
+            "percentages": {
+              "singleMcq": 13,
+              "multiStatement": 88,
+              "howManyOnly": 0,
+              "statementI_II": 0,
+              "pairMatching": 0
+            },
+            "recent2022_2025": {
+              "total": 1,
+              "counts": {
+                "singleMcq": 0,
+                "multiStatement": 1,
+                "howManyOnly": 0,
+                "statementI_II": 0,
+                "pairMatching": 0
+              },
+              "newPatternSharePct": 0
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Elections & Representation",
+              "total": 5,
+              "shareOfSubjectPct": 2.2,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 3,
+                "y2021_2025": 2
+              },
+              "lastAskedYear": 2022,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": []
+            },
+            {
+              "topic": "Elections & Political Parties",
+              "total": 3,
+              "shareOfSubjectPct": 1.3,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 2,
+                "y2021_2025": 0
+              },
+              "lastAskedYear": 2017,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": []
+            }
+          ],
+          "testedAnchors": [],
+          "focus2026": [
+            "High-momentum anchor: Elections & Representation (2 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Elections & Representation (last tested 2022, 5 total Qs) & Elections & Political Parties (last tested 2017, 3 total Qs) — high probability of return in 2026."
+          ],
+          "roiTier": "Tier 3 · Tactical"
+        },
+        {
+          "themeName": "Other & Applied",
+          "totalQuestions": 46,
+          "shareOfSubjectPct": 19.9,
+          "recent5YrQuestions": 13,
+          "recent5YrSharePct": 14.3,
+          "yearsActiveOutOf15": 11,
+          "lastAskedYear": 2023,
+          "yearCounts": {
+            "2011": 1,
+            "2012": 2,
+            "2013": 0,
+            "2014": 2,
+            "2015": 0,
+            "2016": 9,
+            "2017": 6,
+            "2018": 5,
+            "2019": 4,
+            "2020": 4,
+            "2021": 2,
+            "2022": 6,
+            "2023": 5,
+            "2024": 0,
+            "2025": 0
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 14,
+              "multiStatement": 26,
+              "howManyOnly": 2,
+              "statementI_II": 2,
+              "pairMatching": 2
+            },
+            "percentages": {
+              "singleMcq": 30,
+              "multiStatement": 57,
+              "howManyOnly": 4,
+              "statementI_II": 4,
+              "pairMatching": 4
+            },
+            "recent2022_2025": {
+              "total": 11,
+              "counts": {
+                "singleMcq": 0,
+                "multiStatement": 6,
+                "howManyOnly": 2,
+                "statementI_II": 2,
+                "pairMatching": 1
+              },
+              "newPatternSharePct": 45
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "International Organisations & Relations",
+              "total": 28,
+              "shareOfSubjectPct": 12.1,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 25,
+                "y2021_2025": 3
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Trans-Pacific Partnership",
+                "Gulf Cooperation Council",
+                "Belt and Road Initiative",
+                "Regional Comprehensive Economic Partnership"
+              ]
+            },
+            {
+              "topic": "Miscellaneous",
+              "total": 9,
+              "shareOfSubjectPct": 3.9,
+              "split5Yr": {
+                "y2011_2015": 3,
+                "y2016_2020": 3,
+                "y2021_2025": 3
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "Right to the City",
+                "Right to the city",
+                "Office of Profit"
+              ]
+            },
+            {
+              "topic": "International Organisations & Groupings",
+              "total": 6,
+              "shareOfSubjectPct": 2.6,
+              "split5Yr": {
+                "y2011_2015": 2,
+                "y2016_2020": 0,
+                "y2021_2025": 4
+              },
+              "lastAskedYear": 2022,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Arctic Council",
+                "United Nations Credentials Committee"
+              ]
+            },
+            {
+              "topic": "National Symbols & Awards",
+              "total": 2,
+              "shareOfSubjectPct": 0.9,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 0,
+                "y2021_2025": 2
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": []
+            },
+            {
+              "topic": "Country Profiles",
+              "total": 1,
+              "shareOfSubjectPct": 0.4,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 0,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2022,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": []
+            }
+          ],
+          "testedAnchors": [
+            "Right to the City",
+            "Right to the city",
+            "Office of Profit",
+            "Arctic Council",
+            "Trans-Pacific Partnership",
+            "Gulf Cooperation Council"
+          ],
+          "focus2026": [
+            "High-momentum anchor: International Organisations & Relations (3 Qs in 2021–25) & Miscellaneous (3 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: International Organisations & Relations (last tested 2023, 28 total Qs) & Miscellaneous (last tested 2023, 9 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: Right to the City, Right to the city, Office of Profit, Arctic Council."
+          ],
+          "roiTier": "Tier 2 · High-ROI"
+        }
+      ]
+    },
+    "Geography": {
+      "subject": "Geography",
+      "yearSpan": "2011–2025",
+      "totalQuestions": 185,
+      "avgPerYear": 12.3,
+      "early10YrAvg": 10.4,
+      "recent5YrAvg": 16.2,
+      "trendDirection": "Rising Weightage",
+      "peakYear": {
+        "year": 2023,
+        "count": 22
+      },
+      "yearCounts": {
+        "2011": 12,
+        "2012": 11,
+        "2013": 15,
+        "2014": 18,
+        "2015": 13,
+        "2016": 5,
+        "2017": 7,
+        "2018": 10,
+        "2019": 7,
+        "2020": 6,
+        "2021": 9,
+        "2022": 13,
+        "2023": 22,
+        "2024": 20,
+        "2025": 17
+      },
+      "patternBreakdown": {
+        "counts": {
+          "singleMcq": 55,
+          "multiStatement": 75,
+          "howManyOnly": 12,
+          "statementI_II": 16,
+          "pairMatching": 27
+        },
+        "percentages": {
+          "singleMcq": 30,
+          "multiStatement": 41,
+          "howManyOnly": 6,
+          "statementI_II": 9,
+          "pairMatching": 15
+        },
+        "recent2022_2025": {
+          "total": 72,
+          "counts": {
+            "singleMcq": 14,
+            "multiStatement": 18,
+            "howManyOnly": 12,
+            "statementI_II": 16,
+            "pairMatching": 12
+          },
+          "newPatternSharePct": 56
+        }
+      },
+      "overview": "Geography combines conceptual physical processes (climatology, oceanography, geomorphology) with high-precision Indian drainage, resource distribution, and contemporary world mapping.",
+      "recurringConcepts": [
+        "Monsoon mechanism, IOD, El Niño/La Niña, Westerly Jet Streams, and tropical cyclone formation conditions",
+        "Himalayan vs Peninsular drainage systems, East-flowing vs West-flowing rivers, gorges, and tributaries",
+        "Global heat budget, insolation, temperature inversion, cloud types, and ocean salinity/currents",
+        "Indian soil types (Black, Laterite, Alluvial, Red), natural vegetation belts, and critical mineral belts",
+        "Chokepoints, straits, seas, border countries, and conflict/resource zones in world geography"
+      ],
+      "traps": [
+        "Swapping river bank directions (left-bank vs right-bank tributaries) or source hills in the Eastern/Western Ghats.",
+        "Confusing tropical vs temperate cyclone characteristics (frontal origin, eye formation, landfall dissipation).",
+        "Misidentifying critical mineral reserves vs top producer states in India (Lithium, Cobalt, Rare Earths, Monazite, Bauxite).",
+        "Reversing insolation/moisture relationships (e.g., relative humidity vs temperature changes, equatorial vs subtropical salinity)."
+      ],
+      "predictions2026": [
+        "Critical & Strategic Minerals (30 listed minerals, offshore polymetallic nodules, Lithium/REE belts in J&K, Rajasthan, Karnataka).",
+        "Red Sea–Bab-el-Mandeb–Hormuz–Eastern Mediterranean maritime corridors and Arctic Northern Sea Route.",
+        "Glacial Lake Outburst Floods (GLOFs), Teesta/Chenab/Subansiri basin hydro-geography, and Western Disturbances anomalies.",
+        "Atmospheric rivers, sudden stratospheric warming, heat domes, and Deep Ocean Mission hydrothermal vents."
+      ],
+      "themeRoiRanking": [
+        {
+          "rank": 1,
+          "themeName": "Physical",
+          "roiTier": "Tier 1 · Core Pillar",
+          "totalQuestions": 115,
+          "shareOfSubjectPct": 62.2,
+          "recent5YrQuestions": 48,
+          "recent5YrSharePct": 59.3,
+          "yearsActiveOutOf15": 15,
+          "topSubTopic": "Indian Physiography & Drainage"
+        },
+        {
+          "rank": 2,
+          "themeName": "World",
+          "roiTier": "Tier 1 · Core Pillar",
+          "totalQuestions": 47,
+          "shareOfSubjectPct": 25.4,
+          "recent5YrQuestions": 27,
+          "recent5YrSharePct": 33.3,
+          "yearsActiveOutOf15": 12,
+          "topSubTopic": "World Geography & Places"
+        },
+        {
+          "rank": 3,
+          "themeName": "Human & Economic",
+          "roiTier": "Tier 2 · High-ROI",
+          "totalQuestions": 23,
+          "shareOfSubjectPct": 12.4,
+          "recent5YrQuestions": 6,
+          "recent5YrSharePct": 7.4,
+          "yearsActiveOutOf15": 11,
+          "topSubTopic": "Agriculture & Resources"
+        }
+      ],
+      "themes": [
+        {
+          "themeName": "Physical",
+          "totalQuestions": 115,
+          "shareOfSubjectPct": 62.2,
+          "recent5YrQuestions": 48,
+          "recent5YrSharePct": 59.3,
+          "yearsActiveOutOf15": 15,
+          "lastAskedYear": 2025,
+          "yearCounts": {
+            "2011": 8,
+            "2012": 8,
+            "2013": 11,
+            "2014": 8,
+            "2015": 10,
+            "2016": 3,
+            "2017": 4,
+            "2018": 5,
+            "2019": 5,
+            "2020": 5,
+            "2021": 9,
+            "2022": 5,
+            "2023": 10,
+            "2024": 13,
+            "2025": 11
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 35,
+              "multiStatement": 53,
+              "howManyOnly": 5,
+              "statementI_II": 11,
+              "pairMatching": 11
+            },
+            "percentages": {
+              "singleMcq": 30,
+              "multiStatement": 46,
+              "howManyOnly": 4,
+              "statementI_II": 10,
+              "pairMatching": 10
+            },
+            "recent2022_2025": {
+              "total": 39,
+              "counts": {
+                "singleMcq": 6,
+                "multiStatement": 13,
+                "howManyOnly": 5,
+                "statementI_II": 11,
+                "pairMatching": 4
+              },
+              "newPatternSharePct": 51
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Indian Physiography & Drainage",
+              "total": 32,
+              "shareOfSubjectPct": 17.3,
+              "split5Yr": {
+                "y2011_2015": 10,
+                "y2016_2020": 7,
+                "y2021_2025": 15
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Ten Degree Channel",
+                "World Water Development Report, 2022",
+                "Cameroon",
+                "Colombia, Kenya and Indonesia"
+              ]
+            },
+            {
+              "topic": "Climatology",
+              "total": 31,
+              "shareOfSubjectPct": 16.8,
+              "split5Yr": {
+                "y2011_2015": 11,
+                "y2016_2020": 5,
+                "y2021_2025": 15
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "living root bridges",
+                "water vapour",
+                "Coriolis force",
+                "s average temperature.\nIII. Atmosphere"
+              ]
+            },
+            {
+              "topic": "Universe & Solar System",
+              "total": 18,
+              "shareOfSubjectPct": 9.7,
+              "split5Yr": {
+                "y2011_2015": 11,
+                "y2016_2020": 2,
+                "y2021_2025": 5
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "1, 2, 3, 4, 5 and 6",
+                "keeping the polestar to his left",
+                "Inter-tropical Convergence Zone seldom occurs",
+                "Equatorial"
+              ]
+            },
+            {
+              "topic": "Geomorphology",
+              "total": 14,
+              "shareOfSubjectPct": 7.6,
+              "split5Yr": {
+                "y2011_2015": 4,
+                "y2016_2020": 3,
+                "y2021_2025": 7
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Atlas Mountains Africa South-Western",
+                "saline lakes",
+                "fissure volcanic rock",
+                "North of Nubra Valley"
+              ]
+            },
+            {
+              "topic": "Oceanography",
+              "total": 13,
+              "shareOfSubjectPct": 7,
+              "split5Yr": {
+                "y2011_2015": 4,
+                "y2016_2020": 5,
+                "y2021_2025": 4
+              },
+              "lastAskedYear": 2024,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Indian Ocean Dipole (IOD)",
+                "Rare earth minerals",
+                "Convergence currents",
+                "Chandipur"
+              ]
+            },
+            {
+              "topic": "Soils & Natural Vegetation",
+              "total": 7,
+              "shareOfSubjectPct": 3.8,
+              "split5Yr": {
+                "y2011_2015": 5,
+                "y2016_2020": 0,
+                "y2021_2025": 2
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "Tropical Wet Evergreen Forests",
+                "tropical rain forest",
+                "Rann of Kutch",
+                "Tropical moist deciduous forest"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "Indian Ocean Dipole (IOD)",
+            "Tropical Wet Evergreen Forests",
+            "living root bridges",
+            "Ten Degree Channel",
+            "Rare earth minerals",
+            "World Water Development Report, 2022"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Indian Physiography & Drainage (15 Qs in 2021–25) & Climatology (15 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Soils & Natural Vegetation (last tested 2023, 7 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: Indian Ocean Dipole (IOD), Tropical Wet Evergreen Forests, living root bridges, Ten Degree Channel."
+          ],
+          "roiTier": "Tier 1 · Core Pillar"
+        },
+        {
+          "themeName": "Human & Economic",
+          "totalQuestions": 23,
+          "shareOfSubjectPct": 12.4,
+          "recent5YrQuestions": 6,
+          "recent5YrSharePct": 7.4,
+          "yearsActiveOutOf15": 11,
+          "lastAskedYear": 2023,
+          "yearCounts": {
+            "2011": 2,
+            "2012": 3,
+            "2013": 3,
+            "2014": 4,
+            "2015": 1,
+            "2016": 1,
+            "2017": 0,
+            "2018": 1,
+            "2019": 1,
+            "2020": 1,
+            "2021": 0,
+            "2022": 1,
+            "2023": 5,
+            "2024": 0,
+            "2025": 0
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 5,
+              "multiStatement": 11,
+              "howManyOnly": 2,
+              "statementI_II": 2,
+              "pairMatching": 3
+            },
+            "percentages": {
+              "singleMcq": 22,
+              "multiStatement": 48,
+              "howManyOnly": 9,
+              "statementI_II": 9,
+              "pairMatching": 13
+            },
+            "recent2022_2025": {
+              "total": 6,
+              "counts": {
+                "singleMcq": 0,
+                "multiStatement": 1,
+                "howManyOnly": 2,
+                "statementI_II": 2,
+                "pairMatching": 1
+              },
+              "newPatternSharePct": 83
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Agriculture & Resources",
+              "total": 17,
+              "shareOfSubjectPct": 9.2,
+              "split5Yr": {
+                "y2011_2015": 9,
+                "y2016_2020": 4,
+                "y2021_2025": 4
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "minor mineral",
+                "mixed farming",
+                "coalbed methane",
+                "shale gas"
+              ]
+            },
+            {
+              "topic": "Industry, Transport & Trade",
+              "total": 4,
+              "shareOfSubjectPct": 2.2,
+              "split5Yr": {
+                "y2011_2015": 2,
+                "y2016_2020": 0,
+                "y2021_2025": 2
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "warm and cold oceanic currents meet"
+              ]
+            },
+            {
+              "topic": "Population & Human Geography",
+              "total": 2,
+              "shareOfSubjectPct": 1.1,
+              "split5Yr": {
+                "y2011_2015": 2,
+                "y2016_2020": 0,
+                "y2021_2025": 0
+              },
+              "lastAskedYear": 2014,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": [
+                "Changpa"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "Changpa",
+            "minor mineral",
+            "mixed farming",
+            "coalbed methane",
+            "shale gas",
+            "Carbon, Hydrogen, Nitrogen"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Agriculture & Resources (4 Qs in 2021–25) & Industry, Transport & Trade (2 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Agriculture & Resources (last tested 2023, 17 total Qs) & Industry, Transport & Trade (last tested 2023, 4 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: Changpa, minor mineral, mixed farming, coalbed methane."
+          ],
+          "roiTier": "Tier 2 · High-ROI"
+        },
+        {
+          "themeName": "World",
+          "totalQuestions": 47,
+          "shareOfSubjectPct": 25.4,
+          "recent5YrQuestions": 27,
+          "recent5YrSharePct": 33.3,
+          "yearsActiveOutOf15": 12,
+          "lastAskedYear": 2025,
+          "yearCounts": {
+            "2011": 2,
+            "2012": 0,
+            "2013": 1,
+            "2014": 6,
+            "2015": 2,
+            "2016": 1,
+            "2017": 3,
+            "2018": 4,
+            "2019": 1,
+            "2020": 0,
+            "2021": 0,
+            "2022": 7,
+            "2023": 7,
+            "2024": 7,
+            "2025": 6
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 15,
+              "multiStatement": 11,
+              "howManyOnly": 5,
+              "statementI_II": 3,
+              "pairMatching": 13
+            },
+            "percentages": {
+              "singleMcq": 32,
+              "multiStatement": 23,
+              "howManyOnly": 11,
+              "statementI_II": 6,
+              "pairMatching": 28
+            },
+            "recent2022_2025": {
+              "total": 27,
+              "counts": {
+                "singleMcq": 8,
+                "multiStatement": 4,
+                "howManyOnly": 5,
+                "statementI_II": 3,
+                "pairMatching": 7
+              },
+              "newPatternSharePct": 56
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "World Geography & Places",
+              "total": 37,
+              "shareOfSubjectPct": 20,
+              "split5Yr": {
+                "y2011_2015": 7,
+                "y2016_2020": 7,
+                "y2021_2025": 23
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Arab Spring",
+                "Levant",
+                "1, 2 and 3 in",
+                "Jordan"
+              ]
+            },
+            {
+              "topic": "Miscellaneous Geography",
+              "total": 10,
+              "shareOfSubjectPct": 5.4,
+              "split5Yr": {
+                "y2011_2015": 4,
+                "y2016_2020": 2,
+                "y2021_2025": 4
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Second half of the month of June",
+                "Arunachal Pradesh and Gujarat",
+                "The Democratic Republic of the Congo",
+                "Sumatra"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "Arab Spring",
+            "Levant",
+            "Second half of the month of June",
+            "1, 2 and 3 in",
+            "Arunachal Pradesh and Gujarat",
+            "The Democratic Republic of the Congo"
+          ],
+          "focus2026": [
+            "High-momentum anchor: World Geography & Places (23 Qs in 2021–25) & Miscellaneous Geography (4 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Miscellaneous Geography (last tested 2023, 10 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: Arab Spring, Levant, Second half of the month of June, 1, 2 and 3 in."
+          ],
+          "roiTier": "Tier 1 · Core Pillar"
+        }
+      ]
+    },
+    "Economy": {
+      "subject": "Economy",
+      "yearSpan": "2011–2025",
+      "totalQuestions": 245,
+      "avgPerYear": 16.3,
+      "early10YrAvg": 16.3,
+      "recent5YrAvg": 16.4,
+      "trendDirection": "Stable Core",
+      "peakYear": {
+        "year": 2016,
+        "count": 25
+      },
+      "yearCounts": {
+        "2011": 13,
+        "2012": 9,
+        "2013": 17,
+        "2014": 11,
+        "2015": 11,
+        "2016": 25,
+        "2017": 22,
+        "2018": 17,
+        "2019": 21,
+        "2020": 17,
+        "2021": 14,
+        "2022": 19,
+        "2023": 19,
+        "2024": 15,
+        "2025": 15
+      },
+      "patternBreakdown": {
+        "counts": {
+          "singleMcq": 88,
+          "multiStatement": 135,
+          "howManyOnly": 10,
+          "statementI_II": 9,
+          "pairMatching": 3
+        },
+        "percentages": {
+          "singleMcq": 36,
+          "multiStatement": 55,
+          "howManyOnly": 4,
+          "statementI_II": 4,
+          "pairMatching": 1
+        },
+        "recent2022_2025": {
+          "total": 68,
+          "counts": {
+            "singleMcq": 9,
+            "multiStatement": 37,
+            "howManyOnly": 10,
+            "statementI_II": 9,
+            "pairMatching": 3
+          },
+          "newPatternSharePct": 32
+        }
+      },
+      "overview": "Economy consistently contributes 15–18 questions every year, testing transmission mechanisms (monetary/fiscal), BoP accounting, financial instruments, and RBI/SEBI regulatory boundaries rather than rote statistics.",
+      "recurringConcepts": [
+        "RBI monetary policy tools (LAF, Repo, SDF, MSF, CRR, SLR, OMO) and money multiplier determinants",
+        "Inflation dynamics (CPI vs WPI weightage, core inflation, imported inflation, bond yield relationship)",
+        "Balance of Payments (Current vs Capital account components, NEER/REER, external debt composition, forex reserves)",
+        "Fiscal deficit, primary deficit, FRBM glide path, capital vs revenue receipts/expenditure",
+        "Digital public infrastructure, NBFC/Urban Co-operative Bank regulation, and sovereign/corporate debt instruments"
+      ],
+      "traps": [
+        "Reversing bond price and bond yield directions when interest rates or inflation expectations change.",
+        "Treating disinvestment receipts, loan recoveries, or RBI dividend transfers in the wrong budget account (Capital vs Revenue).",
+        "Assuming \"steadily increased/decreased over the last decade\" for GDP growth, tax-to-GDP, or fiscal deficit trends.",
+        "Confusing demand-pull vs cost-push liquidity effects of sterilization and Open Market Operations."
+      ],
+      "predictions2026": [
+        "CBDC (e-Rupee) programmable offline features, tokenization, and RBI Unified Lending Interface (ULI) vs UPI architecture.",
+        "Inclusion of Indian Government Bonds (FAR) in global bond indices — impact on Capital Account, rupee yield curve, and forex sterilization.",
+        " T+0 settlement cycle, Alternative Investment Funds (AIFs), InvITs/REITs taxation, and sovereign green/thematic bonds.",
+        "Carbon border adjustments (CBAM), WTO agricultural subsidies (Peace Clause / Amber Box), and Free Trade Agreement rules of origin."
+      ],
+      "themeRoiRanking": [
+        {
+          "rank": 1,
+          "themeName": "Money & Finance",
+          "roiTier": "Tier 1 · Core Pillar",
+          "totalQuestions": 94,
+          "shareOfSubjectPct": 38.4,
+          "recent5YrQuestions": 36,
+          "recent5YrSharePct": 43.9,
+          "yearsActiveOutOf15": 15,
+          "topSubTopic": "Banking & RBI"
+        },
+        {
+          "rank": 2,
+          "themeName": "Government & Trade",
+          "roiTier": "Tier 1 · Core Pillar",
+          "totalQuestions": 76,
+          "shareOfSubjectPct": 31,
+          "recent5YrQuestions": 23,
+          "recent5YrSharePct": 28,
+          "yearsActiveOutOf15": 15,
+          "topSubTopic": "International Economic Organisations & Trade"
+        },
+        {
+          "rank": 3,
+          "themeName": "Macro Foundations",
+          "roiTier": "Tier 2 · High-ROI",
+          "totalQuestions": 43,
+          "shareOfSubjectPct": 17.6,
+          "recent5YrQuestions": 16,
+          "recent5YrSharePct": 19.5,
+          "yearsActiveOutOf15": 14,
+          "topSubTopic": "Inflation"
+        },
+        {
+          "rank": 4,
+          "themeName": "Sectors & Schemes",
+          "roiTier": "Tier 2 · High-ROI",
+          "totalQuestions": 32,
+          "shareOfSubjectPct": 13.1,
+          "recent5YrQuestions": 7,
+          "recent5YrSharePct": 8.5,
+          "yearsActiveOutOf15": 9,
+          "topSubTopic": "Social Sector Schemes"
+        }
+      ],
+      "themes": [
+        {
+          "themeName": "Macro Foundations",
+          "totalQuestions": 43,
+          "shareOfSubjectPct": 17.6,
+          "recent5YrQuestions": 16,
+          "recent5YrSharePct": 19.5,
+          "yearsActiveOutOf15": 14,
+          "lastAskedYear": 2025,
+          "yearCounts": {
+            "2011": 2,
+            "2012": 0,
+            "2013": 7,
+            "2014": 2,
+            "2015": 1,
+            "2016": 3,
+            "2017": 2,
+            "2018": 3,
+            "2019": 6,
+            "2020": 1,
+            "2021": 4,
+            "2022": 4,
+            "2023": 1,
+            "2024": 6,
+            "2025": 1
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 20,
+              "multiStatement": 19,
+              "howManyOnly": 1,
+              "statementI_II": 0,
+              "pairMatching": 3
+            },
+            "percentages": {
+              "singleMcq": 47,
+              "multiStatement": 44,
+              "howManyOnly": 2,
+              "statementI_II": 0,
+              "pairMatching": 7
+            },
+            "recent2022_2025": {
+              "total": 12,
+              "counts": {
+                "singleMcq": 2,
+                "multiStatement": 6,
+                "howManyOnly": 1,
+                "statementI_II": 0,
+                "pairMatching": 3
+              },
+              "newPatternSharePct": 33
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Inflation",
+              "total": 13,
+              "shareOfSubjectPct": 5.3,
+              "split5Yr": {
+                "y2011_2015": 4,
+                "y2016_2020": 2,
+                "y2021_2025": 7
+              },
+              "lastAskedYear": 2022,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "base effect",
+                "Core Banking Solution",
+                "Reserve Bank of India",
+                "Creation of new money to finance a budget deficit"
+              ]
+            },
+            {
+              "topic": "Basic Economic Concepts",
+              "total": 12,
+              "shareOfSubjectPct": 4.9,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 3,
+                "y2021_2025": 8
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "an increase in the rate of interest",
+                "The level of mutual trust and harmony in the society"
+              ]
+            },
+            {
+              "topic": "Poverty, Unemployment & Human Development",
+              "total": 7,
+              "shareOfSubjectPct": 2.9,
+              "split5Yr": {
+                "y2011_2015": 2,
+                "y2016_2020": 5,
+                "y2021_2025": 0
+              },
+              "lastAskedYear": 2019,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "Global Gender Gap Index",
+                "National Career Service",
+                "price levels vary from State to State",
+                "marginal productivity of labour is zero"
+              ]
+            },
+            {
+              "topic": "National Income & Growth",
+              "total": 6,
+              "shareOfSubjectPct": 2.4,
+              "split5Yr": {
+                "y2011_2015": 3,
+                "y2016_2020": 3,
+                "y2021_2025": 0
+              },
+              "lastAskedYear": 2018,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "poverty and unemployment increase",
+                "high capital-output ratio",
+                "there is capital formation in X",
+                "money value of final goods and services produced"
+              ]
+            },
+            {
+              "topic": "Planning",
+              "total": 4,
+              "shareOfSubjectPct": 1.6,
+              "split5Yr": {
+                "y2011_2015": 2,
+                "y2016_2020": 2,
+                "y2021_2025": 0
+              },
+              "lastAskedYear": 2019,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "Planning",
+                "faster, sustainable and more inclusive growth",
+                "NITI Aayog"
+              ]
+            },
+            {
+              "topic": "Health, Diseases & Medicine",
+              "total": 1,
+              "shareOfSubjectPct": 0.4,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 0,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2024,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": [
+                "Pradhan Mantri Surakshit Matritva Abhiyan"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "base effect",
+            "Core Banking Solution",
+            "Planning",
+            "Global Gender Gap Index",
+            "National Career Service",
+            "Pradhan Mantri Surakshit Matritva Abhiyan"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Inflation (7 Qs in 2021–25) & Basic Economic Concepts (8 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Inflation (last tested 2022, 13 total Qs) & Poverty, Unemployment & Human Development (last tested 2019, 7 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: base effect, Core Banking Solution, Planning, Global Gender Gap Index."
+          ],
+          "roiTier": "Tier 2 · High-ROI"
+        },
+        {
+          "themeName": "Money & Finance",
+          "totalQuestions": 94,
+          "shareOfSubjectPct": 38.4,
+          "recent5YrQuestions": 36,
+          "recent5YrSharePct": 43.9,
+          "yearsActiveOutOf15": 15,
+          "lastAskedYear": 2025,
+          "yearCounts": {
+            "2011": 4,
+            "2012": 4,
+            "2013": 6,
+            "2014": 5,
+            "2015": 4,
+            "2016": 8,
+            "2017": 5,
+            "2018": 6,
+            "2019": 7,
+            "2020": 9,
+            "2021": 8,
+            "2022": 7,
+            "2023": 7,
+            "2024": 7,
+            "2025": 7
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 30,
+              "multiStatement": 56,
+              "howManyOnly": 5,
+              "statementI_II": 3,
+              "pairMatching": 0
+            },
+            "percentages": {
+              "singleMcq": 32,
+              "multiStatement": 60,
+              "howManyOnly": 5,
+              "statementI_II": 3,
+              "pairMatching": 0
+            },
+            "recent2022_2025": {
+              "total": 28,
+              "counts": {
+                "singleMcq": 4,
+                "multiStatement": 16,
+                "howManyOnly": 5,
+                "statementI_II": 3,
+                "pairMatching": 0
+              },
+              "newPatternSharePct": 29
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Banking & RBI",
+              "total": 66,
+              "shareOfSubjectPct": 26.9,
+              "split5Yr": {
+                "y2011_2015": 19,
+                "y2016_2020": 27,
+                "y2021_2025": 20
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Inclusive Governance",
+                "closed economy",
+                "sterilization",
+                "Treasury Bills"
+              ]
+            },
+            {
+              "topic": "Capital Markets & Financial Instruments",
+              "total": 25,
+              "shareOfSubjectPct": 10.2,
+              "split5Yr": {
+                "y2011_2015": 2,
+                "y2016_2020": 8,
+                "y2021_2025": 15
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Indirect Transfers",
+                "s trading\n3. Government",
+                "Sovereign Gold Bond Scheme",
+                "Gold Monetization Scheme"
+              ]
+            },
+            {
+              "topic": "Monetary Policy",
+              "total": 3,
+              "shareOfSubjectPct": 1.2,
+              "split5Yr": {
+                "y2011_2015": 2,
+                "y2016_2020": 0,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2021,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": [
+                "Open Market Operations",
+                "Increase in expenditure on public project",
+                "Increase the investment expenditure in the economy",
+                "purchase and sale of government securities by the RBI"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "Inclusive Governance",
+            "closed economy",
+            "Indirect Transfers",
+            "sterilization",
+            "Treasury Bills",
+            "Government of India Debt Bonds"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Banking & RBI (20 Qs in 2021–25) & Capital Markets & Financial Instruments (15 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Monetary Policy (last tested 2021, 3 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: Inclusive Governance, closed economy, Indirect Transfers, sterilization."
+          ],
+          "roiTier": "Tier 1 · Core Pillar"
+        },
+        {
+          "themeName": "Government & Trade",
+          "totalQuestions": 76,
+          "shareOfSubjectPct": 31,
+          "recent5YrQuestions": 23,
+          "recent5YrSharePct": 28,
+          "yearsActiveOutOf15": 15,
+          "lastAskedYear": 2025,
+          "yearCounts": {
+            "2011": 6,
+            "2012": 4,
+            "2013": 4,
+            "2014": 4,
+            "2015": 4,
+            "2016": 7,
+            "2017": 7,
+            "2018": 5,
+            "2019": 5,
+            "2020": 7,
+            "2021": 2,
+            "2022": 5,
+            "2023": 7,
+            "2024": 2,
+            "2025": 7
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 28,
+              "multiStatement": 42,
+              "howManyOnly": 1,
+              "statementI_II": 5,
+              "pairMatching": 0
+            },
+            "percentages": {
+              "singleMcq": 37,
+              "multiStatement": 55,
+              "howManyOnly": 1,
+              "statementI_II": 7,
+              "pairMatching": 0
+            },
+            "recent2022_2025": {
+              "total": 21,
+              "counts": {
+                "singleMcq": 2,
+                "multiStatement": 13,
+                "howManyOnly": 1,
+                "statementI_II": 5,
+                "pairMatching": 0
+              },
+              "newPatternSharePct": 29
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "International Economic Organisations & Trade",
+              "total": 29,
+              "shareOfSubjectPct": 11.8,
+              "split5Yr": {
+                "y2011_2015": 4,
+                "y2016_2020": 15,
+                "y2021_2025": 10
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "International Monetary Fund",
+                "s Production-linked advantage Incentive",
+                "Rapid Financing Instrument and",
+                "G20 Common Framework"
+              ]
+            },
+            {
+              "topic": "Fiscal Policy & Budget",
+              "total": 22,
+              "shareOfSubjectPct": 9,
+              "split5Yr": {
+                "y2011_2015": 8,
+                "y2016_2020": 6,
+                "y2021_2025": 8
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "interim budget",
+                "vote-on-account",
+                "Goods and Services Tax (GST)",
+                "Current Account Deficit"
+              ]
+            },
+            {
+              "topic": "Balance of Payments & Exchange Rate",
+              "total": 12,
+              "shareOfSubjectPct": 4.9,
+              "split5Yr": {
+                "y2011_2015": 5,
+                "y2016_2020": 4,
+                "y2021_2025": 3
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "Textile and textile articles",
+                "Foreign-currency assets, gold holdings of the RBI and SDRs",
+                "Renminbi"
+              ]
+            },
+            {
+              "topic": "Taxation & GST",
+              "total": 10,
+              "shareOfSubjectPct": 4.1,
+              "split5Yr": {
+                "y2011_2015": 3,
+                "y2016_2020": 5,
+                "y2021_2025": 2
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "capital gains",
+                "Base Erosion and Profit Shifting",
+                "Loss of revenue to the State Exchequer due to tax evasion",
+                "tax imposed and collected by the State Government"
+              ]
+            },
+            {
+              "topic": "Foreign Investment",
+              "total": 3,
+              "shareOfSubjectPct": 1.2,
+              "split5Yr": {
+                "y2011_2015": 2,
+                "y2016_2020": 1,
+                "y2021_2025": 0
+              },
+              "lastAskedYear": 2020,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": [
+                "It is a largely non-debt creating capital flow"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "interim budget",
+            "vote-on-account",
+            "International Monetary Fund",
+            "Goods and Services Tax (GST)",
+            "Current Account Deficit",
+            "capital gains"
+          ],
+          "focus2026": [
+            "High-momentum anchor: International Economic Organisations & Trade (10 Qs in 2021–25) & Fiscal Policy & Budget (8 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Balance of Payments & Exchange Rate (last tested 2023, 12 total Qs) & Taxation & GST (last tested 2023, 10 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: interim budget, vote-on-account, International Monetary Fund, Goods and Services Tax (GST)."
+          ],
+          "roiTier": "Tier 1 · Core Pillar"
+        },
+        {
+          "themeName": "Sectors & Schemes",
+          "totalQuestions": 32,
+          "shareOfSubjectPct": 13.1,
+          "recent5YrQuestions": 7,
+          "recent5YrSharePct": 8.5,
+          "yearsActiveOutOf15": 9,
+          "lastAskedYear": 2023,
+          "yearCounts": {
+            "2011": 1,
+            "2012": 1,
+            "2013": 0,
+            "2014": 0,
+            "2015": 2,
+            "2016": 7,
+            "2017": 8,
+            "2018": 3,
+            "2019": 3,
+            "2020": 0,
+            "2021": 0,
+            "2022": 3,
+            "2023": 4,
+            "2024": 0,
+            "2025": 0
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 10,
+              "multiStatement": 18,
+              "howManyOnly": 3,
+              "statementI_II": 1,
+              "pairMatching": 0
+            },
+            "percentages": {
+              "singleMcq": 31,
+              "multiStatement": 56,
+              "howManyOnly": 9,
+              "statementI_II": 3,
+              "pairMatching": 0
+            },
+            "recent2022_2025": {
+              "total": 7,
+              "counts": {
+                "singleMcq": 1,
+                "multiStatement": 2,
+                "howManyOnly": 3,
+                "statementI_II": 1,
+                "pairMatching": 0
+              },
+              "newPatternSharePct": 57
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Social Sector Schemes",
+              "total": 21,
+              "shareOfSubjectPct": 8.6,
+              "split5Yr": {
+                "y2011_2015": 2,
+                "y2016_2020": 15,
+                "y2021_2025": 4
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Pradhan Mantri Jan-Dhan Yojana",
+                "Rashtriya Garima Abhiyan",
+                "Stand Up India Scheme",
+                "SWAYAM"
+              ]
+            },
+            {
+              "topic": "Industry & Infrastructure",
+              "total": 11,
+              "shareOfSubjectPct": 4.5,
+              "split5Yr": {
+                "y2011_2015": 2,
+                "y2016_2020": 6,
+                "y2021_2025": 3
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "District Mineral Foundations",
+                "s first",
+                "National Investment and Infrastructure Fund",
+                "Labour Bureau"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "Pradhan Mantri Jan-Dhan Yojana",
+            "District Mineral Foundations",
+            "Rashtriya Garima Abhiyan",
+            "Stand Up India Scheme",
+            "s first",
+            "SWAYAM"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Social Sector Schemes (4 Qs in 2021–25) & Industry & Infrastructure (3 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Social Sector Schemes (last tested 2023, 21 total Qs) & Industry & Infrastructure (last tested 2023, 11 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: Pradhan Mantri Jan-Dhan Yojana, District Mineral Foundations, Rashtriya Garima Abhiyan, Stand Up India Scheme."
+          ],
+          "roiTier": "Tier 2 · High-ROI"
+        }
+      ]
+    },
+    "Environment": {
+      "subject": "Environment",
+      "yearSpan": "2011–2025",
+      "totalQuestions": 238,
+      "avgPerYear": 15.9,
+      "early10YrAvg": 15.9,
+      "recent5YrAvg": 15.8,
+      "trendDirection": "Stable Core",
+      "peakYear": {
+        "year": 2014,
+        "count": 21
+      },
+      "yearCounts": {
+        "2011": 16,
+        "2012": 12,
+        "2013": 15,
+        "2014": 21,
+        "2015": 13,
+        "2016": 20,
+        "2017": 14,
+        "2018": 13,
+        "2019": 21,
+        "2020": 14,
+        "2021": 20,
+        "2022": 19,
+        "2023": 15,
+        "2024": 14,
+        "2025": 11
+      },
+      "patternBreakdown": {
+        "counts": {
+          "singleMcq": 88,
+          "multiStatement": 120,
+          "howManyOnly": 13,
+          "statementI_II": 10,
+          "pairMatching": 7
+        },
+        "percentages": {
+          "singleMcq": 37,
+          "multiStatement": 50,
+          "howManyOnly": 5,
+          "statementI_II": 4,
+          "pairMatching": 3
+        },
+        "recent2022_2025": {
+          "total": 59,
+          "counts": {
+            "singleMcq": 19,
+            "multiStatement": 15,
+            "howManyOnly": 13,
+            "statementI_II": 10,
+            "pairMatching": 2
+          },
+          "newPatternSharePct": 42
+        }
+      },
+      "overview": "Environment & Ecology ( boosted by IFoS Prelims integration) accounts for 14–18 questions annually, heavily testing Indian species behaviour/distribution, WPA 1972 schedules, protected area hydro-geography, and climate/pollution treaties.",
+      "recurringConcepts": [
+        "IUCN status, habitat specificity, and behavioural traits of Indian flagship and endemic species",
+        "National Parks, Tiger Reserves, Ramsar Wetlands, and Biosphere Reserves paired with rivers and vegetation",
+        "Wildlife (Protection) Act 1972 (2022 rationalised schedules), EPA 1986, Forest Rights Act 2006, and Biodiversity Act",
+        "Global conventions & funds: UNFCCC, CBD (Kunming-Montreal GBF), Ramsar, CITES, CMS, Stockholm/Minamata/Basel",
+        "Biogeochemical cycles (Nitrogen, Carbon, Phosphorus), trophic dynamics, and emerging pollutants (PFAS, microplastics, fly ash)"
+      ],
+      "traps": [
+        "Extreme words like \"found ONLY in India\" or \"naturally found in no other state\" — verify endemic range carefully.",
+        "Confusing statutory parent acts of bodies (e.g., NBWL & NTCA under WPA 1972 vs Animal Welfare Board under PCA 1960 vs NGT).",
+        "Mixing up UNFCCC mechanisms/funds (GEF, GCF, Adaptation Fund, Loss & Damage Fund) and whether India is a party/signatory.",
+        "Swapping Nitrogen-fixing organisms, mycorrhizal associations, or primary vs secondary air pollutants."
+      ],
+      "predictions2026": [
+        "Carbon Credit Trading Scheme (CCTS) under Energy Conservation Amendment Act, Green Credit Rules, and Article 6 carbon markets.",
+        "WPA 1972 (2022 Amendment) 4-schedule structure (Schedules I, II, III-Plants, IV-CITES) and captive elephant transfer rules.",
+        "Newly notified Ramsar sites, 58th Tiger Reserve (Madhav TR), ECo-Sensitive Zones (ESZ) Supreme Court rulings, and grassland birds.",
+        "Methane abatement (Global Methane Pledge, coal-bed/rice-paddy emissions), blue carbon ecosystems (MISHTI), and e-waste EPR rules."
+      ],
+      "themeRoiRanking": [
+        {
+          "rank": 1,
+          "themeName": "Ecology & Biodiversity",
+          "roiTier": "Tier 1 · Core Pillar",
+          "totalQuestions": 135,
+          "shareOfSubjectPct": 56.7,
+          "recent5YrQuestions": 43,
+          "recent5YrSharePct": 54.4,
+          "yearsActiveOutOf15": 15,
+          "topSubTopic": "Biodiversity & Conservation"
+        },
+        {
+          "rank": 2,
+          "themeName": "Pollution & Climate Change",
+          "roiTier": "Tier 1 · Core Pillar",
+          "totalQuestions": 85,
+          "shareOfSubjectPct": 35.7,
+          "recent5YrQuestions": 27,
+          "recent5YrSharePct": 34.2,
+          "yearsActiveOutOf15": 15,
+          "topSubTopic": "Climate Change"
+        },
+        {
+          "rank": 3,
+          "themeName": "Laws & Institutions",
+          "roiTier": "Tier 2 · High-ROI",
+          "totalQuestions": 18,
+          "shareOfSubjectPct": 7.6,
+          "recent5YrQuestions": 9,
+          "recent5YrSharePct": 11.4,
+          "yearsActiveOutOf15": 10,
+          "topSubTopic": "Environmental Laws, Policies & Institutions"
+        }
+      ],
+      "themes": [
+        {
+          "themeName": "Ecology & Biodiversity",
+          "totalQuestions": 135,
+          "shareOfSubjectPct": 56.7,
+          "recent5YrQuestions": 43,
+          "recent5YrSharePct": 54.4,
+          "yearsActiveOutOf15": 15,
+          "lastAskedYear": 2025,
+          "yearCounts": {
+            "2011": 12,
+            "2012": 8,
+            "2013": 11,
+            "2014": 15,
+            "2015": 8,
+            "2016": 9,
+            "2017": 7,
+            "2018": 4,
+            "2019": 11,
+            "2020": 7,
+            "2021": 11,
+            "2022": 10,
+            "2023": 11,
+            "2024": 8,
+            "2025": 3
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 55,
+              "multiStatement": 62,
+              "howManyOnly": 10,
+              "statementI_II": 2,
+              "pairMatching": 6
+            },
+            "percentages": {
+              "singleMcq": 41,
+              "multiStatement": 46,
+              "howManyOnly": 7,
+              "statementI_II": 1,
+              "pairMatching": 4
+            },
+            "recent2022_2025": {
+              "total": 32,
+              "counts": {
+                "singleMcq": 12,
+                "multiStatement": 6,
+                "howManyOnly": 10,
+                "statementI_II": 2,
+                "pairMatching": 2
+              },
+              "newPatternSharePct": 44
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Biodiversity & Conservation",
+              "total": 95,
+              "shareOfSubjectPct": 39.9,
+              "split5Yr": {
+                "y2011_2015": 37,
+                "y2016_2020": 31,
+                "y2021_2025": 27
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "R2 Code of Practices",
+                "Gucchi",
+                "Biorock technology",
+                "Miyawaki method"
+              ]
+            },
+            {
+              "topic": "Ecology & Ecosystems",
+              "total": 40,
+              "shareOfSubjectPct": 16.8,
+              "split5Yr": {
+                "y2011_2015": 17,
+                "y2016_2020": 7,
+                "y2021_2025": 16
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "ecosystem",
+                "oilzapper",
+                "Great Indian Hornbill",
+                "Agenda 21"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "ecosystem",
+            "R2 Code of Practices",
+            "oilzapper",
+            "Gucchi",
+            "Biorock technology",
+            "Miyawaki method"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Biodiversity & Conservation (27 Qs in 2021–25) & Ecology & Ecosystems (16 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Core tested terms to revise: ecosystem, R2 Code of Practices, oilzapper, Gucchi."
+          ],
+          "roiTier": "Tier 1 · Core Pillar"
+        },
+        {
+          "themeName": "Pollution & Climate Change",
+          "totalQuestions": 85,
+          "shareOfSubjectPct": 35.7,
+          "recent5YrQuestions": 27,
+          "recent5YrSharePct": 34.2,
+          "yearsActiveOutOf15": 15,
+          "lastAskedYear": 2025,
+          "yearCounts": {
+            "2011": 4,
+            "2012": 4,
+            "2013": 4,
+            "2014": 5,
+            "2015": 5,
+            "2016": 8,
+            "2017": 6,
+            "2018": 8,
+            "2019": 10,
+            "2020": 4,
+            "2021": 8,
+            "2022": 6,
+            "2023": 3,
+            "2024": 4,
+            "2025": 6
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 26,
+              "multiStatement": 48,
+              "howManyOnly": 3,
+              "statementI_II": 7,
+              "pairMatching": 1
+            },
+            "percentages": {
+              "singleMcq": 31,
+              "multiStatement": 56,
+              "howManyOnly": 4,
+              "statementI_II": 8,
+              "pairMatching": 1
+            },
+            "recent2022_2025": {
+              "total": 19,
+              "counts": {
+                "singleMcq": 3,
+                "multiStatement": 6,
+                "howManyOnly": 3,
+                "statementI_II": 7,
+                "pairMatching": 0
+              },
+              "newPatternSharePct": 53
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Climate Change",
+              "total": 46,
+              "shareOfSubjectPct": 19.3,
+              "split5Yr": {
+                "y2011_2015": 11,
+                "y2016_2020": 21,
+                "y2021_2025": 14
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "carbon fertilization",
+                "methane hydrate",
+                "Social Cost of Carbon",
+                "Climate Action Tracker"
+              ]
+            },
+            {
+              "topic": "Environmental Pollution",
+              "total": 39,
+              "shareOfSubjectPct": 16.4,
+              "split5Yr": {
+                "y2011_2015": 11,
+                "y2016_2020": 15,
+                "y2021_2025": 13
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "microbeads",
+                "pyrolysis and plasma gasification",
+                "extended producer responsibility",
+                "Pollution assay in aquatic ecosystems"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "carbon fertilization",
+            "microbeads",
+            "pyrolysis and plasma gasification",
+            "methane hydrate",
+            "extended producer responsibility",
+            "Social Cost of Carbon"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Climate Change (14 Qs in 2021–25) & Environmental Pollution (13 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Core tested terms to revise: carbon fertilization, microbeads, pyrolysis and plasma gasification, methane hydrate."
+          ],
+          "roiTier": "Tier 1 · Core Pillar"
+        },
+        {
+          "themeName": "Laws & Institutions",
+          "totalQuestions": 18,
+          "shareOfSubjectPct": 7.6,
+          "recent5YrQuestions": 9,
+          "recent5YrSharePct": 11.4,
+          "yearsActiveOutOf15": 10,
+          "lastAskedYear": 2025,
+          "yearCounts": {
+            "2011": 0,
+            "2012": 0,
+            "2013": 0,
+            "2014": 1,
+            "2015": 0,
+            "2016": 3,
+            "2017": 1,
+            "2018": 1,
+            "2019": 0,
+            "2020": 3,
+            "2021": 1,
+            "2022": 3,
+            "2023": 1,
+            "2024": 2,
+            "2025": 2
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 7,
+              "multiStatement": 10,
+              "howManyOnly": 0,
+              "statementI_II": 1,
+              "pairMatching": 0
+            },
+            "percentages": {
+              "singleMcq": 39,
+              "multiStatement": 56,
+              "howManyOnly": 0,
+              "statementI_II": 6,
+              "pairMatching": 0
+            },
+            "recent2022_2025": {
+              "total": 8,
+              "counts": {
+                "singleMcq": 4,
+                "multiStatement": 3,
+                "howManyOnly": 0,
+                "statementI_II": 1,
+                "pairMatching": 0
+              },
+              "newPatternSharePct": 13
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Environmental Laws, Policies & Institutions",
+              "total": 18,
+              "shareOfSubjectPct": 7.6,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 8,
+                "y2021_2025": 9
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "1, 2, 5 and 6 only",
+                "s districts are classified as",
+                "Global Environment Facility",
+                "National Ganga River Basin Authority (NGRBA)"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "1, 2, 5 and 6 only",
+            "s districts are classified as",
+            "Global Environment Facility",
+            "National Ganga River Basin Authority (NGRBA)",
+            "Gadgil Committee Report",
+            "Kasturirangan Committee Report"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Environmental Laws, Policies & Institutions (9 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Core tested terms to revise: 1, 2, 5 and 6 only, s districts are classified as, Global Environment Facility, National Ganga River Basin Authority (NGRBA)."
+          ],
+          "roiTier": "Tier 2 · High-ROI"
+        }
+      ]
+    },
+    "Science & Technology": {
+      "subject": "Science & Technology",
+      "yearSpan": "2011–2025",
+      "totalQuestions": 213,
+      "avgPerYear": 14.2,
+      "early10YrAvg": 14.2,
+      "recent5YrAvg": 14.2,
+      "trendDirection": "Stable Core",
+      "peakYear": {
+        "year": 2011,
+        "count": 22
+      },
+      "yearCounts": {
+        "2011": 22,
+        "2012": 13,
+        "2013": 13,
+        "2014": 11,
+        "2015": 9,
+        "2016": 13,
+        "2017": 10,
+        "2018": 18,
+        "2019": 16,
+        "2020": 17,
+        "2021": 15,
+        "2022": 17,
+        "2023": 10,
+        "2024": 13,
+        "2025": 16
+      },
+      "patternBreakdown": {
+        "counts": {
+          "singleMcq": 69,
+          "multiStatement": 124,
+          "howManyOnly": 12,
+          "statementI_II": 2,
+          "pairMatching": 6
+        },
+        "percentages": {
+          "singleMcq": 32,
+          "multiStatement": 58,
+          "howManyOnly": 6,
+          "statementI_II": 1,
+          "pairMatching": 3
+        },
+        "recent2022_2025": {
+          "total": 56,
+          "counts": {
+            "singleMcq": 16,
+            "multiStatement": 24,
+            "howManyOnly": 12,
+            "statementI_II": 2,
+            "pairMatching": 2
+          },
+          "newPatternSharePct": 29
+        }
+      },
+      "overview": "Science & Technology has grown to 12–15 questions per year, focusing on applied biotechnology, immune/disease biology, space orbits & propulsion, telecom standards, and emerging materials/AI.",
+      "recurringConcepts": [
+        "Genetic engineering: CRISPR-Cas9, RNAi, mRNA vaccines, mitochondrial replacement, CAR-T cell therapy, stem cells",
+        "Space technology: LEO/MEO/GEO/GTO/SSO/Lagrange orbits, PSLV vs GSLV/LVM3 cryogenic stages, ISRO & global missions",
+        "Communication & computing: 5G/6G spectrum, Li-Fi, NFC, RFID, Blockchain, Quantum Key Distribution, Web 3.0, AI/LLMs",
+        "Disease biology: Viral vs bacterial vs protozoan pathogens, antimicrobial resistance, Wolbachia, T-cell/B-cell immunity",
+        "Energy & materials: Fuel cells (Hydrogen/SOFC), Lithium-ion vs Sodium-ion batteries, small modular reactors, metamaterials"
+      ],
+      "traps": [
+        "In \"can it be used for X, Y, Z?\" application questions on emerging tech, narrow exclusions are usually false — broad multi-domain applicability is the norm unless physically impossible.",
+        "Confusing DNA vs RNA viral genomes, or bacterial vs viral targets for antibiotics and vaccines.",
+        "Mixing up fission vs fusion fuels (Thorium-232 fertile vs Uranium-233 fissile in India’s 3-stage nuclear programme).",
+        "Confusing geostationary (equatorial plane, 35,786 km) vs geosynchronous / sun-synchronous polar orbits."
+      ],
+      "predictions2026": [
+        "Gene therapy & sickle-cell editing (Casgevy / indigenous CAR-T), mRNA therapeutics beyond COVID, and One Health AMR surveillance.",
+        "Gaganyaan human-rating, Bharatiya Antariksh Station, Aditya-L1 / LUPEX / NISAR radar bands, and semi-cryogenic engines.",
+        "Quantum computing (National Quantum Mission qubits, QKD), Small Language Models / Neuromorphic chips, and Deepfakes provenance.",
+        "Green Hydrogen electrolyzers (PEM vs Alkaline), Sodium-ion/Solid-state batteries, and Thorium-based Advanced Heavy Water Reactors."
+      ],
+      "themeRoiRanking": [
+        {
+          "rank": 1,
+          "themeName": "Tech & Energy",
+          "roiTier": "Tier 1 · Core Pillar",
+          "totalQuestions": 91,
+          "shareOfSubjectPct": 42.7,
+          "recent5YrQuestions": 27,
+          "recent5YrSharePct": 38,
+          "yearsActiveOutOf15": 15,
+          "topSubTopic": "Space Technology"
+        },
+        {
+          "rank": 2,
+          "themeName": "Applied Science",
+          "roiTier": "Tier 1 · Core Pillar",
+          "totalQuestions": 64,
+          "shareOfSubjectPct": 30,
+          "recent5YrQuestions": 21,
+          "recent5YrSharePct": 29.6,
+          "yearsActiveOutOf15": 15,
+          "topSubTopic": "Biotechnology & Genetics"
+        },
+        {
+          "rank": 3,
+          "themeName": "Core Sciences",
+          "roiTier": "Tier 1 · Core Pillar",
+          "totalQuestions": 58,
+          "shareOfSubjectPct": 27.2,
+          "recent5YrQuestions": 23,
+          "recent5YrSharePct": 32.4,
+          "yearsActiveOutOf15": 15,
+          "topSubTopic": "Physics"
+        }
+      ],
+      "themes": [
+        {
+          "themeName": "Core Sciences",
+          "totalQuestions": 58,
+          "shareOfSubjectPct": 27.2,
+          "recent5YrQuestions": 23,
+          "recent5YrSharePct": 32.4,
+          "yearsActiveOutOf15": 15,
+          "lastAskedYear": 2025,
+          "yearCounts": {
+            "2011": 7,
+            "2012": 3,
+            "2013": 5,
+            "2014": 4,
+            "2015": 4,
+            "2016": 2,
+            "2017": 1,
+            "2018": 4,
+            "2019": 4,
+            "2020": 1,
+            "2021": 7,
+            "2022": 4,
+            "2023": 2,
+            "2024": 4,
+            "2025": 6
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 22,
+              "multiStatement": 28,
+              "howManyOnly": 6,
+              "statementI_II": 2,
+              "pairMatching": 0
+            },
+            "percentages": {
+              "singleMcq": 38,
+              "multiStatement": 48,
+              "howManyOnly": 10,
+              "statementI_II": 3,
+              "pairMatching": 0
+            },
+            "recent2022_2025": {
+              "total": 16,
+              "counts": {
+                "singleMcq": 5,
+                "multiStatement": 3,
+                "howManyOnly": 6,
+                "statementI_II": 2,
+                "pairMatching": 0
+              },
+              "newPatternSharePct": 50
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Physics",
+              "total": 26,
+              "shareOfSubjectPct": 12.2,
+              "split5Yr": {
+                "y2011_2015": 7,
+                "y2016_2020": 3,
+                "y2021_2025": 16
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Greased Lightning-10 (GL-10)",
+                "Distributed Energy Resources",
+                "pumped-storage hydropower",
+                "Direct Air Capture"
+              ]
+            },
+            {
+              "topic": "Chemistry",
+              "total": 11,
+              "shareOfSubjectPct": 5.2,
+              "split5Yr": {
+                "y2011_2015": 7,
+                "y2016_2020": 3,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2021,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "Australia Group",
+                "pyrolysis and plasma gasification",
+                "The Man Who Knew Infinity",
+                "fly ash"
+              ]
+            },
+            {
+              "topic": "Biology",
+              "total": 11,
+              "shareOfSubjectPct": 5.2,
+              "split5Yr": {
+                "y2011_2015": 6,
+                "y2016_2020": 2,
+                "y2021_2025": 3
+              },
+              "lastAskedYear": 2022,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "Denisovan",
+                "They protect the body from the diseases caused by pathogens",
+                "an early human species",
+                "Free energy is converted into potential energy and stored"
+              ]
+            },
+            {
+              "topic": "General Science",
+              "total": 10,
+              "shareOfSubjectPct": 4.7,
+              "split5Yr": {
+                "y2011_2015": 3,
+                "y2016_2020": 4,
+                "y2021_2025": 3
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "Aadhaar"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "Australia Group",
+            "Denisovan",
+            "pyrolysis and plasma gasification",
+            "Aadhaar",
+            "The Man Who Knew Infinity",
+            "Greased Lightning-10 (GL-10)"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Physics (16 Qs in 2021–25) & Biology (3 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Chemistry (last tested 2021, 11 total Qs) & Biology (last tested 2022, 11 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: Australia Group, Denisovan, pyrolysis and plasma gasification, Aadhaar."
+          ],
+          "roiTier": "Tier 1 · Core Pillar"
+        },
+        {
+          "themeName": "Applied Science",
+          "totalQuestions": 64,
+          "shareOfSubjectPct": 30,
+          "recent5YrQuestions": 21,
+          "recent5YrSharePct": 29.6,
+          "yearsActiveOutOf15": 15,
+          "lastAskedYear": 2025,
+          "yearCounts": {
+            "2011": 6,
+            "2012": 5,
+            "2013": 4,
+            "2014": 4,
+            "2015": 1,
+            "2016": 2,
+            "2017": 3,
+            "2018": 3,
+            "2019": 8,
+            "2020": 7,
+            "2021": 7,
+            "2022": 6,
+            "2023": 2,
+            "2024": 4,
+            "2025": 2
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 19,
+              "multiStatement": 41,
+              "howManyOnly": 1,
+              "statementI_II": 0,
+              "pairMatching": 3
+            },
+            "percentages": {
+              "singleMcq": 30,
+              "multiStatement": 64,
+              "howManyOnly": 2,
+              "statementI_II": 0,
+              "pairMatching": 5
+            },
+            "recent2022_2025": {
+              "total": 14,
+              "counts": {
+                "singleMcq": 5,
+                "multiStatement": 8,
+                "howManyOnly": 1,
+                "statementI_II": 0,
+                "pairMatching": 0
+              },
+              "newPatternSharePct": 7
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Biotechnology & Genetics",
+              "total": 35,
+              "shareOfSubjectPct": 16.4,
+              "split5Yr": {
+                "y2011_2015": 9,
+                "y2016_2020": 13,
+                "y2021_2025": 13
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Polar Code",
+                "Recombinant Vector Vaccines",
+                "RNA interference (RNAi)",
+                "WannaCry, Petya and Eternal Blue"
+              ]
+            },
+            {
+              "topic": "Health, Diseases & Medicine",
+              "total": 23,
+              "shareOfSubjectPct": 10.8,
+              "split5Yr": {
+                "y2011_2015": 10,
+                "y2016_2020": 7,
+                "y2021_2025": 6
+              },
+              "lastAskedYear": 2024,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Wolbachia method",
+                "Hepatitis B unlike Hepatitis C, does not have a vaccine",
+                "Algae and fungi",
+                "O positive"
+              ]
+            },
+            {
+              "topic": "Nanotechnology & Materials",
+              "total": 6,
+              "shareOfSubjectPct": 2.8,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 3,
+                "y2021_2025": 2
+              },
+              "lastAskedYear": 2022,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "conducting electrodes",
+                "Polycarbonate"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "Wolbachia method",
+            "Polar Code",
+            "Recombinant Vector Vaccines",
+            "RNA interference (RNAi)",
+            "WannaCry, Petya and Eternal Blue",
+            "conducting electrodes"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Biotechnology & Genetics (13 Qs in 2021–25) & Health, Diseases & Medicine (6 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Nanotechnology & Materials (last tested 2022, 6 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: Wolbachia method, Polar Code, Recombinant Vector Vaccines, RNA interference (RNAi)."
+          ],
+          "roiTier": "Tier 1 · Core Pillar"
+        },
+        {
+          "themeName": "Tech & Energy",
+          "totalQuestions": 91,
+          "shareOfSubjectPct": 42.7,
+          "recent5YrQuestions": 27,
+          "recent5YrSharePct": 38,
+          "yearsActiveOutOf15": 15,
+          "lastAskedYear": 2025,
+          "yearCounts": {
+            "2011": 9,
+            "2012": 5,
+            "2013": 4,
+            "2014": 3,
+            "2015": 4,
+            "2016": 9,
+            "2017": 6,
+            "2018": 11,
+            "2019": 4,
+            "2020": 9,
+            "2021": 1,
+            "2022": 7,
+            "2023": 6,
+            "2024": 5,
+            "2025": 8
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 28,
+              "multiStatement": 55,
+              "howManyOnly": 5,
+              "statementI_II": 0,
+              "pairMatching": 3
+            },
+            "percentages": {
+              "singleMcq": 31,
+              "multiStatement": 60,
+              "howManyOnly": 5,
+              "statementI_II": 0,
+              "pairMatching": 3
+            },
+            "recent2022_2025": {
+              "total": 26,
+              "counts": {
+                "singleMcq": 6,
+                "multiStatement": 13,
+                "howManyOnly": 5,
+                "statementI_II": 0,
+                "pairMatching": 2
+              },
+              "newPatternSharePct": 27
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Space Technology",
+              "total": 38,
+              "shareOfSubjectPct": 17.8,
+              "split5Yr": {
+                "y2011_2015": 13,
+                "y2016_2020": 11,
+                "y2021_2025": 14
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Microsatellite DNA",
+                "Fractional Orbital Bombardment System",
+                "black holes",
+                "Event Horizon,"
+              ]
+            },
+            {
+              "topic": "IT, Communication & Computing",
+              "total": 29,
+              "shareOfSubjectPct": 13.6,
+              "split5Yr": {
+                "y2011_2015": 3,
+                "y2016_2020": 14,
+                "y2021_2025": 12
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Kavach",
+                "Software as a Service (SaaS)",
+                "Qubit",
+                "Blockchain Technology"
+              ]
+            },
+            {
+              "topic": "Nuclear & Energy Technology",
+              "total": 20,
+              "shareOfSubjectPct": 9.4,
+              "split5Yr": {
+                "y2011_2015": 8,
+                "y2016_2020": 11,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "International Thermonuclear Experimental Reactor",
+                "fuel cells",
+                "Photovoltaics",
+                "Solar Thermal"
+              ]
+            },
+            {
+              "topic": "Defence Technology",
+              "total": 4,
+              "shareOfSubjectPct": 1.9,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 3,
+                "y2021_2025": 0
+              },
+              "lastAskedYear": 2020,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "1, 2 and 3 importance of using",
+                "An American anti-missile system"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "Kavach",
+            "Microsatellite DNA",
+            "Software as a Service (SaaS)",
+            "Qubit",
+            "Fractional Orbital Bombardment System",
+            "Blockchain Technology"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Space Technology (14 Qs in 2021–25) & IT, Communication & Computing (12 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Nuclear & Energy Technology (last tested 2023, 20 total Qs) & Defence Technology (last tested 2020, 4 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: Kavach, Microsatellite DNA, Software as a Service (SaaS), Qubit."
+          ],
+          "roiTier": "Tier 1 · Core Pillar"
+        }
+      ]
+    },
+    "Modern History": {
+      "subject": "Modern History",
+      "yearSpan": "2011–2025",
+      "totalQuestions": 109,
+      "avgPerYear": 7.3,
+      "early10YrAvg": 7.2,
+      "recent5YrAvg": 7.4,
+      "trendDirection": "Stable Core",
+      "peakYear": {
+        "year": 2018,
+        "count": 14
+      },
+      "yearCounts": {
+        "2011": 8,
+        "2012": 9,
+        "2013": 5,
+        "2014": 5,
+        "2015": 6,
+        "2016": 5,
+        "2017": 7,
+        "2018": 14,
+        "2019": 5,
+        "2020": 8,
+        "2021": 14,
+        "2022": 4,
+        "2023": 5,
+        "2024": 4,
+        "2025": 10
+      },
+      "patternBreakdown": {
+        "counts": {
+          "singleMcq": 55,
+          "multiStatement": 43,
+          "howManyOnly": 3,
+          "statementI_II": 1,
+          "pairMatching": 7
+        },
+        "percentages": {
+          "singleMcq": 50,
+          "multiStatement": 39,
+          "howManyOnly": 3,
+          "statementI_II": 1,
+          "pairMatching": 6
+        },
+        "recent2022_2025": {
+          "total": 23,
+          "counts": {
+            "singleMcq": 7,
+            "multiStatement": 10,
+            "howManyOnly": 3,
+            "statementI_II": 1,
+            "pairMatching": 2
+          },
+          "newPatternSharePct": 26
+        }
+      },
+      "overview": "Modern History tests chronological clarity, constitutional acts (1773–1935), socio-religious reform literature/institutions, peasant/tribal uprisings, and the exact ideological strands within the freedom struggle.",
+      "recurringConcepts": [
+        "Charter Acts (1793, 1813, 1833, 1853) and Government of India Acts (1858, 1909, 1919, 1935)",
+        "Gandhian mass movements (Non-Cooperation, Civil Disobedience, Quit India) — participants, parallel governments, and pacts",
+        "Socio-religious reformers, newspapers/journals, and educational commissions (Wood’s Despatch, Hunter, Sadler, Macaulay)",
+        "Peasant, tribal, and working-class movements (Santhal, Munda/Ulgulan, Indigo, Pabna, Deccan Riots, Tebhaga, Factory Acts)",
+        "Economic critique of colonialism (Dadabhai Naoroji, R.C. Dutt), land revenue systems (Permanent, Ryotwari, Mahalwari)"
+      ],
+      "traps": [
+        "Swapping provisions between GOI Act 1919 (Dyarchy in Provinces) and GOI Act 1935 (Provincial Autonomy + Dyarchy at Centre, residuary powers with Governor-General).",
+        "Associating a newspaper, book, or sabha with the wrong contemporary reformer (e.g., Bengal vs Maharashtra reformers).",
+        "Chronological traps mixing events of 1905–1909 (Swadeshi, Surat Split, Morley-Minto) or 1940–1946 (August Offer, Cripps, Wavell, Cabinet Mission)."
+      ],
+      "predictions2026": [
+        "Centenary/milestone clusters: 1924–1926 events (Belgaum Congress, Vaikom Satyagraha, Kanpur Bolshevik Conspiracy, Swaraj Party).",
+        "Constitutional & judicial milestones under Company/Crown rule (Lex Loci Act, Ilbert Bill, Whitley Commission, Lee Commission).",
+        "Lesser-known women freedom fighters, revolutionary networks abroad (Ghadar, Berlin Committee, INA trials), and tribal forest satyagrahas."
+      ],
+      "themeRoiRanking": [
+        {
+          "rank": 1,
+          "themeName": "Reform & Nationalism",
+          "roiTier": "Tier 1 · Core Pillar",
+          "totalQuestions": 49,
+          "shareOfSubjectPct": 45,
+          "recent5YrQuestions": 17,
+          "recent5YrSharePct": 45.9,
+          "yearsActiveOutOf15": 15,
+          "topSubTopic": "Gandhian Era & Mass Movements (1915-1947)"
+        },
+        {
+          "rank": 2,
+          "themeName": "Governance & People",
+          "roiTier": "Tier 1 · Core Pillar",
+          "totalQuestions": 45,
+          "shareOfSubjectPct": 41.3,
+          "recent5YrQuestions": 16,
+          "recent5YrSharePct": 43.2,
+          "yearsActiveOutOf15": 15,
+          "topSubTopic": "Constitutional & Administrative Developments"
+        },
+        {
+          "rank": 3,
+          "themeName": "Foundations",
+          "roiTier": "Tier 2 · High-ROI",
+          "totalQuestions": 15,
+          "shareOfSubjectPct": 13.8,
+          "recent5YrQuestions": 4,
+          "recent5YrSharePct": 10.8,
+          "yearsActiveOutOf15": 10,
+          "topSubTopic": "Revolt of 1857, Tribal & Peasant Movements"
+        }
+      ],
+      "themes": [
+        {
+          "themeName": "Foundations",
+          "totalQuestions": 15,
+          "shareOfSubjectPct": 13.8,
+          "recent5YrQuestions": 4,
+          "recent5YrSharePct": 10.8,
+          "yearsActiveOutOf15": 10,
+          "lastAskedYear": 2025,
+          "yearCounts": {
+            "2011": 2,
+            "2012": 1,
+            "2013": 1,
+            "2014": 0,
+            "2015": 0,
+            "2016": 1,
+            "2017": 1,
+            "2018": 3,
+            "2019": 0,
+            "2020": 2,
+            "2021": 2,
+            "2022": 1,
+            "2023": 0,
+            "2024": 0,
+            "2025": 1
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 8,
+              "multiStatement": 6,
+              "howManyOnly": 1,
+              "statementI_II": 0,
+              "pairMatching": 0
+            },
+            "percentages": {
+              "singleMcq": 53,
+              "multiStatement": 40,
+              "howManyOnly": 7,
+              "statementI_II": 0,
+              "pairMatching": 0
+            },
+            "recent2022_2025": {
+              "total": 2,
+              "counts": {
+                "singleMcq": 0,
+                "multiStatement": 1,
+                "howManyOnly": 1,
+                "statementI_II": 0,
+                "pairMatching": 0
+              },
+              "newPatternSharePct": 50
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Revolt of 1857, Tribal & Peasant Movements",
+              "total": 10,
+              "shareOfSubjectPct": 9.2,
+              "split5Yr": {
+                "y2011_2015": 4,
+                "y2016_2020": 5,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2021,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Ulgulan",
+                "Santhal Parganas",
+                "Birsa Munda's Revolt of 1899-1900",
+                "an anti-caste movement in Maharashtra"
+              ]
+            },
+            {
+              "topic": "Advent of Europeans & British Expansion",
+              "total": 5,
+              "shareOfSubjectPct": 4.6,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 2,
+                "y2021_2025": 3
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "Cotton, silk, saltpetre and opium",
+                "To secure a fixed income for the Company"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "Ulgulan",
+            "Santhal Parganas",
+            "Cotton, silk, saltpetre and opium",
+            "Birsa Munda's Revolt of 1899-1900",
+            "an anti-caste movement in Maharashtra",
+            "Amritlal Vithaldas Thakkar"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Advent of Europeans & British Expansion (3 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Revolt of 1857, Tribal & Peasant Movements (last tested 2021, 10 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: Ulgulan, Santhal Parganas, Cotton, silk, saltpetre and opium, Birsa Munda's Revolt of 1899-1900."
+          ],
+          "roiTier": "Tier 2 · High-ROI"
+        },
+        {
+          "themeName": "Reform & Nationalism",
+          "totalQuestions": 49,
+          "shareOfSubjectPct": 45,
+          "recent5YrQuestions": 17,
+          "recent5YrSharePct": 45.9,
+          "yearsActiveOutOf15": 15,
+          "lastAskedYear": 2025,
+          "yearCounts": {
+            "2011": 4,
+            "2012": 7,
+            "2013": 2,
+            "2014": 3,
+            "2015": 5,
+            "2016": 3,
+            "2017": 1,
+            "2018": 4,
+            "2019": 2,
+            "2020": 1,
+            "2021": 7,
+            "2022": 1,
+            "2023": 1,
+            "2024": 1,
+            "2025": 7
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 28,
+              "multiStatement": 16,
+              "howManyOnly": 1,
+              "statementI_II": 1,
+              "pairMatching": 3
+            },
+            "percentages": {
+              "singleMcq": 57,
+              "multiStatement": 33,
+              "howManyOnly": 2,
+              "statementI_II": 2,
+              "pairMatching": 6
+            },
+            "recent2022_2025": {
+              "total": 10,
+              "counts": {
+                "singleMcq": 4,
+                "multiStatement": 3,
+                "howManyOnly": 1,
+                "statementI_II": 1,
+                "pairMatching": 1
+              },
+              "newPatternSharePct": 30
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Gandhian Era & Mass Movements (1915-1947)",
+              "total": 21,
+              "shareOfSubjectPct": 19.3,
+              "split5Yr": {
+                "y2011_2015": 10,
+                "y2016_2020": 4,
+                "y2021_2025": 7
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Swaraj",
+                "!\n2. In Lord Chelmsford",
+                "Swarajya Sabha",
+                "Unto this Last"
+              ]
+            },
+            {
+              "topic": "Early Nationalism & Congress (1885-1919)",
+              "total": 16,
+              "shareOfSubjectPct": 14.7,
+              "split5Yr": {
+                "y2011_2015": 8,
+                "y2016_2020": 4,
+                "y2021_2025": 4
+              },
+              "lastAskedYear": 2024,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Home Charges",
+                "Swadeshi",
+                "Boycott",
+                "moderates"
+              ]
+            },
+            {
+              "topic": "Socio-Religious Reform Movements",
+              "total": 12,
+              "shareOfSubjectPct": 11,
+              "split5Yr": {
+                "y2011_2015": 3,
+                "y2016_2020": 3,
+                "y2021_2025": 6
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Self-Respect Movement",
+                "Ishwar Chandra Vidyasagar",
+                "E.V. Ramaswamy Naicker",
+                "Dinabandhu Mitra wrote Neel Darpan"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "Home Charges",
+            "Swaraj",
+            "Swadeshi",
+            "Boycott",
+            "moderates",
+            "extremists"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Gandhian Era & Mass Movements (1915-1947) (7 Qs in 2021–25) & Early Nationalism & Congress (1885-1919) (4 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Core tested terms to revise: Home Charges, Swaraj, Swadeshi, Boycott."
+          ],
+          "roiTier": "Tier 1 · Core Pillar"
+        },
+        {
+          "themeName": "Governance & People",
+          "totalQuestions": 45,
+          "shareOfSubjectPct": 41.3,
+          "recent5YrQuestions": 16,
+          "recent5YrSharePct": 43.2,
+          "yearsActiveOutOf15": 15,
+          "lastAskedYear": 2025,
+          "yearCounts": {
+            "2011": 2,
+            "2012": 1,
+            "2013": 2,
+            "2014": 2,
+            "2015": 1,
+            "2016": 1,
+            "2017": 5,
+            "2018": 7,
+            "2019": 3,
+            "2020": 5,
+            "2021": 5,
+            "2022": 2,
+            "2023": 4,
+            "2024": 3,
+            "2025": 2
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 19,
+              "multiStatement": 21,
+              "howManyOnly": 1,
+              "statementI_II": 0,
+              "pairMatching": 4
+            },
+            "percentages": {
+              "singleMcq": 42,
+              "multiStatement": 47,
+              "howManyOnly": 2,
+              "statementI_II": 0,
+              "pairMatching": 9
+            },
+            "recent2022_2025": {
+              "total": 11,
+              "counts": {
+                "singleMcq": 3,
+                "multiStatement": 6,
+                "howManyOnly": 1,
+                "statementI_II": 0,
+                "pairMatching": 1
+              },
+              "newPatternSharePct": 18
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Constitutional & Administrative Developments",
+              "total": 25,
+              "shareOfSubjectPct": 22.9,
+              "split5Yr": {
+                "y2011_2015": 7,
+                "y2016_2020": 12,
+                "y2021_2025": 6
+              },
+              "lastAskedYear": 2024,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Reserved",
+                "Transferred",
+                "the Charter Act of 1813",
+                "a system of tribunals and a ban on strikes"
+              ]
+            },
+            {
+              "topic": "Personalities, Press & Culture",
+              "total": 18,
+              "shareOfSubjectPct": 16.5,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 7,
+                "y2021_2025": 10
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "s then largest bank,",
+                ", was renamed",
+                "Formula One",
+                "A New World"
+              ]
+            },
+            {
+              "topic": "Miscellaneous",
+              "total": 2,
+              "shareOfSubjectPct": 1.8,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 2,
+                "y2021_2025": 0
+              },
+              "lastAskedYear": 2018,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": [
+                "Dyarchy (diarchy)",
+                "commercialization of Indian agriculture"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "Reserved",
+            "Dyarchy (diarchy)",
+            "Transferred",
+            "s then largest bank,",
+            ", was renamed",
+            "the Charter Act of 1813"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Constitutional & Administrative Developments (6 Qs in 2021–25) & Personalities, Press & Culture (10 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Core tested terms to revise: Reserved, Dyarchy (diarchy), Transferred, s then largest bank,."
+          ],
+          "roiTier": "Tier 1 · Core Pillar"
+        }
+      ]
+    },
+    "Ancient History": {
+      "subject": "Ancient History",
+      "yearSpan": "2011–2025",
+      "totalQuestions": 30,
+      "avgPerYear": 2,
+      "early10YrAvg": 1.6,
+      "recent5YrAvg": 2.8,
+      "trendDirection": "Rising Weightage",
+      "peakYear": {
+        "year": 2025,
+        "count": 6
+      },
+      "yearCounts": {
+        "2011": 3,
+        "2012": 1,
+        "2013": 2,
+        "2014": 0,
+        "2015": 0,
+        "2016": 1,
+        "2017": 2,
+        "2018": 0,
+        "2019": 2,
+        "2020": 5,
+        "2021": 1,
+        "2022": 1,
+        "2023": 3,
+        "2024": 3,
+        "2025": 6
+      },
+      "patternBreakdown": {
+        "counts": {
+          "singleMcq": 17,
+          "multiStatement": 9,
+          "howManyOnly": 0,
+          "statementI_II": 0,
+          "pairMatching": 4
+        },
+        "percentages": {
+          "singleMcq": 57,
+          "multiStatement": 30,
+          "howManyOnly": 0,
+          "statementI_II": 0,
+          "pairMatching": 13
+        },
+        "recent2022_2025": {
+          "total": 13,
+          "counts": {
+            "singleMcq": 10,
+            "multiStatement": 1,
+            "howManyOnly": 0,
+            "statementI_II": 0,
+            "pairMatching": 2
+          },
+          "newPatternSharePct": 15
+        }
+      },
+      "overview": "Ancient History rewards precision on Harappan sites, Vedic/post-Vedic terminology, Mauryan Ashokan edicts, Sangam polity/trade, and Gupta administrative/land-grant terms.",
+      "recurringConcepts": [
+        "Indus Valley Civilisation: site-specific archaeological finds (Dholavira water harnessing, Lothal dockyard, Kalibangan, Rakhigarhi)",
+        "Ashokan Major & Minor Rock Edicts, pillar inscriptions, Dhamma officers (Rajukas, Dhamma Mahamattas), and Mauryan economy",
+        "Sangam literature (Tolkappiyam, Silappadikaram, Manimekalai, Ettuthokai), tinai eco-zones, and Indo-Roman ports (Muziris, Korkai, Arikamedu)",
+        "Administrative, revenue, and guild terms (Vishti, Bhaga, Shreni, Eripatti, Ghatika, Agrahara) across Maurya–Gupta–Harsha eras"
+      ],
+      "traps": [
+        "Assuming Harappans used iron, horse-drawn chariots, or monumental stone temples.",
+        "Confusing administrative/judicial terms across dynasties (e.g., Mauryan vs Gupta vs Chola village assemblies and land classifications).",
+        "Misplacing ancient ports between the Malabar (West) and Coromandel (East) coasts."
+      ],
+      "predictions2026": [
+        "Harappan DNA/archaeobotanical findings (Rakhigarhi, Vadnagar, Karanpura) and Chalcolithic/Megalithic cultures.",
+        "Ashokan edicts site-to-state mapping (Sannati/Kanganahalli, Dhauli, Jaugada, Girnar, Erragudi) and Prakrit/Brahmi palaeography.",
+        "Sangam & Post-Mauryan maritime trade (Periplus of the Erythraean Sea ports, Roman coinage hoards, Satavahana/Kushana guilds)."
+      ],
+      "themeRoiRanking": [
+        {
+          "rank": 1,
+          "themeName": "Heterodox Sects & Empires",
+          "roiTier": "Tier 1 · Core Pillar",
+          "totalQuestions": 18,
+          "shareOfSubjectPct": 60,
+          "recent5YrQuestions": 12,
+          "recent5YrSharePct": 85.7,
+          "yearsActiveOutOf15": 9,
+          "topSubTopic": "Buddhism & Jainism"
+        },
+        {
+          "rank": 2,
+          "themeName": "Prehistory & Early Civilisations",
+          "roiTier": "Tier 1 · Core Pillar",
+          "totalQuestions": 7,
+          "shareOfSubjectPct": 23.3,
+          "recent5YrQuestions": 2,
+          "recent5YrSharePct": 14.3,
+          "yearsActiveOutOf15": 6,
+          "topSubTopic": "Prehistory & Indus Valley Civilisation"
+        },
+        {
+          "rank": 3,
+          "themeName": "General & Survey",
+          "roiTier": "Tier 2 · High-ROI",
+          "totalQuestions": 5,
+          "shareOfSubjectPct": 16.7,
+          "recent5YrQuestions": 0,
+          "recent5YrSharePct": 0,
+          "yearsActiveOutOf15": 4,
+          "topSubTopic": "Ancient History – General"
+        }
+      ],
+      "themes": [
+        {
+          "themeName": "Prehistory & Early Civilisations",
+          "totalQuestions": 7,
+          "shareOfSubjectPct": 23.3,
+          "recent5YrQuestions": 2,
+          "recent5YrSharePct": 14.3,
+          "yearsActiveOutOf15": 6,
+          "lastAskedYear": 2025,
+          "yearCounts": {
+            "2011": 2,
+            "2012": 0,
+            "2013": 1,
+            "2014": 0,
+            "2015": 0,
+            "2016": 0,
+            "2017": 1,
+            "2018": 0,
+            "2019": 1,
+            "2020": 0,
+            "2021": 0,
+            "2022": 0,
+            "2023": 0,
+            "2024": 1,
+            "2025": 1
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 2,
+              "multiStatement": 4,
+              "howManyOnly": 0,
+              "statementI_II": 0,
+              "pairMatching": 1
+            },
+            "percentages": {
+              "singleMcq": 29,
+              "multiStatement": 57,
+              "howManyOnly": 0,
+              "statementI_II": 0,
+              "pairMatching": 14
+            },
+            "recent2022_2025": {
+              "total": 2,
+              "counts": {
+                "singleMcq": 1,
+                "multiStatement": 0,
+                "howManyOnly": 0,
+                "statementI_II": 0,
+                "pairMatching": 1
+              },
+              "newPatternSharePct": 50
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Prehistory & Indus Valley Civilisation",
+              "total": 6,
+              "shareOfSubjectPct": 20,
+              "split5Yr": {
+                "y2011_2015": 2,
+                "y2016_2020": 2,
+                "y2021_2025": 2
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "Dancing Girl",
+                "Sohgaura",
+                "bronze"
+              ]
+            },
+            {
+              "topic": "Vedic Age",
+              "total": 1,
+              "shareOfSubjectPct": 3.3,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 0,
+                "y2021_2025": 0
+              },
+              "lastAskedYear": 2011,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": [
+                "Dharma"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "Dharma",
+            "Dancing Girl",
+            "Sohgaura",
+            "bronze"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Prehistory & Indus Valley Civilisation (2 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Core tested terms to revise: Dharma, Dancing Girl, Sohgaura, bronze."
+          ],
+          "roiTier": "Tier 1 · Core Pillar"
+        },
+        {
+          "themeName": "Heterodox Sects & Empires",
+          "totalQuestions": 18,
+          "shareOfSubjectPct": 60,
+          "recent5YrQuestions": 12,
+          "recent5YrSharePct": 85.7,
+          "yearsActiveOutOf15": 9,
+          "lastAskedYear": 2025,
+          "yearCounts": {
+            "2011": 1,
+            "2012": 0,
+            "2013": 1,
+            "2014": 0,
+            "2015": 0,
+            "2016": 0,
+            "2017": 0,
+            "2018": 0,
+            "2019": 1,
+            "2020": 3,
+            "2021": 1,
+            "2022": 1,
+            "2023": 3,
+            "2024": 2,
+            "2025": 5
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 13,
+              "multiStatement": 4,
+              "howManyOnly": 0,
+              "statementI_II": 0,
+              "pairMatching": 1
+            },
+            "percentages": {
+              "singleMcq": 72,
+              "multiStatement": 22,
+              "howManyOnly": 0,
+              "statementI_II": 0,
+              "pairMatching": 6
+            },
+            "recent2022_2025": {
+              "total": 11,
+              "counts": {
+                "singleMcq": 9,
+                "multiStatement": 1,
+                "howManyOnly": 0,
+                "statementI_II": 0,
+                "pairMatching": 1
+              },
+              "newPatternSharePct": 9
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Buddhism & Jainism",
+              "total": 5,
+              "shareOfSubjectPct": 16.7,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 0,
+                "y2021_2025": 4
+              },
+              "lastAskedYear": 2024,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Andhra",
+                "ports",
+                "Sarvastivada Vinaya"
+              ]
+            },
+            {
+              "topic": "Post-Mauryan & Sangam Age",
+              "total": 5,
+              "shareOfSubjectPct": 16.7,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 1,
+                "y2021_2025": 4
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Vattakirutal",
+                "Araghatta",
+                "Mattavilasa",
+                "Vichitrachitta"
+              ]
+            },
+            {
+              "topic": "Mahajanapadas & Mauryas",
+              "total": 4,
+              "shareOfSubjectPct": 13.3,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 1,
+                "y2021_2025": 3
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "Pradeshika",
+                "Rajuka",
+                "Yukta",
+                "Ashoka"
+              ]
+            },
+            {
+              "topic": "Guptas & Post-Guptas",
+              "total": 4,
+              "shareOfSubjectPct": 13.3,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 2,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "ports handling foreign trade",
+                "Chandragupta II"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "Vattakirutal",
+            "Araghatta",
+            "Mattavilasa",
+            "Vichitrachitta",
+            "Gunabhara",
+            "Pradeshika"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Buddhism & Jainism (4 Qs in 2021–25) & Post-Mauryan & Sangam Age (4 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Core tested terms to revise: Vattakirutal, Araghatta, Mattavilasa, Vichitrachitta."
+          ],
+          "roiTier": "Tier 1 · Core Pillar"
+        },
+        {
+          "themeName": "General & Survey",
+          "totalQuestions": 5,
+          "shareOfSubjectPct": 16.7,
+          "recent5YrQuestions": 0,
+          "recent5YrSharePct": 0,
+          "yearsActiveOutOf15": 4,
+          "lastAskedYear": 2020,
+          "yearCounts": {
+            "2011": 0,
+            "2012": 1,
+            "2013": 0,
+            "2014": 0,
+            "2015": 0,
+            "2016": 1,
+            "2017": 1,
+            "2018": 0,
+            "2019": 0,
+            "2020": 2,
+            "2021": 0,
+            "2022": 0,
+            "2023": 0,
+            "2024": 0,
+            "2025": 0
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 2,
+              "multiStatement": 1,
+              "howManyOnly": 0,
+              "statementI_II": 0,
+              "pairMatching": 2
+            },
+            "percentages": {
+              "singleMcq": 40,
+              "multiStatement": 20,
+              "howManyOnly": 0,
+              "statementI_II": 0,
+              "pairMatching": 40
+            },
+            "recent2022_2025": {
+              "total": 0,
+              "counts": {
+                "singleMcq": 0,
+                "multiStatement": 0,
+                "howManyOnly": 0,
+                "statementI_II": 0,
+                "pairMatching": 0
+              },
+              "newPatternSharePct": 0
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Ancient History – General",
+              "total": 5,
+              "shareOfSubjectPct": 16.7,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 4,
+                "y2021_2025": 0
+              },
+              "lastAskedYear": 2020,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "kulyavapa",
+                "dronavapa",
+                "measurement of land",
+                "Motupalli"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "kulyavapa",
+            "dronavapa",
+            "measurement of land",
+            "Motupalli"
+          ],
+          "focus2026": [
+            "Due-cycle watch: Ancient History – General (last tested 2020, 5 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: kulyavapa, dronavapa, measurement of land, Motupalli."
+          ],
+          "roiTier": "Tier 2 · High-ROI"
+        }
+      ]
+    },
+    "Medieval History": {
+      "subject": "Medieval History",
+      "yearSpan": "2011–2025",
+      "totalQuestions": 29,
+      "avgPerYear": 1.9,
+      "early10YrAvg": 1.6,
+      "recent5YrAvg": 2.6,
+      "trendDirection": "Rising Weightage",
+      "peakYear": {
+        "year": 2019,
+        "count": 4
+      },
+      "yearCounts": {
+        "2011": 0,
+        "2012": 0,
+        "2013": 0,
+        "2014": 3,
+        "2015": 3,
+        "2016": 3,
+        "2017": 0,
+        "2018": 1,
+        "2019": 4,
+        "2020": 2,
+        "2021": 4,
+        "2022": 4,
+        "2023": 3,
+        "2024": 1,
+        "2025": 1
+      },
+      "patternBreakdown": {
+        "counts": {
+          "singleMcq": 16,
+          "multiStatement": 9,
+          "howManyOnly": 1,
+          "statementI_II": 0,
+          "pairMatching": 3
+        },
+        "percentages": {
+          "singleMcq": 55,
+          "multiStatement": 31,
+          "howManyOnly": 3,
+          "statementI_II": 0,
+          "pairMatching": 10
+        },
+        "recent2022_2025": {
+          "total": 9,
+          "counts": {
+            "singleMcq": 6,
+            "multiStatement": 1,
+            "howManyOnly": 1,
+            "statementI_II": 0,
+            "pairMatching": 1
+          },
+          "newPatternSharePct": 22
+        }
+      },
+      "overview": "Medieval History focuses on administrative/agrarian vocabulary (Iqta, Jagir, Mansab, Amaram), Vijayanagara–Bahmani travellers and architecture, Chola local self-government, and Delhi Sultanate/Mughal reforms.",
+      "recurringConcepts": [
+        "Vijayanagara Empire: Krishnadevaraya’s reign, Amara-nayaka system, Mahanavami Dibba, waterworks, and foreign travellers (Abdur Razzaq, Domingo Paes, Nuniz, Nicolo Conti)",
+        "Delhi Sultanate administrative departments (Diwan-i-Arz, Diwan-i-Kohi, Diwan-i-Bandagan, Diwan-i-Khairat) and market/land reforms of Alauddin Khalji & Muhammad bin Tughlaq",
+        "Mughal Mansabdari (Zat & Sawar), Zabti/Dahsala revenue system, jagirdari crisis, and provincial officers (Faujdar, Amil, Kotwal, Mir Bakshi)",
+        "Early Medieval tripartite struggle (Palas, Pratiharas, Rashtrakutas), Chola Uttaramerur sabha committees, and Kakatiya/Hoysala ports"
+      ],
+      "traps": [
+        "Treating Iqta or Jagir as hereditary private property by default rather than transferable revenue assignments.",
+        "Swapping Delhi Sultanate departments between Balban, Alauddin Khalji, Muhammad bin Tughlaq, and Firoz Shah Tughlaq.",
+        "Mismatching foreign travellers with the Vijayanagara or Mughal ruler whose court they visited."
+      ],
+      "predictions2026": [
+        "Ahom kingdom administration (Paik system, Buranjis, Moidams), Deccan Sultanates, and Maratha Ashtapradhan / Chauth-Sardeshmukhi.",
+        "Medieval agrarian & hydraulic terms (Araghatta/Persian wheel, Karez, Karkhanas, Hundi, Sarais) and Indo-Islamic coins.",
+        "Regional dynasties (Kakatiyas of Warangal/Motupalli, Hoysalas, Gajapatis of Odisha, Karkota/Utpala of Kashmir)."
+      ],
+      "themeRoiRanking": [
+        {
+          "rank": 1,
+          "themeName": "General & Survey",
+          "roiTier": "Tier 1 · Core Pillar",
+          "totalQuestions": 11,
+          "shareOfSubjectPct": 37.9,
+          "recent5YrQuestions": 2,
+          "recent5YrSharePct": 15.4,
+          "yearsActiveOutOf15": 7,
+          "topSubTopic": "Medieval History – General"
+        },
+        {
+          "rank": 2,
+          "themeName": "Early Medieval & Sultanate",
+          "roiTier": "Tier 1 · Core Pillar",
+          "totalQuestions": 8,
+          "shareOfSubjectPct": 27.6,
+          "recent5YrQuestions": 6,
+          "recent5YrSharePct": 46.2,
+          "yearsActiveOutOf15": 6,
+          "topSubTopic": "Early Medieval Kingdoms"
+        },
+        {
+          "rank": 3,
+          "themeName": "Deccan & Regional States",
+          "roiTier": "Tier 2 · High-ROI",
+          "totalQuestions": 6,
+          "shareOfSubjectPct": 20.7,
+          "recent5YrQuestions": 5,
+          "recent5YrSharePct": 38.5,
+          "yearsActiveOutOf15": 5,
+          "topSubTopic": "Vijayanagara & Bahmani"
+        },
+        {
+          "rank": 4,
+          "themeName": "The Mughal Era",
+          "roiTier": "Tier 2 · High-ROI",
+          "totalQuestions": 4,
+          "shareOfSubjectPct": 13.8,
+          "recent5YrQuestions": 0,
+          "recent5YrSharePct": 0,
+          "yearsActiveOutOf15": 2,
+          "topSubTopic": "Mughal Empire"
+        }
+      ],
+      "themes": [
+        {
+          "themeName": "Early Medieval & Sultanate",
+          "totalQuestions": 8,
+          "shareOfSubjectPct": 27.6,
+          "recent5YrQuestions": 6,
+          "recent5YrSharePct": 46.2,
+          "yearsActiveOutOf15": 6,
+          "lastAskedYear": 2025,
+          "yearCounts": {
+            "2011": 0,
+            "2012": 0,
+            "2013": 0,
+            "2014": 1,
+            "2015": 0,
+            "2016": 0,
+            "2017": 0,
+            "2018": 0,
+            "2019": 1,
+            "2020": 0,
+            "2021": 1,
+            "2022": 3,
+            "2023": 1,
+            "2024": 0,
+            "2025": 1
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 3,
+              "multiStatement": 3,
+              "howManyOnly": 1,
+              "statementI_II": 0,
+              "pairMatching": 1
+            },
+            "percentages": {
+              "singleMcq": 38,
+              "multiStatement": 38,
+              "howManyOnly": 13,
+              "statementI_II": 0,
+              "pairMatching": 13
+            },
+            "recent2022_2025": {
+              "total": 5,
+              "counts": {
+                "singleMcq": 2,
+                "multiStatement": 1,
+                "howManyOnly": 1,
+                "statementI_II": 0,
+                "pairMatching": 1
+              },
+              "newPatternSharePct": 40
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Early Medieval Kingdoms",
+              "total": 5,
+              "shareOfSubjectPct": 17.2,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 0,
+                "y2021_2025": 4
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Kulah-Daran",
+                "Sayyids",
+                "Rajendra I (Chola)"
+              ]
+            },
+            {
+              "topic": "Delhi Sultanate",
+              "total": 3,
+              "shareOfSubjectPct": 10.3,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 1,
+                "y2021_2025": 2
+              },
+              "lastAskedYear": 2022,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "Mir Bakshi"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "Kulah-Daran",
+            "Mir Bakshi",
+            "Sayyids",
+            "Rajendra I (Chola)"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Early Medieval Kingdoms (4 Qs in 2021–25) & Delhi Sultanate (2 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Delhi Sultanate (last tested 2022, 3 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: Kulah-Daran, Mir Bakshi, Sayyids, Rajendra I (Chola)."
+          ],
+          "roiTier": "Tier 1 · Core Pillar"
+        },
+        {
+          "themeName": "Deccan & Regional States",
+          "totalQuestions": 6,
+          "shareOfSubjectPct": 20.7,
+          "recent5YrQuestions": 5,
+          "recent5YrSharePct": 38.5,
+          "yearsActiveOutOf15": 5,
+          "lastAskedYear": 2024,
+          "yearCounts": {
+            "2011": 0,
+            "2012": 0,
+            "2013": 0,
+            "2014": 0,
+            "2015": 0,
+            "2016": 1,
+            "2017": 0,
+            "2018": 0,
+            "2019": 0,
+            "2020": 0,
+            "2021": 2,
+            "2022": 1,
+            "2023": 1,
+            "2024": 1,
+            "2025": 0
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 3,
+              "multiStatement": 3,
+              "howManyOnly": 0,
+              "statementI_II": 0,
+              "pairMatching": 0
+            },
+            "percentages": {
+              "singleMcq": 50,
+              "multiStatement": 50,
+              "howManyOnly": 0,
+              "statementI_II": 0,
+              "pairMatching": 0
+            },
+            "recent2022_2025": {
+              "total": 3,
+              "counts": {
+                "singleMcq": 3,
+                "multiStatement": 0,
+                "howManyOnly": 0,
+                "statementI_II": 0,
+                "pairMatching": 0
+              },
+              "newPatternSharePct": 0
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Vijayanagara & Bahmani",
+              "total": 5,
+              "shareOfSubjectPct": 17.2,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 1,
+                "y2021_2025": 4
+              },
+              "lastAskedYear": 2024,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Devaraya I",
+                "Krishnadevaraya"
+              ]
+            },
+            {
+              "topic": "Marathas & Regional States",
+              "total": 1,
+              "shareOfSubjectPct": 3.4,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 0,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2022,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": [
+                "Yogavasistha",
+                "Akbar"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "Yogavasistha",
+            "Devaraya I",
+            "Akbar",
+            "Krishnadevaraya"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Vijayanagara & Bahmani (4 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Core tested terms to revise: Yogavasistha, Devaraya I, Akbar, Krishnadevaraya."
+          ],
+          "roiTier": "Tier 2 · High-ROI"
+        },
+        {
+          "themeName": "The Mughal Era",
+          "totalQuestions": 4,
+          "shareOfSubjectPct": 13.8,
+          "recent5YrQuestions": 0,
+          "recent5YrSharePct": 0,
+          "yearsActiveOutOf15": 2,
+          "lastAskedYear": 2019,
+          "yearCounts": {
+            "2011": 0,
+            "2012": 0,
+            "2013": 0,
+            "2014": 0,
+            "2015": 1,
+            "2016": 0,
+            "2017": 0,
+            "2018": 0,
+            "2019": 3,
+            "2020": 0,
+            "2021": 0,
+            "2022": 0,
+            "2023": 0,
+            "2024": 0,
+            "2025": 0
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 2,
+              "multiStatement": 2,
+              "howManyOnly": 0,
+              "statementI_II": 0,
+              "pairMatching": 0
+            },
+            "percentages": {
+              "singleMcq": 50,
+              "multiStatement": 50,
+              "howManyOnly": 0,
+              "statementI_II": 0,
+              "pairMatching": 0
+            },
+            "recent2022_2025": {
+              "total": 0,
+              "counts": {
+                "singleMcq": 0,
+                "multiStatement": 0,
+                "howManyOnly": 0,
+                "statementI_II": 0,
+                "pairMatching": 0
+              },
+              "newPatternSharePct": 0
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Mughal Empire",
+              "total": 4,
+              "shareOfSubjectPct": 13.8,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 3,
+                "y2021_2025": 0
+              },
+              "lastAskedYear": 2019,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "Tansen was the title given to him by Emperor Akbar",
+                "Jahangir"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "Tansen was the title given to him by Emperor Akbar",
+            "Jahangir"
+          ],
+          "focus2026": [
+            "Due-cycle watch: Mughal Empire (last tested 2019, 4 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: Tansen was the title given to him by Emperor Akbar, Jahangir."
+          ],
+          "roiTier": "Tier 2 · High-ROI"
+        },
+        {
+          "themeName": "General & Survey",
+          "totalQuestions": 11,
+          "shareOfSubjectPct": 37.9,
+          "recent5YrQuestions": 2,
+          "recent5YrSharePct": 15.4,
+          "yearsActiveOutOf15": 7,
+          "lastAskedYear": 2023,
+          "yearCounts": {
+            "2011": 0,
+            "2012": 0,
+            "2013": 0,
+            "2014": 2,
+            "2015": 2,
+            "2016": 2,
+            "2017": 0,
+            "2018": 1,
+            "2019": 0,
+            "2020": 2,
+            "2021": 1,
+            "2022": 0,
+            "2023": 1,
+            "2024": 0,
+            "2025": 0
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 8,
+              "multiStatement": 1,
+              "howManyOnly": 0,
+              "statementI_II": 0,
+              "pairMatching": 2
+            },
+            "percentages": {
+              "singleMcq": 73,
+              "multiStatement": 9,
+              "howManyOnly": 0,
+              "statementI_II": 0,
+              "pairMatching": 18
+            },
+            "recent2022_2025": {
+              "total": 1,
+              "counts": {
+                "singleMcq": 1,
+                "multiStatement": 0,
+                "howManyOnly": 0,
+                "statementI_II": 0,
+                "pairMatching": 0
+              },
+              "newPatternSharePct": 0
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Medieval History – General",
+              "total": 11,
+              "shareOfSubjectPct": 37.9,
+              "split5Yr": {
+                "y2011_2015": 4,
+                "y2016_2020": 5,
+                "y2021_2025": 2
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Hundi",
+                "Mahattara",
+                "Pattakila",
+                "Araghatta"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "Hundi",
+            "Mahattara",
+            "Pattakila",
+            "Araghatta",
+            "Bijak",
+            "A bill of exchange"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Medieval History – General (2 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Medieval History – General (last tested 2023, 11 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: Hundi, Mahattara, Pattakila, Araghatta."
+          ],
+          "roiTier": "Tier 1 · Core Pillar"
+        }
+      ]
+    },
+    "Art & Culture": {
+      "subject": "Art & Culture",
+      "yearSpan": "2011–2025",
+      "totalQuestions": 84,
+      "avgPerYear": 5.6,
+      "early10YrAvg": 5.9,
+      "recent5YrAvg": 5,
+      "trendDirection": "Consolidating / Selective",
+      "peakYear": {
+        "year": 2014,
+        "count": 13
+      },
+      "yearCounts": {
+        "2011": 1,
+        "2012": 8,
+        "2013": 7,
+        "2014": 13,
+        "2015": 2,
+        "2016": 8,
+        "2017": 5,
+        "2018": 7,
+        "2019": 4,
+        "2020": 4,
+        "2021": 9,
+        "2022": 7,
+        "2023": 4,
+        "2024": 4,
+        "2025": 1
+      },
+      "patternBreakdown": {
+        "counts": {
+          "singleMcq": 37,
+          "multiStatement": 32,
+          "howManyOnly": 2,
+          "statementI_II": 0,
+          "pairMatching": 13
+        },
+        "percentages": {
+          "singleMcq": 44,
+          "multiStatement": 38,
+          "howManyOnly": 2,
+          "statementI_II": 0,
+          "pairMatching": 15
+        },
+        "recent2022_2025": {
+          "total": 16,
+          "counts": {
+            "singleMcq": 6,
+            "multiStatement": 4,
+            "howManyOnly": 2,
+            "statementI_II": 0,
+            "pairMatching": 4
+          },
+          "newPatternSharePct": 38
+        }
+      },
+      "overview": "Art & Culture is tightly integrated with Ancient & Medieval India, heavily testing Buddhist/Jaina philosophy and literature, rock-cut & temple architecture, classical arts, and UNESCO/GI cultural heritage.",
+      "recurringConcepts": [
+        "Buddhist & Jaina sects (Theravada, Mahayana, Vajrayana; Svetambara, Digambara), councils, canonical texts, and bodhisattvas",
+        "Rock-cut caves (Ajanta, Ellora, Elephanta, Barabar, Nasik, Udayagiri-Khandagiri) and stupa/vihara architecture",
+        "Temple architecture styles (Nagara sub-schools, Dravida Chola/Pallava/Vijayanagara, Vesara Hoysala/Chalukya) and sculptures",
+        "Six orthodox (Astika) philosophical schools (Samkhya, Yoga, Nyaya, Vaisheshika, Mimamsa, Vedanta) and Bhakti/Sufi saints",
+        "Classical & folk dances, musical traditions (Hindustani vs Carnatic), miniature paintings, and ancient Sanskrit/Pali/Prakrit plays"
+      ],
+      "traps": [
+        "Swapping Jain and Buddhist texts/concepts (e.g., Sthanakvasi, Paramitas, Sautrantika, Sammatiya,Nayaputta).",
+        "Attributing a rock-cut monument or temple to the wrong dynasty or century (e.g., Kailashanatha Ellora vs Mahabalipuram vs Tanjore).",
+        "Confusing contemporaneous Bhakti/Sufi saints with Mughal emperors or regional rulers."
+      ],
+      "predictions2026": [
+        "Newly inscribed UNESCO World Heritage Sites (Moidams of Assam, Hoysala ensembles) and Classical Language status criteria (Marathi, Pali, Prakrit, Assamese, Bengali).",
+        "Buddhist & Jaina epigraphy, sangha monastic rules (Vinaya Pitaka), and philosophical debates (Madhyamaka vs Yogachara, Syadvada).",
+        "Chola/Pallava/Chalukya port towns, temple guild inscriptions, and bronze/stone sculptural iconography."
+      ],
+      "themeRoiRanking": [
+        {
+          "rank": 1,
+          "themeName": "Visual Arts",
+          "roiTier": "Tier 1 · Core Pillar",
+          "totalQuestions": 30,
+          "shareOfSubjectPct": 35.7,
+          "recent5YrQuestions": 9,
+          "recent5YrSharePct": 36,
+          "yearsActiveOutOf15": 12,
+          "topSubTopic": "Architecture & Sculpture"
+        },
+        {
+          "rank": 2,
+          "themeName": "Philosophy & Literature",
+          "roiTier": "Tier 1 · Core Pillar",
+          "totalQuestions": 27,
+          "shareOfSubjectPct": 32.1,
+          "recent5YrQuestions": 8,
+          "recent5YrSharePct": 32,
+          "yearsActiveOutOf15": 13,
+          "topSubTopic": "Philosophy & Religion"
+        },
+        {
+          "rank": 3,
+          "themeName": "Performing & Living Culture",
+          "roiTier": "Tier 1 · Core Pillar",
+          "totalQuestions": 27,
+          "shareOfSubjectPct": 32.1,
+          "recent5YrQuestions": 8,
+          "recent5YrSharePct": 32,
+          "yearsActiveOutOf15": 12,
+          "topSubTopic": "Dance, Music, Theatre & Puppetry"
+        }
+      ],
+      "themes": [
+        {
+          "themeName": "Visual Arts",
+          "totalQuestions": 30,
+          "shareOfSubjectPct": 35.7,
+          "recent5YrQuestions": 9,
+          "recent5YrSharePct": 36,
+          "yearsActiveOutOf15": 12,
+          "lastAskedYear": 2024,
+          "yearCounts": {
+            "2011": 0,
+            "2012": 1,
+            "2013": 3,
+            "2014": 5,
+            "2015": 2,
+            "2016": 3,
+            "2017": 2,
+            "2018": 3,
+            "2019": 2,
+            "2020": 0,
+            "2021": 5,
+            "2022": 1,
+            "2023": 2,
+            "2024": 1,
+            "2025": 0
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 14,
+              "multiStatement": 9,
+              "howManyOnly": 2,
+              "statementI_II": 0,
+              "pairMatching": 5
+            },
+            "percentages": {
+              "singleMcq": 47,
+              "multiStatement": 30,
+              "howManyOnly": 7,
+              "statementI_II": 0,
+              "pairMatching": 17
+            },
+            "recent2022_2025": {
+              "total": 4,
+              "counts": {
+                "singleMcq": 0,
+                "multiStatement": 1,
+                "howManyOnly": 2,
+                "statementI_II": 0,
+                "pairMatching": 1
+              },
+              "newPatternSharePct": 75
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Architecture & Sculpture",
+              "total": 25,
+              "shareOfSubjectPct": 29.8,
+              "split5Yr": {
+                "y2011_2015": 10,
+                "y2016_2020": 6,
+                "y2021_2025": 9
+              },
+              "lastAskedYear": 2024,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Kalyaana Mandapas",
+                "Ranyo Ashoka",
+                "Arjuna",
+                "Descent of Ganga"
+              ]
+            },
+            {
+              "topic": "Painting & Handicrafts",
+              "total": 5,
+              "shareOfSubjectPct": 6,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 4,
+                "y2021_2025": 0
+              },
+              "lastAskedYear": 2018,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "Bani Thani",
+                "Kishangarh school",
+                "Ajanta",
+                "A hand-painted cotton textile in South India. bamboo"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "Kalyaana Mandapas",
+            "Ranyo Ashoka",
+            "Bani Thani",
+            "Arjuna",
+            "Descent of Ganga",
+            "Halbi, ho and Kui"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Architecture & Sculpture (9 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Painting & Handicrafts (last tested 2018, 5 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: Kalyaana Mandapas, Ranyo Ashoka, Bani Thani, Arjuna."
+          ],
+          "roiTier": "Tier 1 · Core Pillar"
+        },
+        {
+          "themeName": "Philosophy & Literature",
+          "totalQuestions": 27,
+          "shareOfSubjectPct": 32.1,
+          "recent5YrQuestions": 8,
+          "recent5YrSharePct": 32,
+          "yearsActiveOutOf15": 13,
+          "lastAskedYear": 2024,
+          "yearCounts": {
+            "2011": 1,
+            "2012": 3,
+            "2013": 3,
+            "2014": 2,
+            "2015": 0,
+            "2016": 3,
+            "2017": 1,
+            "2018": 2,
+            "2019": 1,
+            "2020": 3,
+            "2021": 1,
+            "2022": 3,
+            "2023": 2,
+            "2024": 2,
+            "2025": 0
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 13,
+              "multiStatement": 11,
+              "howManyOnly": 0,
+              "statementI_II": 0,
+              "pairMatching": 3
+            },
+            "percentages": {
+              "singleMcq": 48,
+              "multiStatement": 41,
+              "howManyOnly": 0,
+              "statementI_II": 0,
+              "pairMatching": 11
+            },
+            "recent2022_2025": {
+              "total": 7,
+              "counts": {
+                "singleMcq": 3,
+                "multiStatement": 2,
+                "howManyOnly": 0,
+                "statementI_II": 0,
+                "pairMatching": 2
+              },
+              "newPatternSharePct": 29
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Philosophy & Religion",
+              "total": 17,
+              "shareOfSubjectPct": 20.2,
+              "split5Yr": {
+                "y2011_2015": 8,
+                "y2016_2020": 7,
+                "y2021_2025": 2
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Jainism",
+                "Sthanakvasi",
+                "Maitreya",
+                "The extinction of the flame of desire"
+              ]
+            },
+            {
+              "topic": "Literature & Languages",
+              "total": 10,
+              "shareOfSubjectPct": 11.9,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 3,
+                "y2021_2025": 6
+              },
+              "lastAskedYear": 2024,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "paramitas",
+                "Classical Language/Languages",
+                "Malavikagnirnitra",
+                "The best means of salvation was devotion"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "Jainism",
+            "paramitas",
+            "Sthanakvasi",
+            "Classical Language/Languages",
+            "Malavikagnirnitra",
+            "The best means of salvation was devotion"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Philosophy & Religion (2 Qs in 2021–25) & Literature & Languages (6 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Philosophy & Religion (last tested 2023, 17 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: Jainism, paramitas, Sthanakvasi, Classical Language/Languages."
+          ],
+          "roiTier": "Tier 1 · Core Pillar"
+        },
+        {
+          "themeName": "Performing & Living Culture",
+          "totalQuestions": 27,
+          "shareOfSubjectPct": 32.1,
+          "recent5YrQuestions": 8,
+          "recent5YrSharePct": 32,
+          "yearsActiveOutOf15": 12,
+          "lastAskedYear": 2025,
+          "yearCounts": {
+            "2011": 0,
+            "2012": 4,
+            "2013": 1,
+            "2014": 6,
+            "2015": 0,
+            "2016": 2,
+            "2017": 2,
+            "2018": 2,
+            "2019": 1,
+            "2020": 1,
+            "2021": 3,
+            "2022": 3,
+            "2023": 0,
+            "2024": 1,
+            "2025": 1
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 10,
+              "multiStatement": 12,
+              "howManyOnly": 0,
+              "statementI_II": 0,
+              "pairMatching": 5
+            },
+            "percentages": {
+              "singleMcq": 37,
+              "multiStatement": 44,
+              "howManyOnly": 0,
+              "statementI_II": 0,
+              "pairMatching": 19
+            },
+            "recent2022_2025": {
+              "total": 5,
+              "counts": {
+                "singleMcq": 3,
+                "multiStatement": 1,
+                "howManyOnly": 0,
+                "statementI_II": 0,
+                "pairMatching": 1
+              },
+              "newPatternSharePct": 20
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Dance, Music, Theatre & Puppetry",
+              "total": 14,
+              "shareOfSubjectPct": 16.7,
+              "split5Yr": {
+                "y2011_2015": 9,
+                "y2016_2020": 3,
+                "y2021_2025": 2
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "s culture and tradition, what is",
+                "musical tradition in North-West India ALTURE",
+                "Garba dance",
+                "Lahore"
+              ]
+            },
+            {
+              "topic": "Festivals, Martial Arts & Miscellaneous Culture",
+              "total": 13,
+              "shareOfSubjectPct": 15.5,
+              "split5Yr": {
+                "y2011_2015": 2,
+                "y2016_2020": 5,
+                "y2021_2025": 6
+              },
+              "lastAskedYear": 2022,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Fanam",
+                "Satyameva Jayate",
+                "Dholavira",
+                "James Prinsep"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "Fanam",
+            "Satyameva Jayate",
+            "s culture and tradition, what is",
+            "Dholavira",
+            "James Prinsep",
+            "musical tradition in North-West India ALTURE"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Dance, Music, Theatre & Puppetry (2 Qs in 2021–25) & Festivals, Martial Arts & Miscellaneous Culture (6 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Festivals, Martial Arts & Miscellaneous Culture (last tested 2022, 13 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: Fanam, Satyameva Jayate, s culture and tradition, what is, Dholavira."
+          ],
+          "roiTier": "Tier 1 · Core Pillar"
+        }
+      ]
+    },
+    "Agriculture": {
+      "subject": "Agriculture",
+      "yearSpan": "2011–2025",
+      "totalQuestions": 70,
+      "avgPerYear": 4.7,
+      "early10YrAvg": 4.9,
+      "recent5YrAvg": 4.2,
+      "trendDirection": "Stable Core",
+      "peakYear": {
+        "year": 2020,
+        "count": 12
+      },
+      "yearCounts": {
+        "2011": 4,
+        "2012": 3,
+        "2013": 1,
+        "2014": 6,
+        "2015": 5,
+        "2016": 4,
+        "2017": 3,
+        "2018": 6,
+        "2019": 5,
+        "2020": 12,
+        "2021": 3,
+        "2022": 3,
+        "2023": 3,
+        "2024": 6,
+        "2025": 6
+      },
+      "patternBreakdown": {
+        "counts": {
+          "singleMcq": 19,
+          "multiStatement": 41,
+          "howManyOnly": 4,
+          "statementI_II": 3,
+          "pairMatching": 3
+        },
+        "percentages": {
+          "singleMcq": 27,
+          "multiStatement": 59,
+          "howManyOnly": 6,
+          "statementI_II": 4,
+          "pairMatching": 4
+        },
+        "recent2022_2025": {
+          "total": 18,
+          "counts": {
+            "singleMcq": 3,
+            "multiStatement": 6,
+            "howManyOnly": 4,
+            "statementI_II": 3,
+            "pairMatching": 2
+          },
+          "newPatternSharePct": 50
+        }
+      },
+      "overview": "Agriculture bridges Geography, Economy, and Ecology (4–8 questions/year), testing crop climatic requirements, sustainable farming practices, soil chemistry, and MSP/procurement policy.",
+      "recurringConcepts": [
+        "Climatic & soil requirements of Kharif, Rabi, and Zaid crops (Millets/Shree Anna, Pulses, Oilseeds, Cotton, Sugarcane, Rice, Tea)",
+        "Sustainable practices: Zero-tillage, Conservation Agriculture, System of Rice Intensification (SRI), Direct Seeded Rice (DSR), Fertigation, Mulching",
+        "Nitrogen Use Efficiency, Nano-Urea/DAP, Neem-coated urea, bio-fertilizers (Rhizobium, Azolla, Azotobacter, Mycorrhiza), and green manuring",
+        "MSP calculation (A2+FL vs C2), CACP recommendations vs CCEA approval, e-NAM, FPOs, and edible oil/pulse import dependence"
+      ],
+      "traps": [
+        "Assuming CACP approves MSP (CACP only recommends; Cabinet Committee on Economic Affairs approves) or that MSP is legally mandatory for private traders.",
+        "Confusing Kharif vs Rabi classification of pulses/oilseeds (e.g., Tur/Arhar vs Gram/Chana, Groundnut vs Mustard).",
+        "Overstating that SRI or DSR eliminates methane or water need completely rather than reducing it substantially."
+      ],
+      "predictions2026": [
+        "Oilseeds & Pulses self-reliance missions (Yellow Revolution 2.0, Mustard/Palm oil agro-climatic zones, Tur/Masoor buffer procurement).",
+        "Climate-resilient crop varieties, genome-edited crops (SDN-1/SDN-2 exemption rules), and digital crop survey (AgriStack).",
+        "Soil organic carbon sequestration, biochar, precision micro-irrigation, and millet value-chain processing."
+      ],
+      "themeRoiRanking": [
+        {
+          "rank": 1,
+          "themeName": "Agronomy & Practices",
+          "roiTier": "Tier 1 · Core Pillar",
+          "totalQuestions": 39,
+          "shareOfSubjectPct": 55.7,
+          "recent5YrQuestions": 11,
+          "recent5YrSharePct": 52.4,
+          "yearsActiveOutOf15": 14,
+          "topSubTopic": "Major Crops"
+        },
+        {
+          "rank": 2,
+          "themeName": "Agricultural Economics & Policy",
+          "roiTier": "Tier 1 · Core Pillar",
+          "totalQuestions": 31,
+          "shareOfSubjectPct": 44.3,
+          "recent5YrQuestions": 10,
+          "recent5YrSharePct": 47.6,
+          "yearsActiveOutOf15": 11,
+          "topSubTopic": "Agricultural Marketing & Trade"
+        }
+      ],
+      "themes": [
+        {
+          "themeName": "Agronomy & Practices",
+          "totalQuestions": 39,
+          "shareOfSubjectPct": 55.7,
+          "recent5YrQuestions": 11,
+          "recent5YrSharePct": 52.4,
+          "yearsActiveOutOf15": 14,
+          "lastAskedYear": 2025,
+          "yearCounts": {
+            "2011": 3,
+            "2012": 3,
+            "2013": 1,
+            "2014": 6,
+            "2015": 1,
+            "2016": 2,
+            "2017": 2,
+            "2018": 1,
+            "2019": 2,
+            "2020": 7,
+            "2021": 2,
+            "2022": 3,
+            "2023": 0,
+            "2024": 2,
+            "2025": 4
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 9,
+              "multiStatement": 25,
+              "howManyOnly": 2,
+              "statementI_II": 1,
+              "pairMatching": 2
+            },
+            "percentages": {
+              "singleMcq": 23,
+              "multiStatement": 64,
+              "howManyOnly": 5,
+              "statementI_II": 3,
+              "pairMatching": 5
+            },
+            "recent2022_2025": {
+              "total": 9,
+              "counts": {
+                "singleMcq": 1,
+                "multiStatement": 4,
+                "howManyOnly": 2,
+                "statementI_II": 1,
+                "pairMatching": 1
+              },
+              "newPatternSharePct": 44
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Major Crops",
+              "total": 17,
+              "shareOfSubjectPct": 24.3,
+              "split5Yr": {
+                "y2011_2015": 8,
+                "y2016_2020": 2,
+                "y2021_2025": 7
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "Seed Rates",
+                "New World",
+                "Old World",
+                "bud chip settlings"
+              ]
+            },
+            {
+              "topic": "Soil, Fertilizers & Farming Practices",
+              "total": 9,
+              "shareOfSubjectPct": 12.9,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 7,
+                "y2021_2025": 2
+              },
+              "lastAskedYear": 2022,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "System of Rice Intensification",
+                "Conservation Agriculture",
+                "Neem-coated Urea",
+                "Soil Health Card Scheme"
+              ]
+            },
+            {
+              "topic": "Irrigation & Water Management",
+              "total": 8,
+              "shareOfSubjectPct": 11.4,
+              "split5Yr": {
+                "y2011_2015": 4,
+                "y2016_2020": 3,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2021,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "sugarcane",
+                "It makes some soils impermeable"
+              ]
+            },
+            {
+              "topic": "Cropping Patterns & Systems",
+              "total": 5,
+              "shareOfSubjectPct": 7.1,
+              "split5Yr": {
+                "y2011_2015": 2,
+                "y2016_2020": 2,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "mixed farming",
+                "Rearing of animals and cultivation of crops together"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "System of Rice Intensification",
+            "Conservation Agriculture",
+            "Seed Rates",
+            "mixed farming",
+            "Neem-coated Urea",
+            "Soil Health Card Scheme"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Major Crops (7 Qs in 2021–25) & Soil, Fertilizers & Farming Practices (2 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Soil, Fertilizers & Farming Practices (last tested 2022, 9 total Qs) & Irrigation & Water Management (last tested 2021, 8 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: System of Rice Intensification, Conservation Agriculture, Seed Rates, mixed farming."
+          ],
+          "roiTier": "Tier 1 · Core Pillar"
+        },
+        {
+          "themeName": "Agricultural Economics & Policy",
+          "totalQuestions": 31,
+          "shareOfSubjectPct": 44.3,
+          "recent5YrQuestions": 10,
+          "recent5YrSharePct": 47.6,
+          "yearsActiveOutOf15": 11,
+          "lastAskedYear": 2025,
+          "yearCounts": {
+            "2011": 1,
+            "2012": 0,
+            "2013": 0,
+            "2014": 0,
+            "2015": 4,
+            "2016": 2,
+            "2017": 1,
+            "2018": 5,
+            "2019": 3,
+            "2020": 5,
+            "2021": 1,
+            "2022": 0,
+            "2023": 3,
+            "2024": 4,
+            "2025": 2
+          },
+          "patternBreakdown": {
+            "counts": {
+              "singleMcq": 10,
+              "multiStatement": 16,
+              "howManyOnly": 2,
+              "statementI_II": 2,
+              "pairMatching": 1
+            },
+            "percentages": {
+              "singleMcq": 32,
+              "multiStatement": 52,
+              "howManyOnly": 6,
+              "statementI_II": 6,
+              "pairMatching": 3
+            },
+            "recent2022_2025": {
+              "total": 9,
+              "counts": {
+                "singleMcq": 2,
+                "multiStatement": 2,
+                "howManyOnly": 2,
+                "statementI_II": 2,
+                "pairMatching": 1
+              },
+              "newPatternSharePct": 56
+            }
+          },
+          "subTopics": [
+            {
+              "topic": "Agricultural Marketing & Trade",
+              "total": 16,
+              "shareOfSubjectPct": 22.9,
+              "split5Yr": {
+                "y2011_2015": 2,
+                "y2016_2020": 7,
+                "y2021_2025": 7
+              },
+              "lastAskedYear": 2025,
+              "priority": "Tier 1 · Must-Master",
+              "testedAnchors": [
+                "The National Programme for Organic Production",
+                "National Agriculture Market",
+                "100 Million Farmers",
+                "Vegetable oils"
+              ]
+            },
+            {
+              "topic": "Agricultural Pricing & Procurement (MSP)",
+              "total": 7,
+              "shareOfSubjectPct": 10,
+              "split5Yr": {
+                "y2011_2015": 1,
+                "y2016_2020": 5,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "s trading\n3. Government",
+                "2, 3 and 6 only",
+                "procurement incidentals and distribution",
+                "2, 4, 5 and 6 only"
+              ]
+            },
+            {
+              "topic": "Agriculture & Economy",
+              "total": 5,
+              "shareOfSubjectPct": 7.1,
+              "split5Yr": {
+                "y2011_2015": 2,
+                "y2016_2020": 2,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 2 · High-Yield",
+              "testedAnchors": [
+                "Seed Village Concept",
+                "capital-augmenting technological progress"
+              ]
+            },
+            {
+              "topic": "Agricultural Credit & Schemes",
+              "total": 3,
+              "shareOfSubjectPct": 4.3,
+              "split5Yr": {
+                "y2011_2015": 0,
+                "y2016_2020": 2,
+                "y2021_2025": 1
+              },
+              "lastAskedYear": 2023,
+              "priority": "Tier 3 · Selective",
+              "testedAnchors": [
+                "Small Farmer Large Field",
+                "Pradhan Mantri Fasal Bima Yojana"
+              ]
+            }
+          ],
+          "testedAnchors": [
+            "Small Farmer Large Field",
+            "s trading\n3. Government",
+            "The National Programme for Organic Production",
+            "National Agriculture Market",
+            "Seed Village Concept",
+            "Pradhan Mantri Fasal Bima Yojana"
+          ],
+          "focus2026": [
+            "High-momentum anchor: Agricultural Marketing & Trade (7 Qs in 2021–25) — expect Statement-I/II or 'How many' framing.",
+            "Due-cycle watch: Agricultural Pricing & Procurement (MSP) (last tested 2023, 7 total Qs) & Agriculture & Economy (last tested 2023, 5 total Qs) — high probability of return in 2026.",
+            "Core tested terms to revise: Small Farmer Large Field, s trading\n3. Government, The National Programme for Organic Production, National Agriculture Market."
+          ],
+          "roiTier": "Tier 1 · Core Pillar"
+        }
+      ]
+    }
+  }
+}
