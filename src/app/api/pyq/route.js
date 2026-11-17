@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { unstable_cache } from 'next/cache';
 import prisma from '@/lib/prisma';
 import { isNewPatternQuestion } from '@/lib/pyqPattern';
 import { SUBJECT_ORDER, SUBJECT_SHORT, getTopicSyllabusOrder } from '@/app/prelims/pyq/topicGroups';
@@ -26,72 +27,84 @@ const SUBJECT_META = {
 
 export const dynamic = 'force-dynamic';
 
+const getCachedPyqMetadata = unstable_cache(
+  async () => {
+    const drafts = await prisma.questionDraft.findMany({
+      select: {
+        srcSubject: true,
+        srcTopic: true,
+        stem: true,
+      },
+    });
+
+    const map = new Map();
+    const subjectNewPatternCount = {};
+    let totalNewPattern = 0;
+
+    for (const q of drafts) {
+      if (isNewPatternQuestion(q)) {
+        totalNewPattern++;
+        subjectNewPatternCount[q.srcSubject] = (subjectNewPatternCount[q.srcSubject] || 0) + 1;
+      }
+
+      if (!map.has(q.srcSubject)) {
+        map.set(q.srcSubject, { count: 0, topics: new Map() });
+      }
+      const entry = map.get(q.srcSubject);
+      entry.count++;
+      if (q.srcTopic) {
+        entry.topics.set(q.srcTopic, (entry.topics.get(q.srcTopic) || 0) + 1);
+      }
+    }
+
+    const order = SUBJECT_ORDER.filter((s) => map.has(s));
+    const extra = [...map.keys()].filter((s) => !SUBJECT_ORDER.includes(s));
+    const subjectStats = [...order, ...extra].map((s) => {
+      const data = map.get(s);
+      const topTopics = [...data.topics.entries()]
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 4)
+        .map(([t]) => t);
+      const allTopics = [...data.topics.entries()].sort(([a], [b]) => {
+        const orderA = getTopicSyllabusOrder(s, a);
+        const orderB = getTopicSyllabusOrder(s, b);
+        if (orderA !== orderB) return orderA - orderB;
+        return a.localeCompare(b);
+      });
+      return {
+        name: s,
+        short: SUBJECT_SHORT[s] || s,
+        count: data.count,
+        topTopics,
+        allTopics,
+        newPatternCount: subjectNewPatternCount[s] || 0,
+        meta: SUBJECT_META[s] || { icon: '📚', color: '#64748b' },
+      };
+    });
+
+    return {
+      success: true,
+      subjectStats,
+      totalNewPattern,
+      totalQuestions: drafts.length,
+    };
+  },
+  ['pyq-metadata-v1'],
+  { revalidate: 86400, tags: ['pyq-data'] }
+);
+
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const metadataOnly = searchParams.get('metadata') === 'true';
 
-    // 1. Metadata summary endpoint (counts & topic names only — no stems/answers exposed)
+    // 1. Metadata summary endpoint (counts & topic names only — cached 24h, invalidated on admin mutation)
     if (metadataOnly) {
-      const drafts = await prisma.questionDraft.findMany({
-        select: {
-          srcSubject: true,
-          srcTopic: true,
-          stem: true,
+      const payload = await getCachedPyqMetadata();
+      return NextResponse.json(payload, {
+        headers: {
+          'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
         },
-      });
-
-      const map = new Map();
-      const subjectNewPatternCount = {};
-      let totalNewPattern = 0;
-
-      for (const q of drafts) {
-        if (isNewPatternQuestion(q)) {
-          totalNewPattern++;
-          subjectNewPatternCount[q.srcSubject] = (subjectNewPatternCount[q.srcSubject] || 0) + 1;
-        }
-
-        if (!map.has(q.srcSubject)) {
-          map.set(q.srcSubject, { count: 0, topics: new Map() });
-        }
-        const entry = map.get(q.srcSubject);
-        entry.count++;
-        if (q.srcTopic) {
-          entry.topics.set(q.srcTopic, (entry.topics.get(q.srcTopic) || 0) + 1);
-        }
-      }
-
-      const order = SUBJECT_ORDER.filter(s => map.has(s));
-      const extra = [...map.keys()].filter(s => !SUBJECT_ORDER.includes(s));
-      const subjectStats = [...order, ...extra].map(s => {
-        const data = map.get(s);
-        const topTopics = [...data.topics.entries()]
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 4)
-          .map(([t]) => t);
-        const allTopics = [...data.topics.entries()]
-          .sort(([a], [b]) => {
-            const orderA = getTopicSyllabusOrder(s, a);
-            const orderB = getTopicSyllabusOrder(s, b);
-            if (orderA !== orderB) return orderA - orderB;
-            return a.localeCompare(b);
-          });
-        return {
-          name: s,
-          short: SUBJECT_SHORT[s] || s,
-          count: data.count,
-          topTopics,
-          allTopics,
-          newPatternCount: subjectNewPatternCount[s] || 0,
-          meta: SUBJECT_META[s] || { icon: '📚', color: '#64748b' },
-        };
-      });
-
-      return NextResponse.json({
-        success: true,
-        subjectStats,
-        totalNewPattern,
-        totalQuestions: drafts.length,
       });
     }
 

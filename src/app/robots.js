@@ -30,13 +30,13 @@ export default function robots() {
     'Diffbot',
     'ImagesiftBot',
     'YouBot',
+    'GPTBot',
   ];
 
   // Live search, ChatGPT browsing & answer citation engines (allowed on static/ISR cached content routes)
   const searchAndDiscoveryBots = [
     'Googlebot',
     'Bingbot',
-    'GPTBot',
     'OAI-SearchBot',
     'ChatGPT-User',
     'PerplexityBot',

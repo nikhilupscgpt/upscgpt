@@ -8,7 +8,7 @@ import { safeJsonLd } from '@/lib/jsonLd';
 import { applyDeepDiveGate } from '@/lib/tier-gate';
 
 // Incremental Static Regeneration (ISR): Revalidate every 5 minutes
-export const revalidate = 300;
+export const revalidate = 86400;
 
 export const metadata = {
   title: 'UPSC Prelims PYQ (2011–2025) Topic-Wise Solved Questions & Explanations',

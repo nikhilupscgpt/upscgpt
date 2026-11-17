@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { upsertEnvAtlasItem } from '@/lib/env-atlas-engine';
@@ -19,6 +20,13 @@ async function handleUpsert(req) {
     const result = await upsertEnvAtlasItem(body);
     if (!result.success) {
       return NextResponse.json(result, { status: 400 });
+    }
+    try {
+      revalidateTag('env-atlas');
+      revalidatePath('/environment');
+      revalidatePath('/environment/species');
+    } catch (e) {
+      console.warn('[env-atlas/item] Revalidation warning:', e);
     }
     return NextResponse.json(result);
   } catch (err) {

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { requireApiRole } from '@/lib/security/requireRole';
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
@@ -187,6 +187,7 @@ export async function POST(req) {
     }
 
     try {
+      revalidateTag('pyq-data');
       revalidatePath('/prelims/pyq');
       revalidatePath('/api/pyq');
     } catch (e) {

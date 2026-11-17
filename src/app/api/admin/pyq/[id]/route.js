@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import prisma from '@/lib/prisma';
 import crypto from 'crypto';
 import { normalizeCanonicalSubject } from '@/lib/syllabusTaxonomy';
@@ -250,6 +250,7 @@ export async function PATCH(req, { params }) {
     }
 
     try {
+      revalidateTag('pyq-data');
       revalidatePath('/prelims/pyq');
       revalidatePath('/api/pyq');
     } catch (e) {
@@ -281,6 +282,7 @@ export async function DELETE(req, { params }) {
     invalidatePyqTreeCache();
 
     try {
+      revalidateTag('pyq-data');
       revalidatePath('/prelims/pyq');
       revalidatePath('/api/pyq');
     } catch (e) {

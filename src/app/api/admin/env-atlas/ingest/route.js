@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath, revalidateTag } from 'next/cache';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { getEnvAtlasItems, ingestEnvAtlasJsonl, deleteEnvAtlasItem } from '@/lib/env-atlas-engine';
@@ -65,6 +66,13 @@ export async function POST(req) {
     const rawText = body.content || body.jsonl || (typeof body === 'string' ? body : JSON.stringify(body));
 
     const result = await ingestEnvAtlasJsonl(rawText);
+    try {
+      revalidateTag('env-atlas');
+      revalidatePath('/environment');
+      revalidatePath('/environment/species');
+    } catch (e) {
+      console.warn('[env-atlas/ingest] Revalidation warning:', e);
+    }
     return NextResponse.json(result);
   } catch (err) {
     console.error('[POST /api/admin/env-atlas/ingest] Error:', err);
@@ -90,6 +98,13 @@ export async function DELETE(req) {
     }
 
     const result = await deleteEnvAtlasItem(slug);
+    try {
+      revalidateTag('env-atlas');
+      revalidatePath('/environment');
+      revalidatePath('/environment/species');
+    } catch (e) {
+      console.warn('[env-atlas/ingest] Revalidation warning:', e);
+    }
     return NextResponse.json(result);
   } catch (err) {
     console.error('[DELETE /api/admin/env-atlas/ingest] Error:', err);
