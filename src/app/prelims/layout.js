@@ -1,12 +1,12 @@
 export const metadata = {
-  title: 'UPSC Prelims Command Center | Solved PYQ Bank (2011–2025) & Mocks',
-  description: 'Master UPSC Civil Services (CSE) Prelims with 2,528+ authentic topic-wise solved previous year questions (2011–2025), official answer keys, detailed explanations, and full-length mock tests.',
+  title: 'UPSC Prelims Command Center | Solved PYQ Bank (2011–2026) & Mocks',
+  description: 'Master UPSC Civil Services (CSE) Prelims with 2,528+ authentic topic-wise solved previous year questions (2011–2026), official answer keys, detailed explanations, and full-length mock tests.',
   keywords: [
     'UPSC Prelims',
     'UPSC Prelims PYQ',
     'UPSC Previous Year Questions',
     'UPSC CSE Prelims Mock Test',
-    'Prelims Preparation 2025',
+    'Prelims Preparation 2026',
     'Civil Services Prelims PYQ',
     'UPSC Topic Wise Questions'
   ],

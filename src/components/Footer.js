@@ -74,7 +74,7 @@ export default function Footer() {
         </div>
 
         {/* Statutory Non-Affiliation Disclaimer Banner */}
-        <div className="statutory-disclaimer-box">
+        <div className="statutory-disclaimer-box" data-nosnippet="">
           <p className="disclaimer-heading">⚠️ STATUTORY NON-AFFILIATION DISCLAIMER</p>
           <p className="disclaimer-text">
             <strong>UPSCGPT (upscgpt.in)</strong> is an independent digital educational and learning platform developed exclusively for self-study and examination preparation assistance. UPSCGPT is <strong>NOT</strong> affiliated with, associated with, authorized by, endorsed by, sponsored by, or in any way officially connected with the <strong>Union Public Service Commission (UPSC)</strong>, the Government of India, or any state or central governmental body. All examination names, past question texts, syllabus terminology, and marks are the intellectual property of their respective official bodies and are referenced strictly under fair-use principles for nominative, educational, and descriptive study guidance.

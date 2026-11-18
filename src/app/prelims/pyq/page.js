@@ -11,12 +11,12 @@ import { applyDeepDiveGate } from '@/lib/tier-gate';
 export const revalidate = 86400;
 
 export const metadata = {
-  title: 'UPSC Prelims PYQ (2011–2025) Topic-Wise Solved Questions & Explanations',
-  description: 'Practice 2,528+ authentic UPSC Civil Services (CSE) & CDS Prelims Previous Year Questions (2011–2025) organized by Subject and Topic with verified official answer keys and detailed explanations.',
+  title: 'UPSC Prelims PYQ (2011–2026) Topic-Wise Solved Questions & Explanations',
+  description: 'Practice 2,528+ authentic UPSC Civil Services (CSE) & CDS Prelims Previous Year Questions (2011–2026) organized by Subject and Topic with verified official answer keys and detailed explanations.',
   keywords: [
     'UPSC Prelims PYQ',
     'UPSC Previous Year Questions Topic Wise',
-    'UPSC CSE Prelims Solved Papers 2011 to 2025',
+    'UPSC CSE Prelims Solved Papers 2011 to 2026',
     'Indian Polity UPSC PYQ',
     'Economy UPSC Prelims Questions',
     'Geography UPSC PYQ',

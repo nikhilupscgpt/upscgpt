@@ -4,16 +4,19 @@ import AnalyticsConsent from '@/components/AnalyticsConsent'
 
 export const metadata = {
   title: {
-    default: 'UPSCGPT | UPSC Prelims PYQ (2011–2025), Geography Atlas & Mains Prep',
+    default: 'UPSCGPT (UPSC GPT) | UPSC Prelims PYQ (2011–2026), Geography Atlas & Mains Prep',
     template: '%s | UPSCGPT'
   },
-  description: 'India\'s strategic UPSC CSE preparation platform. Practice 2,528+ topic-wise solved Prelims Previous Year Questions (2011–2025), interactive Geography Atlas, and GS Syllabus Notes.',
+  description: 'UPSCGPT (UPSC GPT) is India\'s strategic UPSC CSE preparation platform. Practice 2,528+ topic-wise solved Prelims Previous Year Questions (2011–2026), 16-year trend analysis, interactive Geography Atlas, and GS Syllabus Notes.',
   keywords: [
+    'UPSCGPT',
+    'UPSC GPT',
+    'UPSC GPT Prelims',
     'UPSC Prelims',
     'UPSC Prelims PYQ',
     'UPSC Previous Year Questions Topic Wise',
-    'UPSC Prelims Solved Papers 2011 to 2025',
-    'UPSC CSE 2025',
+    'UPSC Prelims Solved Papers 2011 to 2026',
+    'UPSC CSE 2026',
     'UPSC Prelims Mock Test',
     'UPSC Geography Mapping',
     'Places in News UPSC',
@@ -30,8 +33,8 @@ export const metadata = {
   },
   metadataBase: new URL('https://www.upscgpt.in'),
   openGraph: {
-    title: 'UPSCGPT | UPSC Prelims PYQ (2011–2025), Geography Atlas & Mains Prep',
-    description: 'Practice 2,528+ authentic solved UPSC Prelims Previous Year Questions (2011–2025), interactive Geography Atlas, and GS Syllabus Notes.',
+    title: 'UPSCGPT (UPSC GPT) | UPSC Prelims PYQ (2011–2026), Geography Atlas & Mains Prep',
+    description: 'Practice 2,528+ authentic solved UPSC Prelims Previous Year Questions (2011–2026), 16-year PYQ trend analysis, interactive Geography Atlas, and GS Syllabus Notes.',
     url: 'https://www.upscgpt.in',
     siteName: 'UPSCGPT',
     images: [
@@ -46,8 +49,8 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'UPSCGPT | UPSC Prelims PYQ (2011–2025), Geography Atlas & Mains Prep',
-    description: 'Practice 2,528+ authentic solved UPSC Prelims Previous Year Questions (2011–2025), interactive Geography Atlas, and GS Syllabus Notes.',
+    title: 'UPSCGPT (UPSC GPT) | UPSC Prelims PYQ (2011–2026), Geography Atlas & Mains Prep',
+    description: 'Practice 2,528+ authentic solved UPSC Prelims Previous Year Questions (2011–2026), 16-year PYQ trend analysis, interactive Geography Atlas, and GS Syllabus Notes.',
     images: ['/og-image.png'],
   },
   manifest: '/manifest.json',
@@ -94,18 +97,33 @@ export default function RootLayout({ children }) {
         {/* Consent-gated Analytics (GA4 & Clarity load only after consent) */}
         <AnalyticsConsent />
 
-        {/* Global SEO Schema */}
+        {/* Global SEO Schema (Organization + WebSite SearchAction) */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: safeJsonLd({
-              '@context': 'https://schema.org',
-              '@type': 'Organization',
-              'name': 'UPSCGPT',
-              'url': 'https://www.upscgpt.in',
-              'logo': 'https://www.upscgpt.in/logo.png',
-              'description': 'The definitive strategic intelligence platform for UPSC preparation.',
-            })
+            __html: safeJsonLd([
+              {
+                '@context': 'https://schema.org',
+                '@type': 'Organization',
+                'name': 'UPSCGPT',
+                'alternateName': ['UPSC GPT', 'UPSCGPT.in'],
+                'url': 'https://www.upscgpt.in',
+                'logo': 'https://www.upscgpt.in/logo.png',
+                'description': 'UPSCGPT (UPSC GPT) is a strategic UPSC Civil Services (CSE) preparation platform with 16 years of solved Prelims PYQs (2011–2026), trend analytics, interactive Geography Atlas, and Mains GS notes.',
+              },
+              {
+                '@context': 'https://schema.org',
+                '@type': 'WebSite',
+                'name': 'UPSCGPT',
+                'alternateName': ['UPSC GPT', 'UPSCGPT.in'],
+                'url': 'https://www.upscgpt.in',
+                'potentialAction': {
+                  '@type': 'SearchAction',
+                  'target': 'https://www.upscgpt.in/?q={search_term_string}',
+                  'query-input': 'required name=search_term_string',
+                },
+              },
+            ])
           }}
         />
 

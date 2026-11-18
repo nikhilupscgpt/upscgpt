@@ -246,7 +246,7 @@ export default function PrelimsGPTCommandCenter() {
             maxWidth: '720px', 
             margin: '0 auto 28px' 
           }}>
-            15 years of topic-wise PYQs, instant concept search, and interactive map — built to keep your prep sharp and precise.
+            16 years of topic-wise PYQs (2011–2026), instant concept search, and interactive map — built to keep your prep sharp and precise.
           </p>
 
           {/* SEARCH BAR (Prelims Concept & Question Retrieval) */}
