@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unanswered Questions</title>
+<link rel="stylesheet" href="tokens.css">
+<style>
+  body { margin: 0; background: var(--color-bg); color: var(--color-fg); font-family: var(--font-anthropic-sans); font-size: var(--cds-font-size-body); }
+  main { max-width: 960px; margin: 0 auto; padding: 24px 16px; }
+  h1 { font-size: var(--cds-font-size-heading); margin: 0 0 4px; }
+  p { color: var(--color-fg-muted); margin: 0 0 16px; }
+  .bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  button { font: inherit; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--color-border-line); background: var(--color-panel); color: var(--color-fg); cursor: pointer; }
+  .wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); }
+  th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--color-border-line); vertical-align: top; }
+  th { font-weight: var(--cds-font-weight-medium); }
+  td:nth-child(2) { min-width: 240px; }
+  .count { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+  .count b { font-size: var(--cds-font-size-heading); display: block; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Unanswered questions</h1>
+  <p>Questions the chat or tutor couldn't answer, asked back about, or that a student flagged as "not what I wanted". These rows are stored in this browser only; on the website they also go to the log endpoint.</p>
+  <div class="count" id="count"></div>
+  <div class="bar"><button id="dl" type="button">Download CSV</button><button id="clear" type="button">Clear log</button></div>
+  <div class="wrap"><table><thead><tr><th>Time</th><th>Question</th><th>Engine</th><th>Read as</th><th>Why logged</th></tr></thead><tbody id="rows"></tbody></table></div>
+</main>
+<script src="pq-log.js"></script>
+<script>
+  function draw() {
+    const rows = PQLog.read().slice().reverse();
+    const by = {};
+    rows.forEach((r) => { by[r.reason] = (by[r.reason] || 0) + 1; });
+    document.getElementById('count').replaceChildren(...[['total', rows.length], ...Object.entries(by)].map(([k, v]) => {
+      const d = document.createElement('div'); const b = document.createElement('b'); b.textContent = v; d.append(b, k); return d; }));
+    const tb = document.getElementById('rows');
+    tb.replaceChildren(...rows.map((r) => { const tr = document.createElement('tr');
+      [r.t.replace('T', ' ').slice(0, 16), r.q, r.engine, r.intent, r.reason].forEach((v) => { const td = document.createElement('td'); td.textContent = v; tr.append(td); }); return tr; }));
+    if (!rows.length) { const tr = document.createElement('tr'); const td = document.createElement('td'); td.colSpan = 5; td.textContent = 'Nothing logged yet.'; tr.append(td); tb.append(tr); }
+  }
+  document.getElementById('dl').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([PQLog.csv()], {type: 'text/csv'})); a.download = 'unanswered-questions.csv'; a.click(); };
+  document.getElementById('clear').onclick = () => { if (confirm('Clear the log in this browser?')) { PQLog.clear(); draw(); } };
+  draw();
+</script>
+</body>
+</html>

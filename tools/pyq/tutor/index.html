@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PYQ Tutor</title>
+<meta name="description" content="Rule-based tutor over UPSC Prelims PYQs and their solutions. No LLM.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="tutor.css">
+<link rel="stylesheet" href="tutor-page.css">
+<script src="data/tutor-data.js"></script>
+</head>
+<body>
+<div class="pt-page">
+  <header class="pt-head">
+    <h1>PYQ Tutor</h1>
+    <p>UPSC Prelims 2011–2026 · solutions for Polity and Economy · no AI model</p>
+  </header>
+  <main id="pt-root"></main>
+</div>
+<script src="pq-log.js"></script>
+<script src="tutor.js"></script>
+<script>
+  // open with ?test to run the test set
+  if (/[?&]test\b/.test(location.search)) {
+    const s = document.createElement("script"); s.src = "data/tutor-tests.js";
+    s.onload = () => { const r = document.createElement("script"); r.src = "tutor-test.js"; document.body.append(r); };
+    document.body.append(s);
+  }
+</script>
+</body>
+</html>

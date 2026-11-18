@@ -52,6 +52,7 @@ export async function proxy(request) {
     pathname.startsWith("/atlas") ||
     pathname.startsWith("/news") ||
     pathname.startsWith("/prelims") ||
+    pathname.startsWith("/pyq") ||
     pathname.startsWith("/mains") ||
     pathname.startsWith("/issues") ||
     pathname.startsWith("/remote") ||

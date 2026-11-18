@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chat tests — UPSC Prelims PYQ Analysis</title>
+<meta name="description" content="Subject- and theme-level analysis of UPSC CSE Prelims questions, 2011–2026.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="page.css">
+<link rel="stylesheet" href="tutor.css">
+<link rel="stylesheet" href="chat.css">
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script src="data/data.js"></script>
+<script src="data/glossary.js"></script>
+<script src="dash-shim.js"></script>
+</head>
+<body>
+<div id="dash-root">
+<div class="pq">
+  <nav class="pq-steps" id="pq-top" aria-label="Analysis steps">
+    <button type="button" class="pq-step is-on" data-nav="home" aria-current="page"><span class="pq-step-n">1</span><span class="pq-step-t"><span class="pq-step-l">Overview</span><span class="pq-step-v">All subjects</span></span></button>
+    <span class="pq-step-sep" aria-hidden="true"></span>
+    <button type="button" class="pq-step" data-nav="subject"><span class="pq-step-n">2</span><span class="pq-step-t"><span class="pq-step-l">Subject</span><span class="pq-step-v" data-draw="step-subj">—</span></span></button>
+    <span class="pq-step-sep" aria-hidden="true"></span>
+    <button type="button" class="pq-step" data-nav="theme"><span class="pq-step-n">3</span><span class="pq-step-t"><span class="pq-step-l">Theme</span><span class="pq-step-v" data-draw="step-theme">—</span></span></button>
+  </nav>
+
+  <section class="pq-page" id="home">
+    <header class="pq-head" id="top">
+      <p class="pq-eyebrow">UPSC CSE Prelims · GS Paper I · 2011–2026</p>
+      <h1 class="pq-title">Prelims PYQ analysis</h1>
+      <p class="pq-lede" data-draw="takeaway">—</p>
+    </header>
+
+    <div class="pq-stats" id="kpis">
+      <div class="pq-stat"><span class="pq-stat-v" data-draw="k-total">—</span><span class="pq-stat-l">questions</span></div>
+      <div class="pq-stat"><span class="pq-stat-v" data-draw="k-papers">—</span><span class="pq-stat-l">papers</span></div>
+      <div class="pq-stat"><span class="pq-stat-v" data-draw="k-subjects">—</span><span class="pq-stat-l">subject groups</span></div>
+      <div class="pq-stat"><span class="pq-stat-v" data-draw="k-themes">—</span><span class="pq-stat-l">themes</span></div>
+    </div>
+
+    <section class="pq-sec" id="overview">
+      <div class="pq-sec-head">
+        <h2>Subjects</h2>
+        <p class="pq-hint">Select a subject to open its analysis →</p>
+      </div>
+      <div class="pq-cards" data-draw="subj-cards" data-source="subject_summary subject_year"></div>
+    </section>
+
+    <section class="pq-sec" id="ov-share">
+      <div class="pq-sec-head">
+        <h2>How each paper was split</h2>
+        <p class="pq-hint">% of each year's questions</p>
+      </div>
+      <div class="pq-scroll" data-draw="ov-heat" data-source="subject_year"></div>
+    </section>
+
+    <div class="pq-grid2">
+      <section class="pq-sec" id="ov-movers">
+        <h2>Biggest movers</h2>
+        <p class="pq-hint">Questions per paper, 2011–15 → 2021–26. Select a theme to open it.</p>
+        <div class="pq-movers" data-draw="ov-movers" data-source="theme_summary"></div>
+      </section>
+      <section class="pq-sec" id="ov-formats">
+        <h2>How questions are framed</h2>
+        <p class="pq-hint">All subjects, by year.</p>
+        <div class="pq-chart" data-draw="ov-formats" data-source="format_year"></div>
+      </section>
+    </div>
+
+    <section class="pq-sec" id="ov-always">
+      <div class="pq-sec-head">
+        <h2>Asked almost every year</h2>
+        <p class="pq-hint">Themes in 14 or more of the 16 papers</p>
+      </div>
+      <div class="pq-chips" data-draw="ov-always" data-source="theme_summary"></div>
+    </section>
+  </section>
+
+  <section class="pq-sec pq-page" id="subject" hidden>
+    <div class="pq-sec-head">
+      <div>
+        <p class="pq-kicker">Subject analysis</p>
+        <h2 data-draw="s-name">—</h2>
+      </div>
+      <select id="pq-subject" class="dash-select" data-draw="subj-select" aria-label="Subject" data-source="subject_summary"></select>
+    </div>
+
+    <div class="pq-stats" id="s-stats">
+      <div class="pq-stat"><span class="pq-stat-v" data-draw="s-count">—</span><span class="pq-stat-l">questions</span></div>
+      <div class="pq-stat"><span class="pq-stat-v" data-draw="s-share">—</span><span class="pq-stat-l">of the paper</span></div>
+      <div class="pq-stat"><span class="pq-stat-v" data-draw="s-trend">—</span><span class="pq-stat-l">per paper, 2011–15 → 2021–26</span></div>
+      <div class="pq-stat"><span class="pq-stat-v" data-draw="s-ca">—</span><span class="pq-stat-l">need current affairs</span></div>
+    </div>
+
+    <div class="pq-grid2">
+      <div class="pq-panel" id="s-years-block">
+        <h3>Questions per paper</h3>
+        <div class="pq-chart" data-draw="s-years" data-source="subject_year"></div>
+      </div>
+      <div class="pq-panel" id="s-formats-block">
+        <h3>Question formats</h3>
+        <div data-draw="s-formats" data-source="format_mix"></div>
+      </div>
+    </div>
+
+    <div class="pq-panel" id="s-themes-block">
+      <div class="pq-sec-head">
+        <h3>Themes, heaviest first</h3>
+        <p class="pq-hint">Select a theme to go deeper →</p>
+      </div>
+      <div class="pq-rows" data-draw="s-themes" data-source="theme_summary theme_year"></div>
+    </div>
+
+    <div class="pq-box" id="s-insights">
+      <div class="pq-tabs" role="tablist" aria-label="Subject insights">
+        <button class="pq-tab" type="button" role="tab" aria-selected="true" aria-controls="s-tab-overview" id="s-tabbtn-overview">Overview</button>
+        <button class="pq-tab" type="button" role="tab" aria-selected="false" aria-controls="s-tab-findings" id="s-tabbtn-findings" tabindex="-1">Key findings</button>
+        <button class="pq-tab" type="button" role="tab" aria-selected="false" aria-controls="s-tab-concepts" id="s-tabbtn-concepts" tabindex="-1">Repeated concepts</button>
+        <button class="pq-tab" type="button" role="tab" aria-selected="false" aria-controls="s-tab-strategy" id="s-tabbtn-strategy" tabindex="-1">How to prepare</button>
+      </div>
+      <div class="pq-tabpanel" role="tabpanel" id="s-tab-overview" aria-labelledby="s-tabbtn-overview">
+        <p class="pq-prose" data-draw="s-overview" data-source="insights">—</p>
+      </div>
+      <div class="pq-tabpanel" role="tabpanel" id="s-tab-findings" aria-labelledby="s-tabbtn-findings" hidden>
+        <ul class="pq-list" data-draw="s-findings" data-source="insights"></ul>
+      </div>
+      <div class="pq-tabpanel" role="tabpanel" id="s-tab-concepts" aria-labelledby="s-tabbtn-concepts" hidden>
+        <div class="pq-concepts" data-draw="s-concepts" data-source="insights questions"></div>
+      </div>
+      <div class="pq-tabpanel" role="tabpanel" id="s-tab-strategy" aria-labelledby="s-tabbtn-strategy" hidden>
+        <ul class="pq-list" data-draw="s-strategy" data-source="insights"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="pq-sec pq-page" id="theme" hidden>
+    <div class="pq-sec-head">
+      <div>
+        <p class="pq-kicker">Theme analysis · <span data-draw="t-kicker">—</span></p>
+        <h2 data-draw="t-name">—</h2>
+      </div>
+      <select id="pq-theme" class="dash-select" data-draw="theme-select" aria-label="Theme" data-source="theme_summary"></select>
+    </div>
+
+    <div class="pq-stats" id="t-stats">
+      <div class="pq-stat"><span class="pq-stat-v" data-draw="t-count">—</span><span class="pq-stat-l" data-draw="t-share">—</span></div>
+      <div class="pq-stat"><span class="pq-stat-v" data-draw="t-years">—</span><span class="pq-stat-l">papers it appeared in</span></div>
+      <div class="pq-stat"><span class="pq-stat-v" data-draw="t-last">—</span><span class="pq-stat-l">last asked</span></div>
+      <div class="pq-stat"><span class="pq-stat-v" data-draw="t-trend">—</span><span class="pq-stat-l">per paper, 2011–15 → 2021–26</span></div>
+      <div class="pq-stat"><span class="pq-stat-v" data-draw="t-ca">—</span><span class="pq-stat-l">need current affairs</span></div>
+    </div>
+
+    <div class="pq-meta" data-draw="t-badges" data-source="insights"></div>
+
+    <div class="pq-grid2">
+      <div class="pq-panel" id="t-yearbars-block">
+        <h3>Questions per paper</h3>
+        <div class="pq-chart" data-draw="t-yearbars" data-source="theme_year"></div>
+      </div>
+      <div class="pq-panel" id="t-subs-block">
+        <h3>Sub-topics</h3>
+        <div class="pq-subs" data-draw="t-subs" data-source="sub_summary"></div>
+      </div>
+    </div>
+
+    <div class="pq-box" id="t-insights">
+      <div class="pq-tabs" role="tablist" aria-label="Theme insights">
+        <button class="pq-tab" type="button" role="tab" aria-selected="true" aria-controls="t-tab-summary" id="t-tabbtn-summary">Summary</button>
+        <button class="pq-tab" type="button" role="tab" aria-selected="false" aria-controls="t-tab-repeated" id="t-tabbtn-repeated" tabindex="-1">Asked repeatedly</button>
+        <button class="pq-tab" type="button" role="tab" aria-selected="false" aria-controls="t-tab-study" id="t-tabbtn-study" tabindex="-1">What to study</button>
+      </div>
+      <div class="pq-tabpanel" role="tabpanel" id="t-tab-summary" aria-labelledby="t-tabbtn-summary">
+        <p class="pq-prose" data-draw="t-summary" data-source="insights">—</p>
+      </div>
+      <div class="pq-tabpanel" role="tabpanel" id="t-tab-repeated" aria-labelledby="t-tabbtn-repeated" hidden>
+        <ul class="pq-list" data-draw="t-repeated" data-source="insights"></ul>
+      </div>
+      <div class="pq-tabpanel" role="tabpanel" id="t-tab-study" aria-labelledby="t-tabbtn-study" hidden>
+        <ul class="pq-list" data-draw="t-study" data-source="insights"></ul>
+      </div>
+    </div>
+
+    <div class="pq-panel" id="t-questions-block">
+      <h3>Practice the PYQs</h3>
+      <div class="pq-qs" data-draw="t-questions" data-source="questions"></div>
+    </div>
+
+    <div class="pq-pager" data-draw="t-pager" data-source="theme_summary"></div>
+  </section>
+
+  <footer class="pq-foot" id="method">
+    <details>
+      <summary>About the data</summary>
+      <p data-draw="coverage">—</p>
+      <ul>
+        <li>UPSC CSE Prelims questions only. Subjects and themes come from the Neon database. Sub-topics and the current-affairs flag were tagged for the 2011–2023 questions; for the others they are estimated by a Naive Bayes model trained on those tags (the CA flag is right about 4 times in 5). Theme notes (what to study, repeated concepts) were written from the 2011–2023 papers.</li>
+        <li>Trend compares questions per paper in 2021–26 with 2011–15: rising or falling means at least 1.5× and half a question apart. Under 4 questions is "Too few".</li>
+        <li>Orange-edged question cards are representative of their theme. Some answers are marked tentative in the source.</li>
+      </ul>
+    </details>
+  </footer>
+</div>
+</div>
+<script src="app.js"></script>
+<script src="pq-config.js"></script>
+<script src="pq-log.js"></script>
+<script src="data/tutor-data.js"></script>
+<script src="tutor.js"></script>
+<script src="chat.js"></script>
+<script src="data/chat-tests.js"></script>
+<script src="chat-test.js"></script>
+<script src="stress-test.js"></script>
+</body>
+</html>

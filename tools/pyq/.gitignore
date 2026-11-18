@@ -1,0 +1,10 @@
+# rebuilt by rebuild_all.py
+dashboard_neon/
+export/
+tutor/data/
+tutor/check-report.*
+topic_merge/neon_merged.json
+topic_merge/topic_redirects.json
+__pycache__/
+# the Neon export is data, not code — keep it out of git if you prefer
+# input/

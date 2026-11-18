@@ -1,0 +1,93 @@
+/* Design tokens the page uses (stand-ins for the Claude dashboard theme). Edit here to restyle everything. */
+:root {
+  --font-anthropic-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-anthropic-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+
+  --color-bg: #ffffff;
+  --color-fg: #1d1c1a;
+  --color-fg-muted: #6c6a64;
+  --color-panel: #f6f5f1;
+  --color-border-line: #e3e1da;
+  --color-ok: #23804f;
+  --color-warn: #b0640b;
+  --color-bad: #c23a2b;
+
+  --series-1: #2f6fde; --series-2: #e07b39; --series-3: #24998a; --series-4: #8f5bd8; --series-5: #d1495b;
+  --series-6: #5f9443; --series-7: #c29200; --series-8: #3d5a80; --series-9: #8d6e63;
+
+  --cds-font-size-caption: 12.5px;
+  --cds-font-size-body: 14.5px;
+  --cds-font-size-heading: 18px;
+  --cds-font-size-title: 26px;
+  --cds-font-weight-medium: 600;
+  --cds-gap-xs: 4px; --cds-gap-sm: 8px; --cds-gap-md: 12px; --cds-gap-lg: 20px; --cds-gap-xl: 32px;
+  --cds-pad-xs: 4px; --cds-pad-sm: 8px; --cds-pad-md: 12px; --cds-pad-lg: 18px; --cds-pad-xl: 28px;
+  --cds-radius: 8px;
+
+  --cds-chart-grid: #ecebe6;
+  --cds-chart-axis: #c9c7bf;
+  --cds-chart-reference: #9a978e;
+  --cds-chart-muted: #c9c7bf;
+  --cds-text-secondary: #6c6a64;
+  --cds-surface-popover: #ffffff;
+  --cds-border: #e3e1da;
+  --cds-shadow-popover: 0 6px 20px rgba(20, 18, 14, .12);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #171614;
+    --color-fg: #edebe6;
+    --color-fg-muted: #a19e96;
+    --color-panel: #211f1c;
+    --color-border-line: #34322e;
+    --color-ok: #5cc28a;
+    --color-warn: #e5a14a;
+    --color-bad: #ee7565;
+    --series-1: #6c9cf0; --series-2: #f0995f; --series-3: #4cc2b2; --series-4: #b08cf0; --series-5: #ee7585;
+    --series-6: #8fc06e; --series-7: #e2b53a; --series-8: #7f9cc4; --series-9: #b8988c;
+    --cds-chart-grid: #2b2926;
+    --cds-chart-axis: #4a4741;
+    --cds-chart-reference: #7b786f;
+    --cds-chart-muted: #4a4741;
+    --cds-text-secondary: #a19e96;
+    --cds-surface-popover: #24221f;
+    --cds-border: #3a3833;
+    --cds-shadow-popover: 0 6px 20px rgba(0, 0, 0, .45);
+    color-scheme: dark;
+  }
+}
+
+html { background: var(--color-bg); }
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-anthropic-sans);
+  font-size: var(--cds-font-size-body);
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+#dash-root {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+[hidden] { display: none !important; }
+
+.dash-select {
+  appearance: none;
+  font: inherit;
+  color: var(--color-fg);
+  background-color: var(--color-bg);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23888' stroke-width='1.6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  border: 1px solid var(--color-border-line);
+  border-radius: var(--cds-radius);
+  padding: 8px 34px 8px 12px;
+  cursor: pointer;
+}
+.dash-select:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }

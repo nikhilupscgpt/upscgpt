@@ -28,6 +28,7 @@ import QuizSetupModal from './QuizSetupModal';
 import PyqDeepDive from './PyqDeepDive';
 import ConceptStudyModal from './ConceptStudyModal';
 import PyqAnalysisPanel from './PyqAnalysisPanel';
+import PyqAssistant from '@/components/PyqAssistant';
 import { getStructuredExplanation } from '@/lib/pyqExplanationHelper';
 import { usePyqStore } from './pyqStore';
 import { SUBJECT_ORDER, SUBJECT_SHORT, groupTopics, getTopicSyllabusOrder } from './topicGroups';
@@ -76,7 +77,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
   const [matchingConcepts, setMatchingConcepts] = useState([]);
   const [activeConceptModal, setActiveConceptModal] = useState(null);
 
-  const [subject, setSubject] = useState('Indian Polity');
+  const [subject, setSubject] = useState('ALL');
   const [topic, setTopic] = useState('ALL');
   const [exam, setExam] = useState('ALL');
   const [years, setYears] = useState('ALL');
@@ -88,6 +89,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
   const [page, setPage] = useState(1);
 
   const [viewMode, setViewMode] = useState('list'); // 'list' | 'focus'
+  const [experienceMode, setExperienceMode] = useState('gateway'); // 'gateway' | 'guided' | 'solver'
   const [isImmersive, setIsImmersive] = useState(false);
   const [immersiveJumpOpen, setImmersiveJumpOpen] = useState(false);
   const [docTheme, setDocTheme] = useState('light');
@@ -135,13 +137,22 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
     if (q) {
       setQuery(q);
       setDebouncedQuery(q.trim());
+      setExperienceMode('solver');
     }
-    if (viewParam === 'hub') {
-      setSubject('HUB');
+    if (modeParam === 'analysis') {
+      setExperienceMode('guided');
+    } else if (modeParam === 'subjects' || viewParam === 'hub') {
+      setSubject('ALL');
+      setExperienceMode('solver');
     } else if (subj) {
       setSubject(subj);
+      setExperienceMode('solver');
+    } else if (!q && !pat && !p.get('exam') && !p.get('year')) {
+      setSubject('ALL');
+      setExperienceMode('gateway');
     } else {
-      setSubject('Indian Polity');
+      setSubject('ALL');
+      setExperienceMode('solver');
     }
 
     if (p.get('topic')) setTopic(p.get('topic'));
@@ -708,12 +719,400 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
     return `/prelims/pyq/practice?${p.toString()}`;
   }, [query, subject, topic, exam, years, patternFilter]);
 
+  const modeSwitcherBar = (
+    <div
+      style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '12px',
+        maxWidth: '1160px',
+        margin: '0 auto',
+        padding: '12px 16px',
+      }}
+    >
+      <div
+        role="tablist"
+        aria-label="PYQ Explorer Mode"
+        style={{
+          display: 'inline-flex',
+          flexWrap: 'wrap',
+          gap: '8px',
+          padding: '5px',
+          borderRadius: '14px',
+          background: 'var(--bg-secondary, #0b1124)',
+          border: '1px solid var(--border-color, rgba(148, 163, 184, 0.2))',
+        }}
+      >
+        <button
+          type="button"
+          role="tab"
+          aria-selected={experienceMode === 'guided'}
+          onClick={() => {
+            setExperienceMode('guided');
+            setIsImmersive(false);
+          }}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '9px 16px',
+            borderRadius: '10px',
+            border: 'none',
+            fontFamily: 'inherit',
+            fontSize: '0.88rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            background:
+              experienceMode === 'guided'
+                ? 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)'
+                : 'transparent',
+            color: experienceMode === 'guided' ? '#ffffff' : 'var(--text-secondary, #94a3b8)',
+            boxShadow:
+              experienceMode === 'guided' ? '0 4px 14px rgba(37, 99, 235, 0.3)' : 'none',
+          }}
+        >
+          <span>📊</span>
+          <span>1. Detailed Analysis</span>
+        </button>
+
+        <button
+          type="button"
+          role="tab"
+          aria-selected={experienceMode === 'solver'}
+          onClick={() => {
+            setSubject('ALL');
+            setTopic('ALL');
+            setQuery('');
+            setDebouncedQuery('');
+            setPatternFilter('ALL');
+            setExperienceMode('solver');
+            setIsImmersive(false);
+          }}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '9px 16px',
+            borderRadius: '10px',
+            border: 'none',
+            fontFamily: 'inherit',
+            fontSize: '0.88rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            background:
+              experienceMode === 'solver'
+                ? 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)'
+                : 'transparent',
+            color: experienceMode === 'solver' ? '#ffffff' : 'var(--text-secondary, #94a3b8)',
+            boxShadow:
+              experienceMode === 'solver' ? '0 4px 14px rgba(37, 99, 235, 0.3)' : 'none',
+          }}
+        >
+          <span>📚</span>
+          <span>2. Explore Subject-wise</span>
+        </button>
+      </div>
+
+      {experienceMode === 'solver' && subject !== 'ALL' && (
+        <button
+          type="button"
+          onClick={() => {
+            setSubject('ALL');
+            setTopic('ALL');
+          }}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '8px 14px',
+            borderRadius: '10px',
+            border: '1px solid var(--border-color, rgba(148, 163, 184, 0.25))',
+            background: 'var(--bg-card, #ffffff)',
+            color: 'var(--text-primary, #0b132b)',
+            fontSize: '0.84rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+          }}
+        >
+          <ArrowLeft size={15} />
+          <span>All Subject Cards</span>
+        </button>
+      )}
+    </div>
+  );
+
   // =========================================================================
-  // VIEW 1: SUBJECT HUB (When no subject is picked and not searching)
+  // ENTRY GATEWAY: 2 OPTIONS (1. Detailed Analysis | 2. Explore Subject-wise)
+  // =========================================================================
+  if (experienceMode === 'gateway') {
+    return (
+      <div className="pq-root">
+        <div
+          style={{
+            maxWidth: '1040px',
+            margin: '0 auto',
+            padding: 'clamp(28px, 5vw, 56px) 20px 72px',
+          }}
+        >
+          <header style={{ textAlign: 'center', marginBottom: '36px' }}>
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '5px 14px',
+                borderRadius: '999px',
+                background: 'rgba(37, 99, 235, 0.12)',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                color: '#3b82f6',
+                fontSize: '0.78rem',
+                fontWeight: 800,
+                textTransform: 'uppercase',
+                letterSpacing: '0.06em',
+                marginBottom: '14px',
+              }}
+            >
+              <Sparkles size={14} /> UPSC Prelims PYQ Command Center (2011–2026)
+            </div>
+            <h1
+              style={{
+                fontSize: 'clamp(1.85rem, 4.5vw, 2.85rem)',
+                fontWeight: 900,
+                letterSpacing: '-0.025em',
+                margin: '0 0 12px',
+                color: 'var(--text-primary)',
+              }}
+            >
+              How would you like to explore Prelims PYQs?
+            </h1>
+            <p
+              style={{
+                fontSize: '1.04rem',
+                color: 'var(--text-secondary)',
+                maxWidth: '640px',
+                margin: '0 auto',
+                lineHeight: 1.6,
+              }}
+            >
+              Start with the 16-year subject &amp; theme trend analysis before you study, or jump straight into subject-wise question practice.
+            </p>
+          </header>
+
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(310px, 1fr))',
+              gap: '22px',
+            }}
+          >
+            {/* Option 1 Card: Detailed Analysis */}
+            <button
+              type="button"
+              onClick={() => setExperienceMode('guided')}
+              style={{
+                textAlign: 'left',
+                padding: '28px 26px',
+                borderRadius: '20px',
+                border: '1.5px solid rgba(59, 130, 246, 0.35)',
+                background:
+                  'linear-gradient(145deg, rgba(37, 99, 235, 0.12) 0%, var(--bg-card) 65%)',
+                color: 'var(--text-primary)',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                gap: '20px',
+                boxShadow: '0 12px 32px rgba(37, 99, 235, 0.12)',
+                transition: 'transform 0.16s ease, box-shadow 0.16s ease',
+              }}
+            >
+              <div>
+                <div
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '6px 12px',
+                    borderRadius: '10px',
+                    background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+                    color: '#ffffff',
+                    fontSize: '0.78rem',
+                    fontWeight: 800,
+                    marginBottom: '16px',
+                  }}
+                >
+                  <span>OPTION 1</span>
+                  <span>·</span>
+                  <span>BEFORE YOU STUDY</span>
+                </div>
+                <h2
+                  style={{
+                    fontSize: '1.5rem',
+                    fontWeight: 800,
+                    margin: '0 0 10px',
+                    color: 'var(--text-primary)',
+                  }}
+                >
+                  📊 Detailed PYQ Analysis
+                </h2>
+                <p
+                  style={{
+                    fontSize: '0.94rem',
+                    color: 'var(--text-secondary)',
+                    lineHeight: 1.6,
+                    margin: '0 0 16px',
+                  }}
+                >
+                  3-step progressive analysis (Overview → Subject → Theme) across 1,512 UPSC CSE Prelims questions (2011–2026).
+                </p>
+                <ul
+                  style={{
+                    margin: 0,
+                    paddingLeft: '18px',
+                    color: 'var(--text-secondary)',
+                    fontSize: '0.88rem',
+                    lineHeight: 1.7,
+                  }}
+                >
+                  <li>16-year subject weightage split &amp; rising/falling movers</li>
+                  <li>112 themes ranked heaviest-first with sub-topic bars</li>
+                  <li>Repeated concepts, study strategy &amp; representative PYQs</li>
+                </ul>
+              </div>
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  color: '#3b82f6',
+                  fontWeight: 800,
+                  fontSize: '0.95rem',
+                }}
+              >
+                <span>Open Detailed Analysis</span>
+                <span>→</span>
+              </div>
+            </button>
+
+            {/* Option 2 Card: Explore Subject-wise */}
+            <button
+              type="button"
+              onClick={() => {
+                setSubject('ALL');
+                setTopic('ALL');
+                setExperienceMode('solver');
+              }}
+              style={{
+                textAlign: 'left',
+                padding: '28px 26px',
+                borderRadius: '20px',
+                border: '1.5px solid rgba(124, 58, 237, 0.35)',
+                background:
+                  'linear-gradient(145deg, rgba(124, 58, 237, 0.12) 0%, var(--bg-card) 65%)',
+                color: 'var(--text-primary)',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                gap: '20px',
+                boxShadow: '0 12px 32px rgba(124, 58, 237, 0.12)',
+                transition: 'transform 0.16s ease, box-shadow 0.16s ease',
+              }}
+            >
+              <div>
+                <div
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '6px 12px',
+                    borderRadius: '10px',
+                    background: 'linear-gradient(135deg, #7c3aed 0%, #059669 100%)',
+                    color: '#ffffff',
+                    fontSize: '0.78rem',
+                    fontWeight: 800,
+                    marginBottom: '16px',
+                  }}
+                >
+                  <span>OPTION 2</span>
+                  <span>·</span>
+                  <span>PRACTICE &amp; SOLVE</span>
+                </div>
+                <h2
+                  style={{
+                    fontSize: '1.5rem',
+                    fontWeight: 800,
+                    margin: '0 0 10px',
+                    color: 'var(--text-primary)',
+                  }}
+                >
+                  📚 Explore Subject-wise
+                </h2>
+                <p
+                  style={{
+                    fontSize: '0.94rem',
+                    color: 'var(--text-secondary)',
+                    lineHeight: 1.6,
+                    margin: '0 0 16px',
+                  }}
+                >
+                  Browse all GS Subject Cards, pick a subject or syllabus topic, and practice solved PYQs with lecture-grade Deep-Dives.
+                </p>
+                <ul
+                  style={{
+                    margin: 0,
+                    paddingLeft: '18px',
+                    color: 'var(--text-secondary)',
+                    fontSize: '0.88rem',
+                    lineHeight: 1.7,
+                  }}
+                >
+                  <li>All Subject Cards with topic count &amp; completion progress</li>
+                  <li>Filter by New Pattern (2022–2025), Year, Exam &amp; Bookmarks</li>
+                  <li>List View, 1-by-1 Focus Mode &amp; Full-Screen Exam Booklet</li>
+                </ul>
+              </div>
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  color: '#8b5cf6',
+                  fontWeight: 800,
+                  fontSize: '0.95rem',
+                }}
+              >
+                <span>View All Subject Cards</span>
+                <span>→</span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // =========================================================================
+  // OPTION 1: DETAILED PYQ ANALYSIS (<PyqAssistant />)
+  // =========================================================================
+  if (experienceMode === 'guided') {
+    return (
+      <div className="pq-root">
+        {modeSwitcherBar}
+        <PyqAssistant height="calc(100vh - 124px)" />
+      </div>
+    );
+  }
+
+  // =========================================================================
+  // OPTION 2 (VIEW 1): SUBJECT HUB — ALL SUBJECT CARDS
   // =========================================================================
   if (subject === 'ALL' && !searching && patternFilter === 'ALL') {
     return (
       <div className="pq-root">
+        {modeSwitcherBar}
         <div className="pq-hub-shell">
           {/* 🔥 Daily PYQ Streak Hero Card */}
           <div className="pq-streak-hero-card">
@@ -973,6 +1372,7 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
 
   return (
     <div className="pq-root">
+      {modeSwitcherBar}
       {/* Mobile Drawer Backdrop */}
       {mobileFilterOpen && (
         <div
@@ -1361,9 +1761,9 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
               </button>
               <button
                 type="button"
-                className={`pq-vmt-btn ${viewMode === 'analysis' ? 'is-active' : ''}`}
+                className="pq-vmt-btn"
                 onClick={() => {
-                  setViewMode('analysis');
+                  setExperienceMode('guided');
                   setIsImmersive(false);
                 }}
               >
@@ -1587,15 +1987,15 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
                 </button>
                 <button
                   type="button"
-                  className={`pq-vmt-btn ${viewMode === 'analysis' ? 'is-active' : ''}`}
+                  className="pq-vmt-btn"
                   onClick={() => {
-                    setViewMode('analysis');
+                    setExperienceMode('guided');
                     setIsImmersive(false);
                   }}
-                  title="15-Year Subject & Theme PYQ Analysis (2011–2025)"
+                  title="Open 3-Step PYQ Analysis Dashboard (Overview → Subject → Theme)"
                 >
                   <span>📊</span>
-                  <span>15Y Analysis</span>
+                  <span>3-Step Analysis</span>
                 </button>
               </div>
               {viewMode === 'focus' && (

@@ -140,6 +140,8 @@ export default function PrelimsGPTCommandCenter() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [matchedPyqs, setMatchedPyqs] = useState([]);
+  const [conceptCard, setConceptCard] = useState(null);
+  const [trendAnalysis, setTrendAnalysis] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const { streak, isStreakCompletedToday, ready } = usePyqStore();
@@ -148,6 +150,8 @@ export default function PrelimsGPTCommandCenter() {
     setSearchQuery(val);
     if (val.trim().length < 2) {
       setMatchedPyqs([]);
+      setConceptCard(null);
+      setTrendAnalysis(null);
       setIsSearching(false);
       setHasSearched(false);
     }
@@ -159,9 +163,11 @@ export default function PrelimsGPTCommandCenter() {
 
     const timer = setTimeout(() => {
       setIsSearching(true);
-      fetch(`/api/search?q=${encodeURIComponent(q)}`)
+      fetch(`/api/pyq/search-intel?q=${encodeURIComponent(q)}`)
         .then(res => res.json())
         .then(data => {
+          setConceptCard(data.conceptCard || null);
+          setTrendAnalysis(data.trendAnalysis || null);
           setMatchedPyqs(data.pyqs || []);
           setIsSearching(false);
           setHasSearched(true);
@@ -170,7 +176,7 @@ export default function PrelimsGPTCommandCenter() {
           console.error("Home search error:", err);
           setIsSearching(false);
         });
-    }, 250);
+    }, 220);
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
@@ -355,17 +361,17 @@ export default function PrelimsGPTCommandCenter() {
         </div>
 
         {/* ========================================================================= */}
-        {/* LIVE MATCHED QUESTION CARDS SECTION (OPEN ONE BELOW OTHER)                 */}
+        {/* 3-IN-1 UNIFIED STACK: (1) CONCEPT CARD (2) PYQ TREND (3) INTERACTIVE PYQs */}
         {/* ========================================================================= */}
         {searchQuery.trim().length >= 2 && (
-          <section id="home-pyq-results" style={{ marginBottom: '56px', scrollMarginTop: '100px' }}>
+          <section id="home-pyq-results" style={{ marginBottom: '56px', scrollMarginTop: '100px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {/* Top Results Control Header */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               flexWrap: 'wrap',
               gap: '12px',
-              marginBottom: '20px',
               padding: '16px 22px',
               background: 'var(--bg-card, rgba(15, 23, 42, 0.7))',
               border: '1.5px solid var(--border-color, rgba(255, 255, 255, 0.12))',
@@ -373,23 +379,53 @@ export default function PrelimsGPTCommandCenter() {
               boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)'
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span style={{ fontSize: '1.4rem' }}>🎯</span>
+                <span style={{ fontSize: '1.4rem' }}>⚡</span>
                 <div>
                   <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-primary, #ffffff)' }}>
-                    {isSearching ? 'Searching Prelims PYQ Bank...' : `${matchedPyqs.length} Solved Questions Found for "${searchQuery}"`}
+                    {isSearching
+                      ? 'Analyzing Concept, 16-Year Trends & PYQs...'
+                      : `Prelims Intelligence for "${searchQuery}" — ${matchedPyqs.length} Solved PYQs`}
                   </h2>
                   <p style={{ margin: '3px 0 0 0', fontSize: '0.8rem', color: 'var(--text-secondary, #94a3b8)' }}>
-                    Interactive Question Cards &middot; Attempt and reveal official keys directly below
+                    3-in-1 Unified Stack: (1) Concept Card &middot; (2) 2011–2026 PYQ Trend Analysis &middot; (3) Interactive Solved PYQs
                   </p>
                 </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (typeof window !== 'undefined' && window.openAskPrelimsGpt) {
+                      window.openAskPrelimsGpt(searchQuery.trim());
+                    }
+                  }}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+                    border: 'none',
+                    color: '#ffffff',
+                    borderRadius: '10px',
+                    padding: '8px 14px',
+                    fontSize: '0.82rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(37, 99, 235, 0.28)'
+                  }}
+                >
+                  <Sparkles size={14} />
+                  <span>Open in Ask PrelimsGPT</span>
+                </button>
+
                 <button
                   type="button"
                   onClick={() => {
                     setSearchQuery('');
                     setMatchedPyqs([]);
+                    setConceptCard(null);
+                    setTrendAnalysis(null);
                   }}
                   style={{
                     display: 'inline-flex',
@@ -407,35 +443,298 @@ export default function PrelimsGPTCommandCenter() {
                   }}
                 >
                   <X size={14} />
-                  <span>Clear Search</span>
+                  <span>Clear</span>
                 </button>
-                <Link
-                  href={`/prelims/pyq?q=${encodeURIComponent(searchQuery.trim())}`}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    background: 'var(--color-blue, #3b82f6)',
-                    color: '#ffffff',
-                    borderRadius: '10px',
-                    padding: '8px 16px',
-                    fontSize: '0.84rem',
-                    fontWeight: 800,
-                    textDecoration: 'none',
-                    boxShadow: '0 4px 14px rgba(59, 130, 246, 0.3)'
-                  }}
-                >
-                  <span>Open in Explorer</span>
-                  <ArrowRight size={14} />
-                </Link>
               </div>
             </div>
 
-            {/* Questions Stack (One Below Other) */}
+            {/* ============================================================= */}
+            {/* BLOCK 1: CONCEPT CARD + DEFINITION                            */}
+            {/* ============================================================= */}
+            {!isSearching && conceptCard && (
+              <div
+                style={{
+                  background: 'linear-gradient(145deg, rgba(37, 99, 235, 0.10) 0%, var(--bg-card, #0f172a) 65%)',
+                  border: '1.5px solid rgba(59, 130, 246, 0.32)',
+                  borderRadius: '18px',
+                  padding: '22px 24px',
+                  boxShadow: '0 10px 28px rgba(0, 0, 0, 0.12)',
+                }}
+              >
+                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '10px', marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px' }}>
+                    <span style={{
+                      padding: '4px 11px',
+                      borderRadius: '999px',
+                      background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
+                      color: '#ffffff',
+                      fontSize: '0.73rem',
+                      fontWeight: 800,
+                      letterSpacing: '0.05em',
+                      textTransform: 'uppercase'
+                    }}>
+                      1 · Concept Card
+                    </span>
+                    <span style={{
+                      padding: '4px 10px',
+                      borderRadius: '999px',
+                      background: 'rgba(59, 130, 246, 0.14)',
+                      border: '1px solid rgba(59, 130, 246, 0.3)',
+                      color: '#60a5fa',
+                      fontSize: '0.76rem',
+                      fontWeight: 700
+                    }}>
+                      {conceptCard.subject} › {conceptCard.theme}
+                    </span>
+                    {conceptCard.priority && (
+                      <span style={{
+                        padding: '3px 9px',
+                        borderRadius: '999px',
+                        background: 'rgba(245, 158, 11, 0.14)',
+                        color: '#fbbf24',
+                        fontSize: '0.74rem',
+                        fontWeight: 700
+                      }}>
+                        {conceptCard.priority} Priority
+                      </span>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (typeof window !== 'undefined' && window.openAskPrelimsGpt) {
+                        window.openAskPrelimsGpt(`Quiz me on ${conceptCard.subject}`);
+                      }
+                    }}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '6px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(16, 185, 129, 0.35)',
+                      background: 'rgba(16, 185, 129, 0.12)',
+                      color: '#10b981',
+                      fontSize: '0.78rem',
+                      fontWeight: 700,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <span>▶ Quiz Me on {conceptCard.subject}</span>
+                  </button>
+                </div>
+
+                <h3 style={{ margin: '0 0 8px', fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+                  {conceptCard.title}
+                </h3>
+                <p style={{ margin: '0 0 16px', fontSize: '0.95rem', lineHeight: 1.65, color: 'var(--text-secondary)' }}>
+                  {conceptCard.definition}
+                </p>
+
+                {(conceptCard.keyPoints?.length > 0 || conceptCard.whatToStudy?.length > 0) && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '16px', paddingTop: '14px', borderTop: '1px solid var(--border-color)' }}>
+                    {conceptCard.keyPoints?.length > 0 && (
+                      <div>
+                        <h4 style={{ margin: '0 0 8px', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#60a5fa', fontWeight: 800 }}>
+                          🔁 High-Yield &amp; Repeated Points
+                        </h4>
+                        <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '0.86rem', lineHeight: 1.6, color: 'var(--text-secondary)', display: 'grid', gap: '6px' }}>
+                          {conceptCard.keyPoints.map((pt, i) => (
+                            <li key={i}>{pt}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {conceptCard.whatToStudy?.length > 0 && (
+                      <div>
+                        <h4 style={{ margin: '0 0 8px', fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: '#a78bfa', fontWeight: 800 }}>
+                          🎯 What to Study &amp; Focus On
+                        </h4>
+                        <ul style={{ margin: 0, paddingLeft: '18px', fontSize: '0.86rem', lineHeight: 1.6, color: 'var(--text-secondary)', display: 'grid', gap: '6px' }}>
+                          {conceptCard.whatToStudy.map((st, i) => (
+                            <li key={i}>{st}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ============================================================= */}
+            {/* BLOCK 2: PYQ TREND & WEIGHTAGE STRIP (2011–2026)              */}
+            {/* ============================================================= */}
+            {!isSearching && trendAnalysis && (
+              <div
+                style={{
+                  background: 'var(--bg-card, #0f172a)',
+                  border: '1.5px solid var(--border-color, rgba(255, 255, 255, 0.12))',
+                  borderRadius: '18px',
+                  padding: '20px 24px',
+                  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
+                }}
+              >
+                <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '16px' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '10px' }}>
+                    <span style={{
+                      padding: '4px 11px',
+                      borderRadius: '999px',
+                      background: 'rgba(124, 58, 237, 0.16)',
+                      border: '1px solid rgba(124, 58, 237, 0.35)',
+                      color: '#a78bfa',
+                      fontSize: '0.73rem',
+                      fontWeight: 800,
+                      letterSpacing: '0.05em',
+                      textTransform: 'uppercase'
+                    }}>
+                      2 · PYQ Trend &amp; Weightage (2011–2026)
+                    </span>
+                    <strong style={{ fontSize: '1.05rem', color: 'var(--text-primary)' }}>
+                      {trendAnalysis.theme} ({trendAnalysis.subject})
+                    </strong>
+                    {trendAnalysis.trend && trendAnalysis.trend !== 'Too few' && (
+                      <span style={{
+                        padding: '3px 9px',
+                        borderRadius: '999px',
+                        background: trendAnalysis.trend === 'Rising' ? 'rgba(16, 185, 129, 0.15)' : trendAnalysis.trend === 'Falling' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(59, 130, 246, 0.14)',
+                        color: trendAnalysis.trend === 'Rising' ? '#10b981' : trendAnalysis.trend === 'Falling' ? '#f87171' : '#60a5fa',
+                        fontSize: '0.75rem',
+                        fontWeight: 800
+                      }}>
+                        {trendAnalysis.trend === 'Rising' ? '↑ Rising' : trendAnalysis.trend === 'Falling' ? '↓ Falling' : `→ ${trendAnalysis.trend}`}
+                      </span>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      try {
+                        localStorage.setItem(
+                          'pq-dashboard-params',
+                          JSON.stringify({
+                            subject: trendAnalysis.subjectKey,
+                            theme: trendAnalysis.themeKey || undefined,
+                          })
+                        );
+                      } catch {}
+                      router.push(
+                        `/prelims/pyq?mode=analysis#${trendAnalysis.themeKey ? 'theme' : 'subject'}`
+                      );
+                    }}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '8px 14px',
+                      borderRadius: '10px',
+                      border: '1px solid rgba(59, 130, 246, 0.35)',
+                      background: 'rgba(37, 99, 235, 0.12)',
+                      color: '#60a5fa',
+                      fontSize: '0.82rem',
+                      fontWeight: 800,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <span>📊 Open Full Theme Analysis</span>
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
+
+                {/* 4 KPI Mini Cards + 16-Year Bar Chart */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px', marginBottom: '16px' }}>
+                  <div style={{ padding: '12px 14px', borderRadius: '12px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
+                    <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#60a5fa' }}>{trendAnalysis.totalCount}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                      theme questions {trendAnalysis.shareSubject ? `(${trendAnalysis.shareSubject}% of ${trendAnalysis.subject})` : ''}
+                    </div>
+                  </div>
+                  <div style={{ padding: '12px 14px', borderRadius: '12px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
+                    <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#a78bfa' }}>
+                      {trendAnalysis.yearsAsked}<small style={{ fontSize: '0.85rem', fontWeight: 600 }}>/{trendAnalysis.totalPapers}</small>
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>papers appeared in</div>
+                  </div>
+                  <div style={{ padding: '12px 14px', borderRadius: '12px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
+                    <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#10b981' }}>
+                      {trendAnalysis.avgEarly} → {trendAnalysis.avgRecent}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Qs/paper (2011–15 → 2021–26)</div>
+                  </div>
+                  <div style={{ padding: '12px 14px', borderRadius: '12px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
+                    <div style={{ fontSize: '1.45rem', fontWeight: 900, color: '#fbbf24' }}>{trendAnalysis.caShare}%</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>linked to Current Affairs</div>
+                  </div>
+                </div>
+
+                {/* 16-Year Sparkline Bars */}
+                {Array.isArray(trendAnalysis.yearSparkline) && trendAnalysis.yearSparkline.length > 0 && (
+                  <div style={{ padding: '12px 14px', borderRadius: '12px', background: 'var(--bg-secondary)', border: '1px solid var(--border-color)' }}>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 700, marginBottom: '8px', display: 'flex', justifyContent: 'space-between' }}>
+                      <span>Year-by-Year UPSC Prelims Frequency (2011–2026)</span>
+                      <span>{trendAnalysis.matchedQueryCount} direct keyword matches</span>
+                    </div>
+                    {(() => {
+                      const maxYrCnt = Math.max(1, ...trendAnalysis.yearSparkline.map((x) => x.count));
+                      return (
+                        <div style={{ display: 'grid', gridTemplateColumns: `repeat(${trendAnalysis.yearSparkline.length}, minmax(0, 1fr))`, gap: '4px', alignItems: 'end', height: '64px' }}>
+                          {trendAnalysis.yearSparkline.map((d) => {
+                            const hPct = d.count ? Math.max(16, Math.round((d.count / maxYrCnt) * 100)) : 6;
+                            return (
+                              <div key={d.year} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', height: '100%', gap: '3px' }}>
+                                <span style={{ fontSize: '0.68rem', fontWeight: 700, color: d.count ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+                                  {d.count || ''}
+                                </span>
+                                <div
+                                  title={`${d.year}: ${d.count} questions`}
+                                  style={{
+                                    width: '100%',
+                                    height: `${hPct}%`,
+                                    borderRadius: '4px 4px 2px 2px',
+                                    background: d.count ? 'linear-gradient(180deg, #3b82f6, #7c3aed)' : 'rgba(148, 163, 184, 0.18)',
+                                  }}
+                                />
+                                <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>
+                                  &rsquo;{String(d.year).slice(2)}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ============================================================= */}
+            {/* BLOCK 3: INTERACTIVE SOLVED PYQ QUESTION CARDS                */}
+            {/* ============================================================= */}
             {isSearching ? (
               <QuestionCardSkeleton count={2} />
             ) : matchedPyqs.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+                  <span style={{
+                    padding: '4px 11px',
+                    borderRadius: '999px',
+                    background: 'rgba(16, 185, 129, 0.16)',
+                    border: '1px solid rgba(16, 185, 129, 0.35)',
+                    color: '#10b981',
+                    fontSize: '0.73rem',
+                    fontWeight: 800,
+                    letterSpacing: '0.05em',
+                    textTransform: 'uppercase'
+                  }}>
+                    3 · Practice PYQs ({matchedPyqs.length})
+                  </span>
+                  <span style={{ fontSize: '0.84rem', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                    Click any option (A/B/C/D) below to test yourself and reveal the official solution
+                  </span>
+                </div>
                 {matchedPyqs.slice(0, 5).map((pyq, idx) => (
                   <PyqQuestionCard
                     key={pyq.id || idx}

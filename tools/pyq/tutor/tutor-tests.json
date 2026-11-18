@@ -1,0 +1,1067 @@
+[
+ {
+  "group": "define",
+  "steps": [
+   {
+    "say": "what is judicial review",
+    "expect": {
+     "intent": "define",
+     "term": "judicial review"
+    }
+   }
+  ]
+ },
+ {
+  "group": "define",
+  "steps": [
+   {
+    "say": "define fiscal deficit",
+    "expect": {
+     "intent": "define",
+     "term": "fiscal deficit"
+    }
+   }
+  ]
+ },
+ {
+  "group": "define",
+  "steps": [
+   {
+    "say": "fdi meaning",
+    "expect": {
+     "intent": "define",
+     "term": "foreign direct investment"
+    }
+   }
+  ]
+ },
+ {
+  "group": "define",
+  "steps": [
+   {
+    "say": "what is SLR",
+    "expect": {
+     "intent": "define",
+     "term": "statutory liquidity ratio"
+    }
+   }
+  ]
+ },
+ {
+  "group": "define",
+  "steps": [
+   {
+    "say": "what are open market operations",
+    "expect": {
+     "intent": "define",
+     "term": "open market operations"
+    }
+   }
+  ]
+ },
+ {
+  "group": "define",
+  "steps": [
+   {
+    "say": "tell me about basic structure doctrine",
+    "expect": {
+     "intent": "define",
+     "term": "basic structure"
+    }
+   }
+  ]
+ },
+ {
+  "group": "define",
+  "steps": [
+   {
+    "say": "what is upi",
+    "expect": {
+     "intent": "define",
+     "term": "unified payments interface"
+    }
+   }
+  ]
+ },
+ {
+  "group": "define",
+  "steps": [
+   {
+    "say": "eighth schedule",
+    "expect": {
+     "intent": "define",
+     "term": "eighth schedule"
+    }
+   }
+  ]
+ },
+ {
+  "group": "define",
+  "steps": [
+   {
+    "say": "what is SDR",
+    "expect": {
+     "intent": "define",
+     "term": "special drawing rights"
+    }
+   }
+  ]
+ },
+ {
+  "group": "define",
+  "steps": [
+   {
+    "say": "what is gdp",
+    "expect": {
+     "intent": [
+      "clarify",
+      "search"
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "group": "define",
+  "steps": [
+   {
+    "say": "what is xyzzy",
+    "expect": {
+     "intent": "none"
+    }
+   }
+  ]
+ },
+ {
+  "group": "typo",
+  "steps": [
+   {
+    "say": "waht is judicail review",
+    "expect": {
+     "intent": "define",
+     "term": "judicial review"
+    }
+   }
+  ]
+ },
+ {
+  "group": "typo",
+  "steps": [
+   {
+    "say": "defin fiscal defecit",
+    "expect": {
+     "intent": "define",
+     "term": "fiscal deficit"
+    }
+   }
+  ]
+ },
+ {
+  "group": "typo",
+  "steps": [
+   {
+    "say": "quiz me on polty",
+    "expect": {
+     "intent": "quiz",
+     "subjects": [
+      "Indian Polity"
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "group": "typo",
+  "steps": [
+   {
+    "say": "random econmy question",
+    "expect": {
+     "intent": "open",
+     "subject": "Economy"
+    }
+   }
+  ]
+ },
+ {
+  "group": "typo",
+  "steps": [
+   {
+    "say": "how has upsc askd about infaltion",
+    "expect": {
+     "intent": "trend",
+     "minCount": 5
+    }
+   }
+  ]
+ },
+ {
+  "group": "marathi",
+  "steps": [
+   {
+    "say": "judicial review mhanje kay",
+    "expect": {
+     "intent": "define",
+     "term": "judicial review"
+    }
+   }
+  ]
+ },
+ {
+  "group": "marathi",
+  "steps": [
+   {
+    "say": "fiscal deficit kay aahe",
+    "expect": {
+     "intent": "define",
+     "term": "fiscal deficit"
+    }
+   }
+  ]
+ },
+ {
+  "group": "marathi",
+  "steps": [
+   {
+    "say": "arthashastra sarav",
+    "expect": {
+     "intent": "quiz",
+     "subjects": [
+      "Economy"
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "group": "marathi",
+  "steps": [
+   {
+    "open": "cmuzof3gk000914k5051gsvs2"
+   },
+   {
+    "say": "uttar",
+    "expect": {
+     "intent": "followup",
+     "field": "answer"
+    }
+   }
+  ]
+ },
+ {
+  "group": "marathi",
+  "steps": [
+   {
+    "open": "cmuzof3gk000914k5051gsvs2"
+   },
+   {
+    "say": "vidhan 2 samjava",
+    "expect": {
+     "intent": "followup",
+     "field": "statement",
+     "arg": "2"
+    }
+   }
+  ]
+ },
+ {
+  "group": "trend",
+  "steps": [
+   {
+    "say": "how has upsc asked about article 21",
+    "expect": {
+     "intent": "trend",
+     "minCount": 3
+    }
+   }
+  ]
+ },
+ {
+  "group": "trend",
+  "steps": [
+   {
+    "say": "pyqs on inflation",
+    "expect": {
+     "intent": [
+      "define",
+      "search",
+      "trend"
+     ],
+     "minCount": 5
+    }
+   }
+  ]
+ },
+ {
+  "group": "trend",
+  "steps": [
+   {
+    "say": "questions on parliamentary committees",
+    "expect": {
+     "intent": "trend",
+     "topic": "Parliamentary Committees"
+    }
+   }
+  ]
+ },
+ {
+  "group": "trend",
+  "steps": [
+   {
+    "say": "fundamental rights questions since 2018",
+    "expect": {
+     "intent": [
+      "search",
+      "trend"
+     ],
+     "minCount": 3,
+     "yearFrom": 2018
+    }
+   }
+  ]
+ },
+ {
+  "group": "trend",
+  "steps": [
+   {
+    "say": "monetary policy pyq",
+    "expect": {
+     "intent": [
+      "search",
+      "trend"
+     ],
+     "minCount": 3
+    }
+   }
+  ]
+ },
+ {
+  "group": "trend",
+  "steps": [
+   {
+    "say": "economy 2015",
+    "expect": {
+     "intent": "list",
+     "subjects": [
+      "Economy"
+     ],
+     "minCount": 5
+    }
+   }
+  ]
+ },
+ {
+  "group": "trend",
+  "steps": [
+   {
+    "say": "governor",
+    "expect": {
+     "intent": [
+      "search",
+      "define"
+     ],
+     "minCount": 1
+    }
+   }
+  ]
+ },
+ {
+  "group": "overview",
+  "steps": [
+   {
+    "say": "polity topics",
+    "expect": {
+     "intent": "topics",
+     "subjects": [
+      "Indian Polity"
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "group": "overview",
+  "steps": [
+   {
+    "say": "which subjects have solutions",
+    "expect": {
+     "intent": "coverage"
+    }
+   }
+  ]
+ },
+ {
+  "group": "overview",
+  "steps": [
+   {
+    "say": "help",
+    "expect": {
+     "intent": "help"
+    }
+   }
+  ]
+ },
+ {
+  "group": "overview",
+  "steps": [
+   {
+    "say": "economy chapters",
+    "expect": {
+     "intent": "topics",
+     "subjects": [
+      "Economy"
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "group": "open",
+  "steps": [
+   {
+    "say": "random polity question",
+    "expect": {
+     "intent": "open",
+     "subject": "Indian Polity"
+    }
+   }
+  ]
+ },
+ {
+  "group": "open",
+  "steps": [
+   {
+    "say": "give me any question on fundamental rights",
+    "expect": {
+     "intent": "open"
+    }
+   }
+  ]
+ },
+ {
+  "group": "open",
+  "steps": [
+   {
+    "say": "2019 q 14",
+    "expect": {
+     "intent": "clarify"
+    }
+   },
+   {
+    "say": "1",
+    "expect": {
+     "intent": "open"
+    }
+   }
+  ]
+ },
+ {
+  "group": "open",
+  "steps": [
+   {
+    "say": "pyqs on inflation",
+    "expect": {
+     "intent": [
+      "define",
+      "search",
+      "trend"
+     ]
+    }
+   },
+   {
+    "say": "open 2",
+    "expect": {
+     "intent": "open"
+    }
+   },
+   {
+    "say": "next",
+    "expect": {
+     "intent": "open"
+    }
+   }
+  ]
+ },
+ {
+  "group": "open",
+  "steps": [
+   {
+    "say": "pyqs on inflation",
+    "expect": {
+     "intent": [
+      "define",
+      "search",
+      "trend"
+     ]
+    }
+   },
+   {
+    "say": "3",
+    "expect": {
+     "intent": "open"
+    }
+   }
+  ]
+ },
+ {
+  "group": "followup",
+  "steps": [
+   {
+    "open": "cmuzof3gk000914k5051gsvs2"
+   },
+   {
+    "say": "answer",
+    "expect": {
+     "intent": "followup",
+     "field": "answer"
+    }
+   }
+  ]
+ },
+ {
+  "group": "followup",
+  "steps": [
+   {
+    "open": "cmuzof3gk000914k5051gsvs2"
+   },
+   {
+    "say": "explain this",
+    "expect": {
+     "intent": "followup",
+     "field": "explain"
+    }
+   }
+  ]
+ },
+ {
+  "group": "followup",
+  "steps": [
+   {
+    "open": "cmuzof3gk000914k5051gsvs2"
+   },
+   {
+    "say": "why is statement 2 wrong",
+    "expect": {
+     "intent": "followup",
+     "field": "statement",
+     "arg": "2"
+    }
+   }
+  ]
+ },
+ {
+  "group": "followup",
+  "steps": [
+   {
+    "open": "cmuzof3gk000914k5051gsvs2"
+   },
+   {
+    "say": "second statement?",
+    "expect": {
+     "intent": "followup",
+     "field": "statement",
+     "arg": "second"
+    }
+   }
+  ]
+ },
+ {
+  "group": "followup",
+  "steps": [
+   {
+    "open": "cmuzof3gk000914k5051gsvs2"
+   },
+   {
+    "say": "why not option b",
+    "expect": {
+     "intent": "followup",
+     "field": "option",
+     "arg": "b"
+    }
+   }
+  ]
+ },
+ {
+  "group": "followup",
+  "steps": [
+   {
+    "open": "cmuzof3gk000914k5051gsvs2"
+   },
+   {
+    "say": "what about c",
+    "expect": {
+     "intent": "followup",
+     "field": "option",
+     "arg": "c"
+    }
+   }
+  ]
+ },
+ {
+  "group": "followup",
+  "steps": [
+   {
+    "open": "cmuzof3gk000914k5051gsvs2"
+   },
+   {
+    "say": "key words",
+    "expect": {
+     "intent": "followup",
+     "field": "keywords"
+    }
+   }
+  ]
+ },
+ {
+  "group": "followup",
+  "steps": [
+   {
+    "open": "cmuzof3gk000914k5051gsvs2"
+   },
+   {
+    "say": "value addition",
+    "expect": {
+     "intent": "followup",
+     "field": "va"
+    }
+   }
+  ]
+ },
+ {
+  "group": "followup",
+  "steps": [
+   {
+    "open": "cmuzof3gk000914k5051gsvs2"
+   },
+   {
+    "say": "was it in news",
+    "expect": {
+     "intent": "followup",
+     "field": "news"
+    }
+   }
+  ]
+ },
+ {
+  "group": "followup",
+  "steps": [
+   {
+    "open": "cmuzof3gk000914k5051gsvs2"
+   },
+   {
+    "say": "similar pyq",
+    "expect": {
+     "intent": "followup",
+     "field": "similar"
+    }
+   }
+  ]
+ },
+ {
+  "group": "followup",
+  "steps": [
+   {
+    "open": "cmuzof3gk000914k5051gsvs2"
+   },
+   {
+    "say": "comparison table",
+    "expect": {
+     "intent": "followup",
+     "field": "table"
+    }
+   }
+  ]
+ },
+ {
+  "group": "followup",
+  "steps": [
+   {
+    "open": "cmuzof3gk000914k5051gsvs2"
+   },
+   {
+    "say": "what to remember",
+    "expect": {
+     "intent": "followup",
+     "field": "take"
+    }
+   }
+  ]
+ },
+ {
+  "group": "followup",
+  "steps": [
+   {
+    "open": "cmuzof3gk000914k5051gsvs2"
+   },
+   {
+    "say": "explain judicial review",
+    "expect": {
+     "intent": "define",
+     "term": "judicial review"
+    }
+   }
+  ]
+ },
+ {
+  "group": "followup",
+  "steps": [
+   {
+    "open": "cmuzof3gk000914k5051gsvs2"
+   },
+   {
+    "say": "c",
+    "expect": {
+     "intent": "attempt"
+    }
+   }
+  ]
+ },
+ {
+  "group": "followup",
+  "steps": [
+   {
+    "open": "cmuzof3gk000914k5051gsvs2"
+   },
+   {
+    "say": "c",
+    "expect": {
+     "intent": "attempt"
+    }
+   },
+   {
+    "say": "b",
+    "expect": {
+     "intent": "followup",
+     "field": "option",
+     "arg": "b"
+    }
+   }
+  ]
+ },
+ {
+  "group": "followup",
+  "steps": [
+   {
+    "open": "cmuzo3wst0003clxr408y88to"
+   },
+   {
+    "say": "statement 1",
+    "expect": {
+     "intent": "followup",
+     "missing": true
+    }
+   }
+  ]
+ },
+ {
+  "group": "followup",
+  "steps": [
+   {
+    "open": "cmuzo3wst0003clxr408y88to"
+   },
+   {
+    "say": "similar pyq",
+    "expect": {
+     "intent": "followup",
+     "missing": true
+    }
+   }
+  ]
+ },
+ {
+  "group": "followup",
+  "steps": [
+   {
+    "open": "cmuygeodq003111cb54xo8cc3"
+   },
+   {
+    "say": "pair 2",
+    "expect": {
+     "intent": "followup",
+     "field": "pair"
+    }
+   }
+  ]
+ },
+ {
+  "group": "followup",
+  "steps": [
+   {
+    "open": "cmuzo3yhv000lclxrn4879fto"
+   },
+   {
+    "say": "explain",
+    "expect": {
+     "intent": "followup",
+     "field": "explain"
+    }
+   }
+  ]
+ },
+ {
+  "group": "followup",
+  "steps": [
+   {
+    "open": "cmuzo3yhv000lclxrn4879fto"
+   },
+   {
+    "say": "keywords",
+    "expect": {
+     "intent": "followup",
+     "missing": true
+    }
+   }
+  ]
+ },
+ {
+  "group": "quiz",
+  "steps": [
+   {
+    "say": "quiz me on economy",
+    "expect": {
+     "intent": "quiz",
+     "subjects": [
+      "Economy"
+     ],
+     "size": 10
+    }
+   },
+   {
+    "say": "a",
+    "expect": {
+     "intent": "quiz-a"
+    }
+   },
+   {
+    "say": "next",
+    "expect": {
+     "intent": "quiz-q"
+    }
+   },
+   {
+    "say": "stop",
+    "expect": {
+     "intent": "quiz-end"
+    }
+   }
+  ]
+ },
+ {
+  "group": "quiz",
+  "steps": [
+   {
+    "say": "5 polity questions since 2020",
+    "expect": {
+     "intent": [
+      "quiz",
+      "search",
+      "trend"
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "group": "quiz",
+  "steps": [
+   {
+    "say": "test me on 5 polity questions since 2020",
+    "expect": {
+     "intent": "quiz",
+     "size": 5,
+     "yearFrom": 2020
+    }
+   }
+  ]
+ },
+ {
+  "group": "quiz",
+  "steps": [
+   {
+    "say": "quiz on fundamental rights",
+    "expect": {
+     "intent": "quiz",
+     "topic": "Fundamental Rights"
+    }
+   }
+  ]
+ },
+ {
+  "group": "quiz",
+  "steps": [
+   {
+    "say": "practice monetary policy",
+    "expect": {
+     "intent": "quiz"
+    }
+   }
+  ]
+ },
+ {
+  "group": "quiz",
+  "steps": [
+   {
+    "say": "quiz polity",
+    "expect": {
+     "intent": "quiz"
+    }
+   },
+   {
+    "say": "option b",
+    "expect": {
+     "intent": "quiz-a"
+    }
+   },
+   {
+    "say": "explain",
+    "expect": {
+     "intent": "followup",
+     "field": "explain"
+    }
+   },
+   {
+    "say": "next",
+    "expect": {
+     "intent": "quiz-q"
+    }
+   }
+  ]
+ },
+ {
+  "group": "quiz",
+  "steps": [
+   {
+    "say": "quiz geography",
+    "expect": {
+     "intent": "quiz",
+     "subjects": [
+      "Geography"
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "group": "quiz",
+  "steps": [
+   {
+    "say": "quiz me on economy 3 questions",
+    "expect": {
+     "intent": "quiz",
+     "size": 3
+    }
+   },
+   {
+    "say": "skip",
+    "expect": {
+     "intent": "quiz-q"
+    }
+   },
+   {
+    "say": "skip",
+    "expect": {
+     "intent": "quiz-q"
+    }
+   },
+   {
+    "say": "skip",
+    "expect": {
+     "intent": "quiz-end"
+    }
+   }
+  ]
+ },
+ {
+  "group": "letters",
+  "steps": [
+   {
+    "say": "parlimentery committees questions",
+    "expect": {
+     "intent": [
+      "define",
+      "trend",
+      "search"
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "group": "letters",
+  "steps": [
+   {
+    "say": "what is constituionalism",
+    "expect": {
+     "intent": "define",
+     "term": "constitutionalism"
+    }
+   }
+  ]
+ },
+ {
+  "group": "letters",
+  "steps": [
+   {
+    "say": "biodiversty pyqs",
+    "expect": {
+     "intent": [
+      "trend",
+      "search"
+     ],
+     "minCount": 5
+    }
+   }
+  ]
+ },
+ {
+  "group": "shape",
+  "steps": [
+   {
+    "say": "lokapl",
+    "expect": {
+     "intent": "define",
+     "term": "lokpal",
+     "hasDef": true
+    }
+   }
+  ]
+ },
+ {
+  "group": "shape",
+  "steps": [
+   {
+    "say": "election commission",
+    "expect": {
+     "intent": "search",
+     "hasDef": false,
+     "minCount": 2
+    }
+   }
+  ]
+ },
+ {
+  "group": "shape",
+  "steps": [
+   {
+    "say": "what is lokpal",
+    "expect": {
+     "intent": "define",
+     "hasDef": true
+    }
+   }
+  ]
+ },
+ {
+  "group": "shape",
+  "steps": [
+   {
+    "say": "fiscal deficit",
+    "expect": {
+     "intent": "define",
+     "term": "fiscal deficit",
+     "hasDef": true,
+     "minCount": 1
+    }
+   }
+  ]
+ }
+]

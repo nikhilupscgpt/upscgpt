@@ -68,6 +68,7 @@ import AuthProvider from '../components/AuthProvider'
 import { NavProvider } from '../context/NavContext'
 import Navigation from '../components/Navigation'
 import Footer from '../components/Footer'
+import GlobalPrelimsGptBot from '../components/GlobalPrelimsGptBot'
 import { TranslationProvider } from '../context/TranslationContext'
 import { ThemeProvider } from '../components/ThemeProvider'
 import { Contentsquare } from './contentsquare'
@@ -116,6 +117,7 @@ export default function RootLayout({ children }) {
                 <main className="app-main" style={{ position: 'relative', paddingTop: '72px' }}>
                   {children}
                 </main>
+                <GlobalPrelimsGptBot />
                 <Footer />
               </NavProvider>
             </AuthProvider>

@@ -1,0 +1,137 @@
+/* Design tokens aligned with the UPSCGPT Portal Colour Palette (Editorial Study Desk & Midnight Library). */
+:root,
+[data-theme="light"],
+[data-theme="sepia"] {
+  --font-anthropic-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-anthropic-serif: "Poppins", "Source Serif 4", Georgia, sans-serif;
+
+  /* Brand Signature */
+  --brand-navy: #0b132b;
+  --brand-blue: #2563eb;
+  --brand-violet: #7c3aed;
+  --brand-gradient: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  --brand-soft-bg: rgba(37, 99, 235, 0.08);
+  --brand-soft-border: rgba(37, 99, 235, 0.24);
+  --brand-glow: 0 8px 24px rgba(37, 99, 235, 0.18);
+
+  /* Editorial Study Desk Surfaces */
+  --color-bg: #FAF8F5;
+  --color-surface: #ffffff;
+  --color-fg: #0B132B;
+  --color-fg-muted: #475569;
+  --color-panel: #F1F5F9;
+  --color-border-line: #E2E8F0;
+  --color-ok: #059669;
+  --color-warn: #d97706;
+  --color-bad: #dc2626;
+
+  /* Vibrant 10-Subject Series Palette */
+  --series-1: #2563eb;
+  --series-2: #ea580c;
+  --series-3: #059669;
+  --series-4: #7c3aed;
+  --series-5: #e11d48;
+  --series-6: #0284c7;
+  --series-7: #d97706;
+  --series-8: #4f46e5;
+  --series-9: #0d9488;
+  --series-10: #9333ea;
+
+  --cds-font-size-caption: 12.5px;
+  --cds-font-size-body: 14.5px;
+  --cds-font-size-heading: 18px;
+  --cds-font-size-title: 26px;
+  --cds-font-weight-medium: 600;
+  --cds-gap-xs: 4px; --cds-gap-sm: 8px; --cds-gap-md: 12px; --cds-gap-lg: 20px; --cds-gap-xl: 32px;
+  --cds-pad-xs: 4px; --cds-pad-sm: 8px; --cds-pad-md: 12px; --cds-pad-lg: 18px; --cds-pad-xl: 28px;
+  --cds-radius: 10px;
+
+  --cds-chart-grid: #E2E8F0;
+  --cds-chart-axis: #94A3B8;
+  --cds-chart-reference: #64748B;
+  --cds-chart-muted: #CBD5E1;
+  --cds-text-secondary: #475569;
+  --cds-surface-popover: #ffffff;
+  --cds-border: #E2E8F0;
+  --cds-shadow-popover: 0 10px 28px rgba(11, 19, 43, 0.12);
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --brand-navy: #0b132b;
+  --brand-blue: #3b82f6;
+  --brand-violet: #8b5cf6;
+  --brand-gradient: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+  --brand-soft-bg: rgba(59, 130, 246, 0.15);
+  --brand-soft-border: rgba(96, 165, 250, 0.32);
+  --brand-glow: 0 10px 28px rgba(37, 99, 235, 0.35);
+
+  /* Midnight Library Surfaces */
+  --color-bg: #050814;
+  --color-surface: #0b1124;
+  --color-fg: #f8fafc;
+  --color-fg-muted: #94a3b8;
+  --color-panel: #101935;
+  --color-border-line: rgba(148, 163, 184, 0.18);
+  --color-ok: #10b981;
+  --color-warn: #f59e0b;
+  --color-bad: #f87171;
+
+  --series-1: #60a5fa;
+  --series-2: #fb923c;
+  --series-3: #34d399;
+  --series-4: #a78bfa;
+  --series-5: #fb7185;
+  --series-6: #38bdf8;
+  --series-7: #fbbf24;
+  --series-8: #818cf8;
+  --series-9: #2dd4bf;
+  --series-10: #c084fc;
+
+  --cds-chart-grid: rgba(148, 163, 184, 0.16);
+  --cds-chart-axis: #475569;
+  --cds-chart-reference: #64748b;
+  --cds-chart-muted: #334155;
+  --cds-text-secondary: #94a3b8;
+  --cds-surface-popover: #0f172a;
+  --cds-border: rgba(148, 163, 184, 0.22);
+  --cds-shadow-popover: 0 12px 32px rgba(0, 0, 0, 0.55);
+  color-scheme: dark;
+}
+
+html { background: var(--color-bg); }
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-anthropic-sans);
+  font-size: var(--cds-font-size-body);
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+#dash-root {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+[hidden] { display: none !important; }
+
+.dash-select {
+  appearance: none;
+  font: inherit;
+  font-weight: 500;
+  color: var(--color-fg);
+  background-color: var(--color-surface);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%232563eb' stroke-width='1.8'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  border: 1px solid var(--brand-soft-border);
+  border-radius: var(--cds-radius);
+  padding: 8px 34px 8px 12px;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(11, 19, 43, 0.04);
+}
+.dash-select:hover { border-color: var(--brand-blue); }
+.dash-select:focus-visible { outline: 2px solid var(--brand-blue); outline-offset: 2px; }
