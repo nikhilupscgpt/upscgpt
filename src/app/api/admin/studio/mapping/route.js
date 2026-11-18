@@ -181,7 +181,7 @@ export async function GET(req) {
       );
     }
 
-    if (tier !== 'ALL') {
+    if (tier !== 'all') {
       pool = pool.filter((item) => (item.tier || '').toLowerCase() === tier);
     }
 
