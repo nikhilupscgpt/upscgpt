@@ -7,7 +7,7 @@ const cspDirectives = [
   "default-src 'self'",
   // 'unsafe-inline' needed for Next inline bootstrap + GA inline snippet (no nonces);
   // 'unsafe-eval' kept for now (dev React + some 3rd-party tags).
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://checkout.razorpay.com https://*.razorpay.com https://www.googletagmanager.com https://*.google-analytics.com https://*.contentsquare.net https://*.hotjar.com",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://www.clarity.ms https://*.clarity.ms https://checkout.razorpay.com https://*.razorpay.com https://www.googletagmanager.com https://*.google-analytics.com https://*.contentsquare.net https://*.hotjar.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   // https: covers ArcGIS/OSM tiles, Unsplash/Wikimedia/CloudFront images, news thumbnails

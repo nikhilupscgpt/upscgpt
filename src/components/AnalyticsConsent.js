@@ -12,16 +12,19 @@ export default function AnalyticsConsent() {
   const [consent, setConsent] = useState(null); // null | 'granted' | 'denied'
 
   useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem(CONSENT_KEY);
-      if (saved === 'granted' || saved === 'denied') {
-        setConsent(saved);
-      } else {
+    const id = window.setTimeout(() => {
+      try {
+        const saved = window.localStorage.getItem(CONSENT_KEY);
+        if (saved === 'granted' || saved === 'denied') {
+          setConsent(saved);
+        } else {
+          setConsent('pending');
+        }
+      } catch {
         setConsent('pending');
       }
-    } catch {
-      setConsent('pending');
-    }
+    }, 0);
+    return () => window.clearTimeout(id);
   }, []);
 
   // Essential first-party telemetry (first_visit, page_view, client_error, 10% web_vital)
@@ -94,7 +97,7 @@ export default function AnalyticsConsent() {
     setConsent(val);
   };
 
-  const clarityId = process.env.NEXT_PUBLIC_CLARITY_ID;
+  const clarityId = process.env.NEXT_PUBLIC_CLARITY_ID || 'zfk0xdmnjp';
 
   return (
     <>
