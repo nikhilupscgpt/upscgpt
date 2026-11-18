@@ -9,10 +9,16 @@ function getIntelStore() {
   if (cachedIntelStore) return cachedIntelStore;
 
   const root = process.cwd();
-  const dashQsPath = path.join(root, 'tools/pyq/dashboard_neon/questions.json');
-  const dashInsPath = path.join(root, 'tools/pyq/dashboard_neon/insights.json');
+  const dashQsPath = fs.existsSync(path.join(root, 'public/pyq/data/questions.json'))
+    ? path.join(root, 'public/pyq/data/questions.json')
+    : path.join(root, 'tools/pyq/dashboard_neon/questions.json');
+  const dashInsPath = fs.existsSync(path.join(root, 'public/pyq/data/insights.json'))
+    ? path.join(root, 'public/pyq/data/insights.json')
+    : path.join(root, 'tools/pyq/dashboard_neon/insights.json');
   const neonQsPath = path.join(root, 'tools/pyq/input/neon_pyqs_with_solutions.json');
-  const glossaryPath = path.join(root, 'tools/pyq/dashboard/glossary.json');
+  const glossaryPath = fs.existsSync(path.join(root, 'public/pyq/data/glossary.json'))
+    ? path.join(root, 'public/pyq/data/glossary.json')
+    : path.join(root, 'tools/pyq/export_template/glossary.json');
 
   const dashQs = fs.existsSync(dashQsPath)
     ? JSON.parse(fs.readFileSync(dashQsPath, 'utf8'))
