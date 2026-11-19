@@ -1,4 +1,5 @@
 import { notFound, redirect } from 'next/navigation';
+import { unstable_cache } from 'next/cache';
 import prisma from '@/lib/prisma';
 import StandaloneQuestionClient from './StandaloneQuestionClient';
 import { generateQuestionSlug, extractQuestionIdFromSlug } from '@/lib/pyqSlug';
@@ -16,48 +17,78 @@ import { applyDeepDiveGate } from '@/lib/tier-gate';
 // 24-hour ISR Cache: Ensures search crawlers consume 0 DB/server compute after initial cache
 export const revalidate = 86400;
 
-async function findQuestion(decodedId) {
-  const targetId = extractQuestionIdFromSlug(decodedId);
+const findQuestion = unstable_cache(
+  async (decodedId) => {
+    const targetId = extractQuestionIdFromSlug(decodedId);
 
-  // 1. Check QuestionDraft first (master admin-curated PYQ table with latest explanations)
-  const draft = await prisma.questionDraft.findFirst({
-    where: {
-      OR: [
-        { dedupHash: targetId },
-        { id: targetId },
-        { dedupHash: decodedId },
-        { id: decodedId }
-      ]
+    // 1. Check QuestionDraft first (master admin-curated PYQ table with latest explanations)
+    const draft = await prisma.questionDraft.findFirst({
+      where: {
+        OR: [
+          { dedupHash: targetId },
+          { id: targetId },
+          { dedupHash: decodedId },
+          { id: decodedId }
+        ]
+      }
+    });
+
+    if (draft) {
+      return draft;
     }
-  });
 
-  if (draft) {
-    return draft;
-  }
+    // 2. Fallback to published Question table
+    const published = await prisma.question.findFirst({
+      where: {
+        OR: [
+          { dedupHash: targetId },
+          { id: targetId },
+          { dedupHash: decodedId },
+          { id: decodedId }
+        ]
+      },
+      include: { subject: true, topic: true }
+    });
 
-  // 2. Fallback to published Question table
-  const published = await prisma.question.findFirst({
-    where: {
-      OR: [
-        { dedupHash: targetId },
-        { id: targetId },
-        { dedupHash: decodedId },
-        { id: decodedId }
-      ]
-    },
-    include: { subject: true, topic: true }
-  });
+    if (published) {
+      return {
+        ...published,
+        srcSubject: published.subject?.name,
+        srcTopic: published.topic?.name
+      };
+    }
 
-  if (published) {
-    return {
-      ...published,
-      srcSubject: published.subject?.name,
-      srcTopic: published.topic?.name
-    };
-  }
+    return null;
+  },
+  ['pyq-find-question'],
+  { revalidate: 86400, tags: ['pyq-data'] }
+);
 
-  return null;
-}
+const findRelatedQuestions = unstable_cache(
+  async (qId, srcTopic, srcSubject) => {
+    return prisma.questionDraft.findMany({
+      where: {
+        id: { not: qId },
+        ...(srcTopic ? { srcTopic } : srcSubject ? { srcSubject } : {}),
+      },
+      take: 6,
+      orderBy: [{ examYear: 'desc' }, { questionNo: 'asc' }],
+      select: {
+        id: true,
+        dedupHash: true,
+        examName: true,
+        examYear: true,
+        questionNo: true,
+        srcSubject: true,
+        srcTopic: true,
+        stem: true,
+        correctLabel: true,
+      },
+    });
+  },
+  ['pyq-related-questions'],
+  { revalidate: 86400, tags: ['pyq-data'] }
+);
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
@@ -137,26 +168,8 @@ export default async function StandaloneQuestionPage({ params }) {
 
   const canonicalUrl = `https://www.upscgpt.in/prelims/pyq/${canonicalSlug}`;
 
-  // Fetch up to 6 related questions in the same Topic/Subject for internal crawl spidering
-  const relatedRaw = await prisma.questionDraft.findMany({
-    where: {
-      id: { not: q.id },
-      ...(q.srcTopic ? { srcTopic: q.srcTopic } : q.srcSubject ? { srcSubject: q.srcSubject } : {}),
-    },
-    take: 6,
-    orderBy: [{ examYear: 'desc' }, { questionNo: 'asc' }],
-    select: {
-      id: true,
-      dedupHash: true,
-      examName: true,
-      examYear: true,
-      questionNo: true,
-      srcSubject: true,
-      srcTopic: true,
-      stem: true,
-      correctLabel: true,
-    },
-  });
+  // Fetch up to 6 related questions in the same Topic/Subject for internal crawl spidering (cached 24h)
+  const relatedRaw = await findRelatedQuestions(q.id, q.srcTopic || null, q.srcSubject || null);
 
   const relatedQuestions = relatedRaw.map(rq => ({
     id: rq.id,

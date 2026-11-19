@@ -464,12 +464,19 @@ export async function GET(req) {
       };
     });
 
-    return NextResponse.json({
-      query: rawQuery,
-      conceptCard,
-      trendAnalysis,
-      pyqs,
-    });
+    return NextResponse.json(
+      {
+        query: rawQuery,
+        conceptCard,
+        trendAnalysis,
+        pyqs,
+      },
+      {
+        headers: {
+          'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
+        },
+      }
+    );
   } catch (err) {
     console.error('[GET /api/pyq/search-intel] Error:', err);
     return NextResponse.json(
