@@ -27,9 +27,6 @@ const cspReportOnly = cspDirectives.join('; ');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  turbopack: {
-    root: import.meta.dirname,
-  },
   async headers() {
     const noIndexHeaders = [
       {
