@@ -158,6 +158,10 @@ export default function PyqExplorerClient({ initialQuestions = [], initialMetada
     if (p.get('topic')) setTopic(p.get('topic'));
     if (p.get('exam')) setExam(p.get('exam'));
     if (p.get('year')) setYears(p.get('year'));
+
+    const onOpenAnalysis = () => setExperienceMode('guided');
+    window.addEventListener('upscgpt:open-analysis', onOpenAnalysis);
+    return () => window.removeEventListener('upscgpt:open-analysis', onOpenAnalysis);
     if (p.get('sort')) setSortOrder(p.get('sort'));
     if (s) setShow(s);
     if (pat === 'new') setPatternFilter('NEW');

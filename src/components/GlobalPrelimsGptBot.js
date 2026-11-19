@@ -30,18 +30,27 @@ export default function GlobalPrelimsGptBot() {
           // ignore
         }
         const hash = e.data.hash || '#subject';
-        // If a dashboard iframe is already mounted on the page, sync it directly
+        const pageName = hash.replace(/^#/, '') || 'subject';
+        window.dispatchEvent(new CustomEvent('upscgpt:open-analysis', { detail: { params: e.data.params, hash } }));
+        // If a dashboard iframe is already mounted on the page, sync params + switch view directly
         const dashFrame = document.querySelector('iframe[data-pyq-dashboard="true"]');
         if (dashFrame && dashFrame.contentWindow) {
           try {
-            if (dashFrame.contentWindow.dash && e.data.params) {
-              dashFrame.contentWindow.dash.setParams(e.data.params);
+            const cw = dashFrame.contentWindow;
+            if (cw.dash && e.data.params) {
+              cw.dash.setParams(e.data.params);
             }
-            dashFrame.contentWindow.location.hash = hash;
+            if (cw.PQ && typeof cw.PQ.show === 'function') {
+              cw.PQ.show(pageName);
+            } else {
+              cw.location.hash = hash;
+            }
           } catch {
             // ignore
           }
+          setIsOpen(false);
         } else {
+          setIsOpen(false);
           router.push(`/prelims/pyq?mode=analysis${hash}`);
         }
       }

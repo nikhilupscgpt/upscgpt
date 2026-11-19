@@ -20,7 +20,16 @@ function getNeonDatabaseUrl(): string {
   return envUrl;
 }
 
-const REASONS = new Set(["no-match", "no-results", "keyword-not-found", "asked-back", "flagged"]);
+const REASONS = new Set([
+  "no-match",
+  "no-results",
+  "keyword-not-found",
+  "asked-back",
+  "flagged",
+  "thumbs-up",
+  "thumbs-down",
+  "not-covered",
+]);
 const clip = (v: unknown, n: number) => String(v ?? "").slice(0, n);
 
 export async function POST(req: Request) {

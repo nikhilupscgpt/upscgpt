@@ -65,3 +65,9 @@ fix_pyq.py
 
 # Contentsquare wizard (generated)
 .cs-wizard/
+
+# Cloudflare KB local build artifacts
+workers/pyq-ai-bot/.kb_build/
+
+workers/*/node_modules/
+workers/**/.wrangler/

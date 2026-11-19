@@ -1,0 +1,36 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "upscgpt-pyq-ai-bot",
+	"main": "src/index.js",
+	"compatibility_date": "2026-11-01",
+	"observability": {
+		"enabled": true
+	},
+	"ai": {
+		"binding": "AI"
+	},
+	"vars": {
+		"AI_MODEL_MAIN": "@cf/meta/llama-3.1-8b-instruct-fp8-fast",
+		"EMBED_MODEL": "@cf/baai/bge-m3",
+		"RERANK_MODEL": "@cf/baai/bge-reranker-base",
+		"ALLOWED_ORIGIN": "https://www.upscgpt.in",
+		"APP_ORIGIN": "https://www.upscgpt.in"
+	},
+	"triggers": {
+		"crons": ["0 2 * * *"]
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "upscgpt-pyq-kb",
+			"database_id": "39c705c8-6900-4098-afbd-bafc7b42386e"
+		}
+	],
+	"vectorize": [
+		{
+			"binding": "VECTORIZE",
+			"index_name": "upscgpt-pyq-vec",
+			"remote": true
+		}
+	]
+}

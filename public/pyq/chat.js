@@ -102,7 +102,7 @@
     'agriculture--major_crops': ['crops', 'crop', 'rice', 'wheat'],
     'agriculture--soil_fertilizers_farming_practices': ['fertilizer', 'fertilizers', 'zero tillage', 'organic farming'],
     'indian_polity--international_organisations_relations': ['un', 'united nations', 'brics', 'g20', 'sco', 'asean', 'quad', 'groupings', 'west asia', 'middle east', 'international relations', 'foreign policy', 'international affairs', 'bilateral']
-  };;;;;;;;;;;;;
+  };;;;;;;;;;;;;;;;;;
   const FORMAT_ALIASES = {
     'How many correct': ['how many correct', 'how many type', 'how many format', 'how many questions format', 'how-many'],
     'Statement I–II': ['statement i', 'statement 1', 'statement ii', 'assertion', 'reason'],
@@ -1270,8 +1270,8 @@
     if (!p.sub && !p.hits && p.themes.length > 1 && !explicit.includes('compare') && Math.abs(p.themeScores[0] - p.themeScores[1]) < 0.02 && p.themeScores[0] < 1) {
       return finish(clarifyTheme(p, explicit[0]), notes, p, null);
     }
-    // the guesser is unsure between a few themes → ask
-    if (p.askThemes && !p.themes.length && !p.hits && !explicit.includes('compare')) {
+    // the guesser is unsure between a few themes → ask (skip when user asked for top themes in a subject)
+    if (p.askThemes && !p.themes.length && !p.hits && !explicit.includes('compare') && !(explicit.includes('top') && p.subjects.length)) {
       ctx.pending = explicit[0] || 'overview';
       return finish({text: ['I’m not sure which theme you mean. Did you mean one of these?'], blocks: [], actions: [],
         suggest: p.askThemes.map((x) => x.theme.theme), clarify: true}, notes, p, null);
@@ -1336,7 +1336,14 @@
   // ------------------------------------------------------------------ UI
   let panel, log, input, fab;
   const mobile = () => window.matchMedia('(max-width: 640px)').matches;
-  const maybeClose = () => { if (mobile()) toggle(false); };
+  const maybeClose = () => {
+    if (!mobile()) return;
+    if (document.documentElement.classList.contains('is-pqc-embed') && window.parent && window.parent !== window) {
+      try { window.parent.postMessage({ type: 'PQC_CLOSE' }, '*'); } catch (e) { /* ignore */ }
+    } else {
+      toggle(false);
+    }
+  };
 
   function addMsg(who, nodes) {
     const m = el('div', {class: 'pqc-msg pqc-' + who}, nodes);
@@ -1390,11 +1397,58 @@
     const btn = el('button', {type: 'button', class: 'pqc-link pqc-flag', onclick: () => { logMiss(q, engine, intent, 'flagged'); btn.replaceWith(el('span', {class: 'pqc-flag'}, 'Noted — thanks.')); }}, 'Not what I wanted');
     return btn;
   }
+  function aiGapButton(q, missingKind) {
+    const wrap = el('div', {class: 'pqc-ai-wrap', style: 'margin-top:8px;'});
+    const btn = el('button', {
+      type: 'button',
+      class: 'pqc-chip',
+      style: 'background:rgba(37,99,235,0.1);color:#1d4ed8;border-color:rgba(37,99,235,0.3);font-weight:700;',
+      onclick: async () => {
+        btn.disabled = true;
+        btn.textContent = 'Checking…';
+        try {
+          const res = await fetch('/api/pyq/ai-prototype', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question: q, missing: [missingKind || 'definition'], shownSummary: '' }),
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            wrap.replaceChildren(el('p', {class: 'pqc-ctx', style: 'color:#b45309;'}, data.error || 'AI explanation unavailable right now.'));
+            return;
+          }
+          const pts = Array.isArray(data.points) ? data.points : [];
+          if (!pts.length) {
+            wrap.replaceChildren(el('p', {class: 'pqc-ctx'}, 'No extra details found beyond stored PYQs.'));
+            return;
+          }
+          const badge = el('p', {
+            class: 'pqc-ctx',
+            style: data.sourceMode === 'solutions' ? 'color:#059669;font-weight:700;' : 'color:#1d4ed8;font-weight:700;',
+          }, data.label || 'Concept Overview');
+          const list = el('ul', {style: 'margin:4px 0 6px;padding-left:16px;font-size:12.5px;line-height:1.45;'},
+            pts.map((pt) => el('li', {style: 'margin-bottom:4px;'}, pt))
+          );
+          const fb = el('div', {style: 'display:flex;gap:8px;align-items:center;font-size:11.5px;'},
+            el('button', {type: 'button', class: 'pqc-link', onclick: (e) => { logMiss(q, 'ai-gap', data.sourceMode, 'thumbs-up'); e.currentTarget.textContent = '👍 Saved'; }}, '👍 Helpful'),
+            el('button', {type: 'button', class: 'pqc-link', onclick: (e) => { logMiss(q, 'ai-gap', data.sourceMode, 'thumbs-down'); e.currentTarget.textContent = '👎 Noted'; }}, '👎 Needs fix')
+          );
+          wrap.replaceChildren(el('div', {style: 'padding:8px 10px;border-radius:10px;border:1px solid rgba(37,99,235,0.2);background:rgba(37,99,235,0.04);'}, badge, list, fb));
+          if (data.sourceMode === 'general') logMiss(q, 'ai-gap', 'definition', 'not-covered');
+        } catch (err) {
+          wrap.replaceChildren(el('p', {class: 'pqc-ctx', style: 'color:#b45309;'}, 'Could not load explanation.'));
+        }
+      },
+    }, '✨ Explain with AI');
+    wrap.appendChild(btn);
+    return wrap;
+  }
   function renderTutor(q, r) {
     const T = tutor();
     const chipsEl = r.chips && r.chips.length ? el('div', {class: 'pqc-chips'}, r.chips.map((c) => el('button', {type: 'button', class: 'pqc-chip',
       onclick: () => { if (c.act) { addMsg('user', [c.label]); renderTutor(c.label, c.act()); } else ask(c.say, {echo: c.label, engine: 'tutor'}); }}, c.label))) : null;
-    addMsg('bot', [el('p', {class: 'pqc-ctx'}, 'PYQ Tutor · from the stored solutions'), el('div', {class: 'pqc-tutor'}, r.nodes), chipsEl, flagButton(q, 'tutor', r.intent)]);
+    const needsAiGap = r.intent === 'none' || (Array.isArray(r.nodes) && r.nodes.some((n) => n && n.className && n.className.includes('pt-note')));
+    addMsg('bot', [el('p', {class: 'pqc-ctx'}, 'PYQ Tutor · from the stored solutions'), el('div', {class: 'pqc-tutor'}, r.nodes), chipsEl, needsAiGap ? aiGapButton(q, 'definition') : null, flagButton(q, 'tutor', r.intent)]);
     if (r.intent === 'none') logMiss(q, 'tutor', r.intent, 'no-match');
     else if (r.intent === 'clarify') logMiss(q, 'tutor', r.intent, 'asked-back');
     input.placeholder = T && T.state.quiz ? 'Type a, b, c or d…' : T && T.state.cur ? 'Ask: explain · statement 2 · why not b · next' : 'Ask about subjects, themes, years…';
@@ -1416,17 +1470,20 @@
       n.undo ? [' · ', el('button', {type: 'button', class: 'pqc-link', onclick: n.undo.run}, n.undo.label)] : null));
     const actions = (r.actions || []).length ? el('div', {class: 'pqc-actions'}, r.actions.map((a) => el('button', {type: 'button', class: 'pqc-action', onclick: () => {
       a.run();
-      try {
-        if (window.parent && window.parent !== window) {
-          window.parent.postMessage({type: 'PQC_OPEN_DASH', params: window.dash && window.dash.params ? window.dash.params() : {}, hash: location.hash}, '*');
-        }
-      } catch (e) { /* ignore */ }
+      if (/^Open\b/i.test(a.label || '')) {
+        try {
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({type: 'PQC_OPEN_DASH', params: window.dash && window.dash.params ? window.dash.params() : {}, hash: location.hash}, '*');
+          }
+        } catch (e) { /* ignore */ }
+      }
     }}, a.label))) : null;
     const path = r.path ? el('ol', {class: 'pqc-path', 'aria-label': 'How I read your question'}, r.path.map((st) =>
       el('li', {class: st.value === 'all' ? 'is-any' : null}, el('span', {class: 'pqc-path-l'}, st.level), el('span', {class: 'pqc-path-v'}, st.value),
         st.how && st.how !== 'named' ? el('small', null, st.how) : null))) : null;
     const intent = r.debug ? r.debug.intent : null;
-    addMsg('bot', [path, ...notes, el('p', {class: 'pqc-text'}, r.text), ...(r.blocks || []).filter(Boolean), actions, (r.suggest || []).length ? chips(r.suggest) : null, flagButton(text, 'stats', intent)]);
+    const statsMiss = Boolean(r.miss || (r.notes || []).some((n) => /^No question mentions/.test(n.text)));
+    addMsg('bot', [path, ...notes, el('p', {class: 'pqc-text'}, r.text), ...(r.blocks || []).filter(Boolean), actions, (r.suggest || []).length ? chips(r.suggest) : null, statsMiss ? aiGapButton(text, 'definition') : null, flagButton(text, 'stats', intent)]);
     if (r.miss) logMiss(text, 'stats', intent, r.miss);
     else if (r.clarify) logMiss(text, 'stats', intent, 'asked-back');
     else if ((r.notes || []).some((n) => /^No question mentions/.test(n.text))) logMiss(text, 'stats', intent, 'keyword-not-found');
