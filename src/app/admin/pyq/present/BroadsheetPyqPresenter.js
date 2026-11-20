@@ -28,6 +28,7 @@ import {
   Maximize2,
   Minimize2,
   ArrowLeft,
+  MoreHorizontal,
 } from 'lucide-react';
 import { getStructuredExplanation } from '@/lib/pyqExplanationHelper';
 import { normalizeKeywordsList } from '@/lib/pyqKeywords';
@@ -181,6 +182,7 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
 
   // UI & Recording state
   const [dockCollapsed, setDockCollapsed] = useState(false);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [recActive, setRecActive] = useState(false);
   const [recSec, setRecSec] = useState(0);
@@ -274,10 +276,17 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
     setActiveSection(0);
   }, [applyCameraTransform]);
 
-  // Reset view when switching pages
+  // Auto-zoom onto ① QUESTION when opening a PYQ page so it is immediately mobile-readable!
   useEffect(() => {
+    if (currentPage?.type === 'pyq') {
+      const t = setTimeout(() => {
+        focusSection(1);
+      }, 90);
+      return () => clearTimeout(t);
+    }
     resetView();
-  }, [pageIdx, resetView]);
+    return undefined;
+  }, [pageIdx, currentPage?.type, focusSection, resetView]);
 
   // Smooth zoom to a specific section (1..8) inside the sheet
   const focusSection = useCallback((secNum) => {
@@ -1343,7 +1352,7 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
       </div>
 
       {/* ============================================================= */}
-      {/* CLEAN MINIMAL SINGLE-ROW FLOATING DOCK                        */}
+      {/* IPAD-SAFE COMPACT FLOATING DOCK (Fits 1024px iPad zero clip!) */}
       {/* ============================================================= */}
       {dockCollapsed ? (
         <button
@@ -1356,211 +1365,267 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
           <span>{recActive ? `REC ${fmtTimer(recSec)}` : `Page ${pageIdx + 1}/${pages.length} · Tools`}</span>
         </button>
       ) : (
-        <footer className="bs-dock">
-          {/* Back to PYQ Studio */}
-          <Link href="/admin/studio/pyq" className="bs-dock-btn" title="Back to PYQ Studio" style={{ textDecoration: 'none' }}>
-            <ArrowLeft size={15} />
-          </Link>
+        <div className="bs-dock-wrap">
+          {/* Compact Secondary Tray (opens above dock when ••• is tapped) */}
+          {moreMenuOpen && (
+            <div className="bs-dock-more-popover">
+              <Link href="/admin/studio/pyq" className="bs-dock-btn" title="Back to PYQ Studio" style={{ textDecoration: 'none' }}>
+                <ArrowLeft size={15} />
+                <span>Studio</span>
+              </Link>
 
-          <div className="bs-dock-sep" />
-
-          {/* Page Navigation + Insert Blank Page */}
-          <button
-            type="button"
-            className="bs-dock-btn"
-            disabled={pageIdx <= 0}
-            onClick={() => setPageIdx((i) => Math.max(0, i - 1))}
-            title="Previous Page [Left Arrow]"
-          >
-            <ChevronLeft size={16} />
-          </button>
-          <span style={{ fontSize: 12, fontWeight: 800, color: '#f8fafc', padding: '0 4px', whiteSpace: 'nowrap' }}>
-            {pageIdx + 1} / {pages.length}
-          </span>
-          <button
-            type="button"
-            className="bs-dock-btn"
-            disabled={pageIdx >= pages.length - 1}
-            onClick={() => setPageIdx((i) => Math.min(pages.length - 1, i + 1))}
-            title="Next Page [Right Arrow]"
-          >
-            <ChevronRight size={16} />
-          </button>
-
-          <button
-            type="button"
-            className="bs-dock-btn"
-            onClick={handleInsertBlankPage}
-            title="Insert Blank Whiteboard Page After Current [B]"
-          >
-            <FilePlus2 size={15} />
-            <span>+ Blank</span>
-          </button>
-
-          <div className="bs-dock-sep" />
-
-          {/* Zoom Controls */}
-          <button type="button" className="bs-dock-btn" onClick={() => zoomBy(0.8, null, null, true)} title="Zoom Out [-]">
-            <ZoomOut size={15} />
-          </button>
-          <button
-            type="button"
-            className={`bs-dock-btn ${zoomPct === 100 ? 'is-active' : ''}`}
-            onClick={resetView}
-            title="Fit Full Sheet [0 / Esc]"
-          >
-            <Maximize size={13} />
-            <span>{zoomPct}%</span>
-          </button>
-          <button type="button" className="bs-dock-btn" onClick={() => zoomBy(1.25, null, null, true)} title="Zoom In [+]">
-            <ZoomIn size={15} />
-          </button>
-
-          {/* Spoiler-Free Reveal Toggle */}
-          <button
-            type="button"
-            className={`bs-dock-btn ${!revealMode ? 'is-active' : ''}`}
-            onClick={() => setRevealMode((m) => !m)}
-            title={revealMode ? 'Reveal All Cards [R]' : 'Hide Answers for Discussion [R]'}
-          >
-            {revealMode ? <EyeOff size={15} /> : <Eye size={15} />}
-            <span>{revealMode ? 'Hidden' : 'All Shown'}</span>
-          </button>
-
-          <div className="bs-dock-sep" />
-
-          {/* Annotation Tools */}
-          <button
-            type="button"
-            className={`bs-dock-btn ${tool === 'hand' ? 'is-active' : ''}`}
-            onClick={() => setTool('hand')}
-            title="Pan / Drag [V] (or hold Space)"
-          >
-            <Hand size={15} />
-          </button>
-          <button
-            type="button"
-            className={`bs-dock-btn ${tool === 'pen' ? 'is-active' : ''}`}
-            onClick={() => setTool('pen')}
-            title="Pen [P]"
-          >
-            <PenTool size={15} />
-          </button>
-          <button
-            type="button"
-            className={`bs-dock-btn ${tool === 'highlighter' ? 'is-active' : ''}`}
-            onClick={() => setTool('highlighter')}
-            title="Highlighter [H]"
-          >
-            <Highlighter size={15} />
-          </button>
-          <button
-            type="button"
-            className={`bs-dock-btn ${tool === 'laser' ? 'is-active' : ''}`}
-            onClick={() => setTool('laser')}
-            title="Laser Pointer [L]"
-          >
-            <Zap size={15} />
-          </button>
-          <button
-            type="button"
-            className={`bs-dock-btn ${tool === 'eraser' ? 'is-active' : ''}`}
-            onClick={() => setTool('eraser')}
-            title="Stroke Eraser [E]"
-          >
-            <Eraser size={15} />
-          </button>
-
-          {/* Colors */}
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '0 4px' }}>
-            {PEN_COLORS.map((c) => (
               <button
-                key={c.hex}
                 type="button"
-                className={`bs-color-dot ${color === c.hex ? 'is-selected' : ''}`}
-                style={{ background: c.hex }}
-                onClick={() => {
-                  setColor(c.hex);
-                  if (tool === 'hand' || tool === 'eraser') setTool('pen');
-                }}
-                title={c.label}
-              />
-            ))}
-          </div>
-
-          {/* Pen Sizes */}
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
-            {PEN_SIZES.map((s) => (
-              <button
-                key={s.size}
-                type="button"
-                className={`bs-dock-btn ${penSize === s.size ? 'is-active' : ''}`}
-                style={{ minWidth: 26, padding: '0 5px' }}
-                onClick={() => {
-                  setPenSize(s.size);
-                  if (tool === 'hand' || tool === 'eraser') setTool('pen');
-                }}
-                title={s.label}
+                className="bs-dock-btn"
+                onClick={() => { handleInsertBlankPage(); setMoreMenuOpen(false); }}
+                title="Insert Blank Whiteboard Page After Current [B]"
               >
-                <span style={{ width: s.dot, height: s.dot, borderRadius: '50%', background: 'currentColor', display: 'inline-block' }} />
+                <FilePlus2 size={15} />
+                <span>+ Blank Page</span>
               </button>
-            ))}
-          </div>
 
-          <button type="button" className="bs-dock-btn" onClick={handleUndo} title="Undo [Cmd+Z]">
-            <Undo2 size={15} />
-          </button>
-          <button type="button" className="bs-dock-btn" onClick={handleClearInk} title="Clear Page Ink [C]">
-            <Trash2 size={15} />
-          </button>
+              <button
+                type="button"
+                className={`bs-dock-btn ${tool === 'laser' ? 'is-active' : ''}`}
+                onClick={() => { setTool('laser'); setMoreMenuOpen(false); }}
+                title="Laser Pointer [L]"
+              >
+                <Zap size={15} />
+                <span>Laser</span>
+              </button>
 
-          <div className="bs-dock-sep" />
+              <div className="bs-dock-sep" />
 
-          {/* Record, Webcam, Fullscreen, Classic Mode Switch, Collapse */}
-          <button
-            type="button"
-            className={`bs-dock-btn ${recActive ? 'is-rec' : ''}`}
-            onClick={toggleRecording}
-            title={recActive ? 'Stop Recording & Download Video' : 'Record Stage + Mic'}
-          >
-            {recActive ? <Square size={13} fill="currentColor" /> : <Radio size={14} />}
-            <span>{recActive ? fmtTimer(recSec) : 'REC'}</span>
-          </button>
+              {/* Pen Sizes */}
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                {PEN_SIZES.map((s) => (
+                  <button
+                    key={s.size}
+                    type="button"
+                    className={`bs-dock-btn ${penSize === s.size ? 'is-active' : ''}`}
+                    style={{ minWidth: 30, padding: '0 6px' }}
+                    onClick={() => {
+                      setPenSize(s.size);
+                      if (tool === 'hand' || tool === 'eraser') setTool('pen');
+                    }}
+                    title={s.label}
+                  >
+                    <span style={{ width: s.dot, height: s.dot, borderRadius: '50%', background: 'currentColor', display: 'inline-block' }} />
+                  </button>
+                ))}
+              </div>
 
-          <button
-            type="button"
-            className={`bs-dock-btn ${webcamOn ? 'is-active' : ''}`}
-            onClick={toggleWebcam}
-            title="Toggle Webcam PiP"
-          >
-            {webcamOn ? <Camera size={15} /> : <CameraOff size={15} />}
-          </button>
+              <div className="bs-dock-sep" />
 
-          <button type="button" className="bs-dock-btn" onClick={toggleFullscreen} title="Toggle Fullscreen">
-            {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
-          </button>
+              {/* Manual Zoom -/+ */}
+              <button type="button" className="bs-dock-btn" onClick={() => zoomBy(0.8, null, null, true)} title="Zoom Out [-]">
+                <ZoomOut size={15} />
+              </button>
+              <span style={{ fontSize: 12, fontWeight: 800, color: '#94a3b8', minWidth: 38, textAlign: 'center' }}>{zoomPct}%</span>
+              <button type="button" className="bs-dock-btn" onClick={() => zoomBy(1.25, null, null, true)} title="Zoom In [+]">
+                <ZoomIn size={15} />
+              </button>
 
-          {onSwitchToClassic && (
+              <div className="bs-dock-sep" />
+
+              {/* Reveal All / Hide Answers */}
+              <button
+                type="button"
+                className={`bs-dock-btn ${!revealMode ? 'is-active' : ''}`}
+                onClick={() => setRevealMode((m) => !m)}
+                title={revealMode ? 'Reveal All Cards [R]' : 'Hide Answers for Discussion [R]'}
+              >
+                {revealMode ? <EyeOff size={15} /> : <Eye size={15} />}
+                <span>{revealMode ? 'Reveal All' : 'Hide Ans'}</span>
+              </button>
+
+              <button
+                type="button"
+                className={`bs-dock-btn ${webcamOn ? 'is-active' : ''}`}
+                onClick={toggleWebcam}
+                title="Toggle Webcam PiP"
+              >
+                {webcamOn ? <Camera size={15} /> : <CameraOff size={15} />}
+                <span>Cam</span>
+              </button>
+
+              <button type="button" className="bs-dock-btn" onClick={toggleFullscreen} title="Toggle Fullscreen">
+                {isFullscreen ? <Minimize2 size={15} /> : <Maximize2 size={15} />}
+              </button>
+
+              {onSwitchToClassic && (
+                <button
+                  type="button"
+                  className="bs-dock-btn"
+                  onClick={onSwitchToClassic}
+                  title="Switch to Classic Slide View"
+                >
+                  <Layers size={14} />
+                  <span>Slides</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                className="bs-dock-btn"
+                onClick={() => { setDockCollapsed(true); setMoreMenuOpen(false); }}
+                title="Hide Dock [D]"
+              >
+                <ChevronDown size={15} />
+                <span>Hide</span>
+              </button>
+            </div>
+          )}
+
+          {/* Main Compact Single-Row Dock (Always Fits 1024px iPad Screen!) */}
+          <footer className="bs-dock">
+            {/* Page Nav */}
             <button
               type="button"
               className="bs-dock-btn"
-              onClick={onSwitchToClassic}
-              title="Switch to Classic Slide View"
+              disabled={pageIdx <= 0}
+              onClick={() => setPageIdx((i) => Math.max(0, i - 1))}
+              title="Previous Page [Left Arrow]"
             >
-              <Layers size={14} />
-              <span>Slides</span>
+              <ChevronLeft size={17} />
             </button>
-          )}
+            <span style={{ fontSize: 12, fontWeight: 800, color: '#f8fafc', padding: '0 2px', whiteSpace: 'nowrap' }}>
+              {pageIdx + 1}/{pages.length}
+            </span>
+            <button
+              type="button"
+              className="bs-dock-btn"
+              disabled={pageIdx >= pages.length - 1}
+              onClick={() => setPageIdx((i) => Math.min(pages.length - 1, i + 1))}
+              title="Next Page [Right Arrow]"
+            >
+              <ChevronRight size={17} />
+            </button>
 
-          <button
-            type="button"
-            className="bs-dock-btn"
-            onClick={() => setDockCollapsed(true)}
-            title="Hide Dock [D]"
-          >
-            <ChevronDown size={15} />
-          </button>
-        </footer>
+            <div className="bs-dock-sep" />
+
+            {/* iPad Touch Section Focus Strip: Fit + Existing Cards 1-8 */}
+            <button
+              type="button"
+              className={`bs-dock-btn ${activeSection === 0 ? 'is-active' : ''}`}
+              onClick={resetView}
+              style={{ padding: '0 7px' }}
+              title="Fit Full Sheet [0 / Esc]"
+            >
+              <Maximize size={13} />
+              <span>Fit</span>
+            </button>
+
+            {currentPage.type === 'pyq' && pyqView && (
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                {[
+                  { n: 1, show: true },
+                  { n: 2, show: true },
+                  { n: 3, show: pyqView.keywords.length > 0 },
+                  { n: 4, show: Boolean(pyqView.breakdownItems) },
+                  { n: 5, show: pyqView.vaGroups.length > 0 },
+                  { n: 6, show: Boolean(pyqView.inNews) },
+                  { n: 7, show: Boolean(pyqView.compTable) },
+                  { n: 8, show: Boolean(pyqView.similarPyq) },
+                ]
+                  .filter((s) => s.show)
+                  .map((s) => (
+                    <button
+                      key={s.n}
+                      type="button"
+                      className={`bs-sec-jump-btn ${activeSection === s.n ? 'is-active' : ''}`}
+                      onClick={() => (activeSection === s.n ? resetView() : focusSection(s.n))}
+                      title={`Zoom & Reveal Section ${s.n}`}
+                    >
+                      {s.n}
+                    </button>
+                  ))}
+              </div>
+            )}
+
+            <div className="bs-dock-sep" />
+
+            {/* Core Drawing Tools */}
+            <button
+              type="button"
+              className={`bs-dock-btn ${tool === 'hand' ? 'is-active' : ''}`}
+              onClick={() => setTool('hand')}
+              title="Pan / Drag [V]"
+            >
+              <Hand size={16} />
+            </button>
+            <button
+              type="button"
+              className={`bs-dock-btn ${tool === 'pen' ? 'is-active' : ''}`}
+              onClick={() => setTool('pen')}
+              title="Pen [P]"
+            >
+              <PenTool size={16} />
+            </button>
+            <button
+              type="button"
+              className={`bs-dock-btn ${tool === 'highlighter' ? 'is-active' : ''}`}
+              onClick={() => setTool('highlighter')}
+              title="Highlighter [H]"
+            >
+              <Highlighter size={16} />
+            </button>
+            <button
+              type="button"
+              className={`bs-dock-btn ${tool === 'eraser' ? 'is-active' : ''}`}
+              onClick={() => setTool('eraser')}
+              title="Stroke Eraser [E]"
+            >
+              <Eraser size={16} />
+            </button>
+
+            {/* 4 Essential Colors */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '0 3px' }}>
+              {PEN_COLORS.slice(0, 4).map((c) => (
+                <button
+                  key={c.hex}
+                  type="button"
+                  className={`bs-color-dot ${color === c.hex ? 'is-selected' : ''}`}
+                  style={{ background: c.hex }}
+                  onClick={() => {
+                    setColor(c.hex);
+                    if (tool === 'hand' || tool === 'eraser') setTool('pen');
+                  }}
+                  title={c.label}
+                />
+              ))}
+            </div>
+
+            <button type="button" className="bs-dock-btn" onClick={handleUndo} title="Undo [Cmd+Z]">
+              <Undo2 size={16} />
+            </button>
+            <button type="button" className="bs-dock-btn" onClick={handleClearInk} title="Clear Ink [C]">
+              <Trash2 size={16} />
+            </button>
+
+            <div className="bs-dock-sep" />
+
+            {/* REC + More Menu */}
+            <button
+              type="button"
+              className={`bs-dock-btn ${recActive ? 'is-rec' : ''}`}
+              onClick={toggleRecording}
+              title={recActive ? 'Stop Recording & Download' : 'Start Recording'}
+            >
+              {recActive ? <Square size={13} fill="currentColor" /> : <Radio size={14} />}
+              <span>{recActive ? fmtTimer(recSec) : 'REC'}</span>
+            </button>
+
+            <button
+              type="button"
+              className={`bs-dock-btn ${moreMenuOpen ? 'is-active' : ''}`}
+              onClick={() => setMoreMenuOpen((o) => !o)}
+              title="More Controls (+ Blank Page, Cam, Zoom, Reveal All)"
+            >
+              <MoreHorizontal size={17} />
+            </button>
+          </footer>
+        </div>
       )}
     </div>
   );
