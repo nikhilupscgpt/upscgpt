@@ -65,7 +65,9 @@ function isCorrectVerdict(v) {
 
 function pointsToSmoothPath(pts) {
   if (!pts || pts.length === 0) return '';
-  if (pts.length === 1) return `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)} L ${(pts[0].x + 0.1).toFixed(1)} ${(pts[0].y + 0.1).toFixed(1)}`;
+  if (pts.length === 1) {
+    return `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)} L ${(pts[0].x + 0.1).toFixed(1)} ${(pts[0].y + 0.1).toFixed(1)}`;
+  }
   let d = `M ${pts[0].x.toFixed(1)} ${pts[0].y.toFixed(1)}`;
   for (let i = 1; i < pts.length - 1; i++) {
     const midX = (pts[i].x + pts[i + 1].x) / 2;
@@ -145,23 +147,29 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
   );
   const [pageIdx, setPageIdx] = useState(0);
 
-  // Camera state: baseScale fits 1920x1080 into viewport; camZoom/pan are relative to full-sheet fit
+  // Viewport & Dynamic Sheet Height (prevents any bottom clipping!)
   const viewportRef = useRef(null);
-  const sheetRef = useRef(null);
+  const cameraRef = useRef(null);
+  const sheetContentRef = useRef(null);
   const [vpSize, setVpSize] = useState({ w: 1280, h: 720 });
-  const [cam, setCam] = useState({ zoom: 1, x: 0, y: 0 });
-  const [isSmoothCam, setIsSmoothCam] = useState(true);
-  const [activeSection, setActiveSection] = useState(0); // 0 = overview, 1..8 = focused card
+  const [sheetHeight, setSheetHeight] = useState(1080);
 
-  // Spoiler-free Progressive Reveal
-  const [revealMode, setRevealMode] = useState(false);
-  const [revealedCards, setRevealedCards] = useState({}); // { [pageId]: Set/Object of section numbers }
+  // Hardware-accelerated Direct-DOM Camera (60/120fps with zero React re-renders during pinch/pan)
+  const camRef = useRef({ zoom: 1, x: 0, y: 0 });
+  const rafRef = useRef(null);
+  const zoomBadgeTimerRef = useRef(null);
+  const [zoomPct, setZoomPct] = useState(100);
+  const [activeSection, setActiveSection] = useState(0);
 
-  // Annotation state (world-space 1920x1080 coordinates per page)
+  // Spoiler-Free Progressive Reveal: ON by default so students never see the answer immediately!
+  const [revealMode, setRevealMode] = useState(true);
+  const [revealedCards, setRevealedCards] = useState({}); // { [pageId]: { [secNum]: true } }
+
+  // Annotation state (world-space 1920 x sheetHeight coordinates per page)
   const [tool, setTool] = useState('pen'); // 'hand' | 'pen' | 'highlighter' | 'laser' | 'eraser'
   const [color, setColor] = useState('#dc2626');
   const [penSize, setPenSize] = useState(3);
-  const [inkByPage, setInkByPage] = useState({}); // { [pageId]: Stroke[] }
+  const [inkByPage, setInkByPage] = useState({});
   const [liveStroke, setLiveStroke] = useState(null);
   const [laserPt, setLaserPt] = useState(null);
 
@@ -206,127 +214,191 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
     };
   }, [dockCollapsed]);
 
-  const baseScale = useMemo(() => {
-    const pad = 20;
-    return Math.min((vpSize.w - pad * 2) / 1920, (vpSize.h - pad * 2) / 1080);
-  }, [vpSize]);
+  // Measure actual rendered broadsheet height so nothing is EVER cut off at the bottom
+  useEffect(() => {
+    const el = sheetContentRef.current;
+    if (!el) return undefined;
+    const measure = () => {
+      const h = Math.max(1080, Math.ceil(el.scrollHeight || el.offsetHeight || 1080));
+      setSheetHeight((prev) => (Math.abs(prev - h) > 2 ? h : prev));
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [currentPageId, revealMode, revealedCards]);
 
-  const totalScale = baseScale * cam.zoom;
-  const baseOffsetX = (vpSize.w - 1920 * baseScale) / 2;
-  const baseOffsetY = (vpSize.h - 1080 * baseScale) / 2;
-  const tx = baseOffsetX + cam.x;
-  const ty = baseOffsetY + cam.y;
+  // Base fit scale & centered offsets (stored in ref too for 120fps wheel/pan access)
+  const layoutMetrics = useMemo(() => {
+    const pad = 16;
+    const baseScale = Math.min((vpSize.w - pad * 2) / 1920, (vpSize.h - pad * 2) / sheetHeight);
+    const baseOffsetX = (vpSize.w - 1920 * baseScale) / 2;
+    const baseOffsetY = (vpSize.h - sheetHeight * baseScale) / 2;
+    return { baseScale, baseOffsetX, baseOffsetY };
+  }, [vpSize, sheetHeight]);
+
+  const metricsRef = useRef(layoutMetrics);
+  metricsRef.current = layoutMetrics;
+
+  // Apply camera transform directly to DOM via GPU translate3d + scale
+  const applyCameraTransform = useCallback((smooth = false) => {
+    const el = cameraRef.current;
+    if (!el) return;
+    if (smooth) el.classList.add('is-smooth');
+    else el.classList.remove('is-smooth');
+
+    const { baseScale, baseOffsetX, baseOffsetY } = metricsRef.current;
+    const { zoom, x, y } = camRef.current;
+    const tx = baseOffsetX + x;
+    const ty = baseOffsetY + y;
+    const totalScale = baseScale * zoom;
+    el.style.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0) scale(${totalScale.toFixed(5)})`;
+
+    // Throttle React badge update so zoom never causes React re-renders during gesture
+    if (zoomBadgeTimerRef.current) clearTimeout(zoomBadgeTimerRef.current);
+    zoomBadgeTimerRef.current = setTimeout(() => {
+      setZoomPct(Math.round(camRef.current.zoom * 100));
+    }, 80);
+  }, []);
+
+  // Re-apply transform whenever viewport or sheet height changes
+  useEffect(() => {
+    applyCameraTransform(false);
+  }, [layoutMetrics, applyCameraTransform]);
 
   // Reset camera to full-sheet overview
   const resetView = useCallback(() => {
-    setIsSmoothCam(true);
-    setCam({ zoom: 1, x: 0, y: 0 });
+    camRef.current = { zoom: 1, x: 0, y: 0 };
+    applyCameraTransform(true);
+    setZoomPct(100);
     setActiveSection(0);
-  }, []);
+  }, [applyCameraTransform]);
 
   // Reset view when switching pages
   useEffect(() => {
     resetView();
   }, [pageIdx, resetView]);
 
-  // Smooth zoom to a specific section (1..8) inside the 1920x1080 sheet
+  // Smooth zoom to a specific section (1..8) inside the sheet
   const focusSection = useCallback((secNum) => {
-    if (!sheetRef.current) return;
-    const secEl = sheetRef.current.querySelector(`[data-bs-sec="${secNum}"]`);
-    if (!secEl) return;
-
-    // Reveal the card automatically if progressive reveal is enabled
+    // Reveal the card first so it expands to its real height before measuring
     setRevealedCards((prev) => ({
       ...prev,
       [currentPageId]: { ...(prev[currentPageId] || {}), [secNum]: true },
     }));
 
-    // Measure card position in 1920x1080 world space
-    const sheetRect = sheetRef.current.getBoundingClientRect();
-    const secRect = secEl.getBoundingClientRect();
-    const sx = ((secRect.left - sheetRect.left) / sheetRect.width) * 1920;
-    const sy = ((secRect.top - sheetRect.top) / sheetRect.height) * 1080;
-    const sw = (secRect.width / sheetRect.width) * 1920;
-    const sh = (secRect.height / sheetRect.height) * 1080;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (!cameraRef.current) return;
+        const secEl = cameraRef.current.querySelector(`[data-bs-sec="${secNum}"]`);
+        if (!secEl) return;
 
-    // Compute target zoom so the card fills ~84% of viewport comfortably
-    const padFactor = 0.86;
-    const zoomX = (vpSize.w * padFactor) / (sw * baseScale);
-    const zoomY = (vpSize.h * padFactor) / (sh * baseScale);
-    const targetZoom = Math.max(1.35, Math.min(2.35, Math.min(zoomX, zoomY)));
+        const sheetRect = cameraRef.current.getBoundingClientRect();
+        const secRect = secEl.getBoundingClientRect();
+        const currentSheetH = sheetContentRef.current?.offsetHeight || sheetHeight;
 
-    const centerX = sx + sw / 2;
-    const centerY = sy + sh / 2;
-    const targetScale = baseScale * targetZoom;
+        const sx = ((secRect.left - sheetRect.left) / sheetRect.width) * 1920;
+        const sy = ((secRect.top - sheetRect.top) / sheetRect.height) * currentSheetH;
+        const sw = (secRect.width / sheetRect.width) * 1920;
+        const sh = (secRect.height / sheetRect.height) * currentSheetH;
 
-    const targetTx = vpSize.w / 2 - centerX * targetScale;
-    const targetTy = vpSize.h / 2 - centerY * targetScale;
+        const { baseScale, baseOffsetX, baseOffsetY } = metricsRef.current;
+        const padFactor = 0.86;
+        const zoomX = (vpSize.w * padFactor) / (sw * baseScale);
+        const zoomY = (vpSize.h * padFactor) / (sh * baseScale);
+        const targetZoom = Math.max(1.3, Math.min(2.35, Math.min(zoomX, zoomY)));
 
-    setIsSmoothCam(true);
-    setCam({
-      zoom: targetZoom,
-      x: targetTx - baseOffsetX,
-      y: targetTy - baseOffsetY,
+        const centerX = sx + sw / 2;
+        const centerY = sy + sh / 2;
+        const targetScale = baseScale * targetZoom;
+
+        const targetTx = vpSize.w / 2 - centerX * targetScale;
+        const targetTy = vpSize.h / 2 - centerY * targetScale;
+
+        camRef.current = {
+          zoom: targetZoom,
+          x: targetTx - baseOffsetX,
+          y: targetTy - baseOffsetY,
+        };
+        applyCameraTransform(true);
+        setZoomPct(Math.round(targetZoom * 100));
+        setActiveSection(secNum);
+      });
     });
-    setActiveSection(secNum);
-  }, [baseOffsetX, baseOffsetY, baseScale, currentPageId, vpSize]);
+  }, [applyCameraTransform, currentPageId, sheetHeight, vpSize]);
 
-  // Zoom step buttons (+ / -)
-  const zoomBy = useCallback((factor, pivotClientX = null, pivotClientY = null) => {
-    setIsSmoothCam(pivotClientX === null);
-    setCam((prev) => {
-      const nextZoom = Math.max(0.85, Math.min(3.5, prev.zoom * factor));
-      if (nextZoom === prev.zoom) return prev;
+  // Smooth zoom step (+ / -) or continuous exponential zoom at cursor
+  const zoomBy = useCallback((factor, pivotClientX = null, pivotClientY = null, smooth = true) => {
+    const prev = camRef.current;
+    const nextZoom = Math.max(0.85, Math.min(3.5, prev.zoom * factor));
+    if (Math.abs(nextZoom - prev.zoom) < 0.0005) return;
 
-      const vpRect = viewportRef.current?.getBoundingClientRect();
-      const px = pivotClientX !== null && vpRect ? pivotClientX - vpRect.left : vpSize.w / 2;
-      const py = pivotClientY !== null && vpRect ? pivotClientY - vpRect.top : vpSize.h / 2;
+    const { baseOffsetX, baseOffsetY } = metricsRef.current;
+    const vpRect = viewportRef.current?.getBoundingClientRect();
+    const px = pivotClientX !== null && vpRect ? pivotClientX - vpRect.left : vpSize.w / 2;
+    const py = pivotClientY !== null && vpRect ? pivotClientY - vpRect.top : vpSize.h / 2;
 
-      const prevTx = baseOffsetX + prev.x;
-      const prevTy = baseOffsetY + prev.y;
-      const ratio = nextZoom / prev.zoom;
+    const prevTx = baseOffsetX + prev.x;
+    const prevTy = baseOffsetY + prev.y;
+    const ratio = nextZoom / prev.zoom;
 
-      const nextTx = px - (px - prevTx) * ratio;
-      const nextTy = py - (py - prevTy) * ratio;
+    const nextTx = px - (px - prevTx) * ratio;
+    const nextTy = py - (py - prevTy) * ratio;
 
-      return {
-        zoom: nextZoom,
-        x: nextTx - baseOffsetX,
-        y: nextTy - baseOffsetY,
-      };
-    });
-  }, [baseOffsetX, baseOffsetY, vpSize]);
+    camRef.current = {
+      zoom: nextZoom,
+      x: nextTx - baseOffsetX,
+      y: nextTy - baseOffsetY,
+    };
 
-  // Pinch-to-zoom & wheel zoom/pan on viewport
-  const handleWheel = useCallback((e) => {
-    e.preventDefault();
-    if (e.ctrlKey || e.metaKey) {
-      const factor = e.deltaY < 0 ? 1.12 : 0.89;
-      zoomBy(factor, e.clientX, e.clientY);
+    if (smooth) {
+      applyCameraTransform(true);
+      setZoomPct(Math.round(nextZoom * 100));
     } else {
-      // Smooth 2-finger trackpad pan when zoomed in
-      setIsSmoothCam(false);
-      setCam((prev) => ({
-        ...prev,
-        x: prev.x - e.deltaX,
-        y: prev.y - e.deltaY,
-      }));
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => applyCameraTransform(false));
     }
-  }, [zoomBy]);
+  }, [applyCameraTransform, vpSize]);
 
-  // Convert client pointer to exact 1920x1080 world coordinates
+  // Native non-passive wheel listener for silky 120fps trackpad pinch-to-zoom & 2-finger pan
+  useEffect(() => {
+    const vp = viewportRef.current;
+    if (!vp) return undefined;
+    const onWheel = (e) => {
+      e.preventDefault();
+      if (e.ctrlKey || e.metaKey) {
+        // Continuous proportional exponential zoom (feels native like Figma / GoodNotes)
+        const clampedDelta = Math.max(-60, Math.min(60, e.deltaY));
+        const factor = Math.exp(-clampedDelta * 0.0085);
+        zoomBy(factor, e.clientX, e.clientY, false);
+      } else {
+        camRef.current = {
+          ...camRef.current,
+          x: camRef.current.x - e.deltaX,
+          y: camRef.current.y - e.deltaY,
+        };
+        if (rafRef.current) cancelAnimationFrame(rafRef.current);
+        rafRef.current = requestAnimationFrame(() => applyCameraTransform(false));
+      }
+    };
+    vp.addEventListener('wheel', onWheel, { passive: false });
+    return () => vp.removeEventListener('wheel', onWheel);
+  }, [applyCameraTransform, zoomBy]);
+
+  // Convert client pointer to exact 1920 x sheetHeight world coordinates
   const clientToWorld = useCallback((clientX, clientY) => {
-    const rect = sheetRef.current?.getBoundingClientRect();
+    const rect = cameraRef.current?.getBoundingClientRect();
     if (!rect || rect.width === 0 || rect.height === 0) return { x: 0, y: 0 };
+    const h = sheetContentRef.current?.offsetHeight || sheetHeight;
     return {
       x: ((clientX - rect.left) / rect.width) * 1920,
-      y: ((clientY - rect.top) / rect.height) * 1080,
+      y: ((clientY - rect.top) / rect.height) * h,
     };
-  }, []);
+  }, [sheetHeight]);
 
   // Erase any stroke near world point (wx, wy)
   const eraseAtPoint = useCallback((wx, wy) => {
-    const threshold = 24 / Math.max(1, cam.zoom);
+    const threshold = 24 / Math.max(1, camRef.current.zoom);
     setInkByPage((prev) => {
       const list = prev[currentPageId] || [];
       const filtered = list.filter((stroke) => {
@@ -340,7 +412,7 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
       if (filtered.length === list.length) return prev;
       return { ...prev, [currentPageId]: filtered };
     });
-  }, [cam.zoom, currentPageId]);
+  }, [currentPageId]);
 
   // Pointer handlers for viewport (panning) & SVG ink layer (drawing)
   const handleViewportPointerDown = (e) => {
@@ -348,12 +420,11 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
     if (!wantsPan) return;
     e.preventDefault();
     isPanningRef.current = true;
-    setIsSmoothCam(false);
     panStartRef.current = {
       clientX: e.clientX,
       clientY: e.clientY,
-      camX: cam.x,
-      camY: cam.y,
+      camX: camRef.current.x,
+      camY: camRef.current.y,
     };
     e.currentTarget.setPointerCapture?.(e.pointerId);
   };
@@ -362,11 +433,13 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
     if (!isPanningRef.current) return;
     const dx = e.clientX - panStartRef.current.clientX;
     const dy = e.clientY - panStartRef.current.clientY;
-    setCam((prev) => ({
-      ...prev,
+    camRef.current = {
+      ...camRef.current,
       x: panStartRef.current.camX + dx,
       y: panStartRef.current.camY + dy,
-    }));
+    };
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => applyCameraTransform(false));
   };
 
   const handleViewportPointerUp = () => {
@@ -419,7 +492,7 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
       const last = prev.points[prev.points.length - 1];
       const dx = pt.x - last.x;
       const dy = pt.y - last.y;
-      if (dx * dx + dy * dy < 3) return prev;
+      if (dx * dx + dy * dy < 2.5) return prev;
       return { ...prev, points: [...prev.points, pt] };
     });
   };
@@ -457,7 +530,7 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
     const newBlank = {
       id: `blank_${Date.now()}`,
       type: 'blank',
-      pattern: 'plain', // 'plain' | 'dots' | 'ruled' | 'dark'
+      pattern: 'plain',
     };
     setPages((prev) => {
       const next = [...prev];
@@ -495,9 +568,7 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
       setTimeout(() => {
         if (webcamVideoRef.current) webcamVideoRef.current.srcObject = stream;
       }, 60);
-    } catch {
-      // ignore permission denial
-    }
+    } catch {}
   };
 
   // Built-in Stage Recording
@@ -577,9 +648,7 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
       mediaRecorderRef.current = mr;
       setRecSec(0);
       setRecActive(true);
-    } catch {
-      // user cancelled picker
-    }
+    } catch {}
   };
 
   // Fullscreen listener
@@ -654,10 +723,10 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
           break;
         case '=':
         case '+':
-          zoomBy(1.22);
+          zoomBy(1.25, null, null, true);
           break;
         case '-':
-          zoomBy(0.82);
+          zoomBy(0.8, null, null, true);
           break;
         default:
           break;
@@ -718,7 +787,7 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
     };
   }, [currentPage]);
 
-  const isCardBlurred = (secNum) => {
+  const isCardHidden = (secNum) => {
     if (!revealMode || secNum === 1) return false;
     return !revealedCards[currentPageId]?.[secNum];
   };
@@ -744,6 +813,7 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
   }
 
   const fmtTimer = (s) => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+  const isAnswerRevealed = !isCardHidden(2);
 
   return (
     <div className="bs-root">
@@ -751,24 +821,17 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
       <div
         ref={viewportRef}
         className={`bs-viewport ${dockCollapsed ? 'is-dock-collapsed' : ''}`}
-        onWheel={handleWheel}
         onPointerDown={handleViewportPointerDown}
         onPointerMove={handleViewportPointerMove}
         onPointerUp={handleViewportPointerUp}
         style={{ cursor: tool === 'hand' ? 'grab' : 'default' }}
       >
-        <div
-          ref={sheetRef}
-          className={`bs-camera ${isSmoothCam ? 'is-smooth' : ''}`}
-          style={{
-            transform: `translate(${tx}px, ${ty}px) scale(${totalScale})`,
-          }}
-        >
+        <div ref={cameraRef} className="bs-camera">
           {/* =========================================================== */}
           {/* PAGE TYPE A: BLANK INSERTED WHITEBOARD PAGE                 */}
           {/* =========================================================== */}
           {currentPage.type === 'blank' ? (
-            <div className={`bs-blank-sheet pattern-${currentPage.pattern || 'plain'}`}>
+            <div ref={sheetContentRef} className={`bs-blank-sheet pattern-${currentPage.pattern || 'plain'}`}>
               <div className="bs-blank-controls" onPointerDown={(e) => e.stopPropagation()}>
                 {['plain', 'dots', 'ruled', 'dark'].map((pat) => (
                   <button
@@ -801,7 +864,7 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
             /* ========================================================= */
             /* PAGE TYPE B: 1-PAGE UPSC BROADSHEET BLUEPRINT             */
             /* ========================================================= */
-            <div className="bs-sheet">
+            <div ref={sheetContentRef} className="bs-sheet">
               {/* Header Bar */}
               <header className="bs-header">
                 <div className="bs-header-left">
@@ -827,7 +890,7 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
               <div className="bs-body-grid">
                 {/* LEFT COLUMN: ① QUESTION, ② ANSWER, ③ KEYWORDS, ④ BREAKDOWN */}
                 <div className="bs-col">
-                  {/* ① QUESTION (Authentic UPSC Prelims Paper Format) */}
+                  {/* ① QUESTION (Authentic UPSC Prelims Paper Format — Neutral Until Answer Revealed!) */}
                   <section className="bs-section bs-tone-blue" data-bs-sec="1">
                     <div className="bs-section-head">
                       <button
@@ -891,7 +954,7 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
                           {pyqView.options.map((opt) => {
                             const lbl = String(opt.label || '').toLowerCase();
                             const isCorrect =
-                              !isCardBlurred(2) &&
+                              isAnswerRevealed &&
                               pyqView.correctLabel &&
                               lbl.toUpperCase() === pyqView.correctLabel;
                             return (
@@ -913,29 +976,33 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
                         type="button"
                         className="bs-section-title-btn"
                         onClick={() => (activeSection === 2 ? resetView() : focusSection(2))}
-                        title="Click or press [2] to zoom onto Answer"
+                        title="Click or press [2] to reveal & zoom onto Answer"
                       >
                         <span className="bs-section-num">2</span>
                         <span className="bs-section-label">Answer</span>
                       </button>
                     </div>
-                    <div
-                      className={`bs-card ${isCardBlurred(2) ? 'is-blurred' : ''}`}
-                      onClick={() => isCardBlurred(2) && revealCard(2)}
-                    >
-                      <div className="bs-answer-head">
-                        {pyqView.correctLabel && (
-                          <span className="bs-answer-pill">({pyqView.correctLabel.toLowerCase()})</span>
-                        )}
-                        {pyqView.correctOpt && (
-                          <span className="bs-answer-opt-text">{pyqView.correctOpt.text}</span>
-                        )}
+                    {isCardHidden(2) ? (
+                      <div className="bs-card-veil" onClick={() => revealCard(2)}>
+                        <span>Hidden for live discussion — click to reveal official answer</span>
+                        <span className="bs-card-veil-kbd">Press 2</span>
                       </div>
-                      <p className="bs-card-text">
-                        {pyqView.explanationText ||
-                          `As per the official ${pyqView.q.examName} (${pyqView.q.examYear}) answer key, option (${(pyqView.correctLabel || '').toLowerCase()}) is correct.`}
-                      </p>
-                    </div>
+                    ) : (
+                      <div className="bs-card">
+                        <div className="bs-answer-head">
+                          {pyqView.correctLabel && (
+                            <span className="bs-answer-pill">({pyqView.correctLabel.toLowerCase()})</span>
+                          )}
+                          {pyqView.correctOpt && (
+                            <span className="bs-answer-opt-text">{pyqView.correctOpt.text}</span>
+                          )}
+                        </div>
+                        <p className="bs-card-text">
+                          {pyqView.explanationText ||
+                            `As per the official ${pyqView.q.examName} (${pyqView.q.examYear}) answer key, option (${(pyqView.correctLabel || '').toLowerCase()}) is correct.`}
+                        </p>
+                      </div>
+                    )}
                   </section>
 
                   {/* ③ KEYWORDS */}
@@ -946,23 +1013,27 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
                           type="button"
                           className="bs-section-title-btn"
                           onClick={() => (activeSection === 3 ? resetView() : focusSection(3))}
-                          title="Click or press [3] to zoom onto Keywords"
+                          title="Click or press [3] to reveal & zoom onto Keywords"
                         >
                           <span className="bs-section-num">3</span>
                           <span className="bs-section-label">Keywords</span>
                         </button>
                       </div>
-                      <div
-                        className={`bs-card bs-list-stack ${isCardBlurred(3) ? 'is-blurred' : ''}`}
-                        onClick={() => isCardBlurred(3) && revealCard(3)}
-                      >
-                        {pyqView.keywords.map((kw, i) => (
-                          <div key={i} className="bs-kw-item">
-                            <span className="bs-kw-term">{stripHtmlTags(kw.term)}:</span>{' '}
-                            <span>{stripHtmlTags(kw.shortNote || '')}</span>
-                          </div>
-                        ))}
-                      </div>
+                      {isCardHidden(3) ? (
+                        <div className="bs-card-veil" onClick={() => revealCard(3)}>
+                          <span>Click to reveal {pyqView.keywords.length} key concepts</span>
+                          <span className="bs-card-veil-kbd">Press 3</span>
+                        </div>
+                      ) : (
+                        <div className="bs-card bs-list-stack">
+                          {pyqView.keywords.map((kw, i) => (
+                            <div key={i} className="bs-kw-item">
+                              <span className="bs-kw-term">{stripHtmlTags(kw.term)}:</span>{' '}
+                              <span>{stripHtmlTags(kw.shortNote || '')}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </section>
                   )}
 
@@ -974,7 +1045,7 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
                           type="button"
                           className="bs-section-title-btn"
                           onClick={() => (activeSection === 4 ? resetView() : focusSection(4))}
-                          title="Click or press [4] to zoom onto Breakdown"
+                          title="Click or press [4] to reveal & zoom onto Breakdown"
                         >
                           <span className="bs-section-num">4</span>
                           <span className="bs-section-label">
@@ -982,25 +1053,29 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
                           </span>
                         </button>
                       </div>
-                      <div
-                        className={`bs-card bs-list-stack ${isCardBlurred(4) ? 'is-blurred' : ''}`}
-                        onClick={() => isCardBlurred(4) && revealCard(4)}
-                      >
-                        {pyqView.breakdownItems.items.slice(0, 4).map((it, idx) => {
-                          const ok = isCorrectVerdict(it.verdict);
-                          const label = pyqView.breakdownItems.isStatement
-                            ? `Statement ${it.statementNo || idx + 1}`
-                            : `Option (${String(it.label || idx + 1).toLowerCase()})`;
-                          return (
-                            <div key={idx} className="bs-stmt-item">
-                              <span className={ok ? 'bs-stmt-correct' : 'bs-stmt-wrong'}>
-                                {label} ({ok ? 'Correct' : 'Incorrect'}) —{' '}
-                              </span>
-                              <span>{stripHtmlTags(it.explanation || it.text || '')}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
+                      {isCardHidden(4) ? (
+                        <div className="bs-card-veil" onClick={() => revealCard(4)}>
+                          <span>Click to reveal statement-by-statement verification</span>
+                          <span className="bs-card-veil-kbd">Press 4</span>
+                        </div>
+                      ) : (
+                        <div className="bs-card bs-list-stack">
+                          {pyqView.breakdownItems.items.map((it, idx) => {
+                            const ok = isCorrectVerdict(it.verdict);
+                            const label = pyqView.breakdownItems.isStatement
+                              ? `Statement ${it.statementNo || idx + 1}`
+                              : `Option (${String(it.label || idx + 1).toLowerCase()})`;
+                            return (
+                              <div key={idx} className="bs-stmt-item">
+                                <span className={ok ? 'bs-stmt-correct' : 'bs-stmt-wrong'}>
+                                  {label} ({ok ? 'Correct' : 'Incorrect'}) —{' '}
+                                </span>
+                                <span>{stripHtmlTags(it.explanation || it.text || '')}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </section>
                   )}
                 </div>
@@ -1015,32 +1090,36 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
                           type="button"
                           className="bs-section-title-btn"
                           onClick={() => (activeSection === 5 ? resetView() : focusSection(5))}
-                          title="Click or press [5] to zoom onto Value Addition"
+                          title="Click or press [5] to reveal & zoom onto Value Addition"
                         >
                           <span className="bs-section-num">5</span>
                           <span className="bs-section-label">Value Addition</span>
                         </button>
                       </div>
-                      <div
-                        className={`bs-card ${isCardBlurred(5) ? 'is-blurred' : ''}`}
-                        onClick={() => isCardBlurred(5) && revealCard(5)}
-                      >
-                        {pyqView.vaGroups.map((g, gi) => (
-                          <div key={gi} className="bs-va-group">
-                            {g.title && (
-                              <h4 className="bs-va-heading">
-                                {g.title}
-                                {g.tag && <span className="bs-va-tag">· {g.tag}</span>}
-                              </h4>
-                            )}
-                            <ul className="bs-va-ul">
-                              {g.bullets.map((b, bi) => (
-                                <li key={bi}>{renderBoldLead(b)}</li>
-                              ))}
-                            </ul>
-                          </div>
-                        ))}
-                      </div>
+                      {isCardHidden(5) ? (
+                        <div className="bs-card-veil" onClick={() => revealCard(5)}>
+                          <span>Click to reveal value addition notes</span>
+                          <span className="bs-card-veil-kbd">Press 5</span>
+                        </div>
+                      ) : (
+                        <div className="bs-card">
+                          {pyqView.vaGroups.map((g, gi) => (
+                            <div key={gi} className="bs-va-group">
+                              {g.title && (
+                                <h4 className="bs-va-heading">
+                                  {g.title}
+                                  {g.tag && <span className="bs-va-tag">· {g.tag}</span>}
+                                </h4>
+                              )}
+                              <ul className="bs-va-ul">
+                                {g.bullets.map((b, bi) => (
+                                  <li key={bi}>{renderBoldLead(b)}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </section>
                   )}
 
@@ -1052,30 +1131,34 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
                           type="button"
                           className="bs-section-title-btn"
                           onClick={() => (activeSection === 6 ? resetView() : focusSection(6))}
-                          title="Click or press [6] to zoom onto In News"
+                          title="Click or press [6] to reveal & zoom onto In News"
                         >
                           <span className="bs-section-num">6</span>
                           <span className="bs-section-label">In News</span>
                         </button>
                       </div>
-                      <div
-                        className={`bs-card ${isCardBlurred(6) ? 'is-blurred' : ''}`}
-                        onClick={() => isCardBlurred(6) && revealCard(6)}
-                      >
-                        {(pyqView.inNews.source || pyqView.inNews.date) && (
-                          <div className="bs-news-meta">
-                            {[pyqView.inNews.source, pyqView.inNews.date].filter(Boolean).join(' · ')}
-                          </div>
-                        )}
-                        {pyqView.inNews.headline && (
-                          <h4 className="bs-news-headline">{stripHtmlTags(pyqView.inNews.headline)}</h4>
-                        )}
-                        {(pyqView.inNews.relevance || pyqView.inNews.context) && (
-                          <p className="bs-card-text">
-                            {stripHtmlTags(pyqView.inNews.relevance || pyqView.inNews.context)}
-                          </p>
-                        )}
-                      </div>
+                      {isCardHidden(6) ? (
+                        <div className="bs-card-veil" onClick={() => revealCard(6)}>
+                          <span>Click to reveal current affairs context</span>
+                          <span className="bs-card-veil-kbd">Press 6</span>
+                        </div>
+                      ) : (
+                        <div className="bs-card">
+                          {(pyqView.inNews.source || pyqView.inNews.date) && (
+                            <div className="bs-news-meta">
+                              {[pyqView.inNews.source, pyqView.inNews.date].filter(Boolean).join(' · ')}
+                            </div>
+                          )}
+                          {pyqView.inNews.headline && (
+                            <h4 className="bs-news-headline">{stripHtmlTags(pyqView.inNews.headline)}</h4>
+                          )}
+                          {(pyqView.inNews.relevance || pyqView.inNews.context) && (
+                            <p className="bs-card-text">
+                              {stripHtmlTags(pyqView.inNews.relevance || pyqView.inNews.context)}
+                            </p>
+                          )}
+                        </div>
+                      )}
                     </section>
                   )}
 
@@ -1087,35 +1170,39 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
                           type="button"
                           className="bs-section-title-btn"
                           onClick={() => (activeSection === 7 ? resetView() : focusSection(7))}
-                          title="Click or press [7] to zoom onto Comparison Table"
+                          title="Click or press [7] to reveal & zoom onto Comparison Table"
                         >
                           <span className="bs-section-num">7</span>
                           <span className="bs-section-label">Comparison</span>
                         </button>
                       </div>
-                      <div
-                        className={`bs-card ${isCardBlurred(7) ? 'is-blurred' : ''}`}
-                        onClick={() => isCardBlurred(7) && revealCard(7)}
-                      >
-                        <table className="bs-comp-table">
-                          <thead>
-                            <tr>
-                              {pyqView.compTable.headers.map((h, hi) => (
-                                <th key={hi}>{h}</th>
-                              ))}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {(pyqView.compTable.rows || []).slice(0, 6).map((row, ri) => (
-                              <tr key={ri}>
-                                {row.map((cell, ci) => (
-                                  <td key={ci}>{stripHtmlTags(cell)}</td>
+                      {isCardHidden(7) ? (
+                        <div className="bs-card-veil" onClick={() => revealCard(7)}>
+                          <span>Click to reveal comparison table</span>
+                          <span className="bs-card-veil-kbd">Press 7</span>
+                        </div>
+                      ) : (
+                        <div className="bs-card">
+                          <table className="bs-comp-table">
+                            <thead>
+                              <tr>
+                                {pyqView.compTable.headers.map((h, hi) => (
+                                  <th key={hi}>{h}</th>
                                 ))}
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
+                            </thead>
+                            <tbody>
+                              {(pyqView.compTable.rows || []).map((row, ri) => (
+                                <tr key={ri}>
+                                  {row.map((cell, ci) => (
+                                    <td key={ci}>{stripHtmlTags(cell)}</td>
+                                  ))}
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
                     </section>
                   )}
 
@@ -1127,32 +1214,36 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
                           type="button"
                           className="bs-section-title-btn"
                           onClick={() => (activeSection === 8 ? resetView() : focusSection(8))}
-                          title="Click or press [8] to zoom onto Similar PYQ"
+                          title="Click or press [8] to reveal & zoom onto Similar PYQ"
                         >
                           <span className="bs-section-num">8</span>
                           <span className="bs-section-label">Similar PYQ</span>
                         </button>
                       </div>
-                      <div
-                        className={`bs-card ${isCardBlurred(8) ? 'is-blurred' : ''}`}
-                        onClick={() => isCardBlurred(8) && revealCard(8)}
-                      >
-                        {(pyqView.similarPyq.examName || pyqView.similarPyq.examYear) && (
-                          <div style={{ fontSize: 12, fontWeight: 800, color: '#be123c', marginBottom: 4 }}>
-                            {[pyqView.similarPyq.examName, pyqView.similarPyq.examYear].filter(Boolean).join(' ')}
-                          </div>
-                        )}
-                        {pyqView.similarPyq.stem && (
-                          <p className="bs-card-text" style={{ marginBottom: pyqView.similarPyq.keyTakeaway ? 5 : 0 }}>
-                            {stripHtmlTags(pyqView.similarPyq.stem).slice(0, 260)}
-                          </p>
-                        )}
-                        {pyqView.similarPyq.keyTakeaway && (
-                          <p className="bs-card-text" style={{ fontWeight: 600, color: '#881337' }}>
-                            {stripHtmlTags(pyqView.similarPyq.keyTakeaway)}
-                          </p>
-                        )}
-                      </div>
+                      {isCardHidden(8) ? (
+                        <div className="bs-card-veil" onClick={() => revealCard(8)}>
+                          <span>Click to reveal linked previous year question</span>
+                          <span className="bs-card-veil-kbd">Press 8</span>
+                        </div>
+                      ) : (
+                        <div className="bs-card">
+                          {(pyqView.similarPyq.examName || pyqView.similarPyq.examYear) && (
+                            <div style={{ fontSize: 12, fontWeight: 800, color: '#be123c', marginBottom: 4 }}>
+                              {[pyqView.similarPyq.examName, pyqView.similarPyq.examYear].filter(Boolean).join(' ')}
+                            </div>
+                          )}
+                          {pyqView.similarPyq.stem && (
+                            <p className="bs-card-text" style={{ marginBottom: pyqView.similarPyq.keyTakeaway ? 5 : 0 }}>
+                              {stripHtmlTags(pyqView.similarPyq.stem)}
+                            </p>
+                          )}
+                          {pyqView.similarPyq.keyTakeaway && (
+                            <p className="bs-card-text" style={{ fontWeight: 600, color: '#881337' }}>
+                              {stripHtmlTags(pyqView.similarPyq.keyTakeaway)}
+                            </p>
+                          )}
+                        </div>
+                      )}
                     </section>
                   )}
                 </div>
@@ -1169,11 +1260,12 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
           ) : null}
 
           {/* =========================================================== */}
-          {/* WORLD-SPACE VECTOR SVG INK LAYER (1920x1080)                */}
+          {/* WORLD-SPACE VECTOR SVG INK LAYER (1920 x sheetHeight)       */}
           {/* Locked to the sheet — zero drift at any zoom level!         */}
           {/* =========================================================== */}
           <svg
-            viewBox="0 0 1920 1080"
+            viewBox={`0 0 1920 ${sheetHeight}`}
+            style={{ height: sheetHeight }}
             className={`bs-ink-svg ${tool === 'hand' ? 'is-panning' : 'is-interactive'}`}
             onPointerDown={handleSvgPointerDown}
             onPointerMove={handleSvgPointerMove}
@@ -1307,31 +1399,32 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
 
           <div className="bs-dock-sep" />
 
-          {/* Zoom Controls + Quick Section Jump (1-8) */}
-          <button type="button" className="bs-dock-btn" onClick={() => zoomBy(0.82)} title="Zoom Out [-]">
+          {/* Zoom Controls */}
+          <button type="button" className="bs-dock-btn" onClick={() => zoomBy(0.8, null, null, true)} title="Zoom Out [-]">
             <ZoomOut size={15} />
           </button>
           <button
             type="button"
-            className={`bs-dock-btn ${cam.zoom === 1 ? 'is-active' : ''}`}
+            className={`bs-dock-btn ${zoomPct === 100 ? 'is-active' : ''}`}
             onClick={resetView}
             title="Fit Full Sheet [0 / Esc]"
           >
             <Maximize size={13} />
-            <span>{Math.round(cam.zoom * 100)}%</span>
+            <span>{zoomPct}%</span>
           </button>
-          <button type="button" className="bs-dock-btn" onClick={() => zoomBy(1.22)} title="Zoom In [+]">
+          <button type="button" className="bs-dock-btn" onClick={() => zoomBy(1.25, null, null, true)} title="Zoom In [+]">
             <ZoomIn size={15} />
           </button>
 
-          {/* Progressive Reveal Toggle */}
+          {/* Spoiler-Free Reveal Toggle */}
           <button
             type="button"
-            className={`bs-dock-btn ${revealMode ? 'is-active' : ''}`}
+            className={`bs-dock-btn ${!revealMode ? 'is-active' : ''}`}
             onClick={() => setRevealMode((m) => !m)}
-            title="Toggle Progressive Reveal (Blur Answers Until Clicked) [R]"
+            title={revealMode ? 'Reveal All Cards [R]' : 'Hide Answers for Discussion [R]'}
           >
             {revealMode ? <EyeOff size={15} /> : <Eye size={15} />}
+            <span>{revealMode ? 'Hidden' : 'All Shown'}</span>
           </button>
 
           <div className="bs-dock-sep" />
@@ -1341,7 +1434,7 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
             type="button"
             className={`bs-dock-btn ${tool === 'hand' ? 'is-active' : ''}`}
             onClick={() => setTool('hand')}
-            title="Pan / Click Cards [V] (or hold Space)"
+            title="Pan / Drag [V] (or hold Space)"
           >
             <Hand size={15} />
           </button>
