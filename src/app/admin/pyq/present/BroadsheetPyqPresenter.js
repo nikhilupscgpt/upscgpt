@@ -276,18 +276,6 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
     setActiveSection(0);
   }, [applyCameraTransform]);
 
-  // Auto-zoom onto ① QUESTION when opening a PYQ page so it is immediately mobile-readable!
-  useEffect(() => {
-    if (currentPage?.type === 'pyq') {
-      const t = setTimeout(() => {
-        focusSection(1);
-      }, 90);
-      return () => clearTimeout(t);
-    }
-    resetView();
-    return undefined;
-  }, [pageIdx, currentPage?.type, focusSection, resetView]);
-
   // Smooth zoom to a specific section (1..8) inside the sheet
   const focusSection = useCallback((secNum) => {
     // Reveal the card first so it expands to its real height before measuring
@@ -335,6 +323,23 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
       });
     });
   }, [applyCameraTransform, currentPageId, sheetHeight, vpSize]);
+
+  const focusSectionRef = useRef(focusSection);
+  focusSectionRef.current = focusSection;
+  const resetViewRef = useRef(resetView);
+  resetViewRef.current = resetView;
+
+  // Auto-zoom onto ① QUESTION when opening or switching to a PYQ page
+  useEffect(() => {
+    if (currentPage?.type === 'pyq') {
+      const t = setTimeout(() => {
+        focusSectionRef.current(1);
+      }, 120);
+      return () => clearTimeout(t);
+    }
+    resetViewRef.current();
+    return undefined;
+  }, [pageIdx, currentPage?.type]);
 
   // Smooth zoom step (+ / -) or continuous exponential zoom at cursor
   const zoomBy = useCallback((factor, pivotClientX = null, pivotClientY = null, smooth = true) => {
