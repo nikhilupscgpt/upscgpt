@@ -30,6 +30,7 @@ import {
   ArrowLeft,
   MoreHorizontal,
   BarChart3,
+  Monitor,
 } from 'lucide-react';
 import { getStructuredExplanation } from '@/lib/pyqExplanationHelper';
 import { normalizeKeywordsList } from '@/lib/pyqKeywords';
@@ -196,6 +197,7 @@ export default function BroadsheetPyqPresenter({ questions = [], themeBrief = nu
   // UI & Recording state
   const [dockCollapsed, setDockCollapsed] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  const [ytLock, setYtLock] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [recActive, setRecActive] = useState(false);
   const [recSec, setRecSec] = useState(0);
@@ -227,7 +229,7 @@ export default function BroadsheetPyqPresenter({ questions = [], themeBrief = nu
       ro.disconnect();
       window.removeEventListener('resize', updateSize);
     };
-  }, [dockCollapsed]);
+  }, [dockCollapsed, ytLock]);
 
   // Measure actual rendered broadsheet height so nothing is EVER cut off at the bottom
   useEffect(() => {
@@ -761,6 +763,9 @@ export default function BroadsheetPyqPresenter({ questions = [], themeBrief = nu
         case 'd':
           setDockCollapsed((d) => !d);
           break;
+        case 'y':
+          setYtLock((y) => !y);
+          break;
         case '=':
         case '+':
           zoomBy(1.25, null, null, true);
@@ -857,15 +862,19 @@ export default function BroadsheetPyqPresenter({ questions = [], themeBrief = nu
 
   return (
     <div className="bs-root">
-      {/* Main Interactive Camera Viewport */}
-      <div
-        ref={viewportRef}
-        className={`bs-viewport ${dockCollapsed ? 'is-dock-collapsed' : ''}`}
-        onPointerDown={handleViewportPointerDown}
-        onPointerMove={handleViewportPointerMove}
-        onPointerUp={handleViewportPointerUp}
-        style={{ cursor: tool === 'hand' ? 'grab' : 'default' }}
-      >
+      {/* Main Interactive Camera Viewport (Optional 16:9 YouTube Frame Lock) */}
+      <div className={`bs-stage-shell ${dockCollapsed ? 'is-dock-collapsed' : ''}`}>
+        {ytLock && !recActive && (
+          <div className="bs-yt-badge">16:9 YT LOCK · {Math.round(vpSize.w)}×{Math.round(vpSize.h)}</div>
+        )}
+        <div
+          ref={viewportRef}
+          className={`bs-viewport ${ytLock ? 'is-yt-lock' : ''} ${recActive ? 'is-recording' : ''}`}
+          onPointerDown={handleViewportPointerDown}
+          onPointerMove={handleViewportPointerMove}
+          onPointerUp={handleViewportPointerUp}
+          style={{ cursor: tool === 'hand' ? 'grab' : 'default' }}
+        >
         <div ref={cameraRef} className="bs-camera">
           {/* =========================================================== */}
           {/* PAGE TYPE 0: THEME ANALYSIS BROADSHEET COVER PAGE           */}
@@ -1672,6 +1681,7 @@ export default function BroadsheetPyqPresenter({ questions = [], themeBrief = nu
             />
           </div>
         )}
+        </div>
       </div>
 
       {/* ============================================================= */}
@@ -1772,6 +1782,16 @@ export default function BroadsheetPyqPresenter({ questions = [], themeBrief = nu
               >
                 {revealMode ? <EyeOff size={15} /> : <Eye size={15} />}
                 <span>{revealMode ? 'Reveal All' : 'Hide Ans'}</span>
+              </button>
+
+              <button
+                type="button"
+                className={`bs-dock-btn ${ytLock ? 'is-active' : ''}`}
+                onClick={() => { setYtLock((y) => !y); setMoreMenuOpen(false); }}
+                title="Lock Stage to Exact 16:9 YouTube Ratio [Y]"
+              >
+                <Monitor size={15} />
+                <span>{ytLock ? '16:9 YT ON' : '16:9 YT'}</span>
               </button>
 
               <button
