@@ -8,6 +8,7 @@ export default function StudioPresentSwitcher({
   questions = [],
   initialRecordingSession = null,
   defaultView = 'broadsheet',
+  themeBrief = null,
 }) {
   const isPurePyqDeck =
     questions.length > 0 && questions.every((q) => !q.type || q.type === 'pyq');
@@ -20,6 +21,7 @@ export default function StudioPresentSwitcher({
     return (
       <BroadsheetPyqPresenter
         questions={questions}
+        themeBrief={themeBrief}
         onSwitchToClassic={() => setViewMode('slides')}
       />
     );

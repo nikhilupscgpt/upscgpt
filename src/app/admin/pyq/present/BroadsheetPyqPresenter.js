@@ -29,6 +29,7 @@ import {
   Minimize2,
   ArrowLeft,
   MoreHorizontal,
+  BarChart3,
 } from 'lucide-react';
 import { getStructuredExplanation } from '@/lib/pyqExplanationHelper';
 import { normalizeKeywordsList } from '@/lib/pyqKeywords';
@@ -137,15 +138,27 @@ function renderBoldLead(text) {
   return s;
 }
 
-export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClassic = null }) {
-  // Deck of pages: PYQ broadsheets + user-inserted blank whiteboard pages
-  const [pages, setPages] = useState(() =>
-    (questions || []).map((q, idx) => ({
-      id: q.id || `pyq_${idx}`,
-      type: 'pyq',
-      question: q,
-    }))
-  );
+export default function BroadsheetPyqPresenter({ questions = [], themeBrief = null, onSwitchToClassic = null }) {
+  // Deck of pages: Optional Page 1 Theme Analysis Cover + PYQ broadsheets + user-inserted blank whiteboard pages
+  const [pages, setPages] = useState(() => {
+    const initial = [];
+    if (themeBrief) {
+      initial.push({
+        id: 'theme_analysis_cover',
+        type: 'analysis',
+        brief: themeBrief,
+      });
+    }
+    for (let idx = 0; idx < (questions || []).length; idx++) {
+      const q = questions[idx];
+      initial.push({
+        id: q.id || `pyq_${idx}`,
+        type: 'pyq',
+        question: q,
+      });
+    }
+    return initial;
+  });
   const [pageIdx, setPageIdx] = useState(0);
 
   // Viewport & Dynamic Sheet Height (prevents any bottom clipping!)
@@ -567,6 +580,19 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
     setPageIdx((i) => Math.max(0, i - 1));
   };
 
+  const hasAnalysisPage = pages.some((p) => p.type === 'analysis');
+
+  const toggleAnalysisCover = () => {
+    if (!themeBrief) return;
+    if (hasAnalysisPage) {
+      setPages((prev) => prev.filter((p) => p.type !== 'analysis'));
+      setPageIdx((i) => Math.max(0, i - 1));
+    } else {
+      setPages((prev) => [{ id: 'theme_analysis_cover', type: 'analysis', brief: themeBrief }, ...prev]);
+      setPageIdx(0);
+    }
+  };
+
   // Webcam toggle
   const toggleWebcam = async () => {
     if (webcamOn) {
@@ -842,9 +868,301 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
       >
         <div ref={cameraRef} className="bs-camera">
           {/* =========================================================== */}
-          {/* PAGE TYPE A: BLANK INSERTED WHITEBOARD PAGE                 */}
+          {/* PAGE TYPE 0: THEME ANALYSIS BROADSHEET COVER PAGE           */}
           {/* =========================================================== */}
-          {currentPage.type === 'blank' ? (
+          {currentPage.type === 'analysis' && currentPage.brief ? (() => {
+            const tb = currentPage.brief;
+            const maxChartVal = Math.max(
+              1,
+              ...tb.yearsRange.map((y) => (tb.hasThemeChart ? Math.max(y.themeCount, y.deckCount) : y.deckCount))
+            );
+            const patRows = [
+              { key: 'singleMcq', label: 'Single-Line MCQ' },
+              { key: 'multiStatement', label: 'Multi-Statement (1, 2, 3)' },
+              { key: 'howManyOnly', label: 'How-Many-Only' },
+              { key: 'statementI_II', label: 'Statement I & II' },
+              { key: 'pairMatching', label: 'Pair Matching' },
+            ];
+            return (
+              <div ref={sheetContentRef} className="bs-sheet">
+                {/* Header Bar */}
+                <header className="bs-header">
+                  <div className="bs-header-left">
+                    <span className="bs-exam-pill" style={{ background: '#1d4ed8' }}>
+                      THEME ANALYSIS · 2011–2025
+                    </span>
+                    <div className="bs-breadcrumb">
+                      <span>{tb.subject}</span>
+                      <span>›</span>
+                      <strong>{tb.topic}</strong>
+                      {tb.parentThemeName && tb.parentThemeName !== tb.topic && (
+                        <span style={{ color: '#64748b', fontSize: 15 }}>({tb.parentThemeName})</span>
+                      )}
+                    </div>
+                  </div>
+                  <span className="bs-ta-priority-pill">{tb.priorityBadge}</span>
+                </header>
+
+                {/* 2-Column Theme Analysis Grid */}
+                <div className="bs-body-grid">
+                  {/* LEFT COLUMN: ① WEIGHTAGE & TREND, ② PATTERN MIX, ③ TESTED ANCHORS & CONCEPTS */}
+                  <div className="bs-col">
+                    {/* ① WEIGHTAGE & 15-YEAR TREND */}
+                    <section className="bs-section bs-tone-blue" data-bs-sec="1">
+                      <div className="bs-section-head">
+                        <button
+                          type="button"
+                          className="bs-section-title-btn"
+                          onClick={() => (activeSection === 1 ? resetView() : focusSection(1))}
+                          title="Click or press [1] to zoom onto Weightage & Trend"
+                        >
+                          <span className="bs-section-num">1</span>
+                          <span className="bs-section-label">Weightage &amp; 15-Year UPSC Trend</span>
+                        </button>
+                      </div>
+                      <div className="bs-card">
+                        <div className="bs-ta-kpi-grid">
+                          <div className="bs-ta-kpi">
+                            <div className="bs-ta-kpi-val" style={{ color: '#2563eb' }}>{tb.deckCount}</div>
+                            <div className="bs-ta-kpi-lbl">In This Session</div>
+                          </div>
+                          <div className="bs-ta-kpi">
+                            <div className="bs-ta-kpi-val">
+                              {tb.metrics.subTopicTotal ?? tb.metrics.themeTotal}
+                            </div>
+                            <div className="bs-ta-kpi-lbl">
+                              {tb.metrics.subTopicTotal ? 'Sub-Topic PYQs' : '15-Yr Theme PYQs'}
+                            </div>
+                          </div>
+                          <div className="bs-ta-kpi">
+                            <div className="bs-ta-kpi-val">
+                              {tb.metrics.themeSharePct ? `${tb.metrics.themeSharePct}%` : tb.deckYearSpan}
+                            </div>
+                            <div className="bs-ta-kpi-lbl">
+                              {tb.metrics.themeSharePct ? 'Share of Subject' : 'Year Span'}
+                            </div>
+                          </div>
+                          <div className="bs-ta-kpi">
+                            <div className="bs-ta-kpi-val">{tb.metrics.lastAskedYear || 'Recent'}</div>
+                            <div className="bs-ta-kpi-lbl">Last Asked Year</div>
+                          </div>
+                        </div>
+
+                        <div className="bs-ta-chart-wrap">
+                          {tb.yearsRange.map((y) => {
+                            const val = tb.hasThemeChart ? y.themeCount : y.deckCount;
+                            const hPct = val > 0 ? Math.max(10, Math.round((val / maxChartVal) * 100)) : 0;
+                            return (
+                              <div key={y.year} className="bs-ta-bar-col">
+                                <span className="bs-ta-bar-val">{val > 0 ? val : ''}</span>
+                                <div className="bs-ta-bar-track">
+                                  <div
+                                    className={`bs-ta-bar-fill ${val === 0 ? 'is-zero' : y.deckCount > 0 ? 'is-deck' : ''}`}
+                                    style={{ height: `${hPct}%` }}
+                                    title={`${y.year}: ${val} PYQs${y.deckCount > 0 ? ` (${y.deckCount} in this session)` : ''}`}
+                                  />
+                                </div>
+                                <span className="bs-ta-bar-yr">{String(y.year).slice(-2)}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, fontSize: 12.5, color: '#64748b', fontWeight: 600 }}>
+                          <span>
+                            {tb.hasThemeChart
+                              ? `Blue bars = years covered in this session (${tb.deckCount} PYQs) · Light blue = ${tb.parentThemeName || tb.subject} 15-yr trend`
+                              : `Year-wise spread of the ${tb.deckCount} PYQs in this session`}
+                          </span>
+                          {tb.metrics.yearsActive && <span>Active in {tb.metrics.yearsActive}/15 years</span>}
+                        </div>
+                      </div>
+                    </section>
+
+                    {/* ② QUESTION FORMAT MIX */}
+                    <section className="bs-section bs-tone-green" data-bs-sec="2">
+                      <div className="bs-section-head">
+                        <button
+                          type="button"
+                          className="bs-section-title-btn"
+                          onClick={() => (activeSection === 2 ? resetView() : focusSection(2))}
+                          title="Click or press [2] to zoom onto Question Format Mix"
+                        >
+                          <span className="bs-section-num">2</span>
+                          <span className="bs-section-label">Question Format Mix</span>
+                        </button>
+                        {tb.patternBreakdown.newPatternSharePct !== null && (
+                          <span style={{ fontSize: 12.5, fontWeight: 800, color: '#15803d', background: '#dcfce7', padding: '3px 10px', borderRadius: 999 }}>
+                            2022–25 New-Pattern Share: {tb.patternBreakdown.newPatternSharePct}%
+                          </span>
+                        )}
+                      </div>
+                      <div className="bs-card">
+                        <div className="bs-ta-pattern-list">
+                          {patRows.map((row) => {
+                            const pct = Number(tb.patternBreakdown.percentages?.[row.key] || 0);
+                            return (
+                              <div key={row.key} className="bs-ta-pat-row">
+                                <span className="bs-ta-pat-label">{row.label}</span>
+                                <div className="bs-ta-pat-bar-bg">
+                                  <div className="bs-ta-pat-bar-fg" style={{ width: `${Math.max(pct, pct > 0 ? 4 : 0)}%` }} />
+                                </div>
+                                <span className="bs-ta-pat-pct">{pct}%</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </section>
+
+                    {/* ③ TESTED ANCHORS & RECURRING CONCEPTS */}
+                    <section className="bs-section bs-tone-sky" data-bs-sec="3">
+                      <div className="bs-section-head">
+                        <button
+                          type="button"
+                          className="bs-section-title-btn"
+                          onClick={() => (activeSection === 3 ? resetView() : focusSection(3))}
+                          title="Click or press [3] to zoom onto Recurring Concepts"
+                        >
+                          <span className="bs-section-num">3</span>
+                          <span className="bs-section-label">Recurring Concepts &amp; Tested Anchors</span>
+                        </button>
+                      </div>
+                      <div className="bs-card">
+                        {tb.anchors.length > 0 && (
+                          <div className="bs-ta-chip-wrap">
+                            {tb.anchors.map((a, idx) => (
+                              <span key={idx} className="bs-ta-chip">{a}</span>
+                            ))}
+                          </div>
+                        )}
+                        {tb.topDeckKeywords.length > 0 ? (
+                          <div className="bs-list-stack">
+                            {tb.topDeckKeywords.slice(0, 5).map((kw, idx) => (
+                              <div key={idx} className="bs-kw-item">
+                                <span className="bs-kw-term">{kw.term}:</span>{' '}
+                                <span>{kw.shortNote || 'Frequently tested anchor in this section.'}</span>
+                              </div>
+                            ))}
+                          </div>
+                        ) : tb.subjectConcepts.length > 0 ? (
+                          <ul className="bs-ta-bullet-list">
+                            {tb.subjectConcepts.map((c, idx) => (
+                              <li key={idx}>{c}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="bs-card-text">Focus on core constitutional articles, definitions, and institutional powers tested across these PYQs.</p>
+                        )}
+                      </div>
+                    </section>
+                  </div>
+
+                  {/* RIGHT COLUMN: ④ SIGNATURE TRAPS, ⑤ 2026-27 FOCUS, ⑥ SESSION ROADMAP */}
+                  <div className="bs-col">
+                    {/* ④ SIGNATURE UPSC TRAPS */}
+                    <section className="bs-section bs-tone-orange" data-bs-sec="4">
+                      <div className="bs-section-head">
+                        <button
+                          type="button"
+                          className="bs-section-title-btn"
+                          onClick={() => (activeSection === 4 ? resetView() : focusSection(4))}
+                          title="Click or press [4] to zoom onto Signature UPSC Traps"
+                        >
+                          <span className="bs-section-num">4</span>
+                          <span className="bs-section-label">Signature UPSC Traps to Watch</span>
+                        </button>
+                      </div>
+                      <div className="bs-card">
+                        {tb.traps.length > 0 ? (
+                          <ul className="bs-ta-bullet-list">
+                            {tb.traps.map((tr, idx) => (
+                              <li key={idx}>{renderBoldLead(tr)}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="bs-card-text">Watch for absolute qualifiers (&ldquo;only&rdquo;, &ldquo;never&rdquo;), swapped constitutional bodies, and subtle Preamble vs. Article distinctions.</p>
+                        )}
+                      </div>
+                    </section>
+
+                    {/* ⑤ 2026-27 HIGH-YIELD FOCUS */}
+                    <section className="bs-section bs-tone-amber" data-bs-sec="5">
+                      <div className="bs-section-head">
+                        <button
+                          type="button"
+                          className="bs-section-title-btn"
+                          onClick={() => (activeSection === 5 ? resetView() : focusSection(5))}
+                          title="Click or press [5] to zoom onto 2026-27 Focus"
+                        >
+                          <span className="bs-section-num">5</span>
+                          <span className="bs-section-label">2026–27 High-Yield Focus Areas</span>
+                        </button>
+                      </div>
+                      <div className="bs-card">
+                        {tb.focusPoints.length > 0 ? (
+                          <ul className="bs-ta-bullet-list">
+                            {tb.focusPoints.map((fp, idx) => (
+                              <li key={idx}>{renderBoldLead(fp)}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="bs-card-text">{tb.overview || 'Revise high-frequency static anchors paired with recent statutory or constitutional developments.'}</p>
+                        )}
+                      </div>
+                    </section>
+
+                    {/* ⑥ SESSION ROADMAP (Clickable Jump to Any Q#) */}
+                    <section className="bs-section bs-tone-purple" data-bs-sec="6">
+                      <div className="bs-section-head">
+                        <button
+                          type="button"
+                          className="bs-section-title-btn"
+                          onClick={() => (activeSection === 6 ? resetView() : focusSection(6))}
+                          title="Click or press [6] to zoom onto Session Roadmap"
+                        >
+                          <span className="bs-section-num">6</span>
+                          <span className="bs-section-label">Session Roadmap ({tb.roadmap.length} PYQs)</span>
+                        </button>
+                      </div>
+                      <div className="bs-card">
+                        <div className="bs-ta-roadmap-list">
+                          {tb.roadmap.slice(0, 8).map((item) => (
+                            <button
+                              key={item.id || item.index}
+                              type="button"
+                              className="bs-ta-roadmap-item"
+                              onPointerDown={(e) => e.stopPropagation()}
+                              onClick={() => {
+                                const targetIdx = pages.findIndex((p) => p.type === 'pyq' && p.id === item.id);
+                                if (targetIdx >= 0) setPageIdx(targetIdx);
+                              }}
+                            >
+                              <span className="bs-ta-roadmap-qno">Q{item.index}</span>
+                              {item.year && <span className="bs-ta-roadmap-yr">{item.year}</span>}
+                              <span className="bs-ta-roadmap-text">{item.preview}</span>
+                            </button>
+                          ))}
+                          {tb.roadmap.length > 8 && (
+                            <div style={{ fontSize: 13, fontWeight: 700, color: '#64748b', padding: '4px 6px' }}>
+                              + {tb.roadmap.length - 8} more PYQs in this recording session → Press Right Arrow to begin Q1
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <footer className="bs-footer">
+                  <div>
+                    <span className="bs-footer-brand">UPSCGPT</span> · Section Intelligence &amp; PYQ Architecture
+                  </div>
+                  <div>Analysis Cover · Page {pageIdx + 1} of {pages.length}</div>
+                </footer>
+              </div>
+            );
+          })() : currentPage.type === 'blank' ? (
             <div ref={sheetContentRef} className={`bs-blank-sheet pattern-${currentPage.pattern || 'plain'}`}>
               <div className="bs-blank-controls" onPointerDown={(e) => e.stopPropagation()}>
                 {['plain', 'dots', 'ruled', 'dark'].map((pat) => (
@@ -1389,6 +1707,18 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
                 <span>+ Blank Page</span>
               </button>
 
+              {themeBrief && (
+                <button
+                  type="button"
+                  className={`bs-dock-btn ${hasAnalysisPage ? 'is-active' : ''}`}
+                  onClick={() => { toggleAnalysisCover(); setMoreMenuOpen(false); }}
+                  title={hasAnalysisPage ? 'Remove Theme Analysis Cover Page' : 'Add Theme Analysis Cover Page as Page 1'}
+                >
+                  <BarChart3 size={15} />
+                  <span>{hasAnalysisPage ? 'Hide Analysis' : 'Add Analysis'}</span>
+                </button>
+              )}
+
               <button
                 type="button"
                 className={`bs-dock-btn ${tool === 'laser' ? 'is-active' : ''}`}
@@ -1520,6 +1850,22 @@ export default function BroadsheetPyqPresenter({ questions = [], onSwitchToClass
               <Maximize size={13} />
               <span>Fit</span>
             </button>
+
+            {currentPage.type === 'analysis' && (
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                {[1, 2, 3, 4, 5, 6].map((n) => (
+                  <button
+                    key={n}
+                    type="button"
+                    className={`bs-sec-jump-btn ${activeSection === n ? 'is-active' : ''}`}
+                    onClick={() => (activeSection === n ? resetView() : focusSection(n))}
+                    title={`Zoom to Analysis Section ${n}`}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {currentPage.type === 'pyq' && pyqView && (
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>

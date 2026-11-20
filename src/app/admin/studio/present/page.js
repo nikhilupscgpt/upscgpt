@@ -7,6 +7,7 @@ import {
   resolveMappingDeckItems,
 } from "@/lib/mapping/workspace-service";
 import StudioPresentSwitcher from "./StudioPresentSwitcher";
+import { buildThemeAnalysisBrief } from "@/lib/pyq/themeBriefBuilder";
 
 export const dynamic = 'force-dynamic';
 
@@ -236,11 +237,21 @@ export default async function StudioPresentPage({ searchParams }) {
   }
 
   const defaultView = sp?.view === 'slides' ? 'slides' : 'broadsheet';
+  const isPurePyq = deckItems.length > 0 && deckItems.every((d) => !d.type || d.type === 'pyq');
+  const themeBrief =
+    isPurePyq && sp?.analysis !== '0'
+      ? buildThemeAnalysisBrief(deckItems, {
+          subjectHint: sp?.subject || '',
+          topicHint: sp?.topic || '',
+        })
+      : null;
+
   return (
     <StudioPresentSwitcher
       questions={deckItems}
       initialRecordingSession={initialRecordingSession}
       defaultView={defaultView}
+      themeBrief={themeBrief}
     />
   );
 }
