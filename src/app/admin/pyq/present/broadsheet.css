@@ -1,0 +1,750 @@
+/* ==========================================================================
+   UPSCGPT BROADSHEET PYQ STUDIO PRESENTER (1920x1080 Zoomable One-Pager)
+   Clean white UPSC exam-paper broadsheet + vector pen annotation layer
+   ========================================================================== */
+
+.bs-root {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #e2e8f0;
+  color: #0f172a;
+  font-family: Inter, var(--font-outfit), system-ui, -apple-system, sans-serif;
+  overflow: hidden;
+  user-select: none;
+  z-index: 999999;
+}
+
+.bs-viewport {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 64px;
+  overflow: hidden;
+  background: #cbd5e1;
+  touch-action: none;
+  transition: bottom 0.2s ease;
+}
+
+.bs-viewport.is-dock-collapsed {
+  bottom: 0;
+}
+
+.bs-camera {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1920px;
+  height: 1080px;
+  transform-origin: 0 0;
+  will-change: transform;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.28);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.bs-camera.is-smooth {
+  transition: transform 0.36s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ==========================================================================
+   1920 x 1080 BROADSHEET PAGE LAYOUT
+   ========================================================================== */
+.bs-sheet {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Top Header Bar */
+.bs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 34px 14px;
+  border-bottom: 1.5px solid #e2e8f0;
+  flex-shrink: 0;
+  background: #ffffff;
+}
+
+.bs-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.bs-exam-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 18px;
+  border-radius: 999px;
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
+.bs-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.bs-breadcrumb strong {
+  color: #0f172a;
+  font-weight: 800;
+}
+
+.bs-qno-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 18px;
+  border-radius: 999px;
+  background: #0f172a;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+/* Main 2-Column Broadsheet Body */
+.bs-body-grid {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  padding: 18px 34px 14px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.bs-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Individual Numbered Section Block */
+.bs-section {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+  position: relative;
+}
+
+.bs-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #e2e8f0;
+  position: relative;
+  z-index: 25;
+}
+
+.bs-section-title-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+}
+
+.bs-section-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.bs-section-label {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Color Themes for Sections 1-8 */
+.bs-tone-blue .bs-section-num { background: #2563eb; }
+.bs-tone-blue .bs-section-label { color: #2563eb; }
+.bs-tone-blue .bs-card { background: #ffffff; border-color: #dbeafe; }
+
+.bs-tone-green .bs-section-num { background: #16a34a; }
+.bs-tone-green .bs-section-label { color: #16a34a; }
+.bs-tone-green .bs-card { background: #f0fdf4; border-color: #bbf7d0; }
+
+.bs-tone-sky .bs-section-num { background: #0284c7; }
+.bs-tone-sky .bs-section-label { color: #0284c7; }
+.bs-tone-sky .bs-card { background: #f0f9ff; border-color: #bae6fd; }
+
+.bs-tone-orange .bs-section-num { background: #ea580c; }
+.bs-tone-orange .bs-section-label { color: #ea580c; }
+.bs-tone-orange .bs-card { background: #fff7ed; border-color: #fed7aa; }
+
+.bs-tone-amber .bs-section-num { background: #b45309; }
+.bs-tone-amber .bs-section-label { color: #b45309; }
+.bs-tone-amber .bs-card { background: #fefce8; border-color: #fde68a; }
+
+.bs-tone-purple .bs-section-num { background: #7c3aed; }
+.bs-tone-purple .bs-section-label { color: #7c3aed; }
+.bs-tone-purple .bs-card { background: #faf5ff; border-color: #e9d5ff; }
+
+.bs-tone-teal .bs-section-num { background: #0f766e; }
+.bs-tone-teal .bs-section-label { color: #0f766e; }
+.bs-tone-teal .bs-card { background: #ffffff; border-color: #99f6e4; padding: 0; overflow: hidden; }
+
+.bs-tone-rose .bs-section-num { background: #e11d48; }
+.bs-tone-rose .bs-section-label { color: #e11d48; }
+.bs-tone-rose .bs-card { background: #fff1f2; border-color: #fecdd3; }
+
+.bs-card {
+  border-radius: 11px;
+  border: 1.5px solid #e2e8f0;
+  padding: 13px 16px;
+  transition: filter 0.25s ease, opacity 0.25s ease;
+}
+
+.bs-card.is-blurred {
+  filter: blur(8px);
+  opacity: 0.45;
+  cursor: pointer;
+}
+
+/* ==========================================================================
+   SECTION 1: AUTHENTIC UPSC PRELIMS EXAM PAPER QUESTION FORMAT
+   ========================================================================== */
+.bs-your-answer {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.bs-your-answer-box {
+  width: 38px;
+  height: 22px;
+  border-radius: 5px;
+  border: 1.5px solid #93c5fd;
+  background: #f8fafc;
+}
+
+.bs-upsc-paper {
+  font-family: Georgia, "Times New Roman", Times, serif;
+  color: #0f172a;
+  font-size: 17px;
+  line-height: 1.48;
+}
+
+.bs-upsc-lead {
+  margin: 0 0 8px 0;
+  font-weight: 400;
+}
+
+.bs-upsc-stmts {
+  margin: 6px 0 10px 0;
+  padding-left: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.bs-upsc-stmt-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.bs-upsc-stmt-key {
+  font-weight: 700;
+  min-width: 24px;
+  flex-shrink: 0;
+  color: #1e293b;
+}
+
+.bs-upsc-ask {
+  margin: 6px 0 10px 0;
+  font-weight: 400;
+}
+
+.bs-upsc-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0 10px;
+  font-size: 15px;
+}
+
+.bs-upsc-table th,
+.bs-upsc-table td {
+  border: 1px solid #cbd5e1;
+  padding: 5px 10px;
+  text-align: left;
+}
+
+.bs-upsc-table th {
+  background: #f8fafc;
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #334155;
+}
+
+.bs-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  margin-top: 8px;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.bs-options-grid.is-single-col {
+  grid-template-columns: 1fr;
+}
+
+.bs-opt-card {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  padding: 6px 11px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  font-size: 14.5px;
+  line-height: 1.38;
+  color: #1e293b;
+}
+
+.bs-opt-card.is-correct-opt {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+
+.bs-opt-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  font-size: 12.5px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.bs-opt-card.is-correct-opt .bs-opt-badge {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   SECTION 2: ANSWER CARD
+   ========================================================================== */
+.bs-answer-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.bs-answer-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: #16a34a;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.bs-answer-opt-text {
+  font-size: 15px;
+  font-weight: 800;
+  color: #14532d;
+}
+
+.bs-card-text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.48;
+  color: #334155;
+}
+
+/* ==========================================================================
+   SECTION 3 & 4: KEYWORDS & STATEMENT BREAKDOWN
+   ========================================================================== */
+.bs-list-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.bs-kw-item {
+  font-size: 13.8px;
+  line-height: 1.44;
+  color: #1e293b;
+}
+
+.bs-kw-term {
+  font-weight: 800;
+  color: #0369a1;
+}
+
+.bs-stmt-item {
+  font-size: 13.5px;
+  line-height: 1.44;
+  color: #1e293b;
+}
+
+.bs-stmt-correct {
+  font-weight: 800;
+  color: #15803d;
+}
+
+.bs-stmt-wrong {
+  font-weight: 800;
+  color: #dc2626;
+}
+
+/* ==========================================================================
+   SECTION 5: VALUE ADDITION
+   ========================================================================== */
+.bs-va-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bs-va-group + .bs-va-group {
+  margin-top: 8px;
+}
+
+.bs-va-heading {
+  font-size: 14px;
+  font-weight: 800;
+  color: #92400e;
+  margin: 0;
+}
+
+.bs-va-tag {
+  font-size: 12px;
+  font-weight: 600;
+  color: #b45309;
+  margin-left: 6px;
+}
+
+.bs-va-ul {
+  margin: 2px 0 0 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bs-va-ul li {
+  font-size: 13.5px;
+  line-height: 1.42;
+  color: #1e293b;
+}
+
+/* ==========================================================================
+   SECTION 6: IN NEWS
+   ========================================================================== */
+.bs-news-headline {
+  margin: 0 0 4px 0;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #3b0764;
+}
+
+.bs-news-meta {
+  font-size: 12px;
+  font-weight: 700;
+  color: #7c3aed;
+  margin-bottom: 4px;
+}
+
+/* ==========================================================================
+   SECTION 7: COMPARISON TABLE
+   ========================================================================== */
+.bs-comp-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  line-height: 1.38;
+}
+
+.bs-comp-table thead th {
+  background: #0f766e;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.bs-comp-table tbody td {
+  padding: 7px 12px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #1e293b;
+  vertical-align: top;
+}
+
+.bs-comp-table tbody tr:nth-child(even) td {
+  background: #f8fafc;
+}
+
+.bs-comp-table tbody td:first-child {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* Footer */
+.bs-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 34px 12px;
+  border-top: 1px solid #e2e8f0;
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 600;
+  flex-shrink: 0;
+  background: #ffffff;
+}
+
+.bs-footer-brand {
+  color: #2563eb;
+  font-weight: 900;
+  margin-right: 6px;
+}
+
+/* ==========================================================================
+   BLANK WHITEBOARD PAGE PATTERNS
+   ========================================================================== */
+.bs-blank-sheet {
+  position: relative;
+  width: 1920px;
+  height: 1080px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+.bs-blank-sheet.pattern-dots {
+  background-color: #ffffff;
+  background-image: radial-gradient(#cbd5e1 1.6px, transparent 1.6px);
+  background-size: 28px 28px;
+}
+
+.bs-blank-sheet.pattern-ruled {
+  background-color: #ffffff;
+  background-image: linear-gradient(to bottom, transparent 35px, #e2e8f0 36px);
+  background-size: 100% 36px;
+}
+
+.bs-blank-sheet.pattern-dark {
+  background-color: #0b1120;
+  color: #f8fafc;
+}
+
+.bs-blank-controls {
+  position: absolute;
+  top: 20px;
+  right: 28px;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 6px 10px;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.08);
+}
+
+.bs-blank-pill-btn {
+  border: 1px solid transparent;
+  background: transparent;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
+.bs-blank-pill-btn.is-active {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.bs-blank-pill-btn.is-danger {
+  color: #dc2626;
+}
+
+/* ==========================================================================
+   WORLD-SPACE VECTOR SVG INK LAYER (1920x1080 LOCKED TO SHEET)
+   ========================================================================== */
+.bs-ink-svg {
+  position: absolute;
+  inset: 0;
+  width: 1920px;
+  height: 1080px;
+  z-index: 20;
+  touch-action: none;
+}
+
+.bs-ink-svg.is-interactive {
+  pointer-events: auto;
+  cursor: crosshair;
+}
+
+.bs-ink-svg.is-panning {
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   CLEAN MINIMAL FLOATING DOCK
+   ========================================================================== */
+.bs-dock {
+  position: fixed;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100001;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.94);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.35);
+  color: #f8fafc;
+  backdrop-filter: blur(12px);
+  max-width: 97vw;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.bs-dock::-webkit-scrollbar {
+  display: none;
+}
+
+.bs-dock-sep {
+  width: 1px;
+  height: 22px;
+  background: rgba(148, 163, 184, 0.25);
+  flex-shrink: 0;
+  margin: 0 2px;
+}
+
+.bs-dock-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0 8px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.bs-dock-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+}
+
+.bs-dock-btn.is-active {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.bs-dock-btn.is-rec {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.bs-dock-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.bs-color-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: transform 0.12s ease;
+}
+
+.bs-color-dot.is-selected {
+  transform: scale(1.2);
+  border-color: #ffffff;
+  box-shadow: 0 0 0 2px #2563eb;
+}
+
+.bs-dock-collapsed-pill {
+  position: fixed;
+  bottom: 10px;
+  right: 16px;
+  z-index: 100001;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  color: #f8fafc;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.3);
+}

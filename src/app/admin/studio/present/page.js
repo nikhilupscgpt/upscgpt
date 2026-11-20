@@ -6,7 +6,7 @@ import {
   getMappingWorkspaceData,
   resolveMappingDeckItems,
 } from "@/lib/mapping/workspace-service";
-import PyqPresenterClient from "../../pyq/present/PyqPresenterClient";
+import StudioPresentSwitcher from "./StudioPresentSwitcher";
 
 export const dynamic = 'force-dynamic';
 
@@ -190,6 +190,7 @@ export default async function StudioPresentPage({ searchParams }) {
         options: true,
         correctLabel: true,
         explanation: true,
+        explanationJson: true,
         difficulty: true,
       },
     });
@@ -213,6 +214,7 @@ export default async function StudioPresentPage({ searchParams }) {
         }
       }
 
+      const expJson = q.explanationJson && typeof q.explanationJson === 'object' ? q.explanationJson : null;
       deckItems.push({
         id: q.id,
         type: 'pyq',
@@ -225,11 +227,20 @@ export default async function StudioPresentPage({ searchParams }) {
         stem: q.stem || '',
         options: opts,
         correctLabel: q.correctLabel || null,
-        explanation: q.explanation || null,
+        explanation: q.explanation || expJson?.explanation || null,
+        explanationJson: expJson,
+        analysis: expJson?.analysis || null,
         difficulty: q.difficulty || null,
       });
     }
   }
 
-  return <PyqPresenterClient questions={deckItems} initialRecordingSession={initialRecordingSession} />;
+  const defaultView = sp?.view === 'slides' ? 'slides' : 'broadsheet';
+  return (
+    <StudioPresentSwitcher
+      questions={deckItems}
+      initialRecordingSession={initialRecordingSession}
+      defaultView={defaultView}
+    />
+  );
 }
