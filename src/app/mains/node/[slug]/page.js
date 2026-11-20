@@ -3,20 +3,38 @@ import { notFound } from 'next/navigation';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import MainsNodeStudyClient from './MainsNodeStudyClient';
-import { stripHtml } from '@/lib/seo';
+import { stripHtml, isIssueJsonPopulated } from '@/lib/seo';
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const issue = await prisma.issue.findUnique({
     where: { slug },
-    select: { title: true, domain: true, topic: true, cumulativeSummary: true }
+    select: {
+      title: true,
+      domain: true,
+      topic: true,
+      cumulativeSummary: true,
+      metadata: true,
+      prelimsNote: true,
+      mainsNote: true,
+    }
   });
-  if (!issue) return { title: 'Node Not Found' };
+  if (!issue) {
+    return {
+      title: 'Node Not Found',
+      robots: { index: false, follow: true },
+    };
+  }
+  const hasJsonContent = isIssueJsonPopulated(issue);
   const cleanDesc = stripHtml(issue.cumulativeSummary).substring(0, 160) || `Strategic Mains study guide for ${issue.title}.`;
   const canonicalUrl = `https://www.upscgpt.in/node/${slug}`;
   return {
     title: `${issue.title} — Mains Command Center`,
     description: cleanDesc,
+    robots: {
+      index: hasJsonContent,
+      follow: true,
+    },
     alternates: {
       canonical: canonicalUrl,
     },

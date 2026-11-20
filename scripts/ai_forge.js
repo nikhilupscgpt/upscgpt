@@ -76,15 +76,15 @@ async function processNode(node) {
 
     // 3. Save to Neon DB (Metadata + Vector)
     await prisma.$transaction(async (tx) => {
-      // Update JSON metadata
+      // Update JSON metadata and refresh lastUpdatedAt timestamp
       await tx.issue.update({
         where: { id: node.id },
-        data: { metadata: metadata }
+        data: { metadata: metadata, lastUpdatedAt: new Date() }
       });
 
       // Update vector using raw SQL since Prisma 'Unsupported' requires it
       await tx.$executeRawUnsafe(
-        `UPDATE "Issue" SET "embedding" = $1::vector WHERE "id" = $2`, 
+        `UPDATE "Issue" SET "embedding" = $1::vector, "lastUpdatedAt" = NOW() WHERE "id" = $2`, 
         `[${embedding.join(',')}]`, 
         node.id
       );

@@ -13,6 +13,7 @@ import { useTranslation } from '@/context/TranslationContext';
 import ZenCard from './ZenCard';
 import { useIsClient } from '@/lib/useIsClient';
 import NotesTrigger from './NotesTrigger';
+import { formatJsonNoteToMarkdown } from '@/lib/seo';
 
 export default function IssueDetailClient({ issue, initialFlow, initialBookmarked, initialStatus }) {
   const { t, lang } = useTranslation();
@@ -51,8 +52,8 @@ export default function IssueDetailClient({ issue, initialFlow, initialBookmarke
   const localizedTopic = getLocalizedField('topic') || issue?.topic;
   const localizedCumulativeSummary = getLocalizedField('cumulativeSummary');
   const localizedBackgroundNote = getLocalizedField('backgroundNote');
-  const localizedPrelimsNote = getLocalizedField('prelimsNote');
-  const localizedMainsNote = getLocalizedField('mainsNote');
+  const localizedPrelimsNote = formatJsonNoteToMarkdown(getLocalizedField('prelimsNote'));
+  const localizedMainsNote = formatJsonNoteToMarkdown(getLocalizedField('mainsNote'));
 
   // Determine standard tab labels with simple localized mapping
   const getTabLabel = (id) => {
@@ -79,7 +80,7 @@ export default function IssueDetailClient({ issue, initialFlow, initialBookmarke
     setActiveTab(defaultTab);
   }
 
-  if (!isClient || !issue) return null;
+  if (!issue) return null;
 
   const gsPapers = issue.gsPapers || [];
   const articles = issue.articles || [];

@@ -1,5 +1,6 @@
 import prisma from '@/lib/prisma'
 import { generateQuestionSlug } from '@/lib/pyqSlug'
+import { isIssueJsonPopulated, isJsonPopulated, isQuestionPopulated } from '@/lib/seo'
 
 // Cache sitemap.xml for 24 hours so bot fetches consume 0 database compute
 export const revalidate = 86400
@@ -16,11 +17,24 @@ export default async function sitemap() {
   try {
     ;[issues, articles, streaks, entries, questions] = await Promise.all([
       prisma.issue.findMany({
-        select: { slug: true, lastUpdatedAt: true },
+        select: {
+          slug: true,
+          lastUpdatedAt: true,
+          metadata: true,
+          prelimsNote: true,
+          mainsNote: true,
+          cumulativeSummary: true,
+        },
         where: { status: 'ACTIVE' },
       }),
       prisma.article.findMany({
-        select: { id: true, publishedAt: true, createdAt: true },
+        select: {
+          id: true,
+          publishedAt: true,
+          createdAt: true,
+          structuredData: true,
+          rawContent: true,
+        },
         where: { status: 'DONE' },
       }),
       prisma.newsStreak.findMany({
@@ -35,8 +49,14 @@ export default async function sitemap() {
           id: true,
           dedupHash: true,
           stem: true,
+          options: true,
+          correctLabel: true,
+          explanationJson: true,
+          explanation: true,
+          contentStatus: true,
           examName: true,
           examYear: true,
+          updatedAt: true,
           reviewedAt: true,
           createdAt: true,
         },
@@ -48,19 +68,24 @@ export default async function sitemap() {
 
   // Consolidate all syllabus/topic nodes under the master /node/[slug] canonical route
   // to prevent self-cannibalization across /issues/[slug] and /mains/node/[slug]
-  const nodeUrls = issues.map((issue) => ({
-    url: `${baseUrl}/node/${issue.slug}`,
-    lastModified: issue.lastUpdatedAt,
-    changeFrequency: 'weekly',
-    priority: 0.85,
-  }))
+  // Only include URLs where the JSON content columns are populated
+  const nodeUrls = issues
+    .filter((issue) => isIssueJsonPopulated(issue))
+    .map((issue) => ({
+      url: `${baseUrl}/node/${issue.slug}`,
+      lastModified: issue.lastUpdatedAt,
+      changeFrequency: 'weekly',
+      priority: 0.85,
+    }))
 
-  const articleUrls = articles.map((article) => ({
-    url: `${baseUrl}/news/article/${article.id}`,
-    lastModified: article.publishedAt || article.createdAt,
-    changeFrequency: 'weekly',
-    priority: 0.7,
-  }))
+  const articleUrls = articles
+    .filter((article) => isJsonPopulated(article.structuredData) || Boolean(article.rawContent?.trim()))
+    .map((article) => ({
+      url: `${baseUrl}/news/article/${article.id}`,
+      lastModified: article.publishedAt || article.createdAt,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    }))
 
   const streakUrls = streaks.map((streak) => ({
     url: `${baseUrl}/news/streak/${streak.id}`,
@@ -76,12 +101,14 @@ export default async function sitemap() {
     priority: 0.6,
   }))
 
-  const pyqUrls = questions.map((q) => ({
-    url: `${baseUrl}/prelims/pyq/${generateQuestionSlug(q)}`,
-    lastModified: q.reviewedAt || q.createdAt || new Date(),
-    changeFrequency: 'monthly',
-    priority: 0.85,
-  }))
+  const pyqUrls = questions
+    .filter((q) => isQuestionPopulated(q))
+    .map((q) => ({
+      url: `${baseUrl}/prelims/pyq/${generateQuestionSlug(q)}`,
+      lastModified: q.updatedAt || q.reviewedAt || q.createdAt || new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.85,
+    }))
 
   return [
     {

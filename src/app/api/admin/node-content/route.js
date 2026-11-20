@@ -141,8 +141,10 @@ export async function POST(req) {
       }
     });
 
-    // Sync notes back to parent Issue model for student-facing interface
-    const issueUpdateData = {};
+    // Sync notes and update timestamp back to parent Issue model for student-facing interface & sitemap <lastmod>
+    const issueUpdateData = {
+      lastUpdatedAt: new Date()
+    };
     if (prelimsNote !== undefined) issueUpdateData.prelimsNote = prelimsNote;
     if (mainsNote !== undefined) issueUpdateData.mainsNote = mainsNote;
 
@@ -152,12 +154,10 @@ export async function POST(req) {
       issueUpdateData.slug = newSlug;
     }
 
-    if (Object.keys(issueUpdateData).length > 0) {
-      await prisma.issue.update({
-        where: { id: issueId },
-        data: issueUpdateData
-      });
-    }
+    await prisma.issue.update({
+      where: { id: issueId },
+      data: issueUpdateData
+    });
 
     return NextResponse.json({ success: true, content: updatedContent, newSlug });
   } catch (error) {

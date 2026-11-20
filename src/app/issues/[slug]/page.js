@@ -6,21 +6,39 @@ import Link from 'next/link'
 import { Lock } from 'lucide-react'
 import FloatingChatWrapper from '@/components/content-portal/FloatingChatWrapper'
 import IssueDetailClient from '@/components/IssueDetailClient'
-import { stripHtml } from '@/lib/seo'
+import { stripHtml, isIssueJsonPopulated } from '@/lib/seo'
 import { safeJsonLd } from '@/lib/jsonLd';
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const issue = await prisma.issue.findUnique({
     where: { slug },
-    select: { title: true, domain: true, topic: true, cumulativeSummary: true }
+    select: {
+      title: true,
+      domain: true,
+      topic: true,
+      cumulativeSummary: true,
+      metadata: true,
+      prelimsNote: true,
+      mainsNote: true,
+    }
   })
-  if (!issue) return { title: 'Issue Not Found' }
+  if (!issue) {
+    return {
+      title: 'Issue Not Found',
+      robots: { index: false, follow: true },
+    }
+  }
+  const hasJsonContent = isIssueJsonPopulated(issue);
   const cleanDesc = stripHtml(issue.cumulativeSummary).substring(0, 160) || `Strategic analysis of ${issue.title}.`;
   const canonicalUrl = `https://www.upscgpt.in/node/${slug}`;
   return {
     title: `${issue.title} — UPSCGPT Intelligence Hub`,
     description: cleanDesc,
+    robots: {
+      index: hasJsonContent,
+      follow: true,
+    },
     alternates: {
       canonical: canonicalUrl,
     },

@@ -8,6 +8,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import NotesTrigger from '@/components/NotesTrigger';
 import { safeJsonLd } from '@/lib/jsonLd';
+import { isJsonPopulated } from '@/lib/seo';
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
@@ -16,9 +17,13 @@ export async function generateMetadata({ params }) {
   });
 
   if (!article) {
-    return { title: 'Article Not Found | UPSCGPT' };
+    return {
+      title: 'Article Not Found | UPSCGPT',
+      robots: { index: false, follow: true },
+    };
   }
 
+  const hasContent = isJsonPopulated(article.structuredData) || Boolean(article.rawContent?.trim());
   const structured = article.structuredData || {};
   const crux = structured.seoDescription || structured.crux || 'Daily UPSC Current Affairs and Analysis.';
   const title = structured.seoTitle || `${article.title} | UPSCGPT News`;
@@ -28,6 +33,10 @@ export async function generateMetadata({ params }) {
     title,
     description: crux,
     keywords,
+    robots: {
+      index: hasContent,
+      follow: true,
+    },
     alternates: {
       canonical: `/news/article/${id}`,
     },

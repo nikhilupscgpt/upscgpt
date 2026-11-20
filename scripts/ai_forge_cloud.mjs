@@ -67,8 +67,9 @@ async function updateSearchVector(table, id, metadata, titleField) {
     `;
   }
 
+  const tsClause = table === 'Issue' ? `, "lastUpdatedAt" = NOW()` : '';
   await prisma.$executeRawUnsafe(
-    `UPDATE "${table}" SET "searchVector" = ${weightedText} WHERE "id" = '${id}'`
+    `UPDATE "${table}" SET "searchVector" = ${weightedText}${tsClause} WHERE "id" = '${id}'`
   );
 }
 
@@ -95,7 +96,7 @@ async function main() {
 
       await prisma.issue.update({
         where: { id: issue.id },
-        data: { metadata }
+        data: { metadata, lastUpdatedAt: new Date() }
       });
       
       await updateSearchVector('Issue', issue.id, metadata, issue.title);

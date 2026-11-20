@@ -9,6 +9,7 @@ import {
   buildPyqSchemaTeaser,
   extractCoreSubjectEntity,
   stripBoilerplateFromStem,
+  isQuestionPopulated,
 } from '@/lib/seo';
 import { resolveSyllabusNodesForQuestion } from '@/lib/nodeBridge';
 import { safeJsonLd } from '@/lib/jsonLd';
@@ -97,9 +98,13 @@ export async function generateMetadata({ params }) {
   const q = await findQuestion(decodedId);
 
   if (!q) {
-    return { title: 'Question Not Found | UPSCGPT' };
+    return {
+      title: 'Question Not Found | UPSCGPT',
+      robots: { index: false, follow: true },
+    };
   }
 
+  const hasValidContent = isQuestionPopulated(q);
   const canonicalSlug = generateQuestionSlug(q);
   const canonicalUrl = `https://www.upscgpt.in/prelims/pyq/${canonicalSlug}`;
   const ogImageUrl = `https://www.upscgpt.in/api/og/pyq/${canonicalSlug}`;
@@ -113,6 +118,10 @@ export async function generateMetadata({ params }) {
   return {
     title,
     description,
+    robots: {
+      index: hasValidContent,
+      follow: true,
+    },
     keywords: [
       coreEntity,
       examLabel,

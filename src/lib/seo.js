@@ -323,3 +323,125 @@ export function buildPyqMetaDescription(q) {
   return `Practice ${examLabel} PYQ on ${entity} (${topicLabel}): "${hook}…" Verify with the official UPSC answer key, option elimination breakdown & syllabus notes on UPSCGPT.`;
 }
 
+/**
+ * Checks whether a PostgreSQL JSON/text column is genuinely populated
+ * (not null, undefined, empty string, empty object {}, empty array [],
+ * or an empty skeleton {"analysis":{},"explanation":""}).
+ * @param {any} val
+ * @returns {boolean}
+ */
+export function isJsonPopulated(val) {
+  if (val === null || val === undefined) return false;
+  if (typeof val === 'string') {
+    const trimmed = val.trim();
+    if (!trimmed || trimmed === 'null' || trimmed === '{}' || trimmed === '[]' || trimmed === '""') {
+      return false;
+    }
+    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+      try {
+        return isJsonPopulated(JSON.parse(trimmed));
+      } catch {
+        return true;
+      }
+    }
+    return true;
+  }
+  if (Array.isArray(val)) {
+    return val.some((item) => isJsonPopulated(item));
+  }
+  if (typeof val === 'object') {
+    const keys = Object.keys(val);
+    if (keys.length === 0) return false;
+    return keys.some((k) => isJsonPopulated(val[k]));
+  }
+  return Boolean(val);
+}
+
+/**
+ * Checks whether an Issue row has populated JSON/study content for SEO indexing.
+ * @param {object} issue
+ * @returns {boolean}
+ */
+export function isIssueJsonPopulated(issue) {
+  if (!issue) return false;
+  return (
+    isJsonPopulated(issue.prelimsNote) ||
+    isJsonPopulated(issue.mainsNote) ||
+    isJsonPopulated(issue.metadata) ||
+    Boolean(typeof issue.cumulativeSummary === 'string' && issue.cumulativeSummary.trim())
+  );
+}
+
+/**
+ * Checks whether a QuestionDraft / PrelimsQuestion row has valid indexable content.
+ * @param {object} q
+ * @returns {boolean}
+ */
+export function isQuestionPopulated(q) {
+  if (!q) return false;
+  if (q.contentStatus === 'broken') return false;
+  const hasStem = typeof q.stem === 'string' && q.stem.trim().length > 10;
+  const hasOptions = isJsonPopulated(q.options);
+  return hasStem && hasOptions && (Boolean(q.correctLabel) || isJsonPopulated(q.explanationJson) || isJsonPopulated(q.explanation));
+}
+
+/**
+ * Formats a string, array, or structured JSON object note (prelimsNote / mainsNote)
+ * into clean Markdown so both Server Components and ReactMarkdown render it cleanly.
+ * @param {any} note
+ * @returns {string}
+ */
+export function formatJsonNoteToMarkdown(note) {
+  if (!note) return '';
+  if (typeof note === 'string') {
+    const trimmed = note.trim();
+    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+      try {
+        return formatJsonNoteToMarkdown(JSON.parse(trimmed));
+      } catch {
+        return trimmed;
+      }
+    }
+    return trimmed;
+  }
+  if (Array.isArray(note)) {
+    return note
+      .map((item) => (typeof item === 'string' ? `• ${item}` : formatJsonNoteToMarkdown(item)))
+      .filter(Boolean)
+      .join('\n\n');
+  }
+  if (typeof note === 'object') {
+    const sections = [];
+    for (const [rawKey, val] of Object.entries(note)) {
+      if (!isJsonPopulated(val)) continue;
+      const heading = rawKey
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+      if (typeof val === 'string') {
+        sections.push(`### ${heading}\n${val}`);
+      } else if (Array.isArray(val)) {
+        const list = val
+          .map((item) => (typeof item === 'string' ? `- ${item}` : `- ${JSON.stringify(item)}`))
+          .join('\n');
+        sections.push(`### ${heading}\n${list}`);
+      } else if (typeof val === 'object') {
+        const subLines = Object.entries(val)
+          .filter(([, subVal]) => isJsonPopulated(subVal))
+          .map(([subKey, subVal]) => {
+            const subHeading = subKey
+              .replace(/_/g, ' ')
+              .replace(/\b\w/g, (c) => c.toUpperCase());
+            return `- **${subHeading}:** ${typeof subVal === 'string' ? subVal : JSON.stringify(subVal)}`;
+          })
+          .join('\n');
+        if (subLines) {
+          sections.push(`### ${heading}\n${subLines}`);
+        }
+      }
+    }
+    return sections.join('\n\n');
+  }
+  return String(note);
+}
+
+

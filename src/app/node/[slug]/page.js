@@ -5,19 +5,135 @@ import { CURATED_MAPPING_NODES } from '@/lib/static-mapping-data';
 import { getNodeBridgeContextBySlug } from '@/lib/nodeBridge';
 import './node-detail.css';
 import { safeJsonLd } from '@/lib/jsonLd';
+import { isIssueJsonPopulated, isJsonPopulated, stripHtml } from '@/lib/seo';
+
+// 24-hour ISR Cache: Ensures search crawlers consume 0 DB/server compute after initial cache
+export const revalidate = 86400;
+
+function renderStructuredNoteBlocks(noteData) {
+  if (!isJsonPopulated(noteData)) return null;
+
+  if (typeof noteData === 'string') {
+    const trimmed = noteData.trim();
+    if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+      try {
+        return renderStructuredNoteBlocks(JSON.parse(trimmed));
+      } catch {
+        // treat as plain string
+      }
+    }
+    return (
+      <div style={{ whiteSpace: 'pre-line', fontSize: 14.5, lineHeight: 1.7, color: '#334155' }}>
+        {trimmed}
+      </div>
+    );
+  }
+
+  if (Array.isArray(noteData)) {
+    return (
+      <ul style={{ margin: 0, paddingLeft: 20, fontSize: 14.5, lineHeight: 1.7, color: '#334155' }}>
+        {noteData.map((item, idx) => (
+          <li key={idx} style={{ marginBottom: 6 }}>
+            {typeof item === 'string' ? item : JSON.stringify(item)}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  if (typeof noteData === 'object') {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        {Object.entries(noteData).map(([rawKey, val]) => {
+          if (!isJsonPopulated(val)) return null;
+          const label = rawKey
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, (c) => c.toUpperCase());
+
+          return (
+            <div
+              key={rawKey}
+              style={{
+                background: '#ffffff',
+                border: '1px solid #e2e8f0',
+                borderRadius: 10,
+                padding: '14px 16px',
+              }}
+            >
+              <h3 style={{ margin: '0 0 8px 0', fontSize: 14, fontWeight: 700, color: '#0f172a' }}>
+                {label}
+              </h3>
+              {typeof val === 'string' ? (
+                <div style={{ whiteSpace: 'pre-line', fontSize: 14, lineHeight: 1.65, color: '#334155' }}>
+                  {val}
+                </div>
+              ) : Array.isArray(val) ? (
+                <ul style={{ margin: 0, paddingLeft: 18, fontSize: 14, lineHeight: 1.65, color: '#334155' }}>
+                  {val.map((item, i) => (
+                    <li key={i} style={{ marginBottom: 4 }}>
+                      {typeof item === 'string' ? item : JSON.stringify(item)}
+                    </li>
+                  ))}
+                </ul>
+              ) : typeof val === 'object' ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {Object.entries(val).map(([subKey, subVal]) => {
+                    if (!isJsonPopulated(subVal)) return null;
+                    const subLabel = subKey
+                      .replace(/_/g, ' ')
+                      .replace(/\b\w/g, (c) => c.toUpperCase());
+                    return (
+                      <div key={subKey} style={{ fontSize: 13.5, lineHeight: 1.6, color: '#334155' }}>
+                        <strong style={{ color: '#0f172a' }}>{subLabel}:</strong>{' '}
+                        {typeof subVal === 'string' ? subVal : JSON.stringify(subVal)}
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  return null;
+}
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const issue = await prisma.issue.findUnique({
     where: { slug },
-    select: { title: true, domain: true, topic: true }
+    select: {
+      title: true,
+      domain: true,
+      topic: true,
+      cumulativeSummary: true,
+      metadata: true,
+      prelimsNote: true,
+      mainsNote: true,
+    }
   });
-  if (!issue) return { title: 'Node Not Found' };
+  if (!issue) {
+    return {
+      title: 'Node Not Found',
+      robots: { index: false, follow: true },
+    };
+  }
+  const hasJsonContent = isIssueJsonPopulated(issue);
   const canonicalUrl = `https://www.upscgpt.in/node/${slug}`;
-  const description = `Strategic study guide, key themes, subtopics, and previous year questions (PYQs) for UPSC syllabus node: ${issue.title} (${issue.domain} - ${issue.topic}).`;
+  const cleanSummary = stripHtml(issue.cumulativeSummary || '').slice(0, 155);
+  const description = cleanSummary
+    ? `${cleanSummary} (${issue.domain} – ${issue.topic})`
+    : `Strategic study guide, key themes, subtopics, and previous year questions (PYQs) for UPSC syllabus node: ${issue.title} (${issue.domain} - ${issue.topic}).`;
   return { 
     title: `${issue.title} | UPSC Atlas Intelligence`,
     description,
+    robots: {
+      index: hasJsonContent,
+      follow: true,
+    },
     alternates: {
       canonical: canonicalUrl,
     },
@@ -37,7 +153,6 @@ export default async function NodeDetailPage({ params }) {
   const node = await prisma.issue.findUnique({
     where: { slug },
     include: {
-      
       nodeContent: true,
     }
   });
@@ -45,9 +160,19 @@ export default async function NodeDetailPage({ params }) {
   if (!node) notFound();
 
   const metadata = node.metadata || {};
-  const themes = metadata.keyThemes || [];
-  const subtopics = metadata.subtopics || [];
-  const gsPapers = node.gsPapers || [];
+  const themes = Array.isArray(metadata.keyThemes) ? metadata.keyThemes : [];
+  const subtopics = Array.isArray(metadata.subtopics) ? metadata.subtopics : [];
+  const examAngles = Array.isArray(metadata.examAngles) && metadata.examAngles.length > 0
+    ? metadata.examAngles
+    : (Array.isArray(metadata.pyqAngles) ? metadata.pyqAngles : []);
+  const gsPapers = node.gsPapers || metadata.gsPaper || [];
+  const prelimsPayload = isJsonPopulated(node.prelimsNote)
+    ? node.prelimsNote
+    : (isJsonPopulated(node.nodeContent?.prelimsNote) ? node.nodeContent.prelimsNote : null);
+  const mainsPayload = isJsonPopulated(node.mainsNote)
+    ? node.mainsNote
+    : (isJsonPopulated(node.nodeContent?.mainsNote) ? node.nodeContent.mainsNote : null);
+  const cleanSummary = stripHtml(node.cumulativeSummary || '');
   const { catalogNode, relatedNodes, mappedTopics } = getNodeBridgeContextBySlug(slug);
 
   const mappedPlaces = CURATED_MAPPING_NODES.filter(
@@ -98,43 +223,71 @@ export default async function NodeDetailPage({ params }) {
 
         <div className="node-content-grid">
           <div className="node-main-column">
-            <section className="node-section">
-              <h2 className="section-title">Knowledge Themes</h2>
-              <div className="theme-grid">
-                {themes.map((theme, i) => (
-                  <div key={i} className="theme-card">
-                    <span className="theme-dot"></span>
-                    {theme}
-                  </div>
-                ))}
-              </div>
-            </section>
+            {cleanSummary && (
+              <section className="node-section" style={{ background: '#f8fafc', borderRadius: 12, padding: 20, border: '1px solid #e2e8f0' }}>
+                <h2 className="section-title" style={{ marginBottom: 10 }}>Executive Syllabus Overview</h2>
+                <p style={{ margin: 0, fontSize: 14.5, lineHeight: 1.7, color: '#334155' }}>
+                  {cleanSummary}
+                </p>
+                {metadata.importanceNote && (
+                  <p style={{ margin: '10px 0 0 0', fontSize: 13.5, lineHeight: 1.6, color: '#475569', fontStyle: 'italic' }}>
+                    <strong>UPSC Exam Lens:</strong> {metadata.importanceNote}
+                  </p>
+                )}
+              </section>
+            )}
 
-            <section className="node-section">
-              <h2 className="section-title">Structural Subtopics</h2>
-              <ul className="subtopics-list">
-                {subtopics.map((topic, i) => (
-                  <li key={i}>{topic}</li>
-                ))}
-              </ul>
-            </section>
+            {themes.length > 0 && (
+              <section className="node-section">
+                <h2 className="section-title">Knowledge Themes</h2>
+                <div className="theme-grid">
+                  {themes.map((theme, i) => (
+                    <div key={i} className="theme-card">
+                      <span className="theme-dot"></span>
+                      {theme}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
 
-            {node.prelimsNote ? (
+            {subtopics.length > 0 && (
+              <section className="node-section">
+                <h2 className="section-title">Structural Subtopics</h2>
+                <ul className="subtopics-list">
+                  {subtopics.map((topic, i) => (
+                    <li key={i}>{topic}</li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {prelimsPayload ? (
               <section className="node-section" style={{ background: '#f8fafc', borderRadius: 12, padding: 22, border: '1px solid #e2e8f0' }}>
                 <h2 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#0f172a', marginBottom: 16 }}>
                   <span>🎯</span> High-Yield Prelims Focus Points
                 </h2>
-                <div style={{ whiteSpace: 'pre-line', fontSize: 14.5, lineHeight: 1.7, color: '#334155' }}>
-                  {node.prelimsNote}
-                </div>
+                {renderStructuredNoteBlocks(prelimsPayload)}
               </section>
-            ) : (
-              <section className="node-section content-status">
-                <h2 className="section-title">Study Material</h2>
-                <div className="coming-soon-box">
-                  <p>Full AI-synthesized study material for <strong>{node.title}</strong> is being calibrated.</p>
-                  <Link href={`/prelims/pyq?subject=${encodeURIComponent(catalogNode?.subject || 'ALL')}`} className="legacy-link">Practice Prelims PYQs →</Link>
-                </div>
+            ) : null}
+
+            {mainsPayload ? (
+              <section className="node-section" style={{ background: '#f8fafc', borderRadius: 12, padding: 22, border: '1px solid #e2e8f0', marginTop: 20 }}>
+                <h2 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#0f172a', marginBottom: 16 }}>
+                  <span>📘</span> Mains Structural Analysis &amp; Dimensions
+                </h2>
+                {renderStructuredNoteBlocks(mainsPayload)}
+              </section>
+            ) : null}
+
+            {examAngles.length > 0 && (
+              <section className="node-section" style={{ marginTop: 20 }}>
+                <h2 className="section-title">UPSC Mains &amp; Analytical Framings</h2>
+                <ul className="subtopics-list">
+                  {examAngles.map((angle, i) => (
+                    <li key={i}>{angle}</li>
+                  ))}
+                </ul>
               </section>
             )}
 
