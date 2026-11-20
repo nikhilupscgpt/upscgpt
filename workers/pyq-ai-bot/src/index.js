@@ -454,6 +454,45 @@ export default {
       return Response.json({ ok: true, ...stats }, { status: 200, headers: cors });
     }
 
+    if (request.method === 'POST' && url.pathname === '/admin/forge-node') {
+      const secret = request.headers.get('x-ingest-secret') || '';
+      if (!env.INGEST_SECRET || secret !== env.INGEST_SECRET) {
+        return Response.json({ error: 'Unauthorized' }, { status: 401, headers: cors });
+      }
+      const body = await request.json();
+      const modelId = body?.model || '@cf/google/gemma-4-26b-a4b-it';
+      const messages = Array.isArray(body?.messages) ? body.messages : [];
+      const maxTokens = Number(body?.max_tokens) || 2400;
+      const temperature = typeof body?.temperature === 'number' ? body.temperature : 0.2;
+      const extraOpts = body?.extraOpts && typeof body.extraOpts === 'object' ? body.extraOpts : {};
+
+      try {
+        const result = await env.AI.run(modelId, {
+          messages,
+          max_tokens: maxTokens,
+          temperature,
+          ...extraOpts,
+        });
+        const raw = result?.response ?? result?.choices?.[0]?.message?.content ?? '';
+        const parsed = extractJsonObject(raw);
+        return Response.json(
+          {
+            ok: Boolean(parsed),
+            model: modelId,
+            parsed,
+            raw: parsed ? undefined : raw,
+            usage: result?.usage || null,
+          },
+          { status: 200, headers: cors }
+        );
+      } catch (err) {
+        return Response.json(
+          { ok: false, model: modelId, error: String(err?.message || err) },
+          { status: 500, headers: cors }
+        );
+      }
+    }
+
     // Retrieval-only semantic PYQ lookup (bge-m3 + bge-reranker-base, 0 LLM generation, edge-cached)
     if (request.method === 'POST' && url.pathname === '/retrieve') {
       const body = await request.json().catch(() => ({}));

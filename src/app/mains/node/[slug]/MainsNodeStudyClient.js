@@ -56,6 +56,7 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
       return (
         <div className="mains-sections-stack">
           {Object.entries(mainsNote).map(([key, val]) => {
+            if (!val) return null;
             const formattedKey = key
               .split('_')
               .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -64,9 +65,22 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
             let valStr = '';
             if (typeof val === 'string') {
               valStr = val;
+            } else if (Array.isArray(val)) {
+              valStr = val.map(item => (typeof item === 'string' ? `- ${item}` : `- ${JSON.stringify(item)}`)).join('\n');
             } else if (typeof val === 'object') {
               valStr = Object.entries(val)
-                .map(([subKey, subVal]) => `**${subKey.charAt(0).toUpperCase() + subKey.slice(1)}**: ${subVal}`)
+                .map(([subKey, subVal]) => {
+                  const isGenericKey = /^(dimension|challenge|point|item)[_\s]*\d+$/i.test(subKey);
+                  if (isGenericKey && typeof subVal === 'string' && subVal.includes(':')) {
+                    const idx = subVal.indexOf(':');
+                    return `**${subVal.slice(0, idx).trim()}**: ${subVal.slice(idx + 1).trim()}`;
+                  }
+                  const cleanSubKey = subKey
+                    .split('_')
+                    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+                    .join(' ');
+                  return `**${cleanSubKey}**: ${typeof subVal === 'string' ? subVal : JSON.stringify(subVal)}`;
+                })
                 .join('\n\n');
             }
 
@@ -115,6 +129,27 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
       }
     }
 
+    // Fallback: synthesize from prelimsNote structured facts if mainsFacts / nodeContent.facts are empty
+    if (factsList.length === 0 && issue.prelimsNote && typeof issue.prelimsNote === 'object') {
+      const p = issue.prelimsNote;
+      if (Array.isArray(p.institutional_mechanisms_and_mandates)) {
+        p.institutional_mechanisms_and_mandates.forEach(item => factsList.push(String(item)));
+      }
+      if (Array.isArray(p.key_dimensions_and_facts)) {
+        p.key_dimensions_and_facts.forEach(item => factsList.push(String(item)));
+      }
+      if (Array.isArray(p.key_scholars_and_models)) {
+        p.key_scholars_and_models.forEach(item => factsList.push(String(item)));
+      }
+      const traps = p.prelims_traps_and_key_facts || p.concepts_to_remember;
+      if (traps && typeof traps === 'object') {
+        Object.entries(traps).forEach(([k, v]) => {
+          const cleanK = k.replace(/_/g, ' ');
+          factsList.push(`**${cleanK}:** ${v}`);
+        });
+      }
+    }
+
     if (factsList.length === 0) {
       return <p className="empty-text">No core facts or data sets indexed for this topic.</p>;
     }
@@ -135,7 +170,27 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
 
   // Helper to render value additions
   const renderValueAdd = () => {
-    if (!issue.valueAddition) {
+    let valAddText = issue.valueAddition || '';
+
+    if (!valAddText && issue.prelimsNote && typeof issue.prelimsNote === 'object') {
+      const lines = [];
+      const p = issue.prelimsNote;
+      if (p.constitutional_and_statutory_framework) {
+        lines.push(`**Constitutional & Statutory Anchor:** ${p.constitutional_and_statutory_framework}`);
+      }
+      if (p.core_theory_and_postulates) {
+        lines.push(`**Core Theoretical Postulates:** ${p.core_theory_and_postulates}`);
+      }
+      if (Array.isArray(p.landmark_judgments_committees_and_treaties)) {
+        lines.push(`**Landmark Judgments, Committees & Conventions:**\n` + p.landmark_judgments_committees_and_treaties.map(x => `- ${x}`).join('\n'));
+      }
+      if (issue.metadata?.importanceNote) {
+        lines.push(`**UPSC Analytical Lens:** ${issue.metadata.importanceNote}`);
+      }
+      valAddText = lines.join('\n\n');
+    }
+
+    if (!valAddText) {
       return <p className="empty-text">No value addition notes compiled for this topic yet.</p>;
     }
 
@@ -147,7 +202,7 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
             <h4>Value Addition Material</h4>
           </div>
           <div className="value-add-card-body">
-            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={SAFE_REHYPE_PLUGINS}>{issue.valueAddition}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={SAFE_REHYPE_PLUGINS}>{valAddText}</ReactMarkdown>
           </div>
         </div>
       </div>
@@ -181,6 +236,28 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
       }
     }
 
+    if (caseStudiesList.length === 0 && issue.prelimsNote && typeof issue.prelimsNote === 'object') {
+      const p = issue.prelimsNote;
+      const examples = p.landmark_judgments_committees_and_treaties || p.indian_and_global_landform_examples || p.indian_and_global_case_studies;
+      if (Array.isArray(examples)) {
+        examples.forEach((ex, i) => {
+          const str = String(ex);
+          const colonIdx = str.indexOf(':');
+          if (colonIdx > 2 && colonIdx < 80) {
+            caseStudiesList.push({
+              title: str.slice(0, colonIdx).trim(),
+              content: str.slice(colonIdx + 1).trim(),
+            });
+          } else {
+            caseStudiesList.push({
+              title: `Reference Case ${i + 1}`,
+              content: str,
+            });
+          }
+        });
+      }
+    }
+
     if (caseStudiesList.length === 0) {
       return <p className="empty-text">No specialized case studies logged for this topic yet.</p>;
     }
@@ -204,7 +281,13 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
 
   // Helper to render pyqs & possible questions
   const renderQuestions = () => {
-    const hasPossibleQs = !!issue.possibleQuestions;
+    const metaAngles = issue.metadata?.examAngles || issue.metadata?.pyqAngles || [];
+    const possibleQsText = issue.possibleQuestions || (
+      Array.isArray(metaAngles) && metaAngles.length > 0
+        ? metaAngles.map((q, idx) => `**Q${idx + 1}.** ${q}`).join('\n\n')
+        : ''
+    );
+    const hasPossibleQs = !!possibleQsText;
     const hasPyqs = issue.pyqLinks && issue.pyqLinks.length > 0;
 
     if (!hasPossibleQs && !hasPyqs) {
@@ -217,7 +300,7 @@ export default function MainsNodeStudyClient({ issue, articles = [], sessionExis
           <div className="questions-section">
             <h4 className="questions-section-title">Possible Questions & Practice Drills</h4>
             <div className="questions-box">
-              <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={SAFE_REHYPE_PLUGINS}>{issue.possibleQuestions}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={SAFE_REHYPE_PLUGINS}>{possibleQsText}</ReactMarkdown>
             </div>
           </div>
         )}
