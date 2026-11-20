@@ -358,7 +358,8 @@ export function isJsonPopulated(val) {
 }
 
 /**
- * Checks whether an Issue row has populated JSON/study content for SEO indexing.
+ * Checks whether an Issue row has populated JSON study notes (prelimsNote or mainsNote)
+ * for SEO indexing (`index, follow`) and `/sitemap.xml` inclusion.
  * @param {object} issue
  * @returns {boolean}
  */
@@ -366,9 +367,7 @@ export function isIssueJsonPopulated(issue) {
   if (!issue) return false;
   return (
     isJsonPopulated(issue.prelimsNote) ||
-    isJsonPopulated(issue.mainsNote) ||
-    isJsonPopulated(issue.metadata) ||
-    Boolean(typeof issue.cumulativeSummary === 'string' && issue.cumulativeSummary.trim())
+    isJsonPopulated(issue.mainsNote)
   );
 }
 

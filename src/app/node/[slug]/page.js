@@ -280,6 +280,16 @@ export default async function NodeDetailPage({ params }) {
               </section>
             ) : null}
 
+            {!prelimsPayload && !mainsPayload && (
+              <section className="node-section content-status">
+                <h2 className="section-title">Study Material</h2>
+                <div className="coming-soon-box">
+                  <p>Detailed faculty-curated notes for <strong>{node.title}</strong> are being updated.</p>
+                  <Link href={`/prelims/pyq?subject=${encodeURIComponent(catalogNode?.subject || 'ALL')}`} className="legacy-link">Practice Prelims PYQs →</Link>
+                </div>
+              </section>
+            )}
+
             {examAngles.length > 0 && (
               <section className="node-section" style={{ marginTop: 20 }}>
                 <h2 className="section-title">UPSC Mains &amp; Analytical Framings</h2>
